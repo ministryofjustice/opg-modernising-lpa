@@ -57,22 +57,23 @@ func (e CertificateProviderCertificateProvidedEmail) emailID(isProduction bool) 
 }
 
 type CertificateProviderInviteEmail struct {
-	DonorFullName               string
-	LpaType                     string
-	CertificateProviderFullName string
-	DonorFirstNames             string
-	DonorFirstNamesPossessive   string
-	WhatLpaCovers               string
-	CertificateProviderStartURL string
-	ShareCode                   string
+	DonorFullName                string
+	LpaType                      string
+	CertificateProviderFullName  string
+	DonorFirstNames              string
+	DonorFirstNamesPossessive    string
+	WhatLpaCovers                string
+	CertificateProviderStartURL  string
+	ShareCode                    string
+	CertificateProviderOptOutURL string
 }
 
 func (e CertificateProviderInviteEmail) emailID(isProduction bool) string {
 	if isProduction {
-		return "e54a553b-68e3-46f2-b2bd-4465ee85062d"
+		return "08a8d89d-e5b7-4bb9-94d2-25139543e962"
 	}
 
-	return "829c2aab-a8bd-4fd4-a1e2-9dd03b142e7c"
+	return "5b4cb108-4eb1-479a-a83f-87f36799c284"
 }
 
 type CertificateProviderProvideCertificatePromptEmail struct {

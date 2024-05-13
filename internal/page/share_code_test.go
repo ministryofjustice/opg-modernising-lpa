@@ -58,14 +58,15 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
-			ShareCode:                   testRandomString,
-			CertificateProviderFullName: "Joanna Jones",
-			DonorFirstNames:             "Jan",
-			DonorFullName:               "Jan Smith",
-			LpaType:                     "property and affairs",
-			CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-			DonorFirstNamesPossessive:   "Jan’s",
-			WhatLpaCovers:               "houses and stuff",
+			ShareCode:                    testRandomString,
+			CertificateProviderFullName:  "Joanna Jones",
+			DonorFirstNames:              "Jan",
+			DonorFullName:                "Jan Smith",
+			LpaType:                      "property and affairs",
+			CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+			DonorFirstNamesPossessive:    "Jan’s",
+			WhatLpaCovers:                "houses and stuff",
+			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 
@@ -149,27 +150,29 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
-					CertificateProviderFullName: "Joanna Jones",
-					DonorFirstNames:             "Jan",
-					DonorFullName:               "Jan Smith",
-					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-					ShareCode:                   tc.expectedTestCode,
-					DonorFirstNamesPossessive:   "Jan’s",
-					WhatLpaCovers:               "houses and stuff",
+					CertificateProviderFullName:  "Joanna Jones",
+					DonorFirstNames:              "Jan",
+					DonorFullName:                "Jan Smith",
+					LpaType:                      "property and affairs",
+					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					ShareCode:                    tc.expectedTestCode,
+					DonorFirstNamesPossessive:    "Jan’s",
+					WhatLpaCovers:                "houses and stuff",
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, "name@example.org", "lpa-uid", notify.CertificateProviderInviteEmail{
-					CertificateProviderFullName: "Joanna Jones",
-					DonorFirstNames:             "Jan",
-					DonorFullName:               "Jan Smith",
-					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
-					ShareCode:                   testRandomString,
-					DonorFirstNamesPossessive:   "Jan’s",
-					WhatLpaCovers:               "houses and stuff",
+					CertificateProviderFullName:  "Joanna Jones",
+					DonorFirstNames:              "Jan",
+					DonorFullName:                "Jan Smith",
+					LpaType:                      "property and affairs",
+					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					ShareCode:                    testRandomString,
+					DonorFirstNamesPossessive:    "Jan’s",
+					WhatLpaCovers:                "houses and stuff",
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)

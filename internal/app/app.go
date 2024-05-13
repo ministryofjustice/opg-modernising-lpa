@@ -174,13 +174,13 @@ func App(
 		shareCodeStore,
 		errorHandler,
 		certificateProviderStore,
-		notFoundHandler,
 		addressClient,
 		notifyClient,
 		shareCodeSender,
 		dashboardStore,
 		lpaStoreClient,
 		lpaStoreResolvingService,
+		donorStore,
 	)
 
 	attorney.Register(

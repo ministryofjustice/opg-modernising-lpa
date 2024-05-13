@@ -235,24 +235,28 @@ type AttorneyPaths struct {
 }
 
 type CertificateProviderPaths struct {
-	Login                Path
-	LoginCallback        Path
-	EnterReferenceNumber Path
+	Login                                           Path
+	LoginCallback                                   Path
+	EnterReferenceNumber                            Path
+	EnterReferenceNumberOptOut                      Path
+	ConfirmDontWantToBeCertificateProviderLoggedOut Path
+	YouHaveDecidedNotToBeACertificateProvider       Path
 
-	CertificateProvided          CertificateProviderPath
-	ConfirmYourDetails           CertificateProviderPath
-	EnterDateOfBirth             CertificateProviderPath
-	IdentityWithOneLogin         CertificateProviderPath
-	IdentityWithOneLoginCallback CertificateProviderPath
-	ProveYourIdentity            CertificateProviderPath
-	ProvideCertificate           CertificateProviderPath
-	ReadTheLpa                   CertificateProviderPath
-	TaskList                     CertificateProviderPath
-	WhatHappensNext              CertificateProviderPath
-	WhatIsYourHomeAddress        CertificateProviderPath
-	WhoIsEligible                CertificateProviderPath
-	YourPreferredLanguage        CertificateProviderPath
-	YourRole                     CertificateProviderPath
+	CertificateProvided                    CertificateProviderPath
+	ConfirmDontWantToBeCertificateProvider CertificateProviderPath
+	ConfirmYourDetails                     CertificateProviderPath
+	EnterDateOfBirth                       CertificateProviderPath
+	IdentityWithOneLogin                   CertificateProviderPath
+	IdentityWithOneLoginCallback           CertificateProviderPath
+	ProveYourIdentity                      CertificateProviderPath
+	ProvideCertificate                     CertificateProviderPath
+	ReadTheLpa                             CertificateProviderPath
+	TaskList                               CertificateProviderPath
+	WhatHappensNext                        CertificateProviderPath
+	WhatIsYourHomeAddress                  CertificateProviderPath
+	WhoIsEligible                          CertificateProviderPath
+	YourPreferredLanguage                  CertificateProviderPath
+	YourRole                               CertificateProviderPath
 }
 
 type HealthCheckPaths struct {
@@ -413,23 +417,27 @@ type AppPaths struct {
 
 var Paths = AppPaths{
 	CertificateProvider: CertificateProviderPaths{
-		CertificateProvided:          "/certificate-provided",
-		ConfirmYourDetails:           "/confirm-your-details",
-		EnterDateOfBirth:             "/enter-date-of-birth",
-		EnterReferenceNumber:         "/certificate-provider-enter-reference-number",
-		IdentityWithOneLogin:         "/identity-with-one-login",
-		IdentityWithOneLoginCallback: "/identity-with-one-login-callback",
-		Login:                        "/certificate-provider-login",
-		LoginCallback:                "/certificate-provider-login-callback",
-		ProveYourIdentity:            "/prove-your-identity",
-		ProvideCertificate:           "/provide-certificate",
-		ReadTheLpa:                   "/read-the-lpa",
-		TaskList:                     "/task-list",
-		WhatHappensNext:              "/what-happens-next",
-		WhatIsYourHomeAddress:        "/what-is-your-home-address",
-		WhoIsEligible:                "/certificate-provider-who-is-eligible",
-		YourPreferredLanguage:        "/your-preferred-language",
-		YourRole:                     "/your-role",
+		CertificateProvided:                             "/certificate-provided",
+		ConfirmDontWantToBeCertificateProvider:          "/confirm-you-do-not-want-to-be-a-certificate-provider",
+		ConfirmDontWantToBeCertificateProviderLoggedOut: "/confirm-you-do-not-want-to-be-a-certificate-provider",
+		ConfirmYourDetails:                              "/confirm-your-details",
+		EnterDateOfBirth:                                "/enter-date-of-birth",
+		EnterReferenceNumber:                            "/certificate-provider-enter-reference-number",
+		EnterReferenceNumberOptOut:                      "/certificate-provider-enter-reference-number-opt-out",
+		IdentityWithOneLogin:                            "/identity-with-one-login",
+		IdentityWithOneLoginCallback:                    "/identity-with-one-login-callback",
+		Login:                                           "/certificate-provider-login",
+		LoginCallback:                                   "/certificate-provider-login-callback",
+		ProveYourIdentity:                               "/prove-your-identity",
+		ProvideCertificate:                              "/provide-certificate",
+		ReadTheLpa:                                      "/read-the-lpa",
+		TaskList:                                        "/task-list",
+		WhatHappensNext:                                 "/what-happens-next",
+		WhatIsYourHomeAddress:                           "/what-is-your-home-address",
+		WhoIsEligible:                                   "/certificate-provider-who-is-eligible",
+		YouHaveDecidedNotToBeACertificateProvider:       "/you-have-decided-not-to-be-a-certificate-provider",
+		YourPreferredLanguage:                           "/your-preferred-language",
+		YourRole:                                        "/your-role",
 	},
 
 	Attorney: AttorneyPaths{
