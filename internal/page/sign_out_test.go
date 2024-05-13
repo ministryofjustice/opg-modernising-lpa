@@ -41,7 +41,7 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("unable to end onelogin session", slog.Any("err", expectedError))
+		InfoContext(r.Context(), "unable to end onelogin session", slog.Any("err", expectedError))
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -70,7 +70,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Info("unable to expire session", slog.Any("err", expectedError))
+		InfoContext(r.Context(), "unable to expire session", slog.Any("err", expectedError))
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

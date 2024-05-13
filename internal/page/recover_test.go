@@ -38,7 +38,7 @@ func TestRecover(t *testing.T) {
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
-				Error("recover error",
+				ErrorContext(r.Context(), "recover error",
 					slog.Any("req", r),
 					mock.MatchedBy(func(a slog.Attr) bool {
 						return assert.ErrorContains(t, a.Value.Any().(error), "runtime error")
@@ -74,9 +74,9 @@ func TestRecoverWhenTemplateErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		Error("recover error", mock.Anything, mock.Anything, mock.Anything)
+		ErrorContext(r.Context(), "recover error", mock.Anything, mock.Anything, mock.Anything)
 	logger.EXPECT().
-		Error("error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
+		ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", expectedError))
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().

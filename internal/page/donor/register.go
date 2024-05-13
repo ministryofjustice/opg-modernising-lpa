@@ -33,9 +33,9 @@ type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, don
 type Template func(io.Writer, interface{}) error
 
 type Logger interface {
-	Info(msg string, args ...any)
-	Warn(msg string, args ...any)
-	Error(msg string, args ...any)
+	InfoContext(ctx context.Context, msg string, args ...any)
+	WarnContext(ctx context.Context, msg string, args ...any)
+	ErrorContext(ctx context.Context, msg string, args ...any)
 }
 
 type DonorStore interface {
