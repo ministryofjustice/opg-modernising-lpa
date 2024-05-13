@@ -301,7 +301,7 @@ func TestClientSendCertificateProviderOptOut(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProviderOptOut(ctx, "lpa-uid")
+	err := client.SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service)
 
 	assert.Nil(t, err)
 }

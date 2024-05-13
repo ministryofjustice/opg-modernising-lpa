@@ -105,7 +105,7 @@ func TestPostConfirmDontWantToBeCertificateProviderSignedIn(t *testing.T) {
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(ctx, "lpa-uid").
+					SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service).
 					Return(nil)
 
 				return lpaStoreClient
@@ -175,7 +175,7 @@ func TestPostConfirmDontWantToBeCertificateProviderNotSignedIn(t *testing.T) {
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(ctx, "lpa-uid").
+					SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service).
 					Return(nil)
 
 				return lpaStoreClient
@@ -286,7 +286,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(mock.Anything, mock.Anything).
+					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return lpaStoreClient
@@ -349,7 +349,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(mock.Anything, mock.Anything).
+					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return lpaStoreClient
@@ -376,7 +376,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(mock.Anything, mock.Anything).
+					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return lpaStoreClient

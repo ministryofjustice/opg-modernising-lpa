@@ -82,7 +82,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
-	SendCertificateProviderOptOut(ctx context.Context, lpaUID string) error
+	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
