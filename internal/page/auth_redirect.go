@@ -11,12 +11,12 @@ func AuthRedirect(logger Logger, sessionStore SessionStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
-			logger.Info("problem retrieving onelogin session", slog.Any("err", err))
+			logger.InfoContext(r.Context(), "problem retrieving onelogin session", slog.Any("err", err))
 			return
 		}
 
 		if oneLoginSession.State != r.FormValue("state") {
-			logger.Info("state incorrect")
+			logger.InfoContext(r.Context(), "state incorrect")
 			return
 		}
 

@@ -57,7 +57,7 @@ func (d *chooseAddressData) overrideTitleKeys(newTitleKeys titleKeys) {
 func lookupAddress(ctx context.Context, logger Logger, addressClient AddressClient, data *chooseAddressData, your bool) {
 	addresses, err := addressClient.LookupPostcode(ctx, data.Form.LookupPostcode)
 	if err != nil {
-		logger.Info("postcode lookup", slog.Any("err", err))
+		logger.InfoContext(ctx, "postcode lookup", slog.Any("err", err))
 
 		if errors.As(err, &place.BadRequestError{}) {
 			data.Errors.Add("lookup-postcode", validation.EnterError{Label: "invalidPostcode"})
