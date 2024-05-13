@@ -69,22 +69,6 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 	return &attorney, err
 }
 
-func (s *attorneyStore) GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.LpaID == "" {
-		return nil, errors.New("attorneyStore.GetAny requires LpaID")
-	}
-
-	var attorneys []*actor.AttorneyProvidedDetails
-	err = s.dynamoClient.AllByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.AttorneyKey(""), &attorneys)
-
-	return attorneys, err
-}
-
 func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
 	attorney.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, attorney)
