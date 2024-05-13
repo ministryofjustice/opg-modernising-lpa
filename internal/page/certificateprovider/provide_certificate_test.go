@@ -465,7 +465,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 
 	form := url.Values{
 		"agree-to-statement": {" 1   "},
-		"submittable":        {"submit"},
+		"submittable":        {"can-submit"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -474,7 +474,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 	result := readProvideCertificateForm(r)
 
 	assert.Equal(true, result.AgreeToStatement)
-	assert.Equal("submit", result.Submittable)
+	assert.Equal("can-submit", result.Submittable)
 }
 
 func TestProvideCertificateFormValidate(t *testing.T) {
