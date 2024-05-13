@@ -159,7 +159,6 @@ func App(
 		searchClient,
 		donorStore,
 		shareCodeStore,
-		attorneyStore,
 		progressTracker,
 		lpaStoreResolvingService,
 	)
@@ -189,7 +188,6 @@ func App(
 		tmpls,
 		attorneyTmpls,
 		sessionStore,
-		certificateProviderStore,
 		attorneyStore,
 		oneLoginClient,
 		shareCodeStore,
@@ -215,7 +213,6 @@ func App(
 		witnessCodeSender,
 		errorHandler,
 		certificateProviderStore,
-		attorneyStore,
 		notifyClient,
 		evidenceReceivedStore,
 		documentStore,

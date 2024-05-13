@@ -24,7 +24,7 @@ type taskListItem struct {
 	Count int
 }
 
-func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
+func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorney *actor.AttorneyProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -34,14 +34,9 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		tasks := attorney.Tasks
 
 		var signPath string
-		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() {
-			ok, err := canSign(r.Context(), certificateProviderStore, lpa)
-			if err != nil {
-				return err
-			}
-			if ok {
-				signPath = page.Paths.Attorney.RightsAndResponsibilities.Format(lpa.LpaID)
-			}
+		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() &&
+			!lpa.SignedAt.IsZero() && !lpa.CertificateProvider.SignedAt.IsZero() {
+			signPath = page.Paths.Attorney.RightsAndResponsibilities.Format(lpa.LpaID)
 		}
 
 		signItems := []taskListItem{{
