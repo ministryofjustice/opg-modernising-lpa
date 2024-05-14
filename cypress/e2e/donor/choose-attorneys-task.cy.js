@@ -1,4 +1,4 @@
-import { TestEmail } from "../../support/e2e";
+import { AddressFormAssertions, TestEmail } from "../../support/e2e";
 
 describe.skip('Choose attorneys task', () => {
   it('is not started when no attorneys are set', () => {
@@ -20,7 +20,10 @@ describe.skip('Choose attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (1)');
+    cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
+      cy.contains('In progress');
+      cy.contains('1 added');
+    });
   });
 
   it('is completed if enter an attorneys details', () => {
@@ -37,7 +40,10 @@ describe.skip('Choose attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your attorneys').parent().parent().contains('1 added');
+    cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
+      cy.contains('Completed');
+      cy.contains('1 added');
+    });
   });
 
   it('is completed if enter an attorneys details using address', () => {
@@ -53,7 +59,10 @@ describe.skip('Choose attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (1)');
+    cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
+      cy.contains('In progress');
+      cy.contains('1 added');
+    });
     cy.go('back');
 
     cy.contains('label', 'Enter a new address').click();
@@ -85,7 +94,10 @@ describe.skip('Choose attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your attorneys').parent().parent().contains('In progress (2)');
+    cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
+      cy.contains('In progress');
+      cy.contains('2 added');
+    });
   });
 
   it('is completed if I enter multiple attorneys details with how they act', () => {
@@ -106,7 +118,7 @@ describe.skip('Choose attorneys task', () => {
 
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();
-    cy.contains('button', 'Skip').click();
+    AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
     cy.contains('label', 'No').click();
     cy.contains('button', 'Continue').click();
@@ -136,7 +148,7 @@ describe.skip('Choose attorneys task', () => {
 
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();
-    cy.contains('button', 'Skip').click();
+    AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
     cy.contains('label', 'No').click();
     cy.contains('button', 'Continue').click();

@@ -41,12 +41,6 @@
             <button name="{{ .Form.FieldNames.Action }}" value="manual" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
-
-            {{ if .CanSkip }}
-              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                {{ tr .App "skip" }}
-              </button>
-            {{ end }}
           </div>
 
         {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
@@ -88,12 +82,6 @@
             <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">
               {{ tr .App "continue" }}
             </button>
-
-            {{ if .CanSkip }}
-              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                {{ tr .App "skip" }}
-              </button>
-            {{ end }}
           </div>
 
         {{ else if eq .Form.Action "postcode" }}
@@ -128,12 +116,6 @@
             <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
               {{ tr .App "findAddress" }}
             </button>
-
-            {{ if .CanSkip }}
-              <button name="{{ .Form.FieldNames.Action }}" value="skip" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                {{ tr .App "skip" }}
-              </button>
-            {{ end }}
           </div>
 
         {{ else if eq .Form.Action "reuse" "reuse-select" }}
