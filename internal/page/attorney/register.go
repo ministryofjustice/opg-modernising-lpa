@@ -51,14 +51,9 @@ type ShareCodeStore interface {
 	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
 }
 
-type CertificateProviderStore interface {
-	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-}
-
 type AttorneyStore interface {
 	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
 	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
-	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
 
@@ -82,7 +77,6 @@ func Register(
 	logger Logger,
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
-	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
 	shareCodeStore ShareCodeStore,
@@ -106,7 +100,7 @@ func Register(
 	handleAttorney(page.Paths.Attorney.CodeOfConduct, None,
 		Guidance(tmpls.Get("code_of_conduct.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.TaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService, certificateProviderStore))
+		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.MobileNumber, None,
 		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
 	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, CanGoBack,
@@ -120,7 +114,7 @@ func Register(
 	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.Sign, CanGoBack,
-		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, certificateProviderStore, attorneyStore, lpaStoreClient, time.Now))
+		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now))
 	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, None,
 		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, lpaStoreResolvingService, lpaStoreClient))
 	handleAttorney(page.Paths.Attorney.WhatHappensNext, None,

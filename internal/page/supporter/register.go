@@ -58,10 +58,6 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
-type AttorneyStore interface {
-	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
-}
-
 type Localizer interface {
 	page.Localizer
 }
@@ -113,7 +109,6 @@ func Register(
 	searchClient *search.Client,
 	donorStore DonorStore,
 	shareCodeStore ShareCodeStore,
-	attorneyStore AttorneyStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
