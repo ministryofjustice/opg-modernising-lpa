@@ -78,23 +78,23 @@ jobs:
         env:
           VERSION: v0.594.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.11
         run: |
-          echo "Pulling AV lambda version: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "Pulling AV lambda version: $VERSION" # >> $GITHUB_STEP_SUMMARY
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/lambda_layer-amd64.zip -O lambda_layer.zip
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
           sha256sum -c "lambda_layer.zip.sha256sum"
-          echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+          echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" # >> $GITHUB_STEP_SUMMARY
 
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/myFunction-amd64.zip -O myFunction.zip
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
           sha256sum -c "myFunction.zip.sha256sum"
-          echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256)" >> $GITHUB_STEP_SUMMARY
+          echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256)" # >> $GITHUB_STEP_SUMMARY
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
         run: |
           if [ -f ./versions.tf ]; then
             terraform_version=$(cat ./versions.tf | ../../scripts/terraform-version.sh)
-            echo "- Terraform version: [${terraform_version}]" >> $GITHUB_STEP_SUMMARY
+            echo "- Terraform version: [${terraform_version}]" # >> $GITHUB_STEP_SUMMARY
             echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
           fi
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
