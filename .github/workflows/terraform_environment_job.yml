@@ -73,6 +73,11 @@ jobs:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'
       - uses: unfor19/install-aws-cli-action@v1
+      - name: get lambda function zips
+        working-directory: ./terraform/environment
+        run: |
+          curl -L https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/v0.593.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.2/lambda_layer-amd64.zip > region/modules/s3_antivirus/lambda_layer.zip
+          curl -L https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/v0.593.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.2/myFunction-amd64.zip > region/modules/s3_antivirus/myFunction.zip
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment

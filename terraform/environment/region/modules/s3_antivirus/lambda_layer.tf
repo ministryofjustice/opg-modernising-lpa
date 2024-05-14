@@ -1,0 +1,53 @@
+resource "aws_lambda_layer_version" "lambda_layer" {
+  filename                 = "${path.module}/lambda_layer.zip"
+  layer_name               = "clamav-${data.aws_default_tags.current.tags.environment-name}"
+  description              = "ClamAV Antivirus Layer"
+  source_code_hash         = filebase64sha256("${path.module}/lambda_layer.zip")
+  compatible_architectures = ["x86_64"]
+  compatible_runtimes      = ["provided.al2023"]
+  provider                 = aws.region
+}
+
+resource "aws_lambda_function" "zip_lambda_function" {
+  function_name    = "zip-s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
+  description      = "Function to scan S3 objects for viruses"
+  filename         = "${path.module}/myFunction.zip"
+  handler          = "bootstrap"
+  source_code_hash = filebase64sha256("${path.module}/myFunction.zip")
+
+  architectures = ["x86_64"]
+  runtime       = "provided.al2023"
+  timeout       = 300
+  memory_size   = 4096
+  publish       = true
+
+  layers = [
+    aws_lambda_layer_version.lambda_layer.arn
+  ]
+
+  role = var.lambda_task_role.arn
+
+  tracing_config {
+    mode = "Active"
+  }
+
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.lambda.name
+    log_format = "JSON"
+  }
+
+  dynamic "environment" {
+    for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
+    content {
+      variables = var.environment_variables
+    }
+  }
+  provider = aws.region
+}
+
+resource "aws_lambda_alias" "zip_lambda_alias" {
+  name             = "latest"
+  function_name    = aws_lambda_function.zip_lambda_function.function_name
+  function_version = aws_lambda_function.zip_lambda_function.version
+  provider         = aws.region
+}
