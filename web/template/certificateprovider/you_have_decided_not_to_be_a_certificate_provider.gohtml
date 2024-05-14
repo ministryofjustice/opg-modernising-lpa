@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "thankYou" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">{{ tr .App "thankYou" }}</h1>
+                <div class="govuk-panel__body">
+                    {{ trFormat .App "weHaveContactedDonorToLetThemKnowYourDecision" "DonorFullName" .DonorFullName }}
+                </div>
+            </div>
+
+            {{ trHtml .App "reportAConcernContent" }}
+        </div>
+    </div>
+{{ end }}

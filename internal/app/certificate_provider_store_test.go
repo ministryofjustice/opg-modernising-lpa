@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -234,4 +235,57 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 
 	err := certificateProviderStore.Put(ctx, &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestCertificateProviderStoreDelete(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey("456")).
+		Return(nil)
+
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
+
+	err := certificateProviderStore.Delete(ctx)
+	assert.Nil(t, err)
+}
+
+func TestCertificateProviderStoreDeleteWhenMissingSessionValues(t *testing.T) {
+	testcases := map[string]struct {
+		lpaID     string
+		sessionID string
+	}{
+		"missing LpaID": {
+			sessionID: "456",
+		},
+		"missing SessionID": {
+			lpaID: "123",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: tc.lpaID, SessionID: tc.sessionID})
+
+			certificateProviderStore := &certificateProviderStore{}
+
+			err := certificateProviderStore.Delete(ctx)
+			assert.Error(t, err)
+		})
+	}
+}
+
+func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
+
+	err := certificateProviderStore.Delete(ctx)
+	assert.Equal(t, fmt.Errorf("error deleting certificate provider: %w", expectedError), err)
 }
