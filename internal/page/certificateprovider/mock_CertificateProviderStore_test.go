@@ -87,17 +87,17 @@ func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, certificateProvider
-func (_m *mockCertificateProviderStore) Delete(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
-	ret := _m.Called(ctx, certificateProvider)
+// Delete provides a mock function with given fields: ctx
+func (_m *mockCertificateProviderStore) Delete(ctx context.Context) error {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.CertificateProviderProvidedDetails) error); ok {
-		r0 = rf(ctx, certificateProvider)
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -112,14 +112,13 @@ type mockCertificateProviderStore_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - certificateProvider *actor.CertificateProviderProvidedDetails
-func (_e *mockCertificateProviderStore_Expecter) Delete(ctx interface{}, certificateProvider interface{}) *mockCertificateProviderStore_Delete_Call {
-	return &mockCertificateProviderStore_Delete_Call{Call: _e.mock.On("Delete", ctx, certificateProvider)}
+func (_e *mockCertificateProviderStore_Expecter) Delete(ctx interface{}) *mockCertificateProviderStore_Delete_Call {
+	return &mockCertificateProviderStore_Delete_Call{Call: _e.mock.On("Delete", ctx)}
 }
 
-func (_c *mockCertificateProviderStore_Delete_Call) Run(run func(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails)) *mockCertificateProviderStore_Delete_Call {
+func (_c *mockCertificateProviderStore_Delete_Call) Run(run func(ctx context.Context)) *mockCertificateProviderStore_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.CertificateProviderProvidedDetails))
+		run(args[0].(context.Context))
 	})
 	return _c
 }
@@ -129,7 +128,7 @@ func (_c *mockCertificateProviderStore_Delete_Call) Return(_a0 error) *mockCerti
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Delete_Call) RunAndReturn(run func(context.Context, *actor.CertificateProviderProvidedDetails) error) *mockCertificateProviderStore_Delete_Call {
+func (_c *mockCertificateProviderStore_Delete_Call) RunAndReturn(run func(context.Context) error) *mockCertificateProviderStore_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }

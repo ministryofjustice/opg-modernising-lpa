@@ -32,7 +32,7 @@ type Logger interface {
 
 type CertificateProviderStore interface {
 	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
-	Delete(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }

@@ -49,12 +49,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 				}
 			}
 
-			certificateProvider, err := certificateProviderStore.Get(r.Context())
-			if err != nil {
-				return err
-			}
-
-			if err := certificateProviderStore.Delete(r.Context(), certificateProvider); err != nil {
+			if err := certificateProviderStore.Delete(r.Context()); err != nil {
 				return err
 			}
 

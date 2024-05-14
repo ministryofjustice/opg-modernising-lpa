@@ -89,8 +89,17 @@ func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider 
 	return s.dynamoClient.Put(ctx, certificateProvider)
 }
 
-func (s *certificateProviderStore) Delete(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
-	if err := s.dynamoClient.DeleteOne(ctx, certificateProvider.PK, certificateProvider.SK); err != nil {
+func (s *certificateProviderStore) Delete(ctx context.Context) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.LpaID == "" || data.SessionID == "" {
+		return errors.New("certificateProviderStore.Delete requires LpaID and SessionID")
+	}
+
+	if err := s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID)); err != nil {
 		return fmt.Errorf("error deleting certificate provider: %w", err)
 	}
 

@@ -1,6 +1,7 @@
 package certificateprovider
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -92,7 +93,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
@@ -156,10 +157,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
-				Get(r.Context()).
-				Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-			certificateProviderStore.EXPECT().
-				Delete(r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}).
+				Delete(r.Context()).
 				Return(nil)
 
 			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore)(testAppData, w, r)
@@ -273,41 +271,6 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			},
 			certificateProviderStore: func() *mockCertificateProviderStore { return nil },
 		},
-		"when certificateProviderStore.Get() error": {
-			sessionStore: func() *mockSessionStore {
-				sessionStore := newMockSessionStore(t)
-				sessionStore.EXPECT().
-					LpaData(r).
-					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
-
-				return sessionStore
-			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
-				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-				lpaStoreResolvingService.EXPECT().
-					Get(r.Context()).
-					Return(&signedLPA, nil)
-
-				return lpaStoreResolvingService
-			},
-			lpaStoreClient: func() *mockLpaStoreClient {
-				lpaStoreClient := newMockLpaStoreClient(t)
-				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil)
-
-				return lpaStoreClient
-			},
-			donorStore: func() *mockDonorStore { return nil },
-			certificateProviderStore: func() *mockCertificateProviderStore {
-				certificateProviderStore := newMockCertificateProviderStore(t)
-				certificateProviderStore.EXPECT().
-					Get(mock.Anything).
-					Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
-
-				return certificateProviderStore
-			},
-		},
 		"when certificateProviderStore.Delete() error": {
 			sessionStore: func() *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
@@ -337,10 +300,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 			certificateProviderStore: func() *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
 				certificateProviderStore.EXPECT().
-					Get(mock.Anything).
-					Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-				certificateProviderStore.EXPECT().
-					Delete(mock.Anything, mock.Anything).
+					Delete(mock.Anything).
 					Return(expectedError)
 
 				return certificateProviderStore

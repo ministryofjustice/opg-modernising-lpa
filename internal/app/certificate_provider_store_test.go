@@ -238,22 +238,46 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 }
 
 func TestCertificateProviderStoreDelete(t *testing.T) {
-	ctx := context.Background()
-	certificateProvider := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123"}
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, certificateProvider.PK, certificateProvider.SK).
+		DeleteOne(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey("456")).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
 
-	err := certificateProviderStore.Delete(ctx, certificateProvider)
+	err := certificateProviderStore.Delete(ctx)
 	assert.Nil(t, err)
 }
 
+func TestCertificateProviderStoreDeleteWhenMissingSessionValues(t *testing.T) {
+	testcases := map[string]struct {
+		lpaID     string
+		sessionID string
+	}{
+		"missing LpaID": {
+			sessionID: "456",
+		},
+		"missing SessionID": {
+			lpaID: "123",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: tc.lpaID, SessionID: tc.sessionID})
+
+			certificateProviderStore := &certificateProviderStore{}
+
+			err := certificateProviderStore.Delete(ctx)
+			assert.Error(t, err)
+		})
+	}
+}
+
 func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
-	ctx := context.Background()
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -262,6 +286,6 @@ func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient}
 
-	err := certificateProviderStore.Delete(ctx, &actor.CertificateProviderProvidedDetails{})
+	err := certificateProviderStore.Delete(ctx)
 	assert.Equal(t, fmt.Errorf("error deleting certificate provider: %w", expectedError), err)
 }
