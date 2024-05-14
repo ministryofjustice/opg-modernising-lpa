@@ -76,14 +76,17 @@ jobs:
       - name: get lambda function zips
         working-directory: ./terraform/environment
         env:
-          VERSION: v0.594.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.4
+          VERSION: v0.594.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.8
         run: |
           echo "AV lambda version: $VERSION" >> $GITHUB_STEP_SUMMARY
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/lambda_layer-amd64.zip -O region/modules/s3_antivirus/lambda_layer.zip
-          sha256sum region/modules/s3_antivirus/lambda_layer.zip > region/modules/s3_antivirus/lambda_layer.zip.sha256
-          echo "Lambda Layer Zip SHA256 Hash: $(cat region/modules/s3_antivirus/lambda_layer.zip.sha256)" >> $GITHUB_STEP_SUMMARY
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/lambda_layer-amd64.zip.sha256sum -O region/modules/s3_antivirus/lambda_layer.zip.sha256sum
+          sha256sum -c "region/modules/s3_antivirus/lambda_layer.zip.sha256sum"
+          echo "Lambda Layer Zip SHA256 Hash: $(cat region/modules/s3_antivirus/lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/myFunction-amd64.zip -O region/modules/s3_antivirus/myFunction.zip
-          sha256sum region/modules/s3_antivirus/myFunction.zip > region/modules/s3_antivirus/myFunction.zip.sha256
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION/myFunction-amd64.zip.sha256sum -O region/modules/s3_antivirus/myFunction.zip.sha256sum
+          sha256sum sha256sum -c "region/modules/s3_antivirus/myFunction.zip.sha256sum"
           echo "Lambda Function Zip SHA256 Hash: $(cat region/modules/s3_antivirus/myFunction.zip.sha256)" >> $GITHUB_STEP_SUMMARY
       - name: Parse terraform version
         id: tf_version_setup
