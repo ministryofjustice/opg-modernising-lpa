@@ -173,3 +173,36 @@ func TestSetCsrf(t *testing.T) {
 	err := store.SetCsrf(r, w, values)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestLpaData(t *testing.T) {
+	values := &LpaDataSession{LpaID: "lpa-id"}
+
+	cookieStore := newMockCookieStore(t).
+		expectGet(r, cookieLPAData, "lpa-data", values)
+
+	store := &Store{s: cookieStore}
+
+	result, err := store.LpaData(r)
+	assert.Nil(t, err)
+	assert.Equal(t, values, result)
+}
+
+func TestSetLpaDataSession(t *testing.T) {
+	values := &LpaDataSession{LpaID: "lpa-id"}
+
+	cookieStore := newMockCookieStore(t).
+		expectSet(r, w, cookieLPAData, "lpa-data", values, sessionCookieOptions)
+
+	store := &Store{s: cookieStore}
+
+	err := store.SetLpaData(r, w, values)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestLpaDataSessionValid(t *testing.T) {
+	valid := &LpaDataSession{LpaID: "lpa-id"}
+	assert.True(t, valid.Valid())
+
+	invalid := &LpaDataSession{}
+	assert.False(t, invalid.Valid())
+}

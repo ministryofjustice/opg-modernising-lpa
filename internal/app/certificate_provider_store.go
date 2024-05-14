@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -86,4 +87,21 @@ func (s *certificateProviderStore) Get(ctx context.Context) (*actor.CertificateP
 func (s *certificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 	certificateProvider.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, certificateProvider)
+}
+
+func (s *certificateProviderStore) Delete(ctx context.Context) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.LpaID == "" || data.SessionID == "" {
+		return errors.New("certificateProviderStore.Delete requires LpaID and SessionID")
+	}
+
+	if err := s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID)); err != nil {
+		return fmt.Errorf("error deleting certificate provider: %w", err)
+	}
+
+	return nil
 }

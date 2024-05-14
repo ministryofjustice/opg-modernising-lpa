@@ -60,12 +60,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-
-	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r)
+	err := ProvideCertificate(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -89,30 +84,10 @@ func TestGetProvideCertificateWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetProvideCertificateWhenCertificateProviderStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
-
-	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestPostProvideCertificate(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -203,9 +178,52 @@ func TestPostProvideCertificate(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProvider.CertificateProvided.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPostProvideCertificateWhenCannotSubmit(t *testing.T) {
+	form := url.Values{
+		"agree-to-statement": {"1"},
+		"submittable":        {"cannot-submit"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	now := time.Now()
+
+	lpa := &lpastore.Lpa{
+		LpaUID:   "lpa-uid",
+		SignedAt: now,
+		CertificateProvider: lpastore.CertificateProvider{
+			Email:      "cp@example.org",
+			FirstNames: "a",
+			LastName:   "b",
+		},
+		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+		Type:  actor.LpaTypePropertyAndAffairs,
+	}
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", Email: "a@example.com"}, nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
+	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil, nil, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -237,6 +255,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -293,6 +312,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -359,6 +379,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {"1"},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -422,6 +443,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	form := url.Values{
 		"agree-to-statement": {""},
+		"submittable":        {"can-submit"},
 	}
 
 	w := httptest.NewRecorder()
@@ -459,6 +481,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 
 	form := url.Values{
 		"agree-to-statement": {" 1   "},
+		"submittable":        {"can-submit"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -467,6 +490,7 @@ func TestReadProvideCertificateForm(t *testing.T) {
 	result := readProvideCertificateForm(r)
 
 	assert.Equal(true, result.AgreeToStatement)
+	assert.Equal("can-submit", result.Submittable)
 }
 
 func TestProvideCertificateFormValidate(t *testing.T) {
