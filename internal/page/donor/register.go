@@ -54,10 +54,6 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 }
 
-type AttorneyStore interface {
-	GetAny(ctx context.Context) ([]*actor.AttorneyProvidedDetails, error)
-}
-
 type EvidenceReceivedStore interface {
 	Get(context.Context) (bool, error)
 }
@@ -171,7 +167,6 @@ func Register(
 	witnessCodeSender WitnessCodeSender,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
-	attorneyStore AttorneyStore,
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	documentStore DocumentStore,

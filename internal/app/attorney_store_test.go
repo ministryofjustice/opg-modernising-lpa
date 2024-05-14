@@ -171,39 +171,6 @@ func TestAttorneyStoreGetOnError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestAttorneyStoreGetAny(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		ExpectAllByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.AttorneyKey(""),
-			[]*actor.AttorneyProvidedDetails{{LpaID: "123"}}, nil)
-
-	attorneyStore := &attorneyStore{dynamoClient: dynamoClient}
-
-	attorney, err := attorneyStore.GetAny(ctx)
-	assert.Nil(t, err)
-	assert.Equal(t, []*actor.AttorneyProvidedDetails{{LpaID: "123"}}, attorney)
-}
-
-func TestAttorneyStoreGetAnyWhenSessionMissing(t *testing.T) {
-	ctx := context.Background()
-
-	attorneyStore := &attorneyStore{}
-
-	_, err := attorneyStore.GetAny(ctx)
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
-func TestAttorneyStoreGetAnyMissingLpaIDInSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
-
-	attorneyStore := &attorneyStore{}
-
-	_, err := attorneyStore.GetAny(ctx)
-	assert.Equal(t, errors.New("attorneyStore.GetAny requires LpaID"), err)
-}
-
 func TestAttorneyStorePut(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()

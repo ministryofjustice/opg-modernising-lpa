@@ -1,33 +1,15 @@
 package attorney
 
 import (
-	"context"
-	"errors"
 	"net/http"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
-
-func canSign(ctx context.Context, certificateProviderStore CertificateProviderStore, donor *lpastore.Lpa) (bool, error) {
-	ctx = page.ContextWithSessionData(ctx, &page.SessionData{LpaID: donor.LpaID})
-
-	certificateProvider, err := certificateProviderStore.GetAny(ctx)
-	if err != nil {
-		if errors.Is(err, dynamo.NotFoundError{}) {
-			certificateProvider = &actor.CertificateProviderProvidedDetails{}
-		} else {
-			return false, err
-		}
-	}
-
-	return !donor.SignedAt.IsZero() && certificateProvider.Signed(donor.SignedAt), nil
-}
 
 type signData struct {
 	App                         page.AppData
@@ -44,7 +26,6 @@ type signData struct {
 func Sign(
 	tmpl template.Template,
 	lpaStoreResolvingService LpaStoreResolvingService,
-	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
@@ -60,7 +41,7 @@ func Sign(
 			return err
 		}
 
-		if ok, _ := canSign(r.Context(), certificateProviderStore, lpa); !ok {
+		if lpa.SignedAt.IsZero() || lpa.CertificateProvider.SignedAt.IsZero() {
 			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
