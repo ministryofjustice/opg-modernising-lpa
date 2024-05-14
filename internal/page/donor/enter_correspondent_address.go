@@ -18,7 +18,6 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 			"correspondent",
 			donor.Correspondent.FullName(),
 			actoruid.UID{},
-			false,
 		)
 
 		if donor.Correspondent.Address.Line1 != "" {

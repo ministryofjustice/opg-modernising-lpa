@@ -20,7 +20,6 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			"replacementAttorney",
 			attorney.FullName(),
 			attorney.UID,
-			true,
 		)
 
 		if attorney.Address.Line1 != "" {
@@ -45,9 +44,6 @@ func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, ad
 			}
 
 			switch data.Form.Action {
-			case "skip":
-				return setAddress(place.Address{})
-
 			case "manual":
 				if data.Errors.None() {
 					return setAddress(*data.Form.Address)

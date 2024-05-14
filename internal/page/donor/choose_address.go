@@ -12,13 +12,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID actoruid.UID, canSkip bool) *chooseAddressData {
+func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID actoruid.UID) *chooseAddressData {
 	return &chooseAddressData{
 		App:        appData,
 		ActorLabel: actorLabel,
 		FullName:   fullName,
 		UID:        UID,
-		CanSkip:    canSkip,
 		Form:       form.NewAddressForm(),
 		TitleKeys: titleKeys{
 			Manual:                          "personsAddress",
@@ -36,7 +35,6 @@ type chooseAddressData struct {
 	ActorLabel string
 	FullName   string
 	UID        actoruid.UID
-	CanSkip    bool
 	Addresses  []place.Address
 	Form       *form.AddressForm
 	TitleKeys  titleKeys
