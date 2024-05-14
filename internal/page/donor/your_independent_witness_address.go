@@ -18,7 +18,6 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 			"independentWitness",
 			donor.IndependentWitness.FullName(),
 			actoruid.UID{},
-			false,
 		)
 
 		if donor.IndependentWitness.Address.Line1 != "" {

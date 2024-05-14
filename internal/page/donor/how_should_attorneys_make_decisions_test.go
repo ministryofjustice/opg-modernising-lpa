@@ -85,11 +85,13 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	attorneys := actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:             "lpa-id",
-			Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
+			Attorneys:         attorneys,
 			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
@@ -97,7 +99,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}}})
+	err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: attorneys})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -147,7 +149,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:             "lpa-id",
-					Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
+					Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
 					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
 					Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 				}).
@@ -157,7 +159,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
-				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Email: "a"}, {FirstNames: "b", Email: "b"}}},
+				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
 				AttorneyDecisions: actor.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
 			})
 			resp := w.Result()

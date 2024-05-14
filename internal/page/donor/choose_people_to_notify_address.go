@@ -24,7 +24,6 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			"personToNotify",
 			personToNotify.FullName(),
 			personToNotify.UID,
-			false,
 		)
 
 		if personToNotify.Address.Line1 != "" {

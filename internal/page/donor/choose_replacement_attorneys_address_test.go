@@ -37,7 +37,6 @@ func TestGetChooseReplacementAttorneysAddress(t *testing.T) {
 			Form:       form.NewAddressForm(),
 			UID:        uid,
 			FullName:   "John Smith",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -71,7 +70,6 @@ func TestGetChooseReplacementAttorneysAddressFromStore(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -105,7 +103,6 @@ func TestGetChooseReplacementAttorneysAddressManual(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -135,7 +132,6 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 			Form:       form.NewAddressForm(),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -146,46 +142,6 @@ func TestGetChooseReplacementAttorneysAddressWhenTemplateErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostChooseReplacementAttorneysAddressSkip(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.Address.Action:     {"skip"},
-		form.FieldNames.Address.Line1:      {"a"},
-		form.FieldNames.Address.Line2:      {"b"},
-		form.FieldNames.Address.Line3:      {"c"},
-		form.FieldNames.Address.TownOrCity: {"d"},
-		form.FieldNames.Address.Postcode:   {"e"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID:                "lpa-id",
-			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "a", Email: "a"}}},
-			Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
-		}).
-		Return(nil)
-
-	err := ChooseReplacementAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			UID:        uid,
-			FirstNames: "a",
-			Email:      "a",
-			Address:    place.Address{Line1: "abc"},
-		}}},
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
@@ -327,7 +283,6 @@ func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testi
 			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -364,7 +319,6 @@ func TestPostChooseReplacementAttorneysPostcodeSelect(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -410,7 +364,6 @@ func TestPostChooseReplacementAttorneysPostcodeSelectWhenValidationError(t *test
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -455,7 +408,6 @@ func TestPostChooseReplacementAttorneysPostcodeLookup(t *testing.T) {
 			Addresses:  addresses,
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -501,7 +453,6 @@ func TestPostChooseReplacementAttorneysPostcodeLookupError(t *testing.T) {
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -552,7 +503,6 @@ func TestPostChooseReplacementAttorneysPostcodeLookupInvalidPostcodeError(t *tes
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -599,7 +549,6 @@ func TestPostChooseReplacementAttorneysPostcodeLookupValidPostcodeNoAddresses(t 
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -635,7 +584,6 @@ func TestPostChooseReplacementAttorneysPostcodeLookupWhenValidationError(t *test
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -668,7 +616,6 @@ func TestPostChooseReplacementAttorneysAddressReuse(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			TitleKeys:  testTitleKeys,
@@ -750,7 +697,6 @@ func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "replacementAttorney",
 			TitleKeys:  testTitleKeys,
 		}).
