@@ -94,6 +94,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
+	uid := actoruid.New()
 
 	testcases := map[string]struct {
 		lpa            lpastore.Lpa
@@ -101,11 +102,16 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		donorStore     func() *mockDonorStore
 	}{
 		"witnessed and signed": {
-			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
+			lpa: lpastore.Lpa{
+				LpaUID:              "lpa-uid",
+				SignedAt:            time.Now(),
+				Donor:               actor.Donor{FirstNames: "a b", LastName: "c"},
+				CertificateProvider: lpastore.CertificateProvider{UID: uid},
+			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(r.Context(), "lpa-uid", actoruid.Service).
+					SendCertificateProviderOptOut(r.Context(), "lpa-uid", uid).
 					Return(nil)
 
 				return lpaStoreClient
@@ -124,7 +130,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CertificateProvider: actor.TaskCompleted,
 							CheckYourLpa:        actor.TaskCompleted,
 						},
-						CertificateProvider: actor.CertificateProvider{UID: actoruid.New()},
+						CertificateProvider: actor.CertificateProvider{UID: uid},
 					}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), &actor.DonorProvidedDetails{

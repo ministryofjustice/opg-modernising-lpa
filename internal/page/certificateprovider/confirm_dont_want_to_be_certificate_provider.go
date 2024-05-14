@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -32,7 +31,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 
 		if r.Method == http.MethodPost {
 			if !lpa.SignedAt.IsZero() {
-				if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, actoruid.Service); err != nil {
+				if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, lpa.CertificateProvider.UID); err != nil {
 					return err
 				}
 			} else {
