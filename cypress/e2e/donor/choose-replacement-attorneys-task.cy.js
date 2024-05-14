@@ -1,4 +1,4 @@
-import { TestEmail } from "../../support/e2e";
+import { AddressFormAssertions, TestEmail } from "../../support/e2e";
 
 describe.skip('Choose replacement attorneys task', () => {
   it('is not started when no replacement attorneys are set', () => {
@@ -45,7 +45,10 @@ describe.skip('Choose replacement attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+    cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+      cy.contains('Completed');
+      cy.contains('1 added');
+    });
   });
 
   it('is in progress if enter a replacement attorneys details then add attorneys', () => {
@@ -81,7 +84,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();
-    cy.contains('button', 'Skip').click();
+    AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
     cy.contains('label', 'No').click();
     cy.contains('button', 'Continue').click();
@@ -90,7 +93,10 @@ describe.skip('Choose replacement attorneys task', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (1)');
+    cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+      cy.contains('In progress');
+      cy.contains('1 added');
+    });
   });
 
   describe('having a single attorney and a single replacement attorney', () => {
@@ -111,12 +117,15 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
   });
 
@@ -138,7 +147,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
@@ -147,14 +156,20 @@ describe.skip('Choose replacement attorneys task', () => {
     it('is in progress', () => {
       cy.visitLpa('/task-list');
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('In progress');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if replacements act jointly and severally', () => {
       cy.get('input[value=jointly-and-severally]').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if replacement act jointly', () => {
@@ -162,7 +177,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if replacement act mixed', () => {
@@ -171,7 +189,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
   });
 
@@ -193,7 +214,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
@@ -203,14 +224,20 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('label', 'All together, as soon as one').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
 
     it('is completed if step in when none', () => {
       cy.contains('label', 'All together, when none').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
 
     it('is completed if step in some other way', () => {
@@ -218,7 +245,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.get('textarea').type('Details');
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
   });
 
@@ -240,12 +270,15 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
   });
 
@@ -267,12 +300,15 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('1 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('1 added');
+      });
     });
   });
 
@@ -294,7 +330,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
@@ -305,7 +341,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is in progress if step in when none', () => {
@@ -313,7 +352,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('In progress (2)');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('In progress');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if step in when none and jointly and severally', () => {
@@ -323,7 +365,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.get('input[value=jointly-and-severally]').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if step in when none and jointly', () => {
@@ -334,7 +379,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if step in when none and mixed', () => {
@@ -346,7 +394,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if in some other way', () => {
@@ -354,7 +405,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.get('textarea').type('Details');
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
   });
 
@@ -376,7 +430,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
@@ -386,7 +440,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.get('input[value=jointly-and-severally]').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if jointly', () => {
@@ -394,7 +451,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if mixed', () => {
@@ -403,7 +463,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
   });
 
@@ -425,7 +488,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'Enter a new address').click();
       cy.contains('button', 'Continue').click();
-      cy.contains('button', 'Skip').click();
+      AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
@@ -435,7 +498,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.get('input[value=jointly-and-severally]').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if replacements act jointly', () => {
@@ -443,7 +509,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
 
     it('is completed if replacements act mixed', () => {
@@ -452,7 +521,10 @@ describe.skip('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().contains('2 added');
+      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
+        cy.contains('Completed');
+        cy.contains('2 added');
+      });
     });
   });
 });

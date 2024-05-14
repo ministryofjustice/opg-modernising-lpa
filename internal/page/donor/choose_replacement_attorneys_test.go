@@ -174,7 +174,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 					LpaID:                "lpa-id",
 					Donor:                actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 					ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
-					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+					Tasks:                actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 				}).
 				Return(nil)
 

@@ -78,7 +78,7 @@ func (as Attorneys) Complete() bool {
 	}
 
 	for _, a := range as.Attorneys {
-		if a.FirstNames == "" || (a.Address.Line1 == "" && a.Email == "") {
+		if a.FirstNames == "" || a.Address.Line1 == "" {
 			return false
 		}
 	}

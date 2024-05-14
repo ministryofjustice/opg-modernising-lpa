@@ -19,7 +19,6 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 			"theTrustCorporation",
 			"",
 			trustCorporation.UID,
-			false,
 		)
 
 		if trustCorporation.Address.Line1 != "" {

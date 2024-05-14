@@ -18,7 +18,6 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			"",
 			"",
 			donor.Donor.UID,
-			false,
 		)
 
 		if donor.Donor.Address.Line1 != "" {

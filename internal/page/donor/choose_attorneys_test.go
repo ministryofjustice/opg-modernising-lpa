@@ -184,7 +184,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 						LastName:   "Doe",
 					},
 					Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{tc.attorney}},
-					Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
+					Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 				}).
 				Return(nil)
 
