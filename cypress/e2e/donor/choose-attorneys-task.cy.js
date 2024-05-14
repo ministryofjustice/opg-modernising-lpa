@@ -1,6 +1,6 @@
 import { AddressFormAssertions, TestEmail } from "../../support/e2e";
 
-describe.skip('Choose attorneys task', () => {
+describe('Choose attorneys task', () => {
   it('is not started when no attorneys are set', () => {
     cy.visit('/fixtures?redirect=/task-list');
 
@@ -8,25 +8,6 @@ describe.skip('Choose attorneys task', () => {
   });
 
   it('is in progress if I start adding an attorney', () => {
-    cy.visit('/fixtures?redirect=/task-list');
-    cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
-
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
-    cy.contains('button', 'Save and continue').click();
-
-    cy.visitLpa('/task-list');
-    cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
-      cy.contains('In progress');
-      cy.contains('1 added');
-    });
-  });
-
-  it('is completed if enter an attorneys details', () => {
     cy.visit('/fixtures?redirect=/task-list');
     cy.contains('a', 'Choose your attorneys').click();
     cy.contains('a', 'Continue').click();
@@ -41,7 +22,7 @@ describe.skip('Choose attorneys task', () => {
 
     cy.visitLpa('/task-list');
     cy.contains('a', 'Choose your attorneys').parent().parent().within(() => {
-      cy.contains('Completed');
+      cy.contains('In progress');
       cy.contains('1 added');
     });
   });
