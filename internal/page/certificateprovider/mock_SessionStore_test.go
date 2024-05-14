@@ -80,6 +80,64 @@ func (_c *mockSessionStore_Login_Call) RunAndReturn(run func(*http.Request) (*se
 	return _c
 }
 
+// LpaData provides a mock function with given fields: r
+func (_m *mockSessionStore) LpaData(r *http.Request) (*sesh.LpaDataSession, error) {
+	ret := _m.Called(r)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LpaData")
+	}
+
+	var r0 *sesh.LpaDataSession
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*http.Request) (*sesh.LpaDataSession, error)); ok {
+		return rf(r)
+	}
+	if rf, ok := ret.Get(0).(func(*http.Request) *sesh.LpaDataSession); ok {
+		r0 = rf(r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*sesh.LpaDataSession)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*http.Request) error); ok {
+		r1 = rf(r)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockSessionStore_LpaData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LpaData'
+type mockSessionStore_LpaData_Call struct {
+	*mock.Call
+}
+
+// LpaData is a helper method to define mock.On call
+//   - r *http.Request
+func (_e *mockSessionStore_Expecter) LpaData(r interface{}) *mockSessionStore_LpaData_Call {
+	return &mockSessionStore_LpaData_Call{Call: _e.mock.On("LpaData", r)}
+}
+
+func (_c *mockSessionStore_LpaData_Call) Run(run func(r *http.Request)) *mockSessionStore_LpaData_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_LpaData_Call) Return(_a0 *sesh.LpaDataSession, _a1 error) *mockSessionStore_LpaData_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockSessionStore_LpaData_Call) RunAndReturn(run func(*http.Request) (*sesh.LpaDataSession, error)) *mockSessionStore_LpaData_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // OneLogin provides a mock function with given fields: r
 func (_m *mockSessionStore) OneLogin(r *http.Request) (*sesh.OneLoginSession, error) {
 	ret := _m.Called(r)
@@ -182,6 +240,54 @@ func (_c *mockSessionStore_SetLogin_Call) Return(_a0 error) *mockSessionStore_Se
 }
 
 func (_c *mockSessionStore_SetLogin_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sesh.LoginSession) error) *mockSessionStore_SetLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetLpaData provides a mock function with given fields: r, w, lpaDataSession
+func (_m *mockSessionStore) SetLpaData(r *http.Request, w http.ResponseWriter, lpaDataSession *sesh.LpaDataSession) error {
+	ret := _m.Called(r, w, lpaDataSession)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetLpaData")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*http.Request, http.ResponseWriter, *sesh.LpaDataSession) error); ok {
+		r0 = rf(r, w, lpaDataSession)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSessionStore_SetLpaData_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetLpaData'
+type mockSessionStore_SetLpaData_Call struct {
+	*mock.Call
+}
+
+// SetLpaData is a helper method to define mock.On call
+//   - r *http.Request
+//   - w http.ResponseWriter
+//   - lpaDataSession *sesh.LpaDataSession
+func (_e *mockSessionStore_Expecter) SetLpaData(r interface{}, w interface{}, lpaDataSession interface{}) *mockSessionStore_SetLpaData_Call {
+	return &mockSessionStore_SetLpaData_Call{Call: _e.mock.On("SetLpaData", r, w, lpaDataSession)}
+}
+
+func (_c *mockSessionStore_SetLpaData_Call) Run(run func(r *http.Request, w http.ResponseWriter, lpaDataSession *sesh.LpaDataSession)) *mockSessionStore_SetLpaData_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*http.Request), args[1].(http.ResponseWriter), args[2].(*sesh.LpaDataSession))
+	})
+	return _c
+}
+
+func (_c *mockSessionStore_SetLpaData_Call) Return(_a0 error) *mockSessionStore_SetLpaData_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSessionStore_SetLpaData_Call) RunAndReturn(run func(*http.Request, http.ResponseWriter, *sesh.LpaDataSession) error) *mockSessionStore_SetLpaData_Call {
 	_c.Call.Return(run)
 	return _c
 }

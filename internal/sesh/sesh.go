@@ -14,10 +14,11 @@ import (
 // (e.g. session+pay, so you can be signed in and pay for something), but others
 // shouldn't (i.e. the reuse of session as you can't be signed in twice).
 const (
-	cookieSignIn  = "params"
-	cookieSession = "session"
-	cookiePayment = "pay"
 	cookieCsrf    = "csrf"
+	cookieLPAData = "lpa-data"
+	cookiePayment = "pay"
+	cookieSession = "session"
+	cookieSignIn  = "params"
 )
 
 var (
@@ -50,6 +51,7 @@ func init() {
 	gob.Register(&LoginSession{})
 	gob.Register(&PaymentSession{})
 	gob.Register(&CsrfSession{})
+	gob.Register(&LpaDataSession{})
 }
 
 type cookieStore interface {
@@ -205,4 +207,20 @@ func (s *Store) Csrf(r *http.Request) (*CsrfSession, error) {
 
 func (s *Store) SetCsrf(r *http.Request, w http.ResponseWriter, csrfSession *CsrfSession) error {
 	return setSession(s.s, cookieCsrf, "csrf", r, w, csrfSession, sessionCookieOptions)
+}
+
+type LpaDataSession struct {
+	LpaID string
+}
+
+func (s LpaDataSession) Valid() bool {
+	return s.LpaID != ""
+}
+
+func (s *Store) LpaData(r *http.Request) (*LpaDataSession, error) {
+	return getSession[*LpaDataSession](s.s, cookieLPAData, "lpa-data", r)
+}
+
+func (s *Store) SetLpaData(r *http.Request, w http.ResponseWriter, lpaDataSession *LpaDataSession) error {
+	return setSession(s.s, cookieLPAData, "lpa-data", r, w, lpaDataSession, sessionCookieOptions)
 }

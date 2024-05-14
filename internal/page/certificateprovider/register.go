@@ -32,6 +32,7 @@ type Logger interface {
 
 type CertificateProviderStore interface {
 	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
@@ -53,8 +54,10 @@ type Template func(io.Writer, interface{}) error
 
 type SessionStore interface {
 	Login(r *http.Request) (*sesh.LoginSession, error)
-	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	LpaData(r *http.Request) (*sesh.LpaDataSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
+	SetLpaData(r *http.Request, w http.ResponseWriter, lpaDataSession *sesh.LpaDataSession) error
+	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
@@ -82,9 +85,15 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
+	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
+type DonorStore interface {
+	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+}
 
 func Register(
 	rootMux *http.ServeMux,
@@ -95,13 +104,13 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
 	certificateProviderStore CertificateProviderStore,
-	notFoundHandler page.Handler,
 	addressClient AddressClient,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	donorStore DonorStore,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -111,6 +120,12 @@ func Register(
 		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.CertificateProvider.EnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
+	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
+		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
+	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut,
+		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore))
+	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
+		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
 
@@ -144,6 +159,8 @@ func Register(
 		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStoreResolvingService, certificateProviderStore))
+	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider, page.CanGoBack,
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreResolvingService, lpaStoreClient, donorStore, certificateProviderStore))
 }
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
