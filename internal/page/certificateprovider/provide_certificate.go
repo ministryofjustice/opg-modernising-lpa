@@ -37,13 +37,13 @@ func ProvideCertificate(
 			return err
 		}
 
+		if lpa.SignedAt.IsZero() {
+			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
+		}
+
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
-		}
-
-		if lpa.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &provideCertificateData{
@@ -60,6 +60,10 @@ func ProvideCertificate(
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				if data.Form.Submittable == "cannot-submit" {
+					return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
+				}
+
 				certificateProvider.Certificate.AgreeToStatement = true
 				certificateProvider.Certificate.Agreed = now()
 				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
@@ -94,11 +98,13 @@ func ProvideCertificate(
 }
 
 type provideCertificateForm struct {
+	Submittable      string
 	AgreeToStatement bool
 }
 
 func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
 	return &provideCertificateForm{
+		Submittable:      r.FormValue("submittable"),
 		AgreeToStatement: page.PostFormString(r, "agree-to-statement") == "1",
 	}
 }
@@ -106,8 +112,10 @@ func readProvideCertificateForm(r *http.Request) *provideCertificateForm {
 func (f *provideCertificateForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Bool("agree-to-statement", "toSignAsCertificateProvider", f.AgreeToStatement,
-		validation.Selected())
+	if f.Submittable != "cannot-submit" {
+		errors.Bool("agree-to-statement", "toSignAsCertificateProvider", f.AgreeToStatement,
+			validation.Selected())
+	}
 
 	return errors
 }
