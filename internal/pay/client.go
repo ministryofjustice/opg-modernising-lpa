@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 )
 
 type Doer interface {
@@ -16,26 +15,6 @@ type Client struct {
 	BaseURL    string
 	ApiKey     string
 	HttpClient Doer
-}
-
-type GovUKPayTime time.Time
-
-func (g *GovUKPayTime) UnmarshalText(b []byte) error {
-	t, err := time.Parse(time.RFC3339Nano, string(b))
-	if err != nil {
-		return err
-	}
-
-	*g = GovUKPayTime(t)
-	return nil
-}
-
-func (g GovUKPayTime) MarshalText() ([]byte, error) {
-	return []byte(g.Format(time.RFC3339Nano)), nil
-}
-
-func (g GovUKPayTime) Format(s string) string {
-	return time.Time(g).Format(s)
 }
 
 func (c *Client) CreatePayment(ctx context.Context, body CreatePaymentBody) (CreatePaymentResponse, error) {
@@ -54,11 +33,9 @@ func (c *Client) CreatePayment(ctx context.Context, body CreatePaymentBody) (Cre
 	if err != nil {
 		return CreatePaymentResponse{}, err
 	}
-
 	defer resp.Body.Close()
 
 	var createPaymentResp CreatePaymentResponse
-
 	if err := json.NewDecoder(resp.Body).Decode(&createPaymentResp); err != nil {
 		return CreatePaymentResponse{}, err
 	}

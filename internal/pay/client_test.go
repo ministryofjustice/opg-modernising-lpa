@@ -35,7 +35,7 @@ func TestCreatePayment(t *testing.T) {
 		}
 
 		expectedCPResponse := CreatePaymentResponse{
-			CreatedDate: GovUKPayTime(created),
+			CreatedDate: created,
 			State: State{
 				Status:   "created",
 				Finished: false,
@@ -163,28 +163,28 @@ func TestCreatePayment(t *testing.T) {
 func generateCreatePaymentResponseBodyJsonString(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
-  "created_date": "%s",
-  "state": {
-    "status": "created",
-    "finished": false
-  },
-  "_links": {
-    "self": {
-      "href": "https://publicapi.payments.service.gov.uk/v1/payments/hu20sqlact5260q2nanm0q8u93",
-      "method": "GET"
-   },
-    "next_url": {
-      "href": "https://www.payments.service.gov.uk/secure/bb0a272c-8eaf-468d-b3xf-ae5e000d2231",
-      "method": "GET"
-    }
-  },
-  "amount": 82,
-  "reference" : "abc123",
-  "description": "A payment",
-  "return_url": "/example/url",
-  "payment_id": "hu20sqlact5260q2nanm0q8u93",
-  "payment_provider": "worldpay",
-  "provider_id": "10987654321"
+	"created_date": "%s",
+	"state": {
+		"status": "created",
+		"finished": false
+	},
+	"_links": {
+		"self": {
+			"href": "https://publicapi.payments.service.gov.uk/v1/payments/hu20sqlact5260q2nanm0q8u93",
+			"method": "GET"
+	 },
+		"next_url": {
+			"href": "https://www.payments.service.gov.uk/secure/bb0a272c-8eaf-468d-b3xf-ae5e000d2231",
+			"method": "GET"
+		}
+	},
+	"amount": 82,
+	"reference" : "abc123",
+	"description": "A payment",
+	"return_url": "/example/url",
+	"payment_id": "hu20sqlact5260q2nanm0q8u93",
+	"payment_provider": "worldpay",
+	"provider_id": "10987654321"
 }`, createdAt.Format(time.RFC3339Nano)))
 }
 
@@ -212,7 +212,7 @@ func TestGetPayment(t *testing.T) {
 		assert.Nil(t, err, "Received an error when it should be nil")
 
 		expectedGPResponse := GetPaymentResponse{
-			CreatedDate: GovUKPayTime(created),
+			CreatedDate: created,
 			Amount:      amount,
 			State: State{
 				Status:   "success",
@@ -312,60 +312,60 @@ func TestGetPayment(t *testing.T) {
 func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) []byte {
 	return []byte(fmt.Sprintf(`
 {
-  "created_date": "%s",
-  "amount": %v,
-  "state": {
-    "status": "success",
-    "finished": true
-  },
-  "description": "%s",
-  "reference": "%s",
-  "language": "%s",
-  "metadata": {
-    "ledger_code": "AB100",
-    "an_internal_reference_number": 200
-  },
-  "email": "%s",
-  "card_details": {
-    "card_brand": "Visa",
-    "card_type": "debit",
-    "last_digits_card_number": "1234",
-    "first_digits_card_number": "123456",
-    "expiry_date": "04/24",
-    "cardholder_name": "Sherlock Holmes",
-    "billing_address": {
-        "line1": "221 Baker Street",
-        "line2": "Flat b",
-        "postcode": "NW1 6XE",
-        "city": "London",
-        "country": "GB"
-    }
-  },
-  "payment_id": "hu20sqlact5260q2nanm0q8u93",
-  "authorisation_summary": {
-    "three_d_secure": {
-      "required": true
-    }
-  },
-  "refund_summary": {
-    "status": "available",
-    "amount_available": 4000,
-    "amount_submitted": 80
-  },
-  "settlement_summary": {
-    "capture_submit_time": "%s",
-    "captured_date": "2022-01-05",
-    "settled_date": "2022-01-05"
-  },
-  "delayed_capture": false,
-  "moto": false,
-  "corporate_card_surcharge": 250,
-  "total_amount": 4000,
-  "fee": 200,
-  "net_amount": 3800,
-  "payment_provider": "worldpay",
-  "provider_id": "10987654321",
-  "return_url": "https://your.service.gov.uk/completed"
+	"created_date": "%s",
+	"amount": %v,
+	"state": {
+		"status": "success",
+		"finished": true
+	},
+	"description": "%s",
+	"reference": "%s",
+	"language": "%s",
+	"metadata": {
+		"ledger_code": "AB100",
+		"an_internal_reference_number": 200
+	},
+	"email": "%s",
+	"card_details": {
+		"card_brand": "Visa",
+		"card_type": "debit",
+		"last_digits_card_number": "1234",
+		"first_digits_card_number": "123456",
+		"expiry_date": "04/24",
+		"cardholder_name": "Sherlock Holmes",
+		"billing_address": {
+				"line1": "221 Baker Street",
+				"line2": "Flat b",
+				"postcode": "NW1 6XE",
+				"city": "London",
+				"country": "GB"
+		}
+	},
+	"payment_id": "hu20sqlact5260q2nanm0q8u93",
+	"authorisation_summary": {
+		"three_d_secure": {
+			"required": true
+		}
+	},
+	"refund_summary": {
+		"status": "available",
+		"amount_available": 4000,
+		"amount_submitted": 80
+	},
+	"settlement_summary": {
+		"capture_submit_time": "%s",
+		"captured_date": "2022-01-05",
+		"settled_date": "2022-01-05"
+	},
+	"delayed_capture": false,
+	"moto": false,
+	"corporate_card_surcharge": 250,
+	"total_amount": 4000,
+	"fee": 200,
+	"net_amount": 3800,
+	"payment_provider": "worldpay",
+	"provider_id": "10987654321",
+	"return_url": "https://your.service.gov.uk/completed"
 }`,
 		createdAt.Format(time.RFC3339Nano),
 		amount,

@@ -1,5 +1,7 @@
 package pay
 
+import "time"
+
 const (
 	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
 )
@@ -24,7 +26,7 @@ type Link struct {
 }
 
 type CreatePaymentResponse struct {
-	CreatedDate     GovUKPayTime    `json:"created_date"`
+	CreatedDate     time.Time       `json:"created_date"`
 	State           State           `json:"State"`
 	Links           map[string]Link `json:"_links"`
 	Amount          int             `json:"amount"`
@@ -74,12 +76,12 @@ type SettlementSummary struct {
 }
 
 type GetPaymentResponse struct {
-	CreatedDate GovUKPayTime `json:"created_date"`
-	Amount      int          `json:"amount"`
-	State       State        `json:"State"`
-	Description string       `json:"description"`
-	Reference   string       `json:"reference"`
-	Language    string       `json:"language"`
+	CreatedDate time.Time `json:"created_date"`
+	Amount      int       `json:"amount"`
+	State       State     `json:"State"`
+	Description string    `json:"description"`
+	Reference   string    `json:"reference"`
+	Language    string    `json:"language"`
 	//May be useful but until we define if/what we send in CreatePayment we can't marshal the response
 	//
 	//Metadata    struct {
