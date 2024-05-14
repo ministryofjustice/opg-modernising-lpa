@@ -76,7 +76,7 @@ jobs:
       - name: get lambda function zips
         working-directory: ./terraform/environment
         env:
-          VERSION: v0.593.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.3
+          VERSION: v0.593.0-MLPAB-2092-deploy-s-3-av-scan-lambda-as-a-zip-package-and-lambda-layer.4
         run: |
           echo "AV lambda version: $VERSION"
           wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/$VERSION"/lambda_layer-amd64.zip -O region/modules/s3_antivirus/lambda_layer.zip
