@@ -1,6 +1,6 @@
 import { AddressFormAssertions, TestEmail } from "../../support/e2e";
 
-describe.skip('Choose replacement attorneys task', () => {
+describe('Choose replacement attorneys task', () => {
   it('is not started when no replacement attorneys are set', () => {
     cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys');
 
@@ -43,6 +43,10 @@ describe.skip('Choose replacement attorneys task', () => {
     cy.get('#f-date-of-birth-month').type('2');
     cy.get('#f-date-of-birth-year').type('1990');
     cy.contains('button', 'Save and continue').click();
+
+    cy.contains('label', 'Enter a new address').click();
+    cy.contains('button', 'Continue').click();
+    AddressFormAssertions.assertCanAddAddressManually('Enter address manually', true)
 
     cy.visitLpa('/task-list');
     cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
@@ -471,7 +475,7 @@ describe.skip('Choose replacement attorneys task', () => {
   });
 
   describe('having jointly for some attorneys and multiple replacement attorneys', () => {
-    beforeEach(() => {
+    it('is completed', () => {
       cy.visit('/fixtures?redirect=/task-list&progress=chooseYourReplacementAttorneys&attorneys=jointly-for-some-severally-for-others&replacementAttorneys=single');
       cy.contains('a', 'Choose your replacement attorneys').click();
 
@@ -492,35 +496,7 @@ describe.skip('Choose replacement attorneys task', () => {
 
       cy.contains('label', 'No').click();
       cy.contains('button', 'Continue').click();
-    });
 
-    it('is completed if replacements act jointly and severally', () => {
-      cy.get('input[value=jointly-and-severally]').click();
-      cy.contains('button', 'Save and continue').click();
-
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
-        cy.contains('Completed');
-        cy.contains('2 added');
-      });
-    });
-
-    it('is completed if replacements act jointly', () => {
-      cy.get('input[value=jointly]').click();
-      cy.contains('button', 'Save and continue').click();
-
-      cy.visitLpa('/task-list');
-      cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
-        cy.contains('Completed');
-        cy.contains('2 added');
-      });
-    });
-
-    it('is completed if replacements act mixed', () => {
-      cy.get('input[value=jointly-for-some-severally-for-others]').click();
-      cy.get('textarea').type('Some details');
-      cy.contains('button', 'Save and continue').click();
-
-      cy.visitLpa('/task-list');
       cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
         cy.contains('Completed');
         cy.contains('2 added');
