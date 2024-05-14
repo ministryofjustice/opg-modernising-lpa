@@ -37,7 +37,7 @@ func TestChooseAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Email:      "a",
 			}}},
-			taskState: actor.TaskCompleted,
+			taskState: actor.TaskInProgress,
 		},
 		"single with address": {
 			attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
@@ -55,20 +55,20 @@ func TestChooseAttorneysState(t *testing.T) {
 		"multiple without decisions": {
 			attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			taskState: actor.TaskInProgress,
 		},
 		"multiple with decisions": {
 			attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState: actor.TaskCompleted,
@@ -78,7 +78,7 @@ func TestChooseAttorneysState(t *testing.T) {
 				FirstNames: "a",
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			decisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState: actor.TaskInProgress,
@@ -118,7 +118,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Email:      "a",
 			}}},
-			taskState: actor.TaskCompleted,
+			taskState: actor.TaskInProgress,
 		},
 		"single with address": {
 			want: form.Yes,
@@ -139,10 +139,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			taskState: actor.TaskCompleted,
 		},
@@ -150,10 +150,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:                    actor.TaskCompleted,
@@ -162,10 +162,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:                    actor.TaskCompleted,
@@ -174,10 +174,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,
@@ -186,7 +186,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:         actor.TaskInProgress,
@@ -195,7 +195,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -205,7 +205,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:         actor.TaskCompleted,
@@ -214,7 +214,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:         actor.TaskCompleted,
@@ -224,10 +224,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			taskState:         actor.TaskInProgress,
@@ -236,10 +236,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
@@ -249,10 +249,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:     actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -262,10 +262,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -276,10 +276,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -290,10 +290,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
 			taskState:         actor.TaskInProgress,
@@ -302,10 +302,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
@@ -315,10 +315,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
@@ -328,10 +328,10 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
 				FirstNames: "a",
-				Email:      "a",
+				Address:    testAddress,
 			}, {
 				FirstNames: "b",
-				Email:      "b",
+				Address:    testAddress,
 			}}},
 			attorneyDecisions:            actor.AttorneyDecisions{How: actor.Jointly},
 			replacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},

@@ -30,7 +30,6 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 			Form:       form.NewAddressForm(),
 			UID:        uid,
 			FullName:   "John Smith",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -71,7 +70,6 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -102,7 +100,6 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -129,7 +126,6 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 			Form:       form.NewAddressForm(),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -142,76 +138,6 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostChooseAttorneysAddressSkip(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.Address.Action:     {"skip"},
-		form.FieldNames.Address.Line1:      {"a"},
-		form.FieldNames.Address.Line2:      {"b"},
-		form.FieldNames.Address.Line3:      {"c"},
-		form.FieldNames.Address.TownOrCity: {"d"},
-		form.FieldNames.Address.Postcode:   {"e"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID:     "lpa-id",
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid, FirstNames: "a", Email: "a"}}},
-			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
-		}).
-		Return(nil)
-
-	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			UID:        uid,
-			FirstNames: "a",
-			Email:      "a",
-			Address:    place.Address{Line1: "abc"},
-		}}},
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
-func TestPostChooseAttorneysAddressSkipWhenStoreErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.Address.Action:     {"skip"},
-		form.FieldNames.Address.Line1:      {"a"},
-		form.FieldNames.Address.Line2:      {"b"},
-		form.FieldNames.Address.Line3:      {"c"},
-		form.FieldNames.Address.TownOrCity: {"d"},
-		form.FieldNames.Address.Postcode:   {"e"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
-			UID:     uid,
-			Address: place.Address{Line1: "abc"},
-		}}},
-	})
-
-	assert.Equal(t, expectedError, err)
 }
 
 func TestPostChooseAttorneysAddressManual(t *testing.T) {
@@ -367,7 +293,6 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 			Errors:     validation.With(form.FieldNames.Address.Line1, validation.EnterError{Label: "addressLine1"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -406,7 +331,6 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -454,7 +378,6 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -501,7 +424,6 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 			Addresses:  addresses,
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -549,7 +471,6 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "couldNotLookupPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -602,7 +523,6 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "invalidPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -647,7 +567,6 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 			Errors:     validation.With("lookup-postcode", validation.CustomError{Label: "noAddressesFound"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -683,7 +602,6 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 			Errors:     validation.With("lookup-postcode", validation.EnterError{Label: "aPostcode"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).
@@ -718,7 +636,6 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 			},
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			Addresses:  []place.Address{{Line1: "donor lane"}},
 			TitleKeys:  testTitleKeys,
@@ -800,7 +717,6 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 			Errors:     validation.With("select-address", validation.SelectError{Label: "anAddressFromTheList"}),
 			UID:        uid,
 			FullName:   " ",
-			CanSkip:    true,
 			ActorLabel: "attorney",
 			TitleKeys:  testTitleKeys,
 		}).

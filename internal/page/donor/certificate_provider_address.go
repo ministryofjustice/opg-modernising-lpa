@@ -17,7 +17,6 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			"certificateProvider",
 			donor.CertificateProvider.FullName(),
 			donor.CertificateProvider.UID,
-			false,
 		)
 
 		// so keys are set when amending address

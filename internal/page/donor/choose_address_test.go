@@ -26,13 +26,12 @@ func TestNewChooseAddressData(t *testing.T) {
 		ActorLabel: "a",
 		FullName:   "b",
 		UID:        uid,
-		CanSkip:    true,
-	}, newChooseAddressData(testAppData, "a", "b", uid, true))
+	}, newChooseAddressData(testAppData, "a", "b", uid))
 }
 
 func TestOverrideProfessionalCertificateProviderKeys(t *testing.T) {
 	uid := actoruid.New()
-	data := newChooseAddressData(testAppData, "1", "2", uid, true)
+	data := newChooseAddressData(testAppData, "1", "2", uid)
 
 	data.overrideTitleKeys(titleKeys{
 		Manual:                          "a",
@@ -55,6 +54,5 @@ func TestOverrideProfessionalCertificateProviderKeys(t *testing.T) {
 		ActorLabel: "1",
 		FullName:   "2",
 		UID:        uid,
-		CanSkip:    true,
 	}, data)
 }

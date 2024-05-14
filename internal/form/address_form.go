@@ -61,7 +61,7 @@ func (f *AddressForm) Validate(useYour bool) validation.List {
 	var errors validation.List
 
 	errors.String(f.FieldNames.Action, "ifUsePreviousAddressOrEnterNew", f.Action,
-		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual", "skip"))
+		validation.Select("reuse", "reuse-select", "postcode", "postcode-lookup", "postcode-select", "manual"))
 
 	switch f.Action {
 	case "postcode-lookup":
