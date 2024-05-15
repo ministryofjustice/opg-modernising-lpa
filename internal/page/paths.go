@@ -108,7 +108,8 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 			donor.Tasks.Restrictions.Completed() &&
 			donor.Tasks.CertificateProvider.Completed() &&
 			donor.Tasks.PeopleToNotify.Completed() &&
-			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed())
+			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed()) &&
+			donor.Tasks.AddCorrespondent.Completed()
 
 	case Paths.AboutPayment:
 		return section1Completed

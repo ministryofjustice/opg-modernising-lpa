@@ -34,7 +34,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			donor:   &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}, CanSign: form.No}},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[7].Hidden = false
+				sections[0].Items[8].Hidden = false
 
 				return sections
 			},
@@ -115,7 +115,7 @@ func TestGetTaskList(t *testing.T) {
 					Count: 1,
 				}
 
-				sections[0].Items[8] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.YouCannotSignYourLpaYet.Format("lpa-id")}
+				sections[0].Items[9] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.YouCannotSignYourLpaYet.Format("lpa-id")}
 
 				return sections
 			},
@@ -128,7 +128,7 @@ func TestGetTaskList(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[8].Path = page.Paths.ConfirmYourCertificateProviderIsNotRelated.Format("lpa-id")
+				sections[0].Items[9].Path = page.Paths.ConfirmYourCertificateProviderIsNotRelated.Format("lpa-id")
 
 				return sections
 			},
@@ -166,6 +166,7 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
+					{Name: "addCorrespondent", Path: page.Paths.AddCorrespondent.Format("lpa-id")},
 					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id"), State: actor.TaskCompleted},
 				}
@@ -213,8 +214,8 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 					{Name: "addCorrespondent", Path: page.Paths.AddCorrespondent.Format("lpa-id"), State: actor.TaskNotStarted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 				}
 
 				return sections[0:1]
@@ -244,6 +245,7 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id")},
 								{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id")},
 								{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
+								{Name: "addCorrespondent", Path: page.Paths.AddCorrespondent.Format("lpa-id")},
 								{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
 								{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id")},
 							},
