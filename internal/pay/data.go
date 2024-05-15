@@ -1,5 +1,7 @@
 package pay
 
+import "time"
+
 const (
 	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
 )
@@ -8,7 +10,7 @@ type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
 	Reference   string `json:"reference"`
 	Description string `json:"description"`
-	ReturnUrl   string `json:"return_url"`
+	ReturnURL   string `json:"return_url"`
 	Email       string `json:"email"`
 	Language    string `json:"language"`
 }
@@ -24,16 +26,16 @@ type Link struct {
 }
 
 type CreatePaymentResponse struct {
-	CreatedDate     GovUKPayTime    `json:"created_date"`
+	CreatedDate     time.Time       `json:"created_date"`
 	State           State           `json:"State"`
 	Links           map[string]Link `json:"_links"`
 	Amount          int             `json:"amount"`
 	Reference       string          `json:"reference"`
 	Description     string          `json:"description"`
-	ReturnUrl       string          `json:"return_url"`
-	PaymentId       string          `json:"payment_id"`
+	ReturnURL       string          `json:"return_url"`
+	PaymentID       string          `json:"payment_id"`
 	PaymentProvider string          `json:"payment_provider"`
-	ProviderId      string          `json:"provider_id"`
+	ProviderID      string          `json:"provider_id"`
 }
 
 type CardDetails struct {
@@ -74,12 +76,12 @@ type SettlementSummary struct {
 }
 
 type GetPaymentResponse struct {
-	CreatedDate GovUKPayTime `json:"created_date"`
-	Amount      int          `json:"amount"`
-	State       State        `json:"State"`
-	Description string       `json:"description"`
-	Reference   string       `json:"reference"`
-	Language    string       `json:"language"`
+	CreatedDate time.Time `json:"created_date"`
+	Amount      int       `json:"amount"`
+	State       State     `json:"State"`
+	Description string    `json:"description"`
+	Reference   string    `json:"reference"`
+	Language    string    `json:"language"`
 	//May be useful but until we define if/what we send in CreatePayment we can't marshal the response
 	//
 	//Metadata    struct {
@@ -88,7 +90,7 @@ type GetPaymentResponse struct {
 	//} `json:"metadata"`
 	Email                  string               `json:"email"`
 	CardDetails            CardDetails          `json:"card_details"`
-	PaymentId              string               `json:"payment_id"`
+	PaymentID              string               `json:"payment_id"`
 	AuthorisationSummary   AuthorisationSummary `json:"authorisation_summary"`
 	RefundSummary          RefundSummary        `json:"refund_summary"`
 	SettlementSummary      SettlementSummary    `json:"settlement_summary"`
@@ -99,6 +101,6 @@ type GetPaymentResponse struct {
 	Fee                    int                  `json:"fee"`
 	NetAmount              int                  `json:"net_amount"`
 	PaymentProvider        string               `json:"payment_provider"`
-	ProviderId             string               `json:"provider_id"`
-	ReturnUrl              string               `json:"return_url"`
+	ProviderID             string               `json:"provider_id"`
+	ReturnURL              string               `json:"return_url"`
 }
