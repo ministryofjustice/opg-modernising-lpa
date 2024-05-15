@@ -59,3 +59,9 @@ type PaperFormRequested struct {
 	ActorUID   actoruid.UID `json:"actorUID"`
 	AccessCode string       `json:"accessCode"`
 }
+
+type PaymentCreated struct {
+	UID       string `json:"uid"`
+	PaymentID string `json:"paymentId"`
+	Amount    int    `json:"amount"`
+}
