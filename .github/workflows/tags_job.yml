@@ -114,7 +114,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-region: us-east-1
+          aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
           role-duration-seconds: 900
           role-session-name: GithubActionsSSMGetParameter
