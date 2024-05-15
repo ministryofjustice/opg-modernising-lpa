@@ -7,7 +7,11 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "addCorrespondent" }}</h1>
 
-      {{ trHtml .App "addCorrespondentContent" }}
+      {{ if .App.SupporterData }}
+        {{ trHtml .App "supporterAddCorrespondentContent" }}
+      {{ else }}
+        {{ trHtml .App "donorAddCorrespondentContent" }}
+      {{ end }}
       
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">

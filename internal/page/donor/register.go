@@ -301,6 +301,15 @@ func Register(
 	handleWithDonor(page.Paths.RemovePersonToNotify, page.CanGoBack,
 		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
+	handleWithDonor(page.Paths.AddCorrespondent, page.None,
+		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentDetails, page.CanGoBack,
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
+	handleWithDonor(page.Paths.EnterCorrespondentAddress, page.CanGoBack,
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.WhoCanCorrespondentsDetailsBeSharedWith, page.CanGoBack,
+		WhoCanCorrespondentsDetailsBeSharedWith(tmpls.Get("who_can_correspondents_details_be_shared_with.gohtml"), donorStore))
+
 	handleWithDonor(page.Paths.GettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
 	handleWithDonor(page.Paths.YourAuthorisedSignatory, page.CanGoBack,
@@ -320,15 +329,6 @@ func Register(
 		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now, appPublicURL))
 	handleWithDonor(page.Paths.LpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
-
-	handleWithDonor(page.Paths.AddCorrespondent, page.None,
-		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore))
-	handleWithDonor(page.Paths.EnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
-	handleWithDonor(page.Paths.EnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.WhoCanCorrespondentsDetailsBeSharedWith, page.CanGoBack,
-		WhoCanCorrespondentsDetailsBeSharedWith(tmpls.Get("who_can_correspondents_details_be_shared_with.gohtml"), donorStore))
 
 	handleWithDonor(page.Paths.AboutPayment, page.None,
 		Guidance(tmpls.Get("about_payment.gohtml")))
