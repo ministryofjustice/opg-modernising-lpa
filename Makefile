@@ -163,4 +163,7 @@ terraform-update-docs: ##@terraform updates all terraform-docs managed documenta
 	terraform-docs --config terraform/account/region/.terraform-docs.yml ./terraform/account/region
 
 delete-all-from-lpa-index: ##@opensearch clears all items from the lpa index
-	curl -X POST 'http://localhost:9200/lpas/_delete_by_query/?conflicts=proceed&pretty' -H 'Content-Type: application/json' -d '{"query": {"match_all": {}}}'
+	curl -X POST "http://localhost:9200/lpas/_delete_by_query/?conflicts=proceed&pretty" -H 'Content-Type: application/json' -d '{"query": {"match_all": {}}}'
+
+delete-lpa-index: ##@opensearch deletes the lpa index
+	curl -XDELETE "http://localhost:9200/lpas"
