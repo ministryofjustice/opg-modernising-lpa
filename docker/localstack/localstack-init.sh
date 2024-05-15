@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+echo 'configuring opensearch'
+awslocal opensearch create-domain --region eu-west-1 --domain-name my-domain
+
+echo 'deleting opensearch lpas index'
+curl -XDELETE "http://opensearch:9200/lpas"
 
 echo 'generating key pair'
 openssl genpkey -algorithm RSA -out /tmp/private_key.pem -pkeyopt rsa_keygen_bits:2048
@@ -37,6 +42,3 @@ awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event
 
 awslocal events put-rule --region eu-west-1 --name receive-events-mlpa --event-bus-name default --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
 awslocal events put-targets --region eu-west-1 --event-bus-name default --rule receive-events-mlpa --targets "Id"="receive-events-sirius","Arn"="arn:aws:lambda:eu-west-1:000000000000:function:event-received"
-
-echo 'configuring opensearch'
-awslocal opensearch create-domain --region eu-west-1 --domain-name my-domain
