@@ -304,10 +304,7 @@ func updateLPAProgress(
 		donorDetails.Tasks.PeopleToNotify = actor.TaskCompleted
 	}
 
-	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
-		donorDetails.CheckedAt = time.Now()
-		donorDetails.Tasks.CheckYourLpa = actor.TaskCompleted
-	} else if data.Progress >= slices.Index(progressValues, "addCorrespondent") {
+	if data.Progress == slices.Index(progressValues, "addCorrespondent") {
 		donorDetails.AddCorrespondent = form.Yes
 		donorDetails.Correspondent = makeCorrespondent(Name{
 			Firstnames: "Jonathan",
@@ -315,6 +312,14 @@ func updateLPAProgress(
 		})
 
 		donorDetails.Tasks.AddCorrespondent = actor.TaskCompleted
+
+		donorDetails.CheckedAt = time.Time{}
+		donorDetails.Tasks.CheckYourLpa = actor.TaskNotStarted
+	}
+
+	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
+		donorDetails.CheckedAt = time.Now()
+		donorDetails.Tasks.CheckYourLpa = actor.TaskCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "payForTheLpa") {
