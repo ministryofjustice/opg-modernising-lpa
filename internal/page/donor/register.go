@@ -64,8 +64,8 @@ type S3Client interface {
 }
 
 type PayClient interface {
-	CreatePayment(context.Context, pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)
-	GetPayment(context.Context, string) (pay.GetPaymentResponse, error)
+	CreatePayment(ctx context.Context, lpaUID string, body pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error)
+	GetPayment(ctx context.Context, id string) (pay.GetPaymentResponse, error)
 }
 
 type AddressClient interface {
@@ -129,7 +129,8 @@ type DocumentStore interface {
 }
 
 type EventClient interface {
-	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
+	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
+	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
 }
 
 type DashboardStore interface {
@@ -507,17 +508,17 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		Amount:      donor.FeeAmount(),
 		Reference:   p.randomString(12),
 		Description: "Property and Finance LPA",
-		ReturnUrl:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
+		ReturnURL:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
 		Email:       donor.Donor.Email,
 		Language:    appData.Lang.String(),
 	}
 
-	resp, err := p.payClient.CreatePayment(r.Context(), createPaymentBody)
+	resp, err := p.payClient.CreatePayment(r.Context(), donor.LpaUID, createPaymentBody)
 	if err != nil {
 		return fmt.Errorf("error creating payment: %w", err)
 	}
 
-	if err = p.sessionStore.SetPayment(r, w, &sesh.PaymentSession{PaymentID: resp.PaymentId}); err != nil {
+	if err = p.sessionStore.SetPayment(r, w, &sesh.PaymentSession{PaymentID: resp.PaymentID}); err != nil {
 		return err
 	}
 

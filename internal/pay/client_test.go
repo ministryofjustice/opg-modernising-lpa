@@ -2,166 +2,81 @@ package pay
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
-	amount      = 82
-	reference   = "abc123"
-	description = "A payment"
-	returnUrl   = "/example/url"
-	email       = "a@example.org"
-	language    = "en"
-	apiToken    = "fake-token"
+	expectedError = errors.New("err")
+	amount        = 8200
+	reference     = "abc123"
+	description   = "A payment"
+	returnUrl     = "/example/url"
+	email         = "a@example.org"
+	language      = "en"
+	apiToken      = "fake-token"
+	ctx           = context.WithValue(context.Background(), "a", "b")
+	created, _    = time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
 )
 
 func TestCreatePayment(t *testing.T) {
-	t.Run("POSTs required body content to expected GOVUK Pay create payment endpoint", func(t *testing.T) {
-		created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
-		body := CreatePaymentBody{
-			Amount:      amount,
-			Reference:   reference,
-			Description: description,
-			ReturnUrl:   returnUrl,
-			Email:       email,
-			Language:    language,
-		}
-
-		expectedCPResponse := CreatePaymentResponse{
-			CreatedDate: created,
-			State: State{
-				Status:   "created",
-				Finished: false,
+	expectedResponse := &CreatePaymentResponse{
+		CreatedDate: created,
+		State: State{
+			Status:   "created",
+			Finished: false,
+		},
+		Links: map[string]Link{
+			"self": {
+				Href:   "https://publicapi.payments.service.gov.uk/v1/payments/hu20sqlact5260q2nanm0q8u93",
+				Method: "GET",
 			},
-			Links: map[string]Link{
-				"self": {
-					Href:   "https://publicapi.payments.service.gov.uk/v1/payments/hu20sqlact5260q2nanm0q8u93",
-					Method: "GET",
-				},
-				"next_url": {
-					Href:   "https://www.payments.service.gov.uk/secure/bb0a272c-8eaf-468d-b3xf-ae5e000d2231",
-					Method: "GET",
-				},
+			"next_url": {
+				Href:   "https://www.payments.service.gov.uk/secure/bb0a272c-8eaf-468d-b3xf-ae5e000d2231",
+				Method: "GET",
 			},
-			Amount:          amount,
-			Reference:       reference,
-			Description:     description,
-			ReturnUrl:       returnUrl,
-			PaymentId:       "hu20sqlact5260q2nanm0q8u93",
-			PaymentProvider: "worldpay",
-			ProviderId:      "10987654321",
-		}
+		},
+		Amount:          amount,
+		Reference:       reference,
+		Description:     description,
+		ReturnURL:       returnUrl,
+		PaymentID:       "hu20sqlact5260q2nanm0q8u93",
+		PaymentProvider: "worldpay",
+		ProviderID:      "10987654321",
+	}
 
-		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			defer req.Body.Close()
+	expectedReqBody := `{"amount": 8200, "reference": "abc123", "description": "A payment", "return_url": "/example/url", "email": "a@example.org", "language": "en"}`
 
-			reqBody, _ := io.ReadAll(req.Body)
-			expectedReqBody := `{"amount": 82,"reference" : "abc123","description": "A payment","return_url": "/example/url","email": "a@example.org","language": "en"}`
+	var reqBody []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if reqBody == nil {
+				reqBody, _ = io.ReadAll(req.Body)
+			}
 
-			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
-			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
-			assert.JSONEq(t, expectedReqBody, string(reqBody), "Request body did not match")
-
-			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateCreatePaymentResponseBodyJsonString(created))
-		}))
-
-		defer server.Close()
-
-		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
-
-		actualCPResponse, err := payClient.CreatePayment(context.Background(), body)
-
-		assert.Nil(t, err, "Received an error when it should be nil")
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
-	})
-
-	t.Run("Returns an error if unable to create a request object", func(t *testing.T) {
-		body := CreatePaymentBody{
-			Amount:      amount,
-			Reference:   reference,
-			Description: description,
-			ReturnUrl:   returnUrl,
-			Email:       email,
-			Language:    language,
-		}
-
-		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
-
-		defer server.Close()
-
-		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
-
-		_, err := payClient.CreatePayment(context.Background(), body)
-
-		assert.NotNil(t, err, "Expected an error but received nil")
-	})
-
-	t.Run("Returns an error if unable to make a request", func(t *testing.T) {
-		body := CreatePaymentBody{
-			Amount:      amount,
-			Reference:   reference,
-			Description: description,
-			ReturnUrl:   returnUrl,
-			Email:       email,
-			Language:    language,
-		}
-
-		expectedCPResponse := CreatePaymentResponse{}
-
-		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			// Force request error
-			rw.Header().Set("Content-Length", "1")
-		}))
-
-		defer server.Close()
-
-		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
-
-		actualCPResponse, err := payClient.CreatePayment(context.Background(), body)
-
-		assert.NotNil(t, err, "Expected an error but received nil")
-		assert.Equal(t, expectedCPResponse, actualCPResponse, "Return value did not match")
-	})
-
-	t.Run("Returns an error if unable to decode response", func(t *testing.T) {
-		body := CreatePaymentBody{
-			Amount:      amount,
-			Reference:   reference,
-			Description: description,
-			ReturnUrl:   returnUrl,
-			Email:       email,
-			Language:    language,
-		}
-
-		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			defer req.Body.Close()
-
-			assert.Equal(t, req.URL.String(), "/v1/payments", "URL did not match")
-
-			rw.WriteHeader(http.StatusCreated)
-			rw.Write([]byte("not JSON"))
-		}))
-
-		defer server.Close()
-
-		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
-
-		_, err := payClient.CreatePayment(context.Background(), body)
-
-		assert.NotNil(t, err, "Expected an error but received nil")
-	})
-}
-
-func generateCreatePaymentResponseBodyJsonString(createdAt time.Time) []byte {
-	return []byte(fmt.Sprintf(`
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, req.URL.String(), "http://pay/v1/payments") &&
+				assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token") &&
+				assert.Equal(t, req.Header.Get("Content-Type"), "application/json") &&
+				assert.JSONEq(t, expectedReqBody, string(reqBody))
+		})).
+		Return(&http.Response{
+			StatusCode: http.StatusCreated,
+			Body: io.NopCloser(strings.NewReader(fmt.Sprintf(`
 {
 	"created_date": "%s",
 	"state": {
@@ -178,14 +93,113 @@ func generateCreatePaymentResponseBodyJsonString(createdAt time.Time) []byte {
 			"method": "GET"
 		}
 	},
-	"amount": 82,
+	"amount": 8200,
 	"reference" : "abc123",
 	"description": "A payment",
 	"return_url": "/example/url",
 	"payment_id": "hu20sqlact5260q2nanm0q8u93",
 	"payment_provider": "worldpay",
 	"provider_id": "10987654321"
-}`, createdAt.Format(time.RFC3339Nano)))
+}`, created.Format(time.RFC3339Nano)))),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(ctx, event.PaymentCreated{
+			UID:       "lpa-uid",
+			PaymentID: "hu20sqlact5260q2nanm0q8u93",
+			Amount:    8200,
+		}).
+		Return(nil)
+
+	payClient := New(nil, doer, eventClient, "http://pay", apiToken)
+
+	actualResponse, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{
+		Amount:      amount,
+		Reference:   reference,
+		Description: description,
+		ReturnURL:   returnUrl,
+		Email:       email,
+		Language:    language,
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResponse, actualResponse)
+}
+
+func TestCreatePaymentWhenNewRequestErrors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {}))
+	defer server.Close()
+
+	payClient := Client{baseURL: server.URL + "`invalid-url-format", apiKey: apiToken, doer: server.Client()}
+
+	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
+	assert.NotNil(t, err)
+}
+
+func TestCreatePaymentWhenDoerErrors(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(nil, expectedError)
+
+	payClient := Client{doer: doer}
+
+	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestCreatePaymentWhenResponseError(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{
+			StatusCode: http.StatusBadRequest,
+			Body:       io.NopCloser(strings.NewReader("hey")),
+		}, nil)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(ctx, "payment failed", slog.String("body", "hey"), slog.Int("statusCode", http.StatusBadRequest))
+
+	payClient := Client{doer: doer, logger: logger}
+
+	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
+	assert.Error(t, err)
+}
+
+func TestCreatePaymentWhenJsonError(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{
+			StatusCode: http.StatusCreated,
+			Body:       io.NopCloser(strings.NewReader("hey")),
+		}, nil)
+
+	payClient := Client{doer: doer}
+
+	_, err := payClient.CreatePayment(context.Background(), "lpa-uid", CreatePaymentBody{})
+	assert.IsType(t, (*json.SyntaxError)(nil), err)
+}
+
+func TestCreatePaymentWhenEventErrors(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{
+			StatusCode: http.StatusCreated,
+			Body:       io.NopCloser(strings.NewReader(`{}`)),
+		}, nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(ctx, mock.Anything).
+		Return(expectedError)
+
+	payClient := New(nil, doer, eventClient, "", "")
+
+	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
+	assert.Equal(t, expectedError, err)
 }
 
 func TestGetPayment(t *testing.T) {
@@ -200,12 +214,12 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
 			rw.WriteHeader(http.StatusCreated)
-			rw.Write(generateGetPaymentResponseBodyJsonBytes(created))
+			io.WriteString(rw, generateGetPaymentResponseBodyJsonBytes(created))
 		}))
 
 		defer server.Close()
 
-		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
+		payClient := Client{baseURL: server.URL, apiKey: apiToken, doer: server.Client()}
 
 		actualGPResponse, err := payClient.GetPayment(context.Background(), paymentId)
 
@@ -237,7 +251,7 @@ func TestGetPayment(t *testing.T) {
 					Country:  "GB",
 				},
 			},
-			PaymentId: "hu20sqlact5260q2nanm0q8u93",
+			PaymentID: "hu20sqlact5260q2nanm0q8u93",
 			AuthorisationSummary: AuthorisationSummary{
 				ThreeDSecure: ThreeDSecure{
 					Required: true,
@@ -259,8 +273,8 @@ func TestGetPayment(t *testing.T) {
 			Fee:                    200,
 			NetAmount:              3800,
 			PaymentProvider:        "worldpay",
-			ProviderId:             "10987654321",
-			ReturnUrl:              "https://your.service.gov.uk/completed",
+			ProviderID:             "10987654321",
+			ReturnURL:              "https://your.service.gov.uk/completed",
 		}
 		assert.Equal(t, expectedGPResponse, actualGPResponse, "Return value did not match")
 	})
@@ -270,7 +284,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient := Client{BaseURL: server.URL + "`invalid-url-format", ApiKey: apiToken, HttpClient: server.Client()}
+		payClient := Client{baseURL: server.URL + "`invalid-url-format", apiKey: apiToken, doer: server.Client()}
 
 		_, err := payClient.GetPayment(context.Background(), paymentId)
 
@@ -282,7 +296,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient := Client{BaseURL: "not an url", ApiKey: apiToken, HttpClient: server.Client()}
+		payClient := Client{baseURL: "not an url", apiKey: apiToken, doer: server.Client()}
 
 		_, err := payClient.GetPayment(context.Background(), paymentId)
 
@@ -301,7 +315,7 @@ func TestGetPayment(t *testing.T) {
 
 		defer server.Close()
 
-		payClient := Client{BaseURL: server.URL, ApiKey: apiToken, HttpClient: server.Client()}
+		payClient := Client{baseURL: server.URL, apiKey: apiToken, doer: server.Client()}
 
 		_, err := payClient.GetPayment(context.Background(), paymentId)
 
@@ -309,8 +323,8 @@ func TestGetPayment(t *testing.T) {
 	})
 }
 
-func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) []byte {
-	return []byte(fmt.Sprintf(`
+func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) string {
+	return fmt.Sprintf(`
 {
 	"created_date": "%s",
 	"amount": %v,
@@ -373,5 +387,5 @@ func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) []byte {
 		reference,
 		language,
 		email,
-		createdAt.Format(time.RFC3339Nano)))
+		createdAt.Format(time.RFC3339Nano))
 }

@@ -10,7 +10,7 @@ type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
 	Reference   string `json:"reference"`
 	Description string `json:"description"`
-	ReturnUrl   string `json:"return_url"`
+	ReturnURL   string `json:"return_url"`
 	Email       string `json:"email"`
 	Language    string `json:"language"`
 }
@@ -32,10 +32,10 @@ type CreatePaymentResponse struct {
 	Amount          int             `json:"amount"`
 	Reference       string          `json:"reference"`
 	Description     string          `json:"description"`
-	ReturnUrl       string          `json:"return_url"`
-	PaymentId       string          `json:"payment_id"`
+	ReturnURL       string          `json:"return_url"`
+	PaymentID       string          `json:"payment_id"`
 	PaymentProvider string          `json:"payment_provider"`
-	ProviderId      string          `json:"provider_id"`
+	ProviderID      string          `json:"provider_id"`
 }
 
 type CardDetails struct {
@@ -90,7 +90,7 @@ type GetPaymentResponse struct {
 	//} `json:"metadata"`
 	Email                  string               `json:"email"`
 	CardDetails            CardDetails          `json:"card_details"`
-	PaymentId              string               `json:"payment_id"`
+	PaymentID              string               `json:"payment_id"`
 	AuthorisationSummary   AuthorisationSummary `json:"authorisation_summary"`
 	RefundSummary          RefundSummary        `json:"refund_summary"`
 	SettlementSummary      SettlementSummary    `json:"settlement_summary"`
@@ -101,6 +101,6 @@ type GetPaymentResponse struct {
 	Fee                    int                  `json:"fee"`
 	NetAmount              int                  `json:"net_amount"`
 	PaymentProvider        string               `json:"payment_provider"`
-	ProviderId             string               `json:"provider_id"`
-	ReturnUrl              string               `json:"return_url"`
+	ProviderID             string               `json:"provider_id"`
+	ReturnURL              string               `json:"return_url"`
 }
