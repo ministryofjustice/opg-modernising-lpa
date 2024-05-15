@@ -1199,5 +1199,7 @@
     "whenYouSelectConfirmWeWillContactDonor": "Welsh {{ .DonorFirstNames }} Welsh",
     "thankYou": "Welsh",
     "weHaveContactedDonorToLetThemKnowYourDecision": "Welsh {{ .DonorFullName }} Welsh",
-    "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh: 0115 934 2777</li> <li>Welsh: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a> Welsh</p>"
+    "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh: 0115 934 2777</li> <li>Welsh: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a> Welsh</p>",
+    "yourAddress": "Welsh",
+    "yourAddressWarning": "Welsh"
 }

@@ -951,8 +951,8 @@
     "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated": "<p class=\"govuk-body\">You should only change your details if they need to be updated. You cannot make an LPA for someone else using your own account. <a href=\"#\" class=\"govuk-link\">Find out more about how to make an LPA for someone else</a>.</p>",
     "yourName": "Your name",
     "yourNameWarning": "You should only enter your details. You cannot make an LPA for someone else using your account.",
-    "yourDateOfBirth": "Your name",
-    "yourDateOfBirthWarning": "You should only enter your date of birth. You cannot make an LPA for someone else using your account.",
+    "yourDateOfBirth": "Your date of birth",
+    "yourDateOfBirthWarning": "You should only update your date of birth if it is incorrect. You cannot make an LPA for someone else using your account.",
     "detailUpdated": "{{ .Detail }} updated",
     "weHaveUpdatedYourDetail": "We have updated your {{ .Detail }}.",
     "weHaveUpdatedYourDetails": "We have updated your details",
@@ -1131,5 +1131,7 @@
     "whenYouSelectConfirmWeWillContactDonor": "When you select ‘Confirm’ we will contact {{ .DonorFirstNames }} to tell them what they should do next.",
     "thankYou": "Thank you",
     "weHaveContactedDonorToLetThemKnowYourDecision": "We have contacted {{ .DonorFullName }} to let them know of your decision to not be their certificate provider",
-    "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Report a concern</h2> <p class=\"govuk-body\">If you have concerns about this LPA you can contact our safeguarding team:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>call: 0115 934 2777</li> <li>email: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">You can also <a class=\"govuk-link\" href=\"#\">report a concern</a> using our online form.</p>"
+    "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Report a concern</h2> <p class=\"govuk-body\">If you have concerns about this LPA you can contact our safeguarding team:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>call: 0115 934 2777</li> <li>email: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">You can also <a class=\"govuk-link\" href=\"#\">report a concern</a> using our online form.</p>",
+    "yourAddress": "Your address",
+    "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account."
 }
