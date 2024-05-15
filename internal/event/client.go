@@ -53,6 +53,10 @@ func (c *Client) SendPaperFormRequested(ctx context.Context, event PaperFormRequ
 	return c.send(ctx, "paper-form-requested", event)
 }
 
+func (c *Client) SendPaymentCreated(ctx context.Context, event PaymentCreated) error {
+	return c.send(ctx, "payment-created", event)
+}
+
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 	ctx, span := tracer.Start(ctx, detailType,

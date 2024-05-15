@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
@@ -48,9 +47,14 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendNotificationSent(ctx, event) }, event
 		},
 		"paper-form-requested": func() (func(*Client) error, any) {
-			event := PaperFormRequested{UID: "a", ActorType: actor.TypeAttorney.String(), ActorUID: actoruid.New()}
+			event := PaperFormRequested{UID: "a", ActorType: "attorney", ActorUID: actoruid.New()}
 
 			return func(client *Client) error { return client.SendPaperFormRequested(ctx, event) }, event
+		},
+		"payment-created": func() (func(*Client) error, any) {
+			event := PaymentCreated{UID: "a", PaymentID: "xyz", Amount: 8200}
+
+			return func(client *Client) error { return client.SendPaymentCreated(ctx, event) }, event
 		},
 	}
 
