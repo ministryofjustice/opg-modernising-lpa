@@ -14,6 +14,9 @@ on:
       environment_workspace_name:
         description: "Terraform Environment Workspace Name"
         value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
+      s3_av_zip_tag:
+        description: "Version tag for S3 antivirus lambda zip packages"
+        value: ${{ jobs.pull_tags.outputs.pull_s3_av_tag }}
 
 jobs:
   create_tags:
@@ -101,9 +104,17 @@ jobs:
           echo "tag=${value}" >> $GITHUB_OUTPUT
           echo "env=${key}" >> $GITHUB_OUTPUT
 
+      - name: Pull S3 AV Zip tag
+        id: pull_s3_av_tag
+        run: |
+          key="/opg-s3-antivirus/zip-version-main"
+          value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text 2>/dev/null || true)
+          echo "Using $key: $value"
+          echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
+      pull_s3_av_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
 
   consolidate_tags:
     needs: [
