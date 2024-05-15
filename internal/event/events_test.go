@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -63,27 +62,27 @@ func TestEventSchema(t *testing.T) {
 			"certificate provider": PaperFormRequested{
 				UID:       "M-0000-0000-0000",
 				ActorUID:  actoruid.New(),
-				ActorType: actor.TypeCertificateProvider.String(),
+				ActorType: "certificateProvider",
 			},
 			"attorney": PaperFormRequested{
 				UID:       "M-0000-0000-0000",
 				ActorUID:  actoruid.New(),
-				ActorType: actor.TypeAttorney.String(),
+				ActorType: "attorney",
 			},
 			"replacement attorney": PaperFormRequested{
 				UID:       "M-0000-0000-0000",
 				ActorUID:  actoruid.New(),
-				ActorType: actor.TypeReplacementAttorney.String(),
+				ActorType: "replacementAttorney",
 			},
 			"trust corporation": PaperFormRequested{
 				UID:       "M-0000-0000-0000",
 				ActorUID:  actoruid.New(),
-				ActorType: actor.TypeTrustCorporation.String(),
+				ActorType: "trustCorporation",
 			},
 			"replacement trust corporation": PaperFormRequested{
 				UID:       "M-0000-0000-0000",
 				ActorUID:  actoruid.New(),
-				ActorType: actor.TypeReplacementTrustCorporation.String(),
+				ActorType: "replacementTrustCorporation",
 			},
 		},
 	}

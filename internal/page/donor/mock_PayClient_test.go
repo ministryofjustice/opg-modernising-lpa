@@ -22,27 +22,29 @@ func (_m *mockPayClient) EXPECT() *mockPayClient_Expecter {
 	return &mockPayClient_Expecter{mock: &_m.Mock}
 }
 
-// CreatePayment provides a mock function with given fields: _a0, _a1
-func (_m *mockPayClient) CreatePayment(_a0 context.Context, _a1 pay.CreatePaymentBody) (pay.CreatePaymentResponse, error) {
-	ret := _m.Called(_a0, _a1)
+// CreatePayment provides a mock function with given fields: ctx, lpaUID, body
+func (_m *mockPayClient) CreatePayment(ctx context.Context, lpaUID string, body pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error) {
+	ret := _m.Called(ctx, lpaUID, body)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreatePayment")
 	}
 
-	var r0 pay.CreatePaymentResponse
+	var r0 *pay.CreatePaymentResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, string, pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error)); ok {
+		return rf(ctx, lpaUID, body)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, pay.CreatePaymentBody) pay.CreatePaymentResponse); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, string, pay.CreatePaymentBody) *pay.CreatePaymentResponse); ok {
+		r0 = rf(ctx, lpaUID, body)
 	} else {
-		r0 = ret.Get(0).(pay.CreatePaymentResponse)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*pay.CreatePaymentResponse)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, pay.CreatePaymentBody) error); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func(context.Context, string, pay.CreatePaymentBody) error); ok {
+		r1 = rf(ctx, lpaUID, body)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,32 +58,33 @@ type mockPayClient_CreatePayment_Call struct {
 }
 
 // CreatePayment is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 pay.CreatePaymentBody
-func (_e *mockPayClient_Expecter) CreatePayment(_a0 interface{}, _a1 interface{}) *mockPayClient_CreatePayment_Call {
-	return &mockPayClient_CreatePayment_Call{Call: _e.mock.On("CreatePayment", _a0, _a1)}
+//   - ctx context.Context
+//   - lpaUID string
+//   - body pay.CreatePaymentBody
+func (_e *mockPayClient_Expecter) CreatePayment(ctx interface{}, lpaUID interface{}, body interface{}) *mockPayClient_CreatePayment_Call {
+	return &mockPayClient_CreatePayment_Call{Call: _e.mock.On("CreatePayment", ctx, lpaUID, body)}
 }
 
-func (_c *mockPayClient_CreatePayment_Call) Run(run func(_a0 context.Context, _a1 pay.CreatePaymentBody)) *mockPayClient_CreatePayment_Call {
+func (_c *mockPayClient_CreatePayment_Call) Run(run func(ctx context.Context, lpaUID string, body pay.CreatePaymentBody)) *mockPayClient_CreatePayment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(pay.CreatePaymentBody))
+		run(args[0].(context.Context), args[1].(string), args[2].(pay.CreatePaymentBody))
 	})
 	return _c
 }
 
-func (_c *mockPayClient_CreatePayment_Call) Return(_a0 pay.CreatePaymentResponse, _a1 error) *mockPayClient_CreatePayment_Call {
+func (_c *mockPayClient_CreatePayment_Call) Return(_a0 *pay.CreatePaymentResponse, _a1 error) *mockPayClient_CreatePayment_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockPayClient_CreatePayment_Call) RunAndReturn(run func(context.Context, pay.CreatePaymentBody) (pay.CreatePaymentResponse, error)) *mockPayClient_CreatePayment_Call {
+func (_c *mockPayClient_CreatePayment_Call) RunAndReturn(run func(context.Context, string, pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error)) *mockPayClient_CreatePayment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetPayment provides a mock function with given fields: _a0, _a1
-func (_m *mockPayClient) GetPayment(_a0 context.Context, _a1 string) (pay.GetPaymentResponse, error) {
-	ret := _m.Called(_a0, _a1)
+// GetPayment provides a mock function with given fields: ctx, id
+func (_m *mockPayClient) GetPayment(ctx context.Context, id string) (pay.GetPaymentResponse, error) {
+	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPayment")
@@ -90,16 +93,16 @@ func (_m *mockPayClient) GetPayment(_a0 context.Context, _a1 string) (pay.GetPay
 	var r0 pay.GetPaymentResponse
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) (pay.GetPaymentResponse, error)); ok {
-		return rf(_a0, _a1)
+		return rf(ctx, id)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string) pay.GetPaymentResponse); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(pay.GetPaymentResponse)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(_a0, _a1)
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,13 +116,13 @@ type mockPayClient_GetPayment_Call struct {
 }
 
 // GetPayment is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 string
-func (_e *mockPayClient_Expecter) GetPayment(_a0 interface{}, _a1 interface{}) *mockPayClient_GetPayment_Call {
-	return &mockPayClient_GetPayment_Call{Call: _e.mock.On("GetPayment", _a0, _a1)}
+//   - ctx context.Context
+//   - id string
+func (_e *mockPayClient_Expecter) GetPayment(ctx interface{}, id interface{}) *mockPayClient_GetPayment_Call {
+	return &mockPayClient_GetPayment_Call{Call: _e.mock.On("GetPayment", ctx, id)}
 }
 
-func (_c *mockPayClient_GetPayment_Call) Run(run func(_a0 context.Context, _a1 string)) *mockPayClient_GetPayment_Call {
+func (_c *mockPayClient_GetPayment_Call) Run(run func(ctx context.Context, id string)) *mockPayClient_GetPayment_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(string))
 	})

@@ -4,78 +4,97 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
-	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
 
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
 }
 
+type Logger interface {
+	ErrorContext(ctx context.Context, msg string, args ...any)
+}
+
+type EventClient interface {
+	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
+}
+
 type Client struct {
-	BaseURL    string
-	ApiKey     string
-	HttpClient Doer
+	logger      Logger
+	doer        Doer
+	eventClient EventClient
+	baseURL     string
+	apiKey      string
 }
 
-type GovUKPayTime time.Time
-
-func (g *GovUKPayTime) UnmarshalText(b []byte) error {
-	t, err := time.Parse(time.RFC3339Nano, string(b))
-	if err != nil {
-		return err
+func New(logger Logger, doer Doer, eventClient EventClient, baseURL, apiKey string) *Client {
+	return &Client{
+		logger:      logger,
+		doer:        doer,
+		eventClient: eventClient,
+		baseURL:     baseURL,
+		apiKey:      apiKey,
 	}
-
-	*g = GovUKPayTime(t)
-	return nil
 }
 
-func (g GovUKPayTime) MarshalText() ([]byte, error) {
-	return []byte(g.Format(time.RFC3339Nano)), nil
-}
-
-func (g GovUKPayTime) Format(s string) string {
-	return time.Time(g).Format(s)
-}
-
-func (c *Client) CreatePayment(ctx context.Context, body CreatePaymentBody) (CreatePaymentResponse, error) {
+func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePaymentBody) (*CreatePaymentResponse, error) {
 	data, _ := json.Marshal(body)
 	reader := bytes.NewReader(data)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", c.BaseURL+"/v1/payments", reader)
+	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/v1/payments", reader)
 	if err != nil {
-		return CreatePaymentResponse{}, err
+		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
+	req.Header.Add("Authorization", "Bearer "+c.apiKey)
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.HttpClient.Do(req)
+	resp, err := c.doer.Do(req)
 	if err != nil {
-		return CreatePaymentResponse{}, err
+		return nil, err
 	}
-
 	defer resp.Body.Close()
 
-	var createPaymentResp CreatePaymentResponse
+	if resp.StatusCode != http.StatusCreated {
+		data, _ := io.ReadAll(resp.Body)
+		c.logger.ErrorContext(ctx, "payment failed",
+			slog.String("body", string(data)),
+			slog.Int("statusCode", resp.StatusCode))
 
-	if err := json.NewDecoder(resp.Body).Decode(&createPaymentResp); err != nil {
-		return CreatePaymentResponse{}, err
+		return nil, fmt.Errorf("expected 201 got %d", resp.StatusCode)
 	}
 
-	return createPaymentResp, nil
+	var createPaymentResp CreatePaymentResponse
+	if err := json.NewDecoder(resp.Body).Decode(&createPaymentResp); err != nil {
+		return nil, err
+	}
+
+	if err := c.eventClient.SendPaymentCreated(ctx, event.PaymentCreated{
+		UID:       lpaUID,
+		PaymentID: createPaymentResp.PaymentID,
+		Amount:    createPaymentResp.Amount,
+	}); err != nil {
+		return nil, err
+	}
+
+	return &createPaymentResp, nil
 }
 
 func (c *Client) GetPayment(ctx context.Context, paymentId string) (GetPaymentResponse, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", c.BaseURL+"/v1/payments/"+paymentId, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+"/v1/payments/"+paymentId, nil)
 	if err != nil {
 		return GetPaymentResponse{}, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.ApiKey)
+	req.Header.Add("Authorization", "Bearer "+c.apiKey)
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := c.HttpClient.Do(req)
+	resp, err := c.doer.Do(req)
 
 	if err != nil {
 		return GetPaymentResponse{}, err
