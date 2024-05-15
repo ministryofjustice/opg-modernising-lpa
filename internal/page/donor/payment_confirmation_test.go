@@ -222,7 +222,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amou
 				Status:   "success",
 				Finished: true,
 			},
-			PaymentId: paymentId,
+			PaymentID: paymentId,
 			Reference: reference,
 			Amount:    amount,
 		}, nil)

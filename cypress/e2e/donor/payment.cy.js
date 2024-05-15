@@ -23,6 +23,16 @@ describe('Pay for LPA', () => {
     cy.get('h1').should('contain', 'Payment received');
     cy.checkA11yApp();
     cy.getCookie('pay').should('not.exist');
+
+    cy.contains('a', 'Continue').click();
+    cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
+      .invoke('text')
+      .then((uid) => {
+        cy.visit(`http://localhost:9001/?detail-type=payment-created&detail=${uid}`);
+
+        cy.contains('"amount":1200');
+        cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+      });
   });
 
   it('can apply for a half fee', () => {

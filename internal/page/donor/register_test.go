@@ -347,16 +347,16 @@ func TestPayHelperPay(t *testing.T) {
 
 			payClient := newMockPayClient(t)
 			payClient.EXPECT().
-				CreatePayment(r.Context(), pay.CreatePaymentBody{
+				CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
 					Amount:      8200,
 					Reference:   "123456789012",
 					Description: "Property and Finance LPA",
-					ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
+					ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
 					Email:       "a@b.com",
 					Language:    "en",
 				}).
-				Return(pay.CreatePaymentResponse{
-					PaymentId: "a-fake-id",
+				Return(&pay.CreatePaymentResponse{
+					PaymentID: "a-fake-id",
 					Links: map[string]pay.Link{
 						"next_url": {
 							Href: tc.nextURL,
@@ -369,7 +369,7 @@ func TestPayHelperPay(t *testing.T) {
 				payClient:    payClient,
 				randomString: func(int) string { return "123456789012" },
 				appPublicURL: "http://example.org",
-			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
+			}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -518,16 +518,16 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
-		CreatePayment(r.Context(), pay.CreatePaymentBody{
+		CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
 			Amount:      4100,
 			Reference:   "123456789012",
 			Description: "Property and Finance LPA",
-			ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
+			ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
 			Email:       "a@b.com",
 			Language:    "en",
 		}).
-		Return(pay.CreatePaymentResponse{
-			PaymentId: "a-fake-id",
+		Return(&pay.CreatePaymentResponse{
+			PaymentID: "a-fake-id",
 			Links: map[string]pay.Link{
 				"next_url": {
 					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
@@ -539,6 +539,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:          "lpa-id",
+			LpaUID:         "lpa-uid",
 			Donor:          actor.Donor{Email: "a@b.com"},
 			FeeType:        pay.FullFee,
 			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
@@ -554,6 +555,7 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 		appPublicURL: "http://example.org",
 	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:          "lpa-id",
+		LpaUID:         "lpa-uid",
 		Donor:          actor.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
 		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
@@ -577,16 +579,9 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
-		CreatePayment(r.Context(), pay.CreatePaymentBody{
-			Amount:      4100,
-			Reference:   "123456789012",
-			Description: "Property and Finance LPA",
-			ReturnUrl:   "http://example.org/lpa/lpa-id/payment-confirmation",
-			Email:       "a@b.com",
-			Language:    "en",
-		}).
-		Return(pay.CreatePaymentResponse{
-			PaymentId: "a-fake-id",
+		CreatePayment(r.Context(), mock.Anything, mock.Anything).
+		Return(&pay.CreatePaymentResponse{
+			PaymentID: "a-fake-id",
 			Links: map[string]pay.Link{
 				"next_url": {
 					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
@@ -596,13 +591,7 @@ func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID:          "lpa-id",
-			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        pay.FullFee,
-			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []actor.Payment{{Amount: 4100}},
-		}).
+		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
 	err := (&payHelper{
@@ -630,8 +619,8 @@ func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
-		CreatePayment(mock.Anything, mock.Anything).
-		Return(pay.CreatePaymentResponse{}, expectedError)
+		CreatePayment(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil, expectedError)
 
 	err := (&payHelper{
 		payClient:    payClient,
@@ -652,9 +641,9 @@ func TestPayHelperPayWhenSessionErrors(t *testing.T) {
 
 	payClient := newMockPayClient(t)
 	payClient.EXPECT().
-		CreatePayment(mock.Anything, mock.Anything).
-		Return(pay.CreatePaymentResponse{
-			PaymentId: "a-fake-id",
+		CreatePayment(mock.Anything, mock.Anything, mock.Anything).
+		Return(&pay.CreatePaymentResponse{
+			PaymentID: "a-fake-id",
 			Links: map[string]pay.Link{
 				"next_url": {
 					Href: "http://somewhere",
