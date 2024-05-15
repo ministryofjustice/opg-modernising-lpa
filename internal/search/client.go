@@ -145,7 +145,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 		Params: opensearchapi.SearchParams{
 			From: aws.Int((req.Page - 1) * req.PageSize),
 			Size: aws.Int(req.PageSize),
-			Sort: []string{"Donor.FirstNames", "Donor.LastName"},
+			Sort: []string{"Donor.FirstNames.keyword", "Donor.LastName.keyword"},
 		},
 	})
 	if err != nil {

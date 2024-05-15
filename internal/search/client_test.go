@@ -176,7 +176,7 @@ func TestClientQuery(t *testing.T) {
 					Params: opensearchapi.SearchParams{
 						From: aws.Int(tc.from),
 						Size: aws.Int(10),
-						Sort: []string{"Donor.FirstNames", "Donor.LastName"},
+						Sort: []string{"Donor.FirstNames.keyword", "Donor.LastName.keyword"},
 					},
 				}).
 				Return(resp, nil)

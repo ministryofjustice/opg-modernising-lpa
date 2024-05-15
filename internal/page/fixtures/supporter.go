@@ -312,6 +312,7 @@ func waitForLPAIndex(searchClient *search.Client, organisationCtx context.Contex
 			PageSize: 1,
 		})
 		if err != nil {
+			log.Println("error waiting for LPA Index")
 			log.Println(err)
 		}
 
