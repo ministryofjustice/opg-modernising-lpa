@@ -75,23 +75,41 @@ func TestPostAddCorrespondent(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo                 form.YesNo
 		existingCorrespondent actor.Correspondent
+		existingTaskState     actor.TaskState
 		expectedCorrespondent actor.Correspondent
-		taskState             actor.TaskState
+		expectedTaskState     actor.TaskState
 		redirect              page.LpaPath
 	}{
-		"yes": {
+		"yes was yes": {
 			yesNo:                 form.Yes,
 			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
+			existingTaskState:     actor.TaskCompleted,
 			expectedCorrespondent: actor.Correspondent{FirstNames: "John"},
-			taskState:             actor.TaskInProgress,
+			expectedTaskState:     actor.TaskCompleted,
 			redirect:              page.Paths.EnterCorrespondentDetails,
 		},
-		"no": {
+		"yes was no": {
+			yesNo:             form.Yes,
+			existingTaskState: actor.TaskCompleted,
+			expectedTaskState: actor.TaskInProgress,
+			redirect:          page.Paths.EnterCorrespondentDetails,
+		},
+		"yes": {
+			yesNo:             form.Yes,
+			expectedTaskState: actor.TaskInProgress,
+			redirect:          page.Paths.EnterCorrespondentDetails,
+		},
+		"no was yes": {
 			yesNo:                 form.No,
 			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
-			expectedCorrespondent: actor.Correspondent{},
-			taskState:             actor.TaskCompleted,
+			existingTaskState:     actor.TaskCompleted,
+			expectedTaskState:     actor.TaskCompleted,
 			redirect:              page.Paths.TaskList,
+		},
+		"no": {
+			yesNo:             form.No,
+			expectedTaskState: actor.TaskCompleted,
+			redirect:          page.Paths.TaskList,
 		},
 	}
 
@@ -111,14 +129,14 @@ func TestPostAddCorrespondent(t *testing.T) {
 					LpaID:            "lpa-id",
 					AddCorrespondent: tc.yesNo,
 					Correspondent:    tc.expectedCorrespondent,
-					Tasks:            actor.DonorTasks{AddCorrespondent: tc.taskState},
+					Tasks:            actor.DonorTasks{AddCorrespondent: tc.expectedTaskState},
 				}).
 				Return(nil)
 
 			err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:         "lpa-id",
 				Correspondent: tc.existingCorrespondent,
-				Tasks:         actor.DonorTasks{},
+				Tasks:         actor.DonorTasks{AddCorrespondent: tc.existingTaskState},
 			})
 			resp := w.Result()
 
