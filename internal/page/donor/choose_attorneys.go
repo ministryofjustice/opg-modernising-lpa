@@ -14,13 +14,14 @@ import (
 )
 
 type chooseAttorneysData struct {
-	App         page.AppData
-	Errors      validation.List
-	Donor       *actor.DonorProvidedDetails
-	Form        *chooseAttorneysForm
-	ShowDetails bool
-	DobWarning  string
-	NameWarning *actor.SameNameWarning
+	App                      page.AppData
+	Errors                   validation.List
+	Donor                    *actor.DonorProvidedDetails
+	Form                     *chooseAttorneysForm
+	ShowDetails              bool
+	DobWarning               string
+	NameWarning              *actor.SameNameWarning
+	ShowTrustCorporationLink bool
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
@@ -41,7 +42,12 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, newUID func(
 				Email:      attorney.Email,
 				Dob:        attorney.DateOfBirth,
 			},
-			ShowDetails: attorneyFound == false && addAnother == false,
+			ShowDetails:              attorneyFound == false && addAnother == false,
+			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs(),
+		}
+
+		if donor.ReplacementAttorneys.TrustCorporation.Name != "" {
+			data.ShowTrustCorporationLink = false
 		}
 
 		if r.Method == http.MethodPost {
