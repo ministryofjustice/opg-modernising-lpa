@@ -30,14 +30,15 @@ func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID
 }
 
 type chooseAddressData struct {
-	App        page.AppData
-	Errors     validation.List
-	ActorLabel string
-	FullName   string
-	UID        actoruid.UID
-	Addresses  []place.Address
-	Form       *form.AddressForm
-	TitleKeys  titleKeys
+	App              page.AppData
+	Errors           validation.List
+	ActorLabel       string
+	FullName         string
+	UID              actoruid.UID
+	Addresses        []place.Address
+	Form             *form.AddressForm
+	TitleKeys        titleKeys
+	MakingAnotherLPA bool
 }
 
 type titleKeys struct {

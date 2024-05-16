@@ -18,23 +18,45 @@ import (
 )
 
 func TestGetYourAddress(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]struct {
+		query        string
+		expectedData *chooseAddressData
+	}{
+		"first time": {
+			expectedData: &chooseAddressData{
+				App:       testAppData,
+				Form:      form.NewAddressForm(),
+				TitleKeys: testTitleKeys,
+			},
+		},
+		"making another LPA": {
+			query: "?makingAnotherLPA=1",
+			expectedData: &chooseAddressData{
+				App:              testAppData,
+				Form:             form.NewAddressForm(),
+				TitleKeys:        testTitleKeys,
+				MakingAnotherLPA: true,
+			},
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &chooseAddressData{
-			App:       testAppData,
-			Form:      form.NewAddressForm(),
-			TitleKeys: testTitleKeys,
-		}).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/"+tc.query, nil)
 
-	err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, tc.expectedData).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := YourAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetYourAddressFromStore(t *testing.T) {
