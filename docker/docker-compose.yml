@@ -47,7 +47,8 @@ services:
       context: ..
       dockerfile: docker/localstack/Dockerfile
     depends_on:
-      - opensearch
+      opensearch:
+        condition: service_healthy
     container_name: localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
@@ -68,12 +69,6 @@ services:
       default:
         aliases:
           - my-domain.eu-west-1.opensearch.localhost.localstack.cloud
-    healthcheck:
-      test: "curl --silent --fail http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566 | grep 'cluster_name'"
-      interval: 20s
-      retries: 10
-      start_period: 20s
-      timeout: 10s
 
   opensearch:
     container_name: opensearch
@@ -93,6 +88,12 @@ services:
         hard: -1
     volumes:
       - data01:/usr/share/opensearch/data
+#    To ensure opensearch is ready for localstack-init commands
+    healthcheck:
+      test: "curl --silent --fail localhost:9200/_cluster/health | grep 'cluster_name'"
+      interval: 5s
+      retries: 6
+      timeout: 5s
 
   mock-lpa-store:
     build:
