@@ -8,7 +8,7 @@
       <form novalidate method="post">
         <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneysDetails" }}</h1>
 
-        {{ if .Donor.Type.IsPropertyAndAffairs }}
+        {{ if .ShowTrustCorporationLink }}
           <p class="govuk-body">
             <a href="{{ link .App (global.Paths.EnterTrustCorporation.Format .Donor.LpaID) }}" class="govuk-link govuk-link--no-visited-state">
               {{ tr .App "myAttorneyIsTrustCorporation" }}
