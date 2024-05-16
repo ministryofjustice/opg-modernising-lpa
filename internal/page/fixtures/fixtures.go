@@ -169,6 +169,26 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
+func makeCorrespondent(name Name) actor.Correspondent {
+	return actor.Correspondent{
+		FirstNames: name.Firstnames,
+		LastName:   name.Lastname,
+		Address: place.Address{
+			Line1:      "5 RICHMOND PLACE",
+			Line2:      "KINGS HEATH",
+			Line3:      "WEST MIDLANDS",
+			TownOrCity: "BIRMINGHAM",
+			Postcode:   "B14 7ED",
+			Country:    "GB",
+		},
+		Organisation: "Ashfurlong and partners",
+		WantAddress:  form.Yes,
+		Share:        actor.CorrespondentShareAttorneys | actor.CorrespondentShareCertificateProvider,
+		Email:        testEmail,
+		Telephone:    testMobile,
+	}
+}
+
 func makeUID() string {
 	return strings.ToUpper("M-" + "FAKE" + "-" + random.String(4) + "-" + random.String(4))
 }
