@@ -25,6 +25,8 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Form.Address = &donor.Donor.Address
 		}
 
+		data.MakingAnotherLPA = r.URL.Query().Get("makingAnotherLPA") != ""
+
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
 			data.Errors = data.Form.Validate(true)
@@ -46,7 +48,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						}
 					}
 
-					if r.URL.Query().Get("makingAnotherLPA") != "" {
+					if data.MakingAnotherLPA {
 						if !addressChangesMade {
 							return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 						}

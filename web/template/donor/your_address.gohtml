@@ -1,6 +1,12 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "whatIsYourAddress" }}{{ end }}
+{{ define "pageTitle" }}
+  {{ if .MakingAnotherLPA }}
+    {{ tr .App "yourAddress" }}
+  {{ else }}
+    {{ tr .App "whatIsYourAddress" }}
+  {{ end }}
+{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
@@ -8,8 +14,12 @@
       <form novalidate method="post">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-            <h1 class="govuk-fieldset__heading">{{ tr .App "whatIsYourAddress" }}</h1>
+            <h1 class="govuk-fieldset__heading">{{ template "pageTitle" . }}</h1>
           </legend>
+
+          {{ if .MakingAnotherLPA }}
+            {{ template "warning" (content .App "yourAddressWarning") }}
+          {{ end }}
 
           {{ if eq .Form.Action "manual" }}
             {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
