@@ -98,6 +98,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 				Restrictions:               actor.TaskCompleted,
 				CertificateProvider:        actor.TaskCompleted,
 				PeopleToNotify:             actor.TaskCompleted,
+				AddCorrespondent:           actor.TaskCompleted,
 				CheckYourLpa:               actor.TaskInProgress,
 			},
 			CertificateProviderNotRelatedConfirmedAt: testNow,
@@ -116,6 +117,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 			Restrictions:               actor.TaskCompleted,
 			CertificateProvider:        actor.TaskCompleted,
 			PeopleToNotify:             actor.TaskCompleted,
+			AddCorrespondent:           actor.TaskCompleted,
 		},
 	})
 	resp := w.Result()

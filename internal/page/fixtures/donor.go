@@ -302,6 +302,7 @@ func updateLPAProgress(
 		}
 
 		donorDetails.Tasks.PeopleToNotify = actor.TaskCompleted
+		donorDetails.Tasks.AddCorrespondent = actor.TaskCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addCorrespondent") {

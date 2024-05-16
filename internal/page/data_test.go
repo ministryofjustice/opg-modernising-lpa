@@ -219,7 +219,18 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
 			taskState:         actor.TaskCompleted,
 		},
-
+		"jointly for some severally for others attorneys multiple": {
+			want: form.Yes,
+			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+				FirstNames: "a",
+				Address:    testAddress,
+			}, {
+				FirstNames: "b",
+				Address:    testAddress,
+			}}},
+			attorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers},
+			taskState:         actor.TaskCompleted,
+		},
 		"jointly and severally attorneys multiple": {
 			want: form.Yes,
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{

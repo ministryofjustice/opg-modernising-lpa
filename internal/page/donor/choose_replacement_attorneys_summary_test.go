@@ -117,7 +117,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+			redirectUrl:          page.Paths.TaskList,
 			attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{attorney1, attorney2}},
 			replacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney1, attorney2}},
 			howAttorneysAct:      actor.JointlyForSomeSeverallyForOthers,

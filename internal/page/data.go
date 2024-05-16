@@ -81,7 +81,7 @@ func ChooseReplacementAttorneysState(donor *actor.DonorProvidedDetails) actor.Ta
 	}
 
 	if donor.ReplacementAttorneys.Len() > 1 &&
-		(donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointly() || donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers()) &&
+		(donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointly()) &&
 		!donor.ReplacementAttorneyDecisions.IsComplete() {
 		return actor.TaskInProgress
 	}
