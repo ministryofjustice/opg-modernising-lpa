@@ -38,7 +38,7 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 					donor.Tasks.AddCorrespondent = actor.TaskCompleted
 					redirectUrl = page.Paths.TaskList
 				} else {
-					if donor.Tasks.AddCorrespondent.NotStarted() {
+					if donor.Correspondent.FirstNames == "" {
 						donor.Tasks.AddCorrespondent = actor.TaskInProgress
 					}
 					redirectUrl = page.Paths.EnterCorrespondentDetails
