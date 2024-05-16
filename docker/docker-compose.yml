@@ -69,12 +69,6 @@ services:
       default:
         aliases:
           - my-domain.eu-west-1.opensearch.localhost.localstack.cloud
-    healthcheck:
-      test: "curl --silent --fail http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566 | grep 'cluster_name'"
-      interval: 20s
-      retries: 10
-      start_period: 20s
-      timeout: 10s
 
   opensearch:
     container_name: opensearch
