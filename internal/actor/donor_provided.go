@@ -23,12 +23,12 @@ type DonorTasks struct {
 	LifeSustainingTreatment    TaskState // personal welfare only
 	Restrictions               TaskState
 	CertificateProvider        TaskState
+	PeopleToNotify             TaskState
+	AddCorrespondent           TaskState
+	ChooseYourSignatory        TaskState // if .Donor.CanSign.IsNo only
 	CheckYourLpa               TaskState
 	PayForLpa                  PaymentTask
 	ConfirmYourIdentityAndSign TaskState
-	ChooseYourSignatory        TaskState // if .Donor.CanSign.IsNo only
-	PeopleToNotify             TaskState
-	AddCorrespondent           TaskState // if supporter only
 }
 
 // DonorProvidedDetails contains all the data related to the LPA application

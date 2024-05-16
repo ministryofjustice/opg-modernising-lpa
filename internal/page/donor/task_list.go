@@ -76,6 +76,11 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 					Count: len(donor.PeopleToNotify),
 				},
 				{
+					Name:  "addCorrespondent",
+					Path:  page.Paths.AddCorrespondent.Format(donor.LpaID),
+					State: donor.Tasks.AddCorrespondent,
+				},
+				{
 					Name:   "chooseYourSignatoryAndIndependentWitness",
 					Path:   page.Paths.GettingHelpSigning.Format(donor.LpaID),
 					State:  donor.Tasks.ChooseYourSignatory,
@@ -86,11 +91,6 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 
 		var sections []taskListSection
 		if appData.SupporterData != nil {
-			section1.Items = append(section1.Items, taskListItem{
-				Name:  "addCorrespondent",
-				Path:  page.Paths.AddCorrespondent.Format(donor.LpaID),
-				State: donor.Tasks.AddCorrespondent,
-			})
 			sections = []taskListSection{section1}
 		} else {
 			section1.Items = append(section1.Items, taskListItem{
