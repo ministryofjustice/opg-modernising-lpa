@@ -182,14 +182,11 @@ func Attorney(
 		}
 
 		if email != "" {
-			if isTrustCorporation {
-				if isReplacement {
-					donorDetails.ReplacementAttorneys.TrustCorporation.Email = email
-				} else {
-					donorDetails.Attorneys.TrustCorporation.Email = email
-				}
-			}
-			if isReplacement {
+			if isTrustCorporation && isReplacement {
+				donorDetails.ReplacementAttorneys.TrustCorporation.Email = email
+			} else if isTrustCorporation {
+				donorDetails.Attorneys.TrustCorporation.Email = email
+			} else if isReplacement {
 				donorDetails.ReplacementAttorneys.Attorneys[0].Email = email
 			} else {
 				donorDetails.Attorneys.Attorneys[0].Email = email
