@@ -43,11 +43,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore, newUID func(
 				Dob:        attorney.DateOfBirth,
 			},
 			ShowDetails:              attorneyFound == false && addAnother == false,
-			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs(),
-		}
-
-		if donor.ReplacementAttorneys.TrustCorporation.Name != "" {
-			data.ShowTrustCorporationLink = false
+			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs() && donor.ReplacementAttorneys.TrustCorporation.Name == "",
 		}
 
 		if r.Method == http.MethodPost {

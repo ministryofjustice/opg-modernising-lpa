@@ -40,11 +40,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, n
 				Email:      attorney.Email,
 				Dob:        attorney.DateOfBirth,
 			},
-			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs(),
-		}
-
-		if donor.Attorneys.TrustCorporation.Name != "" {
-			data.ShowTrustCorporationLink = false
+			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs() && donor.Attorneys.TrustCorporation.Name == "",
 		}
 
 		if r.Method == http.MethodPost {
