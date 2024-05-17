@@ -14,6 +14,10 @@ graph TB
     style 23 fill:#999999,stroke:#6b6b6b,color:#ffffff
     24("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
     style 24 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    25("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles OPG casework tasks.</div>")
+    style 25 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    26("<div style='font-weight: bold'>LPA Store</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Stores completed LPA.</div>")
+    style 26 fill:#1168bd,stroke:#0b4884,color:#ffffff
     3["<div style='font-weight: bold'>Donor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Donor drafting the Lasting<br />Power of Attorney.</div>"]
     style 3 fill:#08427b,stroke:#052e56,color:#ffffff
     4["<div style='font-weight: bold'>Certificate Provider</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Certificate Provider<br />interacting with a Lasting<br />Power of Attorney.</div>"]
@@ -31,4 +35,6 @@ graph TB
     7-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->22
     7-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->23
     7-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->24
+    7-. "<div>Sends events and documents to</div><div style='font-size: 70%'></div>" .->25
+    7-. "<div>Sends completed LPA to</div><div style='font-size: 70%'></div>" .->26
   end
