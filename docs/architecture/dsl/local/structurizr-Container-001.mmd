@@ -1,45 +1,45 @@
 graph TB
   linkStyle default fill:#ffffff
 
-  subgraph diagram [Make and Register a Lasting Power of Attorney Online - Containers]
+  subgraph diagram ["Make and Register a Lasting Power of Attorney Online - Containers"]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    11("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
-    style 11 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    12("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
-    style 12 fill:#999999,stroke:#6b6b6b,color:#ffffff
     2["<div style='font-weight: bold'>Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Attorney interacting with a<br />Lasting Power of Attorney.</div>"]
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
-    13("<div style='font-weight: bold'>Yoti</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for identity.</div>")
-    style 13 fill:#999999,stroke:#6b6b6b,color:#ffffff
     3["<div style='font-weight: bold'>Donor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Donor drafting the Lasting<br />Power of Attorney.</div>"]
     style 3 fill:#08427b,stroke:#052e56,color:#ffffff
-    14("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for identity.</div>")
-    style 14 fill:#999999,stroke:#6b6b6b,color:#ffffff
     4["<div style='font-weight: bold'>Certificate Provider</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Certificate Provider<br />interacting with a Lasting<br />Power of Attorney.</div>"]
     style 4 fill:#08427b,stroke:#052e56,color:#ffffff
-    10("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
-    style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    6["<div style='font-weight: bold'>Organisation</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Organisation or charity.</div>"]
+    style 6 fill:#08427b,stroke:#052e56,color:#ffffff
+    21("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
+    style 21 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    22("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
+    style 22 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    23("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
+    style 23 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    24("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
+    style 24 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
-    subgraph 6 [Make and Register a Lasting Power of Attorney Online]
-      style 6 fill:#ffffff,stroke:#444444,color:#444444
+    subgraph 7 [Make and Register a Lasting Power of Attorney Online]
+      style 7 fill:#ffffff,stroke:#0b4884,color:#0b4884
 
-      7["<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Provides and delivers static<br />content, business logic,<br />routing, third party access<br />and database access</div>"]
-      style 7 fill:#438dd5,stroke:#2e6295,color:#ffffff
-      8[("<div style='font-weight: bold'>Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores actor information,<br />Draft LPA details, access<br />logs, etc.</div>")]
+      10["<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Provides and delivers static<br />content, business logic,<br />routing, third party access<br />and database access</div>"]
+      style 10 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      8[("<div style='font-weight: bold'>Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores actor information,<br />Draft LPA details etc.</div>")]
       style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
       9[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Container: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs, X-Ray and<br />RUM</div>")]
       style 9 fill:#438dd5,stroke:#2e6295,color:#ffffff
     end
 
-    4-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
-    3-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
-    2-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
-    7-. "<div>Reads from and writes to</div><div style='font-size: 70%'></div>" .->8
-    7-. "<div>Writes to</div><div style='font-size: 70%'></div>" .->9
-    7-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->10
-    7-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->11
-    7-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->12
-    7-. "<div>Identifies users with</div><div style='font-size: 70%'></div>" .->13
-    7-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->14
+    10-. "<div>Reads from and writes to</div><div style='font-size: 70%'></div>" .->8
+    10-. "<div>Writes to</div><div style='font-size: 70%'></div>" .->9
+    4-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
+    3-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
+    2-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
+    6-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
+    10-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->21
+    10-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->22
+    10-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->23
+    10-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->24
   end

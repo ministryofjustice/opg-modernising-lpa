@@ -8,13 +8,11 @@ workspace {
         notifyExternalSoftwareSystem = softwareSystem "GOV.UK Notify" "Handles SMS, Email and Letters." "Existing System"
         payExternalSoftwareSystem = softwareSystem "GOV.UK Pay" "Handles Payments for Donors." "Existing System"
         oneLoginExternalSoftwareSystem = softwareSystem "GOV.UK One Login" "Handles Authentication and Identification of Actors." "Existing System"
-        yotiExternalSoftwareSystem = softwareSystem "Yoti" "Used for identity." "Existing System"
-        osExternalSoftwareSystem = softwareSystem "Ordanance survey" "Used for identity." "Existing System"
+        osExternalSoftwareSystem = softwareSystem "Ordanance survey" "Used for postcode lookup." "Existing System"
 
         makeRegisterSoftwareSystem_webapp -> notifyExternalSoftwareSystem "Sends communication with"
         makeRegisterSoftwareSystem_webapp -> payExternalSoftwareSystem "Handles payment with"
         makeRegisterSoftwareSystem_webapp -> oneLoginExternalSoftwareSystem "Authenticates users with"
-        makeRegisterSoftwareSystem_webapp -> yotiExternalSoftwareSystem "Identifies users with"
         makeRegisterSoftwareSystem_webapp -> osExternalSoftwareSystem "Looks up addressed with"
     }
 
