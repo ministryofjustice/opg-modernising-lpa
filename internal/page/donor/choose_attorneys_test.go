@@ -20,24 +20,70 @@ import (
 )
 
 func TestGetChooseAttorneys(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]struct {
+		lpaType                   actor.LpaType
+		replacementAttorneys      actor.Attorneys
+		expectedShowTrustCorpLink bool
+	}{
+		"property and affairs": {
+			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			expectedShowTrustCorpLink: true,
+		},
+		"personal welfare": {
+			lpaType:                   actor.LpaTypePersonalWelfare,
+			expectedShowTrustCorpLink: false,
+		},
+		"property and affairs with lay replacement attorney": {
+			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			replacementAttorneys:      actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+			expectedShowTrustCorpLink: true,
+		},
+		"personal welfare with lay replacement attorney": {
+			lpaType:                   actor.LpaTypePersonalWelfare,
+			replacementAttorneys:      actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+			expectedShowTrustCorpLink: false,
+		},
+		"property and affairs with replacement trust corporation": {
+			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			replacementAttorneys:      actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			expectedShowTrustCorpLink: false,
+		},
+		"personal welfare with replacement trust corporation": {
+			lpaType:                   actor.LpaTypePersonalWelfare,
+			replacementAttorneys:      actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			expectedShowTrustCorpLink: false,
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &chooseAttorneysData{
-			App:         testAppData,
-			Donor:       &actor.DonorProvidedDetails{},
-			Form:        &chooseAttorneysForm{},
-			ShowDetails: true,
-		}).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &chooseAttorneysData{
+					App: testAppData,
+					Donor: &actor.DonorProvidedDetails{
+						Type:                 tc.lpaType,
+						ReplacementAttorneys: tc.replacementAttorneys,
+					},
+					Form:                     &chooseAttorneysForm{},
+					ShowDetails:              true,
+					ShowTrustCorporationLink: tc.expectedShowTrustCorpLink,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ChooseAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+				Type:                 tc.lpaType,
+				ReplacementAttorneys: tc.replacementAttorneys,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetChooseAttorneysFromStore(t *testing.T) {
