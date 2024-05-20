@@ -122,6 +122,66 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 	assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
+	testcases := map[string]struct {
+		appData page.AppData
+		lpa     *lpastore.Lpa
+	}{
+		"trust corporation": {
+			appData: testTrustCorporationAppData,
+			lpa: &lpastore.Lpa{
+				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
+					Signatories: []lpastore.TrustCorporationSignatory{{SignedAt: time.Now()}},
+				}},
+			},
+		},
+		"replacement trust corporation": {
+			appData: testReplacementTrustCorporationAppData,
+			lpa: &lpastore.Lpa{
+				ReplacementAttorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
+					Signatories: []lpastore.TrustCorporationSignatory{{SignedAt: time.Now()}},
+				}},
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			updatedAttorney := &actor.AttorneyProvidedDetails{
+				LpaID:                    "lpa-id",
+				WouldLikeSecondSignatory: form.No,
+			}
+
+			f := url.Values{
+				form.FieldNames.YesNo: {form.No.String()},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			attorneyStore := newMockAttorneyStore(t)
+			attorneyStore.EXPECT().
+				Put(r.Context(), updatedAttorney).
+				Return(nil)
+
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
+
+			err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, nil)(tc.appData, w, r, &actor.AttorneyProvidedDetails{
+				LpaID: "lpa-id",
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+}
+
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	donor := &lpastore.Lpa{SignedAt: time.Now()}
 
@@ -133,11 +193,6 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(nil)
-
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
@@ -148,7 +203,7 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := WouldLikeSecondSignatory(nil, nil, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -161,17 +216,12 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreResolvingServiceErrors(t *testi
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(nil)
-
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := WouldLikeSecondSignatory(nil, nil, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -184,12 +234,22 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.Lpa{}, nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendAttorney(r.Context(), mock.Anything, mock.Anything).
+		Return(nil)
+
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &actor.AttorneyProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
