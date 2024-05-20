@@ -4,48 +4,67 @@ graph TB
   subgraph diagram ["Make and Register a Lasting Power of Attorney Online - Containers"]
     style diagram fill:#ffffff,stroke:#ffffff
 
-    2["<div style='font-weight: bold'>Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Attorney interacting with a<br />Lasting Power of Attorney.</div>"]
-    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
-    3["<div style='font-weight: bold'>Donor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Donor drafting the Lasting<br />Power of Attorney.</div>"]
-    style 3 fill:#08427b,stroke:#052e56,color:#ffffff
-    4["<div style='font-weight: bold'>Certificate Provider</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Certificate Provider<br />interacting with a Lasting<br />Power of Attorney.</div>"]
-    style 4 fill:#08427b,stroke:#052e56,color:#ffffff
-    6["<div style='font-weight: bold'>Organisation</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Organisation or charity.</div>"]
-    style 6 fill:#08427b,stroke:#052e56,color:#ffffff
-    21("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
-    style 21 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    22("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
-    style 22 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    23("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
-    style 23 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    24("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
-    style 24 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    25("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles OPG casework tasks.</div>")
-    style 25 fill:#1168bd,stroke:#0b4884,color:#ffffff
-    26("<div style='font-weight: bold'>LPA Store</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Stores completed LPA.</div>")
-    style 26 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    28["<div style='font-weight: bold'>User</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Application user</div>"]
+    style 28 fill:#08427b,stroke:#052e56,color:#ffffff
+    35("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
+    style 35 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    36("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
+    style 36 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    37("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
+    style 37 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    38("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
+    style 38 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    39("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles OPG casework tasks.</div>")
+    style 39 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    40("<div style='font-weight: bold'>LPA Store</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Stores completed LPA.</div>")
+    style 40 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    41("<div style='font-weight: bold'>UID Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Generates reference</div>")
+    style 41 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
     subgraph 7 [Make and Register a Lasting Power of Attorney Online]
       style 7 fill:#ffffff,stroke:#0b4884,color:#0b4884
 
-      10["<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Provides and delivers static<br />content, business logic,<br />routing, third party access<br />and database access</div>"]
+      10[("<div style='font-weight: bold'>Search</div><div style='font-size: 70%; margin-top: 0px'>[Container: Elastic Search]</div><div style='font-size: 80%; margin-top:10px'>Stores data for quick paging</div>")]
       style 10 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      11[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Container: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs, X-Ray and<br />RUM</div>")]
+      style 11 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      12("<div style='font-weight: bold'>Anti virus</div><div style='font-size: 70%; margin-top: 0px'>[Container: Lambda]</div><div style='font-size: 80%; margin-top:10px'>Scans inbound files for<br />malware/virus and blocks.</div>")
+      style 12 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      14("<div style='font-weight: bold'>Replication</div><div style='font-size: 70%; margin-top: 0px'>[Container: Lambda]</div><div style='font-size: 80%; margin-top:10px'>Batch replicates to Sirius</div>")
+      style 14 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      16("<div style='font-weight: bold'>Event receipt</div><div style='font-size: 70%; margin-top: 0px'>[Container: Lambda]</div><div style='font-size: 80%; margin-top:10px'>Receives events</div>")
+      style 16 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      18["<div style='font-weight: bold'>App</div><div style='font-size: 70%; margin-top: 0px'>[Container: Go, HTML, CSS, JS]</div><div style='font-size: 80%; margin-top:10px'>Provides and delivers static<br />content, business logic,<br />routing, third party access<br />and database access</div>"]
+      style 18 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      24("<div style='font-weight: bold'>Load balancer</div><div style='font-size: 70%; margin-top: 0px'>[Container: ALB]</div><div style='font-size: 80%; margin-top:10px'>Routes traffic</div>")
+      style 24 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      26("<div style='font-weight: bold'>Web application Firewall</div><div style='font-size: 70%; margin-top: 0px'>[Container: WAF]</div><div style='font-size: 80%; margin-top:10px'>Filters traffic</div>")
+      style 26 fill:#438dd5,stroke:#2e6295,color:#ffffff
       8[("<div style='font-weight: bold'>Database</div><div style='font-size: 70%; margin-top: 0px'>[Container: DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>Stores actor information,<br />Draft LPA details etc.</div>")]
       style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
-      9[("<div style='font-weight: bold'>Monitoring and Telemetery</div><div style='font-size: 70%; margin-top: 0px'>[Container: AWS Cloudwatch]</div><div style='font-size: 80%; margin-top:10px'>Cloudwatch logs, X-Ray and<br />RUM</div>")]
+      9[("<div style='font-weight: bold'>Storage</div><div style='font-size: 70%; margin-top: 0px'>[Container: S3]</div><div style='font-size: 80%; margin-top:10px'>Stores remissions and<br />Exemptions evidence</div>")]
       style 9 fill:#438dd5,stroke:#2e6295,color:#ffffff
     end
 
-    10-. "<div>Reads from and writes to</div><div style='font-size: 70%'></div>" .->8
-    10-. "<div>Writes to</div><div style='font-size: 70%'></div>" .->9
-    4-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
-    3-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
-    2-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
-    6-. "<div>Uses</div><div style='font-size: 70%'></div>" .->10
-    10-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->21
-    10-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->22
-    10-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->23
-    10-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->24
-    10-. "<div>Sends events and documents to</div><div style='font-size: 70%'></div>" .->25
-    10-. "<div>Sends completed LPA to</div><div style='font-size: 70%'></div>" .->26
+    12-. "<div>Reads & Tags</div><div style='font-size: 70%'></div>" .->9
+    14-. "<div>Reads</div><div style='font-size: 70%'></div>" .->9
+    16-. "<div>Updates</div><div style='font-size: 70%'></div>" .->8
+    18-. "<div>Reads from and writes to</div><div style='font-size: 70%'></div>" .->8
+    18-. "<div>Writes to</div><div style='font-size: 70%'></div>" .->11
+    18-. "<div>Writes to</div><div style='font-size: 70%'></div>" .->9
+    18-. "<div>Reads</div><div style='font-size: 70%'></div>" .->10
+    18-. "<div>Handles</div><div style='font-size: 70%'></div>" .->16
+    24-. "<div></div><div style='font-size: 70%'></div>" .->18
+    26-. "<div></div><div style='font-size: 70%'></div>" .->24
+    28-. "<div>Requests</div><div style='font-size: 70%'></div>" .->26
+    18-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->35
+    18-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->36
+    18-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->37
+    18-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->38
+    18-. "<div>Sends events and documents to</div><div style='font-size: 70%'></div>" .->39
+    18-. "<div>Sends completed LPA to</div><div style='font-size: 70%'></div>" .->40
+    18-. "<div>Requests Unique reference<br />from</div><div style='font-size: 70%'></div>" .->41
+    14-. "<div>Sends documents to</div><div style='font-size: 70%'></div>" .->39
+    39-. "<div>Sends events to</div><div style='font-size: 70%'></div>" .->16
+    40-. "<div>Sends event to</div><div style='font-size: 70%'></div>" .->16
   end

@@ -6,35 +6,43 @@ graph TB
 
     2["<div style='font-weight: bold'>Attorney</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Attorney interacting with a<br />Lasting Power of Attorney.</div>"]
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
-    21("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
-    style 21 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    22("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
-    style 22 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    23("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
-    style 23 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    24("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
-    style 24 fill:#999999,stroke:#6b6b6b,color:#ffffff
-    25("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles OPG casework tasks.</div>")
-    style 25 fill:#1168bd,stroke:#0b4884,color:#ffffff
-    26("<div style='font-weight: bold'>LPA Store</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Stores completed LPA.</div>")
-    style 26 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    28["<div style='font-weight: bold'>User</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Application user</div>"]
+    style 28 fill:#08427b,stroke:#052e56,color:#ffffff
     3["<div style='font-weight: bold'>Donor</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Donor drafting the Lasting<br />Power of Attorney.</div>"]
     style 3 fill:#08427b,stroke:#052e56,color:#ffffff
+    35("<div style='font-weight: bold'>GOV.UK Notify</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles SMS, Email and<br />Letters.</div>")
+    style 35 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    36("<div style='font-weight: bold'>GOV.UK Pay</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Payments for Donors.</div>")
+    style 36 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    37("<div style='font-weight: bold'>GOV.UK One Login</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles Authentication and<br />Identification of Actors.</div>")
+    style 37 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    38("<div style='font-weight: bold'>Ordanance survey</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Used for postcode lookup.</div>")
+    style 38 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    39("<div style='font-weight: bold'>Sirius Case Management</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Handles OPG casework tasks.</div>")
+    style 39 fill:#999999,stroke:#6b6b6b,color:#ffffff
     4["<div style='font-weight: bold'>Certificate Provider</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Certificate Provider<br />interacting with a Lasting<br />Power of Attorney.</div>"]
     style 4 fill:#08427b,stroke:#052e56,color:#ffffff
+    40("<div style='font-weight: bold'>LPA Store</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Stores completed LPA.</div>")
+    style 40 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    41("<div style='font-weight: bold'>UID Service</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Generates reference</div>")
+    style 41 fill:#999999,stroke:#6b6b6b,color:#ffffff
     6["<div style='font-weight: bold'>Organisation</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Organisation or charity.</div>"]
     style 6 fill:#08427b,stroke:#052e56,color:#ffffff
     7("<div style='font-weight: bold'>Make and Register a Lasting Power of Attorney Online</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Allows users to draft a<br />Lasting Power of Attorney<br />online.</div>")
     style 7 fill:#1168bd,stroke:#0b4884,color:#ffffff
 
+    28-. "<div>Requests</div><div style='font-size: 70%'></div>" .->7
     4-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
     3-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
     2-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
     6-. "<div>Uses</div><div style='font-size: 70%'></div>" .->7
-    7-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->21
-    7-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->22
-    7-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->23
-    7-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->24
-    7-. "<div>Sends events and documents to</div><div style='font-size: 70%'></div>" .->25
-    7-. "<div>Sends completed LPA to</div><div style='font-size: 70%'></div>" .->26
+    7-. "<div>Sends communication with</div><div style='font-size: 70%'></div>" .->35
+    7-. "<div>Handles payment with</div><div style='font-size: 70%'></div>" .->36
+    7-. "<div>Authenticates users with</div><div style='font-size: 70%'></div>" .->37
+    7-. "<div>Looks up addressed with</div><div style='font-size: 70%'></div>" .->38
+    7-. "<div>Sends events and documents to</div><div style='font-size: 70%'></div>" .->39
+    7-. "<div>Sends completed LPA to</div><div style='font-size: 70%'></div>" .->40
+    7-. "<div>Requests Unique reference<br />from</div><div style='font-size: 70%'></div>" .->41
+    39-. "<div>Sends events to</div><div style='font-size: 70%'></div>" .->7
+    40-. "<div>Sends event to</div><div style='font-size: 70%'></div>" .->7
   end
