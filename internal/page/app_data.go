@@ -68,7 +68,7 @@ func (d AppData) IsAttorneyType() bool {
 }
 
 func (d AppData) IsReplacementAttorney() bool {
-	return d.ActorType == actor.TypeReplacementAttorney
+	return d.ActorType == actor.TypeReplacementAttorney || d.ActorType == actor.TypeReplacementTrustCorporation
 }
 
 func (d AppData) IsTrustCorporation() bool {

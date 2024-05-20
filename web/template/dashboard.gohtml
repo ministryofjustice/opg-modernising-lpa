@@ -80,7 +80,7 @@
             <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
           {{ else if .Item.Lpa.Submitted }}
             <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
-          {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
+          {{ else if .Item.Attorney.Signed }}
             <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
           {{ else }}
             <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
@@ -109,7 +109,7 @@
           {{ else if .Item.Lpa.Submitted }}
             <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
             <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
-          {{ else if .Item.Attorney.Signed .Item.Lpa.SignedAt }}
+          {{ else if .Item.Attorney.Signed }}
             <a class="govuk-button" href="{{ link .App (global.Paths.Attorney.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
             <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
           {{ else }}
