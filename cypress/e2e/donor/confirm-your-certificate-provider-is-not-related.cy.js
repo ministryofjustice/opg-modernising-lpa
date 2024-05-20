@@ -1,6 +1,6 @@
 describe('Confirm your certificate provider is not related', () => {
   beforeEach(() => {
-    cy.visit('/fixtures?redirect=/your-details&progress=peopleToNotifyAboutYourLpa');
+    cy.visit('/fixtures?redirect=/your-details&progress=addCorrespondent');
     cy.get('#f-last-name').clear().type('Cooper');
     cy.contains('button', 'Continue').click();
     cy.visitLpa('/task-list');
