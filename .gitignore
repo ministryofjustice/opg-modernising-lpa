@@ -1,6 +1,8 @@
 .DS_Store
 **/.terraform/
 **/terraform.tfstate.d/
+**/terraform/environment/region/modules/s3_antivirus/*.zip
+**/terraform/environment/region/modules/s3_antivirus/*.zip.sha256sum
 **/EICAR.txt
 **/.infracost/
 
