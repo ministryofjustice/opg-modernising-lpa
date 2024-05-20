@@ -31,19 +31,12 @@ func Sign(
 	now func() time.Time,
 ) Handler {
 	signAttorney := func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails, lpa *lpastore.Lpa) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
 		data := &signData{
 			App:                         appData,
 			LpaID:                       lpa.LpaID,
 			IsReplacement:               appData.IsReplacementAttorney(),
 			LpaCanBeUsedWhenHasCapacity: lpa.WhenCanTheLpaBeUsed.IsHasCapacity(),
-			Form: &signForm{
-				Confirm: !attorneyProvidedDetails.Confirmed.IsZero(),
-			},
+			Form:                        &signForm{},
 		}
 
 		attorneys := lpa.Attorneys
@@ -66,11 +59,15 @@ func Sign(
 				attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
 				attorneyProvidedDetails.Confirmed = now()
 
-				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
-					return err
+				if attorney.SignedAt.IsZero() {
+					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+						return err
+					}
+				} else {
+					attorneyProvidedDetails.Confirmed = attorney.SignedAt
 				}
 
-				if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
@@ -99,7 +96,6 @@ func Sign(
 				FirstNames:        signatory.FirstNames,
 				LastName:          signatory.LastName,
 				ProfessionalTitle: signatory.ProfessionalTitle,
-				Confirm:           !signatory.Confirmed.IsZero(),
 			},
 		}
 
@@ -127,6 +123,16 @@ func Sign(
 					Confirmed:         now(),
 				}
 
+				if len(data.TrustCorporation.Signatories) == 0 {
+					if signatoryIndex == 1 {
+						if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+							return err
+						}
+					}
+				} else {
+					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex].Confirmed = data.TrustCorporation.Signatories[signatoryIndex].SignedAt
+				}
+
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
@@ -134,10 +140,6 @@ func Sign(
 				if signatoryIndex == 0 {
 					return page.Paths.Attorney.WouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
-					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
-						return err
-					}
-
 					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
@@ -147,6 +149,10 @@ func Sign(
 	}
 
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *actor.AttorneyProvidedDetails) error {
+		if attorneyProvidedDetails.Signed() {
+			return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+		}
+
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
