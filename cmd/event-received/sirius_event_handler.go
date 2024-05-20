@@ -109,12 +109,14 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 		return fmt.Errorf("failed to update LPA task status: %w", err)
 	}
 
-	if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
-		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
-	}
+	if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+		if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
+			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+		}
 
-	if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
-		return fmt.Errorf("failed to send to lpastore: %w", err)
+		if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
+			return fmt.Errorf("failed to send to lpastore: %w", err)
+		}
 	}
 
 	return nil
