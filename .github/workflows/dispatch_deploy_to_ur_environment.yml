@@ -26,6 +26,28 @@ defaults:
     shell: bash
 
 jobs:
+  fetch_s3_av_version:
+    name: Fetch the S3 AV Zip version tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull S3 AV Zip tag
+        id: pull_s3_av_tag
+        run: |
+          key="/opg-s3-antivirus/zip-version-main"
+          value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text 2>/dev/null || true)
+          echo "Using $key: $value"
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      s3_av_scanner_zip_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
+
+
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
@@ -56,6 +78,7 @@ jobs:
         workspace_name: ur
         version_tag: ur-${{ inputs.tag_to_deploy}}
         checkout_tag: ${{ inputs.tag_to_deploy}}
+        s3_av_scanner_zip_tag: ${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}
       secrets:
         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
