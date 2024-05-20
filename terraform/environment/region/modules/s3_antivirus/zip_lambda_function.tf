@@ -51,3 +51,11 @@ resource "aws_lambda_alias" "zip_lambda_alias" {
   function_version = aws_lambda_function.zip_lambda_function.version
   provider         = aws.region
 }
+
+resource "aws_lambda_provisioned_concurrency_config" "main" {
+  count                             = var.s3_antivirus_provisioned_concurrency > 0 ? 1 : 0
+  function_name                     = aws_lambda_alias.lambda_alias.zip_lambda_alias
+  provisioned_concurrent_executions = var.s3_antivirus_provisioned_concurrency
+  qualifier                         = aws_lambda_alias.lambda_alias.name
+  provider                          = aws.region
+}

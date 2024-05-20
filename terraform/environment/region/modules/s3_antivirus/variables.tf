@@ -13,11 +13,6 @@ variable "definition_bucket" {
   description = "Bucket containing virus definitions"
 }
 
-variable "ecr_image_uri" {
-  type        = string
-  description = "URI of ECR image to use for Lambda"
-}
-
 variable "environment_variables" {
   description = "A map that defines environment variables for the Lambda Function."
   type        = map(string)
