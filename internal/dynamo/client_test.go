@@ -973,3 +973,117 @@ func TestOneBySkWhenQueryError(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 }
+
+func TestTransactWriteItems(t *testing.T) {
+	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
+	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
+	deleteKeyA, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
+	})
+	deleteKeyB, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
+	})
+
+	items := []types.TransactWriteItem{
+		{
+			Put: &types.Put{
+				Item: putItemA, TableName: aws.String("this"),
+			},
+		},
+		{
+			Put: &types.Put{
+				Item: putItemB, TableName: aws.String("this"),
+			},
+		},
+		{
+			Delete: &types.Delete{
+				Key: deleteKeyA, TableName: aws.String("this"),
+			},
+		},
+		{
+			Delete: &types.Delete{
+				Key: deleteKeyB, TableName: aws.String("this"),
+			},
+		},
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(context.Background(), &dynamodb.TransactWriteItemsInput{
+			TransactItems: items,
+		}).
+		Return(nil, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.WriteTransaction(context.Background(), &Transaction{
+		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
+		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+	})
+
+	assert.Nil(t, err)
+}
+
+func TestTransactWriteItemsWhenNoTransactions(t *testing.T) {
+	c := &Client{table: "this", svc: nil}
+	err := c.WriteTransaction(context.Background(), &Transaction{})
+
+	assert.Equal(t, errors.New("WriteTransaction requires at least one transaction"), err)
+}
+
+func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
+	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
+	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
+	deleteKeyA, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
+	})
+	deleteKeyB, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
+	})
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(context.Background(), mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.WriteTransaction(context.Background(), &Transaction{
+		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
+		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+	})
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestNewTransaction(t *testing.T) {
+	assert.Equal(t, &Transaction{}, NewTransaction())
+}
+
+func TestTransactionPut(t *testing.T) {
+	putA := map[string]types.AttributeValue{"a": &types.AttributeValueMemberS{Value: "a"}}
+	putB := map[string]types.AttributeValue{"b": &types.AttributeValueMemberS{Value: "b"}}
+	transaction := NewTransaction().
+		Put(putA).
+		Put(putB)
+
+	assert.Equal(t, []*types.Put{{Item: putA}, {Item: putB}}, transaction.Puts)
+}
+
+func TestTransactionDelete(t *testing.T) {
+	deleteA := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
+	}
+	deleteB := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
+		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
+	}
+	transaction := NewTransaction().
+		Delete(testPK("PK-A"), testSK("SK-A")).
+		Delete(testPK("PK-B"), testSK("SK-B"))
+
+	assert.Equal(t, []*types.Delete{{Key: deleteA}, {Key: deleteB}}, transaction.Deletes)
+}
