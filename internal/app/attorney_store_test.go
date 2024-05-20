@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAttorneyStoreCreate(t *testing.T) {
@@ -61,9 +61,9 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Puts: []*types.Put{
 					{Item: marshalledAttorney},
 					{Item: map[string]types.AttributeValue{
-						"PK":        &types.AttributeValueMemberS{Value: details.PK.PK()},
-						"SK":        &types.AttributeValueMemberS{Value: dynamo.SubKey(data.SessionID).SK()},
-						"DonorKey":  &types.AttributeValueMemberS{Value: shareCode.LpaOwnerKey.SK()},
+						"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
+						"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
+						"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
 						"ActorType": &types.AttributeValueMemberN{Value: "2"},
 						"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
 					}},
@@ -75,27 +75,6 @@ func TestAttorneyStoreCreate(t *testing.T) {
 					}},
 				},
 			}
-
-			//expectedTransaction := dynamo.NewTransaction().
-			//	Put(map[string]types.AttributeValue{
-			//		"PK":                 &types.AttributeValueMemberS{Value: details.PK.PK()},
-			//		"SK":                 &types.AttributeValueMemberS{Value: details.SK.SK()},
-			//		"UID":                &types.AttributeValueMemberS{Value: shareCode.ActorUID.String()},
-			//		"LpaID":              &types.AttributeValueMemberS{Value: details.LpaID},
-			//		"UpdatedAt":          &types.AttributeValueMemberS{Value: now.String()},
-			//		"IsReplacement":      &types.AttributeValueMemberBOOL{Value: shareCode.IsReplacementAttorney},
-			//		"IsTrustCorporation": &types.AttributeValueMemberBOOL{Value: shareCode.IsTrustCorporation},
-			//		"Email":              &types.AttributeValueMemberS{Value: details.Email},
-			//		"AuthorisedSignatories": &types.AttributeValueMemberM{}
-			//	}).
-			//	Put(map[string]types.AttributeValue{
-			//		"PK":        &types.AttributeValueMemberS{Value: details.PK.PK()},
-			//		"SK":        &types.AttributeValueMemberS{Value: details.SK.SK()},
-			//		"DonorKey":  &types.AttributeValueMemberS{Value: shareCode.LpaOwnerKey.SK()},
-			//		"ActorType": &types.AttributeValueMemberS{Value: actor.TypeAttorney.String()},
-			//		"UpdatedAt": &types.AttributeValueMemberS{Value: now.String()},
-			//	}).
-			//	Delete(shareCode.PK, shareCode.SK)
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -138,43 +117,23 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 	}
 }
 
-func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
+func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
-	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"certificate provider record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			return dynamoClient
-		},
-		"link record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			return dynamoClient
-		},
-	}
+	_, err := attorneyStore.Create(ctx, actor.ShareCodeData{
+		PK: dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+	}, "")
+	assert.Equal(t, expectedError, err)
 
-	for name, makeMockDataStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := makeMockDataStore(t)
-
-			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-			_, err := attorneyStore.Create(ctx, actor.ShareCodeData{}, "")
-			assert.Equal(t, expectedError, err)
-		})
-	}
 }
 
 func TestAttorneyStoreGet(t *testing.T) {

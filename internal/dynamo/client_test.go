@@ -1018,8 +1018,8 @@ func TestTransactWriteItems(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 	err := c.WriteTransaction(context.Background(), &Transaction{
-		puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
-		deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
+		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
 	})
 
 	assert.Nil(t, err)
@@ -1051,8 +1051,8 @@ func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 	err := c.WriteTransaction(context.Background(), &Transaction{
-		puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
-		deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
+		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -1069,7 +1069,7 @@ func TestTransactionPut(t *testing.T) {
 		Put(putA).
 		Put(putB)
 
-	assert.Equal(t, []*types.Put{{Item: putA}, {Item: putB}}, transaction.puts)
+	assert.Equal(t, []*types.Put{{Item: putA}, {Item: putB}}, transaction.Puts)
 }
 
 func TestTransactionDelete(t *testing.T) {
@@ -1085,5 +1085,5 @@ func TestTransactionDelete(t *testing.T) {
 		Delete(testPK("PK-A"), testSK("SK-A")).
 		Delete(testPK("PK-B"), testSK("SK-B"))
 
-	assert.Equal(t, []*types.Delete{{Key: deleteA}, {Key: deleteB}}, transaction.deletes)
+	assert.Equal(t, []*types.Delete{{Key: deleteA}, {Key: deleteB}}, transaction.Deletes)
 }
