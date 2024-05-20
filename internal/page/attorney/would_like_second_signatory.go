@@ -31,24 +31,35 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 			if data.Errors.None() {
 				attorneyProvidedDetails.WouldLikeSecondSignatory = form.YesNo
 
+				if form.YesNo.IsYes() {
+					if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+						return err
+					}
+
+					return page.Paths.Attorney.Sign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
+				}
+
+				lpa, err := lpaStoreResolvingService.Get(r.Context())
+				if err != nil {
+					return err
+				}
+
+				hasSigned := (appData.IsReplacementAttorney() &&
+					len(lpa.ReplacementAttorneys.TrustCorporation.Signatories) > 0) ||
+					(!appData.IsReplacementAttorney() &&
+						len(lpa.Attorneys.TrustCorporation.Signatories) > 0)
+
+				if !hasSigned {
+					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+						return err
+					}
+				}
+
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
-				if form.YesNo.IsYes() {
-					return page.Paths.Attorney.Sign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
-				} else {
-					lpa, err := lpaStoreResolvingService.Get(r.Context())
-					if err != nil {
-						return err
-					}
-
-					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
-						return err
-					}
-
-					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
-				}
+				return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 
