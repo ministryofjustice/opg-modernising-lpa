@@ -2,7 +2,7 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   filename                 = "${path.module}/lambda_layer.zip"
   layer_name               = "clamav-${data.aws_default_tags.current.tags.environment-name}"
   description              = "ClamAV Antivirus Layer"
-  source_code_hash         = base64encode(file("${path.module}/lambda_layer.zip.sha256sum"))
+  source_code_hash         = file("${path.module}/lambda_layer.zip.sha256sum")
   compatible_architectures = ["x86_64"]
   compatible_runtimes      = ["provided.al2023"]
   provider                 = aws.region
@@ -13,7 +13,7 @@ resource "aws_lambda_function" "lambda_function" {
   description      = "Function to scan S3 objects for viruses"
   filename         = "${path.module}/myFunction.zip"
   handler          = "bootstrap"
-  source_code_hash = base64encode(file("${path.module}/myFunction.zip.sha256sum"))
+  source_code_hash = file("${path.module}/myFunction.zip.sha256sum")
   architectures    = ["x86_64"]
   runtime          = "provided.al2023"
   timeout          = 300
