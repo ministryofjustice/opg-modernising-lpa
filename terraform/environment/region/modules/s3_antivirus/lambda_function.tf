@@ -8,7 +8,7 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   provider                 = aws.region
 }
 
-resource "aws_lambda_function" "zip_lambda_function" {
+resource "aws_lambda_function" "lambda_function" {
   function_name    = "zip-s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   description      = "Function to scan S3 objects for viruses"
   filename         = "${path.module}/myFunction.zip"
@@ -45,16 +45,16 @@ resource "aws_lambda_function" "zip_lambda_function" {
   provider = aws.region
 }
 
-resource "aws_lambda_alias" "zip_lambda_alias" {
+resource "aws_lambda_alias" "lambda_alias" {
   name             = "latest"
-  function_name    = aws_lambda_function.zip_lambda_function.function_name
-  function_version = aws_lambda_function.zip_lambda_function.version
+  function_name    = aws_lambda_function.lambda_function.function_name
+  function_version = aws_lambda_function.lambda_function.version
   provider         = aws.region
 }
 
 resource "aws_lambda_provisioned_concurrency_config" "main" {
   count                             = var.s3_antivirus_provisioned_concurrency > 0 ? 1 : 0
-  function_name                     = aws_lambda_alias.lambda_alias.zip_lambda_alias
+  function_name                     = aws_lambda_alias.lambda_alias.function_name
   provisioned_concurrent_executions = var.s3_antivirus_provisioned_concurrency
   qualifier                         = aws_lambda_alias.lambda_alias.name
   provider                          = aws.region
