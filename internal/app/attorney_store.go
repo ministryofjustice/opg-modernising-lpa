@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -37,25 +36,15 @@ func (s *attorneyStore) Create(ctx context.Context, shareCode actor.ShareCodeDat
 		Email:              email,
 	}
 
-	marshalledAttorney, err := attributevalue.MarshalMap(attorney)
-	if err != nil {
-		return nil, err
-	}
-
-	marshalledLink, err := attributevalue.MarshalMap(lpaLink{
-		PK:        dynamo.LpaKey(data.LpaID),
-		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  shareCode.LpaOwnerKey,
-		ActorType: actor.TypeAttorney,
-		UpdatedAt: s.now(),
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	transaction := dynamo.NewTransaction().
-		Put(marshalledAttorney).
-		Put(marshalledLink).
+		Put(attorney).
+		Put(lpaLink{
+			PK:        dynamo.LpaKey(data.LpaID),
+			SK:        dynamo.SubKey(data.SessionID),
+			DonorKey:  shareCode.LpaOwnerKey,
+			ActorType: actor.TypeAttorney,
+			UpdatedAt: s.now(),
+		}).
 		Delete(shareCode.PK, shareCode.SK)
 
 	err = s.dynamoClient.WriteTransaction(ctx, transaction)

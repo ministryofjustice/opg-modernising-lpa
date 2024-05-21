@@ -1032,6 +1032,16 @@ func TestTransactWriteItemsWhenNoTransactions(t *testing.T) {
 	assert.Equal(t, errors.New("WriteTransaction requires at least one transaction"), err)
 }
 
+func TestTransactWriteItemsWhenErrorsBuildingTransaction(t *testing.T) {
+	c := &Client{table: "this", svc: nil}
+	err := c.WriteTransaction(context.Background(), &Transaction{
+		Puts: make([]*types.Put, 1),
+		Errs: []error{expectedError, expectedError},
+	})
+
+	assert.Error(t, err)
+}
+
 func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
 	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
 	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
@@ -1063,13 +1073,32 @@ func TestNewTransaction(t *testing.T) {
 }
 
 func TestTransactionPut(t *testing.T) {
-	putA := map[string]types.AttributeValue{"a": &types.AttributeValueMemberS{Value: "a"}}
-	putB := map[string]types.AttributeValue{"b": &types.AttributeValueMemberS{Value: "b"}}
+	putA := map[string]string{"a": "a"}
+	putB := map[string]string{"b": "b"}
 	transaction := NewTransaction().
 		Put(putA).
 		Put(putB)
 
-	assert.Equal(t, []*types.Put{{Item: putA}, {Item: putB}}, transaction.Puts)
+	expected := []*types.Put{
+		{Item: map[string]types.AttributeValue{"a": &types.AttributeValueMemberS{Value: "a"}}},
+		{Item: map[string]types.AttributeValue{"b": &types.AttributeValueMemberS{Value: "b"}}},
+	}
+
+	assert.Equal(t, expected, transaction.Puts)
+	assert.Nil(t, transaction.Errors())
+}
+
+func TestTransactionPutWhenMarshallError(t *testing.T) {
+	putA := map[string]string{"": "a"}
+	putB := map[string]string{"b": "b"}
+	putC := map[string]string{"": "c"}
+	transaction := NewTransaction().
+		Put(putA).
+		Put(putB).
+		Put(putC)
+
+	assert.Error(t, transaction.Errors())
+	assert.Len(t, transaction.Errs, 2)
 }
 
 func TestTransactionDelete(t *testing.T) {
