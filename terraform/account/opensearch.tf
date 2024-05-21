@@ -12,7 +12,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_
   policy = jsonencode({
     Rules = [
       {
-        Resource     = ["collection/collection-${local.account_name}"],
+        Resource     = ["collection/shared-collection-${local.account_name}"],
         ResourceType = "collection"
       }
     ],
@@ -23,7 +23,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_
 }
 
 resource "aws_opensearchserverless_collection" "lpas_collection" {
-  name       = "collection-${local.account_name}"
+  name       = "shared-collection-${local.account_name}"
   type       = "SEARCH"
   depends_on = [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy]
   provider   = aws.eu_west_1
@@ -39,7 +39,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       Rules = [
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.account_name}"]
+          Resource     = ["collection/shared-collection-${local.account_name}"]
         }
       ],
       AllowFromPublic = false,
@@ -52,7 +52,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       Description     = "public access to dashboard"
       Rules = [
         {
-          Resource     = ["collection/collection-${local.account_name}"]
+          Resource     = ["collection/shared-collection-${local.account_name}"]
           ResourceType = "dashboard"
         }
       ]
@@ -71,12 +71,12 @@ resource "aws_opensearchserverless_access_policy" "team_operator_access" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.account_name}/*"],
+          Resource     = ["index/shared-collection-${local.account_name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.account_name}"],
+          Resource     = ["collection/shared-collection-${local.account_name}"],
           Permission   = ["aoss:*"]
         }
       ],
@@ -98,12 +98,12 @@ resource "aws_opensearchserverless_access_policy" "team_breakglass_access" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.account_name}/*"],
+          Resource     = ["index/shared-collection-${local.account_name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.account_name}"],
+          Resource     = ["collection/shared-collection-${local.account_name}"],
           Permission   = ["aoss:*"]
         }
       ],
