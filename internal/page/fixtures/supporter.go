@@ -34,6 +34,7 @@ type MemberStore interface {
 
 type ShareCodeStore interface {
 	Linked(ctx context.Context, data actor.ShareCodeData, email string) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
 }
 
@@ -173,7 +174,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient)
+						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
 						if err != nil {
 							return err
 						}
