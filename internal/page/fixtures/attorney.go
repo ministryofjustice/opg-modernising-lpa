@@ -216,31 +216,6 @@ func Attorney(
 
 		certificateProvider.ContactLanguagePreference = localize.En
 
-		//tempShareCode := random.String(16)
-		//shareCodeData := actor.ShareCodeData{
-		//	PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(tempShareCode)),
-		//	SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(tempShareCode)),
-		//	ActorUID:              attorneyUID,
-		//	IsReplacementAttorney: isReplacement,
-		//	IsTrustCorporation:    isTrustCorporation,
-		//	LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey(donorDetails.SK.SK())),
-		//}
-		//
-		//attorneyType := actor.TypeAttorney
-		//if isReplacement {
-		//	attorneyType = actor.TypeReplacementAttorney
-		//}
-		//
-		//err = shareCodeStore.Put(attorneyCtx, attorneyType, shareCode, shareCodeData)
-		//if err != nil {
-		//	return err
-		//}
-		//
-		//attorney, err := attorneyStore.Create(attorneyCtx, shareCodeData, donorDetails.CertificateProvider.Email)
-		//if err != nil {
-		//	return err
-		//}
-
 		attorney, err := createAttorney(
 			attorneyCtx,
 			shareCodeStore,
@@ -286,30 +261,6 @@ func Attorney(
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-					//shareCode := random.String(16)
-					//shareCodeData := actor.ShareCodeData{
-					//	PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
-					//	SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
-					//	ActorUID:              a.UID,
-					//	IsReplacementAttorney: isReplacement,
-					//	LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey(donorDetails.SK.SK())),
-					//}
-					//
-					//attorneyType := actor.TypeAttorney
-					//if isReplacement {
-					//	attorneyType = actor.TypeReplacementAttorney
-					//}
-					//
-					//err := shareCodeStore.Put(ctx, attorneyType, shareCode, shareCodeData)
-					//if err != nil {
-					//	return err
-					//}
-					//
-					//attorney, err := attorneyStore.Create(ctx, shareCodeData, a.Email)
-					//if err != nil {
-					//	return err
-					//}
-
 					attorney, err := createAttorney(
 						ctx,
 						shareCodeStore,
@@ -340,26 +291,6 @@ func Attorney(
 
 				if list.TrustCorporation.Name != "" {
 					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
-
-					//shareCode := random.String(16)
-					//shareCodeData := actor.ShareCodeData{
-					//	PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
-					//	SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
-					//	ActorUID:              list.TrustCorporation.UID,
-					//	IsReplacementAttorney: isReplacement,
-					//	IsTrustCorporation:    true,
-					//	LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey(donorDetails.SK.SK())),
-					//}
-					//
-					//err := shareCodeStore.Put(ctx, attorneyType, shareCode, shareCodeData)
-					//if err != nil {
-					//	return err
-					//}
-					//
-					//attorney, err := attorneyStore.Create(ctx, shareCodeData, list.TrustCorporation.Email)
-					//if err != nil {
-					//	return err
-					//}
 
 					attorney, err := createAttorney(
 						ctx,

@@ -432,11 +432,6 @@ func updateLPAProgress(
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				//attorney, err := attorneyStore.Create(ctx, donorDetails.SK, a.UID, isReplacement, false, a.Email)
-				//if err != nil {
-				//	return nil, nil, err
-				//}
-
 				attorney, err := createAttorney(
 					ctx,
 					shareCodeStore,

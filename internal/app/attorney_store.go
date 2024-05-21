@@ -47,8 +47,7 @@ func (s *attorneyStore) Create(ctx context.Context, shareCode actor.ShareCodeDat
 		}).
 		Delete(shareCode.PK, shareCode.SK)
 
-	err = s.dynamoClient.WriteTransaction(ctx, transaction)
-	if err != nil {
+	if err = s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err
 	}
 
