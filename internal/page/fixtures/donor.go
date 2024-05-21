@@ -84,6 +84,7 @@ func Donor(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
+	shareCodeStore ShareCodeStore,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -110,7 +111,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
 		if err != nil {
 			return err
 		}
@@ -159,6 +160,7 @@ func updateLPAProgress(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
+	shareCodeStore ShareCodeStore,
 ) (*actor.DonorProvidedDetails, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
 
@@ -430,7 +432,16 @@ func updateLPAProgress(
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorDetails.SK, a.UID, isReplacement, false, a.Email)
+				attorney, err := createAttorney(
+					ctx,
+					shareCodeStore,
+					attorneyStore,
+					a.UID,
+					isReplacement,
+					false,
+					donorDetails.SK,
+					a.Email,
+				)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -454,7 +465,16 @@ func updateLPAProgress(
 			if list.TrustCorporation.Name != "" {
 				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
-				attorney, err := attorneyStore.Create(ctx, donorDetails.SK, list.TrustCorporation.UID, isReplacement, true, list.TrustCorporation.Email)
+				attorney, err := createAttorney(
+					ctx,
+					shareCodeStore,
+					attorneyStore,
+					list.TrustCorporation.UID,
+					isReplacement,
+					true,
+					donorDetails.SK,
+					list.TrustCorporation.Email,
+				)
 				if err != nil {
 					return nil, nil, err
 				}

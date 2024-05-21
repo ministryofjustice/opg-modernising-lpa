@@ -56,6 +56,7 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   terraform_account_workflow_preproduction:
     name: TF Apply Preprod Account
@@ -66,6 +67,7 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   preproduction_deploy:
     name: Preproduction Deploy
@@ -132,6 +134,7 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
   production_deploy:
     name: Production Deploy

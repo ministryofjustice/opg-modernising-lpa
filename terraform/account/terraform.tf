@@ -101,3 +101,7 @@ data "aws_caller_identity" "global" {
 data "aws_default_tags" "global" {
   provider = aws.global
 }
+
+provider "pagerduty" {
+  token = var.pagerduty_api_key
+}
