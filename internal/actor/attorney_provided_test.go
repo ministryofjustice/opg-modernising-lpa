@@ -21,9 +21,6 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 			details: AttorneyProvidedDetails{Confirmed: attorneySignedAt},
 			signed:  true,
 		},
-		"signed for different iteration": {
-			details: AttorneyProvidedDetails{Confirmed: lpaSignedAt},
-		},
 		"trust corporation unsigned": {
 			details: AttorneyProvidedDetails{Confirmed: attorneySignedAt, IsTrustCorporation: true},
 		},
@@ -70,7 +67,7 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.signed, tc.details.Signed(lpaSignedAt))
+			assert.Equal(t, tc.signed, tc.details.Signed())
 		})
 	}
 }
