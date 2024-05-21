@@ -45,20 +45,20 @@ type AttorneyProvidedDetails struct {
 
 // Signed checks whether the attorney has confirmed and if that confirmation is
 // still valid by checking that it was made for the donor's current signature.
-func (d AttorneyProvidedDetails) Signed(after time.Time) bool {
+func (d AttorneyProvidedDetails) Signed() bool {
 	if d.IsTrustCorporation {
 		switch d.WouldLikeSecondSignatory {
 		case form.Yes:
-			return d.AuthorisedSignatories[0].Confirmed.After(after) &&
-				d.AuthorisedSignatories[1].Confirmed.After(after)
+			return !d.AuthorisedSignatories[0].Confirmed.IsZero() &&
+				!d.AuthorisedSignatories[1].Confirmed.IsZero()
 		case form.No:
-			return d.AuthorisedSignatories[0].Confirmed.After(after)
+			return !d.AuthorisedSignatories[0].Confirmed.IsZero()
 		default:
 			return false
 		}
 	}
 
-	return d.Confirmed.After(after)
+	return !d.Confirmed.IsZero()
 }
 
 type AttorneyTasks struct {
