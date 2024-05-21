@@ -25,6 +25,45 @@ defaults:
     shell: bash
 
 jobs:
+  fetch_s3_av_version:
+    name: Fetch the S3 AV Zip version tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull S3 AV Zip tag
+        id: pull_s3_av_tag
+        run: |
+          key="/opg-s3-antivirus/zip-version-main"
+          value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text 2>/dev/null || true)
+          echo "Using $key: $value"
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      s3_av_scanner_zip_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
+  get_lambda_zips:
+    name: get lambda function zips
+    runs-on: ubuntu-latest
+    needs: [fetch_s3_av_version]
+    steps:
+    - name: get lambda function zips
+      working-directory: ./terraform/environment/region/modules/s3_antivirus/
+      run: |
+        echo "Pulling AV lambda version: ${{ fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}" >> $GITHUB_STEP_SUMMARY
+        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip -O lambda_layer.zip
+        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
+        sha256sum -c "lambda_layer.zip.sha256sum"
+        echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
+        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip -O myFunction.zip
+        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
+        sha256sum -c "myFunction.zip.sha256sum"
+        echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
   generate_environment_workspace_name:
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +87,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
@@ -56,15 +96,18 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGModernisingLPATerraformGithubAction
+
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+
       - name: Setup Workspace Manager
         run: |
           wget https://github.com/ministryofjustice/opg-terraform-workspace-manager/releases/download/v0.3.2/opg-terraform-workspace-manager_Linux_x86_64.tar.gz -O $HOME/terraform-workspace-manager.tar.gz
           sudo tar -xvf $HOME/terraform-workspace-manager.tar.gz -C /usr/local/bin
           sudo chmod +x /usr/local/bin/terraform-workspace-manager
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=1 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
+
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment
@@ -74,6 +117,7 @@ jobs:
             echo "- Terraform version: [${terraform_version}]" >> $GITHUB_STEP_SUMMARY
             echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
           fi
+
       - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
         working-directory: ./terraform/environment
@@ -81,13 +125,16 @@ jobs:
         with:
           terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
           terraform_wrapper: false
+
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ./terraform/environment
+
       - name: Destroy PR environment and Terraform workspace
         working-directory: ./terraform/environment
         env:
           TF_VAR_pagerduty_api_key:  ${{ secrets.PAGERDUTY_API_KEY }}
+
         run: |
           terraform workspace select -or-create=true ${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
           terraform destroy -auto-approve
