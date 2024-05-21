@@ -28,7 +28,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		data := &progressData{
 			App:             appData,
 			Lpa:             lpa,
-			Signed:          attorneyProvidedDetails.Signed(lpa.SignedAt),
+			Signed:          attorneyProvidedDetails.Signed(),
 			AttorneysSigned: lpa.AllAttorneysSigned(),
 		}
 
