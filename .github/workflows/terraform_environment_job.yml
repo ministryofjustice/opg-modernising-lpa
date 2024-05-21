@@ -16,6 +16,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+      s3_av_scanner_zip_tag:
+        description: 'Semver tag for S3 antivirus lambda zip packages'
+        required: true
+        type: string
       public_access_enabled:
         description: 'Enable public access to the environment?'
         default: false
@@ -73,6 +77,19 @@ jobs:
           ref: ${{ inputs.checkout_tag }}
           fetch-depth: '0'
       - uses: unfor19/install-aws-cli-action@v1
+      - name: get lambda function zips
+        working-directory: ./terraform/environment/region/modules/s3_antivirus/
+        run: |
+          echo "Pulling AV lambda version: ${{ inputs.s3_av_scanner_zip_tag }}" >> $GITHUB_STEP_SUMMARY
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ inputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip -O lambda_layer.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ inputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
+          sha256sum -c "lambda_layer.zip.sha256sum"
+          echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ inputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip -O myFunction.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ inputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
+          sha256sum -c "myFunction.zip.sha256sum"
+          echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
       - name: Parse terraform version
         id: tf_version_setup
         working-directory: ./terraform/environment

@@ -74,6 +74,7 @@ jobs:
     with:
       workspace_name: preproduction
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
+      s3_av_scanner_zip_tag: ${{ needs.create_tags.outputs.s3_av_scanner_zip_tag }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -140,6 +141,7 @@ jobs:
       workspace_name: production
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
+      s3_av_scanner_zip_tag: ${{ needs.create_tags.outputs.s3_av_scanner_zip_tag }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -155,6 +157,7 @@ jobs:
       workspace_name: demo
       version_tag: ${{ needs.create_tags.outputs.version_tag }}
       public_access_enabled: false
+      s3_av_scanner_zip_tag: ${{ needs.create_tags.outputs.s3_av_scanner_zip_tag }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
