@@ -45,6 +45,7 @@ jobs:
           echo "tag=${value}" >> $GITHUB_OUTPUT
     outputs:
       s3_av_scanner_zip_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
+
   get_lambda_zips:
     name: get lambda function zips
     runs-on: ubuntu-latest
