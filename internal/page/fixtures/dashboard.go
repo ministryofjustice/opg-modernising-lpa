@@ -17,6 +17,7 @@ func Dashboard(
 	donorStore page.DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
+	shareCodeStore ShareCodeStore,
 ) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -104,7 +105,16 @@ func Dashboard(
 
 			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			attorney, err := attorneyStore.Create(attorneyCtx, donor.SK, donor.Attorneys.Attorneys[0].UID, false, false, donor.Attorneys.Attorneys[0].Email)
+			attorney, err := createAttorney(
+				attorneyCtx,
+				shareCodeStore,
+				attorneyStore,
+				donor.Attorneys.Attorneys[0].UID,
+				false,
+				false,
+				donor.SK,
+				donor.Attorneys.Attorneys[0].Email,
+			)
 			if err != nil {
 				return err
 			}

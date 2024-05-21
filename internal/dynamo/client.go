@@ -426,3 +426,66 @@ func (c *Client) BatchPut(ctx context.Context, values []interface{}) error {
 
 	return err
 }
+
+func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction) error {
+	if len(transaction.Puts) == 0 && len(transaction.Deletes) == 0 {
+		return errors.New("WriteTransaction requires at least one transaction")
+	}
+
+	if transaction.Errors() != nil {
+		return transaction.Errors()
+	}
+
+	var items []types.TransactWriteItem
+
+	for _, value := range transaction.Puts {
+		value.TableName = aws.String(c.table)
+		items = append(items, types.TransactWriteItem{Put: value})
+	}
+
+	for _, value := range transaction.Deletes {
+		value.TableName = aws.String(c.table)
+		items = append(items, types.TransactWriteItem{Delete: value})
+	}
+
+	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: items,
+	})
+
+	return err
+}
+
+type Transaction struct {
+	Puts    []*types.Put
+	Deletes []*types.Delete
+	Errs    []error
+}
+
+func NewTransaction() *Transaction {
+	return &Transaction{}
+}
+
+func (t *Transaction) Put(v interface{}) *Transaction {
+	values, err := attributevalue.MarshalMap(v)
+
+	if err != nil {
+		t.Errs = append(t.Errs, err)
+	}
+
+	t.Puts = append(t.Puts, &types.Put{Item: values})
+	return t
+}
+
+func (t *Transaction) Delete(pk PK, sk SK) *Transaction {
+	t.Deletes = append(t.Deletes, &types.Delete{
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
+			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
+		},
+	})
+	return t
+}
+
+func (t *Transaction) Errors() error {
+	return errors.Join(t.Errs...)
+}

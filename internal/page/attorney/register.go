@@ -8,8 +8,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -52,7 +50,7 @@ type ShareCodeStore interface {
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error)
+	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.AttorneyProvidedDetails, error)
 	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
 }
@@ -74,14 +72,12 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
 	rootMux *http.ServeMux,
-	logger Logger,
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	attorneyStore AttorneyStore,
 	oneLoginClient OneLoginClient,
 	shareCodeStore ShareCodeStore,
 	errorHandler page.ErrorHandler,
-	notFoundHandler page.Handler,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,

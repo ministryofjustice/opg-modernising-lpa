@@ -110,9 +110,6 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			shareCodeStore.EXPECT().
 				Get(r.Context(), actor.TypeAttorney, "abcdef123456").
 				Return(tc.shareCode, nil)
-			shareCodeStore.EXPECT().
-				Delete(r.Context(), tc.shareCode).
-				Return(nil)
 
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
@@ -120,7 +117,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 					session, _ := page.SessionDataFromContext(ctx)
 
 					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-				}), dynamo.LpaOwnerKey(dynamo.DonorKey("")), testUID, tc.isReplacement, tc.isTrustCorporation, "a@example.com").
+				}), tc.shareCode, "a@example.com").
 				Return(&actor.AttorneyProvidedDetails{}, nil)
 
 			sessionStore := newMockSessionStore(t)
@@ -234,44 +231,8 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything, false, false, mock.Anything).
+		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(&actor.AttorneyProvidedDetails{}, expectedError)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey"}, nil)
-
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostEnterReferenceNumberOnShareCodeStoreDeleteError(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"abcdef123456"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCode := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, mock.Anything).
-		Return(shareCode, nil)
-	shareCodeStore.EXPECT().
-		Delete(r.Context(), shareCode).
-		Return(expectedError)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(&actor.AttorneyProvidedDetails{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
