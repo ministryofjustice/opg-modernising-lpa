@@ -6,12 +6,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAttorneyStoreCreate(t *testing.T) {
@@ -27,22 +29,61 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+			data := &page.SessionData{LpaID: "123", SessionID: "456"}
+			ctx := page.ContextWithSessionData(context.Background(), data)
 			now := time.Now()
+			nowFormatted := now.Format(time.RFC3339Nano)
 			uid := actoruid.New()
-			details := &actor.AttorneyProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), UID: uid, LpaID: "123", UpdatedAt: now, IsReplacement: tc.replacement, IsTrustCorporation: tc.trustCorporation, Email: "a@example.com"}
+			details := &actor.AttorneyProvidedDetails{
+				PK:                 dynamo.LpaKey("123"),
+				SK:                 dynamo.AttorneyKey("456"),
+				UID:                uid,
+				LpaID:              "123",
+				UpdatedAt:          now,
+				IsReplacement:      tc.replacement,
+				IsTrustCorporation: tc.trustCorporation,
+				Email:              "a@example.com",
+			}
+
+			shareCode := actor.ShareCodeData{
+				PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+				SK:                    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+				ActorUID:              uid,
+				IsReplacementAttorney: tc.replacement,
+				IsTrustCorporation:    tc.trustCorporation,
+				UpdatedAt:             now,
+				LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+			}
+
+			marshalledAttorney, _ := attributevalue.MarshalMap(details)
+
+			expectedTransaction := &dynamo.Transaction{
+				Puts: []*types.Put{
+					{Item: marshalledAttorney},
+					{Item: map[string]types.AttributeValue{
+						"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
+						"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
+						"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
+						"ActorType": &types.AttributeValueMemberN{Value: "2"},
+						"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
+					}},
+				},
+				Deletes: []*types.Delete{
+					{Key: map[string]types.AttributeValue{
+						"PK": &types.AttributeValueMemberS{Value: shareCode.PK.PK()},
+						"SK": &types.AttributeValueMemberS{Value: shareCode.SK.SK()},
+					}},
+				},
+			}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
-				Create(ctx, details).
-				Return(nil)
-			dynamoClient.EXPECT().
-				Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), ActorType: actor.TypeAttorney, UpdatedAt: now}).
+				WriteTransaction(ctx, expectedTransaction).
 				Return(nil)
 
 			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			attorney, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), uid, tc.replacement, tc.trustCorporation, "a@example.com")
+			attorney, err := attorneyStore.Create(ctx, shareCode, "a@example.com")
 			assert.Nil(t, err)
 			assert.Equal(t, details, attorney)
 		})
@@ -54,7 +95,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &attorneyStore{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
+	_, err := attorneyStore.Create(ctx, actor.ShareCodeData{}, "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -70,49 +111,29 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &attorneyStore{}
 
-			_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
+			_, err := attorneyStore.Create(ctx, actor.ShareCodeData{}, "")
 			assert.NotNil(t, err)
 		})
 	}
 }
 
-func TestAttorneyStoreCreateWhenCreateError(t *testing.T) {
+func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
-	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"certificate provider record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			return dynamoClient
-		},
-		"link record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			return dynamoClient
-		},
-	}
+	_, err := attorneyStore.Create(ctx, actor.ShareCodeData{
+		PK: dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+	}, "")
+	assert.Equal(t, expectedError, err)
 
-	for name, makeMockDataStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := makeMockDataStore(t)
-
-			attorneyStore := &attorneyStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-			_, err := attorneyStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), false, false, "")
-			assert.Equal(t, expectedError, err)
-		})
-	}
 }
 
 func TestAttorneyStoreGet(t *testing.T) {

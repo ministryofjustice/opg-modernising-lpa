@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -16,7 +15,7 @@ type attorneyStore struct {
 	now          func() time.Time
 }
 
-func (s *attorneyStore) Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, attorneyUID actoruid.UID, isReplacement, isTrustCorporation bool, email string) (*actor.AttorneyProvidedDetails, error) {
+func (s *attorneyStore) Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.AttorneyProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -29,24 +28,26 @@ func (s *attorneyStore) Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerK
 	attorney := &actor.AttorneyProvidedDetails{
 		PK:                 dynamo.LpaKey(data.LpaID),
 		SK:                 dynamo.AttorneyKey(data.SessionID),
-		UID:                attorneyUID,
+		UID:                shareCode.ActorUID,
 		LpaID:              data.LpaID,
 		UpdatedAt:          s.now(),
-		IsReplacement:      isReplacement,
-		IsTrustCorporation: isTrustCorporation,
+		IsReplacement:      shareCode.IsReplacementAttorney,
+		IsTrustCorporation: shareCode.IsTrustCorporation,
 		Email:              email,
 	}
 
-	if err := s.dynamoClient.Create(ctx, attorney); err != nil {
-		return nil, err
-	}
-	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:        dynamo.LpaKey(data.LpaID),
-		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  lpaOwnerKey,
-		ActorType: actor.TypeAttorney,
-		UpdatedAt: s.now(),
-	}); err != nil {
+	transaction := dynamo.NewTransaction().
+		Put(attorney).
+		Put(lpaLink{
+			PK:        dynamo.LpaKey(data.LpaID),
+			SK:        dynamo.SubKey(data.SessionID),
+			DonorKey:  shareCode.LpaOwnerKey,
+			ActorType: actor.TypeAttorney,
+			UpdatedAt: s.now(),
+		}).
+		Delete(shareCode.PK, shareCode.SK)
+
+	if err = s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err
 	}
 
