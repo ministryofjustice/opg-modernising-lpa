@@ -2,13 +2,19 @@ output "workspace_name" {
   value = terraform.workspace
 }
 
+variable "pagerduty_api_key" {
+  type      = string
+  sensitive = true
+}
+
 variable "accounts" {
   type = map(
     object({
-      account_id    = string
-      account_name  = string
-      is_production = bool
-      regions       = list(string)
+      account_id             = string
+      account_name           = string
+      is_production          = bool
+      regions                = list(string)
+      pagerduty_service_name = string
     })
   )
 }

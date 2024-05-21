@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.49.0"
     }
+    pagerduty = {
+      source  = "PagerDuty/pagerduty"
+      version = "3.12.0"
+    }
   }
   required_version = "1.8.3"
 }
