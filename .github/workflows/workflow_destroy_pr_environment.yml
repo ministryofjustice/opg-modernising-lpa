@@ -49,8 +49,10 @@ jobs:
   get_lambda_zips:
     name: get lambda function zips
     runs-on: ubuntu-latest
-    needs: [fetch_s3_av_version]
+    needs: [ fetch_s3_av_version ]
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: get lambda function zips
       working-directory: ./terraform/environment/region/modules/s3_antivirus/
       run: |
@@ -84,7 +86,7 @@ jobs:
 
   cleanup_workspace:
     runs-on: ubuntu-latest
-    needs: generate_environment_workspace_name
+    needs: [ generate_environment_workspace_name, get_lambda_zips ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
