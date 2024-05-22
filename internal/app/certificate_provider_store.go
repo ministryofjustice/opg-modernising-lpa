@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -17,7 +16,7 @@ type certificateProviderStore struct {
 	now          func() time.Time
 }
 
-func (s *certificateProviderStore) Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error) {
+func (s *certificateProviderStore) Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.CertificateProviderProvidedDetails, error) {
 	data, err := page.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -27,29 +26,31 @@ func (s *certificateProviderStore) Create(ctx context.Context, lpaOwnerKey dynam
 		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID")
 	}
 
-	cp := &actor.CertificateProviderProvidedDetails{
+	certificateProvider := &actor.CertificateProviderProvidedDetails{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.CertificateProviderKey(data.SessionID),
-		UID:       certificateProviderUID,
+		UID:       shareCode.ActorUID,
 		LpaID:     data.LpaID,
 		UpdatedAt: s.now(),
 		Email:     email,
 	}
 
-	if err := s.dynamoClient.Create(ctx, cp); err != nil {
-		return nil, err
-	}
-	if err := s.dynamoClient.Create(ctx, lpaLink{
-		PK:        dynamo.LpaKey(data.LpaID),
-		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  lpaOwnerKey,
-		ActorType: actor.TypeCertificateProvider,
-		UpdatedAt: s.now(),
-	}); err != nil {
+	transaction := dynamo.NewTransaction().
+		Put(certificateProvider).
+		Put(lpaLink{
+			PK:        dynamo.LpaKey(data.LpaID),
+			SK:        dynamo.SubKey(data.SessionID),
+			DonorKey:  shareCode.LpaOwnerKey,
+			ActorType: actor.TypeCertificateProvider,
+			UpdatedAt: s.now(),
+		}).
+		Delete(shareCode.PK, shareCode.SK)
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err
 	}
 
-	return cp, err
+	return certificateProvider, err
 }
 
 func (s *certificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
