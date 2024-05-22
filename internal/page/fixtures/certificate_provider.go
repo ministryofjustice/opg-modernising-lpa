@@ -32,6 +32,7 @@ func CertificateProvider(
 	dynamoClient DynamoClient,
 	organisationStore OrganisationStore,
 	memberStore MemberStore,
+	shareCodeStore ShareCodeStore,
 ) page.Handler {
 	progressValues := []string{
 		"paid",
@@ -174,7 +175,7 @@ func CertificateProvider(
 			donorDetails.CertificateProvider.Relationship = actor.Professionally
 		}
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorDetails.SK, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
