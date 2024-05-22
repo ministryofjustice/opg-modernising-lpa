@@ -36,8 +36,8 @@ func (s *certificateProviderStore) Create(ctx context.Context, shareCode actor.S
 	}
 
 	transaction := dynamo.NewTransaction().
-		Put(certificateProvider).
-		Put(lpaLink{
+		Create(certificateProvider).
+		Create(lpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,

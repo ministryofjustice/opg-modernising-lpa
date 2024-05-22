@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -36,14 +37,20 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	expectedTransaction := &dynamo.Transaction{
 		Puts: []*types.Put{
-			{Item: marshalledCertificateProvider},
-			{Item: map[string]types.AttributeValue{
-				"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
-				"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
-				"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
-				"ActorType": &types.AttributeValueMemberN{Value: "4"},
-				"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
-			}},
+			{
+				Item:                marshalledCertificateProvider,
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			},
+			{
+				Item: map[string]types.AttributeValue{
+					"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
+					"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
+					"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
+					"ActorType": &types.AttributeValueMemberN{Value: "4"},
+					"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
+				},
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			},
 		},
 		Deletes: []*types.Delete{
 			{Key: map[string]types.AttributeValue{

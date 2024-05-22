@@ -37,8 +37,8 @@ func (s *attorneyStore) Create(ctx context.Context, shareCode actor.ShareCodeDat
 	}
 
 	transaction := dynamo.NewTransaction().
-		Put(attorney).
-		Put(lpaLink{
+		Create(attorney).
+		Create(lpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
