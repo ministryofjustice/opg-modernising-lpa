@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -19,19 +22,52 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 	uid := actoruid.New()
 	now := time.Now()
+	nowFormatted := now.Format(time.RFC3339Nano)
 	details := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123", UpdatedAt: now, UID: uid, Email: "a@b.com"}
+
+	shareCode := actor.ShareCodeData{
+		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		ActorUID:    uid,
+		UpdatedAt:   now,
+		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+	}
+
+	marshalledCertificateProvider, _ := attributevalue.MarshalMap(details)
+
+	expectedTransaction := &dynamo.Transaction{
+		Puts: []*types.Put{
+			{
+				Item:                marshalledCertificateProvider,
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			},
+			{
+				Item: map[string]types.AttributeValue{
+					"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
+					"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
+					"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
+					"ActorType": &types.AttributeValueMemberN{Value: "4"},
+					"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
+				},
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+			},
+		},
+		Deletes: []*types.Delete{
+			{Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: shareCode.PK.PK()},
+				"SK": &types.AttributeValueMemberS{Value: shareCode.SK.SK()},
+			}},
+		},
+	}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, details).
-		Return(nil)
-	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
+		WriteTransaction(ctx, expectedTransaction).
 		Return(nil)
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), uid, "a@b.com")
+	certificateProvider, err := certificateProviderStore.Create(ctx, shareCode, "a@b.com")
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -41,7 +77,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
+	_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{}, "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -57,49 +93,28 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{}
 
-			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
+			_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{}, "")
 			assert.NotNil(t, err)
 		})
 	}
 }
 
-func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
+func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
 	now := time.Now()
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"certificate provider record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			return dynamoClient
-		},
-		"link record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			return dynamoClient
-		},
-	}
-
-	for name, makeMockDataStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := makeMockDataStore(t)
-
-			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
-			assert.Equal(t, expectedError, err)
-		})
-	}
+	_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{
+		PK: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+	}, "")
+	assert.Equal(t, expectedError, err)
 }
 
 func TestCertificateProviderStoreGetAny(t *testing.T) {

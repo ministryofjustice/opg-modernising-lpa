@@ -465,6 +465,21 @@ func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
+func (t *Transaction) Create(v interface{}) *Transaction {
+	values, err := attributevalue.MarshalMap(v)
+
+	if err != nil {
+		t.Errs = append(t.Errs, err)
+	}
+
+	t.Puts = append(t.Puts, &types.Put{
+		Item:                values,
+		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+	})
+
+	return t
+}
+
 func (t *Transaction) Put(v interface{}) *Transaction {
 	values, err := attributevalue.MarshalMap(v)
 

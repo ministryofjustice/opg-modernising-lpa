@@ -1043,8 +1043,8 @@ func TestTransactWriteItemsWhenErrorsBuildingTransaction(t *testing.T) {
 }
 
 func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
-	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
-	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
+	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "a"})
+	putItemB, _ := attributevalue.MarshalMap(map[string]string{"b": "b"})
 	deleteKeyA, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
 		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
 		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
@@ -1070,6 +1070,41 @@ func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
 
 func TestNewTransaction(t *testing.T) {
 	assert.Equal(t, &Transaction{}, NewTransaction())
+}
+
+func TestTransactionCreate(t *testing.T) {
+	createA := map[string]string{"a": "a"}
+	createB := map[string]string{"b": "b"}
+	transaction := NewTransaction().
+		Create(createA).
+		Create(createB)
+
+	expected := []*types.Put{
+		{
+			Item:                map[string]types.AttributeValue{"a": &types.AttributeValueMemberS{Value: "a"}},
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+		},
+		{
+			Item:                map[string]types.AttributeValue{"b": &types.AttributeValueMemberS{Value: "b"}},
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+		},
+	}
+
+	assert.Equal(t, expected, transaction.Puts)
+	assert.Nil(t, transaction.Errors())
+}
+
+func TestTransactionCreateWhenMarshallError(t *testing.T) {
+	createA := map[string]string{"": "a"}
+	createB := map[string]string{"b": "b"}
+	createC := map[string]string{"": "c"}
+	transaction := NewTransaction().
+		Create(createA).
+		Create(createB).
+		Create(createC)
+
+	assert.Error(t, transaction.Errors())
+	assert.Len(t, transaction.Errs, 2)
 }
 
 func TestTransactionPut(t *testing.T) {
