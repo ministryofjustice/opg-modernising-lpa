@@ -11,6 +11,10 @@ import (
 func main() {
 	port := env.Get("PORT", "8080")
 
+	http.HandleFunc("/v2/notifications", func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(map[string]any{"notifications": []any{}})
+	})
+
 	http.HandleFunc("/v2/notifications/email", func(w http.ResponseWriter, r *http.Request) {
 		var v map[string]interface{}
 		json.NewDecoder(r.Body).Decode(&v)
