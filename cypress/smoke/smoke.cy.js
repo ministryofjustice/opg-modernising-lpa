@@ -12,7 +12,7 @@ describe('Smoke tests', () => {
   })
 
   describe('app', () => {
-    it('is available', { requestTimeout: 30000, defaultCommandTimeout: 30000 }, () => {
+    it('is available', { pageLoadTimeout: 30000, requestTimeout: 30000, defaultCommandTimeout: 30000 }, () => {
       cy.visit('/')
 
       cy.get('h1').should('contain', 'Make and register a lasting power of attorney (LPA)');
