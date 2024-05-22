@@ -52,15 +52,11 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					LpaID:     shareCode.LpaKey.ID(),
 				})
 
-				if _, err := certificateProviderStore.Create(ctx, shareCode.LpaOwnerKey, shareCode.ActorUID, session.Email); err != nil {
+				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil {
 					var ccf *types.ConditionalCheckFailedException
 					if !errors.As(err, &ccf) {
 						return err
 					}
-				}
-
-				if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
-					return err
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
