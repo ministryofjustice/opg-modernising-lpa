@@ -46,6 +46,10 @@ func ProvideCertificate(
 			return err
 		}
 
+		if !certificateProvider.Certificate.Agreed.IsZero() {
+			return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, lpa.LpaID)
+		}
+
 		data := &provideCertificateData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
@@ -67,12 +71,13 @@ func ProvideCertificate(
 				certificateProvider.Certificate.AgreeToStatement = true
 				certificateProvider.Certificate.Agreed = now()
 				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
-				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
-					return err
-				}
 
-				if err := lpaStoreClient.SendCertificateProvider(r.Context(), certificateProvider, lpa); err != nil {
-					return err
+				if lpa.CertificateProvider.SignedAt.IsZero() {
+					if err := lpaStoreClient.SendCertificateProvider(r.Context(), certificateProvider, lpa); err != nil {
+						return err
+					}
+				} else {
+					certificateProvider.Certificate.Agreed = lpa.CertificateProvider.SignedAt
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
@@ -86,6 +91,10 @@ func ProvideCertificate(
 				}
 
 				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
+					return err
+				}
+
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
