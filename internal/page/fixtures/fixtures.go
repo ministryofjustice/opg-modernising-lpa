@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -200,4 +201,45 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 		MaxAge: 365 * 24 * 60 * 60,
 		Path:   "/",
 	})
+}
+
+func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*actor.AttorneyProvidedDetails, error) {
+	shareCode := random.String(16)
+	shareCodeData := actor.ShareCodeData{
+		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
+		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		ActorUID:              actorUID,
+		IsReplacementAttorney: isReplacement,
+		IsTrustCorporation:    isTrustCorporation,
+		LpaOwnerKey:           lpaOwnerKey,
+	}
+
+	attorneyType := actor.TypeAttorney
+	if isReplacement {
+		attorneyType = actor.TypeReplacementAttorney
+	}
+
+	err := shareCodeStore.Put(ctx, attorneyType, shareCode, shareCodeData)
+	if err != nil {
+		return nil, err
+	}
+
+	return attorneyStore.Create(ctx, shareCodeData, email)
+}
+
+func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStore, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*actor.CertificateProviderProvidedDetails, error) {
+	shareCode := random.String(16)
+	shareCodeData := actor.ShareCodeData{
+		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		ActorUID:    actorUID,
+		LpaOwnerKey: lpaOwnerKey,
+	}
+
+	err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, shareCodeData)
+	if err != nil {
+		return nil, err
+	}
+
+	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
