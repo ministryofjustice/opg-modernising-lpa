@@ -6,7 +6,7 @@ data "aws_vpc_endpoint" "opensearch" {
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_policy" {
-  name        = "policy-${local.account_name}"
+  name        = "policy-shared-${local.account_name}"
   type        = "encryption"
   description = "encryption policy for collection"
   policy = jsonencode({
@@ -30,7 +30,7 @@ resource "aws_opensearchserverless_collection" "lpas_collection" {
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
-  name        = "policy-${local.account_name}"
+  name        = "policy-shared-${local.account_name}"
   type        = "network"
   description = "VPC access for collection endpoint"
   policy = jsonencode([
@@ -63,7 +63,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
 
 resource "aws_opensearchserverless_access_policy" "team_operator_access" {
   count       = local.account_name == "production" ? 0 : 1
-  name        = "team-access-${local.account_name}"
+  name        = "team-access-shared-${local.account_name}"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
@@ -90,7 +90,7 @@ resource "aws_opensearchserverless_access_policy" "team_operator_access" {
 
 resource "aws_opensearchserverless_access_policy" "team_breakglass_access" {
   count       = local.account_name == "production" ? 1 : 0
-  name        = "team-access-${local.account_name}"
+  name        = "team-access-shared-${local.account_name}"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
@@ -183,7 +183,7 @@ resource "aws_sns_topic" "opensearch" {
 }
 
 resource "pagerduty_service_integration" "opensearch" {
-  name    = "Modernising LPA ${local.account_name} OpenSearch Alarm"
+  name    = "Modernising LPA Shared ${local.account_name} OpenSearch Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
