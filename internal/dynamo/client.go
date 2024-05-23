@@ -432,20 +432,41 @@ func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction)
 		return errors.New("WriteTransaction requires at least one transaction")
 	}
 
-	if transaction.Errors() != nil {
-		return transaction.Errors()
-	}
-
 	var items []types.TransactWriteItem
 
-	for _, value := range transaction.Puts {
-		value.TableName = aws.String(c.table)
-		items = append(items, types.TransactWriteItem{Put: value})
+	for _, cr := range transaction.Creates {
+		values, err := attributevalue.MarshalMap(cr)
+		if err != nil {
+			return err
+		}
+
+		items = append(items, types.TransactWriteItem{Put: &types.Put{
+			TableName:           aws.String(c.table),
+			Item:                values,
+			ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+		}})
 	}
 
-	for _, value := range transaction.Deletes {
-		value.TableName = aws.String(c.table)
-		items = append(items, types.TransactWriteItem{Delete: value})
+	for _, p := range transaction.Puts {
+		values, err := attributevalue.MarshalMap(p)
+		if err != nil {
+			return err
+		}
+
+		items = append(items, types.TransactWriteItem{Put: &types.Put{
+			TableName: aws.String(c.table),
+			Item:      values,
+		}})
+	}
+
+	for _, d := range transaction.Deletes {
+		items = append(items, types.TransactWriteItem{Delete: &types.Delete{
+			TableName: aws.String(c.table),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: d.PK.PK()},
+				"SK": &types.AttributeValueMemberS{Value: d.SK.SK()},
+			},
+		}})
 	}
 
 	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
@@ -456,36 +477,26 @@ func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction)
 }
 
 type Transaction struct {
-	Puts    []*types.Put
-	Deletes []*types.Delete
-	Errs    []error
+	Creates []any
+	Puts    []any
+	Deletes []Keys
 }
 
 func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
+func (t *Transaction) Create(v interface{}) *Transaction {
+	t.Creates = append(t.Creates, v)
+	return t
+}
+
 func (t *Transaction) Put(v interface{}) *Transaction {
-	values, err := attributevalue.MarshalMap(v)
-
-	if err != nil {
-		t.Errs = append(t.Errs, err)
-	}
-
-	t.Puts = append(t.Puts, &types.Put{Item: values})
+	t.Puts = append(t.Puts, v)
 	return t
 }
 
-func (t *Transaction) Delete(pk PK, sk SK) *Transaction {
-	t.Deletes = append(t.Deletes, &types.Delete{
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
-			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
-		},
-	})
+func (t *Transaction) Delete(keys Keys) *Transaction {
+	t.Deletes = append(t.Deletes, keys)
 	return t
-}
-
-func (t *Transaction) Errors() error {
-	return errors.Join(t.Errs...)
 }

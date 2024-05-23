@@ -115,7 +115,7 @@ func CertificateProvider(
 			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), orgSession), actor.ShareCodeData{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
-			}); err != nil {
+			}, donorDetails.Donor.Email); err != nil {
 				return err
 			}
 		} else {
