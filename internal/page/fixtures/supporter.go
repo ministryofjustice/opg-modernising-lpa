@@ -33,7 +33,6 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Linked(ctx context.Context, data actor.ShareCodeData, email string) error
 	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
 	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
 }
@@ -142,11 +141,7 @@ func Supporter(
 					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, shareCodeData.LpaKey))
 					shareCodeData.UpdatedAt = time.Now()
 
-					if err := donorStore.Link(donorCtx, shareCodeData); err != nil {
-						return err
-					}
-
-					if err := shareCodeStore.Linked(donorCtx, shareCodeData, shareCodeData.InviteSentTo); err != nil {
+					if err := donorStore.Link(donorCtx, shareCodeData, donor.Donor.Email); err != nil {
 						return err
 					}
 
