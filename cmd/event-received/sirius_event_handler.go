@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 )
 
 type siriusEventHandler struct{}
@@ -153,6 +154,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 		return err
 	}
 
+	donor.FeeType = pay.FullFee
 	donor.Tasks.PayForLpa = actor.PaymentTaskDenied
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
