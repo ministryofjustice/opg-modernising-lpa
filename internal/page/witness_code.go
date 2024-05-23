@@ -45,16 +45,15 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 
 	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	err := s.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	if err := s.donorStore.Put(ctx, donor); err != nil {
+		return err
+	}
+
+	return s.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
 	})
-	if err != nil {
-		return err
-	}
-
-	return s.donorStore.Put(ctx, donor)
 }
 
 func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *actor.DonorProvidedDetails, localizer Localizer) error {
@@ -69,14 +68,13 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 
 	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
 
-	err := s.notifyClient.SendActorSMS(ctx, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	if err := s.donorStore.Put(ctx, donor); err != nil {
+		return err
+	}
+
+	return s.notifyClient.SendActorSMS(ctx, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(localizer.T(donor.Type.String())),
 	})
-	if err != nil {
-		return err
-	}
-
-	return s.donorStore.Put(ctx, donor)
 }

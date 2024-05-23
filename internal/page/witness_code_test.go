@@ -98,38 +98,10 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("property and affairs")
-	localizer.EXPECT().
-		Possessive("Joe Jones").
-		Return("Joe Jones’")
-
-	sender := &WitnessCodeSender{
-		notifyClient: notifyClient,
-		randomCode:   func(int) string { return "1234" },
-		now:          time.Now,
-	}
-	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                actor.LpaTypePropertyAndAffairs,
-	}, localizer)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(mock.Anything, mock.Anything).
-		Return(expectedError)
+		Return(nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -150,6 +122,26 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                actor.LpaTypePropertyAndAffairs,
 	}, localizer)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testing.T) {
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := &WitnessCodeSender{
+		donorStore: donorStore,
+		randomCode: func(int) string { return "1234" },
+		now:        time.Now,
+	}
+	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
+		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:                actor.LpaTypePropertyAndAffairs,
+	}, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -220,38 +212,10 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("property-and-affairs").
-		Return("property and affairs")
-	localizer.EXPECT().
-		Possessive("Joe Jones").
-		Return("Joe Jones’")
-
-	sender := &WitnessCodeSender{
-		notifyClient: notifyClient,
-		randomCode:   func(int) string { return "1234" },
-		now:          time.Now,
-	}
-	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
-		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               actor.LpaTypePropertyAndAffairs,
-	}, localizer)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
-
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(mock.Anything, mock.Anything).
-		Return(expectedError)
+		Return(nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -272,6 +236,26 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:               actor.LpaTypePropertyAndAffairs,
 	}, localizer)
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := &WitnessCodeSender{
+		donorStore: donorStore,
+		randomCode: func(int) string { return "1234" },
+		now:        time.Now,
+	}
+	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
+		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
+		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:               actor.LpaTypePropertyAndAffairs,
+	}, nil)
 
 	assert.Equal(t, expectedError, err)
 }
