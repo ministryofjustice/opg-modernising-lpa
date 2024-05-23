@@ -42,7 +42,17 @@ func TestHandleUidRequested(t *testing.T) {
 		Set(ctx, "an-id", "donor-id", "org-id", "M-1111-2222-3333").
 		Return(nil)
 
-	err := handleUidRequested(ctx, uidStore, uidClient, event)
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		UidStore().
+		Return(uidStore, nil)
+	factory.EXPECT().
+		UidClient().
+		Return(uidClient)
+
+	handler := makeregisterEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
 	assert.Nil(t, err)
 }
 
