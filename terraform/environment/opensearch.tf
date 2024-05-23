@@ -4,7 +4,7 @@ data "aws_opensearchserverless_collection" "lpas_collection" {
 }
 
 resource "aws_opensearchserverless_access_policy" "app" {
-  name        = "app-${local.environment.account_name}"
+  name        = "app-${local.environment_name}"
   type        = "data"
   description = "allow index and collection access"
   policy = jsonencode([
@@ -12,12 +12,12 @@ resource "aws_opensearchserverless_access_policy" "app" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.environment.account_name}/*"],
+          Resource     = ["index/shared-collection-${local.environment.account_name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.environment.account_name}"],
+          Resource     = ["collection/shared-collection-${local.environment.account_name}"],
           Permission   = ["aoss:*"]
         }
       ],
@@ -30,7 +30,7 @@ resource "aws_opensearchserverless_access_policy" "app" {
 }
 
 resource "aws_opensearchserverless_access_policy" "event_received" {
-  name        = "event-received-${local.environment.account_name}"
+  name        = "event-received-${local.environment_name}"
   type        = "data"
   description = "allow index and collection access"
   policy = jsonencode([
@@ -38,12 +38,12 @@ resource "aws_opensearchserverless_access_policy" "event_received" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.environment.account_name}/*"],
+          Resource     = ["index/shared-collection-${local.environment.account_name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/collection-${local.environment.account_name}"],
+          Resource     = ["collection/shared-collection-${local.environment.account_name}"],
           Permission   = ["aoss:*"]
         }
       ],
