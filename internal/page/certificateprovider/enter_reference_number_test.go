@@ -72,13 +72,11 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	shareCodeData := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
-	shareCodeStore.EXPECT().
-		Delete(r.Context(), actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}).
-		Return(nil)
+		Return(shareCodeData, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -91,7 +89,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			session, _ := page.SessionDataFromContext(ctx)
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), uid, "a@b.com").
+		}), shareCodeData, "a@b.com").
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
@@ -180,51 +178,11 @@ func TestPostEnterReferenceNumberWhenCreateError(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Create(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 	assert.Equal(t, expectedError, err)
-}
-
-func TestPostEnterReferenceNumberWhenShareCodeStoreDeleteError(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"abcdef123456"},
-	}
-
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
-	shareCodeStore.EXPECT().
-		Delete(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey"}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Create(mock.MatchedBy(func(ctx context.Context) bool {
-			session, _ := page.SessionDataFromContext(ctx)
-
-			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
-		}), dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), uid, mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostEnterReferenceNumberOnValidationError(t *testing.T) {
