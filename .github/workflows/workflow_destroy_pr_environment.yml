@@ -46,25 +46,6 @@ jobs:
     outputs:
       s3_av_scanner_zip_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
 
-  get_lambda_zips:
-    name: get lambda function zips
-    runs-on: ubuntu-latest
-    needs: [fetch_s3_av_version]
-    steps:
-    - name: get lambda function zips
-      working-directory: ./terraform/environment/region/modules/s3_antivirus/
-      run: |
-        echo "Pulling AV lambda version: ${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}" >> $GITHUB_STEP_SUMMARY
-        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip -O lambda_layer.zip
-        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
-        sha256sum -c "lambda_layer.zip.sha256sum"
-        echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
-
-        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip -O myFunction.zip
-        wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
-        sha256sum -c "myFunction.zip.sha256sum"
-        echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
-
   generate_environment_workspace_name:
     runs-on: ubuntu-latest
     steps:
@@ -84,10 +65,24 @@ jobs:
 
   cleanup_workspace:
     runs-on: ubuntu-latest
-    needs: generate_environment_workspace_name
+    needs: [ generate_environment_workspace_name, fetch_s3_av_version ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: get lambda function zips
+        working-directory: ./terraform/environment/region/modules/s3_antivirus/
+        run: |
+          echo "Pulling AV lambda version: ${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}" >> $GITHUB_STEP_SUMMARY
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip -O lambda_layer.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
+          sha256sum -c "lambda_layer.zip.sha256sum"
+          echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip -O myFunction.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
+          sha256sum -c "myFunction.zip.sha256sum"
+          echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
 
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4.0.2
