@@ -535,21 +535,8 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 			},
 		}, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID:          "lpa-id",
-			LpaUID:         "lpa-uid",
-			Donor:          actor.Donor{Email: "a@b.com"},
-			FeeType:        pay.FullFee,
-			Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskInProgress},
-			PaymentDetails: []actor.Payment{{Amount: 4100}},
-		}).
-		Return(nil)
-
 	err := (&payHelper{
 		sessionStore: sessionStore,
-		donorStore:   donorStore,
 		payClient:    payClient,
 		randomString: func(int) string { return "123456789012" },
 		appPublicURL: "http://example.org",
@@ -566,51 +553,6 @@ func TestPayHelperPayWhenFeeDenied(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/lpa/lpa-id/payment-confirmation", resp.Header.Get("Location"))
-}
-
-func TestPayHelperPayWhenFeeDeniedAndPutStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		SetPayment(r, w, &sesh.PaymentSession{PaymentID: "a-fake-id"}).
-		Return(nil)
-
-	payClient := newMockPayClient(t)
-	payClient.EXPECT().
-		CreatePayment(r.Context(), mock.Anything, mock.Anything).
-		Return(&pay.CreatePaymentResponse{
-			PaymentID: "a-fake-id",
-			Links: map[string]pay.Link{
-				"next_url": {
-					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
-				},
-			},
-		}, nil)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := (&payHelper{
-		sessionStore: sessionStore,
-		donorStore:   donorStore,
-		payClient:    payClient,
-		randomString: func(int) string { return "123456789012" },
-		appPublicURL: "http://example.org",
-	}).Pay(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID:          "lpa-id",
-		Donor:          actor.Donor{Email: "a@b.com"},
-		FeeType:        pay.HalfFee,
-		Tasks:          actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []actor.Payment{{Amount: 4100}},
-	})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPayHelperPayWhenCreatePaymentErrors(t *testing.T) {
