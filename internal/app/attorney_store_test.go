@@ -6,9 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -30,10 +27,8 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			data := &page.SessionData{LpaID: "123", SessionID: "456"}
-			ctx := page.ContextWithSessionData(context.Background(), data)
+			ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 			now := time.Now()
-			nowFormatted := now.Format(time.RFC3339Nano)
 			uid := actoruid.New()
 			details := &actor.AttorneyProvidedDetails{
 				PK:                 dynamo.LpaKey("123"),
@@ -56,29 +51,22 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			}
 
-			marshalledAttorney, _ := attributevalue.MarshalMap(details)
-
 			expectedTransaction := &dynamo.Transaction{
-				Puts: []*types.Put{
-					{
-						Item:                marshalledAttorney,
-						ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-					},
-					{
-						Item: map[string]types.AttributeValue{
-							"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
-							"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
-							"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
-							"ActorType": &types.AttributeValueMemberN{Value: "2"},
-							"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted}},
-						ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+				Puts: []any{
+					details,
+					lpaLink{
+						PK:        dynamo.LpaKey("123"),
+						SK:        dynamo.SubKey("456"),
+						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+						ActorType: actor.TypeAttorney,
+						UpdatedAt: now,
 					},
 				},
-				Deletes: []*types.Delete{
-					{Key: map[string]types.AttributeValue{
-						"PK": &types.AttributeValueMemberS{Value: shareCode.PK.PK()},
-						"SK": &types.AttributeValueMemberS{Value: shareCode.SK.SK()},
-					}},
+				Deletes: []dynamo.Keys{
+					{
+						PK: dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+						SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+					},
 				},
 			}
 

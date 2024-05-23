@@ -37,15 +37,15 @@ func (s *attorneyStore) Create(ctx context.Context, shareCode actor.ShareCodeDat
 	}
 
 	transaction := dynamo.NewTransaction().
-		Create(attorney).
-		Create(lpaLink{
+		Put(attorney).
+		Put(lpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
 			ActorType: actor.TypeAttorney,
 			UpdatedAt: s.now(),
 		}).
-		Delete(shareCode.PK, shareCode.SK)
+		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
 
 	if err = s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err

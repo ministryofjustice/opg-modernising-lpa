@@ -7,9 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -19,45 +16,30 @@ import (
 )
 
 func TestCertificateProviderStoreCreate(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"})
 	uid := actoruid.New()
-	now := time.Now()
-	nowFormatted := now.Format(time.RFC3339Nano)
-	details := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123", UpdatedAt: now, UID: uid, Email: "a@b.com"}
+	details := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
 
 	shareCode := actor.ShareCodeData{
-		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
-		UpdatedAt:   now,
+		UpdatedAt:   testNow,
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 	}
 
-	marshalledCertificateProvider, _ := attributevalue.MarshalMap(details)
-
 	expectedTransaction := &dynamo.Transaction{
-		Puts: []*types.Put{
-			{
-				Item:                marshalledCertificateProvider,
-				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
-			},
-			{
-				Item: map[string]types.AttributeValue{
-					"PK":        &types.AttributeValueMemberS{Value: "LPA#123"},
-					"SK":        &types.AttributeValueMemberS{Value: "SUB#456"},
-					"DonorKey":  &types.AttributeValueMemberS{Value: "DONOR#donor"},
-					"ActorType": &types.AttributeValueMemberN{Value: "4"},
-					"UpdatedAt": &types.AttributeValueMemberS{Value: nowFormatted},
-				},
-				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+		Creates: []any{
+			details,
+			lpaLink{
+				PK:        dynamo.LpaKey("lpa-id"),
+				SK:        dynamo.SubKey("session-id"),
+				DonorKey:  shareCode.LpaOwnerKey,
+				ActorType: actor.TypeCertificateProvider,
+				UpdatedAt: testNow,
 			},
 		},
-		Deletes: []*types.Delete{
-			{Key: map[string]types.AttributeValue{
-				"PK": &types.AttributeValueMemberS{Value: shareCode.PK.PK()},
-				"SK": &types.AttributeValueMemberS{Value: shareCode.SK.SK()},
-			}},
-		},
+		Deletes: []dynamo.Keys{{PK: shareCode.PK, SK: shareCode.SK}},
 	}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -65,7 +47,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 		WriteTransaction(ctx, expectedTransaction).
 		Return(nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: testNowFn}
 
 	certificateProvider, err := certificateProviderStore.Create(ctx, shareCode, "a@b.com")
 	assert.Nil(t, err)
