@@ -150,6 +150,12 @@ resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
   provider        = aws.eu_west_1
 }
 
+data "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
+  name     = "policy-shared-${local.environment.account_name}"
+  type     = "network"
+  provider = aws.eu_west_1
+}
+
 locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
@@ -183,11 +189,6 @@ locals {
       }
     }
   }
-}
-
-data "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
-  name = "policy-shared-${local.environment.account_name}"
-  type = "network"
 }
 
 resource "aws_opensearchserverless_access_policy" "pipeline" {
