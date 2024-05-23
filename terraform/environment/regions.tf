@@ -64,9 +64,9 @@ module "eu_west_1" {
   service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
   cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
   fault_injection_experiments_enabled     = local.environment.app.fault_injection_experiments_enabled
-  search_endpoint                         = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
+  search_endpoint                         = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
   search_index_name                       = local.search_index_name
-  search_collection_arn                   = aws_opensearchserverless_collection.lpas_collection.arn
+  search_collection_arn                   = data.aws_opensearchserverless_collection.lpas_collection.arn
   real_user_monitoring_cw_logs_enabled    = local.environment.app.real_user_monitoring_cw_logs_enabled
   providers = {
     aws.region            = aws.eu_west_1
