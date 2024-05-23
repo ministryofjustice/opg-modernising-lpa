@@ -88,23 +88,6 @@ func TestShareCodeStoreGetOnError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestShareCodeStoreLinked(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Put(ctx, actor.ShareCodeData{
-			LpaLinkedTo: "email",
-			LpaLinkedAt: testNow,
-		}).
-		Return(expectedError)
-
-	store := &shareCodeStore{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.Linked(ctx, actor.ShareCodeData{}, "email")
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestShareCodeStorePut(t *testing.T) {
 	testcases := map[string]struct {
 		actor actor.Type

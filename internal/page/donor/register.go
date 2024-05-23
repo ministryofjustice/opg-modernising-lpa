@@ -43,7 +43,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*actor.DonorProvidedDetails, error)
 	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data actor.ShareCodeData) error
+	Link(ctx context.Context, data actor.ShareCodeData, donorEmail string) error
 }
 
 type GetDonorStore interface {
@@ -145,7 +145,6 @@ type LpaStoreClient interface {
 
 type ShareCodeStore interface {
 	Get(ctx context.Context, actorType actor.Type, code string) (actor.ShareCodeData, error)
-	Linked(ctx context.Context, data actor.ShareCodeData, email string) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
