@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -53,10 +52,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				})
 
 				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil {
-					var ccf *types.ConditionalCheckFailedException
-					if !errors.As(err, &ccf) {
-						return err
-					}
+					return err
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
