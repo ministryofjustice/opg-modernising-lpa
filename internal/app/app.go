@@ -125,7 +125,7 @@ func App(
 	handleRoot(page.Paths.Fixtures, None,
 		fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore))
 	handleRoot(page.Paths.CertificateProviderFixtures, None,
-		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore))
+		fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
 	handleRoot(page.Paths.AttorneyFixtures, None,
 		fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore))
 	handleRoot(page.Paths.SupporterFixtures, None,

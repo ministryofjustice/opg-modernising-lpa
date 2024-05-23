@@ -16,22 +16,40 @@ import (
 )
 
 func TestCertificateProviderStoreCreate(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "lpa-id", SessionID: "session-id"})
 	uid := actoruid.New()
-	now := time.Now()
-	details := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456"), LpaID: "123", UpdatedAt: now, UID: uid, Email: "a@b.com"}
+	details := &actor.CertificateProviderProvidedDetails{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
+
+	shareCode := actor.ShareCodeData{
+		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
+		ActorUID:    uid,
+		UpdatedAt:   testNow,
+		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+	}
+
+	expectedTransaction := &dynamo.Transaction{
+		Creates: []any{
+			details,
+			lpaLink{
+				PK:        dynamo.LpaKey("lpa-id"),
+				SK:        dynamo.SubKey("session-id"),
+				DonorKey:  shareCode.LpaOwnerKey,
+				ActorType: actor.TypeCertificateProvider,
+				UpdatedAt: testNow,
+			},
+		},
+		Deletes: []dynamo.Keys{{PK: shareCode.PK, SK: shareCode.SK}},
+	}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, details).
-		Return(nil)
-	dynamoClient.EXPECT().
-		Create(ctx, lpaLink{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), ActorType: actor.TypeCertificateProvider, UpdatedAt: now}).
+		WriteTransaction(ctx, expectedTransaction).
 		Return(nil)
 
-	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	certificateProvider, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), uid, "a@b.com")
+	certificateProvider, err := certificateProviderStore.Create(ctx, shareCode, "a@b.com")
 	assert.Nil(t, err)
 	assert.Equal(t, details, certificateProvider)
 }
@@ -41,7 +59,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 
 	certificateProviderStore := &certificateProviderStore{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
+	_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{}, "")
 	assert.Equal(t, page.SessionMissingError{}, err)
 }
 
@@ -57,49 +75,28 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			certificateProviderStore := &certificateProviderStore{}
 
-			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
+			_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{}, "")
 			assert.NotNil(t, err)
 		})
 	}
 }
 
-func TestCertificateProviderStoreCreateWhenCreateError(t *testing.T) {
+func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
 	now := time.Now()
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"})
 
-	testcases := map[string]func(*testing.T) *mockDynamoClient{
-		"certificate provider record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			return dynamoClient
-		},
-		"link record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
+	certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-			return dynamoClient
-		},
-	}
-
-	for name, makeMockDataStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			dynamoClient := makeMockDataStore(t)
-
-			certificateProviderStore := &certificateProviderStore{dynamoClient: dynamoClient, now: func() time.Time { return now }}
-
-			_, err := certificateProviderStore.Create(ctx, dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), actoruid.New(), "")
-			assert.Equal(t, expectedError, err)
-		})
-	}
+	_, err := certificateProviderStore.Create(ctx, actor.ShareCodeData{
+		PK: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
+	}, "")
+	assert.Equal(t, expectedError, err)
 }
 
 func TestCertificateProviderStoreGetAny(t *testing.T) {

@@ -6,16 +6,16 @@ on:
       - main
 
 permissions:
-  id-token: write
-  contents: write
-  security-events: write
-  pull-requests: write
   actions: none
   checks: none
+  contents: write
   deployments: none
+  id-token: write
   issues: write
   packages: none
+  pull-requests: write
   repository-projects: none
+  security-events: write
   statuses: none
 
 defaults:

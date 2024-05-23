@@ -1050,12 +1050,29 @@ func TestTransactWriteItemsWhenNoTransactions(t *testing.T) {
 }
 
 func TestTransactWriteItemsWhenErrorsBuildingTransaction(t *testing.T) {
-	c := &Client{table: "this", svc: nil}
-	err := c.WriteTransaction(context.Background(), &Transaction{
-		Puts: []any{map[string]string{"": "1"}},
-	})
+	testcases := map[string]struct {
+		creates []any
+		puts    []any
+	}{
+		"create": {
+			creates: []any{map[string]string{"": "1"}},
+		},
+		"put": {
+			puts: []any{map[string]string{"": "1"}},
+		},
+	}
 
-	assert.Error(t, err)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			c := &Client{table: "this", svc: nil}
+			err := c.WriteTransaction(context.Background(), &Transaction{
+				Creates: tc.creates,
+				Puts:    tc.puts,
+			})
+
+			assert.Error(t, err)
+		})
+	}
 }
 
 func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
@@ -1095,4 +1112,14 @@ func TestTransactionDelete(t *testing.T) {
 		Delete(deleteB)
 
 	assert.Equal(t, []Keys{deleteA, deleteB}, transaction.Deletes)
+}
+
+func TestTransactionCreate(t *testing.T) {
+	putA := map[string]string{"a": "a"}
+	putB := map[string]string{"b": "b"}
+	transaction := NewTransaction().
+		Create(putA).
+		Create(putB)
+
+	assert.Equal(t, []any{putA, putB}, transaction.Creates)
 }

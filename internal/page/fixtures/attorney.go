@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -30,7 +29,7 @@ type DonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, lpaOwnerKey dynamo.LpaOwnerKeyType, certificateProviderUID actoruid.UID, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.CertificateProviderProvidedDetails, error)
 	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
 }
 
@@ -209,7 +208,7 @@ func Attorney(
 		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
 		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
-		certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donorDetails.SK, donorDetails.CertificateProvider.UID, donorDetails.CertificateProvider.Email)
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
 			return err
 		}
@@ -411,28 +410,4 @@ func Attorney(
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return nil
 	}
-}
-
-func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*actor.AttorneyProvidedDetails, error) {
-	shareCode := random.String(16)
-	shareCodeData := actor.ShareCodeData{
-		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
-		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
-		ActorUID:              actorUID,
-		IsReplacementAttorney: isReplacement,
-		IsTrustCorporation:    isTrustCorporation,
-		LpaOwnerKey:           lpaOwnerKey,
-	}
-
-	attorneyType := actor.TypeAttorney
-	if isReplacement {
-		attorneyType = actor.TypeReplacementAttorney
-	}
-
-	err := shareCodeStore.Put(ctx, attorneyType, shareCode, shareCodeData)
-	if err != nil {
-		return nil, err
-	}
-
-	return attorneyStore.Create(ctx, shareCodeData, email)
 }
