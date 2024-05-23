@@ -78,12 +78,8 @@ func Dashboard(
 
 			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
-			certificateProvider, err := certificateProviderStore.Create(certificateProviderCtx, donor.SK, donor.CertificateProvider.UID, testEmail)
+			_, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donor.CertificateProvider.UID, donor.SK, testEmail)
 			if err != nil {
-				return err
-			}
-
-			if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 				return err
 			}
 		}

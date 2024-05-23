@@ -975,37 +975,44 @@ func TestOneBySkWhenQueryError(t *testing.T) {
 }
 
 func TestTransactWriteItems(t *testing.T) {
-	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
-	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
-	deleteKeyA, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
-	})
-	deleteKeyB, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
-	})
-
 	items := []types.TransactWriteItem{
 		{
 			Put: &types.Put{
-				Item: putItemA, TableName: aws.String("this"),
+				Item:                map[string]types.AttributeValue{"1": &types.AttributeValueMemberS{Value: "1"}},
+				TableName:           aws.String("this"),
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 			},
 		},
 		{
 			Put: &types.Put{
-				Item: putItemB, TableName: aws.String("this"),
+				Item:                map[string]types.AttributeValue{"2": &types.AttributeValueMemberS{Value: "2"}},
+				TableName:           aws.String("this"),
+				ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
 			},
 		},
 		{
-			Delete: &types.Delete{
-				Key: deleteKeyA, TableName: aws.String("this"),
+			Put: &types.Put{
+				Item:      map[string]types.AttributeValue{"3": &types.AttributeValueMemberS{Value: "3"}},
+				TableName: aws.String("this"),
 			},
 		},
 		{
-			Delete: &types.Delete{
-				Key: deleteKeyB, TableName: aws.String("this"),
+			Put: &types.Put{
+				Item:      map[string]types.AttributeValue{"4": &types.AttributeValueMemberS{Value: "4"}},
+				TableName: aws.String("this"),
 			},
+		},
+		{
+			Delete: &types.Delete{Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "PK-1"},
+				"SK": &types.AttributeValueMemberS{Value: "SK-1"},
+			}, TableName: aws.String("this")},
+		},
+		{
+			Delete: &types.Delete{Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "PK-2"},
+				"SK": &types.AttributeValueMemberS{Value: "SK-2"},
+			}, TableName: aws.String("this")},
 		},
 	}
 
@@ -1018,8 +1025,18 @@ func TestTransactWriteItems(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 	err := c.WriteTransaction(context.Background(), &Transaction{
-		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
-		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+		Creates: []any{
+			map[string]string{"1": "1"},
+			map[string]string{"2": "2"},
+		},
+		Puts: []any{
+			map[string]string{"3": "3"},
+			map[string]string{"4": "4"},
+		},
+		Deletes: []Keys{
+			{PK: testPK("PK-1"), SK: testSK("SK-1")},
+			{PK: testPK("PK-2"), SK: testSK("SK-2")},
+		},
 	})
 
 	assert.Nil(t, err)
@@ -1035,25 +1052,13 @@ func TestTransactWriteItemsWhenNoTransactions(t *testing.T) {
 func TestTransactWriteItemsWhenErrorsBuildingTransaction(t *testing.T) {
 	c := &Client{table: "this", svc: nil}
 	err := c.WriteTransaction(context.Background(), &Transaction{
-		Puts: make([]*types.Put, 1),
-		Errs: []error{expectedError, expectedError},
+		Puts: []any{map[string]string{"": "1"}},
 	})
 
 	assert.Error(t, err)
 }
 
 func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
-	putItemA, _ := attributevalue.MarshalMap(map[string]string{"a": "b"})
-	putItemB, _ := attributevalue.MarshalMap(map[string]string{"c": "d"})
-	deleteKeyA, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
-	})
-	deleteKeyB, _ := attributevalue.MarshalMap(map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
-	})
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		TransactWriteItems(context.Background(), mock.Anything).
@@ -1061,8 +1066,7 @@ func TestTransactWriteItemsWhenTransactWriteItemsError(t *testing.T) {
 
 	c := &Client{table: "this", svc: dynamoDB}
 	err := c.WriteTransaction(context.Background(), &Transaction{
-		Puts:    []*types.Put{{Item: putItemA}, {Item: putItemB}},
-		Deletes: []*types.Delete{{Key: deleteKeyA}, {Key: deleteKeyB}},
+		Puts: []any{map[string]string{"1": "1"}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -1079,40 +1083,16 @@ func TestTransactionPut(t *testing.T) {
 		Put(putA).
 		Put(putB)
 
-	expected := []*types.Put{
-		{Item: map[string]types.AttributeValue{"a": &types.AttributeValueMemberS{Value: "a"}}},
-		{Item: map[string]types.AttributeValue{"b": &types.AttributeValueMemberS{Value: "b"}}},
-	}
-
-	assert.Equal(t, expected, transaction.Puts)
-	assert.Nil(t, transaction.Errors())
-}
-
-func TestTransactionPutWhenMarshallError(t *testing.T) {
-	putA := map[string]string{"": "a"}
-	putB := map[string]string{"b": "b"}
-	putC := map[string]string{"": "c"}
-	transaction := NewTransaction().
-		Put(putA).
-		Put(putB).
-		Put(putC)
-
-	assert.Error(t, transaction.Errors())
-	assert.Len(t, transaction.Errs, 2)
+	assert.Equal(t, []any{putA, putB}, transaction.Puts)
 }
 
 func TestTransactionDelete(t *testing.T) {
-	deleteA := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-A"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-A"},
-	}
-	deleteB := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: "PK-B"},
-		"SK": &types.AttributeValueMemberS{Value: "SK-B"},
-	}
-	transaction := NewTransaction().
-		Delete(testPK("PK-A"), testSK("SK-A")).
-		Delete(testPK("PK-B"), testSK("SK-B"))
+	deleteA := Keys{PK: testPK("PK-A"), SK: testSK("SK-A")}
+	deleteB := Keys{PK: testPK("PK-B"), SK: testSK("SK-B")}
 
-	assert.Equal(t, []*types.Delete{{Key: deleteA}, {Key: deleteB}}, transaction.Deletes)
+	transaction := NewTransaction().
+		Delete(deleteA).
+		Delete(deleteB)
+
+	assert.Equal(t, []Keys{deleteA, deleteB}, transaction.Deletes)
 }
