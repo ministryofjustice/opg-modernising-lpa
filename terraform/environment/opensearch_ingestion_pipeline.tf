@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:BatchGetCollection",
       "aoss:APIAccessAll"
     ]
-    resources = [aws_opensearchserverless_collection.lpas_collection.arn]
+    resources = [data.aws_opensearchserverless_collection.lpas_collection.arn]
   }
 
   statement {
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     condition {
       test     = "StringEquals"
       variable = "aoss:collection"
-      values   = [aws_opensearchserverless_collection.lpas_collection.name]
+      values   = [data.aws_opensearchserverless_collection.lpas_collection.name]
     }
   }
 
@@ -150,6 +150,12 @@ resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
   provider        = aws.eu_west_1
 }
 
+data "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
+  name     = "policy-shared-${local.environment.account_name}"
+  type     = "network"
+  provider = aws.eu_west_1
+}
+
 locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
@@ -171,13 +177,13 @@ locals {
 
     sink = {
       opensearch = {
-        hosts = aws_opensearchserverless_collection.lpas_collection.collection_endpoint
+        hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
         index = "lpas"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"
           serverless_options = {
-            network_policy_name = aws_opensearchserverless_security_policy.lpas_collection_network_policy.name
+            network_policy_name = data.aws_opensearchserverless_security_policy.lpas_collection_network_policy.name
           }
         }
       }
