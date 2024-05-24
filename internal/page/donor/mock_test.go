@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -43,26 +42,6 @@ var (
 	testUID   = actoruid.New()
 	testUIDFn = func() actoruid.UID { return testUID }
 )
-
-func (m *mockDonorStore) withCompletedPaymentLpaData(r *http.Request, paymentId, paymentReference string, paymentAmount int) *mockDonorStore {
-	m.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			CertificateProvider: actor.CertificateProvider{
-				Email: "certificateprovider@example.com",
-			},
-			PaymentDetails: []actor.Payment{{
-				PaymentId:        paymentId,
-				PaymentReference: paymentReference,
-				Amount:           paymentAmount,
-			}},
-			Tasks: actor.DonorTasks{
-				PayForLpa: actor.PaymentTaskCompleted,
-			},
-		}).
-		Return(nil)
-
-	return m
-}
 
 func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {
 	m.EXPECT().Payment(r).Return(&sesh.PaymentSession{PaymentID: "abc123"}, nil)

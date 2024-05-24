@@ -60,7 +60,7 @@ type uploadEvidenceData struct {
 	StartScan            string
 }
 
-func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, documentStore DocumentStore) Handler {
+func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, documentStore DocumentStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if donor.Tasks.PayForLpa.IsPending() {
 			return page.Paths.TaskList.Redirect(w, r, appData, donor)
@@ -131,7 +131,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Payer, document
 						return err
 					}
 
-					return payer.Pay(appData, w, r, donor)
+					return payer(appData, w, r, donor)
 
 				case "delete":
 					document := documents.Get(form.DeleteKey)

@@ -391,7 +391,7 @@ func TestClientServiceContract(t *testing.T) {
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			})
 
-			assert.Equal(t, responseError{name: "expected 201 response but got 400", body: `{"code":"INVALID_REQUEST","detail":"LPA with UID already exists"}`}, err)
+			assert.Nil(t, err)
 			return nil
 		}))
 	})

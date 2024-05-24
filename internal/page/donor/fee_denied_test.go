@@ -33,12 +33,12 @@ func TestPostFeeDenied(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(nil)
 
-	err := FeeDenied(nil, payer)(testAppData, w, r, donor)
+	err := FeeDenied(nil, payer.Execute)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,12 +51,12 @@ func TestPostFeeDeniedWhenPayerError(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(expectedError)
 
-	err := FeeDenied(nil, payer)(testAppData, w, r, donor)
+	err := FeeDenied(nil, payer.Execute)(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
