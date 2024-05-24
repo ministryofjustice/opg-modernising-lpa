@@ -137,14 +137,16 @@ func taskListCheckLpaPath(donor *actor.DonorProvidedDetails) page.LpaPath {
 }
 
 func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
-	var paymentPath page.LpaPath
+	var paymentPath string
 	switch donor.Tasks.PayForLpa {
+	case actor.PaymentTaskApproved:
+		paymentPath = page.Paths.FeeApproved.Format(donor.LpaID)
 	case actor.PaymentTaskDenied:
-		paymentPath = page.Paths.FeeDenied
+		paymentPath = page.Paths.FeeDenied.Format(donor.LpaID)
 	case actor.PaymentTaskMoreEvidenceRequired:
-		paymentPath = page.Paths.UploadEvidence
+		paymentPath = page.Paths.UploadEvidence.Format(donor.LpaID)
 	default:
-		paymentPath = page.Paths.AboutPayment
+		paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)
 	}
 
 	return taskListSection{
@@ -152,7 +154,7 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 		Items: []taskListItem{
 			{
 				Name:         "payForTheLpa",
-				Path:         paymentPath.Format(donor.LpaID),
+				Path:         paymentPath,
 				PaymentState: donor.Tasks.PayForLpa,
 			},
 		},
