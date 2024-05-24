@@ -71,6 +71,18 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"fee approved": {
+			appData:          testAppData,
+			donor:            &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskApproved}},
+			evidenceReceived: true,
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: page.Paths.FeeApproved.Format("lpa-id"), PaymentState: actor.PaymentTaskApproved},
+				}
+
+				return sections
+			},
+		},
 		"personal welfare": {
 			appData: testAppData,
 			donor:   &actor.DonorProvidedDetails{LpaID: "lpa-id", Type: actor.LpaTypePersonalWelfare, Donor: actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
