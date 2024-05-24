@@ -92,12 +92,12 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 		Put(r.Context(), donor).
 		Return(nil)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(nil)
 
-	err := PreviousFee(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := PreviousFee(nil, payer.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	assert.Nil(t, err)
 }
 
