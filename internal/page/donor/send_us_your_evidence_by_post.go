@@ -17,7 +17,7 @@ type sendUsYourEvidenceByPostData struct {
 	FeeType pay.FeeType
 }
 
-func SendUsYourEvidenceByPost(tmpl template.Template, payer Payer, eventClient EventClient) Handler {
+func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient EventClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &sendUsYourEvidenceByPostData{
 			App:     appData,
@@ -33,7 +33,7 @@ func SendUsYourEvidenceByPost(tmpl template.Template, payer Payer, eventClient E
 				return err
 			}
 
-			return payer.Pay(appData, w, r, donor)
+			return payer(appData, w, r, donor)
 		}
 
 		return tmpl(w, data)

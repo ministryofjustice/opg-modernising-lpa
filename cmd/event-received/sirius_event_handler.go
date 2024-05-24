@@ -104,7 +104,11 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 		return err
 	}
 
-	donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	if donor.FeeAmount() == 0 {
+		donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	} else {
+		donor.Tasks.PayForLpa = actor.PaymentTaskApproved
+	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)

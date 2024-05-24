@@ -30,8 +30,9 @@ type PaymentTask uint8
 const (
 	PaymentTaskNotStarted PaymentTask = iota
 	PaymentTaskInProgress
-	PaymentTaskCompleted
 	PaymentTaskPending
+	PaymentTaskApproved
 	PaymentTaskDenied
 	PaymentTaskMoreEvidenceRequired
+	PaymentTaskCompleted
 )
