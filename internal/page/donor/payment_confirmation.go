@@ -21,16 +21,14 @@ type paymentConfirmationData struct {
 	EvidenceDelivery pay.EvidenceDelivery
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
 			return err
 		}
 
-		paymentId := paymentSession.PaymentID
-
-		payment, err := payClient.GetPayment(r.Context(), paymentId)
+		payment, err := payClient.GetPayment(r.Context(), paymentSession.PaymentID)
 		if err != nil {
 			return fmt.Errorf("unable to retrieve payment info: %w", err)
 		}
@@ -41,26 +39,43 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			Amount:           payment.Amount,
 		})
 
-		data := &paymentConfirmationData{
-			App:              appData,
-			PaymentReference: payment.Reference,
-			FeeType:          donor.FeeType,
-			PreviousFee:      donor.PreviousFee,
-			EvidenceDelivery: donor.EvidenceDelivery,
+		switch donor.Tasks.PayForLpa {
+		case actor.PaymentTaskInProgress:
+			if donor.FeeType.IsFullFee() && donor.FeeAmount() == 0 {
+				donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			} else {
+				donor.Tasks.PayForLpa = actor.PaymentTaskPending
+			}
+		case actor.PaymentTaskApproved:
+			if donor.FeeAmount() == 0 {
+				donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+
+				if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
+						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+					}
+
+					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+						return fmt.Errorf("failed to send to lpastore: %w", err)
+					}
+				}
+			}
+		}
+
+		if err := donorStore.Put(r.Context(), donor); err != nil {
+			return fmt.Errorf("unable to update lpa in donorStore: %w", err)
 		}
 
 		if err := sessionStore.ClearPayment(r, w); err != nil {
 			logger.InfoContext(r.Context(), "unable to expire cookie in session", slog.Any("err", err))
 		}
 
-		if donor.FeeType.IsFullFee() {
-			donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
-		} else {
-			donor.Tasks.PayForLpa = actor.PaymentTaskPending
-		}
-
-		if err := donorStore.Put(r.Context(), donor); err != nil {
-			return fmt.Errorf("unable to update lpa in donorStore: %w", err)
+		data := &paymentConfirmationData{
+			App:              appData,
+			PaymentReference: payment.Reference,
+			FeeType:          donor.FeeType,
+			PreviousFee:      donor.PreviousFee,
+			EvidenceDelivery: donor.EvidenceDelivery,
 		}
 
 		return tmpl(w, data)
