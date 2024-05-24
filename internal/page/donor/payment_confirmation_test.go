@@ -51,10 +51,13 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
+		},
+		Tasks: actor.DonorTasks{
+			PayForLpa: actor.PaymentTaskInProgress,
 		},
 	})
 	resp := w.Result()
@@ -101,10 +104,13 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
+		},
+		Tasks: actor.DonorTasks{
+			PayForLpa: actor.PaymentTaskInProgress,
 		},
 	})
 	resp := w.Result()
@@ -124,7 +130,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 		Payment(r).
 		Return(nil, expectedError)
 
-	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -145,7 +151,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(nil, template.Execute, payClient, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := PaymentConfirmation(nil, template.Execute, payClient, nil, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -156,8 +162,10 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	donorStore := newMockDonorStore(t).
-		withCompletedPaymentLpaData(r, "abc123", "123456789012", 8200)
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -177,7 +185,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
@@ -194,15 +202,14 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
-		withPaySession(r).
-		withExpiredPaySession(r, w)
+		withPaySession(r)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
