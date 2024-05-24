@@ -296,12 +296,12 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 		Submit(r.Context(), donor, documents).
 		Return(nil)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(nil)
 
-	err := UploadEvidence(nil, nil, payer, documentStore)(testAppData, w, r, donor)
+	err := UploadEvidence(nil, nil, payer.Execute, documentStore)(testAppData, w, r, donor)
 
 	assert.Nil(t, err)
 }
@@ -321,12 +321,12 @@ func TestPostUploadEvidenceWithPayActionWhenPayerError(t *testing.T) {
 		Submit(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}).
+		Execute(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, payer, documentStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, payer.Execute, documentStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 
 	assert.Equal(t, expectedError, err)
 }

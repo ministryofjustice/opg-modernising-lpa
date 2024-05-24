@@ -15,10 +15,10 @@ type feeDeniedData struct {
 	App    page.AppData
 }
 
-func FeeDenied(tmpl template.Template, payer Payer) Handler {
+func FeeDenied(tmpl template.Template, payer Handler) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
-			return payer.Pay(appData, w, r, donor)
+			return payer(appData, w, r, donor)
 		}
 
 		return tmpl(w, feeDeniedData{Donor: donor, App: appData})

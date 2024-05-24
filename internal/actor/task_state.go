@@ -28,10 +28,22 @@ func (t TaskState) String() string {
 type PaymentTask uint8
 
 const (
+	// PaymentTaskNotStarted -> PaymentTaskInProgress
 	PaymentTaskNotStarted PaymentTask = iota
+	// PaymentTaskInProgress -> PaymentTaskCompleted, if full fee
+	// PaymentTaskInProgress -> PaymentTaskPending, otherwise
 	PaymentTaskInProgress
-	PaymentTaskCompleted
+	// PaymentTaskPending -> PaymentTaskCompleted, if approved and paid
+	// PaymentTaskPending -> PaymentTaskApproved, if approved and payment required
+	// PaymentTaskPending -> PaymentTaskDenied, if denied
+	// PaymentTaskPending -> PaymentTaskMoreEvidenceRequired, if more evidence required
 	PaymentTaskPending
+	// PaymentTaskApproved -> PaymentTaskCompleted, when missing payment received
+	PaymentTaskApproved
+	// PaymentTaskDenied -> PaymentTaskCompleted, when missing payment received
 	PaymentTaskDenied
+	// PaymentTaskMoreEvidenceRequired -> PaymentTaskPending
 	PaymentTaskMoreEvidenceRequired
+	// (end state)
+	PaymentTaskCompleted
 )
