@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -23,7 +24,7 @@ const (
 	WantToApplyForLpa = "want-to-apply"
 )
 
-func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
+func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &signYourLpaData{
 			App:   appData,
@@ -40,14 +41,15 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Form = readSignYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
-			donor.WantToApplyForLpa = data.Form.WantToApply
-			donor.WantToSignLpa = data.Form.WantToSign
-
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-
 			if data.Errors.None() {
+				donor.WantToApplyForLpa = data.Form.WantToApply
+				donor.WantToSignLpa = data.Form.WantToSign
+				donor.SignedAt = now()
+
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
 				return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, donor)
 			}
 		}
