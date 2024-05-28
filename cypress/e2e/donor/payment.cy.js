@@ -352,4 +352,59 @@ describe('Pay for LPA', () => {
         cy.contains('"evidenceDelivery":"post"');
       });
   });
+
+  it('can pay remaining amount when approved', () => {
+    cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&paymentTaskProgress=Approved&feeType=HalfFee');
+
+    cy.intercept('**/v1/payments', (req) => {
+      cy.getCookie('pay').should('exist');
+    });
+
+    cy.contains('li', 'Pay for the LPA').should('contain', 'In progress').click();
+
+    cy.get('h1').should('contain', 'Payment received');
+    cy.checkA11yApp();
+    cy.getCookie('pay').should('not.exist');
+
+    cy.contains('a', 'Continue').click();
+
+    cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
+      .invoke('text')
+      .then((uid) => {
+        cy.visit(`http://localhost:9001/?detail-type=payment-created&detail=${uid}`);
+
+        cy.contains('"amount":1200');
+        cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+      });
+
+  });
+
+  it('can pay remaining amount when denied', () => {
+    cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&paymentTaskProgress=Denied&feeType=HalfFee');
+
+    cy.contains('li', 'Pay for the LPA').should('contain', 'Denied').click();
+
+    cy.intercept('**/v1/payments', (req) => {
+      cy.getCookie('pay').should('exist');
+    });
+
+    cy.url().should('contains', '/fee-denied')
+    cy.checkA11yApp();
+    cy.contains('button', 'Continue to payment').click();
+
+    cy.get('h1').should('contain', 'Payment received');
+    cy.checkA11yApp();
+    cy.getCookie('pay').should('not.exist');
+
+    cy.contains('a', 'Continue').click();
+
+    cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
+      .invoke('text')
+      .then((uid) => {
+        cy.visit(`http://localhost:9001/?detail-type=payment-created&detail=${uid}`);
+
+        cy.contains('"amount":1200');
+        cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+      });
+  });
 });
