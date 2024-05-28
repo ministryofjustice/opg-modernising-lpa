@@ -16,13 +16,7 @@
 
       {{ trHtml .App "paymentConfirmationContent" }}
 
-      {{ if or .FeeType.IsFullFee (and .FeeType.IsRepeatApplicationFee .PreviousFee.IsPreviousFeeFull) }}
-        <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
-      {{ else if .EvidenceDelivery.IsUpload }}
-        <a class="govuk-button" href="{{ link .App (global.Paths.EvidenceSuccessfullyUploaded.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
-      {{ else }}
-        <a class="govuk-button" href="{{ link .App (global.Paths.WhatHappensNextPostEvidence.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
-      {{ end }}
+      <a class="govuk-button" href="{{ link .App (.NextPage.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
     </div>
   </div>
 {{ end }}

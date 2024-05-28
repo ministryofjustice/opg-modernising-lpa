@@ -17,7 +17,7 @@ type areYouApplyingForFeeDiscountOrExemptionData struct {
 	Form                *form.YesNoForm
 }
 
-func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
+func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &areYouApplyingForFeeDiscountOrExemptionData{
 			App:                 appData,
@@ -36,7 +36,7 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Payer
 				}
 
 				if data.Form.YesNo.IsNo() {
-					return payer.Pay(appData, w, r, donor)
+					return payer(appData, w, r, donor)
 				} else {
 					return page.Paths.WhichFeeTypeAreYouApplyingFor.Redirect(w, r, appData, donor)
 				}
