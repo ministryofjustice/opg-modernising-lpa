@@ -12,15 +12,16 @@ func _() {
 	var x [1]struct{}
 	_ = x[PaymentTaskNotStarted-0]
 	_ = x[PaymentTaskInProgress-1]
-	_ = x[PaymentTaskCompleted-2]
-	_ = x[PaymentTaskPending-3]
+	_ = x[PaymentTaskPending-2]
+	_ = x[PaymentTaskApproved-3]
 	_ = x[PaymentTaskDenied-4]
 	_ = x[PaymentTaskMoreEvidenceRequired-5]
+	_ = x[PaymentTaskCompleted-6]
 }
 
-const _PaymentTask_name = "NotStartedInProgressCompletedPendingDeniedMoreEvidenceRequired"
+const _PaymentTask_name = "NotStartedInProgressPendingApprovedDeniedMoreEvidenceRequiredCompleted"
 
-var _PaymentTask_index = [...]uint8{0, 10, 20, 29, 36, 42, 62}
+var _PaymentTask_index = [...]uint8{0, 10, 20, 27, 35, 41, 61, 70}
 
 func (i PaymentTask) String() string {
 	if i >= PaymentTask(len(_PaymentTask_index)-1) {
@@ -51,12 +52,12 @@ func (i PaymentTask) IsInProgress() bool {
 	return i == PaymentTaskInProgress
 }
 
-func (i PaymentTask) IsCompleted() bool {
-	return i == PaymentTaskCompleted
-}
-
 func (i PaymentTask) IsPending() bool {
 	return i == PaymentTaskPending
+}
+
+func (i PaymentTask) IsApproved() bool {
+	return i == PaymentTaskApproved
 }
 
 func (i PaymentTask) IsDenied() bool {
@@ -67,20 +68,26 @@ func (i PaymentTask) IsMoreEvidenceRequired() bool {
 	return i == PaymentTaskMoreEvidenceRequired
 }
 
+func (i PaymentTask) IsCompleted() bool {
+	return i == PaymentTaskCompleted
+}
+
 func ParsePaymentTask(s string) (PaymentTask, error) {
 	switch s {
 	case "NotStarted":
 		return PaymentTaskNotStarted, nil
 	case "InProgress":
 		return PaymentTaskInProgress, nil
-	case "Completed":
-		return PaymentTaskCompleted, nil
 	case "Pending":
 		return PaymentTaskPending, nil
+	case "Approved":
+		return PaymentTaskApproved, nil
 	case "Denied":
 		return PaymentTaskDenied, nil
 	case "MoreEvidenceRequired":
 		return PaymentTaskMoreEvidenceRequired, nil
+	case "Completed":
+		return PaymentTaskCompleted, nil
 	default:
 		return PaymentTask(0), fmt.Errorf("invalid PaymentTask '%s'", s)
 	}
@@ -89,17 +96,19 @@ func ParsePaymentTask(s string) (PaymentTask, error) {
 type PaymentTaskOptions struct {
 	NotStarted           PaymentTask
 	InProgress           PaymentTask
-	Completed            PaymentTask
 	Pending              PaymentTask
+	Approved             PaymentTask
 	Denied               PaymentTask
 	MoreEvidenceRequired PaymentTask
+	Completed            PaymentTask
 }
 
 var PaymentTaskValues = PaymentTaskOptions{
 	NotStarted:           PaymentTaskNotStarted,
 	InProgress:           PaymentTaskInProgress,
-	Completed:            PaymentTaskCompleted,
 	Pending:              PaymentTaskPending,
+	Approved:             PaymentTaskApproved,
 	Denied:               PaymentTaskDenied,
 	MoreEvidenceRequired: PaymentTaskMoreEvidenceRequired,
+	Completed:            PaymentTaskCompleted,
 }

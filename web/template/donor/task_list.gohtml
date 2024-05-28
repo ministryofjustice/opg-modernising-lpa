@@ -69,7 +69,7 @@
         <ul class="govuk-task-list">
           {{ range $e.Items }}
             {{ if not .Hidden }}
-              {{ $hasLink := and (not .PaymentState.IsPending) (canGoTo $.Donor .Path) }}
+              {{ $hasLink := canGoTo $.Donor .Path }}
 
               <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                 <span class="govuk-task-list__name-and-hint">
@@ -87,7 +87,7 @@
                 <div class="govuk-task-list__status">
                   {{ if or .State.Completed .PaymentState.IsCompleted }}
                     {{ tr $.App "completed" }}
-                  {{ else if or .State.InProgress .PaymentState.IsInProgress }}
+                  {{ else if or .State.InProgress .PaymentState.IsInProgress .PaymentState.IsApproved }}
                     <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
                   {{ else if .PaymentState.IsPending }}
                     <strong class="app-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
