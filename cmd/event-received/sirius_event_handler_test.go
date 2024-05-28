@@ -29,7 +29,7 @@ func TestSiriusEventHandlerHandleUnknownEvent(t *testing.T) {
 
 func TestHandleEvidenceReceived(t *testing.T) {
 	event := events.CloudWatchEvent{
-		DetailType: "evidence-required",
+		DetailType: "evidence-received",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
@@ -48,7 +48,14 @@ func TestHandleEvidenceReceived(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := handleEvidenceReceived(ctx, client, event)
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
 	assert.Nil(t, err)
 }
 
@@ -159,7 +166,29 @@ func TestHandleFeeApproved(t *testing.T) {
 		SendLpa(ctx, updated).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		AppData().
+		Return(page.AppData{}, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		Now().
+		Return(func() time.Time { return now })
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
 	assert.Nil(t, err)
 }
 
@@ -350,7 +379,17 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 		Put(ctx, updated).
 		Return(nil)
 
-	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		Now().
+		Return(func() time.Time { return now })
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
 	assert.Nil(t, err)
 }
 
@@ -416,7 +455,17 @@ func TestHandleFeeDenied(t *testing.T) {
 		Put(ctx, updated).
 		Return(nil)
 
-	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		Now().
+		Return(func() time.Time { return now })
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
 	assert.Nil(t, err)
 }
 
@@ -499,7 +548,29 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		AppData().
+		Return(appData, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		UuidString().
+		Return(testUuidStringFn)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, donorSubmissionCompletedEvent)
+
 	assert.Nil(t, err)
 }
 
@@ -660,7 +731,9 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 		AppData().
 		Return(appData, nil)
 
-	err := handleCertificateProviderSubmissionCompleted(ctx, certificateProviderSubmissionCompletedEvent, factory)
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+
 	assert.Nil(t, err)
 }
 
