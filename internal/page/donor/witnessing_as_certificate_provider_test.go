@@ -96,7 +96,6 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: now,
-		SignedAt:                         now,
 		Tasks: actor.DonorTasks{
 			ConfirmYourIdentityAndSign: actor.TaskCompleted,
 			PayForLpa:                  actor.PaymentTaskCompleted,
@@ -148,7 +147,6 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
-		SignedAt:                         now,
 		Tasks: actor.DonorTasks{
 			PayForLpa:                  actor.PaymentTaskPending,
 			ConfirmYourIdentityAndSign: actor.TaskCompleted,
@@ -188,12 +186,17 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(r.Context(), mock.Anything, mock.Anything).
+		Return(nil)
+
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendLpa(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, nil, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{OK: true},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
@@ -218,17 +221,12 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(r.Context(), mock.Anything).
-		Return(nil)
-
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
 		SendCertificateProviderPrompt(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		Tasks:                    actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},

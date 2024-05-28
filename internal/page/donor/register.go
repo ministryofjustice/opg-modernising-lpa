@@ -371,9 +371,9 @@ func Register(
 	handleWithDonor(page.Paths.LpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithDonor(page.Paths.SignYourLpa, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore))
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore, time.Now))
 	handleWithDonor(page.Paths.SignTheLpaOnBehalf, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore))
+		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore, time.Now))
 	handleWithDonor(page.Paths.WitnessingYourSignature, page.None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender, donorStore))
 	handleWithDonor(page.Paths.WitnessingAsIndependentWitness, page.None,
