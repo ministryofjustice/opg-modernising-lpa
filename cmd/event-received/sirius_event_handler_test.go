@@ -121,6 +121,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	updated := &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		FeeType:   pay.NoFee,
 		Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted, ConfirmYourIdentityAndSign: actor.TaskCompleted},
 		UpdatedAt: now,
 	}
@@ -138,9 +139,10 @@ func TestHandleFeeApproved(t *testing.T) {
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
-				PK:    dynamo.LpaKey("123"),
-				SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
+				PK:      dynamo.LpaKey("123"),
+				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType: pay.NoFee,
+				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -173,6 +175,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	updated := &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		FeeType:   pay.NoFee,
 		Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
 		UpdatedAt: now,
 	}
@@ -190,9 +193,10 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
-				PK:    dynamo.LpaKey("123"),
-				SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+				PK:      dynamo.LpaKey("123"),
+				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType: pay.NoFee,
+				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
