@@ -81,54 +81,6 @@ func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, ac
 	return _c
 }
 
-// Linked provides a mock function with given fields: ctx, data, email
-func (_m *mockShareCodeStore) Linked(ctx context.Context, data actor.ShareCodeData, email string) error {
-	ret := _m.Called(ctx, data, email)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Linked")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, actor.ShareCodeData, string) error); ok {
-		r0 = rf(ctx, data, email)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockShareCodeStore_Linked_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Linked'
-type mockShareCodeStore_Linked_Call struct {
-	*mock.Call
-}
-
-// Linked is a helper method to define mock.On call
-//   - ctx context.Context
-//   - data actor.ShareCodeData
-//   - email string
-func (_e *mockShareCodeStore_Expecter) Linked(ctx interface{}, data interface{}, email interface{}) *mockShareCodeStore_Linked_Call {
-	return &mockShareCodeStore_Linked_Call{Call: _e.mock.On("Linked", ctx, data, email)}
-}
-
-func (_c *mockShareCodeStore_Linked_Call) Run(run func(ctx context.Context, data actor.ShareCodeData, email string)) *mockShareCodeStore_Linked_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(actor.ShareCodeData), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *mockShareCodeStore_Linked_Call) Return(_a0 error) *mockShareCodeStore_Linked_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockShareCodeStore_Linked_Call) RunAndReturn(run func(context.Context, actor.ShareCodeData, string) error) *mockShareCodeStore_Linked_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // newMockShareCodeStore creates a new instance of mockShareCodeStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockShareCodeStore(t interface {
