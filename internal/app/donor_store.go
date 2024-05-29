@@ -114,14 +114,14 @@ type lpaReference struct {
 	ReferencedSK dynamo.OrganisationKeyType
 }
 
-// Link allows a donor to access an Lpa created by a supporter. It creates two
-// records:
+// Link allows a donor to access an Lpa created by a supporter. It adds the donor's email to
+// the share code and creates two records:
 //
 //  1. an lpaReference which allows the donor's session ID to be queried
 //     for the organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows
 //     the Lpa to be shown on the donor's dashboard.
-func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) error {
+func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error {
 	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
@@ -143,21 +143,25 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData) er
 		return errors.New("a donor link already exists for " + shareCode.LpaKey.ID())
 	}
 
-	if err := s.dynamoClient.Create(ctx, lpaReference{
-		PK:           shareCode.LpaKey,
-		SK:           dynamo.DonorKey(data.SessionID),
-		ReferencedSK: organisationKey,
-	}); err != nil {
-		return err
-	}
+	shareCode.LpaLinkedTo = donorEmail
+	shareCode.LpaLinkedAt = s.now()
 
-	return s.dynamoClient.Create(ctx, lpaLink{
-		PK:        shareCode.LpaKey,
-		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  shareCode.LpaOwnerKey,
-		ActorType: actor.TypeDonor,
-		UpdatedAt: s.now(),
-	})
+	transaction := dynamo.NewTransaction().
+		Create(lpaReference{
+			PK:           shareCode.LpaKey,
+			SK:           dynamo.DonorKey(data.SessionID),
+			ReferencedSK: organisationKey,
+		}).
+		Create(lpaLink{
+			PK:        shareCode.LpaKey,
+			SK:        dynamo.SubKey(data.SessionID),
+			DonorKey:  shareCode.LpaOwnerKey,
+			ActorType: actor.TypeDonor,
+			UpdatedAt: s.now(),
+		}).
+		Put(shareCode)
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
