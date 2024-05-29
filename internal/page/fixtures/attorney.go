@@ -24,7 +24,7 @@ import (
 
 type DonorStore interface {
 	Create(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Link(ctx context.Context, shareCode actor.ShareCodeData) error
+	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *actor.DonorProvidedDetails) error
 }
 
@@ -128,7 +128,7 @@ func Attorney(
 			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), actor.ShareCodeData{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
-			}); err != nil {
+			}, donorDetails.Donor.Email); err != nil {
 				return err
 			}
 		}
