@@ -53,8 +53,9 @@ func WitnessingAsCertificateProvider(
 			if data.Errors.None() {
 				donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
 				donor.WitnessCodeLimiter = nil
-				donor.WitnessedByCertificateProviderAt = now()
-				donor.SignedAt = now()
+				if donor.WitnessedByCertificateProviderAt.IsZero() {
+					donor.WitnessedByCertificateProviderAt = now()
+				}
 			}
 
 			if err := donorStore.Put(r.Context(), donor); err != nil {
@@ -63,11 +64,11 @@ func WitnessingAsCertificateProvider(
 
 			if data.Errors.None() {
 				if donor.Tasks.PayForLpa.IsCompleted() {
-					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return err
 					}
 
-					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
+					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
 						return err
 					}
 				}
