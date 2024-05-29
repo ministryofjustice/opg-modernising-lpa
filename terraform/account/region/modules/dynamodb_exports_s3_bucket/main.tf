@@ -33,6 +33,21 @@ resource "aws_s3_bucket_versioning" "bucket_versioning" {
 #   provider = aws.region
 # }
 
+
+resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
+  provider = aws.region
+  bucket   = aws_s3_bucket.bucket.id
+
+  rule {
+    id     = "retain-dynamodb-exports-for-30-days"
+    status = "Enabled"
+    expiration {
+      days = 30
+    }
+
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "public_access_policy" {
   bucket                  = aws_s3_bucket.bucket.id
   block_public_acls       = true
