@@ -2,10 +2,8 @@ package donor
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -111,10 +109,6 @@ type RequestSigner interface {
 	Sign(context.Context, *http.Request, string) error
 }
 
-type Payer interface {
-	Pay(page.AppData, http.ResponseWriter, *http.Request, *actor.DonorProvidedDetails) error
-}
-
 type Localizer interface {
 	page.Localizer
 }
@@ -177,13 +171,7 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
-	payer := &payHelper{
-		sessionStore: sessionStore,
-		donorStore:   donorStore,
-		payClient:    payClient,
-		randomString: random.String,
-		appPublicURL: appPublicURL,
-	}
+	payer := Pay(sessionStore, donorStore, payClient, random.String, appPublicURL)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -347,10 +335,12 @@ func Register(
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), logger, payer, documentStore))
 	handleWithDonor(page.Paths.SendUsYourEvidenceByPost, page.CanGoBack,
 		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, eventClient))
+	handleWithDonor(page.Paths.FeeApproved, page.None,
+		payer)
 	handleWithDonor(page.Paths.FeeDenied, page.None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithDonor(page.Paths.PaymentConfirmation, page.None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient))
 	handleWithDonor(page.Paths.EvidenceSuccessfullyUploaded, page.None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithDonor(page.Paths.WhatHappensNextPostEvidence, page.None,
@@ -479,55 +469,4 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 		})
 	}
-}
-
-type payHelper struct {
-	sessionStore SessionStore
-	donorStore   DonorStore
-	payClient    PayClient
-	randomString func(int) string
-	appPublicURL string
-}
-
-func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-	if donor.FeeType.IsNoFee() || donor.FeeType.IsHardshipFee() || donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-		donor.Tasks.PayForLpa = actor.PaymentTaskPending
-		if err := p.donorStore.Put(r.Context(), donor); err != nil {
-			return err
-		}
-
-		if donor.EvidenceDelivery.IsPost() {
-			return page.Paths.WhatHappensNextPostEvidence.Redirect(w, r, appData, donor)
-		}
-
-		return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, donor)
-	}
-
-	createPaymentBody := pay.CreatePaymentBody{
-		Amount:      donor.FeeAmount(),
-		Reference:   p.randomString(12),
-		Description: "Property and Finance LPA",
-		ReturnURL:   p.appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
-		Email:       donor.Donor.Email,
-		Language:    appData.Lang.String(),
-	}
-
-	resp, err := p.payClient.CreatePayment(r.Context(), donor.LpaUID, createPaymentBody)
-	if err != nil {
-		return fmt.Errorf("error creating payment: %w", err)
-	}
-
-	if err = p.sessionStore.SetPayment(r, w, &sesh.PaymentSession{PaymentID: resp.PaymentID}); err != nil {
-		return err
-	}
-
-	nextUrl := resp.Links["next_url"].Href
-	// If URL matches expected domain for GOV UK PAY redirect there. If not,
-	// redirect to the confirmation code and carry on with flow.
-	if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
-		http.Redirect(w, r, nextUrl, http.StatusFound)
-		return nil
-	}
-
-	return page.Paths.PaymentConfirmation.Redirect(w, r, appData, donor)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -346,22 +347,31 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 }
 
 func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
-	ctx := context.Background()
+	testcases := map[int]string{
+		http.StatusBadRequest:          "expected 201 response but got 400",
+		http.StatusInternalServerError: "expected 201 response but got 500",
+	}
 
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(mock.Anything, mock.Anything).
-		Return("secret", nil)
+	for code, errorName := range testcases {
+		t.Run(strconv.Itoa(code), func(t *testing.T) {
+			ctx := context.Background()
 
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
+				Return("secret", nil)
 
-	client := New("http://base", secretsClient, doer)
-	err := client.SendLpa(ctx, &actor.DonorProvidedDetails{})
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.Anything).
+				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
-	assert.Equal(t, responseError{name: "expected 201 response but got 400", body: "hey"}, err)
+			client := New("http://base", secretsClient, doer)
+			err := client.SendLpa(ctx, &actor.DonorProvidedDetails{})
+
+			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
+		})
+	}
 }
 
 func TestClientLpa(t *testing.T) {
