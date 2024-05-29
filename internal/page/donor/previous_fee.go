@@ -17,7 +17,7 @@ type previousFeeData struct {
 	Options pay.PreviousFeeOptions
 }
 
-func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Handler {
+func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &previousFeeData{
 			App: appData,
@@ -41,7 +41,7 @@ func PreviousFee(tmpl template.Template, payer Payer, donorStore DonorStore) Han
 				}
 
 				if donor.PreviousFee.IsPreviousFeeFull() {
-					return payer.Pay(appData, w, r, donor)
+					return payer(appData, w, r, donor)
 				}
 
 				return page.Paths.EvidenceRequired.Redirect(w, r, appData, donor)
