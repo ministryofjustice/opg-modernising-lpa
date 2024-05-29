@@ -72,13 +72,10 @@ func TestPostEnterAccessCode(t *testing.T) {
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
 		Return(shareCode, nil)
-	shareCodeStore.EXPECT().
-		Linked(r.Context(), shareCode, "logged-in@example.com").
-		Return(nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Link(r.Context(), shareCode).
+		Link(r.Context(), shareCode, "logged-in@example.com").
 		Return(nil)
 
 	err := EnterAccessCode(nil, shareCodeStore, donorStore)(testAppData, w, r)
@@ -158,37 +155,8 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Link(mock.Anything, mock.Anything).
+		Link(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
-
-	err := EnterAccessCode(nil, shareCodeStore, donorStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostEnterAccessCodeOnShareCodeStoreLinkedError(t *testing.T) {
-	form := url.Values{
-		"reference-number": {"abcdef123456"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeDonor, mock.Anything).
-		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
-	shareCodeStore.EXPECT().
-		Linked(r.Context(), mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Link(mock.Anything, mock.Anything).
-		Return(nil)
 
 	err := EnterAccessCode(nil, shareCodeStore, donorStore)(testAppData, w, r)
 	resp := w.Result()
