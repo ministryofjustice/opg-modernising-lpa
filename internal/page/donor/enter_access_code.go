@@ -39,11 +39,7 @@ func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, dono
 					}
 				}
 
-				if err := donorStore.Link(r.Context(), shareCode); err != nil {
-					return err
-				}
-
-				if err := shareCodeStore.Linked(r.Context(), shareCode, appData.LoginSessionEmail); err != nil {
+				if err := donorStore.Link(r.Context(), shareCode, appData.LoginSessionEmail); err != nil {
 					return err
 				}
 
