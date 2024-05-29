@@ -130,11 +130,11 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 				}
 				donor.CheckedHash = newHash
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := notifier.Notify(r.Context(), appData, donor, data.Completed); err != nil {
 					return err
 				}
 
-				if err := notifier.Notify(r.Context(), appData, donor, data.Completed); err != nil {
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
