@@ -47,13 +47,6 @@ func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCod
 	return data, err
 }
 
-func (s *shareCodeStore) Linked(ctx context.Context, data actor.ShareCodeData, email string) error {
-	data.LpaLinkedTo = email
-	data.LpaLinkedAt = s.now()
-
-	return s.dynamoClient.Put(ctx, data)
-}
-
 func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
