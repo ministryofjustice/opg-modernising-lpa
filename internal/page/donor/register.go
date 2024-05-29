@@ -521,14 +521,6 @@ func (p *payHelper) Pay(appData page.AppData, w http.ResponseWriter, r *http.Req
 		return err
 	}
 
-	if donor.Tasks.PayForLpa.IsDenied() {
-		donor.FeeType = pay.FullFee
-		donor.Tasks.PayForLpa = actor.PaymentTaskInProgress
-		if err := p.donorStore.Put(r.Context(), donor); err != nil {
-			return err
-		}
-	}
-
 	nextUrl := resp.Links["next_url"].Href
 	// If URL matches expected domain for GOV UK PAY redirect there. If not,
 	// redirect to the confirmation code and carry on with flow.
