@@ -124,15 +124,25 @@ func TestHandleFeeApproved(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	now := time.Now()
-	updated := &actor.DonorProvidedDetails{
-		PK:        dynamo.LpaKey("123"),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		FeeType:   pay.NoFee,
-		Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted, ConfirmYourIdentityAndSign: actor.TaskCompleted},
-		UpdatedAt: now,
+	donorProvided := actor.DonorProvidedDetails{
+		PK:      dynamo.LpaKey("123"),
+		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		FeeType: pay.NoFee,
+		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
 	}
-	updated.Hash, _ = updated.GenerateHash()
+
+	completedDonorProvided := donorProvided
+	completedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskCompleted
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(ctx, &completedDonorProvided).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(ctx, page.AppData{}, &completedDonorProvided).
+		Return(nil)
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -145,27 +155,19 @@ func TestHandleFeeApproved(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
-				PK:      dynamo.LpaKey("123"),
-				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
-			})
+			b, _ := attributevalue.Marshal(&donorProvided)
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
+
+	now := time.Now()
+
+	updatedDonorProvided := completedDonorProvided
+	updatedDonorProvided.Hash, _ = updatedDonorProvided.GenerateHash()
+	updatedDonorProvided.UpdatedAt = now
+
 	client.EXPECT().
-		Put(ctx, updated).
-		Return(nil)
-
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, updated).
-		Return(nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(ctx, updated).
+		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
 	factory := newMockFactory(t)
@@ -200,15 +202,12 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	now := time.Now()
-	updated := &actor.DonorProvidedDetails{
-		PK:        dynamo.LpaKey("123"),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		FeeType:   pay.NoFee,
-		Tasks:     actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-		UpdatedAt: now,
+	donorProvided := actor.DonorProvidedDetails{
+		PK:      dynamo.LpaKey("123"),
+		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		FeeType: pay.NoFee,
+		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 	}
-	updated.Hash, _ = updated.GenerateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -221,20 +220,54 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
+			b, _ := attributevalue.Marshal(&donorProvided)
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+
+	now := time.Now()
+
+	updatedDonorProvided := donorProvided
+	updatedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	updatedDonorProvided.Hash, _ = updatedDonorProvided.GenerateHash()
+	updatedDonorProvided.UpdatedAt = now
+
+	client.EXPECT().
+		Put(ctx, &updatedDonorProvided).
+		Return(nil)
+
+	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
+	assert.Nil(t, err)
+}
+
+func TestHandleFeeApprovedWhenAlreadyPaid(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "reduced-fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
-	client.EXPECT().
-		Put(ctx, updated).
-		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, nil)
 	assert.Nil(t, err)
 }
 
@@ -296,8 +329,10 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendLpa(mock.Anything, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -305,7 +340,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -336,21 +371,13 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(nil)
-
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
-		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendLpa(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, page.AppData{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
