@@ -59,12 +59,12 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 		}).
 		Return(nil)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, donor)
+	err := SendUsYourEvidenceByPost(nil, payer.Execute, eventClient)(testAppData, w, r, donor)
 	assert.Nil(t, err)
 }
 
@@ -90,11 +90,11 @@ func TestPostSendUsYourEvidenceByPostWhenPayerErrors(t *testing.T) {
 		SendReducedFeeRequested(r.Context(), mock.Anything).
 		Return(nil)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, mock.Anything).
+		Execute(testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, payer, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := SendUsYourEvidenceByPost(nil, payer.Execute, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }

@@ -18,6 +18,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+type abstractError struct {
+	Detail string `json:"detail"`
+}
+
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Channel                                     actor.Channel                    `json:"channel"`
@@ -216,16 +220,35 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusCreated {
+	switch resp.StatusCode {
+	case http.StatusCreated:
+		return nil
+
+	case http.StatusBadRequest:
+		body, _ := io.ReadAll(resp.Body)
+
+		var error abstractError
+		_ = json.Unmarshal(body, &error)
+
+		if error.Detail == "LPA with UID already exists" {
+			// ignore the error as this call will be part of a resubmitted form
+			return nil
+		}
+
+		return responseError{
+			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
+			body: string(body),
+		}
+
+	default:
 		body, _ := io.ReadAll(resp.Body)
 
 		return responseError{
 			name: fmt.Sprintf("expected 201 response but got %d", resp.StatusCode),
 			body: string(body),
 		}
-	}
 
-	return nil
+	}
 }
 
 type lpaResponseAttorney struct {

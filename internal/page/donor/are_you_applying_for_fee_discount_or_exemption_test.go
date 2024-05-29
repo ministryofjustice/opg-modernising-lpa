@@ -64,9 +64,9 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{Email: "a@b.com"}}
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, donor).
+		Execute(testAppData, w, r, donor).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -78,7 +78,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, donor)
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, donor)
 	assert.Nil(t, err)
 }
 
@@ -109,9 +109,9 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	payer := newMockPayer(t)
+	payer := newMockHandler(t)
 	payer.EXPECT().
-		Pay(testAppData, w, r, mock.Anything).
+		Execute(testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
@@ -119,7 +119,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
