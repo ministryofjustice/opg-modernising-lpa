@@ -26,6 +26,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_ENABLED=1
+      - DEV_MODE=1
 
   event-logger:
     build:
