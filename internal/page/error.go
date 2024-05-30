@@ -13,9 +13,10 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 type errorData struct {
 	App    AppData
 	Errors validation.List
+	Err    error
 }
 
-func Error(tmpl template.Template, logger Logger) ErrorHandler {
+func Error(tmpl template.Template, logger Logger, showError bool) ErrorHandler {
 	return func(w http.ResponseWriter, r *http.Request, err error) {
 		logger.ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", err))
 		if err == ErrCsrfInvalid {
@@ -24,7 +25,12 @@ func Error(tmpl template.Template, logger Logger) ErrorHandler {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
-		if terr := tmpl(w, &errorData{App: AppDataFromContext(r.Context())}); terr != nil {
+		data := &errorData{App: AppDataFromContext(r.Context())}
+		if showError {
+			data.Err = err
+		}
+
+		if terr := tmpl(w, data); terr != nil {
 			logger.ErrorContext(r.Context(), "error rendering page", slog.Any("req", r), slog.Any("err", terr))
 			http.Error(w, "Encountered an error", http.StatusInternalServerError)
 		}
