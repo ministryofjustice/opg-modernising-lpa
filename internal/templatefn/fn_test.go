@@ -560,3 +560,21 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 		CanChange: true,
 	}, lpaDecisions(app, &actor.DonorProvidedDetails{}, true))
 }
+
+func TestSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+
+	assert.Equal(t, map[string]any{
+		"App":        app,
+		"Label":      "a-label",
+		"Value":      "aValue",
+		"ChangeLink": "a-link.com",
+		"FullName":   "Full Name",
+		"Optional":   true,
+		"CanChange":  true,
+	}, summaryRow(app, "a-label", "aValue", "a-link.com", "Full Name", true, true))
+}
+
+func TestHtml(t *testing.T) {
+	assert.Equal(t, template.HTML("s"), html("s"))
+}
