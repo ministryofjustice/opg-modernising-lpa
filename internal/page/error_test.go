@@ -3,6 +3,7 @@ package page
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -12,22 +13,31 @@ import (
 )
 
 func TestError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+	testcases := map[bool]*errorData{
+		true:  {App: TestAppData, Err: expectedError},
+		false: {App: TestAppData},
+	}
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", expectedError))
+	for showErrors, data := range testcases {
+		t.Run(fmt.Sprint(showErrors), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &errorData{App: TestAppData}).
-		Return(nil)
+			logger := newMockLogger(t)
+			logger.EXPECT().
+				ErrorContext(r.Context(), "request error", slog.Any("req", r), slog.Any("err", expectedError))
 
-	Error(template.Execute, logger)(w, r, expectedError)
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, data).
+				Return(nil)
 
-	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+			Error(template.Execute, logger, showErrors)(w, r, expectedError)
+			resp := w.Result()
+
+			assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+		})
+	}
 }
 
 func TestErrorWithErrCsrfInvalid(t *testing.T) {
@@ -43,7 +53,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 		Execute(w, &errorData{App: TestAppData}).
 		Return(nil)
 
-	Error(template.Execute, logger)(w, r, ErrCsrfInvalid)
+	Error(template.Execute, logger, false)(w, r, ErrCsrfInvalid)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusForbidden, resp.StatusCode)
@@ -66,7 +76,7 @@ func TestErrorWhenTemplateErrors(t *testing.T) {
 		Execute(w, &errorData{App: TestAppData}).
 		Return(templateError)
 
-	Error(template.Execute, logger)(w, r, expectedError)
+	Error(template.Execute, logger, false)(w, r, expectedError)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
