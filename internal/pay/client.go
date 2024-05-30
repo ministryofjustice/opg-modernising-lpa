@@ -76,6 +76,7 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 		return nil, err
 	}
 
+	// TODO: move this to after payment has been confirmed!
 	if err := c.eventClient.SendPaymentCreated(ctx, event.PaymentCreated{
 		UID:       lpaUID,
 		PaymentID: createPaymentResp.PaymentID,

@@ -171,7 +171,7 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
-	payer := Pay(sessionStore, donorStore, payClient, random.String, appPublicURL)
+	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
