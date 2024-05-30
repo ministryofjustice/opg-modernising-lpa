@@ -17,7 +17,9 @@
 
       {{ trHtml .App "ifYourApplicationIsSuccessful" }}
 
-      {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
+      {{ if not .Donor.FeeType.IsRepeatApplicationFee }}
+        {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
+      {{ end }}
 
       <div class="govuk-button-group">
         <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "returnToTaskList" }}</a>
