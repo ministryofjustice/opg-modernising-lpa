@@ -2,6 +2,7 @@ package donor
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 )
 
 func Pay(
+	logger Logger,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	payClient PayClient,
@@ -58,6 +60,7 @@ func Pay(
 			return nil
 		}
 
+		logger.InfoContext(r.Context(), "skipping payment", slog.String("next_url", nextUrl))
 		return page.Paths.PaymentConfirmation.Redirect(w, r, appData, donor)
 	}
 }
