@@ -17,7 +17,6 @@
 
         {{ $contactValue := "" }}
         {{ if .Lpa.CertificateProvider.Channel.IsPaper }} {{ $contactValue = tr .App "usingPaperForms" }} {{ else if .Lpa.CertificateProvider.Channel.IsOnline }} {{ $contactValue = tr .App "byEmail" }} {{ end }}
-
         {{ template "summary-row" (summaryRow $.App "contactPreference" $contactValue $carryOutByLink .Lpa.CertificateProvider.FullName false .CanChange ) }}
 
         {{ $emailChangeLink := printf "%s#f-email" $carryOutByLink }}
