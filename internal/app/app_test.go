@@ -21,7 +21,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := App(&slog.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{})
+	app := App(true, &slog.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{})
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
