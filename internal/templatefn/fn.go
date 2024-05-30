@@ -78,6 +78,8 @@ func All(globals *Globals) map[string]any {
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
+		"summaryRow":         summaryRow,
+		"html":               html,
 	}
 }
 
@@ -494,4 +496,20 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	}
 
 	return data
+}
+
+func summaryRow(app page.AppData, label, value, changeLink, fullName string, optional, canChange bool) map[string]any {
+	return map[string]any{
+		"App":        app,
+		"Label":      label,
+		"Value":      value,
+		"ChangeLink": changeLink,
+		"FullName":   fullName,
+		"Optional":   optional,
+		"CanChange":  canChange,
+	}
+}
+
+func html(s string) template.HTML {
+	return template.HTML(s)
 }
