@@ -7,6 +7,9 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ tr .App "sorryProblem" }}</h1>
       <p class="govuk-body">{{ tr .App "tryAgainLater" }}</p>
+      {{ if .Err }}
+        <p class="govuk-inset-text">{{ .Err.Error }}</p>
+      {{ end }}
     </div>
   </div>
 {{ end }}
