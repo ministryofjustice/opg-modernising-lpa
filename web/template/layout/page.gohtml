@@ -171,7 +171,7 @@
               </ul>
 
               <div class="govuk-footer__meta-custom">
-                Running <a class="govuk-footer__link" href="https://github.com/ministryofjustice/opg-modernising-lpa/tree/{{ global.Tag }}">{{ global.Tag }}</a>{{ if global.Region }} in {{ global.Region }}{{ end }}
+                Running <a class="govuk-footer__link" href="https://github.com/ministryofjustice/opg-modernising-lpa/tree/{{ global.Tag }}">{{ global.Tag }}</a>{{ if global.Region }} in {{ global.Region }}{{ end }} {{ if global.DevMode }}(dev){{ end }}
               </div>
 
               <svg aria-hidden="true" focusable="false" class="govuk-footer__licence-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 483.2 195.7" height="17" width="41">
