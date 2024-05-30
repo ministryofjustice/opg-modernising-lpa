@@ -240,35 +240,44 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleFeeApprovedWhenAlreadyPaid(t *testing.T) {
-	event := events.CloudWatchEvent{
-		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
+	testcases := []actor.PaymentTask{
+		actor.PaymentTaskCompleted,
+		actor.PaymentTaskApproved,
 	}
 
-	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
-	client.
-		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
-				PK:      dynamo.LpaKey("123"),
-				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-			})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
+	for _, taskState := range testcases {
+		t.Run(taskState.String(), func(t *testing.T) {
+			event := events.CloudWatchEvent{
+				DetailType: "reduced-fee-approved",
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+			}
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, nil)
-	assert.Nil(t, err)
+			client := newMockDynamodbClient(t)
+			client.
+				On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+				Return(func(ctx context.Context, uid string, v interface{}) error {
+					b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+			client.
+				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+					b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
+						PK:      dynamo.LpaKey("123"),
+						SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						FeeType: pay.NoFee,
+						Tasks:   actor.DonorTasks{PayForLpa: taskState},
+					})
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+
+			err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, nil)
+			assert.Nil(t, err)
+		})
+	}
 }
 
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {

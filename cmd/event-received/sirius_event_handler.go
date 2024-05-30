@@ -104,7 +104,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 		return err
 	}
 
-	if donor.Tasks.PayForLpa.IsCompleted() {
+	if donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsApproved() {
 		return nil
 	}
 
