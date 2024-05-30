@@ -474,7 +474,7 @@ locals {
         },
         {
           name  = "DEV_MODE",
-          value = try(var.app_env_vars.dev_mode, "")
+          value = var.app_env_vars.dev_mode
         }
       ]
     }
