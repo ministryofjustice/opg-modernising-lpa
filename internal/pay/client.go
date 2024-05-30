@@ -8,9 +8,12 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"regexp"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
+
+var paymentsURLRe = regexp.MustCompile(`^https://[a-z]+\.payments\.service\.gov\.uk/.+$`)
 
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
@@ -30,15 +33,17 @@ type Client struct {
 	eventClient EventClient
 	baseURL     string
 	apiKey      string
+	canRedirect bool
 }
 
-func New(logger Logger, doer Doer, eventClient EventClient, baseURL, apiKey string) *Client {
+func New(logger Logger, doer Doer, eventClient EventClient, baseURL, apiKey string, canRedirect bool) *Client {
 	return &Client{
 		logger:      logger,
 		doer:        doer,
 		eventClient: eventClient,
 		baseURL:     baseURL,
 		apiKey:      apiKey,
+		canRedirect: canRedirect,
 	}
 }
 
@@ -108,4 +113,8 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	}
 
 	return getPaymentResponse, nil
+}
+
+func (c *Client) CanRedirect(url string) bool {
+	return c.canRedirect && paymentsURLRe.MatchString(url)
 }
