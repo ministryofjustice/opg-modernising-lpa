@@ -98,7 +98,7 @@
           {{ $emailChangeLink := printf "%s&id=%s#f-email" (link $.App $.Link.Attorney) .UID }}
           {{ template "summary-row" (summaryRow $.App "email" .Email $emailChangeLink .FullName true $.CanChange ) }}
 
-          {{ $addressChangeLink := printf "%s&id=%s#f-address-line-1" (link $.App $.Link.Attorney) .UID }}
+          {{ $addressChangeLink := printf "%s&id=%s#f-address-line-1" (link $.App $.Link.AttorneyAddress) .UID }}
           {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange ) }}
         </dl>
       </div>
