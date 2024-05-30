@@ -97,6 +97,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
 		ordnanceSurveyBaseURL = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
 		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
+		payEnabled            = os.Getenv("GOVUK_PAY_ENABLED") == "1"
 		port                  = env.Get("APP_PORT", "8080")
 		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
 		rumConfig             = templatefn.RumConfig{
@@ -261,7 +262,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	payClient := pay.New(logger, httpClient, eventClient, payBaseURL, payApiKey)
+	payClient := pay.New(logger, httpClient, eventClient, payBaseURL, payApiKey, payEnabled)
 
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {

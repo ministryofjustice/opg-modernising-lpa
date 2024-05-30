@@ -64,6 +64,7 @@ type S3Client interface {
 type PayClient interface {
 	CreatePayment(ctx context.Context, lpaUID string, body pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error)
 	GetPayment(ctx context.Context, id string) (pay.GetPaymentResponse, error)
+	CanRedirect(url string) bool
 }
 
 type AddressClient interface {
@@ -171,7 +172,7 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
-	payer := Pay(sessionStore, donorStore, payClient, random.String, appPublicURL)
+	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 

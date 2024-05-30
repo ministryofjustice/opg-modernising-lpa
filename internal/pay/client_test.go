@@ -112,7 +112,7 @@ func TestCreatePayment(t *testing.T) {
 		}).
 		Return(nil)
 
-	payClient := New(nil, doer, eventClient, "http://pay", apiToken)
+	payClient := New(nil, doer, eventClient, "http://pay", apiToken, true)
 
 	actualResponse, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{
 		Amount:      amount,
@@ -196,7 +196,7 @@ func TestCreatePaymentWhenEventErrors(t *testing.T) {
 		SendPaymentCreated(ctx, mock.Anything).
 		Return(expectedError)
 
-	payClient := New(nil, doer, eventClient, "", "")
+	payClient := New(nil, doer, eventClient, "", "", true)
 
 	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
 	assert.Equal(t, expectedError, err)
@@ -388,4 +388,14 @@ func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) string {
 		language,
 		email,
 		createdAt.Format(time.RFC3339Nano))
+}
+
+func TestCanRedirect(t *testing.T) {
+	c := &Client{canRedirect: true}
+	assert.True(t, c.CanRedirect("https://www.payments.service.gov.uk/whatever?hey"))
+	assert.True(t, c.CanRedirect("https://card.payments.service.gov.uk/whatever?hey"))
+	assert.False(t, c.CanRedirect("https://card.payments.service.gov.co/whatever?hey"))
+	assert.False(t, c.CanRedirect("http://card.payments.service.gov.uk/whatever?hey"))
+	assert.False(t, (&Client{}).CanRedirect("https://www.payments.service.gov.uk/whatever?hey"))
+	assert.False(t, c.CanRedirect("http://bad/https://card.payments.service.gov.uk/whatever?hey"))
 }
