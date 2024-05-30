@@ -38,6 +38,7 @@ variable "environments" {
           auth_redirect_base_url = string
           notify_is_production   = string
           onelogin_url           = string
+          dev_mode               = string
         })
         autoscaling = object({
           minimum = number
@@ -68,7 +69,6 @@ variable "environments" {
       })
       ecs = object({
         fargate_spot_capacity_provider_enabled = bool
-
       })
       cloudwatch_log_groups = object({
         application_log_retention_days = number
