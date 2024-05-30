@@ -1,10 +1,15 @@
 package pay
 
-import "time"
-
-const (
-	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
+import (
+	"regexp"
+	"time"
 )
+
+var paymentsURLRe = regexp.MustCompile(`https://[a-z]+\.payments\.service\.gov\.uk/.+`)
+
+func IsPaymentURL(s string) bool {
+	return paymentsURLRe.MatchString(s)
+}
 
 type CreatePaymentBody struct {
 	Amount      int    `json:"amount"`
