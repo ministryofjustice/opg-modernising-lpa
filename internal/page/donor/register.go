@@ -125,7 +125,7 @@ type DocumentStore interface {
 
 type EventClient interface {
 	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
-	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
+	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
 }
 
 type DashboardStore interface {
