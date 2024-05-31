@@ -64,6 +64,7 @@ type S3Client interface {
 type PayClient interface {
 	CreatePayment(ctx context.Context, lpaUID string, body pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error)
 	GetPayment(ctx context.Context, id string) (pay.GetPaymentResponse, error)
+	CanRedirect(url string) bool
 }
 
 type AddressClient interface {
@@ -124,7 +125,7 @@ type DocumentStore interface {
 
 type EventClient interface {
 	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
-	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
+	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
 }
 
 type DashboardStore interface {
@@ -171,7 +172,7 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
-	payer := Pay(sessionStore, donorStore, payClient, random.String, appPublicURL)
+	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -340,7 +341,7 @@ func Register(
 	handleWithDonor(page.Paths.FeeDenied, page.None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithDonor(page.Paths.PaymentConfirmation, page.None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient))
 	handleWithDonor(page.Paths.EvidenceSuccessfullyUploaded, page.None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithDonor(page.Paths.WhatHappensNextPostEvidence, page.None,
