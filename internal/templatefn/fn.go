@@ -321,7 +321,6 @@ type attorneySummaryData struct {
 	Attorneys        []lpastore.Attorney
 	Link             attorneySummaryDataLinks
 	HeadingLevel     int
-	IsReplacement    bool
 }
 
 type attorneySummaryDataLinks struct {
@@ -331,10 +330,9 @@ type attorneySummaryDataLinks struct {
 
 func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
-		App:           app,
-		CanChange:     canChange,
-		HeadingLevel:  headingLevel,
-		IsReplacement: attorneyType == "replacement",
+		App:          app,
+		CanChange:    canChange,
+		HeadingLevel: headingLevel,
 	}
 
 	switch v := attorneys.(type) {
@@ -366,7 +364,7 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 		panic("unsupported type of attorneys for listAttorneys")
 	}
 
-	if data.IsReplacement {
+	if attorneyType == "replacement" {
 		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(app.LpaID), app.Page)
 		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
 		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(app.LpaID), app.Page)

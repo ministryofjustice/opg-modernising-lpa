@@ -354,7 +354,6 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
-				IsReplacement:    false,
 			},
 		},
 		"dynamo": {
@@ -370,7 +369,6 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
-				IsReplacement:    false,
 			},
 		},
 		"lpastore replacement": {
@@ -386,7 +384,6 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
-				IsReplacement:    true,
 			},
 		},
 		"dynamo replacement": {
@@ -402,7 +399,6 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
-				IsReplacement:    true,
 			},
 		},
 	}
