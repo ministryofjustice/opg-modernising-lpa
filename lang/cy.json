@@ -138,10 +138,6 @@
         "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "other": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod"
     },
-    "changeNameLinkText": "Newid<span class=\"govuk-visually-hidden\"> enw am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Newid<span class=\"govuk-visually-hidden\"> dyddiad geni am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Newid<span class=\"govuk-visually-hidden\"> e-bost am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Newid<span class=\"govuk-visually-hidden\"> cyfeiriad am {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Ydych chi eisiau ychwanegu atwrnai gwreiddiol arall?",
     "yesToAddAnotherAttorney": "ie i ychwanegu atwrnai arall",
     "yesToAddAnotherReplacementAttorney": "ie i ychwanegu atwrnai wrth gefn arall",
@@ -1202,5 +1198,7 @@
     "weHaveContactedDonorToLetThemKnowYourDecision": "Welsh {{ .DonorFullName }} Welsh",
     "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh: 0115 934 2777</li> <li>Welsh: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a> Welsh</p>",
     "yourAddress": "Welsh",
-    "yourAddressWarning": "Welsh"
+    "yourAddressWarning": "Welsh",
+    "enter": "Welsh",
+    "forFullName": "Welsh {{ .FullName }}"
 }
