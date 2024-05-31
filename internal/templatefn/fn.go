@@ -51,7 +51,7 @@ func All(globals *Globals) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
-		"contains":           contains,
+		"stringContains":     strings.Contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
 		"trFormatHtml":       trFormatHtml,
@@ -79,6 +79,8 @@ func All(globals *Globals) map[string]any {
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
+		"summaryRow":         summaryRow,
+		"html":               html,
 	}
 }
 
@@ -182,18 +184,6 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.Lang.URL(path)
-}
-
-func contains(needle string, list any) bool {
-	if list == nil {
-		return false
-	}
-
-	if slist, ok := list.([]string); ok {
-		return slices.Contains(slist, needle)
-	}
-
-	return false
 }
 
 // checkboxEq allows matching in the checkboxes.gohtml template for a value that
@@ -332,6 +322,7 @@ type attorneySummaryData struct {
 	Attorneys        []lpastore.Attorney
 	Link             attorneySummaryDataLinks
 	HeadingLevel     int
+	IsReplacement    bool
 }
 
 type attorneySummaryDataLinks struct {
@@ -341,9 +332,10 @@ type attorneySummaryDataLinks struct {
 
 func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
-		App:          app,
-		CanChange:    canChange,
-		HeadingLevel: headingLevel,
+		App:           app,
+		CanChange:     canChange,
+		HeadingLevel:  headingLevel,
+		IsReplacement: attorneyType == "replacement",
 	}
 
 	switch v := attorneys.(type) {
@@ -375,7 +367,7 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 		panic("unsupported type of attorneys for listAttorneys")
 	}
 
-	if attorneyType == "replacement" {
+	if data.IsReplacement {
 		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(app.LpaID), app.Page)
 		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
 		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(app.LpaID), app.Page)
@@ -495,4 +487,21 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	}
 
 	return data
+}
+
+func summaryRow(app page.AppData, label, value, changeLink, fullName string, optional, canChange bool, summarisingActorType actor.Type) map[string]any {
+	return map[string]any{
+		"App":                  app,
+		"Label":                label,
+		"Value":                value,
+		"ChangeLink":           changeLink,
+		"FullName":             fullName,
+		"Optional":             optional,
+		"CanChange":            canChange,
+		"SummarisingActorType": summarisingActorType,
+	}
+}
+
+func html(s string) template.HTML {
+	return template.HTML(s)
 }
