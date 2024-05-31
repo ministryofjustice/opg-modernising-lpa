@@ -77,6 +77,10 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 }
 
 func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentResponse, error) {
+	if !c.canRedirect {
+		return GetPaymentResponse{State: State{Status: "success"}}, nil
+	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/v1/payments/"+paymentID, nil)
 	if err != nil {
 		return GetPaymentResponse{}, err
