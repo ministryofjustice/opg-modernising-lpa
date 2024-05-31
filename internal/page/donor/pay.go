@@ -2,8 +2,8 @@ package donor
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,6 +12,7 @@ import (
 )
 
 func Pay(
+	logger Logger,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	payClient PayClient,
@@ -53,11 +54,12 @@ func Pay(
 		nextUrl := resp.Links["next_url"].Href
 		// If URL matches expected domain for GOV UK PAY redirect there. If not,
 		// redirect to the confirmation code and carry on with flow.
-		if strings.HasPrefix(nextUrl, pay.PaymentPublicServiceUrl) {
+		if payClient.CanRedirect(nextUrl) {
 			http.Redirect(w, r, nextUrl, http.StatusFound)
 			return nil
 		}
 
+		logger.InfoContext(r.Context(), "skipping payment", slog.String("next_url", nextUrl))
 		return page.Paths.PaymentConfirmation.Redirect(w, r, appData, donor)
 	}
 }
