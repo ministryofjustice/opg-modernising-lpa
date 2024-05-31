@@ -22,20 +22,18 @@ type Logger interface {
 }
 
 type Client struct {
-	logger      Logger
-	doer        Doer
-	baseURL     string
-	apiKey      string
-	canRedirect bool
+	logger  Logger
+	doer    Doer
+	baseURL string
+	apiKey  string
 }
 
-func New(logger Logger, doer Doer, baseURL, apiKey string, canRedirect bool) *Client {
+func New(logger Logger, doer Doer, baseURL, apiKey string) *Client {
 	return &Client{
-		logger:      logger,
-		doer:        doer,
-		baseURL:     baseURL,
-		apiKey:      apiKey,
-		canRedirect: canRedirect,
+		logger:  logger,
+		doer:    doer,
+		baseURL: baseURL,
+		apiKey:  apiKey,
 	}
 }
 
@@ -100,5 +98,5 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 }
 
 func (c *Client) CanRedirect(url string) bool {
-	return c.canRedirect && paymentsURLRe.MatchString(url)
+	return paymentsURLRe.MatchString(url)
 }
