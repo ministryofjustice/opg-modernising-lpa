@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -36,6 +37,10 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return fmt.Errorf("unable to retrieve payment info: %w", err)
 		}
 
+		if payment.State.Status != "success" {
+			return errors.New("TODO: we need to give some options")
+		}
+
 		paymentDetail := actor.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentID,
@@ -44,7 +49,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		if !slices.Contains(donor.PaymentDetails, paymentDetail) {
 			donor.PaymentDetails = append(donor.PaymentDetails, paymentDetail)
 
-			if err := eventClient.SendPaymentCreated(r.Context(), event.PaymentCreated{
+			if err := eventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
 				UID:       donor.LpaUID,
 				PaymentID: payment.PaymentID,
 				Amount:    payment.Amount,
