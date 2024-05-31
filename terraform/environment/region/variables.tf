@@ -133,6 +133,10 @@ variable "mock_onelogin_enabled" {
   type = bool
 }
 
+variable "mock_pay_enabled" {
+  type = bool
+}
+
 variable "dependency_health_check_alarm_enabled" {
   type        = bool
   description = "Enable the dependency health check alert actions"
