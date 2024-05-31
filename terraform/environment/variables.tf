@@ -39,6 +39,7 @@ variable "environments" {
           notify_is_production   = string
           onelogin_url           = string
           dev_mode               = string
+          pay_enabled            = string
         })
         autoscaling = object({
           minimum = number
@@ -51,6 +52,7 @@ variable "environments" {
         real_user_monitoring_cw_logs_enabled    = bool
       })
       mock_onelogin_enabled = bool
+      mock_pay_enabled = bool
       uid_service = object({
         base_url = string
         api_arns = list(string)
