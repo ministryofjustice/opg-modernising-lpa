@@ -31,6 +31,8 @@ module "eu_west_1" {
   app_service_container_version           = var.container_version
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
   mock_onelogin_service_container_version = local.mock_onelogin_version
+  mock_pay_service_repository_url    = data.aws_ecr_repository.mock_pay.repository_url
+  mock_pay_service_container_version = local.mock_pay_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
@@ -60,6 +62,7 @@ module "eu_west_1" {
     api_arns = local.environment.lpa_store_service.api_arns
   }
   mock_onelogin_enabled                   = local.environment.mock_onelogin_enabled
+  mock_pay_enabled                   = local.environment.mock_pay_enabled
   dependency_health_check_alarm_enabled   = local.environment.app.dependency_health_check_alarm_enabled
   service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
   cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled
@@ -95,6 +98,8 @@ module "eu_west_2" {
   app_service_container_version           = var.container_version
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
   mock_onelogin_service_container_version = local.mock_onelogin_version
+  mock_pay_service_repository_url    = data.aws_ecr_repository.mock_pay.repository_url
+  mock_pay_service_container_version = local.mock_pay_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
@@ -124,6 +129,7 @@ module "eu_west_2" {
     api_arns = local.environment.lpa_store_service.api_arns
   }
   mock_onelogin_enabled                   = local.environment.mock_onelogin_enabled
+  mock_pay_enabled                   = local.environment.mock_pay_enabled
   dependency_health_check_alarm_enabled   = local.environment.app.dependency_health_check_alarm_enabled
   service_health_check_alarm_enabled      = local.environment.app.service_health_check_alarm_enabled
   cloudwatch_application_insights_enabled = local.environment.app.cloudwatch_application_insights_enabled

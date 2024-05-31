@@ -421,10 +421,6 @@ locals {
           value = "https://publicapi.payments.service.gov.uk"
         },
         {
-          name  = "GOVUK_PAY_ENABLED",
-          value = var.app_env_vars.pay_enabled
-        },
-        {
           name  = "GOVUK_NOTIFY_BASE_URL",
           value = "https://api.notifications.service.gov.uk"
         },
