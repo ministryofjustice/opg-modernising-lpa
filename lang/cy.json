@@ -926,6 +926,7 @@
     "applicationNoFee": "cais i beidio â thalu ffi",
     "applicationHalfFee": "cais i dalu hanner y ffi",
     "applicationHardshipFee": "cais oherwydd caledi",
+    "applicationRepeatApplicationFee": "Welsh",
     "yourFilesAreUploading": "Mae’ch ffeiliau yn cael eu huwchlwytho",
     "0OfNFilesUploaded": "0 o {{ .DocumentsToScanCount }} ffeil wedi’i huwchlwytho",
     "yourFilesAreUploadingContent": "Gall hyn gymryd rhai munudau. Peidiwch â chau ffenestr eich porwr.",

@@ -471,6 +471,10 @@ locals {
         {
           name  = "SEARCH_INDEX_NAME",
           value = var.search_index_name
+        },
+        {
+          name  = "DEV_MODE",
+          value = var.app_env_vars.dev_mode
         }
       ]
     }

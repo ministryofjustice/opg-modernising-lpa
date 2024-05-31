@@ -407,4 +407,56 @@ describe('Pay for LPA', () => {
         cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
       });
   });
+
+  it('can apply for a previous application fee reduction', () => {
+    cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
+    cy.checkA11yApp();
+
+    cy.get('h1').should('contain', 'Paying for your LPA');
+    cy.contains('a', 'Continue').click();
+
+    cy.url().should('contains', '/are-you-applying-for-fee-discount-or-exemption')
+    cy.checkA11yApp();
+
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contains', '/which-fee-type-are-you-applying-for')
+    cy.checkA11yApp();
+
+    cy.get('input[name="fee-type"]').check('RepeatApplicationFee', { force: true });
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contains', '/previous-application-number')
+    cy.checkA11yApp();
+
+    cy.get('#f-previous-application-number').type('7ABC');
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contains', '/how-much-did-you-previously-pay-for-your-lpa')
+    cy.checkA11yApp();
+
+    cy.get('input[name="previous-fee"]').check('Half', { force: true });
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contains', '/evidence-required')
+    cy.checkA11yApp();
+
+    cy.get('h1').should('contain', 'New evidence required to pay a half fee');
+    cy.contains('a', 'Continue').click();
+
+    cy.url().should('contains', '/how-would-you-like-to-send-evidence')
+    cy.checkA11yApp();
+
+    cy.get('input[name="evidence-delivery"]').check('post', { force: true });
+    cy.contains('button', 'Continue').click();
+
+    cy.url().should('contains', '/send-us-your-evidence-by-post')
+    cy.checkA11yApp();
+
+    cy.contains('button', 'Continue').click()
+
+    cy.url().should('contain', '/payment-confirmation');
+    cy.checkA11yApp();
+  });
 });

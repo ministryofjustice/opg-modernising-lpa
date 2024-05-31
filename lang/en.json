@@ -873,6 +873,7 @@
     "applicationNoFee": "application to pay no fee",
     "applicationHalfFee": "application to pay a half fee",
     "applicationHardshipFee": "hardship application",
+    "applicationRepeatApplicationFee": "repeat application",
     "yourFilesAreUploading": "Your files are uploading",
     "0OfNFilesUploaded": "0 of {{ .DocumentsToScanCount }} files uploaded",
     "yourFilesAreUploadingContent": "This may take a few minutes. Please do not close your browser window.",

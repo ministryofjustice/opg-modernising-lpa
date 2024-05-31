@@ -85,6 +85,7 @@ func main() {
 
 func run(ctx context.Context, logger *slog.Logger) error {
 	var (
+		devMode               = env.Get("DEV_MODE", "") == "1"
 		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
 		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
 		webDir                = env.Get("WEB_DIR", "web")
@@ -149,6 +150,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	layouts, err := parseLayoutTemplates(webDir+"/template/layout", templatefn.All(&templatefn.Globals{
+		DevMode:     devMode,
 		Tag:         Tag,
 		Region:      region,
 		OneloginURL: oneloginURL,
@@ -299,6 +301,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
 
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
+		devMode,
 		logger,
 		bundle.For(localize.Cy),
 		localize.Cy,
@@ -321,6 +324,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	)))
 
 	mux.Handle("/", app.App(
+		devMode,
 		logger,
 		bundle.For(localize.En),
 		localize.En,
