@@ -488,16 +488,16 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	return data
 }
 
-func summaryRow(app page.AppData, label, value, changeLink, fullName string, optional, canChange bool, summarisingActorType actor.Type) map[string]any {
+func summaryRow(app page.AppData, label, value, changeLink, fullName string, optional, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
-		"App":                  app,
-		"Label":                label,
-		"Value":                value,
-		"ChangeLink":           changeLink,
-		"FullName":             fullName,
-		"Optional":             optional,
-		"CanChange":            canChange,
-		"SummarisingActorType": summarisingActorType,
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"Optional":        optional,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
 	}
 }
 

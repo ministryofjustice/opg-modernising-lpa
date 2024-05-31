@@ -564,18 +564,17 @@ func TestSummaryRow(t *testing.T) {
 	value := "aValue"
 	changeLink := "a-link.com"
 	fullName := "Full Name"
-	actorType := actor.TypeDonor
 
 	assert.Equal(t, map[string]any{
-		"App":                  app,
-		"Label":                label,
-		"Value":                value,
-		"ChangeLink":           changeLink,
-		"FullName":             fullName,
-		"Optional":             true,
-		"CanChange":            true,
-		"SummarisingActorType": actorType,
-	}, summaryRow(app, label, value, changeLink, fullName, true, true, actorType))
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"Optional":        true,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, summaryRow(app, label, value, changeLink, fullName, true, true, true))
 }
 
 func TestHtml(t *testing.T) {

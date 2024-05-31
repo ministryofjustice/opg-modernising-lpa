@@ -23,10 +23,10 @@
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
           {{ $nameChangeLink := printf "%s#f-first-names" $detailsLink }}
-          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange global.ActorTypes.PersonToNotify ) }}
+          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange false ) }}
 
           {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
-          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange global.ActorTypes.PersonToNotify ) }}
+          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange false ) }}
         </dl>
       </div>
     </div>
