@@ -1,4 +1,9 @@
 {{ define "attorney-summary" }}
+  {{ $attorneyType := global.ActorTypes.Attorney }}
+  {{ if $.IsReplacement }}
+    {{ $attorneyType := global.ActorTypes.ReplacementAttorney }}
+  {{ end }}
+
   {{ if .TrustCorporation.Name }}
     <div class="govuk-summary-card">
       <div class="govuk-summary-card__title-wrapper">
@@ -90,16 +95,16 @@
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
           {{ $nameChangeLink := printf "%s&id=%s#f-first-names" (link $.App $.Link.Attorney) .UID }}
-          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange ) }}
+          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange $attorneyType) }}
 
           {{ $dobChangeLink := printf "%s&id=%s#f-date-of-birth" (link $.App $.Link.Attorney) .UID }}
-          {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .DateOfBirth) $dobChangeLink .FullName false $.CanChange ) }}
+          {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .DateOfBirth) $dobChangeLink .FullName false $.CanChange $attorneyType) }}
 
           {{ $emailChangeLink := printf "%s&id=%s#f-email" (link $.App $.Link.Attorney) .UID }}
-          {{ template "summary-row" (summaryRow $.App "email" .Email $emailChangeLink .FullName true $.CanChange ) }}
+          {{ template "summary-row" (summaryRow $.App "email" .Email $emailChangeLink .FullName true $.CanChange $attorneyType) }}
 
           {{ $addressChangeLink := printf "%s&id=%s#f-address-line-1" (link $.App $.Link.AttorneyAddress) .UID }}
-          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange ) }}
+          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange $attorneyType) }}
         </dl>
       </div>
     </div>

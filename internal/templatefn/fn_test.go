@@ -158,13 +158,6 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 }
 
-func TestContains(t *testing.T) {
-	assert.True(t, contains("b", []string{"a", "b", "c"}))
-	assert.False(t, contains("d", []string{"a", "b", "c"}))
-
-	assert.False(t, contains("", nil))
-}
-
 func TestCheckboxEq(t *testing.T) {
 	assert.True(t, checkboxEq("b", []string{"a", "b", "c"}))
 	assert.False(t, checkboxEq("d", []string{"a", "b", "c"}))
@@ -563,16 +556,22 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 
 func TestSummaryRow(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+	actorType := actor.TypeDonor
 
 	assert.Equal(t, map[string]any{
 		"App":        app,
-		"Label":      "a-label",
-		"Value":      "aValue",
-		"ChangeLink": "a-link.com",
-		"FullName":   "Full Name",
+		"Label":      label,
+		"Value":      value,
+		"ChangeLink": changeLink,
+		"FullName":   fullName,
 		"Optional":   true,
 		"CanChange":  true,
-	}, summaryRow(app, "a-label", "aValue", "a-link.com", "Full Name", true, true))
+		"ActorType":  actorType,
+	}, summaryRow(app, label, value, changeLink, fullName, true, true, actorType))
 }
 
 func TestHtml(t *testing.T) {
