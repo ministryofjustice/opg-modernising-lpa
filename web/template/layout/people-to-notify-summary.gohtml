@@ -22,11 +22,11 @@
       </div>
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
-          {{ $nameChangeLink := printf "%s?from=%s#f-first-names" $detailsLink $.App.Page }}
+          {{ $nameChangeLink := printf "%s#f-first-names" $detailsLink }}
           {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange global.ActorTypes.PersonToNotify ) }}
 
-          {{ $addressChangeLink := printf "%s?from=%s##f-address-line-1" $addressLink $.App.Page }}
-          {{ template "summary-row" (summaryRow $.App "name" .Address.HTML $addressChangeLink .FullName false $.CanChange global.ActorTypes.PersonToNotify ) }}
+          {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
+          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange global.ActorTypes.PersonToNotify ) }}
         </dl>
       </div>
     </div>
