@@ -354,6 +354,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
+				IsReplacement:    false,
 			},
 		},
 		"dynamo": {
@@ -369,6 +370,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
+				IsReplacement:    false,
 			},
 		},
 		"lpastore replacement": {
@@ -384,6 +386,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
+				IsReplacement:    true,
 			},
 		},
 		"dynamo replacement": {
@@ -399,6 +402,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
+				IsReplacement:    true,
 			},
 		},
 	}
@@ -563,14 +567,14 @@ func TestSummaryRow(t *testing.T) {
 	actorType := actor.TypeDonor
 
 	assert.Equal(t, map[string]any{
-		"App":        app,
-		"Label":      label,
-		"Value":      value,
-		"ChangeLink": changeLink,
-		"FullName":   fullName,
-		"Optional":   true,
-		"CanChange":  true,
-		"ActorType":  actorType,
+		"App":                  app,
+		"Label":                label,
+		"Value":                value,
+		"ChangeLink":           changeLink,
+		"FullName":             fullName,
+		"Optional":             true,
+		"CanChange":            true,
+		"SummarisingActorType": actorType,
 	}, summaryRow(app, label, value, changeLink, fullName, true, true, actorType))
 }
 
