@@ -19,6 +19,7 @@ import (
 // Globals contains values that are used in templates and do not change as the
 // app runs.
 type Globals struct {
+	DevMode     bool
 	Tag         string
 	Region      string
 	OneloginURL string
