@@ -158,13 +158,6 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 }
 
-func TestContains(t *testing.T) {
-	assert.True(t, contains("b", []string{"a", "b", "c"}))
-	assert.False(t, contains("d", []string{"a", "b", "c"}))
-
-	assert.False(t, contains("", nil))
-}
-
 func TestCheckboxEq(t *testing.T) {
 	assert.True(t, checkboxEq("b", []string{"a", "b", "c"}))
 	assert.False(t, checkboxEq("d", []string{"a", "b", "c"}))
@@ -361,6 +354,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
+				IsReplacement:    false,
 			},
 		},
 		"dynamo": {
@@ -376,6 +370,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             attorneyLinks,
+				IsReplacement:    false,
 			},
 		},
 		"lpastore replacement": {
@@ -391,6 +386,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
+				IsReplacement:    true,
 			},
 		},
 		"dynamo replacement": {
@@ -406,6 +402,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 				HeadingLevel:     headingLevel,
 				CanChange:        true,
 				Link:             replacementLinks,
+				IsReplacement:    true,
 			},
 		},
 	}
@@ -559,4 +556,28 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
 	}, lpaDecisions(app, &actor.DonorProvidedDetails{}, true))
+}
+
+func TestSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+	actorType := actor.TypeDonor
+
+	assert.Equal(t, map[string]any{
+		"App":                  app,
+		"Label":                label,
+		"Value":                value,
+		"ChangeLink":           changeLink,
+		"FullName":             fullName,
+		"Optional":             true,
+		"CanChange":            true,
+		"SummarisingActorType": actorType,
+	}, summaryRow(app, label, value, changeLink, fullName, true, true, actorType))
+}
+
+func TestHtml(t *testing.T) {
+	assert.Equal(t, template.HTML("s"), html("s"))
 }

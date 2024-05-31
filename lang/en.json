@@ -133,10 +133,6 @@
         "one": "You have added {{.PluralCount}} original attorney",
         "other": "You have added {{.PluralCount}} attorneys"
     },
-    "changeNameLinkText": "Change<span class=\"govuk-visually-hidden\"> name for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Change<span class=\"govuk-visually-hidden\"> date of birth for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Do you want to add another original attorney?",
     "yesToAddAnotherAttorney": "yes to add another attorney",
     "yesToAddAnotherReplacementAttorney": "yes to add another replacement attorney",
@@ -1134,5 +1130,7 @@
     "weHaveContactedDonorToLetThemKnowYourDecision": "We have contacted {{ .DonorFullName }} to let them know of your decision to not be their certificate provider",
     "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Report a concern</h2> <p class=\"govuk-body\">If you have concerns about this LPA you can contact our safeguarding team:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>call: 0115 934 2777</li> <li>email: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">You can also <a class=\"govuk-link\" href=\"#\">report a concern</a> using our online form.</p>",
     "yourAddress": "Your address",
-    "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account."
+    "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account.",
+    "enter": "Enter",
+    "forFullName": "for {{ .FullName }}"
 }
