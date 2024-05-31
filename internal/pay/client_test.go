@@ -102,7 +102,7 @@ func TestCreatePayment(t *testing.T) {
 }`, created.Format(time.RFC3339Nano)))),
 		}, nil)
 
-	payClient := New(nil, doer, "http://pay", apiToken, true)
+	payClient := New(nil, doer, "http://pay", apiToken)
 
 	actualResponse, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{
 		Amount:      amount,
@@ -361,11 +361,10 @@ func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) string {
 }
 
 func TestCanRedirect(t *testing.T) {
-	c := &Client{canRedirect: true}
+	c := &Client{}
 	assert.True(t, c.CanRedirect("https://www.payments.service.gov.uk/whatever?hey"))
 	assert.True(t, c.CanRedirect("https://card.payments.service.gov.uk/whatever?hey"))
 	assert.False(t, c.CanRedirect("https://card.payments.service.gov.co/whatever?hey"))
 	assert.False(t, c.CanRedirect("http://card.payments.service.gov.uk/whatever?hey"))
-	assert.False(t, (&Client{}).CanRedirect("https://www.payments.service.gov.uk/whatever?hey"))
 	assert.False(t, c.CanRedirect("http://bad/https://card.payments.service.gov.uk/whatever?hey"))
 }
