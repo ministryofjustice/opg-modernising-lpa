@@ -9,8 +9,6 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
 
 var paymentsURLRe = regexp.MustCompile(`^https://[a-z]+\.payments\.service\.gov\.uk/.+$`)
@@ -23,24 +21,18 @@ type Logger interface {
 	ErrorContext(ctx context.Context, msg string, args ...any)
 }
 
-type EventClient interface {
-	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
-}
-
 type Client struct {
 	logger      Logger
 	doer        Doer
-	eventClient EventClient
 	baseURL     string
 	apiKey      string
 	canRedirect bool
 }
 
-func New(logger Logger, doer Doer, eventClient EventClient, baseURL, apiKey string, canRedirect bool) *Client {
+func New(logger Logger, doer Doer, baseURL, apiKey string, canRedirect bool) *Client {
 	return &Client{
 		logger:      logger,
 		doer:        doer,
-		eventClient: eventClient,
 		baseURL:     baseURL,
 		apiKey:      apiKey,
 		canRedirect: canRedirect,
@@ -78,14 +70,6 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 
 	var createPaymentResp CreatePaymentResponse
 	if err := json.NewDecoder(resp.Body).Decode(&createPaymentResp); err != nil {
-		return nil, err
-	}
-
-	if err := c.eventClient.SendPaymentCreated(ctx, event.PaymentCreated{
-		UID:       lpaUID,
-		PaymentID: createPaymentResp.PaymentID,
-		Amount:    createPaymentResp.Amount,
-	}); err != nil {
 		return nil, err
 	}
 

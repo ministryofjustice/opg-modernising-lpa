@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	event "github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/stretchr/testify/assert"
@@ -58,6 +59,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaUID:           "lpa-uid",
 					FeeType:          pay.FullFee,
 					EvidenceDelivery: tc.evidenceDelivery,
 					CertificateProvider: actor.CertificateProvider{
@@ -74,7 +76,17 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendPaymentCreated(r.Context(), event.PaymentCreated{
+					UID:       "lpa-uid",
+					PaymentID: "abc123",
+					Amount:    8200,
+				}).
+				Return(nil)
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaUID:           "lpa-uid",
 				FeeType:          pay.FullFee,
 				EvidenceDelivery: tc.evidenceDelivery,
 				CertificateProvider: actor.CertificateProvider{
@@ -116,6 +128,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
+			LpaUID:  "lpa-uid",
 			FeeType: pay.HalfFee,
 			CertificateProvider: actor.CertificateProvider{
 				Email: "certificateprovider@example.com",
@@ -131,7 +144,17 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), event.PaymentCreated{
+			UID:       "lpa-uid",
+			PaymentID: "abc123",
+			Amount:    4100,
+		}).
+		Return(nil)
+
+	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaUID:  "lpa-uid",
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -172,6 +195,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaUID:  "lpa-uid",
 					FeeType: pay.FullFee,
 					CertificateProvider: actor.CertificateProvider{
 						Email: "certificateprovider@example.com",
@@ -187,7 +211,17 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendPaymentCreated(r.Context(), event.PaymentCreated{
+					UID:       "lpa-uid",
+					PaymentID: "abc123",
+					Amount:    8200,
+				}).
+				Return(nil)
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
 				CertificateProvider: actor.CertificateProvider{
 					Email: "certificateprovider@example.com",
@@ -211,6 +245,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 			updatedDonor := &actor.DonorProvidedDetails{
+				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
 				CertificateProvider: actor.CertificateProvider{
 					Email: "certificateprovider@example.com",
@@ -258,7 +293,17 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				SendLpa(r.Context(), updatedDonor).
 				Return(nil)
 
-			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendPaymentCreated(r.Context(), event.PaymentCreated{
+					UID:       "lpa-uid",
+					PaymentID: "abc123",
+					Amount:    8200,
+				}).
+				Return(nil)
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
 				CertificateProvider: actor.CertificateProvider{
 					Email: "certificateprovider@example.com",
@@ -287,7 +332,7 @@ func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 		Payment(r).
 		Return(nil, expectedError)
 
-	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := PaymentConfirmation(nil, template.Execute, newMockPayClient(t), nil, sessionStore, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -308,7 +353,7 @@ func TestGetPaymentConfirmationWhenErrorGettingPayment(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := PaymentConfirmation(nil, template.Execute, payClient, nil, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := PaymentConfirmation(nil, template.Execute, payClient, nil, sessionStore, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -342,12 +387,44 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(nil)
 
-	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), mock.Anything).
+		Return(nil)
+
+	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{CertificateProvider: actor.CertificateProvider{
 		Email: "certificateprovider@example.com",
 	}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetPaymentConfirmationWhenEventClientError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+	payClient := newMockPayClient(t).
+		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
+
+	sessionStore := newMockSessionStore(t).
+		withPaySession(r)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := PaymentConfirmation(nil, nil, payClient, nil, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+		FeeType: pay.HalfFee,
+		CertificateProvider: actor.CertificateProvider{
+			Email: "certificateprovider@example.com",
+		},
+	})
+	resp := w.Result()
+
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -366,7 +443,12 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), mock.Anything).
+		Return(nil)
+
+	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -398,7 +480,12 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		SendLpa(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, lpaStoreClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), mock.Anything).
+		Return(nil)
+
+	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, lpaStoreClient, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
@@ -427,7 +514,12 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 		SendCertificateProviderPrompt(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentCreated(r.Context(), mock.Anything).
+		Return(nil)
+
+	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.FullFee,
 		CertificateProvider: actor.CertificateProvider{
 			Email: "certificateprovider@example.com",
