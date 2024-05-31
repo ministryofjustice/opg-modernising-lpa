@@ -138,10 +138,6 @@
         "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "other": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod"
     },
-    "changeNameLinkText": "Newid<span class=\"govuk-visually-hidden\"> enw am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Newid<span class=\"govuk-visually-hidden\"> dyddiad geni am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Newid<span class=\"govuk-visually-hidden\"> e-bost am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Newid<span class=\"govuk-visually-hidden\"> cyfeiriad am {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Ydych chi eisiau ychwanegu atwrnai gwreiddiol arall?",
     "yesToAddAnotherAttorney": "ie i ychwanegu atwrnai arall",
     "yesToAddAnotherReplacementAttorney": "ie i ychwanegu atwrnai wrth gefn arall",
@@ -669,10 +665,8 @@
     "whatToDoIfAnyDetailsAreIncorrect": "Beth i’w wneud os yw unrhyw rai o’r manylion a roddwyd amdanoch yn anghywir",
     "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Os byddwch yn gweld camgymeriad yn yr enw, y dyddiad geni neu’r cyfeiriad y mae’r rhoddwr wedi’u darparu ar eich cyfer, ni ddylech barhau.</p><p class=\"govuk-body\">Bydd angen i chi roi gwybod i’r rhoddwr fel y bydd yn gallu newid eich manylion.</p><p class=\"govuk-body\">Unwaith y bydd wedi newid eich manylion, bydd angen i chi fewngofnodi eto a chadarnhau bod eich manylion yn gywir.</p>",
     "anyErrorsInYourDetailsCanDelay": "Gall unrhyw gamgymeriadau yn eich manylion achosi oedi cyn prosesu’r LPA.",
-    "changeDateOfBirthLink": "Newid<span class=\"govuk-visually-hidden\"> dyddiad geni</span>",
     "mobileNumber": "Rhif ffôn symudol",
     "telephoneNumber": "Rhif ffôn",
-    "changeTelephoneNumberLink": "Newid<span class=\"govuk-visually-hidden\"> y rhif ffôn</span>",
     "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Os bydd unrhyw wallau yn eich manylion, gall hynny ei gwneud yn anodd defnyddio’r LPA. Mae’n bosibl na fydd sefydliadau’n derbyn yr LPA os nad yw’ch manylion yn cyfateb i’ch data adnabod.",
     "youHaveUnsavedChanges": "Rydych wedi gwneud newidiadau sydd heb eu cadw",
     "unsavedChangesDialogContent": "I gadw’r rhain, ewch yn ôl i’r dudalen a dewis <span class=\"govuk-body govuk-!-font-weight-bold\">Cadw a pharhau</span>.",
@@ -950,7 +944,6 @@
     "yourHomeAddressWillNotBeShown": "Ni fydd cyfeiriad eich cartref yn cael ei ddangos i’r rhoddwr ac ni fydd yn ymddangos ar yr LPA ar ôl ei chwblhau.",
     "selectYourHomeAddress": "Dewis eich cyfeiriad cartref",
     "yourHomeAddress": "Eich cyfeiriad cartref",
-    "changeHomeAddressLink": "Newid eich<span class=\"govuk-visually-hidden\"> cyfeiriad cartref</span>",
     "homeAddress": "Cyfeiriad cartref",
     "goToDashboard": "I’r dangosfwrdd",
     "printThisPage": "Argraffu’r dudalen hon",
@@ -1202,5 +1195,7 @@
     "weHaveContactedDonorToLetThemKnowYourDecision": "Welsh {{ .DonorFullName }} Welsh",
     "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh: 0115 934 2777</li> <li>Welsh: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a> Welsh</p>",
     "yourAddress": "Welsh",
-    "yourAddressWarning": "Welsh"
+    "yourAddressWarning": "Welsh",
+    "enter": "Welsh",
+    "forFullName": "Welsh {{ .FullName }}"
 }
