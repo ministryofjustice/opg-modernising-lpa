@@ -138,10 +138,6 @@
         "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "other": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod"
     },
-    "changeNameLinkText": "Newid<span class=\"govuk-visually-hidden\"> enw am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Newid<span class=\"govuk-visually-hidden\"> dyddiad geni am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Newid<span class=\"govuk-visually-hidden\"> e-bost am {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Newid<span class=\"govuk-visually-hidden\"> cyfeiriad am {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Ydych chi eisiau ychwanegu atwrnai gwreiddiol arall?",
     "yesToAddAnotherAttorney": "ie i ychwanegu atwrnai arall",
     "yesToAddAnotherReplacementAttorney": "ie i ychwanegu atwrnai wrth gefn arall",
