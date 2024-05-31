@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,7 +24,7 @@ type paymentConfirmationData struct {
 	NextPage         page.LpaPath
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -42,6 +43,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 		if !slices.Contains(donor.PaymentDetails, paymentDetail) {
 			donor.PaymentDetails = append(donor.PaymentDetails, paymentDetail)
+
+			if err := eventClient.SendPaymentCreated(r.Context(), event.PaymentCreated{
+				UID:       donor.LpaUID,
+				PaymentID: payment.PaymentID,
+				Amount:    payment.Amount,
+			}); err != nil {
+				return err
+			}
 		}
 
 		nextPage := page.Paths.TaskList
