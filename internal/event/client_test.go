@@ -51,10 +51,10 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendPaperFormRequested(ctx, event) }, event
 		},
-		"payment-created": func() (func(*Client) error, any) {
-			event := PaymentCreated{UID: "a", PaymentID: "xyz", Amount: 8200}
+		"payment-received": func() (func(*Client) error, any) {
+			event := PaymentReceived{UID: "a", PaymentID: "xyz", Amount: 8200}
 
-			return func(client *Client) error { return client.SendPaymentCreated(ctx, event) }, event
+			return func(client *Client) error { return client.SendPaymentReceived(ctx, event) }, event
 		},
 	}
 
