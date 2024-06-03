@@ -38,6 +38,9 @@ jobs:
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
             platforms: linux/amd64
+          - ecr_repository: modernising-lpa/mock-pay
+            path: ./docker/mock-pay/Dockerfile
+            platforms: linux/amd64
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
