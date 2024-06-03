@@ -567,10 +567,9 @@ func TestSummaryRow(t *testing.T) {
 		"Value":           value,
 		"ChangeLink":      changeLink,
 		"FullName":        fullName,
-		"Optional":        true,
 		"CanChange":       true,
 		"SummarisingSelf": true,
-	}, summaryRow(app, label, value, changeLink, fullName, true, true, true))
+	}, summaryRow(app, label, value, changeLink, fullName, true, true))
 }
 
 func TestAddressSummaryRow(t *testing.T) {
@@ -586,8 +585,25 @@ func TestAddressSummaryRow(t *testing.T) {
 		"Address":         address,
 		"ChangeLink":      changeLink,
 		"FullName":        fullName,
-		"Optional":        true,
 		"CanChange":       true,
 		"SummarisingSelf": true,
-	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true, true))
+	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true))
+}
+
+func TestOptionalSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+
+	assert.Equal(t, map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, optionalSummaryRow(app, label, value, changeLink, fullName, true, true))
 }

@@ -6,24 +6,24 @@
     <div class="govuk-summary-card__content">
       <dl class="govuk-summary-list">
         {{ $nameChangeLink := printf "%s?from=%s#f-first-names" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
-        {{ template "summary-row" (summaryRow $.App "name" .Lpa.Donor.FullName $nameChangeLink .Lpa.Donor.FullName false .CanChange $.App.IsDonor) }}
+        {{ template "summary-row" (summaryRow $.App "name" .Lpa.Donor.FullName $nameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $otherNameChangeLink := printf "%s?from=%s#f-other-names" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
-        {{ template "summary-row" (summaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName true .CanChange $.App.IsDonor) }}
+        {{ template "optional-summary-row" (optionalSummaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
-        {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .Lpa.Donor.DateOfBirth) $dateOfBirthChangeLink .Lpa.Donor.FullName false .CanChange $.App.IsDonor) }}
+        {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .Lpa.Donor.DateOfBirth) $dateOfBirthChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
-        {{ template "summary-row" (summaryRow $.App "email" .Lpa.Donor.Email "" .Lpa.Donor.FullName false false $.App.IsDonor) }}
+        {{ template "summary-row" (summaryRow $.App "email" .Lpa.Donor.Email "" .Lpa.Donor.FullName false $.App.IsDonor) }}
 
         {{ $addressChangeLink := printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.YourAddress.Format .App.LpaID)) .App.Page }}
-        {{ template "address-summary-row" (addressSummaryRow $.App "address" .Lpa.Donor.Address.HTML $addressChangeLink .Lpa.Donor.FullName false .CanChange $.App.IsDonor) }}
+        {{ template "address-summary-row" (addressSummaryRow $.App "address" .Lpa.Donor.Address.HTML $addressChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ if $.App.IsDonor }}
           {{ $languageChangeLink := printf "%s?from=%s" (link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID)) .App.Page }}
           {{ $languageValue := "" }}
           {{ if not .Lpa.Donor.ContactLanguagePreference.Empty }} {{ $languageValue = tr .App .Lpa.Donor.ContactLanguagePreference.String }} {{ end }}
-          {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $languageValue $languageChangeLink .Lpa.Donor.FullName false .CanChange $.App.IsDonor) }}
+          {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $languageValue $languageChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
         {{ end }}
       </dl>
     </div>

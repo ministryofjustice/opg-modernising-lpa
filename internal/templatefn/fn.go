@@ -81,6 +81,7 @@ func All(globals *Globals) map[string]any {
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
 		"addressSummaryRow":  addressSummaryRow,
+		"optionalSummaryRow": optionalSummaryRow,
 	}
 }
 
@@ -487,27 +488,37 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	return data
 }
 
-func summaryRow(app page.AppData, label, value, changeLink, fullName string, optional, canChange, summarisingSelf bool) map[string]any {
+func summaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,
 		"Value":           value,
 		"ChangeLink":      changeLink,
 		"FullName":        fullName,
-		"Optional":        optional,
 		"CanChange":       canChange,
 		"SummarisingSelf": summarisingSelf,
 	}
 }
 
-func addressSummaryRow(app page.AppData, label string, address template.HTML, changeLink, fullName string, optional, canChange, summarisingSelf bool) map[string]any {
+func addressSummaryRow(app page.AppData, label string, address template.HTML, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,
 		"Address":         address,
 		"ChangeLink":      changeLink,
 		"FullName":        fullName,
-		"Optional":        optional,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
+	}
+}
+
+func optionalSummaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+	return map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
 		"CanChange":       canChange,
 		"SummarisingSelf": summarisingSelf,
 	}

@@ -10,22 +10,22 @@
     <div class="govuk-summary-card__content">
       <dl class="govuk-summary-list">
         {{ $nameChangeLink := printf "%s#f-first-names" $detailsLink }}
-        {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName $nameChangeLink .Lpa.CertificateProvider.FullName false .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName $nameChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $mobileChangeLink := printf "%s#f-mobile" $detailsLink }}
-        {{ template "summary-row" (summaryRow $.App "mobile" (formatPhone .Lpa.CertificateProvider.Phone) $mobileChangeLink .Lpa.CertificateProvider.FullName false .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "summary-row" (summaryRow $.App "mobile" (formatPhone .Lpa.CertificateProvider.Phone) $mobileChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $contactValue := "" }}
         {{ if .Lpa.CertificateProvider.Channel.IsPaper }} {{ $contactValue = tr .App "usingPaperForms" }} {{ else if .Lpa.CertificateProvider.Channel.IsOnline }} {{ $contactValue = tr .App "byEmail" }} {{ end }}
-        {{ template "summary-row" (summaryRow $.App "contactPreference" $contactValue $carryOutByLink .Lpa.CertificateProvider.FullName false .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "summary-row" (summaryRow $.App "contactPreference" $contactValue $carryOutByLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $emailChangeLink := printf "%s#f-email" $carryOutByLink }}
-        {{ template "summary-row" (summaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName true .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "optional-summary-row" (optionalSummaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
         {{ $addressLabel := tr .App "address" }}
         {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }} {{ $addressLabel = tr .App "workAddress" }} {{ end }}
-        {{ template "address-summary-row" (addressSummaryRow $.App $addressLabel .Lpa.CertificateProvider.Address.HTML $addressChangeLink .Lpa.CertificateProvider.FullName false .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "address-summary-row" (addressSummaryRow $.App $addressLabel .Lpa.CertificateProvider.Address.HTML $addressChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
       </dl>
     </div>
   </div>

@@ -1,7 +1,7 @@
 {{ define "lpa-decisions" }}
   <dl class="govuk-summary-list">
     {{ $lpaTypeChangeLink := link .App (global.Paths.LpaType.Format .App.LpaID) }}
-    {{ template "summary-row" (summaryRow $.App "typeOfLpa" (tr .App .Lpa.Type.String) $lpaTypeChangeLink .Lpa.Donor.FullName false .CanChange true) }}
+    {{ template "summary-row" (summaryRow $.App "typeOfLpa" (tr .App .Lpa.Type.String) $lpaTypeChangeLink .Lpa.Donor.FullName .CanChange true) }}
 
     {{ $whenLPACanBeUsedChangeLink := link .App (global.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}
     {{ $whenLPACanBeUsedLabel := tr .App "whenYourAttorneysCanUseYourLpa" }}
@@ -12,7 +12,7 @@
       {{ $whenLPACanBeUsedValue = tr .App (printf "%s:3rd" .Lpa.WhenCanTheLpaBeUsed.String) }}
     {{ end }}
 
-    {{ template "summary-row" (summaryRow $.App $whenLPACanBeUsedLabel $whenLPACanBeUsedValue $whenLPACanBeUsedChangeLink .Lpa.Donor.FullName false (and .CanChange .Lpa.Type.IsPropertyAndAffairs) true) }}
+    {{ template "summary-row" (summaryRow $.App $whenLPACanBeUsedLabel $whenLPACanBeUsedValue $whenLPACanBeUsedChangeLink .Lpa.Donor.FullName (and .CanChange .Lpa.Type.IsPropertyAndAffairs) true) }}
 
     {{ $whoAreYourAttorneysChangeLink := link .App (global.Paths.ChooseAttorneys.Format .App.LpaID) }}
     {{ $whoAreYourAttorneysLabel := trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
@@ -23,7 +23,7 @@
       {{ $whoAreYourAttorneysLabel = trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
     {{ end }}
 
-    {{ template "summary-row" (summaryRow $.App $whoAreYourAttorneysLabel (concatAnd .App .Lpa.Attorneys.FullNames) $whoAreYourAttorneysChangeLink .Lpa.Donor.FullName false .CanChange true) }}
+    {{ template "summary-row" (summaryRow $.App $whoAreYourAttorneysLabel (concatAnd .App .Lpa.Attorneys.FullNames) $whoAreYourAttorneysChangeLink .Lpa.Donor.FullName .CanChange true) }}
 
     {{ if .Lpa.AttorneyDecisions.How }}
       {{ $title := "howAttorneysMustMakeDecisions" }}

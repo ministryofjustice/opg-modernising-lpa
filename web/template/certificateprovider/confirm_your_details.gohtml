@@ -13,25 +13,25 @@
 
       <dl class="govuk-summary-list">
         {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .Lpa.LpaID)) .App.Page }}
-        {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate .App .CertificateProvider.DateOfBirth) $dateOfBirthChangeLink .Lpa.CertificateProvider.FullName false true true ) }}
+        {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate .App .CertificateProvider.DateOfBirth) $dateOfBirthChangeLink .Lpa.CertificateProvider.FullName true true ) }}
 
         {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
           {{ $homeAddressChangeLink := printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Lpa.LpaID)) .App.Page }}
-          {{ template "address-summary-row" (addressSummaryRow $.App "homeAddress" .CertificateProvider.HomeAddress.HTML $homeAddressChangeLink .Lpa.CertificateProvider.FullName false true true ) }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "homeAddress" .CertificateProvider.HomeAddress.HTML $homeAddressChangeLink .Lpa.CertificateProvider.FullName true true ) }}
         {{ end }}
 
         {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.CertificateProvider.YourPreferredLanguage.Format .Lpa.LpaID)) }}
         {{ $contactLanguage := "" }}
         {{ if not .CertificateProvider.ContactLanguagePreference.Empty }} {{ $contactLanguage = tr .App .CertificateProvider.ContactLanguagePreference.String }} {{ end }}
-        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink .Lpa.CertificateProvider.FullName false true true ) }}
+        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink .Lpa.CertificateProvider.FullName true true ) }}
       </dl>
 
       <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
 
       <dl class="govuk-summary-list">
-        {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName "" .Lpa.CertificateProvider.FullName false false true ) }}
-        {{ template "address-summary-row" (addressSummaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address.HTML "" .Lpa.CertificateProvider.FullName false false true ) }}
-        {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false false true ) }}
+        {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ template "address-summary-row" (addressSummaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address.HTML "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
       </dl>
 
       {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" .DetailComponentContent false) }}
