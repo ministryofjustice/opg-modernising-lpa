@@ -2,10 +2,6 @@ locals {
   name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
 }
 
-locals {
-  policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
-}
-
 variable "ecs_execution_role" {
   type = object({
     id  = string
@@ -49,18 +45,14 @@ variable "ecs_application_log_group_name" {
   description = "The AWS Cloudwatch Log Group resource for application logging"
 }
 
-variable "app_service_repository_url" {
+variable "repository_url" {
   type        = string
-  description = "(optional) describe your variable"
+  description = "URL of the repository for the container to use"
 }
 
-variable "app_service_container_version" {
+variable "container_version" {
   type        = string
-  description = "(optional) describe your variable"
-}
-
-variable "app_allowed_api_arns" {
-  type = list(string)
+  description = "Version of the container to use"
 }
 
 variable "ingress_allow_list_cidr" {
@@ -78,83 +70,20 @@ variable "container_port" {
   description = "Port on the container to associate with."
 }
 
-variable "lpas_table" {
-  type        = any
-  description = "DynamoDB table for storing LPAs"
-}
-
-variable "app_env_vars" {
-  type        = any
-  description = "Environment variable values for app"
-}
-
 variable "public_access_enabled" {
   type        = bool
   description = "Enable access to the Modernising LPA service from the public internet"
 }
 
-variable "aws_rum_guest_role_arn" {
-  type        = string
-  description = "ARN of the AWS RUM guest role"
-  nullable    = true
-}
-
-variable "rum_monitor_application_id_secretsmanager_secret_arn" {
-  type        = string
-  description = "ARN of the AWS Secrets Manager secret containing the RUM monitor application ID"
-  nullable    = true
-}
-
-variable "uploads_s3_bucket" {
+variable "aws_service_discovery_private_dns_namespace" {
   type = object({
-    bucket_name = string
-    bucket_arn  = string
-  })
-  description = "Name and ARN of the S3 bucket for uploads"
-}
-
-variable "event_bus" {
-  type = object({
+    id   = string
     name = string
-    arn  = string
   })
-  description = "Name and ARN of the event bus to send events to"
+  description = "ID and name of the AWS Service Discovery private DNS namespace"
 }
 
-variable "uid_base_url" {
-  type = string
-}
-
-variable "lpa_store_base_url" {
-  type = string
-}
-
-variable "mock_onelogin_enabled" {
-  type = bool
-}
-
-variable "mock_pay_enabled" {
-  type = bool
-}
-
-variable "fault_injection_experiments_enabled" {
-  type        = bool
-  description = "Enable fault injection"
-}
-
-variable "search_endpoint" {
+variable "app_ecs_service_security_group_id" {
   type        = string
-  description = "URL of the OpenSearch Service endpoint to use"
-  nullable    = true
-}
-
-variable "search_index_name" {
-  type        = string
-  description = "Name of the OpenSearch Service index to use"
-}
-
-variable "search_collection_arn" {
-  type        = string
-  description = "ARN of the OpenSearch collection to use"
-  nullable    = true
+  description = "ID of the security group for the app ECS service"
 }

@@ -50,6 +50,16 @@ variable "mock_onelogin_service_container_version" {
   description = "Container version for the mock-onelogin service"
 }
 
+variable "mock_pay_service_repository_url" {
+  type        = string
+  description = "Repository URL for the mock-pay service"
+}
+
+variable "mock_pay_service_container_version" {
+  type        = string
+  description = "Container version for the mock-pay service"
+}
+
 variable "ingress_allow_list_cidr" {
   type        = list(string)
   description = "List of CIDR ranges permitted to access the service"
@@ -130,6 +140,10 @@ variable "lpa_store_service" {
 }
 
 variable "mock_onelogin_enabled" {
+  type = bool
+}
+
+variable "mock_pay_enabled" {
   type = bool
 }
 
