@@ -1,9 +1,9 @@
-{{ define "summary-row" }}
+{{ define "address-summary-row" }}
     <div class="govuk-summary-list__row{{ if or (eq "" .Value) (not .CanChange) }} govuk-summary-list__row--no-actions{{ end }}">
         <dt class="govuk-summary-list__key">{{ tr .App .Label }}{{ if .Optional }} ({{ tr .App "optional" }}){{ end }}</dt>
         <dd class="govuk-summary-list__value">
-            {{ if .Value }}
-                {{ .Value }}
+            {{ if .Address }}
+                {{ .Address }}
             {{ else if .CanChange }}
                 <a href="{{ .ChangeLink }}" class="govuk-link">
                     {{ tr .App "enter" }}

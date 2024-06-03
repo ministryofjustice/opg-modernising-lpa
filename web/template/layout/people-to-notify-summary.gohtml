@@ -26,7 +26,7 @@
           {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName false $.CanChange false ) }}
 
           {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
-          {{ template "summary-row" (summaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange false ) }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "address" .Address.HTML $addressChangeLink .FullName false $.CanChange false ) }}
         </dl>
       </div>
     </div>

@@ -573,6 +573,21 @@ func TestSummaryRow(t *testing.T) {
 	}, summaryRow(app, label, value, changeLink, fullName, true, true, true))
 }
 
-func TestHtml(t *testing.T) {
-	assert.Equal(t, template.HTML("s"), html("s"))
+func TestAddressSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	address := template.HTML("an<br>address")
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+
+	assert.Equal(t, map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Address":         address,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"Optional":        true,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true, true))
 }

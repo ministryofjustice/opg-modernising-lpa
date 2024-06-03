@@ -80,7 +80,7 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
-		"html":               html,
+		"addressSummaryRow":  addressSummaryRow,
 	}
 }
 
@@ -500,6 +500,15 @@ func summaryRow(app page.AppData, label, value, changeLink, fullName string, opt
 	}
 }
 
-func html(s string) template.HTML {
-	return template.HTML(s)
+func addressSummaryRow(app page.AppData, label string, address template.HTML, changeLink, fullName string, optional, canChange, summarisingSelf bool) map[string]any {
+	return map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Address":         address,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"Optional":        optional,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
+	}
 }

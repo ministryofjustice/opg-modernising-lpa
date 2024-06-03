@@ -3,6 +3,7 @@ package place
 import (
 	"context"
 	"errors"
+	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -176,7 +177,7 @@ func TestAddress(t *testing.T) {
 		testCases := []struct {
 			name    string
 			address Address
-			want    string
+			want    template.HTML
 		}{
 			{
 				"All props set",
@@ -187,7 +188,7 @@ func TestAddress(t *testing.T) {
 					TownOrCity: "Town",
 					Postcode:   "Postcode",
 				},
-				"Line 1<br>Line 2<br>Line 3<br>Town<br>Postcode",
+				template.HTML("Line 1<br>Line 2<br>Line 3<br>Town<br>Postcode"),
 			},
 			{
 				"Some props set",
@@ -198,12 +199,12 @@ func TestAddress(t *testing.T) {
 					TownOrCity: "Town",
 					Postcode:   "",
 				},
-				"Line 1<br>Line 3<br>Town",
+				template.HTML("Line 1<br>Line 3<br>Town"),
 			},
 			{
 				"No props set",
 				Address{},
-				"",
+				template.HTML(""),
 			},
 		}
 
