@@ -141,6 +141,10 @@ func (a Address) String() string {
 	return strings.Join(a.Lines(), ", ")
 }
 
+func (a Address) HTML() string {
+	return strings.Join(a.Lines(), "<br>")
+}
+
 func (ad *addressDetails) transformToAddress() Address {
 	a := Address{}
 
