@@ -15,43 +15,25 @@
 
       <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
       <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "telephoneNumber" }}</dt>
-          <dd class="govuk-summary-list__value">{{ formatPhone .AttorneyProvidedDetails.Mobile }}</dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link" href="{{ link .App (global.Paths.Attorney.MobileNumber.Format .Lpa.LpaID) }}">{{ trHtml .App "changeTelephoneNumberLink" }}</a>
-          </dd>
-        </div>
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">{{ tr .App "preferredContactLanguage" }}</dt>
-          <dd class="govuk-summary-list__value">{{ if not .AttorneyProvidedDetails.ContactLanguagePreference.Empty }}{{ tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }}{{ end }}</dd>
-          <dd class="govuk-summary-list__actions">
-            <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.Attorney.YourPreferredLanguage.Format .App.LpaID) }}?from={{.App.Page}}">
-              {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "preferredContactLanguage" }}</span>
-            </a>
-          </dd>
-        </div>
+        {{ $attorneyFullName := .Attorney.FullName }}
+        {{ if .TrustCorporation.Name }}{{ $attorneyFullName = .TrustCorporation.Name }}{{ end }}
+
+        {{ $mobileChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.Attorney.MobileNumber.Format .Lpa.LpaID)) .App.Page }}
+        {{ template "summary-row" (summaryRow .App "telephoneNumber" (formatPhone .AttorneyProvidedDetails.Mobile) $mobileChangeLink $attorneyFullName true true ) }}
+
+        {{ $contactLanguage := "" }}
+        {{ if not .AttorneyProvidedDetails.ContactLanguagePreference.Empty }} {{ $contactLanguage = tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }} {{ end }}
+        {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.Attorney.YourPreferredLanguage.Format .Lpa.LpaID)) }}
+        {{ template "summary-row" (summaryRow .App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink $attorneyFullName true true ) }}
       </dl>
 
       {{ if .TrustCorporation.Name }}
         <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
         <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "companyName" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Name }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "companyNumber" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.CompanyNumber }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "companyEmailAddress" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .TrustCorporation.Address }}</dd>
-          </div>
+          {{ template "summary-row" (summaryRow .App "companyName" .TrustCorporation.Name "" $attorneyFullName false true ) }}
+          {{ template "summary-row" (summaryRow .App "companyNumber" .TrustCorporation.CompanyNumber "" $attorneyFullName false true ) }}
+          {{ template "summary-row" (summaryRow .App "companyEmailAddress" .TrustCorporation.Email "" $attorneyFullName false true ) }}
+          {{ template "address-summary-row" (addressSummaryRow .App "address" .TrustCorporation.Address.HTML "" $attorneyFullName false true ) }}
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
@@ -59,18 +41,9 @@
       {{ else }}
         <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
         <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Attorney.FullName }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-            <dd class="govuk-summary-list__value">{{ formatDate .App .Attorney.DateOfBirth }}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .Attorney.Address }}</dd>
-          </div>
+          {{ template "summary-row" (summaryRow .App "name" .Attorney.FullName "" $attorneyFullName false true ) }}
+          {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App .Attorney.DateOfBirth) "" $attorneyFullName false true ) }}
+          {{ template "address-summary-row" (addressSummaryRow .App "address" .Attorney.Address.HTML "" $attorneyFullName false true ) }}
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}

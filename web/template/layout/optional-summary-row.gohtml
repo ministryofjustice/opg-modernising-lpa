@@ -1,0 +1,35 @@
+{{ define "optional-summary-row" }}
+    <div class="govuk-summary-list__row{{ if or (eq "" .Value) (not .CanChange) }} govuk-summary-list__row--no-actions{{ end }}">
+        <dt class="govuk-summary-list__key">{{ tr .App .Label }} ({{ tr .App "optional" }})</dt>
+        <dd class="govuk-summary-list__value">
+            {{ if .Value }}
+                {{ .Value }}
+            {{ else if .CanChange }}
+                <a href="{{ .ChangeLink }}" class="govuk-link">
+                    {{ tr .App "enter" }}
+
+                    {{ if .SummarisingSelf }}
+                        {{ if not (stringContains (tr .App .Label) "you") }}{{ tr .App "your" }}{{ end }}
+                    {{ end }}
+
+                    {{ lowerFirst (tr .App .Label) }}
+
+                    {{ if not .SummarisingSelf }}
+                        <span class="govuk-visually-hidden"> {{ trFormat .App "forFullName" "FullName" .FullName }}</span>
+                    {{ end }}
+                </a>
+            {{ end }}
+        </dd>
+        {{ if and .Value .CanChange }}
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ .ChangeLink }}">{{ tr .App "change" }}<span class="govuk-visually-hidden">
+                    {{ if .SummarisingSelf }}
+                        {{ if not (stringContains (tr .App .Label) "you") }}{{ tr .App "your" }}{{ end }} {{ lowerFirst (tr .App .Label) }}
+                    {{ else }}
+                        {{ lowerFirst (tr .App .Label) }} {{ trFormat .App "forFullName" "FullName" .FullName }}
+                    {{ end }}
+                </span></a>
+            </dd>
+        {{ end }}
+    </div>
+{{ end }}
