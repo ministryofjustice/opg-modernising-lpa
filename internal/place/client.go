@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/url"
 	"strings"
@@ -139,6 +140,10 @@ func (a Address) Lines() []string {
 
 func (a Address) String() string {
 	return strings.Join(a.Lines(), ", ")
+}
+
+func (a Address) HTML() template.HTML {
+	return template.HTML(strings.Join(a.Lines(), "<br>"))
 }
 
 func (ad *addressDetails) transformToAddress() Address {

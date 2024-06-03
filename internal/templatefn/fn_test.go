@@ -158,13 +158,6 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 }
 
-func TestContains(t *testing.T) {
-	assert.True(t, contains("b", []string{"a", "b", "c"}))
-	assert.False(t, contains("d", []string{"a", "b", "c"}))
-
-	assert.False(t, contains("", nil))
-}
-
 func TestCheckboxEq(t *testing.T) {
 	assert.True(t, checkboxEq("b", []string{"a", "b", "c"}))
 	assert.False(t, checkboxEq("d", []string{"a", "b", "c"}))
@@ -559,4 +552,58 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
 	}, lpaDecisions(app, &actor.DonorProvidedDetails{}, true))
+}
+
+func TestSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+
+	assert.Equal(t, map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, summaryRow(app, label, value, changeLink, fullName, true, true))
+}
+
+func TestAddressSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	address := template.HTML("an<br>address")
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+
+	assert.Equal(t, map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Address":         address,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true))
+}
+
+func TestOptionalSummaryRow(t *testing.T) {
+	app := page.AppData{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+	changeLink := "a-link.com"
+	fullName := "Full Name"
+
+	assert.Equal(t, map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       true,
+		"SummarisingSelf": true,
+	}, optionalSummaryRow(app, label, value, changeLink, fullName, true, true))
 }
