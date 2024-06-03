@@ -22,28 +22,11 @@
       </div>
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key"> {{ tr $.App "name" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
-            {{ if $.CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ $detailsLink }}#f-first-names">
-                  {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr $.App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
-            {{ if $.CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ $addressLink }}#f-address-line-1">
-                  {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $nameChangeLink := printf "%s#f-first-names" $detailsLink }}
+          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName $.CanChange false ) }}
+
+          {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "address" .Address.HTML $addressChangeLink .FullName $.CanChange false ) }}
         </dl>
       </div>
     </div>
