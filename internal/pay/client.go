@@ -8,9 +8,10 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"regexp"
 )
+
+var paymentsURLRe = regexp.MustCompile(`^https://[a-z]+\.payments\.service\.gov\.uk/.+$`)
 
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)
@@ -20,25 +21,19 @@ type Logger interface {
 	ErrorContext(ctx context.Context, msg string, args ...any)
 }
 
-type EventClient interface {
-	SendPaymentCreated(ctx context.Context, e event.PaymentCreated) error
-}
-
 type Client struct {
-	logger      Logger
-	doer        Doer
-	eventClient EventClient
-	baseURL     string
-	apiKey      string
+	logger  Logger
+	doer    Doer
+	baseURL string
+	apiKey  string
 }
 
-func New(logger Logger, doer Doer, eventClient EventClient, baseURL, apiKey string) *Client {
+func New(logger Logger, doer Doer, baseURL, apiKey string) *Client {
 	return &Client{
-		logger:      logger,
-		doer:        doer,
-		eventClient: eventClient,
-		baseURL:     baseURL,
-		apiKey:      apiKey,
+		logger:  logger,
+		doer:    doer,
+		baseURL: baseURL,
+		apiKey:  apiKey,
 	}
 }
 
@@ -76,14 +71,6 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 		return nil, err
 	}
 
-	if err := c.eventClient.SendPaymentCreated(ctx, event.PaymentCreated{
-		UID:       lpaUID,
-		PaymentID: createPaymentResp.PaymentID,
-		Amount:    createPaymentResp.Amount,
-	}); err != nil {
-		return nil, err
-	}
-
 	return &createPaymentResp, nil
 }
 
@@ -108,4 +95,8 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	}
 
 	return getPaymentResponse, nil
+}
+
+func (c *Client) CanRedirect(url string) bool {
+	return paymentsURLRe.MatchString(url)
 }
