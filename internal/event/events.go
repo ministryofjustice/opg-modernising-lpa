@@ -60,7 +60,7 @@ type PaperFormRequested struct {
 	AccessCode string       `json:"accessCode"`
 }
 
-type PaymentCreated struct {
+type PaymentReceived struct {
 	UID       string `json:"uid"`
 	PaymentID string `json:"paymentId"`
 	Amount    int    `json:"amount"`
