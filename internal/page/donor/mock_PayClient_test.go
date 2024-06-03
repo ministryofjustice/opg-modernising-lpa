@@ -22,6 +22,52 @@ func (_m *mockPayClient) EXPECT() *mockPayClient_Expecter {
 	return &mockPayClient_Expecter{mock: &_m.Mock}
 }
 
+// CanRedirect provides a mock function with given fields: url
+func (_m *mockPayClient) CanRedirect(url string) bool {
+	ret := _m.Called(url)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanRedirect")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(url)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// mockPayClient_CanRedirect_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanRedirect'
+type mockPayClient_CanRedirect_Call struct {
+	*mock.Call
+}
+
+// CanRedirect is a helper method to define mock.On call
+//   - url string
+func (_e *mockPayClient_Expecter) CanRedirect(url interface{}) *mockPayClient_CanRedirect_Call {
+	return &mockPayClient_CanRedirect_Call{Call: _e.mock.On("CanRedirect", url)}
+}
+
+func (_c *mockPayClient_CanRedirect_Call) Run(run func(url string)) *mockPayClient_CanRedirect_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *mockPayClient_CanRedirect_Call) Return(_a0 bool) *mockPayClient_CanRedirect_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockPayClient_CanRedirect_Call) RunAndReturn(run func(string) bool) *mockPayClient_CanRedirect_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreatePayment provides a mock function with given fields: ctx, lpaUID, body
 func (_m *mockPayClient) CreatePayment(ctx context.Context, lpaUID string, body pay.CreatePaymentBody) (*pay.CreatePaymentResponse, error) {
 	ret := _m.Called(ctx, lpaUID, body)
