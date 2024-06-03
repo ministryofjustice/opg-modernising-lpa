@@ -261,7 +261,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	payClient := pay.New(logger, httpClient, eventClient, payBaseURL, payApiKey)
+	payClient := pay.New(logger, httpClient, payBaseURL, payApiKey)
 
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {
