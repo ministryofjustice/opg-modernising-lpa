@@ -418,7 +418,7 @@ locals {
         },
         {
           name  = "GOVUK_PAY_BASE_URL",
-          value = "https://publicapi.payments.service.gov.uk"
+          value = var.mock_pay_enabled ? "https://${data.aws_default_tags.current.tags.environment-name}-mock-pay.app.modernising.opg.service.justice.gov.uk" : "https://publicapi.payments.service.gov.uk"
         },
         {
           name  = "GOVUK_NOTIFY_BASE_URL",
