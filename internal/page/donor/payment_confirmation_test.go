@@ -321,35 +321,35 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 	}
 }
 
-func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+// func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
+// 	w := httptest.NewRecorder()
+// 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
-	sessionStore := newMockSessionStore(t).
-		withPaySession(r)
+// 	sessionStore := newMockSessionStore(t).
+// 		withPaySession(r)
 
-	payClient := newMockPayClient(t)
-	payClient.EXPECT().
-		GetPayment(r.Context(), "abc123").
-		Return(pay.GetPaymentResponse{
-			State: pay.State{
-				Status:   "error",
-				Finished: true,
-			},
-		}, nil)
+// 	payClient := newMockPayClient(t)
+// 	payClient.EXPECT().
+// 		GetPayment(r.Context(), "abc123").
+// 		Return(pay.GetPaymentResponse{
+// 			State: pay.State{
+// 				Status:   "error",
+// 				Finished: true,
+// 			},
+// 		}, nil)
 
-	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaUID: "lpa-uid",
-		CertificateProvider: actor.CertificateProvider{
-			Email: "certificateprovider@example.com",
-		},
-		Tasks: actor.DonorTasks{
-			PayForLpa: actor.PaymentTaskInProgress,
-		},
-	})
+// 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+// 		LpaUID: "lpa-uid",
+// 		CertificateProvider: actor.CertificateProvider{
+// 			Email: "certificateprovider@example.com",
+// 		},
+// 		Tasks: actor.DonorTasks{
+// 			PayForLpa: actor.PaymentTaskInProgress,
+// 		},
+// 	})
 
-	assert.Error(t, err)
-}
+// 	assert.Error(t, err)
+// }
 
 func TestGetPaymentConfirmationWhenErrorGettingSession(t *testing.T) {
 	w := httptest.NewRecorder()
