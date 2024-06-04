@@ -51,7 +51,7 @@ func All(globals *Globals) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
-		"contains":           contains,
+		"stringContains":     strings.Contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
 		"trFormatHtml":       trFormatHtml,
@@ -79,6 +79,9 @@ func All(globals *Globals) map[string]any {
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
+		"summaryRow":         summaryRow,
+		"addressSummaryRow":  addressSummaryRow,
+		"optionalSummaryRow": optionalSummaryRow,
 	}
 }
 
@@ -182,18 +185,6 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.Lang.URL(path)
-}
-
-func contains(needle string, list any) bool {
-	if list == nil {
-		return false
-	}
-
-	if slist, ok := list.([]string); ok {
-		return slices.Contains(slist, needle)
-	}
-
-	return false
 }
 
 // checkboxEq allows matching in the checkboxes.gohtml template for a value that
@@ -495,4 +486,40 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	}
 
 	return data
+}
+
+func summaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+	return map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
+	}
+}
+
+func addressSummaryRow(app page.AppData, label string, address template.HTML, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+	return map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Address":         address,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
+	}
+}
+
+func optionalSummaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+	return map[string]any{
+		"App":             app,
+		"Label":           label,
+		"Value":           value,
+		"ChangeLink":      changeLink,
+		"FullName":        fullName,
+		"CanChange":       canChange,
+		"SummarisingSelf": summarisingSelf,
+	}
 }

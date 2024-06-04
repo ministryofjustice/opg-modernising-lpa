@@ -3,6 +3,7 @@ package place
 import (
 	"context"
 	"errors"
+	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -168,6 +169,48 @@ func TestAddress(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(tc.name, func(t *testing.T) {
 				assert.Equal(t, tc.want, tc.address.String())
+			})
+		}
+	})
+
+	t.Run("HTML", func(t *testing.T) {
+		testCases := []struct {
+			name    string
+			address Address
+			want    template.HTML
+		}{
+			{
+				"All props set",
+				Address{
+					Line1:      "Line 1",
+					Line2:      "Line 2",
+					Line3:      "Line 3",
+					TownOrCity: "Town",
+					Postcode:   "Postcode",
+				},
+				template.HTML("Line 1<br>Line 2<br>Line 3<br>Town<br>Postcode"),
+			},
+			{
+				"Some props set",
+				Address{
+					Line1:      "Line 1",
+					Line2:      "",
+					Line3:      "Line 3",
+					TownOrCity: "Town",
+					Postcode:   "",
+				},
+				template.HTML("Line 1<br>Line 3<br>Town"),
+			},
+			{
+				"No props set",
+				Address{},
+				template.HTML(""),
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				assert.Equal(t, tc.want, tc.address.HTML())
 			})
 		}
 	})
