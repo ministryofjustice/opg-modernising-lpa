@@ -1,9 +1,7 @@
 package pay
 
-import "time"
-
-const (
-	PaymentPublicServiceUrl = "https://www.payments.service.gov.uk"
+import (
+	"time"
 )
 
 type CreatePaymentBody struct {
