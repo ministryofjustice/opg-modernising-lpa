@@ -98,9 +98,16 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 		return GetPaymentResponse{}, fmt.Errorf("expected 201 got %d", resp.StatusCode)
 	}
 
+	var buf bytes.Buffer
+	r := io.TeeReader(resp.Body, &buf)
+
 	var getPaymentResponse GetPaymentResponse
-	if err := json.NewDecoder(resp.Body).Decode(&getPaymentResponse); err != nil {
+	if err := json.NewDecoder(r).Decode(&getPaymentResponse); err != nil {
 		return GetPaymentResponse{}, err
+	}
+
+	if getPaymentResponse.State.Status != "success" {
+		c.logger.ErrorContext(ctx, "payment response not success", slog.String("body", buf.String()))
 	}
 
 	return getPaymentResponse, nil
