@@ -17,11 +17,13 @@
 
         {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
           {{ $homeAddressChangeLink := printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Lpa.LpaID)) .App.Page }}
-          {{ template "address-summary-row" (addressSummaryRow $.App "homeAddress" .CertificateProvider.HomeAddress.HTML $homeAddressChangeLink .Lpa.CertificateProvider.FullName true true ) }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "homeAddress" .CertificateProvider.HomeAddress $homeAddressChangeLink .Lpa.CertificateProvider.FullName true true ) }}
         {{ end }}
 
+        {{ $contactLanguage := "" }}
+        {{ if not .CertificateProvider.ContactLanguagePreference.Empty }} {{ $contactLanguage = tr .App .CertificateProvider.ContactLanguagePreference.String }} {{ end }}
         {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.CertificateProvider.YourPreferredLanguage.Format .Lpa.LpaID)) }}
-        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" .CertificateProvider.ContactLanguagePreference.String $contactLanguageChangeLink .Lpa.CertificateProvider.FullName true true ) }}
+        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink .Lpa.CertificateProvider.FullName true true ) }}
       </dl>
 
       <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
