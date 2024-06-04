@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -500,7 +501,7 @@ func summaryRow(app page.AppData, label, value, changeLink, fullName string, can
 	}
 }
 
-func addressSummaryRow(app page.AppData, label string, address template.HTML, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+func addressSummaryRow(app page.AppData, label string, address place.Address, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,

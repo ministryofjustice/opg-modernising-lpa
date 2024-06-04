@@ -21,16 +21,14 @@
         {{ end }}
 
         {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.CertificateProvider.YourPreferredLanguage.Format .Lpa.LpaID)) }}
-        {{ $contactLanguage := "" }}
-        {{ if not .CertificateProvider.ContactLanguagePreference.Empty }} {{ $contactLanguage = tr .App .CertificateProvider.ContactLanguagePreference.String }} {{ end }}
-        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink .Lpa.CertificateProvider.FullName true true ) }}
+        {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" .CertificateProvider.ContactLanguagePreference.String $contactLanguageChangeLink .Lpa.CertificateProvider.FullName true true ) }}
       </dl>
 
       <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
 
       <dl class="govuk-summary-list">
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName "" .Lpa.CertificateProvider.FullName false true ) }}
-        {{ template "address-summary-row" (addressSummaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address.HTML "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ template "address-summary-row" (addressSummaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address "" .Lpa.CertificateProvider.FullName false true ) }}
         {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
       </dl>
 

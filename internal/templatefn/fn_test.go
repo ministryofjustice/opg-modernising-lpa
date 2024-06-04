@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -575,7 +576,7 @@ func TestSummaryRow(t *testing.T) {
 func TestAddressSummaryRow(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	label := "a-label"
-	address := template.HTML("an<br>address")
+	address := place.Address{Line1: "a"}
 	changeLink := "a-link.com"
 	fullName := "Full Name"
 
