@@ -26,7 +26,7 @@ COPY --from=asset-env /app/web/static web/static
 
 ARG TARGETOS TARGETARCH
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/cosmtrek/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/air-verse/air@latest && go install github.com/go-delve/delve/cmd/dlv@latest
 
 ENTRYPOINT ["air"]
 
@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.19.1 as production
+FROM alpine:3.20.0 as production
 
 WORKDIR /go/bin
 
