@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = true
+  enable_opensearch_ingestion_pipeline = false
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
@@ -9,6 +9,16 @@ data "aws_kms_alias" "dynamodb_encryption_key" {
 
 data "aws_kms_alias" "opensearch_encryption_key" {
   name     = "alias/${local.default_tags.application}-opensearch-encryption-key"
+  provider = aws.eu_west_1
+}
+
+data "aws_kms_alias" "dynemodb_exports_s3_bucket_encryption_key" {
+  name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
+  provider = aws.eu_west_1
+}
+
+data "aws_s3_bucket" "dynamodb_exports_bucket" {
+  bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-eu-west-1"
   provider = aws.eu_west_1
 }
 
@@ -63,7 +73,18 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
   }
 
   statement {
-    sid    = "DynamoDBEncryptionAccess"
+    sid    = "DescribeExports"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+    ]
+  }
+
+  statement {
+    sid    = "DynamoDBAndExportEncryptionAccess"
     effect = "Allow"
     actions = [
       "kms:Decrypt",
@@ -71,6 +92,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynemodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
 
@@ -87,7 +109,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
   }
 
-
   statement {
     sid    = "allowReadFromStream"
     effect = "Allow"
@@ -98,6 +119,20 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
+    ]
+  }
+
+  statement {
+    sid    = "allowReadAndWriteToS3ForExport"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:AbortMultipartUpload",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
 }
@@ -160,7 +195,8 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn = aws_dynamodb_table.lpas_table.arn
+        table_arn      = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_name = aws_dynamodb_table.lpas_table.name
         stream = {
           start_position = "LATEST"
         }
