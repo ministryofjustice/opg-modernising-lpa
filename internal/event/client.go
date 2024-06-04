@@ -53,8 +53,8 @@ func (c *Client) SendPaperFormRequested(ctx context.Context, event PaperFormRequ
 	return c.send(ctx, "paper-form-requested", event)
 }
 
-func (c *Client) SendPaymentCreated(ctx context.Context, event PaymentCreated) error {
-	return c.send(ctx, "payment-created", event)
+func (c *Client) SendPaymentReceived(ctx context.Context, event PaymentReceived) error {
+	return c.send(ctx, "payment-received", event)
 }
 
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
