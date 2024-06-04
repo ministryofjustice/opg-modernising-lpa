@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,12 +16,14 @@ import (
 
 func TestPay(t *testing.T) {
 	testcases := map[string]struct {
-		nextURL  string
-		redirect string
+		nextURL     string
+		redirect    string
+		canRedirect bool
 	}{
 		"real": {
-			nextURL:  "https://www.payments.service.gov.uk/path-from/response",
-			redirect: "https://www.payments.service.gov.uk/path-from/response",
+			nextURL:     "https://www.payments.service.gov.uk/path-from/response",
+			redirect:    "https://www.payments.service.gov.uk/path-from/response",
+			canRedirect: true,
 		},
 		"fake": {
 			nextURL:  "/lpa/lpa-id/something-else",
@@ -56,8 +59,17 @@ func TestPay(t *testing.T) {
 						},
 					},
 				}, nil)
+			payClient.EXPECT().
+				CanRedirect(tc.nextURL).
+				Return(tc.canRedirect)
 
-			err := Pay(sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
+			logger := newMockLogger(t)
+			if !tc.canRedirect {
+				logger.EXPECT().
+					InfoContext(r.Context(), "skipping payment", slog.String("next_url", tc.nextURL))
+			}
+
+			err := Pay(logger, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", Donor: actor.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -88,7 +100,7 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := Pay(nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:            "lpa-id",
 				FeeType:          feeType,
 				EvidenceDelivery: pay.Upload,
@@ -123,7 +135,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := Pay(nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:            "lpa-id",
 				FeeType:          feeType,
 				EvidenceDelivery: pay.Post,
@@ -151,7 +163,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Pay(nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:            "lpa-id",
 		FeeType:          pay.HalfFee,
 		Tasks:            actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
@@ -177,7 +189,7 @@ func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := Pay(nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:   "lpa-id",
 		FeeType: pay.NoFee,
 	})
@@ -214,8 +226,15 @@ func TestPayWhenFeeDenied(t *testing.T) {
 				},
 			},
 		}, nil)
+	payClient.EXPECT().
+		CanRedirect(page.Paths.PaymentConfirmation.Format("lpa-id")).
+		Return(false)
 
-	err := Pay(sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), mock.Anything, mock.Anything)
+
+	err := Pay(logger, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:          "lpa-id",
 		LpaUID:         "lpa-uid",
 		Donor:          actor.Donor{Email: "a@b.com"},
@@ -239,7 +258,7 @@ func TestPayWhenCreatePaymentErrors(t *testing.T) {
 		CreatePayment(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := Pay(nil, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Pay(nil, nil, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -265,7 +284,7 @@ func TestPayWhenSessionErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := Pay(sessionStore, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Pay(nil, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

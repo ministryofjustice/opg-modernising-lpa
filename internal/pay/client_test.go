@@ -13,7 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -103,16 +102,7 @@ func TestCreatePayment(t *testing.T) {
 }`, created.Format(time.RFC3339Nano)))),
 		}, nil)
 
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendPaymentCreated(ctx, event.PaymentCreated{
-			UID:       "lpa-uid",
-			PaymentID: "hu20sqlact5260q2nanm0q8u93",
-			Amount:    8200,
-		}).
-		Return(nil)
-
-	payClient := New(nil, doer, eventClient, "http://pay", apiToken)
+	payClient := New(nil, doer, "http://pay", apiToken)
 
 	actualResponse, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{
 		Amount:      amount,
@@ -182,26 +172,6 @@ func TestCreatePaymentWhenJsonError(t *testing.T) {
 	assert.IsType(t, (*json.SyntaxError)(nil), err)
 }
 
-func TestCreatePaymentWhenEventErrors(t *testing.T) {
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.Anything).
-		Return(&http.Response{
-			StatusCode: http.StatusCreated,
-			Body:       io.NopCloser(strings.NewReader(`{}`)),
-		}, nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendPaymentCreated(ctx, mock.Anything).
-		Return(expectedError)
-
-	payClient := New(nil, doer, eventClient, "", "")
-
-	_, err := payClient.CreatePayment(ctx, "lpa-uid", CreatePaymentBody{})
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetPayment(t *testing.T) {
 	paymentId := "fake-id-value"
 	created, _ := time.Parse(time.RFC3339Nano, "2022-09-29T12:43:46.784Z")
@@ -213,7 +183,7 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
-			rw.WriteHeader(http.StatusCreated)
+			rw.WriteHeader(http.StatusOK)
 			io.WriteString(rw, generateGetPaymentResponseBodyJsonBytes(created))
 		}))
 
@@ -309,7 +279,7 @@ func TestGetPayment(t *testing.T) {
 
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
 
-			rw.WriteHeader(http.StatusCreated)
+			rw.WriteHeader(http.StatusOK)
 			rw.Write([]byte("still not JSON"))
 		}))
 
@@ -388,4 +358,13 @@ func generateGetPaymentResponseBodyJsonBytes(createdAt time.Time) string {
 		language,
 		email,
 		createdAt.Format(time.RFC3339Nano))
+}
+
+func TestCanRedirect(t *testing.T) {
+	c := &Client{}
+	assert.True(t, c.CanRedirect("https://www.payments.service.gov.uk/whatever?hey"))
+	assert.True(t, c.CanRedirect("https://card.payments.service.gov.uk/whatever?hey"))
+	assert.False(t, c.CanRedirect("https://card.payments.service.gov.co/whatever?hey"))
+	assert.False(t, c.CanRedirect("http://card.payments.service.gov.uk/whatever?hey"))
+	assert.False(t, c.CanRedirect("http://bad/https://card.payments.service.gov.uk/whatever?hey"))
 }
