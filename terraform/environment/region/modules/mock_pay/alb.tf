@@ -9,7 +9,7 @@ resource "aws_lb_target_group" "mock_pay" {
 
   health_check {
     enabled = true
-    path    = "/"
+    path    = "/v1/payments/abcdef"
   }
 
   provider = aws.region
