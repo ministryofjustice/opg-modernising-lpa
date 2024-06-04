@@ -183,7 +183,7 @@ func TestGetPayment(t *testing.T) {
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
 			assert.Equal(t, req.Header.Get("Authorization"), "Bearer fake-token", "Authorization token did not match")
 
-			rw.WriteHeader(http.StatusCreated)
+			rw.WriteHeader(http.StatusOK)
 			io.WriteString(rw, generateGetPaymentResponseBodyJsonBytes(created))
 		}))
 
@@ -279,7 +279,7 @@ func TestGetPayment(t *testing.T) {
 
 			assert.Equal(t, req.URL.String(), fmt.Sprintf("/v1/payments/%s", paymentId), "URL did not match")
 
-			rw.WriteHeader(http.StatusCreated)
+			rw.WriteHeader(http.StatusOK)
 			rw.Write([]byte("still not JSON"))
 		}))
 

@@ -89,6 +89,15 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		data, _ := io.ReadAll(resp.Body)
+		c.logger.ErrorContext(ctx, "getting payment failed",
+			slog.String("body", string(data)),
+			slog.Int("statusCode", resp.StatusCode))
+
+		return GetPaymentResponse{}, fmt.Errorf("expected 201 got %d", resp.StatusCode)
+	}
+
 	var getPaymentResponse GetPaymentResponse
 	if err := json.NewDecoder(resp.Body).Decode(&getPaymentResponse); err != nil {
 		return GetPaymentResponse{}, err
