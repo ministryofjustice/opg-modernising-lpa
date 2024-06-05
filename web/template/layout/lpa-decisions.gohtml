@@ -1,66 +1,29 @@
 {{ define "lpa-decisions" }}
   <dl class="govuk-summary-list">
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ tr .App "typeOfLpa" }}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        {{ tr .App .Lpa.Type.String }}
-      </dd>
-      {{ if .CanChange }}
-        <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (global.Paths.LpaType.Format .App.LpaID) }}">
-            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "typeOfLpa" }}</span>
-          </a>
-        </dd>
-      {{ end }}
-    </div>
+    {{ $lpaTypeChangeLink := link .App (global.Paths.LpaType.Format .App.LpaID) }}
+    {{ template "summary-row" (summaryRow $.App "typeOfLpa" (tr .App .Lpa.Type.String) $lpaTypeChangeLink .Lpa.Donor.FullName .CanChange true) }}
 
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ if .App.IsDonor }}
-          {{ tr .App "whenYourAttorneysCanUseYourLpa" }}
-        {{ else}}
-          {{ tr .App "whenAttorneysCanUseTheLpa" }}
-        {{ end }}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        {{ if .App.IsDonor }}
-          {{ tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
-        {{ else }}
-          {{ tr .App (printf "%s:3rd" .Lpa.WhenCanTheLpaBeUsed.String) }}
-        {{ end }}
-      </dd>
-      {{ if and .CanChange .Lpa.Type.IsPropertyAndAffairs }}
-        <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (global.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}">
-            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "whenYourAttorneysCanUseYourLpa" }}</span>
-          </a>
-        </dd>
-      {{ end }}
-    </div>
+    {{ $whenLPACanBeUsedChangeLink := link .App (global.Paths.WhenCanTheLpaBeUsed.Format .App.LpaID) }}
+    {{ $whenLPACanBeUsedLabel := tr .App "whenYourAttorneysCanUseYourLpa" }}
+    {{ $whenLPACanBeUsedValue := tr .App .Lpa.WhenCanTheLpaBeUsed.String }}
 
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ if .App.IsDonor }}
-          {{ trCount .App "whoAreYourAttorneys" .Lpa.Attorneys.Len }}
-        {{ else if .App.IsCertificateProvider }}
-          {{ trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
-        {{ else }}
-          {{ trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
-        {{ end }}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        {{ concatAnd .App .Lpa.Attorneys.FullNames }}
-      </dd>
-      {{ if .CanChange }}
-        <dd class="govuk-summary-list__actions">
-          <a class="govuk-link" href="{{ link .App (global.Paths.ChooseAttorneys.Format .App.LpaID) }}">
-            {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "yourAttorneys" }}</span>
-          </a>
-        </dd>
-      {{ end }}
-    </div>
+    {{ if not .App.IsDonor }}
+      {{ $whenLPACanBeUsedLabel = tr .App "whenAttorneysCanUseTheLpa" }}
+      {{ $whenLPACanBeUsedValue = tr .App (printf "%s:3rd" .Lpa.WhenCanTheLpaBeUsed.String) }}
+    {{ end }}
+
+    {{ template "summary-row" (summaryRow $.App $whenLPACanBeUsedLabel $whenLPACanBeUsedValue $whenLPACanBeUsedChangeLink .Lpa.Donor.FullName (and .CanChange .Lpa.Type.IsPropertyAndAffairs) true) }}
+
+    {{ $whoAreYourAttorneysChangeLink := link .App (global.Paths.ChooseAttorneys.Format .App.LpaID) }}
+    {{ $whoAreYourAttorneysLabel := trCount .App "attorneyNames" .Lpa.Attorneys.Len }}
+
+    {{ if .App.IsDonor }}
+      {{ $whoAreYourAttorneysLabel = trCount .App "whoAreYourAttorneys" .Lpa.Attorneys.Len }}
+    {{ else if .App.IsCertificateProvider }}
+      {{ $whoAreYourAttorneysLabel = trCount .App "theirAttorneys" .Lpa.Attorneys.Len }}
+    {{ end }}
+
+    {{ template "summary-row" (summaryRow $.App $whoAreYourAttorneysLabel (concatAnd .App .Lpa.Attorneys.FullNames) $whoAreYourAttorneysChangeLink .Lpa.Donor.FullName .CanChange true) }}
 
     {{ if .Lpa.AttorneyDecisions.How }}
       {{ $title := "howAttorneysMustMakeDecisions" }}
@@ -109,7 +72,7 @@
         {{ end }}
       </div>
     {{ end }}
-    
+
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         {{ if .App.IsDonor }}
