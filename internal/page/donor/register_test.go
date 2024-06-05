@@ -222,7 +222,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
 }
 
-func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
+func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/lpa/id/path", nil)
 
@@ -251,6 +251,35 @@ func TestMakeLpaHandleWhenLpaStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
+	path := page.Paths.WhenCanTheLpaBeUsed
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, path.Format("123"), nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.DonorProvidedDetails{LpaID: "123"}, nil)
+
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.TaskList.Format("123"), resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
