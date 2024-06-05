@@ -18,53 +18,17 @@
       </div>
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "companyName" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Name }}</dd>
-            {{ if .CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporation }}#f-name">
-                  {{ trHtml .App "changeCompanyNameLink" }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $companyNameChangeLink := printf "%s#f-name" (link .App .Link.TrustCorporation) }}
+          {{ template "summary-row" (summaryRow $.App "name" .TrustCorporation.Name $companyNameChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "companyNumber" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.CompanyNumber }}</dd>
-            {{ if .CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporation }}#f-company-number">
-                  {{ trHtml .App "changeCompanyNumberLink" }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $companyNumberChangeLink := printf "%s#f-company-number" (link .App .Link.TrustCorporation) }}
+          {{ template "summary-row" (summaryRow $.App "companyNumber" .TrustCorporation.CompanyNumber $companyNumberChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key ">{{ tr .App "companyEmailAddress" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .TrustCorporation.Email }}</dd>
-            {{ if .CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporation }}#f-email">
-                  {{ trHtml .App "changeCompanyEmailLink" }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $companyEmailAddressChangeLink := printf "%s#f-email" (link .App .Link.TrustCorporation) }}
+          {{ template "optional-summary-row" (optionalSummaryRow $.App "companyEmailAddress" .TrustCorporation.Email $companyEmailAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .TrustCorporation.Address }}</dd>
-            {{ if .CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App .Link.TrustCorporationAddress }}#f-address-line-1">
-                  {{ trHtml .App "changeCompanyAddressLink" }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $companyAddressChangeLink := printf "%s#f-address-line-1" (link .App .Link.TrustCorporationAddress) }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "address" .TrustCorporation.Address $companyAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
         </dl>
       </div>
     </div>
@@ -89,52 +53,17 @@
       </div>
       <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr $.App "name" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .FullName }}</dd>
-            {{ if $.CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-first-names">
-                  {{ trFormatHtml $.App "changeNameLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr $.App "dateOfBirth" }}</dt>
-            <dd class="govuk-summary-list__value">{{ formatDate $.App .DateOfBirth }}</dd>
-            {{ if $.CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-date-of-birth">
-                  {{ trFormatHtml $.App "changeDOBLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
-          {{ if .Email }}
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr $.App "email" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Email }}</dd>
-              {{ if $.CanChange }}
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.Attorney }}&id={{ .UID }}#f-email">
-                    {{ trFormatHtml $.App "changeEmailLinkText" "FirstNames" .FirstNames "LastName" .LastName }}
-                  </a>
-                </dd>
-              {{ end }}
-            </div>
-          {{ end }}
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">{{ tr $.App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .Address }}</dd>
-            {{ if $.CanChange }}
-              <dd class="govuk-summary-list__actions">
-                <a class="govuk-link govuk-link--no-visited-state" href="{{ link $.App $.Link.AttorneyAddress }}&id={{ .UID }}#f-address-line-1">
-                  {{ trFormatHtml $.App "changeAddressLink" "FirstNames" .FirstNames "LastName" .LastName }}
-                </a>
-              </dd>
-            {{ end }}
-          </div>
+          {{ $nameChangeLink := printf "%s&id=%s#f-first-names" (link $.App $.Link.Attorney) .UID }}
+          {{ template "summary-row" (summaryRow $.App "name" .FullName $nameChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
+
+          {{ $dobChangeLink := printf "%s&id=%s#f-date-of-birth" (link $.App $.Link.Attorney) .UID }}
+          {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .DateOfBirth) $dobChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
+
+          {{ $emailChangeLink := printf "%s&id=%s#f-email" (link $.App $.Link.Attorney) .UID }}
+          {{ template "optional-summary-row" (optionalSummaryRow $.App "email" .Email $emailChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
+
+          {{ $addressChangeLink := printf "%s&id=%s#f-address-line-1" (link $.App $.Link.AttorneyAddress) .UID }}
+          {{ template "address-summary-row" (addressSummaryRow $.App "address" .Address $addressChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
         </dl>
       </div>
     </div>

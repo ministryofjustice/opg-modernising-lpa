@@ -19,6 +19,9 @@ const _EvidenceDelivery_name = "uploadpost"
 var _EvidenceDelivery_index = [...]uint8{0, 6, 10}
 
 func (i EvidenceDelivery) String() string {
+	if i == 0 {
+		return ""
+	}
 	i -= 1
 	if i >= EvidenceDelivery(len(_EvidenceDelivery_index)-1) {
 		return "EvidenceDelivery(" + strconv.FormatInt(int64(i+1), 10) + ")"

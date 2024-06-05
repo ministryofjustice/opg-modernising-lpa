@@ -8,7 +8,7 @@ describe('Signing on behalf of the donor', () => {
     cy.contains('a', 'Continue').click();
 
     cy.contains('label', 'Sam Smith (donor)').click();
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Sign in').click();
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/read-your-lpa');
