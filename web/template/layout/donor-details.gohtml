@@ -21,8 +21,7 @@
 
         {{ if $.App.IsDonor }}
           {{ $languageChangeLink := printf "%s?from=%s" (link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID)) .App.Page }}
-          {{ $languageValue := "" }}
-          {{ if not .Lpa.Donor.ContactLanguagePreference.Empty }} {{ $languageValue = tr .App .Lpa.Donor.ContactLanguagePreference.String }} {{ end }}
+          {{ $languageValue := tr .App .Lpa.Donor.ContactLanguagePreference.String }}
           {{ template "summary-row" (summaryRow $.App "preferredContactLanguage" $languageValue $languageChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
         {{ end }}
       </dl>

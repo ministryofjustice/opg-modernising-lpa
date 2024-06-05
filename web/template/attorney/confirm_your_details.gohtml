@@ -21,10 +21,9 @@
         {{ $mobileChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.Attorney.MobileNumber.Format .Lpa.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow .App "telephoneNumber" (formatPhone .AttorneyProvidedDetails.Mobile) $mobileChangeLink $attorneyFullName true true ) }}
 
-        {{ $contactLanguage := "" }}
-        {{ if not .AttorneyProvidedDetails.ContactLanguagePreference.Empty }} {{ $contactLanguage = tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }} {{ end }}
         {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.Attorney.YourPreferredLanguage.Format .Lpa.LpaID)) }}
-        {{ template "summary-row" (summaryRow .App "preferredContactLanguage" $contactLanguage $contactLanguageChangeLink $attorneyFullName true true ) }}
+        {{ $contactLanguageValue := tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }}
+        {{ template "summary-row" (summaryRow .App "preferredContactLanguage" $contactLanguageValue $contactLanguageChangeLink $attorneyFullName true true ) }}
       </dl>
 
       {{ if .TrustCorporation.Name }}
