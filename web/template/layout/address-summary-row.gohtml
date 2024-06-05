@@ -1,0 +1,21 @@
+{{ define "address-summary-row" }}
+    <div class="govuk-summary-list__row{{ if or (eq "" .Address.Line1) (not .CanChange) }} govuk-summary-list__row--no-actions{{ end }}">
+        <dt class="govuk-summary-list__key">{{ tr .App .Label }}</dt>
+        <dd class="govuk-summary-list__value">
+            {{ if .Address.Line1 }}
+                {{ template "address-lines" .Address }}
+            {{ else if .CanChange }}
+                <a href="{{ .ChangeLink }}" class="govuk-link">
+                    {{ tr .App "enter" }} {{ lowerFirst (tr .App .Label) }} {{ if not .SummarisingSelf }}<span class="govuk-visually-hidden"> {{ trFormat .App "forFullName" "FullName" .FullName }}</span>{{ end }}
+                </a>
+            {{ end }}
+        </dd>
+        {{ if and .Address .CanChange }}
+            <dd class="govuk-summary-list__actions">
+                <a class="govuk-link govuk-link--no-visited-state" href="{{ .ChangeLink }}">{{ tr .App "change" }}<span class="govuk-visually-hidden">
+                    {{ lowerFirst (tr .App .Label) }} {{ if not .SummarisingSelf }}{{ lowerFirst (tr .App .Label) }} {{ trFormat .App "forFullName" "FullName" .FullName }}{{ end }}
+                </span></a>
+            </dd>
+        {{ end }}
+    </div>
+{{ end }}
