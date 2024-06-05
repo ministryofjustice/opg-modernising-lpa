@@ -7,4 +7,4 @@ RUN git clone https://github.com/ministryofjustice/opg-data-lpa-store.git
 FROM outofcoffee/imposter:3.40.0
 
 COPY --from=build imposter-plugin-js-graal.zip /opt/imposter/plugins/imposter-plugin-js-graal.zip
-COPY --from=build opg-data-lpa-store/docs/schemas/ /opt/imposter/schemas/
+COPY ./docker/mock-lpa-store/ /opt/imposter/config/
