@@ -69,6 +69,6 @@ moved {
 }
 
 moved {
-  from = module.eu_west_1[0].aws_service_discovery_private_dns_namespace.mock_onelogin
+  from = module.eu_west_1[0].aws_service_discovery_private_dns_namespace.mock_one_login
   to   = module.eu_west_1[0].aws_service_discovery_private_dns_namespace.internal
 }
