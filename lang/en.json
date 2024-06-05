@@ -133,10 +133,6 @@
         "one": "You have added {{.PluralCount}} original attorney",
         "other": "You have added {{.PluralCount}} attorneys"
     },
-    "changeNameLinkText": "Change<span class=\"govuk-visually-hidden\"> name for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeDOBLinkText": "Change<span class=\"govuk-visually-hidden\"> date of birth for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeEmailLinkText": "Change<span class=\"govuk-visually-hidden\"> email for {{ .FirstNames }} {{ .LastName }}</span>",
-    "changeAddressLink": "Change<span class=\"govuk-visually-hidden\"> address for {{ .FirstNames }} {{ .LastName }}</span>",
     "doYouWantToAddAnotherAttorney": "Do you want to add another original attorney?",
     "yesToAddAnotherAttorney": "yes to add another attorney",
     "yesToAddAnotherReplacementAttorney": "yes to add another replacement attorney",
@@ -621,10 +617,8 @@
     "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional": "<p class=\"govuk-body\">If you notice a mistake in the name, work address or mobile number the donor provided for you, you’ll need to let the donor know so they can change your details.</p><p class=\"govuk-body\">Once the donor has changed your details, you’ll need to log back in again and confirm your details are correct.</p><p class=\"govuk-body\">You should not complete the ‘Confirm your identity’ task until all of your information is correct.</p>",
     "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "<p class=\"govuk-body\">If you notice a mistake in the name, date of birth or address the donor provided for you, you should not continue.</p><p class=\"govuk-body\">You’ll need to let the donor know so they can change your details.</p><p class=\"govuk-body\">Once they’ve changed your details, you’ll need to log back in again and confirm your details are correct.</p>",
     "anyErrorsInYourDetailsCanDelay": "Any errors in your details can cause delays in processing the LPA.",
-    "changeDateOfBirthLink": "Change<span class=\"govuk-visually-hidden\"> date of birth</span>",
     "mobileNumber": "Mobile number",
     "telephoneNumber": "Telephone number",
-    "changeTelephoneNumberLink": "Change<span class=\"govuk-visually-hidden\"> telephone number</span>",
     "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Any errors in your details can make the LPA difficult to use. Organisations might not accept the LPA if your details do not match your ID.",
     "youHaveUnsavedChanges": "You have unsaved changes",
     "unsavedChangesDialogContent": "To save, go back to the page and select <span class=\"govuk-body govuk-!-font-weight-bold\">Save and continue</span>.",
@@ -897,7 +891,6 @@
     "yourHomeAddressWillNotBeShown": "Your home address will not be shown to the donor or appear on the completed LPA.",
     "selectYourHomeAddress": "Select your home address",
     "yourHomeAddress": "Your home address",
-    "changeHomeAddressLink": "Change<span class=\"govuk-visually-hidden\"> home address</span>",
     "homeAddress": "Home address",
     "goToDashboard": "Go to dashboard",
     "printThisPage": "Print this page",
@@ -1134,5 +1127,7 @@
     "weHaveContactedDonorToLetThemKnowYourDecision": "We have contacted {{ .DonorFullName }} to let them know of your decision to not be their certificate provider",
     "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Report a concern</h2> <p class=\"govuk-body\">If you have concerns about this LPA you can contact our safeguarding team:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>call: 0115 934 2777</li> <li>email: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">You can also <a class=\"govuk-link\" href=\"#\">report a concern</a> using our online form.</p>",
     "yourAddress": "Your address",
-    "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account."
+    "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account.",
+    "enter": "Enter",
+    "forFullName": "for {{ .FullName }}"
 }
