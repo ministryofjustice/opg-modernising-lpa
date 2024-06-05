@@ -59,7 +59,7 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 
 	if resp.StatusCode != http.StatusCreated {
 		data, _ := io.ReadAll(resp.Body)
-		c.logger.ErrorContext(ctx, "payment failed",
+		c.logger.ErrorContext(ctx, "create payment failed",
 			slog.String("body", string(data)),
 			slog.Int("statusCode", resp.StatusCode))
 
@@ -81,7 +81,6 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	}
 
 	req.Header.Add("Authorization", "Bearer "+c.apiKey)
-	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := c.doer.Do(req)
 	if err != nil {
@@ -91,7 +90,7 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 
 	if resp.StatusCode != http.StatusOK {
 		data, _ := io.ReadAll(resp.Body)
-		c.logger.ErrorContext(ctx, "getting payment failed",
+		c.logger.ErrorContext(ctx, "get payment failed",
 			slog.String("body", string(data)),
 			slog.Int("statusCode", resp.StatusCode))
 
@@ -104,10 +103,6 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 	var getPaymentResponse GetPaymentResponse
 	if err := json.NewDecoder(r).Decode(&getPaymentResponse); err != nil {
 		return GetPaymentResponse{}, err
-	}
-
-	if getPaymentResponse.State.Status != "success" {
-		c.logger.ErrorContext(ctx, "payment response not success", slog.String("body", buf.String()))
 	}
 
 	return getPaymentResponse, nil

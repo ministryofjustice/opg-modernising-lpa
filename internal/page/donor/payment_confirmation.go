@@ -1,7 +1,6 @@
 package donor
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -39,8 +38,6 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		if payment.State.Status != "success" {
-			body, _ := json.Marshal(payment)
-			logger.InfoContext(r.Context(), "get payment response", slog.String("body", string(body)))
 			return errors.New("TODO: we need to give some options")
 		}
 
