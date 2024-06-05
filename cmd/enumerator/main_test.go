@@ -75,6 +75,9 @@ const _Day_name = "MondayTuesdayWednesdayThursdayFridaySaturdaySunday"
 var _Day_index = [...]uint8{0, 6, 13, 22, 30, 36, 44, 50}
 
 func (i Day) String() string {
+	if i == 0 {
+		return ""
+	}
 	i -= 1
 	if i < 0 || i >= Day(len(_Day_index)-1) {
 		return "Day(" + strconv.FormatInt(int64(i+1), 10) + ")"

@@ -739,10 +739,15 @@ func (g *Generator) buildOneRun(runs [][]Value, typeName string) {
 	if values[0].signed {
 		lessThanZero = "i < 0 || "
 	}
+	emptyEarlyReturn := ""
+	if g.empty {
+		emptyEarlyReturn = "if i == 0 {\n     return \"\"\n}\n"
+	}
+
 	if values[0].value == 0 { // Signed or unsigned, 0 is still 0.
-		g.Printf(stringOneRun, typeName, usize(len(values)), lessThanZero)
+		g.Printf(stringOneRun, typeName, usize(len(values)), lessThanZero, emptyEarlyReturn)
 	} else {
-		g.Printf(stringOneRunWithOffset, typeName, values[0].String(), usize(len(values)), lessThanZero)
+		g.Printf(stringOneRunWithOffset, typeName, values[0].String(), usize(len(values)), lessThanZero, emptyEarlyReturn)
 	}
 }
 
@@ -751,8 +756,9 @@ func (g *Generator) buildOneRun(runs [][]Value, typeName string) {
 //	[1]: type name
 //	[2]: size of index element (8 for uint8 etc.)
 //	[3]: less than zero check (for signed types)
+//	[4]: early return when empty set and empty string
 const stringOneRun = `func (i %[1]s) String() string {
-	if %[3]si >= %[1]s(len(_%[1]s_index)-1) {
+	%[4]s if %[3]si >= %[1]s(len(_%[1]s_index)-1) {
 		return "%[1]s(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _%[1]s_name[_%[1]s_index[i]:_%[1]s_index[i+1]]
@@ -765,8 +771,9 @@ const stringOneRun = `func (i %[1]s) String() string {
 //	[2]: lowest defined value for type, as a string
 //	[3]: size of index element (8 for uint8 etc.)
 //	[4]: less than zero check (for signed types)
+//	[5]: early return when empty set and empty string
 const stringOneRunWithOffset = `func (i %[1]s) String() string {
-	i -= %[2]s
+	%[5]s i -= %[2]s
 	if %[4]si >= %[1]s(len(_%[1]s_index)-1) {
 		return "%[1]s(" + strconv.FormatInt(int64(i + %[2]s), 10) + ")"
 	}
