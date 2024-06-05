@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,7 +25,7 @@ type paymentConfirmationData struct {
 	NextPage         page.LpaPath
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -35,6 +37,10 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return fmt.Errorf("unable to retrieve payment info: %w", err)
 		}
 
+		if payment.State.Status != "success" {
+			return errors.New("TODO: we need to give some options")
+		}
+
 		paymentDetail := actor.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentID,
@@ -42,6 +48,14 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 		if !slices.Contains(donor.PaymentDetails, paymentDetail) {
 			donor.PaymentDetails = append(donor.PaymentDetails, paymentDetail)
+
+			if err := eventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
+				UID:       donor.LpaUID,
+				PaymentID: payment.PaymentID,
+				Amount:    payment.Amount,
+			}); err != nil {
+				return err
+			}
 		}
 
 		nextPage := page.Paths.TaskList
