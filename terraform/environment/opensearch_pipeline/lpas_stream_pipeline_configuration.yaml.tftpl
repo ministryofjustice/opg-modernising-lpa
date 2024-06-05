@@ -6,7 +6,7 @@ dynamodb-pipeline:
       tables:
         - table_arn: ${source.tables.table_arn}
           export:
-            s3_bucket: ${source.tables.s3_bucket_name}
+            s3_bucket: ${source.tables.s3_bucket_arn}
             s3_prefix: "export/"
           stream:
             start_position: ${source.tables.stream.start_position}

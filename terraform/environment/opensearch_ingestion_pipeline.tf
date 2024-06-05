@@ -195,8 +195,8 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn      = aws_dynamodb_table.lpas_table.arn
-        s3_bucket_name = aws_dynamodb_table.lpas_table.name
+        table_arn     = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_arn = data.aws_s3_bucket.dynamodb_exports_bucket.arn
         stream = {
           start_position = "LATEST"
         }
