@@ -67,3 +67,8 @@ moved {
   from = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.reduced_fees
   to   = module.eu_west_1[0].module.events.aws_cloudwatch_event_archive.main
 }
+
+moved {
+  from = module.eu_west_1[0].aws_service_discovery_private_dns_namespace.mock_one_login
+  to   = module.eu_west_1[0].aws_service_discovery_private_dns_namespace.internal
+}
