@@ -375,7 +375,7 @@ func TestCanGoTo(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.donor, tc.url))
+			assert.Equal(t, tc.expected, DonorCanGoTo(tc.donor, tc.url))
 		})
 	}
 }

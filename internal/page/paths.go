@@ -44,7 +44,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 		rurl = fromURL
 	}
 
-	if CanGoTo(donor, rurl) {
+	if DonorCanGoTo(donor, rurl) {
 		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
 		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(donor.LpaID)), http.StatusFound)
@@ -59,7 +59,7 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 		rurl = fromURL
 	}
 
-	if CanGoTo(donor, rurl) {
+	if DonorCanGoTo(donor, rurl) {
 		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	} else {
 		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(donor.LpaID)), http.StatusFound)
@@ -610,7 +610,7 @@ var Paths = AppPaths{
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
-func CanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
+func DonorCanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false
