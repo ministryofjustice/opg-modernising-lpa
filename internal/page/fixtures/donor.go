@@ -507,6 +507,9 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "perfect") {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
+			return client.SendPerfect(ctx, donorDetails.LpaUID)
+		})
 		donorDetails.PerfectAt = time.Now()
 	}
 
