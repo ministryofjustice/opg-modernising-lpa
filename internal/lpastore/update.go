@@ -60,6 +60,14 @@ func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
+func (c *Client) SendPerfect(ctx context.Context, lpaUID string) error {
+	body := updateRequest{
+		Type: "PERFECT",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}
+
 func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
