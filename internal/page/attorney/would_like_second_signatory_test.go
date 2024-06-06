@@ -41,8 +41,8 @@ func TestGetWouldLikeSecondSignatoryWhenAlreadySigned(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := WouldLikeSecondSignatory(nil, nil, nil, nil)(testAppData, w, r, &actor.AttorneyProvidedDetails{
-		LpaID:     "lpa-id",
-		Confirmed: time.Now(),
+		LpaID:    "lpa-id",
+		SignedAt: time.Now(),
 	})
 	resp := w.Result()
 
