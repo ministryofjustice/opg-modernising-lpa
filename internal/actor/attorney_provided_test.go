@@ -18,18 +18,18 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 	}{
 		"unsigned": {},
 		"signed": {
-			details: AttorneyProvidedDetails{Confirmed: attorneySignedAt},
+			details: AttorneyProvidedDetails{SignedAt: attorneySignedAt},
 			signed:  true,
 		},
 		"trust corporation unsigned": {
-			details: AttorneyProvidedDetails{Confirmed: attorneySignedAt, IsTrustCorporation: true},
+			details: AttorneyProvidedDetails{SignedAt: attorneySignedAt, IsTrustCorporation: true},
 		},
 		"trust corporation single signatory": {
 			details: AttorneyProvidedDetails{
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.No,
 				AuthorisedSignatories: [2]TrustCorporationSignatory{
-					{Confirmed: attorneySignedAt},
+					{SignedAt: attorneySignedAt},
 					{},
 				},
 			},
@@ -47,8 +47,8 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.Yes,
 				AuthorisedSignatories: [2]TrustCorporationSignatory{
-					{Confirmed: attorneySignedAt},
-					{Confirmed: attorneySignedAt},
+					{SignedAt: attorneySignedAt},
+					{SignedAt: attorneySignedAt},
 				},
 			},
 			signed: true,
@@ -58,7 +58,7 @@ func TestAttorneyProvidedDetailsSigned(t *testing.T) {
 				IsTrustCorporation:       true,
 				WouldLikeSecondSignatory: form.Yes,
 				AuthorisedSignatories: [2]TrustCorporationSignatory{
-					{Confirmed: attorneySignedAt},
+					{SignedAt: attorneySignedAt},
 					{},
 				},
 			},

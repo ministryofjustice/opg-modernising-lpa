@@ -83,9 +83,7 @@ func TestGetProvideCertificateWhenAlreadyAgreed(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{
-			Certificate: actor.Certificate{
-				Agreed: time.Now(),
-			},
+			SignedAt: time.Now(),
 		}, nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, nil, nil, nil, time.Now)(testAppData, w, r)
@@ -137,11 +135,8 @@ func TestPostProvideCertificate(t *testing.T) {
 	}
 
 	certificateProvider := &actor.CertificateProviderProvidedDetails{
-		LpaID: "lpa-id",
-		Certificate: actor.Certificate{
-			AgreeToStatement: true,
-			Agreed:           now,
-		},
+		LpaID:    "lpa-id",
+		SignedAt: now,
 		Tasks: actor.CertificateProviderTasks{
 			ProvideTheCertificate: actor.TaskCompleted,
 		},
@@ -233,11 +228,8 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 	}
 
 	certificateProvider := &actor.CertificateProviderProvidedDetails{
-		LpaID: "lpa-id",
-		Certificate: actor.Certificate{
-			AgreeToStatement: true,
-			Agreed:           signedAt,
-		},
+		LpaID:    "lpa-id",
+		SignedAt: signedAt,
 		Tasks: actor.CertificateProviderTasks{
 			ProvideTheCertificate: actor.TaskCompleted,
 		},
