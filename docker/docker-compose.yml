@@ -100,8 +100,8 @@ services:
     build:
       context: ..
       dockerfile: docker/mock-lpa-store/Dockerfile
-#    volumes:
-#      - ./mock-lpa-store/:/opt/imposter/config/
+    volumes:
+      - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
     ports:
       - "8081:8080"
