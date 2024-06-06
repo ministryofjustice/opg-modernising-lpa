@@ -231,7 +231,7 @@ func Attorney(
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 			donorDetails.SignedAt = time.Now()
-			certificateProvider.Certificate = actor.Certificate{Agreed: donorDetails.SignedAt.Add(time.Hour)}
+			certificateProvider.SignedAt = donorDetails.SignedAt.Add(time.Hour)
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
@@ -247,10 +247,10 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
+					SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 			} else {
-				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
+				attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 			}
 		}
 
@@ -279,7 +279,7 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
-					attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
+					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
@@ -315,7 +315,7 @@ func Attorney(
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
+						SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
 					}}
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {

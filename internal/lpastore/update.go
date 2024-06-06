@@ -72,7 +72,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
-			{Key: "/certificateProvider/signedAt", New: certificateProvider.Certificate.Agreed},
+			{Key: "/certificateProvider/signedAt", New: certificateProvider.SignedAt},
 			{Key: "/certificateProvider/contactLanguagePreference", New: certificateProvider.ContactLanguagePreference.String()},
 		},
 	}
@@ -154,15 +154,15 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.Att
 			updateRequestChange{Key: attorneyKey + "/signatories/0/firstNames", New: attorney.AuthorisedSignatories[0].FirstNames},
 			updateRequestChange{Key: attorneyKey + "/signatories/0/lastName", New: attorney.AuthorisedSignatories[0].LastName},
 			updateRequestChange{Key: attorneyKey + "/signatories/0/professionalTitle", New: attorney.AuthorisedSignatories[0].ProfessionalTitle},
-			updateRequestChange{Key: attorneyKey + "/signatories/0/signedAt", New: attorney.AuthorisedSignatories[0].Confirmed},
+			updateRequestChange{Key: attorneyKey + "/signatories/0/signedAt", New: attorney.AuthorisedSignatories[0].SignedAt},
 		)
 
-		if !attorney.AuthorisedSignatories[1].Confirmed.IsZero() {
+		if !attorney.AuthorisedSignatories[1].SignedAt.IsZero() {
 			body.Changes = append(body.Changes,
 				updateRequestChange{Key: attorneyKey + "/signatories/1/firstNames", New: attorney.AuthorisedSignatories[1].FirstNames},
 				updateRequestChange{Key: attorneyKey + "/signatories/1/lastName", New: attorney.AuthorisedSignatories[1].LastName},
 				updateRequestChange{Key: attorneyKey + "/signatories/1/professionalTitle", New: attorney.AuthorisedSignatories[1].ProfessionalTitle},
-				updateRequestChange{Key: attorneyKey + "/signatories/1/signedAt", New: attorney.AuthorisedSignatories[1].Confirmed},
+				updateRequestChange{Key: attorneyKey + "/signatories/1/signedAt", New: attorney.AuthorisedSignatories[1].SignedAt},
 			)
 		}
 	} else {
@@ -174,7 +174,7 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.Att
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
 		}
 
-		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/signedAt", New: attorney.Confirmed})
+		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/signedAt", New: attorney.SignedAt})
 	}
 
 	return c.sendUpdate(ctx, lpa.LpaUID, attorney.UID, body)

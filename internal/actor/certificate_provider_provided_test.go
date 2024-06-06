@@ -2,7 +2,6 @@ package actor
 
 import (
 	"testing"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
@@ -48,13 +47,4 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 			assert.Equal(t, tc.expected, tc.cp.CertificateProviderIdentityConfirmed(tc.firstNames, tc.lastName))
 		})
 	}
-}
-
-func TestCertificateProviderProvidedSigned(t *testing.T) {
-	now := time.Now()
-	assert := assert.New(t)
-
-	assert.False(CertificateProviderProvidedDetails{}.Signed(now))
-	assert.False(CertificateProviderProvidedDetails{Certificate: Certificate{Agreed: now}}.Signed(now))
-	assert.True(CertificateProviderProvidedDetails{Certificate: Certificate{Agreed: now.Add(time.Second)}}.Signed(now))
 }

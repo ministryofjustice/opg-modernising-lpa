@@ -46,7 +46,7 @@ func ProvideCertificate(
 			return err
 		}
 
-		if !certificateProvider.Certificate.Agreed.IsZero() {
+		if !certificateProvider.SignedAt.IsZero() {
 			return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, lpa.LpaID)
 		}
 
@@ -55,7 +55,7 @@ func ProvideCertificate(
 			CertificateProvider: certificateProvider,
 			Lpa:                 lpa,
 			Form: &provideCertificateForm{
-				AgreeToStatement: certificateProvider.Certificate.AgreeToStatement,
+				AgreeToStatement: !certificateProvider.SignedAt.IsZero(),
 			},
 		}
 
@@ -68,8 +68,7 @@ func ProvideCertificate(
 					return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
-				certificateProvider.Certificate.AgreeToStatement = true
-				certificateProvider.Certificate.Agreed = now()
+				certificateProvider.SignedAt = now()
 				certificateProvider.Tasks.ProvideTheCertificate = actor.TaskCompleted
 
 				if lpa.CertificateProvider.SignedAt.IsZero() {
@@ -77,7 +76,7 @@ func ProvideCertificate(
 						return err
 					}
 				} else {
-					certificateProvider.Certificate.Agreed = lpa.CertificateProvider.SignedAt
+					certificateProvider.SignedAt = lpa.CertificateProvider.SignedAt
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
@@ -85,7 +84,7 @@ func ProvideCertificate(
 					DonorFirstNamesPossessive:   appData.Localizer.Possessive(lpa.Donor.FirstNames),
 					LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.Certificate.Agreed),
+					CertificateProvidedDateTime: appData.Localizer.FormatDateTime(certificateProvider.SignedAt),
 				}); err != nil {
 					return fmt.Errorf("email failed: %w", err)
 				}
