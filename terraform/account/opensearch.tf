@@ -61,6 +61,26 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
   provider = aws.eu_west_1
 }
 
+resource "aws_opensearchserverless_security_policy" "lpas_collection_development_network_policy" {
+  count       = local.account_name == "development" ? 1 : 0
+  name        = "development-public-access"
+  type        = "network"
+  description = "Public access for development collection endpoints"
+  policy = jsonencode([
+    {
+      Description = "Public access for development collection endpoint",
+      Rules = [
+        {
+          ResourceType = "collection",
+          Resource     = ["collection/shared-collection-development"]
+        }
+      ],
+      AllowFromPublic = true,
+    },
+  ])
+  provider = aws.eu_west_1
+}
+
 resource "aws_opensearchserverless_access_policy" "team_operator_access" {
   count       = local.account_name == "production" ? 0 : 1
   name        = "team-access-shared-${local.account_name}"
