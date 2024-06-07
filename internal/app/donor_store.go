@@ -293,29 +293,6 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		}
 	}
 
-	if donor.LpaUID == "" && !donor.Type.Empty() && !donor.HasSentUidRequestedEvent {
-		data, err := page.SessionDataFromContext(ctx)
-		if err != nil {
-			return err
-		}
-
-		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
-			LpaID:          donor.LpaID,
-			DonorSessionID: data.SessionID,
-			OrganisationID: data.OrganisationID,
-			Type:           donor.Type.String(),
-			Donor: uid.DonorDetails{
-				Name:     donor.Donor.FullName(),
-				Dob:      donor.Donor.DateOfBirth,
-				Postcode: donor.Donor.Address.Postcode,
-			},
-		}); err != nil {
-			return err
-		}
-
-		donor.HasSentUidRequestedEvent = true
-	}
-
 	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
 		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       donor.LpaUID,
