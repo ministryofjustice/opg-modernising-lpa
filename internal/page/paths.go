@@ -129,6 +129,41 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 	}
 }
 
+func (p CertificateProviderPath) canVisit(certificateProvider *actor.CertificateProviderProvidedDetails) bool {
+	switch p {
+	case Paths.CertificateProvider.ProveYourIdentity,
+		Paths.CertificateProvider.IdentityWithOneLogin,
+		Paths.CertificateProvider.IdentityWithOneLoginCallback:
+		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
+
+	case Paths.CertificateProvider.ReadTheLpa,
+		Paths.CertificateProvider.WhatHappensNext,
+		Paths.CertificateProvider.ProvideCertificate,
+		Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
+		Paths.CertificateProvider.CertificateProvided:
+		return certificateProvider.Tasks.ConfirmYourDetails.Completed() && certificateProvider.Tasks.ConfirmYourIdentity.Completed()
+
+	default:
+		return true
+	}
+}
+
+func (p AttorneyPath) canVisit(attorney *actor.AttorneyProvidedDetails) bool {
+	switch p {
+	case Paths.Attorney.RightsAndResponsibilities,
+		Paths.Attorney.WhatHappensWhenYouSign,
+		Paths.Attorney.Sign,
+		Paths.Attorney.WhatHappensNext:
+		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed()
+
+	case Paths.Attorney.WouldLikeSecondSignatory:
+		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed() && attorney.IsTrustCorporation
+
+	default:
+		return true
+	}
+}
+
 type AttorneyPath string
 
 func (p AttorneyPath) String() string {
@@ -619,6 +654,34 @@ func DonorCanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
 	if strings.HasPrefix(path, "/lpa/") {
 		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
 		return LpaPath("/" + lpaPath).canVisit(donor)
+	}
+
+	return true
+}
+
+func CertificateProviderCanGoTo(certificateProvider *actor.CertificateProviderProvidedDetails, url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+	if path == "" {
+		return false
+	}
+
+	if strings.HasPrefix(path, "/certificate-provider/") {
+		_, certificateProviderPath, _ := strings.Cut(strings.TrimPrefix(path, "/certificate-provider/"), "/")
+		return CertificateProviderPath("/" + certificateProviderPath).canVisit(certificateProvider)
+	}
+
+	return true
+}
+
+func AttorneyCanGoTo(attorney *actor.AttorneyProvidedDetails, url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+	if path == "" {
+		return false
+	}
+
+	if strings.HasPrefix(path, "/attorney/") {
+		_, attorneyPath, _ := strings.Cut(strings.TrimPrefix(path, "/attorney/"), "/")
+		return AttorneyPath("/" + attorneyPath).canVisit(attorney)
 	}
 
 	return true
