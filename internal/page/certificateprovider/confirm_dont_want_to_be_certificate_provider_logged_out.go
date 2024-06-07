@@ -39,8 +39,10 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 
 		if r.Method == http.MethodPost {
 			if !lpa.SignedAt.IsZero() {
-				if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID, actoruid.Service); err != nil {
-					return err
+				if !lpa.CannotRegister {
+					if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID, actoruid.Service); err != nil {
+						return err
+					}
 				}
 			} else {
 				donor, err := donorStore.GetAny(ctx)

@@ -216,7 +216,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 			lpaID := certificateProviderProvidedDetails.LpaID
 
-			if certificateProviderProvidedDetails.Certificate.AgreeToStatement {
+			if !certificateProviderProvidedDetails.SignedAt.IsZero() {
 				delete(certificateProviderMap, lpaID)
 			}
 

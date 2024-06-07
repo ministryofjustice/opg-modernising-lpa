@@ -26,7 +26,7 @@ func TestProgress(t *testing.T) {
 		},
 		"attorney signed": {
 			attorney: &actor.AttorneyProvidedDetails{
-				Confirmed: attorneySignedAt,
+				SignedAt: attorneySignedAt,
 			},
 			attorneys: []lpastore.Attorney{{}},
 			signed:    true,
