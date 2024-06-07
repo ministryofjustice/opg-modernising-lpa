@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestRegister(t *testing.T) {
@@ -78,8 +79,13 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 		Login(r).
 		Return(&sesh.LoginSession{Sub: "random"}, nil)
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/certificate-provider/123/path",
@@ -102,6 +108,36 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
+func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
+	path := page.Paths.CertificateProvider.ProvideCertificate
+
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+
+	mux := http.NewServeMux()
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
+	handle(path, page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("123"), resp.Header.Get("Location"))
+}
+
 func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/certificate-provider/id/path", nil)
@@ -112,7 +148,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil)
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -120,4 +156,32 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
+}
+
+func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/certificate-provider/id/path", nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
+
+	errorHandler := newMockErrorHandler(t)
+	errorHandler.EXPECT().
+		Execute(w, r, expectedError)
+
+	mux := http.NewServeMux()
+	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
 }
