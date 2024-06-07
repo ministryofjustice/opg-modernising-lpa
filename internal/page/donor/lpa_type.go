@@ -5,7 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -16,7 +18,7 @@ type lpaTypeData struct {
 	Options actor.LpaTypeOptions
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &lpaTypeData{
 			App: appData,
@@ -31,19 +33,34 @@ func LpaType(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if donor.Type != data.Form.LpaType {
-					donor.Type = data.Form.LpaType
-					if donor.Type.IsPersonalWelfare() {
-						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-					} else {
-						donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenUnknown
-					}
-					donor.Tasks.YourDetails = actor.TaskCompleted
-					donor.HasSentApplicationUpdatedEvent = false
+				session, err := page.SessionDataFromContext(r.Context())
+				if err != nil {
+					return err
+				}
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
+				donor.Type = data.Form.LpaType
+				if donor.Type.IsPersonalWelfare() {
+					donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+				}
+				donor.Tasks.YourDetails = actor.TaskCompleted
+				donor.HasSentApplicationUpdatedEvent = false
+
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+					LpaID:          donor.LpaID,
+					DonorSessionID: session.SessionID,
+					OrganisationID: session.OrganisationID,
+					Type:           donor.Type.String(),
+					Donor: uid.DonorDetails{
+						Name:     donor.Donor.FullName(),
+						Dob:      donor.Donor.DateOfBirth,
+						Postcode: donor.Donor.Address.Postcode,
+					},
+				}); err != nil {
+					return err
 				}
 
 				return page.Paths.TaskList.Redirect(w, r, appData, donor)
