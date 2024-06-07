@@ -311,17 +311,6 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		donor.HasSentApplicationUpdatedEvent = true
 	}
 
-	if donor.LpaUID != "" && donor.PreviousApplicationNumber != "" && !donor.HasSentPreviousApplicationLinkedEvent {
-		if err := s.eventClient.SendPreviousApplicationLinked(ctx, event.PreviousApplicationLinked{
-			UID:                       donor.LpaUID,
-			PreviousApplicationNumber: donor.PreviousApplicationNumber,
-		}); err != nil {
-			return err
-		}
-
-		donor.HasSentPreviousApplicationLinkedEvent = true
-	}
-
 	return s.dynamoClient.Put(ctx, donor)
 }
 
