@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -403,117 +402,6 @@ func TestDonorStorePutWhenError(t *testing.T) {
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: time.Now}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5"})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestDonorStorePutWhenUIDNeeded(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendUidRequested(ctx, event.UidRequested{
-			LpaID:          "5",
-			DonorSessionID: "an-id",
-			Type:           "personal-welfare",
-			Donor: uid.DonorDetails{
-				Name:     "John Smith",
-				Dob:      date.New("2000", "01", "01"),
-				Postcode: "F1 1FF",
-			},
-		}).
-		Return(nil)
-
-	updatedDonor := &actor.DonorProvidedDetails{
-		PK:    dynamo.LpaKey("5"),
-		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
-		LpaID: "5",
-		Donor: actor.Donor{
-			FirstNames:  "John",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "01", "01"),
-			Address: place.Address{
-				Line1:    "line",
-				Postcode: "F1 1FF",
-			},
-		},
-		Type:                     actor.LpaTypePersonalWelfare,
-		HasSentUidRequestedEvent: true,
-	}
-	updatedDonor.Hash, _ = updatedDonor.GenerateHash()
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		Put(ctx, updatedDonor).
-		Return(nil)
-
-	donorStore := &donorStore{dynamoClient: dynamoClient, eventClient: eventClient}
-
-	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
-		PK:    dynamo.LpaKey("5"),
-		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
-		LpaID: "5",
-		Donor: actor.Donor{
-			FirstNames:  "John",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "01", "01"),
-			Address: place.Address{
-				Line1:    "line",
-				Postcode: "F1 1FF",
-			},
-		},
-		Type: actor.LpaTypePersonalWelfare,
-	})
-
-	assert.Nil(t, err)
-}
-
-func TestDonorStorePutWhenUIDNeededMissingSessionData(t *testing.T) {
-	donorStore := &donorStore{}
-
-	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
-		PK:    dynamo.LpaKey("5"),
-		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
-		LpaID: "5",
-		Donor: actor.Donor{
-			FirstNames:  "John",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "01", "01"),
-			Address: place.Address{
-				Line1:    "line",
-				Postcode: "F1 1FF",
-			},
-		},
-		Type: actor.LpaTypePersonalWelfare,
-	})
-
-	assert.Equal(t, page.SessionMissingError{}, err)
-}
-
-func TestDonorStorePutWhenUIDFails(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendUidRequested(ctx, mock.Anything).
-		Return(expectedError)
-
-	donorStore := &donorStore{eventClient: eventClient, now: time.Now}
-
-	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{
-		PK:    dynamo.LpaKey("5"),
-		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
-		LpaID: "5",
-		Donor: actor.Donor{
-			FirstNames:  "John",
-			LastName:    "Smith",
-			DateOfBirth: date.New("2000", "01", "01"),
-			Address: place.Address{
-				Postcode: "F1 1FF",
-			},
-		},
-		Type: actor.LpaTypePersonalWelfare,
-	})
-
 	assert.Equal(t, expectedError, err)
 }
 
