@@ -152,15 +152,15 @@ func TestGetSign(t *testing.T) {
 func TestGetSignWhenSigned(t *testing.T) {
 	testcases := map[string]*actor.AttorneyProvidedDetails{
 		"attorney": {
-			LpaID:     "lpa-id",
-			Confirmed: time.Now(),
+			LpaID:    "lpa-id",
+			SignedAt: time.Now(),
 		},
 		"trust corporation": {
 			LpaID:                    "lpa-id",
 			IsTrustCorporation:       true,
 			WouldLikeSecondSignatory: form.No,
 			AuthorisedSignatories: [2]actor.TrustCorporationSignatory{
-				{Confirmed: time.Now()},
+				{SignedAt: time.Now()},
 			},
 		},
 	}
@@ -348,9 +348,9 @@ func TestPostSign(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: now,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:    "lpa-id",
+				SignedAt: now,
+				Tasks:    actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -362,9 +362,9 @@ func TestPostSign(t *testing.T) {
 				CertificateProvider:  lpastore.CertificateProvider{SignedAt: time.Now()},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: now,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:    "lpa-id",
+				SignedAt: now,
+				Tasks:    actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -387,7 +387,7 @@ func TestPostSign(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         now,
+					SignedAt:          now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
 			},
@@ -412,7 +412,7 @@ func TestPostSign(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         now,
+					SignedAt:          now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
 			},
@@ -472,9 +472,9 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: attorneySignedAt,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:    "lpa-id",
+				SignedAt: attorneySignedAt,
+				Tasks:    actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -486,9 +486,9 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 				CertificateProvider:  lpastore.CertificateProvider{SignedAt: time.Now()},
 			},
 			updatedAttorney: &actor.AttorneyProvidedDetails{
-				LpaID:     "lpa-id",
-				Confirmed: attorneySignedAt,
-				Tasks:     actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
+				LpaID:    "lpa-id",
+				SignedAt: attorneySignedAt,
+				Tasks:    actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -511,7 +511,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         attorneySignedAt,
+					SignedAt:          attorneySignedAt,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
 			},
@@ -536,7 +536,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         attorneySignedAt,
+					SignedAt:          attorneySignedAt,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpaSecond: actor.TaskCompleted},
 			},
@@ -600,7 +600,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         now,
+					SignedAt:          now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
@@ -624,7 +624,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					FirstNames:        "a",
 					LastName:          "b",
 					ProfessionalTitle: "c",
-					Confirmed:         now,
+					SignedAt:          now,
 				}},
 				Tasks: actor.AttorneyTasks{SignTheLpa: actor.TaskCompleted},
 			},
