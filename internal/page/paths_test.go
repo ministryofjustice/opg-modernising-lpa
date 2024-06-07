@@ -376,6 +376,11 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 			url:                 "/whatever",
 			expected:            true,
 		},
+		"unrestricted path": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			url:                 Paths.CertificateProvider.ConfirmYourDetails.Format("123"),
+			expected:            true,
+		},
 		"identity without task": {
 			certificateProvider: &actor.CertificateProviderProvidedDetails{},
 			url:                 Paths.CertificateProvider.IdentityWithOneLogin.Format("123"),
@@ -432,6 +437,11 @@ func TestAttorneyCanGoTo(t *testing.T) {
 		"unexpected path": {
 			attorney: &actor.AttorneyProvidedDetails{},
 			url:      "/whatever",
+			expected: true,
+		},
+		"unrestricted path": {
+			attorney: &actor.AttorneyProvidedDetails{},
+			url:      Paths.Attorney.ConfirmYourDetails.Format("123"),
 			expected: true,
 		},
 		"sign without task": {
