@@ -69,6 +69,53 @@ func (_c *mockEventClient_SendPaymentReceived_Call) RunAndReturn(run func(contex
 	return _c
 }
 
+// SendPreviousApplicationLinked provides a mock function with given fields: ctx, e
+func (_m *mockEventClient) SendPreviousApplicationLinked(ctx context.Context, e event.PreviousApplicationLinked) error {
+	ret := _m.Called(ctx, e)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPreviousApplicationLinked")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.PreviousApplicationLinked) error); ok {
+		r0 = rf(ctx, e)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendPreviousApplicationLinked_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPreviousApplicationLinked'
+type mockEventClient_SendPreviousApplicationLinked_Call struct {
+	*mock.Call
+}
+
+// SendPreviousApplicationLinked is a helper method to define mock.On call
+//   - ctx context.Context
+//   - e event.PreviousApplicationLinked
+func (_e *mockEventClient_Expecter) SendPreviousApplicationLinked(ctx interface{}, e interface{}) *mockEventClient_SendPreviousApplicationLinked_Call {
+	return &mockEventClient_SendPreviousApplicationLinked_Call{Call: _e.mock.On("SendPreviousApplicationLinked", ctx, e)}
+}
+
+func (_c *mockEventClient_SendPreviousApplicationLinked_Call) Run(run func(ctx context.Context, e event.PreviousApplicationLinked)) *mockEventClient_SendPreviousApplicationLinked_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.PreviousApplicationLinked))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendPreviousApplicationLinked_Call) Return(_a0 error) *mockEventClient_SendPreviousApplicationLinked_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendPreviousApplicationLinked_Call) RunAndReturn(run func(context.Context, event.PreviousApplicationLinked) error) *mockEventClient_SendPreviousApplicationLinked_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendReducedFeeRequested provides a mock function with given fields: ctx, e
 func (_m *mockEventClient) SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error {
 	ret := _m.Called(ctx, e)
