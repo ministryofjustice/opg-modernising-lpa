@@ -126,6 +126,7 @@ type DocumentStore interface {
 type EventClient interface {
 	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
 	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
+	SendUidRequested(ctx context.Context, e event.UidRequested) error
 }
 
 type DashboardStore interface {
@@ -205,7 +206,7 @@ func Register(
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
 		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
 	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, page.None,
