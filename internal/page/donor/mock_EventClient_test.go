@@ -116,6 +116,53 @@ func (_c *mockEventClient_SendReducedFeeRequested_Call) RunAndReturn(run func(co
 	return _c
 }
 
+// SendUidRequested provides a mock function with given fields: ctx, e
+func (_m *mockEventClient) SendUidRequested(ctx context.Context, e event.UidRequested) error {
+	ret := _m.Called(ctx, e)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendUidRequested")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.UidRequested) error); ok {
+		r0 = rf(ctx, e)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendUidRequested_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendUidRequested'
+type mockEventClient_SendUidRequested_Call struct {
+	*mock.Call
+}
+
+// SendUidRequested is a helper method to define mock.On call
+//   - ctx context.Context
+//   - e event.UidRequested
+func (_e *mockEventClient_Expecter) SendUidRequested(ctx interface{}, e interface{}) *mockEventClient_SendUidRequested_Call {
+	return &mockEventClient_SendUidRequested_Call{Call: _e.mock.On("SendUidRequested", ctx, e)}
+}
+
+func (_c *mockEventClient_SendUidRequested_Call) Run(run func(ctx context.Context, e event.UidRequested)) *mockEventClient_SendUidRequested_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.UidRequested))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendUidRequested_Call) Return(_a0 error) *mockEventClient_SendUidRequested_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendUidRequested_Call) RunAndReturn(run func(context.Context, event.UidRequested) error) *mockEventClient_SendUidRequested_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockEventClient creates a new instance of mockEventClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockEventClient(t interface {

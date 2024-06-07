@@ -186,8 +186,6 @@ func updateLPAProgress(
 			}); err != nil {
 				return nil, nil, err
 			}
-
-			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
