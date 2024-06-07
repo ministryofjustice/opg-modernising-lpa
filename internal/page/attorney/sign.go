@@ -57,14 +57,14 @@ func Sign(
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
-				attorneyProvidedDetails.Confirmed = now()
+				attorneyProvidedDetails.SignedAt = now()
 
 				if attorney.SignedAt.IsZero() {
 					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
 						return err
 					}
 				} else {
-					attorneyProvidedDetails.Confirmed = attorney.SignedAt
+					attorneyProvidedDetails.SignedAt = attorney.SignedAt
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
@@ -120,7 +120,7 @@ func Sign(
 					FirstNames:        data.Form.FirstNames,
 					LastName:          data.Form.LastName,
 					ProfessionalTitle: data.Form.ProfessionalTitle,
-					Confirmed:         now(),
+					SignedAt:          now(),
 				}
 
 				if len(data.TrustCorporation.Signatories) == 0 {
@@ -130,7 +130,7 @@ func Sign(
 						}
 					}
 				} else {
-					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex].Confirmed = data.TrustCorporation.Signatories[signatoryIndex].SignedAt
+					attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex].SignedAt = data.TrustCorporation.Signatories[signatoryIndex].SignedAt
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {

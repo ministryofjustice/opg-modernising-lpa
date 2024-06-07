@@ -416,7 +416,7 @@ func updateLPAProgress(
 		}
 
 		certificateProvider.ContactLanguagePreference = localize.En
-		certificateProvider.Certificate = actor.Certificate{Agreed: time.Now()}
+		certificateProvider.SignedAt = time.Now()
 
 		if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
 			return nil, nil, err
@@ -451,7 +451,7 @@ func updateLPAProgress(
 				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 				attorney.Tasks.SignTheLpa = actor.TaskCompleted
-				attorney.Confirmed = donorDetails.SignedAt.Add(2 * time.Hour)
+				attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 				if err := attorneyStore.Put(ctx, attorney); err != nil {
 					return nil, nil, err
@@ -488,7 +488,7 @@ func updateLPAProgress(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					Confirmed:         donorDetails.SignedAt.Add(2 * time.Hour),
+					SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
 				}}
 
 				if err := attorneyStore.Put(ctx, attorney); err != nil {

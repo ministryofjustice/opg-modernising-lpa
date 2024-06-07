@@ -11,7 +11,7 @@
 
       {{ trFormatHtml .App "certificateProvidedContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) "CertificateProviderFullName" .Lpa.CertificateProvider.FullName  }}
 
-      {{ trFormatHtml .App "certificateDetails" "AgreedTimeStamp" (formatDateTime .App .CertificateProvider.Certificate.Agreed) "LpaUID" .Lpa.LpaUID "DonorFullName" .Lpa.Donor.FullName }}
+      {{ trFormatHtml .App "certificateDetails" "SignedAt" (formatDateTime .App .CertificateProvider.SignedAt) "LpaUID" .Lpa.LpaUID "DonorFullName" .Lpa.Donor.FullName }}
 
       {{ trFormatHtml .App "thisMeansYouveDoneEverythingContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
 
