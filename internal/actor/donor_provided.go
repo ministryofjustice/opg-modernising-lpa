@@ -131,8 +131,7 @@ type DonorProvidedDetails struct {
 	// PreviousFee is the fee previously paid for an LPA
 	PreviousFee pay.PreviousFee
 
-	HasSentApplicationUpdatedEvent        bool `hash:"-"`
-	HasSentPreviousApplicationLinkedEvent bool `hash:"-"`
+	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
 func (l *DonorProvidedDetails) NamesChanged(firstNames, lastName, otherNames string) bool {
