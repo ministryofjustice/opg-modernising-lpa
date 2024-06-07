@@ -416,6 +416,7 @@ type Lpa struct {
 	Paid                                       bool
 	IsOrganisationDonor                        bool
 	Drafted                                    bool
+	CannotRegister                             bool
 }
 
 func (l Lpa) AllAttorneysSigned() bool {
@@ -545,6 +546,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
 		SignedAt:                                 l.SignedAt,
 		CertificateProviderNotRelatedConfirmedAt: confirmedAt,
+		CannotRegister:                           l.Status == "cannot-register",
 	}
 }
 
