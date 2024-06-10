@@ -156,7 +156,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingOpensearchIndexDeleteGithubAction
-      - name: Delete opensearch index
+      - name: Delete opensearch index lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}
         run: |
             pip install awscurl==0.33
             response=$(awscurl \
