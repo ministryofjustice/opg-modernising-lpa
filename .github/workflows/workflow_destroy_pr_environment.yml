@@ -158,7 +158,7 @@ jobs:
           role-session-name: OPGModernisingOpensearchIndexDeleteGithubAction
       - name: Delete opensearch index
         run: |
-          pip install awscurl
+          pip install awscurl==0.33
           awscurl \
             "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
             --request DELETE \
