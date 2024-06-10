@@ -31,8 +31,10 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 
 		if r.Method == http.MethodPost {
 			if !lpa.SignedAt.IsZero() {
-				if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, lpa.CertificateProvider.UID); err != nil {
-					return err
+				if !lpa.CannotRegister {
+					if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, lpa.CertificateProvider.UID); err != nil {
+						return err
+					}
 				}
 			} else {
 				donor, err := donorStore.GetAny(r.Context())

@@ -464,7 +464,7 @@ func TestClientServiceContract(t *testing.T) {
 				&actor.AttorneyProvidedDetails{
 					UID:                       uid,
 					Mobile:                    "07777777",
-					Confirmed:                 time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
+					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 				})
 			assert.Nil(t, err)
@@ -563,7 +563,7 @@ func TestClientServiceContract(t *testing.T) {
 							FirstNames:        "John",
 							LastName:          "Smith",
 							ProfessionalTitle: "Director",
-							Confirmed:         time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
+							SignedAt:          time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 						},
 					},
 					IsTrustCorporation: true,
@@ -628,9 +628,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			err := client.SendCertificateProvider(context.Background(),
 				&actor.CertificateProviderProvidedDetails{
-					Certificate: actor.Certificate{
-						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
-					},
+					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
 				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
@@ -705,9 +703,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			return client.SendCertificateProvider(context.Background(),
 				&actor.CertificateProviderProvidedDetails{
-					Certificate: actor.Certificate{
-						Agreed: time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
-					},
+					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					HomeAddress: place.Address{
 						Line1:      "123 Fake Street",
