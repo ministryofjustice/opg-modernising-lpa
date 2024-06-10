@@ -83,7 +83,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_development
 
 resource "aws_opensearchserverless_access_policy" "github_actions_access" {
   count       = local.account_name == "development" ? 1 : 0
-  name        = "team-access-shared-${local.account_name}"
+  name        = "github-oidc-access-shared-${local.account_name}"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
