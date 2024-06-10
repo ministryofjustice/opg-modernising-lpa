@@ -52,7 +52,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			}
 
 			expectedTransaction := &dynamo.Transaction{
-				Puts: []any{
+				Creates: []any{
 					details,
 					lpaLink{
 						PK:        dynamo.LpaKey("123"),
