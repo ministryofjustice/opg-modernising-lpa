@@ -37,7 +37,7 @@ module "eu_west_1" {
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
   mock_onelogin_service_container_version = local.mock_onelogin_version
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
-  mock_pay_service_container_version      = local.mock_pay_version
+  mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {
@@ -104,7 +104,7 @@ module "eu_west_2" {
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
   mock_onelogin_service_container_version = local.mock_onelogin_version
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
-  mock_pay_service_container_version      = local.mock_pay_version
+  mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   lpas_table = {

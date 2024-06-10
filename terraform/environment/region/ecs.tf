@@ -87,8 +87,8 @@ module "mock_onelogin" {
     public_subnets      = data.aws_subnet.public[*].id
   }
   aws_service_discovery_private_dns_namespace = {
-    id   = aws_service_discovery_private_dns_namespace.mock_one_login.id
-    name = aws_service_discovery_private_dns_namespace.mock_one_login.name
+    id   = aws_service_discovery_private_dns_namespace.internal.id
+    name = aws_service_discovery_private_dns_namespace.internal.name
   }
   app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
   providers = {
@@ -117,8 +117,8 @@ module "mock_pay" {
     public_subnets      = data.aws_subnet.public[*].id
   }
   aws_service_discovery_private_dns_namespace = {
-    id   = aws_service_discovery_private_dns_namespace.mock_one_login.id
-    name = aws_service_discovery_private_dns_namespace.mock_one_login.name
+    id   = aws_service_discovery_private_dns_namespace.internal.id
+    name = aws_service_discovery_private_dns_namespace.internal.name
   }
   app_ecs_service_security_group_id = module.app.ecs_service_security_group.id
   providers = {

@@ -119,6 +119,17 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			},
 			donorStore: func() *mockDonorStore { return nil },
 		},
+		"cannot-register": {
+			lpa: lpastore.Lpa{
+				LpaUID:              "lpa-uid",
+				SignedAt:            time.Now(),
+				Donor:               actor.Donor{FirstNames: "a b", LastName: "c"},
+				CertificateProvider: lpastore.CertificateProvider{UID: uid},
+				CannotRegister:      true,
+			},
+			lpaStoreClient: func() *mockLpaStoreClient { return nil },
+			donorStore:     func() *mockDonorStore { return nil },
+		},
 		"not witnessed and signed": {
 			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
