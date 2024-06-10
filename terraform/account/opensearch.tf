@@ -83,7 +83,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_development
 
 resource "aws_opensearchserverless_access_policy" "github_actions_access" {
   count       = local.account_name == "development" ? 1 : 0
-  name        = "github-access-shared-${local.account_name}"
+  name        = "github-access-shared-development"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
@@ -91,12 +91,12 @@ resource "aws_opensearchserverless_access_policy" "github_actions_access" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/shared-collection-${local.account_name}/*"],
+          Resource     = ["index/shared-collection-development/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/shared-collection-${local.account_name}"],
+          Resource     = ["collection/shared-collection-development"],
           Permission   = ["aoss:*"]
         }
       ],
