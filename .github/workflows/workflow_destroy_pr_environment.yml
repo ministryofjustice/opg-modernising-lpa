@@ -158,9 +158,13 @@ jobs:
           role-session-name: OPGModernisingOpensearchIndexDeleteGithubAction
       - name: Delete opensearch index
         run: |
-          pip install awscurl==0.33
-          awscurl \
-            "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
-            --request DELETE \
-            --region eu-west-1 \
-            --service aoss
+            pip install awscurl==0.33
+            response=$(awscurl \
+              "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
+              --request DELETE \
+              --region eu-west-1 \
+              --service aoss | jq -r '.status')
+            if [[ $response != "200" && $response != "404" ]]; then
+              echo "Error: Unexpected response status $response"
+              exit 1
+            fi
