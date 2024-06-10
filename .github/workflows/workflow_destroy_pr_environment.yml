@@ -149,3 +149,18 @@ jobs:
       - name: Remove container insights log group
         run: |
           aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}-eu-west-1/performance
+      - name: Configure AWS Credentials For opensearch
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-opensearch-delete-index
+          aws-region: eu-west-1
+          role-duration-seconds: 900
+          role-session-name: OPGModernisingOpensearchIndexDeleteGithubAction
+      - name: Delete opensearch index
+        run: |
+          pip install awscurl==0.33
+          awscurl \
+            "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
+            --request DELETE \
+            --region eu-west-1 \
+            --service aoss
