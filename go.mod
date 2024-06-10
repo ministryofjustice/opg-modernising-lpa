@@ -6,7 +6,6 @@ require (
 	github.com/MicahParks/jwkset v0.5.17
 	github.com/MicahParks/keyfunc/v3 v3.3.2
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/aws/aws-sdk-go v1.51.21
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.12
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
