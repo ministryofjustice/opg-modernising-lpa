@@ -33,6 +33,10 @@
       "prCreation": "immediate",
       "prPriority": 4,
       "stabilityDays": 3
+    },
+    {
+      "matchPackageNames": ["outofcoffee/imposter"],
+      "enabled": false
     }
   ],
   "major": {

@@ -59,9 +59,15 @@ switch (context.request.method) {
           lpa.certificateProvider.signedAt = lpa.signedAt;
           break;
 
+        case 'PERFECT':
+          lpa.status = 'perfect';
+          break;
+
         case 'REGISTER':
-          lpa.status = 'registered';
-          lpa.registrationDate = new Date(Date.now()).toISOString();
+          if (lpa.status == 'perfect') {
+            lpa.status = 'registered';
+            lpa.registrationDate = new Date(Date.now()).toISOString();
+          }
           break;
 
         case 'CERTIFICATE_PROVIDER_OPT_OUT':
