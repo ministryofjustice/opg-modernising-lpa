@@ -75,10 +75,10 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaUID: "M",
 	}
 	lpaCertifiedCertificateProvider := &actor.CertificateProviderProvidedDetails{
-		PK:          dynamo.LpaKey("signed-by-cp"),
-		SK:          dynamo.CertificateProviderKey(sessionID),
-		LpaID:       "signed-by-cp",
-		Certificate: actor.Certificate{AgreeToStatement: true},
+		PK:       dynamo.LpaKey("signed-by-cp"),
+		SK:       dynamo.CertificateProviderKey(sessionID),
+		LpaID:    "signed-by-cp",
+		SignedAt: time.Now(),
 	}
 	lpaReferenced := &lpastore.Lpa{LpaID: "referenced", LpaUID: "X"}
 	lpaReferencedLink := map[string]any{

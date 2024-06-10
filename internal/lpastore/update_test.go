@@ -51,6 +51,40 @@ func TestClientSendRegister(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestClientSendPerfect(t *testing.T) {
+	json := `{"type":"PERFECT","changes":null}`
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Return("secret", nil)
+
+	var body []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if body == nil {
+				body, _ = io.ReadAll(req.Body)
+			}
+
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjAwMDAwMDAwLTAwMDAtNDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImlhdCI6OTQ2NzgyMjQ1fQ.V7MxjZw7-K8ehujYn4e0gef7s23r2UDlTbyzQtpTKvo", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.JSONEq(t, json, string(body))
+		})).
+		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	err := client.SendPerfect(ctx, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
 func TestClientSendCertificateProvider(t *testing.T) {
 	uid, _ := actoruid.Parse("399ce2f7-f3bd-4feb-9207-699ff4d99cbf")
 
@@ -64,9 +98,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 			Postcode:   "postcode",
 			Country:    "GB",
 		},
-		Certificate: actor.Certificate{
-			Agreed: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
-		},
+		SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 		ContactLanguagePreference: localize.Cy,
 		Email:                     "b@example.com",
 	}
@@ -125,7 +157,7 @@ func TestClientSendAttorney(t *testing.T) {
 			attorney: &actor.AttorneyProvidedDetails{
 				UID:                       uid2,
 				Mobile:                    "07777",
-				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
 			},
@@ -144,7 +176,7 @@ func TestClientSendAttorney(t *testing.T) {
 				UID:                       uid2,
 				IsReplacement:             true,
 				Mobile:                    "07777",
-				Confirmed:                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
 			},
@@ -172,12 +204,12 @@ func TestClientSendAttorney(t *testing.T) {
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
-					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					SignedAt:          time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}, {
 					FirstNames:        "Dave",
 					LastName:          "Signer",
 					ProfessionalTitle: "Assistant to the Director",
-					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 7, time.UTC),
+					SignedAt:          time.Date(2000, time.January, 2, 3, 4, 5, 7, time.UTC),
 				}},
 				ContactLanguagePreference: localize.En,
 				Email:                     "a@example.com",
@@ -200,7 +232,7 @@ func TestClientSendAttorney(t *testing.T) {
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
-					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					SignedAt:          time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}},
 				ContactLanguagePreference: localize.En,
 			},
@@ -225,7 +257,7 @@ func TestClientSendAttorney(t *testing.T) {
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
-					Confirmed:         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+					SignedAt:          time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				}},
 				ContactLanguagePreference: localize.En,
 			},
