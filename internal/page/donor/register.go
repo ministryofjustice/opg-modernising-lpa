@@ -126,6 +126,8 @@ type DocumentStore interface {
 type EventClient interface {
 	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
 	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
+	SendUidRequested(ctx context.Context, e event.UidRequested) error
+	SendPreviousApplicationLinked(ctx context.Context, e event.PreviousApplicationLinked) error
 }
 
 type DashboardStore interface {
@@ -205,7 +207,7 @@ func Register(
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
 		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
 	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, page.None,
@@ -325,7 +327,7 @@ func Register(
 	handleWithDonor(page.Paths.WhichFeeTypeAreYouApplyingFor, page.CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
 	handleWithDonor(page.Paths.PreviousApplicationNumber, page.None,
-		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.PreviousFee, page.CanGoBack,
 		PreviousFee(tmpls.Get("previous_fee.gohtml"), payer, donorStore))
 	handleWithDonor(page.Paths.EvidenceRequired, page.CanGoBack,

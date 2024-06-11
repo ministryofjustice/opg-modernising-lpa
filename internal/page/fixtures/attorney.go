@@ -166,8 +166,6 @@ func Attorney(
 			}); err != nil {
 				return err
 			}
-
-			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
