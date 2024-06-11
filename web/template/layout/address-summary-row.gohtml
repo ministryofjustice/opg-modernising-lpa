@@ -10,7 +10,7 @@
                 </a>
             {{ end }}
         </dd>
-        {{ if and .Address .CanChange }}
+        {{ if and ( not (eq .Address.Line1 "")) .CanChange }}
             <dd class="govuk-summary-list__actions">
                 <a class="govuk-link govuk-link--no-visited-state" href="{{ .ChangeLink }}">{{ tr .App "change" }}<span class="govuk-visually-hidden">
                     {{ lowerFirst (tr .App .Label) }} {{ if not .SummarisingSelf }}{{ lowerFirst (tr .App .Label) }} {{ trFormat .App "forFullName" "FullName" .FullName }}{{ end }}
