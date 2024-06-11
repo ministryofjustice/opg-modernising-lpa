@@ -40,7 +40,10 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:BatchGetCollection",
       "aoss:APIAccessAll"
     ]
-    resources = [data.aws_opensearchserverless_collection.lpas_collection.arn]
+    resources = [
+      "*",
+      data.aws_opensearchserverless_collection.lpas_collection.arn
+    ]
   }
 
   statement {
@@ -195,8 +198,8 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn     = aws_dynamodb_table.lpas_table.arn
-        s3_bucket_arn = data.aws_s3_bucket.dynamodb_exports_bucket.arn
+        table_arn      = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_name = data.aws_s3_bucket.dynamodb_exports_bucket.id
         stream = {
           start_position = "LATEST"
         }
@@ -214,7 +217,7 @@ locals {
     sink = {
       opensearch = {
         hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
-        index = "lpas"
+        index = "lpas_v2_${local.environment_name}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"
