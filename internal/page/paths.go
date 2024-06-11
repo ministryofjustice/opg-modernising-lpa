@@ -44,12 +44,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 		rurl = fromURL
 	}
 
-	if DonorCanGoTo(donor, rurl) {
-		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
-	} else {
-		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(donor.LpaID)), http.StatusFound)
-	}
-
+	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	return nil
 }
 
@@ -59,12 +54,7 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 		rurl = fromURL
 	}
 
-	if DonorCanGoTo(donor, rurl) {
-		http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
-	} else {
-		http.Redirect(w, r, appData.Lang.URL(Paths.TaskList.Format(donor.LpaID)), http.StatusFound)
-	}
-
+	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	return nil
 }
 
@@ -124,40 +114,6 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 	}
 }
 
-func (p CertificateProviderPath) canVisit(certificateProvider *actor.CertificateProviderProvidedDetails) bool {
-	switch p {
-	case Paths.CertificateProvider.ProveYourIdentity,
-		Paths.CertificateProvider.IdentityWithOneLogin,
-		Paths.CertificateProvider.IdentityWithOneLoginCallback:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
-
-	case Paths.CertificateProvider.WhatHappensNext,
-		Paths.CertificateProvider.ProvideCertificate,
-		Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
-		Paths.CertificateProvider.CertificateProvided:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed() && certificateProvider.Tasks.ConfirmYourIdentity.Completed()
-
-	default:
-		return true
-	}
-}
-
-func (p AttorneyPath) canVisit(attorney *actor.AttorneyProvidedDetails) bool {
-	switch p {
-	case Paths.Attorney.RightsAndResponsibilities,
-		Paths.Attorney.WhatHappensWhenYouSign,
-		Paths.Attorney.Sign,
-		Paths.Attorney.WhatHappensNext:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed()
-
-	case Paths.Attorney.WouldLikeSecondSignatory:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed() && attorney.IsTrustCorporation
-
-	default:
-		return true
-	}
-}
-
 type AttorneyPath string
 
 func (p AttorneyPath) String() string {
@@ -178,6 +134,22 @@ func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appD
 	return nil
 }
 
+func (p AttorneyPath) canVisit(attorney *actor.AttorneyProvidedDetails) bool {
+	switch p {
+	case Paths.Attorney.RightsAndResponsibilities,
+		Paths.Attorney.WhatHappensWhenYouSign,
+		Paths.Attorney.Sign,
+		Paths.Attorney.WhatHappensNext:
+		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed()
+
+	case Paths.Attorney.WouldLikeSecondSignatory:
+		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed() && attorney.IsTrustCorporation
+
+	default:
+		return true
+	}
+}
+
 type CertificateProviderPath string
 
 func (p CertificateProviderPath) String() string {
@@ -191,6 +163,24 @@ func (p CertificateProviderPath) Format(id string) string {
 func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
+}
+
+func (p CertificateProviderPath) canVisit(certificateProvider *actor.CertificateProviderProvidedDetails) bool {
+	switch p {
+	case Paths.CertificateProvider.ProveYourIdentity,
+		Paths.CertificateProvider.IdentityWithOneLogin,
+		Paths.CertificateProvider.IdentityWithOneLoginCallback:
+		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
+
+	case Paths.CertificateProvider.WhatHappensNext,
+		Paths.CertificateProvider.ProvideCertificate,
+		Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
+		Paths.CertificateProvider.CertificateProvided:
+		return certificateProvider.Tasks.ConfirmYourDetails.Completed() && certificateProvider.Tasks.ConfirmYourIdentity.Completed()
+
+	default:
+		return true
+	}
 }
 
 type SupporterPath string

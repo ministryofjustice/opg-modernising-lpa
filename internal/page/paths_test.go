@@ -60,7 +60,7 @@ func TestLpaPathRedirect(t *testing.T) {
 		donor    *actor.DonorProvidedDetails
 		expected string
 	}{
-		"allowed": {
+		"redirect": {
 			url: "/",
 			donor: &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
@@ -82,20 +82,10 @@ func TestLpaPathRedirect(t *testing.T) {
 			},
 			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
 		},
-		"allowed from": {
+		"redirect with from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
 			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
-		},
-		"not allowed": {
-			url:      "/",
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
-			expected: Paths.TaskList.Format("lpa-id"),
-		},
-		"not allowed from": {
-			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
-			expected: Paths.TaskList.Format("lpa-id"),
 		},
 	}
 
