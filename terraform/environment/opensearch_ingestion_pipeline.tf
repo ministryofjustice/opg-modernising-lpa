@@ -130,11 +130,13 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     effect = "Allow"
     actions = [
       "s3:GetObject",
+      "s3:CreateMultipartUpload",
       "s3:AbortMultipartUpload",
       "s3:PutObject",
       "s3:PutObjectAcl"
     ]
     resources = [
+      data.aws_s3_bucket.dynamodb_exports_bucket.arn,
       "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
