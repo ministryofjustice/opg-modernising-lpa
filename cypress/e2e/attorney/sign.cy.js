@@ -1,7 +1,7 @@
 describe('Sign', () => {
     describe('as an attorney', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?redirect=/sign&progress=signedByCertificateProvider');
+            cy.visit('/fixtures/attorney?redirect=/sign&progress=readTheLPA');
         });
 
         it('can be signed', () => {
@@ -31,7 +31,7 @@ describe('Sign', () => {
 
     describe('as a replacement attorney', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/attorney?redirect=/sign&is-replacement=1&progress=signedByCertificateProvider');
+            cy.visit('/fixtures/attorney?redirect=/sign&is-replacement=1&progress=readTheLPA');
         });
 
         it('can be signed', () => {

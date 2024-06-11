@@ -258,6 +258,38 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 	}
 }
 
+func TestMakeAttorneyHandleExistingSessionDataWhenCannotGoToURL(t *testing.T) {
+	path := page.Paths.Attorney.Sign
+
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)
+	expectedDetails := &actor.AttorneyProvidedDetails{UID: uid, LpaID: "123"}
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	attorneyStore := newMockAttorneyStore(t)
+	attorneyStore.EXPECT().
+		Get(mock.Anything).
+		Return(expectedDetails, nil)
+
+	mux := http.NewServeMux()
+	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
+	handle(path, CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *actor.AttorneyProvidedDetails) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.Attorney.TaskList.Format("123"), resp.Header.Get("Location"))
+}
+
 func TestMakeAttorneyHandleErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/attorney/id/path", nil)

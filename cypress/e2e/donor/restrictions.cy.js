@@ -1,6 +1,6 @@
 describe('Restrictions', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/restrictions');
+        cy.visit('/fixtures?redirect=/restrictions&progress=chooseYourAttorneys');
     });
 
     it('can be submitted', () => {

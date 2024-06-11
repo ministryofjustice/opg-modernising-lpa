@@ -4,7 +4,7 @@ describe('Certificate provided', () => {
             cy.stub(win, 'print')
         })
 
-        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided')
+        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided&progress=confirmYourIdentity')
 
         cy.checkA11yApp();
 
@@ -13,7 +13,7 @@ describe('Certificate provided', () => {
     });
 
     it('has a button to the dashboard', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided')
+        cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided&progress=confirmYourIdentity')
 
         cy.contains('a', 'Go to your dashboard').click();
         cy.url().should('contain', '/dashboard');
