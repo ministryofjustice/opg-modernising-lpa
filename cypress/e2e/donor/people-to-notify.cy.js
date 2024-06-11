@@ -151,7 +151,7 @@ describe('People to notify', () => {
   });
 
   it('errors when unselected', () => {
-    cy.visit('/fixtures?redirect=/do-you-want-to-notify-people');
+    cy.visit('/fixtures?redirect=/do-you-want-to-notify-people&progress=chooseYourAttorneys');
     cy.contains('button', 'Save and continue').click();
 
     cy.get('.govuk-error-summary').within(() => {
@@ -162,7 +162,7 @@ describe('People to notify', () => {
   });
 
   it('errors when people to notify details empty', () => {
-    cy.visit('/fixtures?redirect=/choose-people-to-notify');
+    cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
     cy.contains('button', 'Save and continue').click();
 
     cy.get('.govuk-error-summary').within(() => {
@@ -175,7 +175,7 @@ describe('People to notify', () => {
   });
 
   it('errors when people to notify details invalid', () => {
-    cy.visit('/fixtures?redirect=/choose-people-to-notify');
+    cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
 
     cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
     cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
@@ -200,7 +200,7 @@ describe('People to notify', () => {
   });
 
   it('warns when name shared with other actor', () => {
-    cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=provideYourDetails');
+    cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
 
     cy.get('#f-first-names').type('Sam');
     cy.get('#f-last-name').type('Smith');
