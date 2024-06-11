@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -91,6 +91,41 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 		}), shareCodeData, "a@b.com").
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+
+	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
+
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.WhoIsEligible.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
+	form := url.Values{
+		"reference-number": {"abcdef 123-456"},
+	}
+
+	uid := actoruid.New()
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	shareCodeData := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Get(r.Context(), mock.Anything, mock.Anything).
+		Return(shareCodeData, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "hey", Email: "a@b.com"}, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Create(mock.Anything, mock.Anything, mock.Anything).
+		Return(&actor.CertificateProviderProvidedDetails{}, dynamo.ConditionalCheckFailedError{})
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 
