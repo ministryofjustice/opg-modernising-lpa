@@ -155,6 +155,33 @@ func TestSendActorEmail(t *testing.T) {
 	}
 }
 
+func TestSendActorEmailWhenToSimulated(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	for _, email := range simulatedEmails {
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader(`{"notifications":[]}`)),
+			}, nil).
+			Once()
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+			}, nil).
+			Once()
+
+		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+		err := client.SendActorEmail(ctx, email, "lpa-uid", testEmail{A: "value"})
+		assert.Nil(err)
+	}
+}
+
 func TestSendActorEmailWhenAlreadyRecentlyCreated(t *testing.T) {
 	testcases := map[string]string{
 		"previously created":       `{"notifications":[{"status":"delivered","created_at":"2020-01-02T02:54:06Z"}]}`,
@@ -202,6 +229,7 @@ func TestSendActorEmailWhenReferenceExistsError(t *testing.T) {
 	err := client.SendActorEmail(context.Background(), "me@example.com", "lpa-uid", testEmail{A: "value"})
 	assert.Equal(t, expectedError, err)
 }
+
 func TestSendActorEmailWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
@@ -445,6 +473,26 @@ func TestSendActorSMS(t *testing.T) {
 
 	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
 	assert.Nil(err)
+}
+
+func TestSendActorSMSWhenToSimulated(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	for _, phone := range simulatedPhones {
+		doer := newMockDoer(t)
+		doer.EXPECT().
+			Do(mock.Anything).
+			Return(&http.Response{
+				Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
+			}, nil)
+
+		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
+
+		err := client.SendActorSMS(ctx, phone, "lpa-uid", testSMS{A: "value"})
+		assert.Nil(err)
+	}
 }
 
 func TestSendActorSMSWhenError(t *testing.T) {
