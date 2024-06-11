@@ -9,6 +9,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -16,7 +17,19 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 )
 
-var allowResendAfter = 10 * time.Minute
+var (
+	allowResendAfter = 10 * time.Minute
+	simulatedEmails  = []string{
+		"simulate-delivered@notifications.service.gov.uk",
+		"simulate-delivered-2@notifications.service.gov.uk",
+		"simulate-delivered-3@notifications.service.gov.uk",
+	}
+	simulatedPhones = []string{
+		"07700900000",
+		"07700900111",
+		"07700900222",
+	}
+)
 
 type Logger interface {
 	ErrorContext(ctx context.Context, msg string, args ...any)
@@ -140,11 +153,13 @@ func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Em
 		return err
 	}
 
-	if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
-		UID:            lpaUID,
-		NotificationID: resp.ID,
-	}); err != nil {
-		return err
+	if !slices.Contains(simulatedEmails, to) {
+		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+			UID:            lpaUID,
+			NotificationID: resp.ID,
+		}); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -171,11 +186,13 @@ func (c *Client) SendActorSMS(ctx context.Context, to, lpaUID string, sms SMS) e
 		return err
 	}
 
-	if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
-		UID:            lpaUID,
-		NotificationID: resp.ID,
-	}); err != nil {
-		return err
+	if !slices.Contains(simulatedPhones, to) {
+		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+			UID:            lpaUID,
+			NotificationID: resp.ID,
+		}); err != nil {
+			return err
+		}
 	}
 
 	return nil
