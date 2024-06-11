@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -378,10 +379,19 @@ func TestDonorStorePutWhenUIDSetIndexErrors(t *testing.T) {
 		Index(ctx, mock.Anything).
 		Return(expectedError)
 
-	donorStore := &donorStore{searchClient: searchClient, now: testNowFn}
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		WarnContext(ctx, "donorStore index failed", slog.Any("err", expectedError))
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, logger: logger, now: testNowFn}
 
 	err := donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: actor.Donor{FirstNames: "x", LastName: "y"}})
-	assert.ErrorIs(t, err, expectedError)
+	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenNoChange(t *testing.T) {
