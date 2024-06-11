@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -289,7 +289,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 				LastName:   donor.Donor.LastName,
 			},
 		}); err != nil {
-			return fmt.Errorf("donorStore index failed: %w", err)
+			s.logger.WarnContext(ctx, "donorStore index failed", slog.Any("err", err))
 		}
 	}
 
