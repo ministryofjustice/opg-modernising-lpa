@@ -1,6 +1,6 @@
 describe('When can the LPA be used', () => {
   beforeEach(() => {
-    cy.visit('/fixtures?redirect=/when-can-the-lpa-be-used');
+    cy.visit('/fixtures?redirect=/when-can-the-lpa-be-used&progress=chooseYourAttorneys');
   });
 
   it('can be submitted', () => {

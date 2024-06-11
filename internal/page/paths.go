@@ -116,12 +116,7 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 
 	case Paths.HowToConfirmYourIdentityAndSign,
 		Paths.IdentityWithOneLogin,
-		Paths.ReadYourLpa,
-		Paths.SignYourLpa,
-		Paths.SignTheLpaOnBehalf,
-		Paths.WitnessingYourSignature,
-		Paths.WitnessingAsIndependentWitness,
-		Paths.WitnessingAsCertificateProvider:
+		Paths.SignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
 
 	default:
@@ -136,8 +131,7 @@ func (p CertificateProviderPath) canVisit(certificateProvider *actor.Certificate
 		Paths.CertificateProvider.IdentityWithOneLoginCallback:
 		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
 
-	case Paths.CertificateProvider.ReadTheLpa,
-		Paths.CertificateProvider.WhatHappensNext,
+	case Paths.CertificateProvider.WhatHappensNext,
 		Paths.CertificateProvider.ProvideCertificate,
 		Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
 		Paths.CertificateProvider.CertificateProvided:

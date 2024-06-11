@@ -2,7 +2,7 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose replacement attorneys', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
     });
 
     it('can be submitted', () => {
@@ -84,7 +84,7 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
@@ -101,7 +101,7 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('permanently warns when date of birth is under 18', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
@@ -124,7 +124,7 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when date of birth is over 100', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
+        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
