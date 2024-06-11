@@ -5,8 +5,11 @@ dynamodb-pipeline:
       acknowledgments: true
       tables:
         - table_arn: ${source.tables.table_arn}
-          stream:
-            start_position: ${source.tables.stream.start_position}
+          export:
+            s3_bucket: ${source.tables.s3_bucket_name}
+            s3_prefix: "export/"
+          # stream:
+          #   start_position: ${source.tables.stream.start_position}
       aws:
         sts_role_arn: ${source.tables.aws.sts_role_arn}
         region: ${source.tables.aws.region}

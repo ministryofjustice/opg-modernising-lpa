@@ -12,6 +12,16 @@ data "aws_kms_alias" "opensearch_encryption_key" {
   provider = aws.eu_west_1
 }
 
+data "aws_kms_alias" "dynemodb_exports_s3_bucket_encryption_key" {
+  name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
+  provider = aws.eu_west_1
+}
+
+data "aws_s3_bucket" "dynamodb_exports_bucket" {
+  bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-eu-west-1"
+  provider = aws.eu_west_1
+}
+
 resource "aws_iam_role_policy" "opensearch_pipeline" {
   count    = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name     = "opensearch_pipeline"
@@ -30,7 +40,10 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:BatchGetCollection",
       "aoss:APIAccessAll"
     ]
-    resources = [data.aws_opensearchserverless_collection.lpas_collection.arn]
+    resources = [
+      "*",
+      data.aws_opensearchserverless_collection.lpas_collection.arn
+    ]
   }
 
   statement {
@@ -63,7 +76,18 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
   }
 
   statement {
-    sid    = "DynamoDBEncryptionAccess"
+    sid    = "DescribeExports"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+    ]
+  }
+
+  statement {
+    sid    = "DynamoDBAndExportEncryptionAccess"
     effect = "Allow"
     actions = [
       "kms:Decrypt",
@@ -71,6 +95,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynemodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
 
@@ -87,7 +112,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
   }
 
-
   statement {
     sid    = "allowReadFromStream"
     effect = "Allow"
@@ -98,6 +122,20 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
+    ]
+  }
+
+  statement {
+    sid    = "allowReadAndWriteToS3ForExport"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:AbortMultipartUpload",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
 }
@@ -160,7 +198,8 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn = aws_dynamodb_table.lpas_table.arn
+        table_arn      = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_name = data.aws_s3_bucket.dynamodb_exports_bucket.id
         stream = {
           start_position = "LATEST"
         }
@@ -178,7 +217,7 @@ locals {
     sink = {
       opensearch = {
         hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
-        index = "lpas"
+        index = "lpas_v2_${local.environment_name}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"
