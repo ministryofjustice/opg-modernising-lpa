@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,7 +16,7 @@ type previousApplicationNumberData struct {
 	Form   *previousApplicationNumberForm
 }
 
-func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Handler {
+func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &previousApplicationNumberData{
 			App: appData,
@@ -29,12 +30,17 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Ha
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if donor.PreviousApplicationNumber != data.Form.PreviousApplicationNumber {
-					donor.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
+				donor.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
+				if err := eventClient.SendPreviousApplicationLinked(r.Context(), event.PreviousApplicationLinked{
+					UID:                       donor.LpaUID,
+					PreviousApplicationNumber: donor.PreviousApplicationNumber,
+				}); err != nil {
+					return err
 				}
 
 				if donor.PreviousApplicationNumber[0] == '7' {
