@@ -1,8 +1,4 @@
 describe('Check the LPA', () => {
-  beforeEach(() => {
-    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
-  });
-
   it('cannot change when personal welfare LPA can be used', () => {
     cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&lpa-type=personal-welfare');
 
@@ -12,6 +8,8 @@ describe('Check the LPA', () => {
   });
 
   it("can submit the completed LPA", () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&certificateProviderEmail=test@example.com');
+
     cy.contains('h1', "Check your LPA")
 
     cy.checkA11yApp();
@@ -47,6 +45,8 @@ describe('Check the LPA', () => {
   });
 
   it('does not allow checking when no changes', () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
+
     cy.get('#f-checked-and-happy').check({ force: true })
     cy.contains('button', 'Confirm').click();
 
@@ -186,6 +186,7 @@ describe('Check the LPA', () => {
   })
 
   it("errors when not selected", () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
     cy.contains('button', 'Confirm').click();
 
     cy.get('.govuk-error-summary').within(() => {
