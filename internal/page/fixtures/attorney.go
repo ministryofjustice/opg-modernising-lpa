@@ -242,7 +242,7 @@ func Attorney(
 			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
 		}
 
-		if progress >= slices.Index(progressValues, "readTheLpa") {
+		if progress >= slices.Index(progressValues, "readTheLPA") {
 			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 		}
 
