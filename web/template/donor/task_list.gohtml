@@ -69,7 +69,7 @@
         <ul class="govuk-task-list">
           {{ range $e.Items }}
             {{ if not .Hidden }}
-              {{ $hasLink := canGoTo $.Donor .Path }}
+              {{ $hasLink := donorCanGoTo $.Donor .Path }}
 
               <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                 <span class="govuk-task-list__name-and-hint">
@@ -95,7 +95,7 @@
                     <strong class="app-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
                   {{ else if .PaymentState.IsMoreEvidenceRequired }}
                     <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
-                  {{ else if not (canGoTo $.Donor .Path) }}
+                  {{ else if not (donorCanGoTo $.Donor .Path) }}
                     <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                   {{ else }}
                     <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
