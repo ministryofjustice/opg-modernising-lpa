@@ -1,6 +1,6 @@
 describe('Life sustaining treatment', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/life-sustaining-treatment&lpa-type=personal-welfare');
+        cy.visit('/fixtures?redirect=/life-sustaining-treatment&lpa-type=personal-welfare&progress=chooseYourAttorneys');
     });
 
     it('can be agreed to', () => {
