@@ -163,7 +163,7 @@ func TestHandleFeeApproved(t *testing.T) {
 	now := time.Now()
 
 	updatedDonorProvided := completedDonorProvided
-	updatedDonorProvided.Hash, _ = updatedDonorProvided.GenerateHash()
+	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = now
 
 	client.EXPECT().
@@ -229,7 +229,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 
 	updatedDonorProvided := donorProvided
 	updatedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskCompleted
-	updatedDonorProvided.Hash, _ = updatedDonorProvided.GenerateHash()
+	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = now
 
 	client.EXPECT().
@@ -398,7 +398,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 
 	now := time.Now()
 	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -441,7 +441,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 
 	now := time.Now()
 	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -474,7 +474,7 @@ func TestHandleFeeDenied(t *testing.T) {
 
 	now := time.Now()
 	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, FeeType: pay.FullFee, UpdatedAt: now}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
