@@ -1,6 +1,7 @@
 package actor
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -20,19 +21,115 @@ var address = place.Address{
 }
 
 func TestGenerateHash(t *testing.T) {
-	donor := &DonorProvidedDetails{Attorneys: Attorneys{
-		Attorneys: []Attorney{
-			{DateOfBirth: date.New("2000", "1", "2")},
-		},
-	}}
-	hash, err := donor.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x228526f2932e1744), hash)
+	makeDonor := func(version uint8, hash uint64) *DonorProvidedDetails {
+		return &DonorProvidedDetails{
+			HashVersion: version,
+			Hash:        hash,
+			Attorneys: Attorneys{
+				Attorneys: []Attorney{
+					{DateOfBirth: date.New("2000", "1", "2")},
+				},
+			},
+		}
+	}
 
-	donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
-	hash, err = donor.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xf07785fd2f4548aa), hash)
+	// DO change this value to match the updates
+	const modified uint64 = 0xf07785fd2f4548aa
+
+	// DO NOT change these initial hash values. If a field has been added/removed
+	// you will need to handle the version gracefully by modifying
+	// CheckedHashInclude and add another testcase for the new version.
+	testcases := map[uint8]uint64{
+		0: 0x228526f2932e1744,
+	}
+
+	for version, initial := range testcases {
+		t.Run(fmt.Sprintf("Version%d", version), func(t *testing.T) {
+			donor := makeDonor(version, initial)
+			hash, _ := donor.generateHash()
+
+			assert.Equal(t, donor.Hash, hash)
+			assert.False(t, donor.HashChanged())
+
+			donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
+			assert.True(t, donor.HashChanged())
+
+			err := donor.UpdateHash()
+			assert.Nil(t, err)
+			assert.Equal(t, modified, donor.Hash)
+			assert.Equal(t, uint8(0), donor.HashVersion)
+		})
+	}
+}
+
+func TestGenerateHashVersionTooHigh(t *testing.T) {
+	donor := &DonorProvidedDetails{
+		HashVersion: 1,
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{
+				{DateOfBirth: date.New("2000", "1", "2")},
+			},
+		},
+	}
+
+	_, err := donor.generateHash()
+	assert.Error(t, err)
+}
+
+func TestGenerateCheckedHash(t *testing.T) {
+	makeDonor := func(version uint8, hash uint64) *DonorProvidedDetails {
+		return &DonorProvidedDetails{
+			CheckedHashVersion: version,
+			CheckedHash:        hash,
+			Attorneys: Attorneys{
+				Attorneys: []Attorney{
+					{DateOfBirth: date.New("2000", "1", "2")},
+				},
+			},
+		}
+	}
+
+	// DO change this value to match the updates
+	const modified uint64 = 0x158c0832f46fbad9
+
+	// DO NOT change these initial hash values. If a field has been added/removed
+	// you will need to handle the version gracefully by modifying
+	// CheckedHashInclude and add another testcase for the new version.
+	testcases := map[uint8]uint64{
+		0: 0x61d5afc9bc5a9de7,
+	}
+
+	for version, initial := range testcases {
+		t.Run(fmt.Sprintf("Version%d", version), func(t *testing.T) {
+			donor := makeDonor(version, initial)
+			hash, _ := donor.generateCheckedHash()
+
+			assert.Equal(t, donor.CheckedHash, hash)
+			assert.False(t, donor.CheckedHashChanged())
+
+			donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
+			assert.True(t, donor.CheckedHashChanged())
+
+			err := donor.UpdateCheckedHash()
+			assert.Nil(t, err)
+			assert.Equal(t, modified, donor.CheckedHash)
+			assert.Equal(t, uint8(0), donor.CheckedHashVersion)
+		})
+	}
+}
+
+func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
+	donor := &DonorProvidedDetails{
+		CheckedHashVersion: 1,
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{
+				{DateOfBirth: date.New("2000", "1", "2")},
+			},
+		},
+	}
+
+	_, err := donor.generateCheckedHash()
+	assert.Error(t, err)
 }
 
 func TestIdentityConfirmed(t *testing.T) {

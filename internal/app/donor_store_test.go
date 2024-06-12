@@ -340,7 +340,7 @@ func TestDonorStoreGetByKeysWhenDynamoErrors(t *testing.T) {
 
 func TestDonorStorePut(t *testing.T) {
 	saved := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: actor.Donor{FirstNames: "x", LastName: "y"}}
-	saved.Hash, _ = saved.GenerateHash()
+	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -355,7 +355,7 @@ func TestDonorStorePut(t *testing.T) {
 
 func TestDonorStorePutWhenUIDSet(t *testing.T) {
 	saved := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: actor.Donor{FirstNames: "x", LastName: "y"}}
-	saved.Hash, _ = saved.GenerateHash()
+	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -480,7 +480,7 @@ func TestDonorStoreCreate(t *testing.T) {
 					Channel:     actor.ChannelOnline,
 				},
 			}
-			donor.Hash, _ = donor.GenerateHash()
+			donor.UpdateHash()
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
