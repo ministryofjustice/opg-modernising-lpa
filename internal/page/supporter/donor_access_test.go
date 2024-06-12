@@ -395,9 +395,6 @@ func TestPostDonorAccessRemove(t *testing.T) {
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
-	shareCodeStore.EXPECT().
-		Delete(r.Context(), shareCodeData).
-		Return(nil)
 
 	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
@@ -406,7 +403,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, nil)
 	donorStore.EXPECT().
-		DeleteLink(r.Context(), shareCodeData).
+		DeleteDonorAccess(r.Context(), shareCodeData).
 		Return(nil)
 
 	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
@@ -450,35 +447,6 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostDonorAccessRemoveWhenDeleteError(t *testing.T) {
-	form := url.Values{"action": {"remove"}}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		GetDonor(mock.Anything).
-		Return(actor.ShareCodeData{}, nil)
-	shareCodeStore.EXPECT().
-		Delete(mock.Anything, mock.Anything).
-		Return(expectedError)
-
-	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(donor, nil)
-
-	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 	form := url.Values{"action": {"remove"}}
 
@@ -490,9 +458,6 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 	shareCodeStore.EXPECT().
 		GetDonor(mock.Anything).
 		Return(actor.ShareCodeData{}, nil)
-	shareCodeStore.EXPECT().
-		Delete(mock.Anything, mock.Anything).
-		Return(nil)
 
 	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
@@ -501,7 +466,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 		Get(mock.Anything).
 		Return(donor, nil)
 	donorStore.EXPECT().
-		DeleteLink(mock.Anything, mock.Anything).
+		DeleteDonorAccess(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := DonorAccess(nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &actor.Organisation{}, &actor.Member{})
