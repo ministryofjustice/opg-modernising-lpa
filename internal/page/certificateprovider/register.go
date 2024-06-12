@@ -126,7 +126,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
 		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
-	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler)
+	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible, page.None,
 		Guidance(tmpls.Get("who_is_eligible.gohtml"), lpaStoreResolvingService, nil))
@@ -178,7 +178,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 	}
 }
 
-func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
+func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
 	return func(path page.CertificateProviderPath, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -203,6 +203,20 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
 				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+			}
+
+			certificateProvider, err := certificateProviderStore.Get(ctx)
+			if err != nil {
+				errorHandler(w, r, err)
+				return
+			}
+
+			if !page.CertificateProviderCanGoTo(certificateProvider, r.URL.String()) {
+				if err := page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, certificateProvider.LpaID); err != nil {
+					errorHandler(w, r, err)
+					return
+				}
+				return
 			}
 
 			appData.Page = path.Format(appData.LpaID)
