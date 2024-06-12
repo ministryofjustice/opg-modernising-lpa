@@ -20,19 +20,105 @@ var address = place.Address{
 }
 
 func TestGenerateHash(t *testing.T) {
-	donor := &DonorProvidedDetails{Attorneys: Attorneys{
-		Attorneys: []Attorney{
-			{DateOfBirth: date.New("2000", "1", "2")},
+	testcases := map[string]struct {
+		donor    *DonorProvidedDetails
+		initial  uint64
+		modified uint64
+	}{
+		"version 0": {
+			donor: &DonorProvidedDetails{
+				HashVersion: 0,
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{
+						{DateOfBirth: date.New("2000", "1", "2")},
+					},
+				},
+			},
+			// DO NOT change these values. If a field has been added/removed you will
+			// need to handle the version gracefully by modifying HashInclude and
+			// adding another testcase.
+			initial:  uint64(0x228526f2932e1744),
+			modified: uint64(0xf07785fd2f4548aa),
 		},
-	}}
-	hash, err := donor.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0x228526f2932e1744), hash)
+	}
 
-	donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
-	hash, err = donor.GenerateHash()
-	assert.Nil(t, err)
-	assert.Equal(t, uint64(0xf07785fd2f4548aa), hash)
+	for version, tc := range testcases {
+		t.Run(version, func(t *testing.T) {
+			hash, err := tc.donor.GenerateHash()
+			assert.Nil(t, err)
+			assert.Equal(t, tc.initial, hash)
+
+			tc.donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
+			hash, err = tc.donor.GenerateHash()
+			assert.Nil(t, err)
+			assert.Equal(t, tc.modified, hash)
+		})
+	}
+}
+
+func TestGenerateHashVersionTooHigh(t *testing.T) {
+	donor := &DonorProvidedDetails{
+		HashVersion: 1,
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{
+				{DateOfBirth: date.New("2000", "1", "2")},
+			},
+		},
+	}
+
+	_, err := donor.GenerateHash()
+	assert.Error(t, err)
+}
+
+func TestGenerateCheckedHash(t *testing.T) {
+	testcases := map[string]struct {
+		donor    *DonorProvidedDetails
+		initial  uint64
+		modified uint64
+	}{
+		"version 0": {
+			donor: &DonorProvidedDetails{
+				CheckedHashVersion: 0,
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{
+						{DateOfBirth: date.New("2000", "1", "2")},
+					},
+				},
+			},
+			// DO NOT change these values. If a field has been added/removed you will
+			// need to handle the version gracefully by modifying CheckedHashInclude
+			// and adding another testcase.
+			initial:  uint64(0x61d5afc9bc5a9de7),
+			modified: uint64(0x158c0832f46fbad9),
+		},
+	}
+
+	for version, tc := range testcases {
+		t.Run(version, func(t *testing.T) {
+			hash, err := tc.donor.GenerateCheckedHash()
+			assert.Nil(t, err)
+			assert.Equal(t, tc.initial, hash)
+
+			tc.donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
+			hash, err = tc.donor.GenerateCheckedHash()
+			assert.Nil(t, err)
+			assert.Equal(t, tc.modified, hash)
+		})
+	}
+}
+
+func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
+	donor := &DonorProvidedDetails{
+		CheckedHashVersion: 1,
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{
+				{DateOfBirth: date.New("2000", "1", "2")},
+			},
+		},
+	}
+
+	_, err := donor.GenerateCheckedHash()
+	assert.Error(t, err)
 }
 
 func TestIdentityConfirmed(t *testing.T) {
