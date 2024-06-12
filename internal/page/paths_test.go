@@ -60,7 +60,7 @@ func TestLpaPathRedirect(t *testing.T) {
 		donor    *actor.DonorProvidedDetails
 		expected string
 	}{
-		"allowed": {
+		"redirect": {
 			url: "/",
 			donor: &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
@@ -82,20 +82,10 @@ func TestLpaPathRedirect(t *testing.T) {
 			},
 			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
 		},
-		"allowed from": {
+		"redirect with from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
 			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
-		},
-		"not allowed": {
-			url:      "/",
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
-			expected: Paths.TaskList.Format("lpa-id"),
-		},
-		"not allowed from": {
-			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id"},
-			expected: Paths.TaskList.Format("lpa-id"),
 		},
 	}
 
@@ -249,7 +239,7 @@ func TestSupporterLpaPathIsManageOrganisation(t *testing.T) {
 	assert.False(t, SupporterLpaPath("").IsManageOrganisation())
 }
 
-func TestCanGoTo(t *testing.T) {
+func TestDonorCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		donor    *actor.DonorProvidedDetails
 		url      string
@@ -263,26 +253,6 @@ func TestCanGoTo(t *testing.T) {
 		"unexpected path": {
 			donor:    &actor.DonorProvidedDetails{},
 			url:      "/whatever",
-			expected: true,
-		},
-		"getting help signing no certificate provider": {
-			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
-					YourDetails: actor.TaskCompleted,
-				},
-			},
-			url:      Paths.GettingHelpSigning.Format("123"),
-			expected: false,
-		},
-		"getting help signing": {
-			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
-					CertificateProvider: actor.TaskCompleted,
-				},
-			},
-			url:      Paths.GettingHelpSigning.Format("123"),
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
@@ -375,7 +345,140 @@ func TestCanGoTo(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.donor, tc.url))
+			assert.Equal(t, tc.expected, DonorCanGoTo(tc.donor, tc.url))
+		})
+	}
+}
+
+func TestCertificateProviderCanGoTo(t *testing.T) {
+	testCases := map[string]struct {
+		certificateProvider *actor.CertificateProviderProvidedDetails
+		url                 string
+		expected            bool
+	}{
+		"empty path": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			url:                 "",
+			expected:            false,
+		},
+		"unexpected path": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			url:                 "/whatever",
+			expected:            true,
+		},
+		"unrestricted path": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			url:                 Paths.CertificateProvider.ConfirmYourDetails.Format("123"),
+			expected:            true,
+		},
+		"identity without task": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			url:                 Paths.CertificateProvider.IdentityWithOneLogin.Format("123"),
+			expected:            false,
+		},
+		"identity with task": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.CertificateProvider.IdentityWithOneLogin.Format("123"),
+			expected: true,
+		},
+		"provide certificate without task": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.CertificateProvider.ProvideCertificate.Format("123"),
+			expected: false,
+		},
+		"provide certificate with task": {
+			certificateProvider: &actor.CertificateProviderProvidedDetails{
+				Tasks: actor.CertificateProviderTasks{
+					ConfirmYourDetails:  actor.TaskCompleted,
+					ConfirmYourIdentity: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.CertificateProvider.ProvideCertificate.Format("123"),
+			expected: true,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, CertificateProviderCanGoTo(tc.certificateProvider, tc.url))
+		})
+	}
+}
+
+func TestAttorneyCanGoTo(t *testing.T) {
+	testCases := map[string]struct {
+		attorney *actor.AttorneyProvidedDetails
+		url      string
+		expected bool
+	}{
+		"empty path": {
+			attorney: &actor.AttorneyProvidedDetails{},
+			url:      "",
+			expected: false,
+		},
+		"unexpected path": {
+			attorney: &actor.AttorneyProvidedDetails{},
+			url:      "/whatever",
+			expected: true,
+		},
+		"unrestricted path": {
+			attorney: &actor.AttorneyProvidedDetails{},
+			url:      Paths.Attorney.ConfirmYourDetails.Format("123"),
+			expected: true,
+		},
+		"sign without task": {
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+				},
+			},
+			url:      Paths.Attorney.Sign.Format("123"),
+			expected: false,
+		},
+		"sign with task": {
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
+				},
+			},
+			url:      Paths.Attorney.Sign.Format("123"),
+			expected: true,
+		},
+		"would like second signatory not trust corp": {
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
+				},
+			},
+			url:      Paths.Attorney.WouldLikeSecondSignatory.Format("123"),
+			expected: false,
+		},
+		"would like second signatory as trust corp": {
+			attorney: &actor.AttorneyProvidedDetails{
+				Tasks: actor.AttorneyTasks{
+					ConfirmYourDetails: actor.TaskCompleted,
+					ReadTheLpa:         actor.TaskCompleted,
+				},
+				IsTrustCorporation: true,
+			},
+			url:      Paths.Attorney.WouldLikeSecondSignatory.Format("123"),
+			expected: true,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, AttorneyCanGoTo(tc.attorney, tc.url))
 		})
 	}
 }

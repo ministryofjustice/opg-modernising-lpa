@@ -3,7 +3,7 @@ const { TestMobile, TestEmail, randomShareCode } = require("../../support/e2e");
 describe('As a trust corporation', () => {
   beforeEach(() => {
     const shareCode = randomShareCode()
-    cy.visit(`/fixtures/attorney?redirect=/attorney-start&is-trust-corporation=1&progress=signedByCertificateProvider&&withShareCode=${shareCode}&email=${TestEmail}`);
+    cy.visit(`/fixtures/attorney?redirect=/attorney-start&is-trust-corporation=1&progress=readTheLPA&&withShareCode=${shareCode}&email=${TestEmail}`);
 
     // start
     cy.contains('a', 'Start').click();

@@ -1,6 +1,6 @@
 describe('Provide the certificate', () => {
   beforeEach(() => {
-    cy.visit('/fixtures/certificate-provider?redirect=/provide-certificate&progress=signedByDonor');
+    cy.visit('/fixtures/certificate-provider?redirect=/provide-certificate&progress=confirmYourIdentity');
   });
 
   it('can provide the certificate', () => {

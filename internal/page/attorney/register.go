@@ -186,6 +186,11 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 				return
 			}
 
+			if !page.AttorneyCanGoTo(attorney, r.URL.String()) {
+				page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorney.LpaID)
+				return
+			}
+
 			appData.Page = path.Format(appData.LpaID)
 			appData.AttorneyUID = attorney.UID
 			if attorney.IsTrustCorporation && attorney.IsReplacement {
