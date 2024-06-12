@@ -137,11 +137,17 @@ type DonorProvidedDetails struct {
 	PreviousFee pay.PreviousFee
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
+
+	AnExampleOfANewField string
 }
 
 func (d *DonorProvidedDetails) HashInclude(field string, _ any) (bool, error) {
-	if d.HashVersion > 0 {
+	if d.HashVersion > 1 {
 		return false, errors.New("HashVersion too high")
+	}
+
+	if d.HashVersion == 0 && field == "AnExampleOfANewField" {
+		return false, nil
 	}
 
 	return true, nil
@@ -153,8 +159,12 @@ func (d *DonorProvidedDetails) HashInclude(field string, _ any) (bool, error) {
 type toCheck DonorProvidedDetails
 
 func (c toCheck) HashInclude(field string, _ any) (bool, error) {
-	if c.CheckedHashVersion > 0 {
+	if c.CheckedHashVersion > 1 {
 		return false, errors.New("CheckedHashVersion too high")
+	}
+
+	if c.CheckedHashVersion == 0 && field == "AnExampleOfANewField" {
+		return false, nil
 	}
 
 	// The following fields don't contain LPA data, so aren't part of what gets

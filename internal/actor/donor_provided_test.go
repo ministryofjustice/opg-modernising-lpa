@@ -40,6 +40,21 @@ func TestGenerateHash(t *testing.T) {
 			initial:  uint64(0x228526f2932e1744),
 			modified: uint64(0xf07785fd2f4548aa),
 		},
+		"version 1": {
+			donor: &DonorProvidedDetails{
+				HashVersion: 1,
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{
+						{DateOfBirth: date.New("2000", "1", "2")},
+					},
+				},
+			},
+			// DO NOT change these values. If a field has been added/removed you will
+			// need to handle the version gracefully by modifying HashInclude and
+			// adding another testcase.
+			initial:  uint64(0xb4184bcfa870e40a),
+			modified: uint64(0x6cc76d93a3e8e7d8),
+		},
 	}
 
 	for version, tc := range testcases {
@@ -58,7 +73,7 @@ func TestGenerateHash(t *testing.T) {
 
 func TestGenerateHashVersionTooHigh(t *testing.T) {
 	donor := &DonorProvidedDetails{
-		HashVersion: 1,
+		HashVersion: 2,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{DateOfBirth: date.New("2000", "1", "2")},
@@ -91,6 +106,21 @@ func TestGenerateCheckedHash(t *testing.T) {
 			initial:  uint64(0x61d5afc9bc5a9de7),
 			modified: uint64(0x158c0832f46fbad9),
 		},
+		"version 1": {
+			donor: &DonorProvidedDetails{
+				CheckedHashVersion: 1,
+				Attorneys: Attorneys{
+					Attorneys: []Attorney{
+						{DateOfBirth: date.New("2000", "1", "2")},
+					},
+				},
+			},
+			// DO NOT change these values. If a field has been added/removed you will
+			// need to handle the version gracefully by modifying CheckedHashInclude
+			// and adding another testcase.
+			initial:  uint64(0x88b192c5eb912669),
+			modified: uint64(0x91100db15d995176),
+		},
 	}
 
 	for version, tc := range testcases {
@@ -109,7 +139,7 @@ func TestGenerateCheckedHash(t *testing.T) {
 
 func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
 	donor := &DonorProvidedDetails{
-		CheckedHashVersion: 1,
+		CheckedHashVersion: 2,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{DateOfBirth: date.New("2000", "1", "2")},
