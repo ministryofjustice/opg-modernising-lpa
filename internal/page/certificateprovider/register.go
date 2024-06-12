@@ -212,10 +212,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 			}
 
 			if !page.CertificateProviderCanGoTo(certificateProvider, r.URL.String()) {
-				if err := page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, certificateProvider.LpaID); err != nil {
-					errorHandler(w, r, err)
-					return
-				}
+				page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, certificateProvider.LpaID)
 				return
 			}
 
