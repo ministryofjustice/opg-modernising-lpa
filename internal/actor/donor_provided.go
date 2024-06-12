@@ -1,6 +1,7 @@
 package actor
 
 import (
+	"errors"
 	"slices"
 	"strings"
 	"time"
@@ -37,6 +38,8 @@ type DonorProvidedDetails struct {
 	SK dynamo.LpaOwnerKeyType `hash:"-"`
 	// Hash is used to determine whether the Lpa has been changed since last read
 	Hash uint64 `hash:"-"`
+	// HashVersion is used to determine the fields used to calculate Hash
+	HashVersion uint8 `hash:"-"`
 	// LpaID identifies the LPA being drafted
 	LpaID string
 	// LpaUID is a unique identifier created after sending basic LPA details to the UID service
@@ -100,6 +103,8 @@ type DonorProvidedDetails struct {
 	CheckedAt time.Time
 	// CheckedHash is the Hash value of the LPA when last checked
 	CheckedHash uint64 `hash:"-"`
+	// CheckedHashVersion is used to determine the fields used to calculate CheckedHash
+	CheckedHashVersion uint8 `hash:"-"`
 	// SignedAt is when the donor submitted their signature
 	SignedAt time.Time
 	// SubmittedAt is when the Lpa was sent to the OPG
@@ -132,6 +137,62 @@ type DonorProvidedDetails struct {
 	PreviousFee pay.PreviousFee
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
+
+	AnExampleOfANewField string
+}
+
+func (d *DonorProvidedDetails) HashInclude(field string, _ any) (bool, error) {
+	if d.HashVersion > 1 {
+		return false, errors.New("HashVersion too high")
+	}
+
+	if d.HashVersion == 0 && field == "AnExampleOfANewField" {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+// toCheck filters the fields used for hashing further, for the use of
+// determining whether the LPA data has changed since it was checked by the
+// donor.
+type toCheck DonorProvidedDetails
+
+func (c toCheck) HashInclude(field string, _ any) (bool, error) {
+	if c.CheckedHashVersion > 1 {
+		return false, errors.New("CheckedHashVersion too high")
+	}
+
+	if c.CheckedHashVersion == 0 && field == "AnExampleOfANewField" {
+		return false, nil
+	}
+
+	// The following fields don't contain LPA data, so aren't part of what gets
+	// checked.
+	switch field {
+	case "CheckedAt",
+		"Tasks",
+		"PaymentDetails",
+		"DonorIdentityUserData",
+		"WantToApplyForLpa",
+		"WantToSignLpa",
+		"SignedAt",
+		"SubmittedAt",
+		"WithdrawnAt",
+		"PerfectAt",
+		"CertificateProviderCodes",
+		"WitnessedByCertificateProviderAt",
+		"IndependentWitnessCodes",
+		"WitnessedByIndependentWitnessAt",
+		"WitnessCodeLimiter",
+		"FeeType",
+		"EvidenceDelivery",
+		"PreviousApplicationNumber",
+		"PreviousFee":
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (l *DonorProvidedDetails) NamesChanged(firstNames, lastName, otherNames string) bool {
@@ -140,6 +201,10 @@ func (l *DonorProvidedDetails) NamesChanged(firstNames, lastName, otherNames str
 
 func (l *DonorProvidedDetails) GenerateHash() (uint64, error) {
 	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
+}
+
+func (l *DonorProvidedDetails) GenerateCheckedHash() (uint64, error) {
+	return hashstructure.Hash(toCheck(*l), hashstructure.FormatV2, nil)
 }
 
 func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
