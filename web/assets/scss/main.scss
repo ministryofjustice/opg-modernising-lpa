@@ -136,3 +136,7 @@ body:not(.js-enabled) .govuk-back-link {
 .app-wrap-text {
     white-space: pre-wrap;
 }
+
+.js-only {
+    display: none;
+}
