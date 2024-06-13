@@ -142,6 +142,10 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 		return err
 	}
 
+	if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		return nil
+	}
+
 	donor.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
@@ -160,6 +164,10 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
 		return err
+	}
+
+	if donor.Tasks.PayForLpa.IsDenied() {
+		return nil
 	}
 
 	donor.FeeType = pay.FullFee

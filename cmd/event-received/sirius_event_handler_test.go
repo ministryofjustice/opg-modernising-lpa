@@ -37,8 +37,8 @@ func TestHandleEvidenceReceived(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
@@ -84,8 +84,8 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 
@@ -103,8 +103,8 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
@@ -404,15 +404,15 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
@@ -433,6 +433,40 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "further-info-requested",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	now := time.Now()
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
+				PK:    dynamo.LpaKey("123"),
+				SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+			})
+
+			attributevalue.Unmarshal(b, v)
+
+			return nil
+		})
+
+	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
+	assert.Nil(t, err)
+}
+
 func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "further-info-requested",
@@ -447,15 +481,15 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
@@ -480,15 +514,15 @@ func TestHandleFeeDenied(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
@@ -509,6 +543,34 @@ func TestHandleFeeDenied(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
+	event := events.CloudWatchEvent{
+		DetailType: "reduced-fee-declined",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	now := time.Now()
+
+	client := newMockDynamodbClient(t)
+	client.
+		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+		Return(func(ctx context.Context, uid string, v interface{}) error {
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+	client.
+		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
+	assert.Nil(t, err)
+}
+
 func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "reduced-fee-declined",
@@ -521,15 +583,15 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
-			json.Unmarshal(b, v)
+			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.EXPECT().
