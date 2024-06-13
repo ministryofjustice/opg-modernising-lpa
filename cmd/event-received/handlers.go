@@ -54,13 +54,9 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 
 func putDonor(ctx context.Context, donor *actor.DonorProvidedDetails, now func() time.Time, client dynamodbClient) error {
 	donor.UpdatedAt = now()
-
-	hash, err := donor.GenerateHash()
-	if err != nil {
+	if err := donor.UpdateHash(); err != nil {
 		return err
 	}
-
-	donor.Hash = hash
 
 	return client.Put(ctx, donor)
 }
