@@ -110,7 +110,7 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 		},
 	}
 
-	if donor.Hash, err = donor.GenerateHash(); err != nil {
+	if err := donor.UpdateHash(); err != nil {
 		return nil, err
 	}
 
