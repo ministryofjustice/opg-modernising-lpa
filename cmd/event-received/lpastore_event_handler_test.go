@@ -32,7 +32,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 		PerfectAt: testNow,
 		UpdatedAt: testNow,
 	}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -91,7 +91,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
 		PerfectAt: testNow,
 		UpdatedAt: testNow,
 	}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -120,7 +120,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoPutErrors(t *testing.T) {
 		PerfectAt: testNow,
 		UpdatedAt: testNow,
 	}
-	updated.Hash, _ = updated.GenerateHash()
+	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
 	client.
