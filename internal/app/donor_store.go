@@ -84,7 +84,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		donor.Donor.Address = latest.Donor.Address
 	}
 
-	if donor.Hash, err = donor.GenerateHash(); err != nil {
+	if err := donor.UpdateHash(); err != nil {
 		return nil, err
 	}
 
@@ -269,12 +269,13 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 }
 
 func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
-	newHash, err := donor.GenerateHash()
-	if newHash == donor.Hash || err != nil {
-		return err
+	if !donor.HashChanged() {
+		return nil
 	}
 
-	donor.Hash = newHash
+	if err := donor.UpdateHash(); err != nil {
+		return err
+	}
 
 	// By not setting UpdatedAt until a UID exists, queries for SK=DONOR#xyz on
 	// SKUpdatedAtIndex will not return UID-less LPAs.
