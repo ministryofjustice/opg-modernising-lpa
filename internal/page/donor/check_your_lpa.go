@@ -113,7 +113,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 				CheckedAndHappy: !donor.CheckedAt.IsZero(),
 			},
 			Completed:   donor.Tasks.CheckYourLpa.Completed(),
-			CanContinue: donor.CheckedHash != donor.Hash,
+			CanContinue: donor.CheckedHashChanged(),
 		}
 
 		if r.Method == http.MethodPost && data.CanContinue {
@@ -123,12 +123,9 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			if data.Errors.None() {
 				donor.Tasks.CheckYourLpa = actor.TaskCompleted
 				donor.CheckedAt = now()
-
-				newHash, err := donor.GenerateHash()
-				if err != nil {
+				if err := donor.UpdateCheckedHash(); err != nil {
 					return err
 				}
-				donor.CheckedHash = newHash
 
 				if err := notifier.Notify(r.Context(), appData, donor, data.Completed); err != nil {
 					return err

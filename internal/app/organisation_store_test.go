@@ -187,7 +187,7 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 			UID: testUID,
 		},
 	}
-	expectedDonor.Hash, _ = expectedDonor.GenerateHash()
+	expectedDonor.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().

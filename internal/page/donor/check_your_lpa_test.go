@@ -23,9 +23,10 @@ func TestGetCheckYourLpa(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &checkYourLpaData{
-			App:   testAppData,
-			Form:  &checkYourLpaForm{},
-			Donor: &actor.DonorProvidedDetails{},
+			App:         testAppData,
+			Form:        &checkYourLpaForm{},
+			Donor:       &actor.DonorProvidedDetails{},
+			CanContinue: true,
 		}).
 		Return(nil)
 
@@ -43,6 +44,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		CheckedAt: testNow,
 	}
+	donor.UpdateCheckedHash()
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -73,12 +75,11 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 
 	donor := &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
-		Hash:                5,
 		CheckedAt:           testNow,
-		CheckedHash:         5,
 		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline},
 	}
+	donor.UpdateCheckedHash()
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -130,7 +131,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
 				CertificateProvider: actor.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
 			}
-			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
+			updatedDonor.UpdateCheckedHash()
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
@@ -309,7 +310,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Mobile: "07700900000"},
 				Type:                actor.LpaTypePropertyAndAffairs,
 			}
-			updatedDonor.CheckedHash, _ = updatedDonor.GenerateHash()
+			updatedDonor.UpdateCheckedHash()
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
