@@ -792,34 +792,38 @@ func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
 	}
 }
 
-func TestDonorStoreDeleteLink(t *testing.T) {
+func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
+	link := lpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}
+	shareCodeData := actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
+
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), lpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), link, nil)
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey("donor-sub")).
-		Return(nil).
-		Once()
-	dynamoClient.EXPECT().
-		DeleteOne(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("donor-sub")).
-		Return(nil).
-		Once()
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: link.PK, SK: link.SK},
+				{PK: shareCodeData.LpaKey, SK: dynamo.DonorKey(link.UserSub())},
+				{PK: shareCodeData.PK, SK: shareCodeData.SK},
+			},
+		}).
+		Return(nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, shareCodeData)
 	assert.Nil(t, err)
 }
 
-func TestDonorStoreDeleteLinkWhenDonor(t *testing.T) {
+func TestDonorStoreDeleteDonorAccessWhenDonor(t *testing.T) {
 	donorStore := &donorStore{}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
+	err := donorStore.DeleteDonorAccess(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
 	assert.Error(t, err)
 }
 
-func TestDonorStoreDeleteLinkWhenSessionMissing(t *testing.T) {
+func TestDonorStoreDeleteDonorAccessWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"missing":           context.Background(),
 		"no organisationID": page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"}),
@@ -829,22 +833,22 @@ func TestDonorStoreDeleteLinkWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			donorStore := &donorStore{}
 
-			err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
+			err := donorStore.DeleteDonorAccess(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 			assert.Error(t, err)
 		})
 	}
 }
 
-func TestDonorStoreDeleteLinkWhenDeleterInDifferentOrganisation(t *testing.T) {
+func TestDonorStoreDeleteDonorAccessWhenDeleterInDifferentOrganisation(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "a-different-org-id"})
 
 	donorStore := &donorStore{}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
-func TestDonorStoreDeleteLinkWhenOneByPartialSKError(t *testing.T) {
+func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
@@ -852,41 +856,21 @@ func TestDonorStoreDeleteLinkWhenOneByPartialSKError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
-func TestDonorStoreDeleteLinkWhenDeleteOneLinkError(t *testing.T) {
+func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), lpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
 	dynamoClient.EXPECT().
-		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
-	assert.Error(t, err)
-}
-
-func TestDonorStoreDeleteLinkWhenDeleteOneLPAReferenceError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), lpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
-	dynamoClient.EXPECT().
-		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil).
-		Once()
-	dynamoClient.EXPECT().
-		DeleteOne(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("donor-sub")).
-		Return(expectedError).
-		Once()
-
-	donorStore := &donorStore{dynamoClient: dynamoClient}
-
-	err := donorStore.DeleteLink(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
