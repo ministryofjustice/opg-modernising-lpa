@@ -34,13 +34,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xf07785fd2f4548aa
+	const modified uint64 = 0x6cc76d93a3e8e7d8
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying HashInclude and
 	// adding another testcase for the new version.
 	testcases := map[uint8]uint64{
 		0: 0x228526f2932e1744,
+		1: 0xb4184bcfa870e40a,
 	}
 
 	for version, initial := range testcases {
@@ -57,14 +58,14 @@ func TestGenerateHash(t *testing.T) {
 			err := donor.UpdateHash()
 			assert.Nil(t, err)
 			assert.Equal(t, modified, donor.Hash)
-			assert.Equal(t, uint8(0), donor.HashVersion)
+			assert.Equal(t, uint8(1), donor.HashVersion)
 		})
 	}
 }
 
 func TestGenerateHashVersionTooHigh(t *testing.T) {
 	donor := &DonorProvidedDetails{
-		HashVersion: 1,
+		HashVersion: 2,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{DateOfBirth: date.New("2000", "1", "2")},
@@ -90,13 +91,14 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x158c0832f46fbad9
+	const modified uint64 = 0x91100db15d995176
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// CheckedHashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
 		0: 0x61d5afc9bc5a9de7,
+		1: 0x88b192c5eb912669,
 	}
 
 	for version, initial := range testcases {
@@ -113,14 +115,14 @@ func TestGenerateCheckedHash(t *testing.T) {
 			err := donor.UpdateCheckedHash()
 			assert.Nil(t, err)
 			assert.Equal(t, modified, donor.CheckedHash)
-			assert.Equal(t, uint8(0), donor.CheckedHashVersion)
+			assert.Equal(t, uint8(1), donor.CheckedHashVersion)
 		})
 	}
 }
 
 func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
 	donor := &DonorProvidedDetails{
-		CheckedHashVersion: 1,
+		CheckedHashVersion: 2,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{DateOfBirth: date.New("2000", "1", "2")},
