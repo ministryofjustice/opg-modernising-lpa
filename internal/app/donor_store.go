@@ -344,10 +344,10 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCodeData) error {
+func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error {
 	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
 	if !ok {
-		return errors.New("donorStore.DeleteLink can only be used with organisations")
+		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
 	}
 
 	data, err := page.SessionDataFromContext(ctx)
@@ -356,7 +356,7 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 	}
 
 	if data.OrganisationID == "" {
-		return errors.New("donorStore.DeleteLink requires OrganisationID")
+		return errors.New("donorStore.DeleteDonorAccess requires OrganisationID")
 	}
 
 	if data.OrganisationID != organisationKey.ID() {
@@ -368,9 +368,19 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 		return err
 	}
 
-	if err := s.dynamoClient.DeleteOne(ctx, link.PK, link.SK); err != nil {
-		return err
-	}
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{
+			PK: link.PK,
+			SK: link.SK,
+		}).
+		Delete(dynamo.Keys{
+			PK: shareCodeData.LpaKey,
+			SK: dynamo.DonorKey(link.UserSub()),
+		}).
+		Delete(dynamo.Keys{
+			PK: shareCodeData.PK,
+			SK: shareCodeData.SK,
+		})
 
-	return s.dynamoClient.DeleteOne(ctx, shareCodeData.LpaKey, dynamo.DonorKey(link.UserSub()))
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
