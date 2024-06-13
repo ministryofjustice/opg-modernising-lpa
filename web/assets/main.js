@@ -39,7 +39,7 @@ function init() {
     const jsOnlyElements = document.querySelectorAll(".js-only");
     if (jsOnlyElements) {
         jsOnlyElements.forEach(e => {
-            e.classList.toggle("js-only");  // Toggle hidden class on click
+            e.classList.toggle("js-only");
         });
     }
 
