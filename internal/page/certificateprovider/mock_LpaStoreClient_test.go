@@ -74,6 +74,54 @@ func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func
 	return _c
 }
 
+// SendCertificateProviderConfirmIdentity provides a mock function with given fields: ctx, lpaUID, certificateProvider
+func (_m *mockLpaStoreClient) SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+	ret := _m.Called(ctx, lpaUID, certificateProvider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCertificateProviderConfirmIdentity")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, *actor.CertificateProviderProvidedDetails) error); ok {
+		r0 = rf(ctx, lpaUID, certificateProvider)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderConfirmIdentity'
+type mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderConfirmIdentity is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+//   - certificateProvider *actor.CertificateProviderProvidedDetails
+func (_e *mockLpaStoreClient_Expecter) SendCertificateProviderConfirmIdentity(ctx interface{}, lpaUID interface{}, certificateProvider interface{}) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	return &mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call{Call: _e.mock.On("SendCertificateProviderConfirmIdentity", ctx, lpaUID, certificateProvider)}
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) Run(run func(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails)) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(*actor.CertificateProviderProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) Return(_a0 error) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) RunAndReturn(run func(context.Context, string, *actor.CertificateProviderProvidedDetails) error) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendCertificateProviderOptOut provides a mock function with given fields: ctx, lpaUID, actorUID
 func (_m *mockLpaStoreClient) SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
 	ret := _m.Called(ctx, lpaUID, actorUID)

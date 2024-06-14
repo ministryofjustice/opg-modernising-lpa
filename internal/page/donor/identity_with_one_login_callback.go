@@ -21,7 +21,7 @@ type identityWithOneLoginCallbackData struct {
 	CouldNotConfirm bool
 }
 
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
+func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			if donor.DonorIdentityConfirmed() {
@@ -71,14 +71,18 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		donor.DonorIdentityUserData = userData
 
 		if donor.DonorIdentityConfirmed() {
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
+
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
+			}
+
+			if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
+				return err
+			}
 		} else {
 			data.CouldNotConfirm = true
 		}
