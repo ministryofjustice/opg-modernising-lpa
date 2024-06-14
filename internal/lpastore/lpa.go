@@ -43,15 +43,21 @@ type lpaRequest struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
+type lpaRequestIdentityCheck struct {
+	CheckedAt time.Time `json:"checkedAt"`
+	Type      string    `json:"type"`
+}
+
 type lpaRequestDonor struct {
-	UID                       actoruid.UID  `json:"uid"`
-	FirstNames                string        `json:"firstNames"`
-	LastName                  string        `json:"lastName"`
-	DateOfBirth               date.Date     `json:"dateOfBirth"`
-	Email                     string        `json:"email"`
-	Address                   place.Address `json:"address"`
-	OtherNamesKnownBy         string        `json:"otherNamesKnownBy,omitempty"`
-	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
+	UID                       actoruid.UID             `json:"uid"`
+	FirstNames                string                   `json:"firstNames"`
+	LastName                  string                   `json:"lastName"`
+	DateOfBirth               date.Date                `json:"dateOfBirth"`
+	Email                     string                   `json:"email"`
+	Address                   place.Address            `json:"address"`
+	OtherNamesKnownBy         string                   `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference localize.Lang            `json:"contactLanguagePreference"`
+	IdentityCheck             *lpaRequestIdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type lpaRequestAttorney struct {
@@ -117,6 +123,13 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 		},
 		Restrictions: donor.Restrictions,
 		SignedAt:     donor.SignedAt,
+	}
+
+	if donor.DonorIdentityConfirmed() {
+		body.Donor.IdentityCheck = &lpaRequestIdentityCheck{
+			CheckedAt: donor.DonorIdentityUserData.RetrievedAt,
+			Type:      "one-login",
+		}
 	}
 
 	if !donor.CertificateProviderNotRelatedConfirmedAt.IsZero() {

@@ -84,6 +84,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
+	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error
 	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
 }
 
@@ -148,7 +149,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService))
+		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, lpaStoreClient))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, page.None,
 		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore))

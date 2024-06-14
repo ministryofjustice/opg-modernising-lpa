@@ -187,3 +187,27 @@ func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID strin
 
 	return c.sendUpdate(ctx, lpaUID, actorUID, body)
 }
+
+func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+	body := updateRequest{
+		Type: "DONOR_CONFIRM_IDENTITY",
+		Changes: []updateRequestChange{
+			{Key: "/donor/identityCheck/checkedAt", New: donor.DonorIdentityUserData.RetrievedAt, Old: nil},
+			{Key: "/donor/identityCheck/type", New: "one-login", Old: nil},
+		},
+	}
+
+	return c.sendUpdate(ctx, donor.LpaUID, donor.Donor.UID, body)
+}
+
+func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+	body := updateRequest{
+		Type: "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
+		Changes: []updateRequestChange{
+			{Key: "/certificateProvider/identityCheck/checkedAt", New: certificateProvider.IdentityUserData.RetrievedAt, Old: nil},
+			{Key: "/certificateProvider/identityCheck/type", New: "one-login", Old: nil},
+		},
+	}
+
+	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
+}

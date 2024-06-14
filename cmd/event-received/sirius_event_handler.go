@@ -110,18 +110,18 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+
+		if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
+				return fmt.Errorf("failed to send to lpastore: %w", err)
+			}
+
+			if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
+				return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+			}
+		}
 	} else {
 		donor.Tasks.PayForLpa = actor.PaymentTaskApproved
-	}
-
-	if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
-		if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
-			return fmt.Errorf("failed to send to lpastore: %w", err)
-		}
-
-		if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
-			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
-		}
 	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
