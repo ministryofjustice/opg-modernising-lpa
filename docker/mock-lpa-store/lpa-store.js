@@ -34,6 +34,10 @@ switch (context.request.method) {
     } else {
       let update = JSON.parse(context.request.body);
       let lpa = JSON.parse(lpaStore.load(pathParts[2]));
+      if (!lpa) {
+        respond().withStatusCode(404);
+        break;
+      }
       lpa.updatedAt = new Date(Date.now()).toISOString();
 
       switch (update.type) {
@@ -72,6 +76,12 @@ switch (context.request.method) {
 
         case 'CERTIFICATE_PROVIDER_OPT_OUT':
           lpa.status = 'cannot-register';
+          break;
+
+        case 'DONOR_CONFIRM_IDENTITY':
+          break;
+
+        case 'CERTIFICATE_PROVIDER_CONFIRM_IDENTITY':
           break;
       }
 

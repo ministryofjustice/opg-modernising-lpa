@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -241,13 +242,20 @@ func TestClientSendLpa(t *testing.T) {
 						Country:    "GB",
 					},
 				}},
+				DonorIdentityUserData: identity.UserData{
+					OK:          true,
+					FirstNames:  "John Johnson",
+					LastName:    "Smith",
+					DateOfBirth: date.New("2000", "1", "2"),
+					RetrievedAt: time.Date(2002, time.January, 2, 12, 14, 16, 9, time.UTC),
+				},
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
 			json: `{
 "lpaType":"personal-welfare",
 "channel":"online",
-"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en"},
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en", "identityCheck": {"checkedAt": "2002-01-02T12:14:16.000000009Z","type":"one-login"}},
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active","channel":"paper"},
