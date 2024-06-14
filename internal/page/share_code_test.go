@@ -76,7 +76,8 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		LpaUID:                      donor.LpaUID,
 		Type:                        donor.Type,
-		Donor:                       donor.Donor,
+		DonorFirstNames:             donor.Donor.FirstNames,
+		DonorFullName:               donor.Donor.FullName(),
 		CertificateProviderUID:      donor.CertificateProvider.UID,
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		CertificateProviderEmail:    donor.CertificateProvider.Email,
@@ -188,7 +189,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				LpaUID:                      donor.LpaUID,
 				Type:                        donor.Type,
-				Donor:                       donor.Donor,
+				DonorFirstNames:             donor.Donor.FirstNames,
+				DonorFullName:               donor.Donor.FullName(),
 				CertificateProviderUID:      donor.CertificateProvider.UID,
 				CertificateProviderFullName: donor.CertificateProvider.FullName(),
 				CertificateProviderEmail:    donor.CertificateProvider.Email,
@@ -200,7 +202,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 				LpaOwnerKey:                 dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				LpaUID:                      donor.LpaUID,
 				Type:                        donor.Type,
-				Donor:                       donor.Donor,
+				DonorFirstNames:             donor.Donor.FirstNames,
+				DonorFullName:               donor.Donor.FullName(),
 				CertificateProviderUID:      donor.CertificateProvider.UID,
 				CertificateProviderFullName: donor.CertificateProvider.FullName(),
 				CertificateProviderEmail:    donor.CertificateProvider.Email,
@@ -249,7 +252,8 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 	err := sender.SendCertificateProviderInvite(ctx, TestAppData, CertificateProviderInvite{
 		LpaUID:                      donor.LpaUID,
 		Type:                        donor.Type,
-		Donor:                       donor.Donor,
+		DonorFirstNames:             donor.Donor.FirstNames,
+		DonorFullName:               donor.Donor.FullName(),
 		CertificateProviderUID:      donor.CertificateProvider.UID,
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		CertificateProviderEmail:    donor.CertificateProvider.Email,
@@ -623,7 +627,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 				},
 			},
 		},
-		Donor: actor.Donor{
+		Donor: lpastore.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -766,7 +770,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 				Name: "Untrusty",
 			},
 		},
-		Donor: actor.Donor{
+		Donor: lpastore.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -843,7 +847,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				Email:      "name@example.org",
 			},
 		}},
-		Donor: actor.Donor{
+		Donor: lpastore.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -925,7 +929,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 				Email:      "name@example.org",
 			},
 		}},
-		Donor: actor.Donor{
+		Donor: lpastore.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
