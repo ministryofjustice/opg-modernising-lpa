@@ -34,6 +34,10 @@ switch (context.request.method) {
     } else {
       let update = JSON.parse(context.request.body);
       let lpa = JSON.parse(lpaStore.load(pathParts[2]));
+      if (!lpa) {
+        respond().withStatusCode(404);
+        break;
+      }
       lpa.updatedAt = new Date(Date.now()).toISOString();
 
       switch (update.type) {

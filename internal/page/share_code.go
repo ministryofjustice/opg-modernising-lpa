@@ -41,26 +41,27 @@ type CertificateProviderInvite struct {
 	LpaOwnerKey                 dynamo.LpaOwnerKeyType
 	LpaUID                      string
 	Type                        actor.LpaType
-	Donor                       actor.Donor
+	DonorFirstNames             string
+	DonorFullName               string
 	CertificateProviderUID      actoruid.UID
 	CertificateProviderFullName string
 	CertificateProviderEmail    string
 }
 
-func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, donor CertificateProviderInvite) error {
-	shareCode, err := s.createShareCode(ctx, donor.LpaKey, donor.LpaOwnerKey, donor.CertificateProviderUID, actor.TypeCertificateProvider)
+func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, invite CertificateProviderInvite) error {
+	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
 	}
 
-	return s.sendEmail(ctx, donor.CertificateProviderEmail, donor.LpaUID, notify.CertificateProviderInviteEmail{
-		CertificateProviderFullName:  donor.CertificateProviderFullName,
-		DonorFullName:                donor.Donor.FullName(),
-		LpaType:                      localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
+	return s.sendEmail(ctx, invite.CertificateProviderEmail, invite.LpaUID, notify.CertificateProviderInviteEmail{
+		CertificateProviderFullName:  invite.CertificateProviderFullName,
+		DonorFullName:                invite.DonorFullName,
+		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
 		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
-		DonorFirstNames:              donor.Donor.FirstNames,
-		DonorFirstNamesPossessive:    appData.Localizer.Possessive(donor.Donor.FirstNames),
-		WhatLpaCovers:                appData.Localizer.T(donor.Type.WhatLPACoversTransKey()),
+		DonorFirstNames:              invite.DonorFirstNames,
+		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
+		WhatLpaCovers:                appData.Localizer.T(invite.Type.WhatLPACoversTransKey()),
 		ShareCode:                    shareCode,
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProvider.EnterReferenceNumberOptOut),
 	})

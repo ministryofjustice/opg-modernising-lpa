@@ -136,8 +136,9 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
+	SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
 }
 
 type ShareCodeStore interface {
@@ -356,7 +357,7 @@ func Register(
 	handleWithDonor(page.Paths.IdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
-		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
+		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore, lpaStoreClient))
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))

@@ -43,15 +43,21 @@ type lpaRequest struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
+type lpaRequestIdentityCheck struct {
+	CheckedAt time.Time `json:"checkedAt"`
+	Type      string    `json:"type"`
+}
+
 type lpaRequestDonor struct {
-	UID                       actoruid.UID  `json:"uid"`
-	FirstNames                string        `json:"firstNames"`
-	LastName                  string        `json:"lastName"`
-	DateOfBirth               date.Date     `json:"dateOfBirth"`
-	Email                     string        `json:"email"`
-	Address                   place.Address `json:"address"`
-	OtherNamesKnownBy         string        `json:"otherNamesKnownBy,omitempty"`
-	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
+	UID                       actoruid.UID             `json:"uid"`
+	FirstNames                string                   `json:"firstNames"`
+	LastName                  string                   `json:"lastName"`
+	DateOfBirth               date.Date                `json:"dateOfBirth"`
+	Email                     string                   `json:"email"`
+	Address                   place.Address            `json:"address"`
+	OtherNamesKnownBy         string                   `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference localize.Lang            `json:"contactLanguagePreference"`
+	IdentityCheck             *lpaRequestIdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type lpaRequestAttorney struct {
@@ -117,6 +123,13 @@ func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails)
 		},
 		Restrictions: donor.Restrictions,
 		SignedAt:     donor.SignedAt,
+	}
+
+	if donor.DonorIdentityConfirmed() {
+		body.Donor.IdentityCheck = &lpaRequestIdentityCheck{
+			CheckedAt: donor.DonorIdentityUserData.RetrievedAt,
+			Type:      "one-login",
+		}
 	}
 
 	if !donor.CertificateProviderNotRelatedConfirmedAt.IsZero() {
@@ -265,6 +278,23 @@ type lpaResponseTrustCorporation struct {
 	ContactLanguagePreference localize.Lang               `json:"contactLanguagePreference"`
 }
 
+type Donor struct {
+	UID                       actoruid.UID
+	FirstNames                string
+	LastName                  string
+	Email                     string
+	OtherNames                string
+	DateOfBirth               date.Date
+	Address                   place.Address
+	Channel                   actor.Channel
+	ContactLanguagePreference localize.Lang
+	IdentityCheck             IdentityCheck
+}
+
+func (d Donor) FullName() string {
+	return d.FirstNames + " " + d.LastName
+}
+
 type Attorney struct {
 	UID                       actoruid.UID
 	FirstNames                string
@@ -311,6 +341,7 @@ type CertificateProvider struct {
 	Channel                   actor.Channel `json:"channel"`
 	SignedAt                  time.Time     `json:"signedAt"`
 	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
+	IdentityCheck             IdentityCheck `json:"identityCheck"`
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
@@ -319,6 +350,11 @@ type CertificateProvider struct {
 
 func (c CertificateProvider) FullName() string {
 	return c.FirstNames + " " + c.LastName
+}
+
+type IdentityCheck struct {
+	CheckedAt time.Time `json:"checkedAt"`
+	Type      string    `json:"type"`
 }
 
 type lpaResponse struct {
@@ -396,8 +432,7 @@ type Lpa struct {
 	PerfectAt                                  time.Time
 	UpdatedAt                                  time.Time
 	Type                                       actor.LpaType
-	Channel                                    actor.Channel
-	Donor                                      actor.Donor
+	Donor                                      Donor
 	Attorneys                                  Attorneys
 	ReplacementAttorneys                       Attorneys
 	CertificateProvider                        CertificateProvider
@@ -506,20 +541,28 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		confirmedAt = *v
 	}
 
+	var identityCheck IdentityCheck
+	if l.Donor.IdentityCheck != nil {
+		identityCheck.CheckedAt = l.Donor.IdentityCheck.CheckedAt
+		identityCheck.Type = l.Donor.IdentityCheck.Type
+	}
+
 	return &Lpa{
 		LpaUID:       l.UID,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,
-		Channel:      l.Channel,
-		Donor: actor.Donor{
-			UID:         l.Donor.UID,
-			FirstNames:  l.Donor.FirstNames,
-			LastName:    l.Donor.LastName,
-			DateOfBirth: l.Donor.DateOfBirth,
-			Email:       l.Donor.Email,
-			Address:     l.Donor.Address,
-			OtherNames:  l.Donor.OtherNamesKnownBy,
+		Donor: Donor{
+			UID:                       l.Donor.UID,
+			FirstNames:                l.Donor.FirstNames,
+			LastName:                  l.Donor.LastName,
+			DateOfBirth:               l.Donor.DateOfBirth,
+			Email:                     l.Donor.Email,
+			Address:                   l.Donor.Address,
+			OtherNames:                l.Donor.OtherNamesKnownBy,
+			Channel:                   l.Channel,
+			ContactLanguagePreference: l.Donor.ContactLanguagePreference,
+			IdentityCheck:             identityCheck,
 		},
 		Attorneys: Attorneys{
 			Attorneys:        attorneys,
@@ -595,12 +638,29 @@ func FromDonorProvidedDetails(l *actor.DonorProvidedDetails) *Lpa {
 		}
 	}
 
+	var identityCheck IdentityCheck
+	if l.DonorIdentityConfirmed() {
+		identityCheck.CheckedAt = l.DonorIdentityUserData.RetrievedAt
+		identityCheck.Type = "one-login"
+	}
+
 	return &Lpa{
-		LpaID:                l.LpaID,
-		LpaUID:               l.LpaUID,
-		UpdatedAt:            l.UpdatedAt,
-		Type:                 l.Type,
-		Donor:                l.Donor,
+		LpaID:     l.LpaID,
+		LpaUID:    l.LpaUID,
+		UpdatedAt: l.UpdatedAt,
+		Type:      l.Type,
+		Donor: Donor{
+			UID:                       l.Donor.UID,
+			FirstNames:                l.Donor.FirstNames,
+			LastName:                  l.Donor.LastName,
+			Email:                     l.Donor.Email,
+			OtherNames:                l.Donor.OtherNames,
+			DateOfBirth:               l.Donor.DateOfBirth,
+			Address:                   l.Donor.Address,
+			Channel:                   l.Donor.Channel,
+			ContactLanguagePreference: l.Donor.ContactLanguagePreference,
+			IdentityCheck:             identityCheck,
+		},
 		Attorneys:            attorneys,
 		ReplacementAttorneys: replacementAttorneys,
 		CertificateProvider: CertificateProvider{
