@@ -130,7 +130,7 @@ func TestPostProvideCertificate(t *testing.T) {
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
 		Type:  actor.LpaTypePropertyAndAffairs,
 	}
 
@@ -223,7 +223,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 			LastName:   "b",
 			SignedAt:   signedAt,
 		},
-		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
 		Type:  actor.LpaTypePropertyAndAffairs,
 	}
 
@@ -309,7 +309,7 @@ func TestPostProvideCertificateWhenCannotSubmit(t *testing.T) {
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
 		Type:  actor.LpaTypePropertyAndAffairs,
 	}
 
@@ -414,7 +414,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
 		Type:  actor.LpaTypePropertyAndAffairs,
 	}
 
@@ -459,7 +459,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 				FirstNames: "a",
 				LastName:   "b",
 			},
-			Donor: actor.Donor{FirstNames: "c", LastName: "d"},
+			Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
 			Type:  actor.LpaTypePropertyAndAffairs,
 		}, nil)
 
@@ -518,7 +518,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{
 			SignedAt: now,
-			Donor:    actor.Donor{FirstNames: "c", LastName: "d"},
+			Donor:    lpastore.Donor{FirstNames: "c", LastName: "d"},
 			Type:     actor.LpaTypePropertyAndAffairs,
 		}, nil)
 
