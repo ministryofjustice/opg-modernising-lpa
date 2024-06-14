@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -241,13 +242,20 @@ func TestClientSendLpa(t *testing.T) {
 						Country:    "GB",
 					},
 				}},
+				DonorIdentityUserData: identity.UserData{
+					OK:          true,
+					FirstNames:  "John Johnson",
+					LastName:    "Smith",
+					DateOfBirth: date.New("2000", "1", "2"),
+					RetrievedAt: time.Date(2002, time.January, 2, 12, 14, 16, 9, time.UTC),
+				},
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
 			json: `{
 "lpaType":"personal-welfare",
 "channel":"online",
-"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en"},
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","contactLanguagePreference":"en", "identityCheck": {"checkedAt": "2002-01-02T12:14:16.000000009Z","type":"one-login"}},
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active","channel":"paper"},
@@ -392,10 +400,9 @@ func TestClientLpa(t *testing.T) {
 	}{
 		"minimal": {
 			donor: &Lpa{
-				LpaUID:  "M-0000-1111-2222",
-				Type:    actor.LpaTypePropertyAndAffairs,
-				Channel: actor.ChannelOnline,
-				Donor: actor.Donor{
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePropertyAndAffairs,
+				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -407,6 +414,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
+					Channel:    actor.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -451,10 +459,9 @@ func TestClientLpa(t *testing.T) {
 		},
 		"everything": {
 			donor: &Lpa{
-				LpaUID:  "M-0000-1111-2222",
-				Type:    actor.LpaTypePersonalWelfare,
-				Channel: actor.ChannelOnline,
-				Donor: actor.Donor{
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
+				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -469,6 +476,11 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
+					Channel:    actor.ChannelOnline,
+					IdentityCheck: IdentityCheck{
+						CheckedAt: time.Date(2002, time.January, 2, 12, 13, 14, 1, time.UTC),
+						Type:      "one-login",
+					},
 				},
 				Attorneys: Attorneys{
 					TrustCorporation: TrustCorporation{
@@ -586,6 +598,10 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					Channel: actor.ChannelOnline,
+					IdentityCheck: IdentityCheck{
+						CheckedAt: time.Date(2002, time.January, 1, 13, 14, 15, 16, time.UTC),
+						Type:      "one-login",
+					},
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
 					UID:        personToNotifyUID,
@@ -607,7 +623,7 @@ func TestClientLpa(t *testing.T) {
 "uid":"M-0000-1111-2222",
 "lpaType":"personal-welfare",
 "channel":"online",
-"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ"},
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"line-2","line3":"line-3","town":"town","postcode":"F1 1FF","country":"GB"},"otherNamesKnownBy":"JJ","identityCheck":{"checkedAt":"2002-01-02T12:13:14.0000000015Z","type":"one-login"}},
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active"},
@@ -618,7 +634,7 @@ func TestClientLpa(t *testing.T) {
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online"},
 {"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement","channel":"paper"}
 ],
-"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
+"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online","identityCheck":{"checkedAt":"2002-01-01T13:14:15.000000016Z","type":"one-login"}},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
 "howAttorneysMakeDecisions":"jointly",
 "howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others",
@@ -758,10 +774,9 @@ func TestClientLpas(t *testing.T) {
 		"minimal": {
 			lpas: []*Lpa{
 				{
-					LpaUID:  "M-0000-1111-2222",
-					Type:    actor.LpaTypePropertyAndAffairs,
-					Channel: actor.ChannelOnline,
-					Donor: actor.Donor{
+					LpaUID: "M-0000-1111-2222",
+					Type:   actor.LpaTypePropertyAndAffairs,
+					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
 						LastName:    "Smith",
@@ -773,6 +788,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
+						Channel:    actor.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						Attorneys: []Attorney{{
@@ -819,10 +835,9 @@ func TestClientLpas(t *testing.T) {
 		"everything": {
 			lpas: []*Lpa{
 				{
-					LpaUID:  "M-0000-1111-2222",
-					Type:    actor.LpaTypePersonalWelfare,
-					Channel: actor.ChannelOnline,
-					Donor: actor.Donor{
+					LpaUID: "M-0000-1111-2222",
+					Type:   actor.LpaTypePersonalWelfare,
+					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
 						LastName:    "Smith",
@@ -837,6 +852,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
+						Channel:    actor.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						TrustCorporation: TrustCorporation{
@@ -1153,6 +1169,10 @@ func TestAllAttorneysSigned(t *testing.T) {
 			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned())
 		})
 	}
+}
+
+func TestDonorFullName(t *testing.T) {
+	assert.Equal(t, "John Smith", Donor{FirstNames: "John", LastName: "Smith"}.FullName())
 }
 
 func TestAttorneyFullName(t *testing.T) {

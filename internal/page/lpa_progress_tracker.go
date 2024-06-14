@@ -136,7 +136,7 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 		progress.Paid.State = actor.TaskCompleted
 		progress.ConfirmedID.State = actor.TaskInProgress
 
-		if !lpa.DonorIdentityConfirmed {
+		if lpa.Donor.IdentityCheck.CheckedAt.IsZero() {
 			return progress
 		}
 
