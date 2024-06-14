@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -334,6 +335,95 @@ func TestClientSendCertificateProviderOptOut(t *testing.T) {
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service)
+
+	assert.Nil(t, err)
+}
+
+func TestClientSendDonorConfirmIdentity(t *testing.T) {
+	uid, _ := actoruid.Parse("15e5df3d-a053-4537-8066-2f4dd8d1dba8")
+
+	json := `{"type":"DONOR_CONFIRM_IDENTITY","changes": [
+{"key": "/donor/identityCheck/checkedAt", "new": "2024-01-02T12:13:14.000000006Z", "old": null},
+{"key": "/donor/identityCheck/type", "new": "one-login", "old": null}
+]}`
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Return("secret", nil)
+
+	var body []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if body == nil {
+				body, _ = io.ReadAll(req.Body)
+			}
+
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjE1ZTVkZjNkLWEwNTMtNDUzNy04MDY2LTJmNGRkOGQxZGJhOCIsImlhdCI6OTQ2NzgyMjQ1fQ.6nsN_9PRaB_jXS_sni2-JBNlnWUdHK-xEgTLda-8PD8", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.JSONEq(t, json, string(body))
+		})).
+		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	err := client.SendDonorConfirmIdentity(ctx, &actor.DonorProvidedDetails{
+		LpaUID: "lpa-uid",
+		Donor:  actor.Donor{UID: uid},
+		DonorIdentityUserData: identity.UserData{
+			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
+		},
+	})
+
+	assert.Nil(t, err)
+}
+
+func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
+	uid, _ := actoruid.Parse("15e5df3d-a053-4537-8066-2f4dd8d1dba8")
+
+	json := `{"type":"CERTIFICATE_PROVIDER_CONFIRM_IDENTITY","changes": [
+{"key": "/certificateProvider/identityCheck/checkedAt", "new": "2024-01-02T12:13:14.000000006Z", "old": null},
+{"key": "/certificateProvider/identityCheck/type", "new": "one-login", "old": null}
+]}`
+
+	ctx := context.Background()
+
+	secretsClient := newMockSecretsClient(t)
+	secretsClient.EXPECT().
+		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Return("secret", nil)
+
+	var body []byte
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			if body == nil {
+				body, _ = io.ReadAll(req.Body)
+			}
+
+			return assert.Equal(t, ctx, req.Context()) &&
+				assert.Equal(t, http.MethodPost, req.Method) &&
+				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOjE1ZTVkZjNkLWEwNTMtNDUzNy04MDY2LTJmNGRkOGQxZGJhOCIsImlhdCI6OTQ2NzgyMjQ1fQ.6nsN_9PRaB_jXS_sni2-JBNlnWUdHK-xEgTLda-8PD8", req.Header.Get("X-Jwt-Authorization")) &&
+				assert.JSONEq(t, json, string(body))
+		})).
+		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+
+	client := New("http://base", secretsClient, doer)
+	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+	err := client.SendCertificateProviderConfirmIdentity(ctx, "lpa-uid", &actor.CertificateProviderProvidedDetails{
+		UID: uid,
+		IdentityUserData: identity.UserData{
+			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
+		},
+	})
 
 	assert.Nil(t, err)
 }
