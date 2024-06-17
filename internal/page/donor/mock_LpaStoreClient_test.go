@@ -84,6 +84,53 @@ func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
+// SendDonorConfirmIdentity provides a mock function with given fields: ctx, donor
+func (_m *mockLpaStoreClient) SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+	ret := _m.Called(ctx, donor)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendDonorConfirmIdentity")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+		r0 = rf(ctx, donor)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendDonorConfirmIdentity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendDonorConfirmIdentity'
+type mockLpaStoreClient_SendDonorConfirmIdentity_Call struct {
+	*mock.Call
+}
+
+// SendDonorConfirmIdentity is a helper method to define mock.On call
+//   - ctx context.Context
+//   - donor *actor.DonorProvidedDetails
+func (_e *mockLpaStoreClient_Expecter) SendDonorConfirmIdentity(ctx interface{}, donor interface{}) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	return &mockLpaStoreClient_SendDonorConfirmIdentity_Call{Call: _e.mock.On("SendDonorConfirmIdentity", ctx, donor)}
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Return(_a0 error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendLpa provides a mock function with given fields: ctx, details
 func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, details)

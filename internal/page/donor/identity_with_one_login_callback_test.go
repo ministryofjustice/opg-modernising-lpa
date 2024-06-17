@@ -21,15 +21,17 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Now()
+
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{OK: true, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	updatedDonor := &actor.DonorProvidedDetails{
+		Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
+		DonorIdentityUserData: userData,
+	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
-			DonorIdentityUserData: userData,
-		}).
+		Put(r.Context(), updatedDonor).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)

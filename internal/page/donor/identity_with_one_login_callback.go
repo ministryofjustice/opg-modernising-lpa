@@ -71,14 +71,14 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		donor.DonorIdentityUserData = userData
 
 		if donor.DonorIdentityConfirmed() {
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
+
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
+			}
 		} else {
 			data.CouldNotConfirm = true
 		}

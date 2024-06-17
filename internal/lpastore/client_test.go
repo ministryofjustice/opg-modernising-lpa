@@ -858,10 +858,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, &Lpa{
-				LpaUID:  "M-0000-1111-2222",
-				Type:    actor.LpaTypePersonalWelfare,
-				Channel: actor.ChannelOnline,
-				Donor: actor.Donor{
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
+				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
 					DateOfBirth: date.New("1960", "04", "06"),
@@ -871,6 +870,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
+					Channel: actor.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -990,10 +990,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, []*Lpa{{
-				LpaUID:  "M-0000-1111-2222",
-				Type:    actor.LpaTypePersonalWelfare,
-				Channel: actor.ChannelOnline,
-				Donor: actor.Donor{
+				LpaUID: "M-0000-1111-2222",
+				Type:   actor.LpaTypePersonalWelfare,
+				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
 					DateOfBirth: date.New("1960", "04", "06"),
@@ -1003,6 +1002,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
+					Channel: actor.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
