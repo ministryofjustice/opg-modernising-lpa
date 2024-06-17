@@ -91,7 +91,6 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.CertificateProvider.Relationship = actor.Professionally
 		lpa.Donor.Channel = actor.ChannelPaper
 	} else {
-		lpa.DonorIdentityConfirmed = donor.DonorIdentityConfirmed()
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
