@@ -136,8 +136,9 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
+	SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
 }
 
 type ShareCodeStore interface {
