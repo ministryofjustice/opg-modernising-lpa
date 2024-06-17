@@ -53,7 +53,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			lpa := &lpastore.Lpa{
-				Donor:               actor.Donor{Channel: tc.DonorChannel},
+				Donor:               lpastore.Donor{Channel: tc.DonorChannel},
 				CertificateProvider: lpastore.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
 			}
 			certificateProvider := &actor.CertificateProviderProvidedDetails{}

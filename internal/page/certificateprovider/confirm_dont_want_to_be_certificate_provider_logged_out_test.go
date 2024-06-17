@@ -137,7 +137,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 		donorStore     func() *mockDonorStore
 	}{
 		"witnessed and signed": {
-			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
+			lpa: lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), Donor: lpastore.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
@@ -152,14 +152,14 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			lpa: lpastore.Lpa{
 				LpaUID:         "lpa-uid",
 				SignedAt:       time.Now(),
-				Donor:          actor.Donor{FirstNames: "a b", LastName: "c"},
+				Donor:          lpastore.Donor{FirstNames: "a b", LastName: "c"},
 				CannotRegister: true,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
 		},
 		"not witnessed and signed": {
-			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: actor.Donor{FirstNames: "a b", LastName: "c"}},
+			lpa:            lpastore.Lpa{LpaUID: "lpa-uid", Donor: lpastore.Donor{FirstNames: "a b", LastName: "c"}},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore: func() *mockDonorStore {
 				donorStore := newMockDonorStore(t)
