@@ -36,13 +36,6 @@ function init() {
         }, false);
     }
 
-    const jsOnlyElements = document.querySelectorAll(".js-only");
-    if (jsOnlyElements) {
-        jsOnlyElements.forEach(e => {
-            e.classList.toggle("js-only");
-        });
-    }
-
     function metaContent(name) {
         return document.querySelector(`meta[name=${name}]`).content;
     }
