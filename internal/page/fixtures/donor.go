@@ -186,8 +186,6 @@ func updateLPAProgress(
 			}); err != nil {
 				return nil, nil, err
 			}
-
-			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
@@ -205,6 +203,8 @@ func updateLPAProgress(
 				FirstNames: "Indie",
 				LastName:   "Irwin",
 			}
+
+			donorDetails.Tasks.ChooseYourSignatory = actor.TaskCompleted
 		}
 
 		donorDetails.Tasks.YourDetails = actor.TaskCompleted

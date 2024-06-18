@@ -58,7 +58,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Build ${{ matrix.ecr_repository }} Image
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5.4.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -80,7 +80,7 @@ jobs:
           output: 'trivy-results.sarif'
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@v3.25.8
+        uses: github/codeql-action/upload-sarif@v3.25.10
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -101,7 +101,7 @@ jobs:
           registries: 311462405659
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5.4.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -117,7 +117,7 @@ jobs:
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5.4.0
         with:
           context: .
           file: ${{ matrix.path }}

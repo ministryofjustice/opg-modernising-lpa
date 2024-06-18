@@ -74,6 +74,8 @@ describe('Confirm your identity and sign', () => {
     });
 
     it('errors when not signed', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity');
+
       cy.visitLpa('/sign-your-lpa');
 
       cy.contains('button', 'Submit my signature').click();

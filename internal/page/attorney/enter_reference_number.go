@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -52,11 +51,9 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					LpaID:     shareCode.LpaKey.ID(),
 				})
 
-				if _, err := attorneyStore.Create(ctx, shareCode, session.Email); err != nil {
-					var ccf *types.ConditionalCheckFailedException
-					if !errors.As(err, &ccf) {
-						return err
-					}
+				if _, err := attorneyStore.Create(ctx, shareCode, session.Email); err != nil &&
+					!errors.Is(err, dynamo.ConditionalCheckFailedError{}) {
+					return err
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()

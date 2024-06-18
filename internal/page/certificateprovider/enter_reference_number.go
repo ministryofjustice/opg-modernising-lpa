@@ -51,7 +51,8 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					LpaID:     shareCode.LpaKey.ID(),
 				})
 
-				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil {
+				if _, err := certificateProviderStore.Create(ctx, shareCode, session.Email); err != nil &&
+					!errors.Is(err, dynamo.ConditionalCheckFailedError{}) {
 					return err
 				}
 

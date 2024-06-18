@@ -154,8 +154,6 @@ func CertificateProvider(
 			}); err != nil {
 				return err
 			}
-
-			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
@@ -250,7 +248,8 @@ func CertificateProvider(
 				LpaOwnerKey:                 donorDetails.SK,
 				LpaUID:                      donorDetails.LpaUID,
 				Type:                        donorDetails.Type,
-				Donor:                       donorDetails.Donor,
+				DonorFirstNames:             donorDetails.Donor.FirstNames,
+				DonorFullName:               donorDetails.Donor.FullName(),
 				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
 				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
 				CertificateProviderEmail:    donorDetails.CertificateProvider.Email,

@@ -53,6 +53,8 @@ func Attorney(
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
+		"confirmYourDetails",
+		"readTheLPA",
 		"signedByAttorney",
 		"signedByAllAttorneys",
 		"submitted",
@@ -164,8 +166,6 @@ func Attorney(
 			}); err != nil {
 				return err
 			}
-
-			donorDetails.HasSentUidRequestedEvent = true
 		} else {
 			donorDetails.LpaUID = makeUID()
 		}
@@ -234,11 +234,17 @@ func Attorney(
 			certificateProvider.SignedAt = donorDetails.SignedAt.Add(time.Hour)
 		}
 
-		if progress >= slices.Index(progressValues, "signedByAttorney") {
+		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			attorney.Mobile = testMobile
 			attorney.ContactLanguagePreference = localize.En
 			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+		}
+
+		if progress >= slices.Index(progressValues, "readTheLPA") {
 			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+		}
+
+		if progress >= slices.Index(progressValues, "signedByAttorney") {
 			attorney.Tasks.SignTheLpa = actor.TaskCompleted
 
 			if isTrustCorporation {

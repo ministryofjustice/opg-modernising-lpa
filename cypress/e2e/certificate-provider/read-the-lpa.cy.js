@@ -1,7 +1,7 @@
 describe('Read the LPA', () => {
     describe('when the LPA is signed', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/certificate-provider?redirect=/read-the-lpa&progress=signedByDonor');
+            cy.visit('/fixtures/certificate-provider?redirect=/read-the-lpa&progress=confirmYourIdentity');
         });
 
         it('displays the LPA details and goes to provide certificate', () => {

@@ -75,7 +75,7 @@ func All(globals *Globals) map[string]any {
 		"concatOr":           concatOr,
 		"concatComma":        concatComma,
 		"penceToPounds":      penceToPounds,
-		"canGoTo":            page.CanGoTo,
+		"donorCanGoTo":       page.DonorCanGoTo,
 		"content":            content,
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,

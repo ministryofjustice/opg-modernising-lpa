@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -84,7 +84,7 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		donor.Donor.Address = latest.Donor.Address
 	}
 
-	if donor.Hash, err = donor.GenerateHash(); err != nil {
+	if err := donor.UpdateHash(); err != nil {
 		return nil, err
 	}
 
@@ -269,12 +269,13 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 }
 
 func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
-	newHash, err := donor.GenerateHash()
-	if newHash == donor.Hash || err != nil {
-		return err
+	if !donor.HashChanged() {
+		return nil
 	}
 
-	donor.Hash = newHash
+	if err := donor.UpdateHash(); err != nil {
+		return err
+	}
 
 	// By not setting UpdatedAt until a UID exists, queries for SK=DONOR#xyz on
 	// SKUpdatedAtIndex will not return UID-less LPAs.
@@ -289,31 +290,8 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 				LastName:   donor.Donor.LastName,
 			},
 		}); err != nil {
-			return fmt.Errorf("donorStore index failed: %w", err)
+			s.logger.WarnContext(ctx, "donorStore index failed", slog.Any("err", err))
 		}
-	}
-
-	if donor.LpaUID == "" && !donor.Type.Empty() && !donor.HasSentUidRequestedEvent {
-		data, err := page.SessionDataFromContext(ctx)
-		if err != nil {
-			return err
-		}
-
-		if err := s.eventClient.SendUidRequested(ctx, event.UidRequested{
-			LpaID:          donor.LpaID,
-			DonorSessionID: data.SessionID,
-			OrganisationID: data.OrganisationID,
-			Type:           donor.Type.String(),
-			Donor: uid.DonorDetails{
-				Name:     donor.Donor.FullName(),
-				Dob:      donor.Donor.DateOfBirth,
-				Postcode: donor.Donor.Address.Postcode,
-			},
-		}); err != nil {
-			return err
-		}
-
-		donor.HasSentUidRequestedEvent = true
 	}
 
 	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
@@ -332,17 +310,6 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		}
 
 		donor.HasSentApplicationUpdatedEvent = true
-	}
-
-	if donor.LpaUID != "" && donor.PreviousApplicationNumber != "" && !donor.HasSentPreviousApplicationLinkedEvent {
-		if err := s.eventClient.SendPreviousApplicationLinked(ctx, event.PreviousApplicationLinked{
-			UID:                       donor.LpaUID,
-			PreviousApplicationNumber: donor.PreviousApplicationNumber,
-		}); err != nil {
-			return err
-		}
-
-		donor.HasSentPreviousApplicationLinkedEvent = true
 	}
 
 	return s.dynamoClient.Put(ctx, donor)
@@ -378,10 +345,10 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCodeData) error {
+func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error {
 	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
 	if !ok {
-		return errors.New("donorStore.DeleteLink can only be used with organisations")
+		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
 	}
 
 	data, err := page.SessionDataFromContext(ctx)
@@ -390,7 +357,7 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 	}
 
 	if data.OrganisationID == "" {
-		return errors.New("donorStore.DeleteLink requires OrganisationID")
+		return errors.New("donorStore.DeleteDonorAccess requires OrganisationID")
 	}
 
 	if data.OrganisationID != organisationKey.ID() {
@@ -402,9 +369,19 @@ func (s *donorStore) DeleteLink(ctx context.Context, shareCodeData actor.ShareCo
 		return err
 	}
 
-	if err := s.dynamoClient.DeleteOne(ctx, link.PK, link.SK); err != nil {
-		return err
-	}
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{
+			PK: link.PK,
+			SK: link.SK,
+		}).
+		Delete(dynamo.Keys{
+			PK: shareCodeData.LpaKey,
+			SK: dynamo.DonorKey(link.UserSub()),
+		}).
+		Delete(dynamo.Keys{
+			PK: shareCodeData.PK,
+			SK: shareCodeData.SK,
+		})
 
-	return s.dynamoClient.DeleteOne(ctx, shareCodeData.LpaKey, dynamo.DonorKey(link.UserSub()))
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }

@@ -1,10 +1,6 @@
 describe('Check the LPA', () => {
-  beforeEach(() => {
-    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
-  });
-
   it('cannot change when personal welfare LPA can be used', () => {
-    cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&lpa-type=personal-welfare');
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&lpa-type=personal-welfare');
 
     cy.contains('.govuk-summary-list__row', 'When your attorneys can use your LPA')
       .contains('Only when I do not have mental capacity')
@@ -12,6 +8,8 @@ describe('Check the LPA', () => {
   });
 
   it("can submit the completed LPA", () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&certificateProviderEmail=test@example.com');
+
     cy.contains('h1', "Check your LPA")
 
     cy.checkA11yApp();
@@ -47,6 +45,8 @@ describe('Check the LPA', () => {
   });
 
   it('does not allow checking when no changes', () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent');
+
     cy.get('#f-checked-and-happy').check({ force: true })
     cy.contains('button', 'Confirm').click();
 
@@ -64,7 +64,7 @@ describe('Check the LPA', () => {
   describe('CP acting on paper', () => {
     describe('on first check', () => {
       it('content is tailored for paper CPs, a details component is shown and nav redirects to payment', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa&certificateProvider=paper');
+        cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&certificateProvider=paper');
 
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
@@ -126,7 +126,7 @@ describe('Check the LPA', () => {
   describe('CP acting online', () => {
     describe('on first check', () => {
       it('content is tailored for online CPs, a details component is shown and nav redirects to payment', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=peopleToNotifyAboutYourLpa');
+        cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent');
 
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
@@ -186,6 +186,7 @@ describe('Check the LPA', () => {
   })
 
   it("errors when not selected", () => {
+    cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent');
     cy.contains('button', 'Confirm').click();
 
     cy.get('.govuk-error-summary').within(() => {
