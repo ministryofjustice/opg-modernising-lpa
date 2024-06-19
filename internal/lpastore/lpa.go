@@ -444,13 +444,15 @@ type Lpa struct {
 	Restrictions                               string
 	WhenCanTheLpaBeUsed                        actor.CanBeUsedWhen
 	LifeSustainingTreatmentOption              actor.LifeSustainingTreatment
-	SignedAt                                   time.Time
-	CertificateProviderNotRelatedConfirmedAt   time.Time
-	Submitted                                  bool
-	Paid                                       bool
-	IsOrganisationDonor                        bool
-	Drafted                                    bool
-	CannotRegister                             bool
+	// SignedAt is the date the Donor signed their LPA (and signifies it has been
+	// witnessed by their CertificateProvider)
+	SignedAt                                 time.Time
+	CertificateProviderNotRelatedConfirmedAt time.Time
+	Submitted                                bool
+	Paid                                     bool
+	IsOrganisationDonor                      bool
+	Drafted                                  bool
+	CannotRegister                           bool
 }
 
 func (l Lpa) AllAttorneysSigned() bool {
