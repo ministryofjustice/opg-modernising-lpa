@@ -125,3 +125,19 @@ func (e DonorAccessEmail) emailID(isProduction bool) string {
 
 	return "0d762056-570b-4fca-9871-1f6a69f9da47"
 }
+
+type CertificateProviderOptedOutPreWitnessingEmail struct {
+	CertificateProviderFullName string
+	DonorFullName               string
+	LpaType                     string
+	LpaUID                      string
+	ServiceStartPageURL         string
+}
+
+func (e CertificateProviderOptedOutPreWitnessingEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "1e85965d-4288-42ea-bdd5-f4a29020cf73"
+	}
+
+	return "06691e59-899a-4b06-8337-68e4c93d5e29"
+}
