@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = true
+  enable_opensearch_ingestion_pipeline = false
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
@@ -201,8 +201,9 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn      = aws_dynamodb_table.lpas_table.arn
-        s3_bucket_name = data.aws_s3_bucket.dynamodb_exports_bucket.id
+        table_arn         = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_name    = data.aws_s3_bucket.dynamodb_exports_bucket.id
+        s3_sse_kms_key_id = data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
         stream = {
           start_position = "LATEST"
         }
