@@ -205,7 +205,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 					Return(&actor.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
 						Donor: actor.Donor{
-							FirstNames: "a b", LastName: "c", Email: "a@example.com",
+							FirstNames: "a b", LastName: "c",
 						},
 						Tasks: actor.DonorTasks{
 							CertificateProvider: actor.TaskCompleted,
