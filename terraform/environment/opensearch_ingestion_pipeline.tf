@@ -109,6 +109,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
 
@@ -139,6 +140,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_s3_bucket.dynamodb_exports_bucket.arn,
+      "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
 }
