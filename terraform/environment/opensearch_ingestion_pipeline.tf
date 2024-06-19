@@ -246,7 +246,9 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.environment_name}/*"],
+          Resource = [
+            "index/shared-collection-${local.environment.account_name}/lpas_v2_${local.environment_name}",
+          ],
           Permission = [
             "aoss:CreateIndex",
             "aoss:UpdateIndex",
