@@ -90,14 +90,13 @@ func App(
 	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
 
 	donorStore := &donorStore{
-		dynamoClient:  lpaDynamoClient,
-		eventClient:   eventClient,
-		logger:        logger,
-		uuidString:    uuid.NewString,
-		newUID:        actoruid.New,
-		now:           time.Now,
-		documentStore: documentStore,
-		searchClient:  searchClient,
+		dynamoClient: lpaDynamoClient,
+		eventClient:  eventClient,
+		logger:       logger,
+		uuidString:   uuid.NewString,
+		newUID:       actoruid.New,
+		now:          time.Now,
+		searchClient: searchClient,
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
