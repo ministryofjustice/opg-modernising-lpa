@@ -18,7 +18,7 @@ type confirmDontWantToBeCertificateProviderData struct {
 	Lpa    *lpastore.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient) page.Handler {
+func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -40,7 +40,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
 					LpaUID:                        lpa.LpaUID,
-					ServiceStartPageURL:           page.Paths.Start.Format(),
+					DonorStartPageURL:             appPublicURL + page.Paths.Start.Format(),
 				}
 
 				if !lpa.CannotRegister {
@@ -59,7 +59,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
 					LpaUID:                      donor.LpaUID,
-					ServiceStartPageURL:         page.Paths.Start.Format(),
+					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
 				}
 
 				donor.CertificateProvider = actor.CertificateProvider{}

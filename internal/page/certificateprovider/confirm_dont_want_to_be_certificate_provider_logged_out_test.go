@@ -41,7 +41,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeCertificateProviderLoggedOut(template.Execute, nil, lpaStoreResolvingService, nil, nil, sessionStore, nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeCertificateProviderLoggedOut(template.Execute, nil, lpaStoreResolvingService, nil, nil, sessionStore, nil, "example.com")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -118,7 +118,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := ConfirmDontWantToBeCertificateProviderLoggedOut(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil, nil, tc.sessionStore(), nil)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(tc.template().Execute, nil, tc.lpaStoreResolvingService(), nil, nil, tc.sessionStore(), nil, "example.com")(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -165,7 +165,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				ServiceStartPageURL:           page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
 			},
 		},
 		"cannot-register": {
@@ -187,7 +187,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				ServiceStartPageURL:           page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
 			},
 		},
 		"not witnessed and signed": {
@@ -221,7 +221,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 					Put(ctx, &actor.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
 						Donor: actor.Donor{
-							FirstNames: "a b", LastName: "c", Email: "a@example.com",
+							FirstNames: "a b", LastName: "c",
 						},
 						Tasks: actor.DonorTasks{
 							CertificateProvider: actor.TaskNotStarted,
@@ -239,7 +239,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				DonorFullName:               "a b c",
 				LpaType:                     "Personal welfare",
 				LpaUID:                      "lpa-uid",
-				ServiceStartPageURL:         page.Paths.Start.Format(),
+				DonorStartPageURL:           "example.com" + page.Paths.Start.Format(),
 			},
 		},
 	}
@@ -281,7 +281,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), sessionStore, notifyClient)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), sessionStore, notifyClient, "example.com")(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -541,7 +541,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 
 			testAppData.Localizer = tc.localizer()
 
-			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.sessionStore(), nil)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.sessionStore(), nil, "example.com")(testAppData, w, r)
 
 			resp := w.Result()
 

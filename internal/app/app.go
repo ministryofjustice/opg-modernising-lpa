@@ -184,6 +184,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		donorStore,
+		appPublicURL,
 	)
 
 	attorney.Register(

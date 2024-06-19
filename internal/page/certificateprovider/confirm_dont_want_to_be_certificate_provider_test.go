@@ -36,7 +36,7 @@ func TestGetConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeCertificateProvider(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeCertificateProvider(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, "example.com")(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -84,7 +84,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, tc.lpaStoreResolvingService(), nil, nil, nil, nil)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, tc.lpaStoreResolvingService(), nil, nil, nil, nil, "example.com")(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -131,7 +131,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				ServiceStartPageURL:           page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
 			},
 		},
 		"cannot-register": {
@@ -155,7 +155,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				ServiceStartPageURL:           page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
 			},
 		},
 		"not witnessed and signed": {
@@ -205,7 +205,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:               "a b c",
 				LpaType:                     "Personal welfare",
 				LpaUID:                      "lpa-uid",
-				ServiceStartPageURL:         page.Paths.Start.Format(),
+				DonorStartPageURL:           "example.com" + page.Paths.Start.Format(),
 			},
 		},
 	}
@@ -234,7 +234,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				SendActorEmail(r.Context(), "a@example.com", "lpa-uid", tc.email).
 				Return(nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient)(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient, "example.com")(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -447,7 +447,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 			testAppData.Localizer = tc.localizer()
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.certificateProviderStore(), tc.notifyClient())(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.certificateProviderStore(), tc.notifyClient(), "example.com")(testAppData, w, r)
 
 			resp := w.Result()
 

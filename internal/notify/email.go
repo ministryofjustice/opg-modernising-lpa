@@ -131,7 +131,7 @@ type CertificateProviderOptedOutPreWitnessingEmail struct {
 	DonorFullName               string
 	LpaType                     string
 	LpaUID                      string
-	ServiceStartPageURL         string
+	DonorStartPageURL           string
 }
 
 func (e CertificateProviderOptedOutPreWitnessingEmail) emailID(isProduction bool) string {
@@ -148,7 +148,7 @@ type CertificateProviderOptedOutPostWitnessingEmail struct {
 	DonorFullName                 string
 	LpaType                       string
 	LpaUID                        string
-	ServiceStartPageURL           string
+	DonorStartPageURL             string
 }
 
 func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction bool) string {
