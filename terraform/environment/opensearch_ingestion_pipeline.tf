@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = false
+  enable_opensearch_ingestion_pipeline = true
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
@@ -12,7 +12,7 @@ data "aws_kms_alias" "opensearch_encryption_key" {
   provider = aws.eu_west_1
 }
 
-data "aws_kms_alias" "dynemodb_exports_s3_bucket_encryption_key" {
+data "aws_kms_alias" "dynamodb_exports_s3_bucket_encryption_key" {
   name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
   provider = aws.eu_west_1
 }
@@ -23,7 +23,6 @@ data "aws_s3_bucket" "dynamodb_exports_bucket" {
 }
 
 resource "aws_iam_role_policy" "opensearch_pipeline" {
-  count    = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name     = "opensearch_pipeline"
   role     = module.global.iam_roles.opensearch_pipeline.name
   policy   = data.aws_iam_policy_document.opensearch_pipeline.json
@@ -69,6 +68,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "dynamodb:DescribeTable",
       "dynamodb:DescribeContinuousBackups",
       "dynamodb:ExportTableToPointInTime",
+      "dynamodb:ListExports",
     ]
     resources = [
       aws_dynamodb_table.lpas_table.arn,
@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
-      data.aws_kms_alias.dynemodb_exports_s3_bucket_encryption_key.target_key_arn
+      data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
 
@@ -129,15 +129,16 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     sid    = "allowReadAndWriteToS3ForExport"
     effect = "Allow"
     actions = [
+      "s3:HeadBucket",
       "s3:GetObject",
       "s3:CreateMultipartUpload",
       "s3:AbortMultipartUpload",
+      "s3:UploadPart",
       "s3:PutObject",
       "s3:PutObjectAcl"
     ]
     resources = [
       data.aws_s3_bucket.dynamodb_exports_bucket.arn,
-      "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
 }
@@ -278,5 +279,11 @@ resource "aws_osis_pipeline" "lpas_stream" {
     security_group_ids = [aws_security_group.opensearch_ingestion[0].id]
     subnet_ids         = data.aws_subnet.application[*].id
   }
+  depends_on = [
+    aws_opensearchserverless_access_policy.pipeline,
+    aws_iam_role_policy.opensearch_pipeline,
+    aws_security_group.opensearch_ingestion,
+  ]
+
   provider = aws.eu_west_1
 }
