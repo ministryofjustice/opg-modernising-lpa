@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = false
+  enable_opensearch_ingestion_pipeline = true
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:APIAccessAll"
     ]
     resources = [
-      "*",
+      # "*",
       data.aws_opensearchserverless_collection.lpas_collection.arn
     ]
   }
@@ -95,7 +95,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.dynamodb_encryption_key.target_key_arn,
-      data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
 
