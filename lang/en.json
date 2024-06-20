@@ -1129,5 +1129,8 @@
     "yourAddress": "Your address",
     "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account.",
     "enter": "Enter",
-    "forFullName": "for {{ .FullName }}"
+    "forFullName": "for {{ .FullName }}",
+    "youHaveBeenUnableToConfirmYourIdentity": "You have been unable to confirm your identity using GOV.UK One Login",
+    "vouchingLandingPageContent": "<p class=\"govuk-body\">You need to confirm your identity before the Office of the Public Guardian (OPG) can register your Lasting Power of Attorney.</p> <p class=\"govuk-body\">You can either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>return to GOV.UK One Login and try to confirm your identity again</li> <li>ask someone you know to confirm your identity by vouching for you</li> </ul> <p class=\"govuk-body\">Continue to find out about vouching and who can confirm your identity.</p>",
+    "important": "Important"
 }
