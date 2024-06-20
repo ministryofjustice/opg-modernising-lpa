@@ -111,6 +111,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
+	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -123,7 +124,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.EnterReferenceNumberOptOut,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut,
-		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore))
+		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, appPublicURL))
 	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
 		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
@@ -160,7 +161,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.CertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStoreResolvingService, certificateProviderStore))
 	handleCertificateProvider(page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider, page.CanGoBack,
-		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreResolvingService, lpaStoreClient, donorStore, certificateProviderStore))
+		ConfirmDontWantToBeCertificateProvider(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), lpaStoreResolvingService, lpaStoreClient, donorStore, certificateProviderStore, notifyClient, appPublicURL))
 }
 
 func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Path, page.Handler) {
