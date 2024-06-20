@@ -518,7 +518,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 					Return(shareCodeData, nil)
 				shareCodeStore.EXPECT().
 					Delete(mock.Anything, mock.Anything).
-					Return(expectedError)
+					Return(nil)
 
 				return shareCodeStore
 			},
@@ -541,7 +541,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 
 			testAppData.Localizer = tc.localizer()
 
-			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.sessionStore(), nil, "example.com")(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProviderLoggedOut(nil, tc.shareCodeStore(), tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.sessionStore(), tc.notifyClient(), "example.com")(testAppData, w, r)
 
 			resp := w.Result()
 
