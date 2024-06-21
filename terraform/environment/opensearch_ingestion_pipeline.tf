@@ -40,7 +40,6 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:APIAccessAll"
     ]
     resources = [
-      # "*",
       data.aws_opensearchserverless_collection.lpas_collection.arn
     ]
   }

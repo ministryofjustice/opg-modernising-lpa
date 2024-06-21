@@ -17,8 +17,12 @@ dynamodb-pipeline:
     - lay_journey_lpas: ${routes.lay_journey_lpas}
     - supporter_journey_lpas: ${routes.supporter_journey_lpas}
   processor:
-    - key_value:
-        include_keys: ["PK", "SK", "Donor"]
+    - select_entries:
+        include_keys: [
+          "PK",
+          "SK",
+          "Donor"
+        ]
   sink:
     - opensearch:
         hosts: ["${sink.opensearch.hosts}"]
