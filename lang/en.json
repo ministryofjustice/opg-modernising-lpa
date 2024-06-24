@@ -71,6 +71,9 @@
     "aReplacementAttorney": "a replacement attorney",
     "theCertificateProvider": "the certificate provider",
     "aPersonToNotify": "a person to notify",
+    "theAuthorisedSignatory": "the authorised signatory",
+    "theIndependentWitness": "the independent witness",
+    "theVoucher": "the person who will vouch for you",
     "whatIsYourAddress": "What is your address?",
     "postcode": "Postcode",
     "findAddress": "Find address",
@@ -1129,5 +1132,8 @@
     "yourAddress": "Your address",
     "yourAddressWarning": "You should only enter your address. You cannot make an LPA for someone else using your account.",
     "enter": "Enter",
-    "forFullName": "for {{ .FullName }}"
+    "forFullName": "for {{ .FullName }}",
+    "enterDetailsOfPersonWhoWillVouch": "Enter the details of the person who will vouch for you",
+    "whoCannotVouchForYou": "Who cannot vouch for you",
+    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>someone named on your LPA, including yourself</li><li>someone in a relationship with you</li><li>a member of your family</li><li>someone living at the same address as you</li></ul>"
 }
