@@ -121,6 +121,9 @@ type DonorProvidedDetails struct {
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
 	Version int `hash:"-"`
 
+	// Voucher is a person the donor has nominated to vouch for their identity
+	Voucher Voucher
+
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
 	// When the signing was witnessed by the certificate provider

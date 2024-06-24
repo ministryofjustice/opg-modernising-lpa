@@ -359,6 +359,9 @@ func Register(
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
+	handleWithDonor(page.Paths.EnterVoucher, page.CanGoBack,
+		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore))
+
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
 	handleWithDonor(page.Paths.LpaYourLegalRightsAndResponsibilities, page.CanGoBack,
