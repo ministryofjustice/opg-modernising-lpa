@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = false
+  enable_opensearch_ingestion_pipeline = true
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
@@ -222,6 +222,9 @@ locals {
       opensearch = {
         hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
         index = "lpas_v2_${local.environment_name}"
+        # document_id = "LPA--${PK.replaceAll(/.*#(.*)/, '$1')}"
+        # document_id = "LPA--$${/PK}/.*#(.*)/$1/"
+        document_id = "$${/DocID}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"
