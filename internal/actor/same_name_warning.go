@@ -88,6 +88,8 @@ func (w *SameNameWarning) actorType() string {
 		return "theAuthorisedSignatory"
 	case TypeIndependentWitness:
 		return "theIndependentWitness"
+	case TypeVoucher:
+		return "theVoucher"
 	}
 
 	return ""
