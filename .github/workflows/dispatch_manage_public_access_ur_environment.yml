@@ -26,10 +26,45 @@ defaults:
     shell: bash
 
 jobs:
-  ur_toggle_public_access:
+  fetch_s3_av_version:
+    name: Fetch the S3 AV Zip version tag
     runs-on: ubuntu-latest
     steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull S3 AV Zip tag
+        id: pull_s3_av_tag
+        run: |
+          key="/opg-s3-antivirus/zip-version-main"
+          value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text 2>/dev/null || true)
+          echo "Using $key: $value"
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+    outputs:
+      s3_av_scanner_zip_tag: ${{ steps.pull_s3_av_tag.outputs.tag }}
+
+  ur_toggle_public_access:
+    runs-on: ubuntu-latest
+    needs: [ fetch_s3_av_version ]
+    steps:
       - uses: actions/checkout@v4
+      - name: get lambda function zips
+        working-directory: ./terraform/environment/region/modules/s3_antivirus/
+        run: |
+          echo "Pulling AV lambda version: ${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}" >> $GITHUB_STEP_SUMMARY
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip -O lambda_layer.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/lambda_layer-amd64.zip.sha256sum -O lambda_layer.zip.sha256sum
+          sha256sum -c "lambda_layer.zip.sha256sum"
+          echo "Lambda Layer Zip SHA256 Hash: $(cat lambda_layer.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
+
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip -O myFunction.zip
+          wget https://github.com/ministryofjustice/opg-s3-antivirus/releases/download/${{ needs.fetch_s3_av_version.outputs.s3_av_scanner_zip_tag }}/myFunction-amd64.zip.sha256sum -O myFunction.zip.sha256sum
+          sha256sum -c "myFunction.zip.sha256sum"
+          echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
       - uses: unfor19/install-aws-cli-action@v1
       - name: Parse terraform version
         id: tf_version_setup
@@ -71,5 +106,7 @@ jobs:
             -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_public_access_ingress_port_80[0]' \
             -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_port_80_redirect_ingress[0]' \
             -target 'module.eu_west_1[0].module.app.aws_security_group_rule.app_loadbalancer_ingress[0]' \
-            -target 'module.eu_west_1[0].module.mock_onelogin[0].aws_security_group_rule.mock_onelogin_loadbalancer_public_access_ingress[0]'
+            -target 'module.eu_west_1[0].module.mock_onelogin[0].aws_security_group_rule.mock_onelogin_loadbalancer_public_access_ingress[0]' \
+            -target 'module.eu_west_1[0].aws_service_discovery_private_dns_namespace.internal' \
+            -target 'module.eu_west_1[0].aws_service_discovery_private_dns_namespace.mock_one_login'
         working-directory: ./terraform/environment
