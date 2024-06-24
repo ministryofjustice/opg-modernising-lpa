@@ -1203,5 +1203,13 @@
     "forFullName": "Welsh {{ .FullName }}",
     "enterDetailsOfPersonWhoWillVouch": "Welsh",
     "whoCannotVouchForYou": "Welsh",
-    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>"
+    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
+    "confirmThisPersonIsAllowedToVouchForYou": "Welsh",
+    "youHaveEnteredNameWhichMatchesYourName": "Welsh {{.FullName}}.",
+    "youHaveEnteredNameWhichMatches": "Welsh {{.ActorType}}, {{.FullName}}.",
+    "personVouchingCannotBe": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
+    "areYouSureThisPersonIsAllowedToVouchForYou": "Welsh",
+    "noINeedToChooseSomeoneElse": "Welsh",
+    "yesIfPersonIsAllowedToVouchForYou": "Welsh",
+    "important": "Welsh"
 }
