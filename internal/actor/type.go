@@ -13,6 +13,7 @@ const (
 	TypeIndependentWitness
 	TypeTrustCorporation
 	TypeReplacementTrustCorporation
+	TypeVoucher
 )
 
 func (t Type) String() string {
@@ -35,6 +36,8 @@ func (t Type) String() string {
 		return "trustCorporation"
 	case TypeReplacementTrustCorporation:
 		return "replacementTrustCorporation"
+	case TypeVoucher:
+		return "voucher"
 	default:
 		return ""
 	}
@@ -51,6 +54,7 @@ type Types struct {
 	PersonToNotify              Type
 	AuthorisedSignatory         Type
 	IndependentWitness          Type
+	Voucher                     Type
 }
 
 var ActorTypes = Types{
@@ -64,4 +68,5 @@ var ActorTypes = Types{
 	PersonToNotify:              TypePersonToNotify,
 	AuthorisedSignatory:         TypeAuthorisedSignatory,
 	IndependentWitness:          TypeIndependentWitness,
+	Voucher:                     TypeVoucher,
 }
