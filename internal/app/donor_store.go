@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -28,22 +27,14 @@ type EventClient interface {
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
-type DocumentStore interface {
-	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document) error
-	UpdateScanResults(context.Context, string, string, bool) error
-}
-
 type donorStore struct {
-	dynamoClient  DynamoClient
-	eventClient   EventClient
-	logger        Logger
-	uuidString    func() string
-	newUID        func() actoruid.UID
-	now           func() time.Time
-	s3Client      *s3.Client
-	documentStore DocumentStore
-	searchClient  SearchClient
+	dynamoClient DynamoClient
+	eventClient  EventClient
+	logger       Logger
+	uuidString   func() string
+	newUID       func() actoruid.UID
+	now          func() time.Time
+	searchClient SearchClient
 }
 
 func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, error) {
