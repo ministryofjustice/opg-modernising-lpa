@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,7 +19,7 @@ type confirmDontWantToBeCertificateProviderDataLoggedOut struct {
 	Lpa    *lpastore.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore) page.Handler {
+func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
@@ -38,7 +39,18 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 		}
 
 		if r.Method == http.MethodPost {
+			var email notify.Email
+
 			if !lpa.SignedAt.IsZero() {
+				email = notify.CertificateProviderOptedOutPostWitnessingEmail{
+					CertificateProviderFirstNames: lpa.CertificateProvider.FirstNames,
+					CertificateProviderFullName:   lpa.CertificateProvider.FullName(),
+					DonorFullName:                 lpa.Donor.FullName(),
+					LpaType:                       appData.Localizer.T(lpa.Type.String()),
+					LpaUID:                        lpa.LpaUID,
+					DonorStartPageURL:             appPublicURL + page.Paths.Start.Format(),
+				}
+
 				if !lpa.CannotRegister {
 					if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID, actoruid.Service); err != nil {
 						return err
@@ -48,6 +60,14 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				donor, err := donorStore.GetAny(ctx)
 				if err != nil {
 					return err
+				}
+
+				email = notify.CertificateProviderOptedOutPreWitnessingEmail{
+					CertificateProviderFullName: donor.CertificateProvider.FullName(),
+					DonorFullName:               donor.Donor.FullName(),
+					LpaType:                     appData.Localizer.T(donor.Type.String()),
+					LpaUID:                      donor.LpaUID,
+					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
 				}
 
 				donor.CertificateProvider = actor.CertificateProvider{}
@@ -65,6 +85,10 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 			}
 
 			if err := shareCodeStore.Delete(r.Context(), shareCode); err != nil {
+				return err
+			}
+
+			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
 				return err
 			}
 
