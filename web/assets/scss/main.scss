@@ -136,3 +136,12 @@ body:not(.js-enabled) .govuk-back-link {
 .app-wrap-text {
     white-space: pre-wrap;
 }
+
+// apply to elements that should be hidden when javascript is disabled
+.js-only {
+    display: none;
+}
+
+body.js-enabled .js-only {
+    display: revert;
+}
