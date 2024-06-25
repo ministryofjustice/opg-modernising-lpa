@@ -11,7 +11,7 @@ describe('Enter voucher', () => {
     cy.get('#f-email').type('voucher@example.com');
     cy.contains('button', 'Save and continue').click();
 
-    cy.url().should('contain', '/task-list');
+    cy.url().should('contain', '/check-your-details');
   });
 
   it('errors when empty', () => {

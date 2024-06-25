@@ -16,7 +16,7 @@ describe('Enter voucher', () => {
     cy.get('input[name=yes-no]').check('yes');
     cy.contains('button', 'Save and continue').click();
 
-    cy.url().should('contain', '/task-list');
+    cy.url().should('contain', '/check-your-details');
   });
 
   it('can select another', () => {

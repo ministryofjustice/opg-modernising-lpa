@@ -159,6 +159,13 @@ func TestLink(t *testing.T) {
 	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
 }
 
+func TestFromLink(t *testing.T) {
+	assert.Equal(t, "/lpa/lpa-id/your-details?from=/previous#f-first-names",
+		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
+	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
+		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
+}
+
 func TestCheckboxEq(t *testing.T) {
 	assert.True(t, checkboxEq("b", []string{"a", "b", "c"}))
 	assert.False(t, checkboxEq("d", []string{"a", "b", "c"}))

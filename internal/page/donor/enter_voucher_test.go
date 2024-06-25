@@ -81,7 +81,7 @@ func TestPostEnterVoucher(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CheckYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterVoucherWhenMatches(t *testing.T) {
