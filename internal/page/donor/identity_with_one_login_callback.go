@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -61,6 +62,22 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		userInfo, err := oneLoginClient.UserInfo(r.Context(), accessToken)
 		if err != nil {
 			return err
+		}
+
+		if len(userInfo.ReturnCodes) > 0 {
+			for _, c := range userInfo.ReturnCodes {
+				if c.Code == "X" {
+					donor.DonorIdentityUserData = identity.UserData{OK: false, InsufficientEvidence: true}
+					if err := donorStore.Put(r.Context(), donor); err != nil {
+						return err
+					}
+
+					return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
+				}
+			}
+
+			data.CouldNotConfirm = true
+			return tmpl(w, data)
 		}
 
 		userData, err := oneLoginClient.ParseIdentityClaim(r.Context(), userInfo)
