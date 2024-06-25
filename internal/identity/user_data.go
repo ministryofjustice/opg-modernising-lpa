@@ -111,11 +111,12 @@ var charmap = map[rune][]rune{
 }
 
 type UserData struct {
-	OK          bool
-	FirstNames  string
-	LastName    string
-	DateOfBirth date.Date
-	RetrievedAt time.Time
+	OK                   bool
+	FirstNames           string
+	LastName             string
+	DateOfBirth          date.Date
+	RetrievedAt          time.Time
+	InsufficientEvidence bool
 }
 
 func (u UserData) MatchName(firstNames, lastName string) bool {
