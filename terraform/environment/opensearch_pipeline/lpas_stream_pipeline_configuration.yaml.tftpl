@@ -21,7 +21,7 @@ dynamodb-pipeline:
         include_keys: [
           "PK",
           "SK",
-          "Donor"
+          "Donor",
         ]
     - copy_values:
         entries:
@@ -37,6 +37,24 @@ dynamodb-pipeline:
         hosts: ["${sink.opensearch.hosts}"]
         index: ${sink.opensearch.index}
         routes: ["lay_journey_lpas", "supporter_journey_lpas"]
+        template_type: index-template
+        template_content: >
+          {
+              "settings": {
+                  "index": {
+                      "number_of_shards": 1,
+                      "number_of_replicas": 1
+                  }
+              },
+              "mappings": {
+                  "properties": {
+                      "PK": {"type": "keyword"},
+                      "SK": {"type": "keyword"},
+                      "Donor.FirstNames": {"type": "keyword"},
+                      "Donor.LastName": {"type": "keyword"}
+                  }
+              }
+          }
         document_id: ${sink.opensearch.document_id}
         aws:
           sts_role_arn: ${sink.opensearch.aws.sts_role_arn}
