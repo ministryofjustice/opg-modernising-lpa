@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -64,22 +63,6 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		if len(userInfo.ReturnCodes) > 0 {
-			for _, c := range userInfo.ReturnCodes {
-				if c.Code == "X" {
-					donor.DonorIdentityUserData = identity.UserData{InsufficientEvidence: true}
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
-
-					return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
-				}
-			}
-
-			data.CouldNotConfirm = true
-			return tmpl(w, data)
-		}
-
 		userData, err := oneLoginClient.ParseIdentityClaim(r.Context(), userInfo)
 		if err != nil {
 			return err
@@ -87,18 +70,26 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		donor.DonorIdentityUserData = userData
 
+		if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
+			}
+
+			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
+		}
+
 		if donor.DonorIdentityConfirmed() {
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
-
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-		} else {
-			data.CouldNotConfirm = true
 		}
+
+		if err := donorStore.Put(r.Context(), donor); err != nil {
+			return err
+		}
+
+		data.CouldNotConfirm = !donor.DonorIdentityUserData.Status.IsConfirmed()
 
 		return tmpl(w, data)
 	}

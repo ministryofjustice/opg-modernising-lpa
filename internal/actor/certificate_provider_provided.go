@@ -38,7 +38,7 @@ type CertificateProviderProvidedDetails struct {
 }
 
 func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
-	return c.IdentityUserData.OK &&
+	return c.IdentityUserData.Status.IsConfirmed() &&
 		c.IdentityUserData.MatchName(firstNames, lastName) &&
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
 }

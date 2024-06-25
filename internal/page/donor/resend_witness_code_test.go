@@ -76,7 +76,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 
 			donor := &actor.DonorProvidedDetails{
 				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			}
 
 			witnessCodeSender := newMockWitnessCodeSender(t)

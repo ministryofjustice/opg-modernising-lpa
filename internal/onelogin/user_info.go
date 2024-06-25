@@ -122,6 +122,16 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 }
 
 func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
+	if len(u.ReturnCodes) > 0 {
+		for _, c := range u.ReturnCodes {
+			if c.Code == "X" {
+				return identity.UserData{Status: identity.IdentityStatusInsufficientEvidence}, nil
+			}
+		}
+
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
+	}
+
 	publicKey, err := c.identityPublicKeyFunc(ctx)
 	if err != nil {
 		return identity.UserData{}, err
@@ -149,7 +159,7 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	currentName := claims.Vc.CredentialSubject.CurrentNameParts()
 	if len(currentName) == 0 || claims.IssuedAt == nil {
-		return identity.UserData{OK: false}, nil
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
 	}
 
 	var givenName, familyName []string
@@ -163,11 +173,11 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	birthDates := claims.Vc.CredentialSubject.BirthDate
 	if len(birthDates) == 0 || !birthDates[0].Value.Valid() {
-		return identity.UserData{OK: false}, nil
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
 	}
 
 	return identity.UserData{
-		OK:          true,
+		Status:      identity.IdentityStatusConfirmed,
 		FirstNames:  strings.Join(givenName, " "),
 		LastName:    strings.Join(familyName, " "),
 		DateOfBirth: birthDates[0].Value,
