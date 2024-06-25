@@ -220,10 +220,8 @@ locals {
 
     sink = {
       opensearch = {
-        hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
-        index = "lpas_v2_${local.environment_name}"
-        # document_id = "LPA--${PK.replaceAll(/.*#(.*)/, '$1')}"
-        # document_id = "LPA--$${/PK}/.*#(.*)/$1/"
+        hosts       = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
+        index       = "lpas_v2_${local.environment_name}"
         document_id = "$${/DocID}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
