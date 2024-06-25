@@ -12,8 +12,17 @@ data "aws_kms_alias" "opensearch_encryption_key" {
   provider = aws.eu_west_1
 }
 
+data "aws_kms_alias" "dynamodb_exports_s3_bucket_encryption_key" {
+  name     = "alias/${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
+  provider = aws.eu_west_1
+}
+
+data "aws_s3_bucket" "dynamodb_exports_bucket" {
+  bucket   = "dynamodb-exports-${local.default_tags.application}-${local.default_tags.account-name}-eu-west-1"
+  provider = aws.eu_west_1
+}
+
 resource "aws_iam_role_policy" "opensearch_pipeline" {
-  count    = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name     = "opensearch_pipeline"
   role     = module.global.iam_roles.opensearch_pipeline.name
   policy   = data.aws_iam_policy_document.opensearch_pipeline.json
@@ -30,7 +39,9 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "aoss:BatchGetCollection",
       "aoss:APIAccessAll"
     ]
-    resources = [data.aws_opensearchserverless_collection.lpas_collection.arn]
+    resources = [
+      data.aws_opensearchserverless_collection.lpas_collection.arn
+    ]
   }
 
   statement {
@@ -56,6 +67,7 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
       "dynamodb:DescribeTable",
       "dynamodb:DescribeContinuousBackups",
       "dynamodb:ExportTableToPointInTime",
+      "dynamodb:ListExports",
     ]
     resources = [
       aws_dynamodb_table.lpas_table.arn,
@@ -63,7 +75,18 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
   }
 
   statement {
-    sid    = "DynamoDBEncryptionAccess"
+    sid    = "DescribeExports"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeExport",
+    ]
+    resources = [
+      "${aws_dynamodb_table.lpas_table.arn}/export/*",
+    ]
+  }
+
+  statement {
+    sid    = "DynamoDBAndExportEncryptionAccess"
     effect = "Allow"
     actions = [
       "kms:Decrypt",
@@ -84,9 +107,9 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       data.aws_kms_alias.opensearch_encryption_key.target_key_arn,
+      data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
     ]
   }
-
 
   statement {
     sid    = "allowReadFromStream"
@@ -98,6 +121,24 @@ data "aws_iam_policy_document" "opensearch_pipeline" {
     ]
     resources = [
       "${aws_dynamodb_table.lpas_table.arn}/stream/*",
+    ]
+  }
+
+  statement {
+    sid    = "allowReadAndWriteToS3ForExport"
+    effect = "Allow"
+    actions = [
+      "s3:HeadBucket",
+      "s3:GetObject",
+      "s3:CreateMultipartUpload",
+      "s3:AbortMultipartUpload",
+      "s3:UploadPart",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = [
+      data.aws_s3_bucket.dynamodb_exports_bucket.arn,
+      "${data.aws_s3_bucket.dynamodb_exports_bucket.arn}/*",
     ]
   }
 }
@@ -160,7 +201,9 @@ locals {
   lpas_stream_pipeline_configuration_template_vars = {
     source = {
       tables = {
-        table_arn = aws_dynamodb_table.lpas_table.arn
+        table_arn         = aws_dynamodb_table.lpas_table.arn
+        s3_bucket_name    = data.aws_s3_bucket.dynamodb_exports_bucket.id
+        s3_sse_kms_key_id = data.aws_kms_alias.dynamodb_exports_s3_bucket_encryption_key.target_key_arn
         stream = {
           start_position = "LATEST"
         }
@@ -178,7 +221,10 @@ locals {
     sink = {
       opensearch = {
         hosts = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
-        index = "lpas"
+        index = "lpas_v2_${local.environment_name}"
+        # document_id = "LPA--${PK.replaceAll(/.*#(.*)/, '$1')}"
+        # document_id = "LPA--$${/PK}/.*#(.*)/$1/"
+        document_id = "$${/DocID}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"
@@ -201,7 +247,9 @@ resource "aws_opensearchserverless_access_policy" "pipeline" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/collection-${local.environment_name}/*"],
+          Resource = [
+            "index/shared-collection-${local.environment.account_name}/lpas_v2_${local.environment_name}",
+          ],
           Permission = [
             "aoss:CreateIndex",
             "aoss:UpdateIndex",
@@ -237,5 +285,11 @@ resource "aws_osis_pipeline" "lpas_stream" {
     security_group_ids = [aws_security_group.opensearch_ingestion[0].id]
     subnet_ids         = data.aws_subnet.application[*].id
   }
+  depends_on = [
+    aws_opensearchserverless_access_policy.pipeline,
+    aws_iam_role_policy.opensearch_pipeline,
+    aws_security_group.opensearch_ingestion,
+  ]
+
   provider = aws.eu_west_1
 }

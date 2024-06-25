@@ -5,19 +5,39 @@ dynamodb-pipeline:
       acknowledgments: true
       tables:
         - table_arn: ${source.tables.table_arn}
-          stream:
-            start_position: ${source.tables.stream.start_position}
+          export:
+            s3_bucket: ${source.tables.s3_bucket_name}
+            s3_sse_kms_key_id: ${source.tables.s3_sse_kms_key_id}
+          # stream:
+          #   start_position: ${source.tables.stream.start_position}
       aws:
         sts_role_arn: ${source.tables.aws.sts_role_arn}
         region: ${source.tables.aws.region}
   routes:
     - lay_journey_lpas: ${routes.lay_journey_lpas}
     - supporter_journey_lpas: ${routes.supporter_journey_lpas}
+  processor:
+    - select_entries:
+        include_keys: [
+          "PK",
+          "SK",
+          "Donor"
+        ]
+    - copy_values:
+        entries:
+        - from_key: "PK"
+          to_key: "DocID"
+    - substitute_string:
+        entries:
+          - source: "DocID"
+            from: "LPA#"
+            to: "LPA--"
   sink:
     - opensearch:
         hosts: ["${sink.opensearch.hosts}"]
         index: ${sink.opensearch.index}
         routes: ["lay_journey_lpas", "supporter_journey_lpas"]
+        document_id: ${sink.opensearch.document_id}
         aws:
           sts_role_arn: ${sink.opensearch.aws.sts_role_arn}
           region: ${sink.opensearch.aws.region}
