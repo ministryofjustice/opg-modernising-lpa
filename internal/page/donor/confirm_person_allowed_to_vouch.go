@@ -2,6 +2,8 @@ package donor
 
 import (
 	"net/http"
+	"slices"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -11,20 +13,33 @@ import (
 )
 
 type confirmPersonAllowedToVouchData struct {
-	App      page.AppData
-	Errors   validation.List
-	Form     *form.YesNoForm
-	Matches  []actor.Type
-	FullName string
+	App          page.AppData
+	Errors       validation.List
+	Form         *form.YesNoForm
+	Matches      []actor.Type
+	MatchSurname bool
+	FullName     string
+}
+
+func (d confirmPersonAllowedToVouchData) MultipleMatches() bool {
+	count := len(d.Matches)
+	if d.MatchSurname {
+		count++
+	}
+
+	return count > 1
 }
 
 func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+		matches := donor.Voucher.Matches(donor)
+
 		data := &confirmPersonAllowedToVouchData{
-			App:      appData,
-			Form:     form.NewYesNoForm(form.YesNoUnknown),
-			Matches:  donor.Voucher.Matches(donor),
-			FullName: donor.Voucher.FullName(),
+			App:          appData,
+			Form:         form.NewYesNoForm(form.YesNoUnknown),
+			Matches:      matches,
+			MatchSurname: strings.EqualFold(donor.Voucher.LastName, donor.Donor.LastName) && !slices.Contains(matches, actor.TypeDonor),
+			FullName:     donor.Voucher.FullName(),
 		}
 
 		if r.Method == http.MethodPost {

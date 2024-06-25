@@ -1211,6 +1211,7 @@
     "noINeedToChooseSomeoneElse": "Welsh",
     "yesIfPersonIsAllowedToVouchForYou": "Welsh",
     "important": "Welsh",
+    "thePersonYouHaveChosenHasSameSurname": "Welsh",
     "youHaveBeenUnableToConfirmYourIdentity": "Welsh",
     "vouchingLandingPageContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> </ul> <p class=\"govuk-body\">Welsh</p>"
 }
