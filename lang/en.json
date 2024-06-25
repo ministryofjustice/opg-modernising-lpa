@@ -1135,5 +1135,13 @@
     "forFullName": "for {{ .FullName }}",
     "enterDetailsOfPersonWhoWillVouch": "Enter the details of the person who will vouch for you",
     "whoCannotVouchForYou": "Who cannot vouch for you",
-    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>someone named on your LPA, including yourself</li><li>someone in a relationship with you</li><li>a member of your family</li><li>someone living at the same address as you</li></ul>"
+    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>someone named on your LPA, including yourself</li><li>someone in a relationship with you</li><li>a member of your family</li><li>someone living at the same address as you</li></ul>",
+    "confirmThisPersonIsAllowedToVouchForYou": "Confirm this person is allowed to vouch for you",
+    "youHaveEnteredNameWhichMatchesYourName": "You have entered a name which matches your name, {{.FullName}}.",
+    "youHaveEnteredNameWhichMatches": "You have entered a name which matches the name of your {{.ActorType}}, {{.FullName}}.",
+    "personVouchingCannotBe": "<p class=\"govuk-body govuk-!-font-weight-bold\">The person vouching for you cannot be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>someone named your LPA, including yourself</li><li>in a relationship with you</li><li>a member of your family</li><li>living at the same address as you</li></ul>",
+    "areYouSureThisPersonIsAllowedToVouchForYou": "Are you sure this person is allowed to vouch for you?",
+    "noINeedToChooseSomeoneElse": "No, I need to choose someone else",
+    "yesIfPersonIsAllowedToVouchForYou": "yes, if the person is allowed to vouch for you",
+    "important": "Important"
 }
