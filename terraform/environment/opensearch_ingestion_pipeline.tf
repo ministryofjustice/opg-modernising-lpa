@@ -222,7 +222,7 @@ locals {
       opensearch = {
         hosts       = data.aws_opensearchserverless_collection.lpas_collection.collection_endpoint
         index       = "lpas_v2_${local.environment_name}"
-        document_id = "$${/DocID}"
+        document_id = "$${/DocumentID}"
         aws = {
           sts_role_arn = module.global.iam_roles.opensearch_pipeline.arn
           region       = "eu-west-1"

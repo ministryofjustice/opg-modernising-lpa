@@ -26,10 +26,10 @@ dynamodb-pipeline:
     - copy_values:
         entries:
         - from_key: "PK"
-          to_key: "DocID"
+          to_key: "DocumentID"
     - substitute_string:
         entries:
-          - source: "DocID"
+          - source: "DocumentID"
             from: "LPA#"
             to: "LPA--"
   sink:
