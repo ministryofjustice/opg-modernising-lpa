@@ -1,0 +1,33 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "checkYourDetails" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tr .App "checkYourDetails" }}</h1>
+      <p class="govuk-body">{{ tr .App "weWillShareYourDetailsWithVoucher" }}</p>
+      <p class="govuk-body">{{ tr .App "checkYourDetailsAreCorrectBeforeYouContinue" }}</p>
+
+      <dl class="govuk-summary-list">
+        {{ template "summary-row" (summaryRow .App "name"
+          .Donor.Donor.FullName
+          (printf "%s?from=%s#f-first-names" (link .App (global.Paths.YourDetails.Format .Donor.LpaID)) .App.Page)
+          "" true true
+        ) }}
+        {{ template "summary-row" (summaryRow .App "dateOfBirth"
+          (formatDate .App .Donor.Donor.DateOfBirth)
+          (printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDetails.Format .Donor.LpaID)) .App.Page)
+          "" true true
+        ) }}
+        {{ template "address-summary-row" (addressSummaryRow .App "address"
+          .Donor.Donor.Address
+          (printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.YourAddress.Format .Donor.LpaID)) .App.Page)
+          "" true true
+        ) }}
+      </dl>
+      
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+    </div>
+  </div>
+{{ end }}
