@@ -15,28 +15,68 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestConfirmPersonAllowedToVouchDataMultipleMatches(t *testing.T) {
+	testcases := map[*confirmPersonAllowedToVouchData]bool{
+		{}:                                       false,
+		{Matches: []actor.Type{actor.TypeDonor}}: false,
+		{MatchSurname: true}:                     false,
+		{Matches: []actor.Type{actor.TypeDonor, actor.TypeDonor}}:    true,
+		{Matches: []actor.Type{actor.TypeDonor}, MatchSurname: true}: true,
+	}
+
+	for data, expected := range testcases {
+		assert.Equal(t, expected, data.MultipleMatches())
+	}
+}
+
 func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[string]struct {
+		donor        *actor.DonorProvidedDetails
+		matches      []actor.Type
+		matchSurname bool
+	}{
+		"matches donor": {
+			donor: &actor.DonorProvidedDetails{
+				Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Smith"},
+				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
+			},
+			matches: []actor.Type{actor.TypeDonor, actor.TypeCertificateProvider},
+		},
+		"matches donor last name": {
+			donor: &actor.DonorProvidedDetails{
+				Donor:               actor.Donor{FirstNames: "Dave", LastName: "Smith"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Smith"},
+				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
+			},
+			matches:      []actor.Type{actor.TypeCertificateProvider},
+			matchSurname: true,
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmPersonAllowedToVouchData{
-			App:      testAppData,
-			Form:     form.NewYesNoForm(form.YesNoUnknown),
-			Matches:  []actor.Type{actor.TypeDonor},
-			FullName: "John Smith",
-		}).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor:   actor.Donor{FirstNames: "John", LastName: "Smith"},
-		Voucher: actor.Voucher{FirstNames: "John", LastName: "Smith"},
-	})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &confirmPersonAllowedToVouchData{
+					App:          testAppData,
+					Form:         form.NewYesNoForm(form.YesNoUnknown),
+					Matches:      tc.matches,
+					MatchSurname: tc.matchSurname,
+					FullName:     "John Smith",
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, tc.donor)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetConfirmPersonAllowedToVouchWhenTemplateErrors(t *testing.T) {

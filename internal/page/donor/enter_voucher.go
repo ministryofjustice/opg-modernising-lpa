@@ -2,6 +2,7 @@ package donor
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -34,7 +35,7 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
 				if donor.Voucher.FirstNames != data.Form.FirstNames || donor.Voucher.LastName != data.Form.LastName {
 					donor.Voucher.FirstNames = data.Form.FirstNames
 					donor.Voucher.LastName = data.Form.LastName
-					donor.Voucher.Allowed = len(donor.Voucher.Matches(donor)) == 0
+					donor.Voucher.Allowed = len(donor.Voucher.Matches(donor)) == 0 && !strings.EqualFold(donor.Voucher.LastName, donor.Donor.LastName)
 				}
 
 				donor.Voucher.Email = data.Form.Email
