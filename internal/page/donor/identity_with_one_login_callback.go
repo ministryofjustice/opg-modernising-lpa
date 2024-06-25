@@ -72,7 +72,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 						return err
 					}
 
-					return page.Paths.WhatIsVouching.Redirect(w, r, appData, donor)
+					return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
 				}
 			}
 

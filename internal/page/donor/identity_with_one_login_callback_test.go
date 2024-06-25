@@ -200,6 +200,80 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	}
 }
 
+func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimPresent(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
+	userInfo := onelogin.UserInfo{ReturnCodes: []onelogin.ReturnCodeInfo{{Code: "X"}}}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &actor.DonorProvidedDetails{
+			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
+			LpaID:                 "lpa-id",
+			DonorIdentityUserData: identity.UserData{OK: false, InsufficientEvidence: true},
+		}).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
+
+	oneLoginClient := newMockOneLoginClient(t)
+	oneLoginClient.EXPECT().
+		Exchange(mock.Anything, mock.Anything, mock.Anything).
+		Return("id-token", "a-jwt", nil)
+	oneLoginClient.EXPECT().
+		UserInfo(mock.Anything, mock.Anything).
+		Return(userInfo, nil)
+
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
+		LpaID: "lpa-id",
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.UnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
+	userInfo := onelogin.UserInfo{ReturnCodes: []onelogin.ReturnCodeInfo{{Code: "T"}}}
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
+
+	oneLoginClient := newMockOneLoginClient(t)
+	oneLoginClient.EXPECT().
+		Exchange(mock.Anything, mock.Anything, mock.Anything).
+		Return("id-token", "a-jwt", nil)
+	oneLoginClient.EXPECT().
+		UserInfo(mock.Anything, mock.Anything).
+		Return(userInfo, nil)
+
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &identityWithOneLoginCallbackData{
+			App:             testAppData,
+			CouldNotConfirm: true,
+		}).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
+		LpaID: "lpa-id",
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
