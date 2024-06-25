@@ -70,6 +70,9 @@
     "aReplacementAttorney": "atwrnai wrth gefn",
     "theCertificateProvider": "y darparwr tystysgrif",
     "aPersonToNotify": "person i’w hysbysu",
+    "theAuthorisedSignatory": "Welsh",
+    "theIndependentWitness": "Welsh",
+    "theVoucher": "Welsh",
     "whatIsYourAddress": "Beth yw eich cyfeiriad?",
     "postcode": "Cod post",
     "findAddress": "Dod o hyd i gyfeiriad",
@@ -1197,5 +1200,8 @@
     "yourAddress": "Welsh",
     "yourAddressWarning": "Welsh",
     "enter": "Welsh",
-    "forFullName": "Welsh {{ .FullName }}"
+    "forFullName": "Welsh {{ .FullName }}",
+    "enterDetailsOfPersonWhoWillVouch": "Welsh",
+    "whoCannotVouchForYou": "Welsh",
+    "whoCannotVouchForYouDetails": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>"
 }
