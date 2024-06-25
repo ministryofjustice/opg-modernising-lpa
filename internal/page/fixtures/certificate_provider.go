@@ -210,7 +210,7 @@ func CertificateProvider(
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
 			certificateProvider.IdentityUserData = identity.UserData{
-				OK:          true,
+				Status:      identity.IdentityStatusConfirmed,
 				RetrievedAt: time.Now(),
 				FirstNames:  donorDetails.CertificateProvider.FirstNames,
 				LastName:    donorDetails.CertificateProvider.LastName,

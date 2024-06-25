@@ -70,18 +70,26 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		donor.DonorIdentityUserData = userData
 
+		if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
+			}
+
+			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
+		}
+
 		if donor.DonorIdentityConfirmed() {
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
-
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-		} else {
-			data.CouldNotConfirm = true
 		}
+
+		if err := donorStore.Put(r.Context(), donor); err != nil {
+			return err
+		}
+
+		data.CouldNotConfirm = !donor.DonorIdentityUserData.Status.IsConfirmed()
 
 		return tmpl(w, data)
 	}

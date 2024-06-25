@@ -17,13 +17,18 @@ import (
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
 
 type UserInfo struct {
-	Sub             string `json:"sub"`
-	Email           string `json:"email"`
-	EmailVerified   bool   `json:"email_verified"`
-	Phone           string `json:"phone"`
-	PhoneVerified   bool   `json:"phone_verified"`
-	UpdatedAt       int    `json:"updated_at"`
-	CoreIdentityJWT string `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT"`
+	Sub             string           `json:"sub"`
+	Email           string           `json:"email"`
+	EmailVerified   bool             `json:"email_verified"`
+	Phone           string           `json:"phone"`
+	PhoneVerified   bool             `json:"phone_verified"`
+	UpdatedAt       int              `json:"updated_at"`
+	CoreIdentityJWT string           `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT"`
+	ReturnCodes     []ReturnCodeInfo `json:"https://vocab.account.gov.uk/v1/returnCode,omitempty"`
+}
+
+type ReturnCodeInfo struct {
+	Code string `json:"code"`
 }
 
 type CoreIdentityClaims struct {
@@ -117,6 +122,16 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 }
 
 func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
+	if len(u.ReturnCodes) > 0 {
+		for _, c := range u.ReturnCodes {
+			if c.Code == "X" {
+				return identity.UserData{Status: identity.IdentityStatusInsufficientEvidence}, nil
+			}
+		}
+
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
+	}
+
 	publicKey, err := c.identityPublicKeyFunc(ctx)
 	if err != nil {
 		return identity.UserData{}, err
@@ -144,7 +159,7 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	currentName := claims.Vc.CredentialSubject.CurrentNameParts()
 	if len(currentName) == 0 || claims.IssuedAt == nil {
-		return identity.UserData{OK: false}, nil
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
 	}
 
 	var givenName, familyName []string
@@ -158,11 +173,11 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 
 	birthDates := claims.Vc.CredentialSubject.BirthDate
 	if len(birthDates) == 0 || !birthDates[0].Value.Valid() {
-		return identity.UserData{OK: false}, nil
+		return identity.UserData{Status: identity.IdentityStatusFailed}, nil
 	}
 
 	return identity.UserData{
-		OK:          true,
+		Status:      identity.IdentityStatusConfirmed,
 		FirstNames:  strings.Join(givenName, " "),
 		LastName:    strings.Join(familyName, " "),
 		DateOfBirth: birthDates[0].Value,
