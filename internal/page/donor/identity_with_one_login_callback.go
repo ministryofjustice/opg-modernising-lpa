@@ -67,7 +67,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		if len(userInfo.ReturnCodes) > 0 {
 			for _, c := range userInfo.ReturnCodes {
 				if c.Code == "X" {
-					donor.DonorIdentityUserData = identity.UserData{OK: false, InsufficientEvidence: true}
+					donor.DonorIdentityUserData = identity.UserData{InsufficientEvidence: true}
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
 					}
