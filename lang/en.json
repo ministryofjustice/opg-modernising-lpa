@@ -1144,5 +1144,8 @@
     "noINeedToChooseSomeoneElse": "No, I need to choose someone else",
     "yesIfPersonIsAllowedToVouchForYou": "yes, if the person is allowed to vouch for you",
     "important": "Important",
-    "thePersonYouHaveChosenHasSameSurname": "The person you have chosen to confirm your identity has the same surname as you."
+    "thePersonYouHaveChosenHasSameSurname": "The person you have chosen to confirm your identity has the same surname as you.",
+    "checkYourDetails": "Check your details",
+    "weWillShareYourDetailsWithVoucher": "We will share your details and ask the person vouching for you to verify them.",
+    "checkYourDetailsAreCorrectBeforeYouContinue": "Check your details are correct before you continue."
 }
