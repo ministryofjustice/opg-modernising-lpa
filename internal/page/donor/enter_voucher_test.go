@@ -49,7 +49,7 @@ func TestGetEnterVoucherWhenTemplateErrors(t *testing.T) {
 func TestPostEnterVoucher(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
-		"last-name":   {"Doe"},
+		"last-name":   {"Bloggs"},
 		"email":       {"john@example.com"},
 	}
 
@@ -60,11 +60,12 @@ func TestPostEnterVoucher(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			LpaID:               "lpa-id",
+			Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 			Voucher: actor.Voucher{
 				FirstNames: "John",
-				LastName:   "Doe",
+				LastName:   "Bloggs",
 				Email:      "john@example.com",
 				Allowed:    true,
 			},
@@ -72,8 +73,9 @@ func TestPostEnterVoucher(t *testing.T) {
 		Return(nil)
 
 	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+		LpaID:               "lpa-id",
+		Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+		CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 	})
 	resp := w.Result()
 
@@ -83,38 +85,50 @@ func TestPostEnterVoucher(t *testing.T) {
 }
 
 func TestPostEnterVoucherWhenMatches(t *testing.T) {
-	form := url.Values{
-		"first-names": {"Jane"},
-		"last-name":   {"Doe"},
-		"email":       {"jane@example.com"},
+	testcases := map[string]struct{ First, Last string }{
+		"donor full name": {"Jane", "Doe"},
+		"donor last name": {"John", "Doe"},
+		"other full name": {"Barry", "Bloggs"},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"first-names": {tc.First},
+				"last-name":   {tc.Last},
+				"email":       {"jane@example.com"},
+			}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID: "lpa-id",
-			Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-			Voucher: actor.Voucher{
-				FirstNames: "Jane",
-				LastName:   "Doe",
-				Email:      "jane@example.com",
-			},
-		}).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID:               "lpa-id",
+					Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+					CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+					Voucher: actor.Voucher{
+						FirstNames: tc.First,
+						LastName:   tc.Last,
+						Email:      "jane@example.com",
+					},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ConfirmPersonAllowedToVouch.Format("lpa-id"), resp.Header.Get("Location"))
+			err := EnterVoucher(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:               "lpa-id",
+				Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+				CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.ConfirmPersonAllowedToVouch.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostEnterVoucherWhenValidationErrors(t *testing.T) {

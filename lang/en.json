@@ -1143,5 +1143,6 @@
     "areYouSureThisPersonIsAllowedToVouchForYou": "Are you sure this person is allowed to vouch for you?",
     "noINeedToChooseSomeoneElse": "No, I need to choose someone else",
     "yesIfPersonIsAllowedToVouchForYou": "yes, if the person is allowed to vouch for you",
-    "important": "Important"
+    "important": "Important",
+    "thePersonYouHaveChosenHasSameSurname": "The person you have chosen to confirm your identity has the same surname as you."
 }
