@@ -1,5 +1,5 @@
 locals {
-  enable_opensearch_ingestion_pipeline = true
+  enable_opensearch_ingestion_pipeline = false
 }
 
 data "aws_kms_alias" "dynamodb_encryption_key" {
