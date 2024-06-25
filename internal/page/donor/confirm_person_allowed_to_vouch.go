@@ -50,7 +50,7 @@ func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) 
 				var redirect page.LpaPath
 				if data.Form.YesNo.IsYes() {
 					donor.Voucher.Allowed = true
-					redirect = page.Paths.TaskList
+					redirect = page.Paths.CheckYourDetails
 				} else {
 					donor.Voucher = actor.Voucher{}
 					redirect = page.Paths.EnterVoucher

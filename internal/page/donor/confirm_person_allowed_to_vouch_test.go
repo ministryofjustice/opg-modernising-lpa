@@ -104,7 +104,7 @@ func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 		"yes": {
 			yesNo:    form.Yes,
 			voucher:  actor.Voucher{FirstNames: "John", Allowed: true},
-			redirect: page.Paths.TaskList,
+			redirect: page.Paths.CheckYourDetails,
 		},
 		"no": {
 			yesNo:    form.No,
