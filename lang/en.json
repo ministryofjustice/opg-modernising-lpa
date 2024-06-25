@@ -71,7 +71,6 @@
     "aReplacementAttorney": "a replacement attorney",
     "theCertificateProvider": "the certificate provider",
     "aPersonToNotify": "a person to notify",
-    "theAuthorisedSignatory": "the authorised signatory",
     "theIndependentWitness": "the independent witness",
     "theVoucher": "the person who will vouch for you",
     "whatIsYourAddress": "What is your address?",
@@ -1143,5 +1142,7 @@
     "areYouSureThisPersonIsAllowedToVouchForYou": "Are you sure this person is allowed to vouch for you?",
     "noINeedToChooseSomeoneElse": "No, I need to choose someone else",
     "yesIfPersonIsAllowedToVouchForYou": "yes, if the person is allowed to vouch for you",
-    "important": "Important"
+    "important": "Important",
+    "youHaveBeenUnableToConfirmYourIdentity": "You have been unable to confirm your identity using GOV.UK One Login",
+    "vouchingLandingPageContent": "<p class=\"govuk-body\">You need to confirm your identity before the Office of the Public Guardian (OPG) can register your Lasting Power of Attorney.</p> <p class=\"govuk-body\">You can either:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>return to GOV.UK One Login and try to confirm your identity again</li> <li>ask someone you know to confirm your identity by vouching for you</li> </ul> <p class=\"govuk-body\">Continue to find out about vouching and who can confirm your identity.</p>"
 }

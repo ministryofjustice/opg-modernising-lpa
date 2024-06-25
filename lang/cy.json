@@ -70,7 +70,6 @@
     "aReplacementAttorney": "atwrnai wrth gefn",
     "theCertificateProvider": "y darparwr tystysgrif",
     "aPersonToNotify": "person i’w hysbysu",
-    "theAuthorisedSignatory": "Welsh",
     "theIndependentWitness": "Welsh",
     "theVoucher": "Welsh",
     "whatIsYourAddress": "Beth yw eich cyfeiriad?",
@@ -1211,5 +1210,7 @@
     "areYouSureThisPersonIsAllowedToVouchForYou": "Welsh",
     "noINeedToChooseSomeoneElse": "Welsh",
     "yesIfPersonIsAllowedToVouchForYou": "Welsh",
-    "important": "Welsh"
+    "important": "Welsh",
+    "youHaveBeenUnableToConfirmYourIdentity": "Welsh",
+    "vouchingLandingPageContent": "<p class=\"govuk-body\">Welsh</p> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh</li> <li>Welsh</li> </ul> <p class=\"govuk-body\">Welsh</p>"
 }
