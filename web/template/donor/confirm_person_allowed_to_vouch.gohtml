@@ -9,27 +9,32 @@
 
       <h1 class="govuk-heading-xl">{{ tr .App "confirmThisPersonIsAllowedToVouchForYou" }}</h1>
 
-      {{ $single := eq 1 (len .Matches) }}
-      {{ if $single }}
-        <p class="govuk-body">
-      {{ else }}
+      {{ if .MultipleMatches }}
         <ul class="govuk-list govuk-list--bullet">
+      {{ else }}
+        <p class="govuk-body">
       {{ end }}
-      
+
+      {{ if $.MultipleMatches }}<li>{{ end }}
+        {{ if .MatchSurname }}
+          {{ tr .App "thePersonYouHaveChosenHasSameSurname" }}
+        {{ end }}
+        {{ if $.MultipleMatches }}</li>{{ end }}
+
       {{ range .Matches }}
-        {{ if not $single }}<li>{{ end }}
+        {{ if $.MultipleMatches }}<li>{{ end }}
           {{ if eq . global.ActorTypes.Donor }}
             {{ trFormat $.App "youHaveEnteredNameWhichMatchesYourName" "FullName" $.FullName }}
           {{ else }}
             {{ trFormat $.App "youHaveEnteredNameWhichMatches" "ActorType" (tr $.App .String | lowerFirst) "FullName" $.FullName }}
           {{ end }}
-          {{ if not $single }}</li>{{ end }}
+          {{ if $.MultipleMatches }}</li>{{ end }}
       {{ end }}
 
-      {{ if $single }}</p>{{ else }}</ul>{{ end }}
+      {{ if .MultipleMatches }}</ul>{{ else }}</p>{{ end }}
 
       {{ trHtml .App "personVouchingCannotBe" }}
-            
+
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset">
@@ -41,7 +46,7 @@
             ) }}
           </fieldset>
         </div>
-        
+
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
