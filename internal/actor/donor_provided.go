@@ -230,7 +230,7 @@ func (l *DonorProvidedDetails) generateCheckedHash() (uint64, error) {
 }
 
 func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
-	return l.DonorIdentityUserData.OK &&
+	return l.DonorIdentityUserData.Status.IsConfirmed() &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }

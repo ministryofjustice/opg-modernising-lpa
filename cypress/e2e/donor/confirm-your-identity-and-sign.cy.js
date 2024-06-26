@@ -187,4 +187,61 @@ describe('Confirm your identity and sign', () => {
         });
     });
   })
+
+  describe('when insufficient evidence to prove identity', () => {
+    it('can start vouching journey', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+          .should('contain', 'Not started')
+          .find('a')
+          .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Unable to prove identity (X)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/unable-to-confirm-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/what-is-vouching');
+      cy.checkA11yApp();
+    })
+  })
+
+  describe('when any other return code', () => {
+    it('sees identity failure message', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+          .should('contain', 'Not started')
+          .find('a')
+          .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Failed identity check (T)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/id/one-login/callback');
+      cy.checkA11yApp();
+      cy.contains('Your identity details could not be confirmed with GOV.UK One Login');
+    })
+  })
 });

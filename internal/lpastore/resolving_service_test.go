@@ -34,7 +34,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					PayForLpa:    actor.PaymentTaskCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
-					OK:          true,
+					Status:      identity.IdentityStatusConfirmed,
 					RetrievedAt: time.Now(),
 				},
 			},
@@ -77,7 +77,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					TrustCorporation: actor.TrustCorporation{Name: "d"},
 				},
 				DonorIdentityUserData: identity.UserData{
-					OK:          true,
+					Status:      identity.IdentityStatusConfirmed,
 					RetrievedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 				},
 			},
@@ -263,7 +263,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					PayForLpa:    actor.PaymentTaskCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
-					OK: true,
+					Status: identity.IdentityStatusConfirmed,
 				},
 			}},
 			uids: []string{"M-1111"},

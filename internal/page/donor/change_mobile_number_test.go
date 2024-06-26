@@ -144,7 +144,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				CertificateProvider: actor.CertificateProvider{
 					Mobile: "07535111111",
 				},
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
 			redirect: page.Paths.WitnessingAsCertificateProvider,
@@ -161,7 +161,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 					Mobile:         "+337575757",
 					HasNonUKMobile: true,
 				},
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
 			redirect: page.Paths.WitnessingAsCertificateProvider,
@@ -176,7 +176,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				IndependentWitness: actor.IndependentWitness{
 					Mobile: "07535111111",
 				},
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
 			redirect: page.Paths.WitnessingAsIndependentWitness,
@@ -193,7 +193,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 					Mobile:         "+337575757",
 					HasNonUKMobile: true,
 				},
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
 			redirect: page.Paths.WitnessingAsIndependentWitness,
@@ -213,7 +213,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 
 			err := ChangeMobileNumber(nil, witnessCodeSender, tc.actorType)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{OK: true},
+				DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
 			})
 			resp := w.Result()
 
