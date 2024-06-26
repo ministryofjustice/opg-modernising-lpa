@@ -390,7 +390,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
 		donorDetails.DonorIdentityUserData = identity.UserData{
-			OK:          true,
+			Status:      identity.StatusConfirmed,
 			RetrievedAt: time.Now(),
 			FirstNames:  donorDetails.Donor.FirstNames,
 			LastName:    donorDetails.Donor.LastName,

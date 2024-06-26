@@ -181,6 +181,10 @@ locals {
         {
           name  = "TEMPLATE_SUB",
           value = "1"
+        },
+        {
+          name  = "TEMPLATE_RETURN_CODES",
+          value = "1"
         }
       ]
     }
