@@ -140,7 +140,7 @@ func TestIdentityConfirmed(t *testing.T) {
 	}{
 		"confirmed": {
 			lpa: &DonorProvidedDetails{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -151,7 +151,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"failed": {
 			lpa: &DonorProvidedDetails{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusFailed, DateOfBirth: date.New("2000", "1", "1")},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -162,7 +162,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"name does not match": {
 			lpa: &DonorProvidedDetails{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "c",
@@ -173,7 +173,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"dob does not match": {
 			lpa: &DonorProvidedDetails{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -184,7 +184,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"insufficient evidence": {
 			lpa: &DonorProvidedDetails{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",

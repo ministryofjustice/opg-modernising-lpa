@@ -154,7 +154,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				"vc":  vc,
 			}), privateKey),
 			userData: identity.UserData{
-				Status:      identity.IdentityStatusConfirmed,
+				Status:      identity.StatusConfirmed,
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
@@ -168,7 +168,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
 			}), privateKey),
-			userData: identity.UserData{Status: identity.IdentityStatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"without dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -179,7 +179,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{Status: identity.IdentityStatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"with invalid dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -195,13 +195,13 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{Status: identity.IdentityStatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"without iat": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"vc": vc,
 			}), privateKey),
-			userData: identity.UserData{Status: identity.IdentityStatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"with unexpected signing method": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -237,9 +237,9 @@ func TestParseIdentityClaim(t *testing.T) {
 }
 
 func TestParseIdentityClaimWithReturnCode(t *testing.T) {
-	testcases := map[string]identity.IdentityStatus{
-		"X":              identity.IdentityStatusInsufficientEvidence,
-		"any other code": identity.IdentityStatusFailed,
+	testcases := map[string]identity.Status{
+		"X":              identity.StatusInsufficientEvidence,
+		"any other code": identity.StatusFailed,
 	}
 
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)

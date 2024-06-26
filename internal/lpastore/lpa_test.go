@@ -243,7 +243,7 @@ func TestClientSendLpa(t *testing.T) {
 					},
 				}},
 				DonorIdentityUserData: identity.UserData{
-					Status:      identity.IdentityStatusConfirmed,
+					Status:      identity.StatusConfirmed,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),

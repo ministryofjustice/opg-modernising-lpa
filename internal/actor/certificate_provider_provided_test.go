@@ -18,7 +18,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	}{
 		"confirmed": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.IdentityStatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				DateOfBirth:      date.New("2000", "1", "1"),
 			},
 			firstNames:  "a",
@@ -28,13 +28,13 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 		},
 		"failed": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Status: identity.IdentityStatusFailed},
+				IdentityUserData: identity.UserData{Status: identity.StatusFailed},
 			},
 			expected: false,
 		},
 		"name does not match": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			firstNames: "a",
 			lastName:   "c",
@@ -42,7 +42,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 		},
 		"dob does not match": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			firstNames:  "a",
 			lastName:    "b",
@@ -51,7 +51,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 		},
 		"insufficient evidence": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{Status: identity.IdentityStatusInsufficientEvidence},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 			firstNames: "a",
 			lastName:   "b",

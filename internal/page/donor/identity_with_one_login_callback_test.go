@@ -23,7 +23,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	now := time.Now()
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.IdentityStatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 	updatedDonor := &actor.DonorProvidedDetails{
 		Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
@@ -123,7 +123,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(userInfo, nil)
 				oneLoginClient.EXPECT().
 					ParseIdentityClaim(mock.Anything, mock.Anything).
-					Return(identity.UserData{Status: identity.IdentityStatusFailed}, nil)
+					Return(identity.UserData{Status: identity.StatusFailed}, nil)
 				return oneLoginClient
 			},
 			sessionStore: sessionRetrieved,
@@ -228,7 +228,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
-			DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusInsufficientEvidence},
+			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 		}).
 		Return(nil)
 
@@ -246,7 +246,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
 		ParseIdentityClaim(mock.Anything, mock.Anything).
-		Return(identity.UserData{Status: identity.IdentityStatusInsufficientEvidence}, nil)
+		Return(identity.UserData{Status: identity.StatusInsufficientEvidence}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
@@ -269,7 +269,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
-			DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusFailed},
+			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
 		}).
 		Return(nil)
 
@@ -287,7 +287,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
 		ParseIdentityClaim(mock.Anything, mock.Anything).
-		Return(identity.UserData{Status: identity.IdentityStatusFailed}, nil)
+		Return(identity.UserData{Status: identity.StatusFailed}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -330,7 +330,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
 		ParseIdentityClaim(mock.Anything, mock.Anything).
-		Return(identity.UserData{Status: identity.IdentityStatusConfirmed}, nil)
+		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
 	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
@@ -341,7 +341,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{Status: identity.IdentityStatusConfirmed, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -370,7 +370,7 @@ func TestPostIdentityWithOneLoginCallback(t *testing.T) {
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
-		DonorIdentityUserData: identity.UserData{Status: identity.IdentityStatusConfirmed},
+		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 	})
 	resp := w.Result()
 
