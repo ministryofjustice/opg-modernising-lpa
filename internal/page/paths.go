@@ -417,6 +417,7 @@ type AppPaths struct {
 	UploadEvidence                                       LpaPath
 	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
+	WeHaveReceivedVoucherDetails                         LpaPath
 	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
@@ -614,6 +615,7 @@ var Paths = AppPaths{
 	UploadEvidence:                                       "/upload-evidence",
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
+	WeHaveReceivedVoucherDetails:                         "/we-have-received-voucher-details",
 	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
