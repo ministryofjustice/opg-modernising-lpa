@@ -1147,5 +1147,11 @@
     "thePersonYouHaveChosenHasSameSurname": "The person you have chosen to confirm your identity has the same surname as you.",
     "checkYourDetails": "Check your details",
     "weWillShareYourDetailsWithVoucher": "We will share your details and ask the person vouching for you to verify them.",
-    "checkYourDetailsAreCorrectBeforeYouContinue": "Check your details are correct before you continue."
+    "checkYourDetailsAreCorrectBeforeYouContinue": "Check your details are correct before you continue.",
+    "weHaveReceivedDetailsOfVoucher": "We have received the details of the person you would like to vouch for you.",
+    "weHaveReceivedDetailsOfVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>We will contact the person vouching for you once your request for {{.FeeType}} is resolved</li><li>When we contact the person vouching for you, we will send you a code by text/email</li><li>You must give this code to the person vouching for you, so that they can complete their tasks</li><li>You can continue to sign your LPA</li></ul>",
+    "payingNoFee": "paying no fee (exemption)",
+    "payingHalfFee": "paying a half fee (remission)",
+    "aRepeatApplicationDiscount": "a repeat application discount",
+    "aHardshipApplication": "a hardship application (fee waiver)"
 }

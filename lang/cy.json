@@ -1215,5 +1215,11 @@
     "thePersonYouHaveChosenHasSameSurname": "Welsh",
     "checkYourDetails": "Welsh",
     "weWillShareYourDetailsWithVoucher": "Welsh",
-    "checkYourDetailsAreCorrectBeforeYouContinue": "Welsh"
+    "checkYourDetailsAreCorrectBeforeYouContinue": "Welsh",
+    "weHaveReceivedDetailsOfVoucher": "Welsh",
+    "weHaveReceivedDetailsOfVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh {{.FeeType}}</li><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
+    "payingNoFee": "Welsh",
+    "payingHalfFee": "Welsh",
+    "aRepeatApplicationDiscount": "Welsh",
+    "aHardshipApplication": "Welsh"
 }
