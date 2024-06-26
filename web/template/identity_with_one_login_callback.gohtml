@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .CouldNotConfirm }}
+  {{ if .Confirmed }}
     {{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}
   {{ else }}
     {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
@@ -11,11 +11,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ if .CouldNotConfirm }}
-        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}</h1>
-
-        <p class="govuk-body">{{ tr .App "pleaseContinueWithADifferentMethod" }}</p>
-      {{ else }}
+      {{ if .Confirmed }}
         <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithOneLogin" }}</h1>
 
         <dl class="govuk-summary-list">
@@ -52,6 +48,10 @@
             </dd>
           </div>
         </dl>
+      {{ else }}
+        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}</h1>
+
+        <p class="govuk-body">{{ tr .App "pleaseContinueWithADifferentMethod" }}</p>
       {{ end }}
 
       <form novalidate method="post">

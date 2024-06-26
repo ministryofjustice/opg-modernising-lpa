@@ -113,6 +113,7 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 	if err != nil {
 		return UserInfo{}, err
 	}
+
 	defer res.Body.Close()
 
 	var userinfoResponse UserInfo

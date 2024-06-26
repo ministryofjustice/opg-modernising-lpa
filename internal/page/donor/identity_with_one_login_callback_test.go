@@ -57,6 +57,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 			FirstNames:  "John",
 			LastName:    "Doe",
 			ConfirmedAt: now,
+			Confirmed:   true,
 		}).
 		Return(nil)
 
@@ -76,8 +77,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 		template := newMockTemplate(t)
 		template.EXPECT().
 			Execute(w, &identityWithOneLoginCallbackData{
-				App:             testAppData,
-				CouldNotConfirm: true,
+				App: testAppData,
 			}).
 			Return(nil)
 		return template
@@ -292,8 +292,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &identityWithOneLoginCallbackData{
-			App:             testAppData,
-			CouldNotConfirm: true,
+			App: testAppData,
 		}).
 		Return(nil)
 
@@ -351,6 +350,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 			FirstNames:  "first-name",
 			LastName:    "last-name",
 			ConfirmedAt: now,
+			Confirmed:   true,
 		}).
 		Return(nil)
 

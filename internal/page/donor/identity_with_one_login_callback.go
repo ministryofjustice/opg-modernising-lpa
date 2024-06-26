@@ -12,13 +12,13 @@ import (
 )
 
 type identityWithOneLoginCallbackData struct {
-	App             page.AppData
-	Errors          validation.List
-	FirstNames      string
-	LastName        string
-	DateOfBirth     date.Date
-	ConfirmedAt     time.Time
-	CouldNotConfirm bool
+	App         page.AppData
+	Errors      validation.List
+	FirstNames  string
+	LastName    string
+	DateOfBirth date.Date
+	ConfirmedAt time.Time
+	Confirmed   bool
 }
 
 func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
@@ -38,13 +38,12 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			data.LastName = donor.DonorIdentityUserData.LastName
 			data.DateOfBirth = donor.DonorIdentityUserData.DateOfBirth
 			data.ConfirmedAt = donor.DonorIdentityUserData.RetrievedAt
+			data.Confirmed = true
 
 			return tmpl(w, data)
 		}
 
 		if r.FormValue("error") == "access_denied" {
-			data.CouldNotConfirm = true
-
 			return tmpl(w, data)
 		}
 
@@ -70,11 +69,11 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		donor.DonorIdentityUserData = userData
 
-		if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
+		if err := donorStore.Put(r.Context(), donor); err != nil {
+			return err
+		}
 
+		if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
 			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
 		}
 
@@ -83,13 +82,8 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
+			data.Confirmed = true
 		}
-
-		if err := donorStore.Put(r.Context(), donor); err != nil {
-			return err
-		}
-
-		data.CouldNotConfirm = !donor.DonorIdentityUserData.Status.IsConfirmed()
 
 		return tmpl(w, data)
 	}
