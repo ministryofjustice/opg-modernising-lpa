@@ -3,34 +3,55 @@ package actor
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		cp         *CertificateProviderProvidedDetails
-		firstNames string
-		lastName   string
-		expected   bool
+		cp          *CertificateProviderProvidedDetails
+		firstNames  string
+		lastName    string
+		dateOfBirth date.Date
+		expected    bool
 	}{
-		"set": {
+		"confirmed": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				DateOfBirth:      date.New("2000", "1", "1"),
 			},
-			firstNames: "a",
-			lastName:   "b",
-			expected:   true,
+			firstNames:  "a",
+			lastName:    "b",
+			dateOfBirth: date.New("2000", "1", "1"),
+			expected:    true,
 		},
-		"not ok": {
+		"failed": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{},
+				IdentityUserData: identity.UserData{Status: identity.StatusFailed},
 			},
 			expected: false,
 		},
-		"no match": {
+		"name does not match": {
 			cp: &CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+			firstNames: "a",
+			lastName:   "c",
+			expected:   false,
+		},
+		"dob does not match": {
+			cp: &CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+			firstNames:  "a",
+			lastName:    "b",
+			dateOfBirth: date.New("2000", "1", "1"),
+			expected:    false,
+		},
+		"insufficient evidence": {
+			cp: &CertificateProviderProvidedDetails{
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 			firstNames: "a",
 			lastName:   "b",

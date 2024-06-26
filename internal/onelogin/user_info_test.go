@@ -154,7 +154,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				"vc":  vc,
 			}), privateKey),
 			userData: identity.UserData{
-				OK:          true,
+				Status:      identity.StatusConfirmed,
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
@@ -168,7 +168,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"without dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -179,7 +179,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"with invalid dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -195,13 +195,13 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"without iat": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"vc": vc,
 			}), privateKey),
-			userData: identity.UserData{OK: false},
+			userData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"with unexpected signing method": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -232,6 +232,32 @@ func TestParseIdentityClaim(t *testing.T) {
 			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)
 			assert.ErrorIs(t, err, tc.error)
 			assert.Equal(t, tc.userData, userData)
+		})
+	}
+}
+
+func TestParseIdentityClaimWithReturnCode(t *testing.T) {
+	testcases := map[string]identity.Status{
+		"X":              identity.StatusInsufficientEvidence,
+		"any other code": identity.StatusFailed,
+	}
+
+	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+
+	c := &Client{identityPublicKeyFunc: func(context.Context) (*ecdsa.PublicKey, error) {
+		return &privateKey.PublicKey, nil
+	}}
+
+	for returnCode, expectedStatus := range testcases {
+		t.Run(returnCode, func(t *testing.T) {
+			userInfo := UserInfo{
+				ReturnCodes: []ReturnCodeInfo{{Code: returnCode}},
+			}
+
+			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)
+
+			assert.Nil(t, err)
+			assert.Equal(t, identity.UserData{Status: expectedStatus}, userData)
 		})
 	}
 }
