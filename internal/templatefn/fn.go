@@ -52,6 +52,7 @@ func All(globals *Globals) map[string]any {
 		"details":            details,
 		"inc":                inc,
 		"link":               link,
+		"fromLink":           fromLink,
 		"stringContains":     strings.Contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
@@ -186,6 +187,12 @@ func inc(i int) int {
 
 func link(app page.AppData, path string) string {
 	return app.Lang.URL(path)
+}
+
+type lpaIDPath interface{ Format(string) string }
+
+func fromLink(app page.AppData, path lpaIDPath, field string) string {
+	return app.Lang.URL(path.Format(app.LpaID)) + "?from=" + app.Page + field
 }
 
 // checkboxEq allows matching in the checkboxes.gohtml template for a value that
