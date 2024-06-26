@@ -48,7 +48,7 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
 					return page.Paths.ConfirmPersonAllowedToVouch.Redirect(w, r, appData, donor)
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				return page.Paths.CheckYourDetails.Redirect(w, r, appData, donor)
 			}
 		}
 

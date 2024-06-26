@@ -346,6 +346,7 @@ type AppPaths struct {
 	ChangeCertificateProviderMobileNumber                LpaPath
 	ChangeIndependentWitnessMobileNumber                 LpaPath
 	CheckYouCanSign                                      LpaPath
+	CheckYourDetails                                     LpaPath
 	CheckYourLpa                                         LpaPath
 	ChooseAttorneys                                      LpaPath
 	ChooseAttorneysAddress                               LpaPath
@@ -412,12 +413,14 @@ type AppPaths struct {
 	SignTheLpaOnBehalf                                   LpaPath
 	SignYourLpa                                          LpaPath
 	TaskList                                             LpaPath
+	UnableToConfirmIdentity                              LpaPath
 	UploadEvidence                                       LpaPath
 	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
 	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
+	WhatIsVouching                                       LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WhoCanCorrespondentsDetailsBeSharedWith              LpaPath
@@ -527,6 +530,7 @@ var Paths = AppPaths{
 	ChangeCertificateProviderMobileNumber:                "/change-certificate-provider-mobile-number",
 	ChangeIndependentWitnessMobileNumber:                 "/change-independent-witness-mobile-number",
 	CheckYouCanSign:                                      "/check-you-can-sign",
+	CheckYourDetails:                                     "/check-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
@@ -606,12 +610,14 @@ var Paths = AppPaths{
 	Start:                                                "/start",
 	SupporterFixtures:                                    "/fixtures/supporter",
 	TaskList:                                             "/task-list",
+	UnableToConfirmIdentity:                              "/unable-to-confirm-identity",
 	UploadEvidence:                                       "/upload-evidence",
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
 	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
+	WhatIsVouching:                                       "/what-is-vouching",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoCanCorrespondentsDetailsBeSharedWith:              "/who-can-correspondents-details-be-shared-with",

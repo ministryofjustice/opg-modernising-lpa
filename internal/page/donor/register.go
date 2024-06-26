@@ -359,10 +359,16 @@ func Register(
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
 
+	handleWithDonor(page.Paths.UnableToConfirmIdentity, page.None,
+		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
+	handleWithDonor(page.Paths.WhatIsVouching, page.CanGoBack,
+		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
 	handleWithDonor(page.Paths.EnterVoucher, page.CanGoBack,
 		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
+	handleWithDonor(page.Paths.CheckYourDetails, page.CanGoBack,
+		Guidance(tmpls.Get("check_your_details.gohtml")))
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
