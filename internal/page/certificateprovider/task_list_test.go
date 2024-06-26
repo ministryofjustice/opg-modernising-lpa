@@ -77,7 +77,7 @@ func TestGetTaskList(t *testing.T) {
 				Paid:     true,
 			},
 			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				IdentityUserData: identity.UserData{OK: true},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 				Tasks: actor.CertificateProviderTasks{
 					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
