@@ -2,9 +2,9 @@
 
 {{ define "pageTitle" }}
   {{ if .Confirmed }}
-    {{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}
-  {{ else }}
     {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
+  {{ else }}
+    {{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}
   {{ end }}
 {{ end }}
 
