@@ -171,13 +171,13 @@ data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
   provider = aws.region
 }
 
-data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
-  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
-  provider = aws.region
-}
-
 data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
   name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
+
+data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
+  name     = "rum-monitor-identity-pool-id-${data.aws_region.current.name}"
   provider = aws.region
 }
 
