@@ -346,6 +346,7 @@ type AppPaths struct {
 	ChangeCertificateProviderMobileNumber                LpaPath
 	ChangeIndependentWitnessMobileNumber                 LpaPath
 	CheckYouCanSign                                      LpaPath
+	CheckYourDetails                                     LpaPath
 	CheckYourLpa                                         LpaPath
 	ChooseAttorneys                                      LpaPath
 	ChooseAttorneysAddress                               LpaPath
@@ -529,6 +530,7 @@ var Paths = AppPaths{
 	ChangeCertificateProviderMobileNumber:                "/change-certificate-provider-mobile-number",
 	ChangeIndependentWitnessMobileNumber:                 "/change-independent-witness-mobile-number",
 	CheckYouCanSign:                                      "/check-you-can-sign",
+	CheckYourDetails:                                     "/check-your-details",
 	CheckYourLpa:                                         "/check-your-lpa",
 	ChooseAttorneys:                                      "/choose-attorneys",
 	ChooseAttorneysAddress:                               "/choose-attorneys-address",
