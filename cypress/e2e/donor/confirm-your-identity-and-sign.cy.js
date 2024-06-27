@@ -192,9 +192,9 @@ describe('Confirm your identity and sign', () => {
     it('can start vouching journey', () => {
       cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
       cy.contains('li', "Confirm your identity and sign")
-          .should('contain', 'Not started')
-          .find('a')
-          .click();
+        .should('contain', 'Not started')
+        .find('a')
+        .click();
 
       cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
       cy.checkA11yApp();
@@ -219,12 +219,12 @@ describe('Confirm your identity and sign', () => {
   })
 
   describe('when any other return code', () => {
-    it('sees identity failure message', () => {
+    it('shows problem', () => {
       cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
       cy.contains('li', "Confirm your identity and sign")
-          .should('contain', 'Not started')
-          .find('a')
-          .click();
+        .should('contain', 'Not started')
+        .find('a')
+        .click();
 
       cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
       cy.checkA11yApp();
@@ -239,9 +239,48 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Failed identity check (T)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/id/one-login/callback');
+      cy.url().should('contain', '/register-with-court-of-protection');
       cy.checkA11yApp();
-      cy.contains('Your identity details could not be confirmed with GOV.UK One Login');
+      cy.contains('register the LPA through the Court of Protection');
+
+      cy.contains('a', 'Return to task list').click();
+      cy.contains('li', "Confirm your identity and sign")
+        .should('contain', 'There is a problem')
+        .find('a')
+        .click();
+
+      cy.url().should('contain', '/register-with-court-of-protection');
+    })
+
+    it('can withdraw', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+        .should('contain', 'Not started')
+        .find('a')
+        .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Failed identity check (T)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/register-with-court-of-protection');
+      cy.checkA11yApp();
+      cy.contains('register the LPA through the Court of Protection');
+
+      cy.contains('label', 'I no longer want to make this LPA').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/dashboard');
+      cy.contains('Withdrawn');
     })
   })
 });

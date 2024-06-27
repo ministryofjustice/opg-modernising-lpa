@@ -97,7 +97,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: now,
 		Tasks: actor.DonorTasks{
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 			PayForLpa:                  actor.PaymentTaskCompleted,
 		},
 	}
@@ -149,7 +149,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		WitnessedByCertificateProviderAt: now,
 		Tasks: actor.DonorTasks{
 			PayForLpa:                  actor.PaymentTaskPending,
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	}
 	donorStore := newMockDonorStore(t)
