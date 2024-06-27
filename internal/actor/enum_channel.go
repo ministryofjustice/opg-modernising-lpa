@@ -19,9 +19,6 @@ const _Channel_name = "paperonline"
 var _Channel_index = [...]uint8{0, 5, 11}
 
 func (i Channel) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= Channel(len(_Channel_index)-1) {
 		return "Channel(" + strconv.FormatInt(int64(i+1), 10) + ")"
