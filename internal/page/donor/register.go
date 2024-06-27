@@ -368,9 +368,11 @@ func Register(
 	handleWithDonor(page.Paths.ConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(page.Paths.CheckYourDetails, page.CanGoBack,
-		Guidance(tmpls.Get("check_your_details.gohtml")))
+		CheckYourDetails(tmpls.Get("check_your_details.gohtml")))
 	handleWithDonor(page.Paths.WeHaveReceivedVoucherDetails, page.None,
 		Guidance(tmpls.Get("we_have_received_voucher_details.gohtml")))
+	handleWithDonor(page.Paths.WeHaveContactedVoucher, page.None,
+		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
