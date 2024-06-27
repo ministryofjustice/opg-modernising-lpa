@@ -23,10 +23,10 @@
                         {{ template "error-message" (errorMessage . "do-next") }}
 
                         {{ template "radios" (items . "do-next" ""
-                        (item "prove-own-id" "iWillGetOrFindID")
-                        (item "select-new-voucher" "iHaveSomeoneWhoCanVouch")
-                        (item "withdraw-lpa" "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                        (item "withdraw-lpa" "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                        (item .Options.ProveOwnID.String "iWillGetOrFindID")
+                        (item .Options.SelectNewVoucher.String "iHaveSomeoneWhoCanVouch")
+                        (item .Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                        (item .Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
                         ) }}
                     </fieldset>
                 </div>

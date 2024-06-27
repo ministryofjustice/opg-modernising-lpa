@@ -6,26 +6,39 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
+
+//go:generate enumerator -type NoVoucherDecision -linecomment -empty
+type NoVoucherDecision uint8
+
+const (
+	ProveOwnID       NoVoucherDecision = iota + 1 // prove-own-id
+	SelectNewVoucher                              // select-new-voucher
+	WithdrawLPA                                   // withdraw-lpa
+	ApplyToCOP                                    // apply-to-cop
+)
+
+type whatYouCanDoNowData struct {
+	App     page.AppData
+	Errors  validation.List
+	Form    *whatYouCanDoNowForm
+	Options NoVoucherDecisionOptions
+}
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		data := &enterVoucherData{
-			App: appData,
-			Form: &enterVoucherForm{
-				FirstNames: donor.Voucher.FirstNames,
-				LastName:   donor.Voucher.LastName,
-				Email:      donor.Voucher.Email,
-			},
+		data := &whatYouCanDoNowData{
+			App:     appData,
+			Form:    &whatYouCanDoNowForm{},
+			Options: NoVoucherDecisionValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEnterVoucherForm(r)
+			data.Form = readWhatYouCanDoNowForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Voucher.Email = data.Form.Email
-
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
@@ -36,4 +49,27 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 
 		return tmpl(w, data)
 	}
+}
+
+type whatYouCanDoNowForm struct {
+	DoNext NoVoucherDecision
+	Error  error
+}
+
+func readWhatYouCanDoNowForm(r *http.Request) *whatYouCanDoNowForm {
+	doNext, err := ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
+
+	return &whatYouCanDoNowForm{
+		DoNext: doNext,
+		Error:  err,
+	}
+}
+
+func (f *whatYouCanDoNowForm) Validate() validation.List {
+	var errors validation.List
+
+	errors.Error("do-next", "whatYouWouldLikeToDo", f.Error,
+		validation.Selected())
+
+	return errors
 }
