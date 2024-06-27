@@ -1228,5 +1228,7 @@
     "isThereSomeoneWhoCanVouchForYou": "Welsh",
     "yesIKnowSomeone": "Welsh",
     "noIDoNotKnowSomeone": "Welsh",
-    "yesIfHaveSomeoneCanVouchForYou": "Welsh"
+    "yesIfHaveSomeoneCanVouchForYou": "Welsh",
+    "weHaveContactedVoucher": "Welsh",
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>"
 }
