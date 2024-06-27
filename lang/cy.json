@@ -1222,5 +1222,7 @@
     "payingNoFee": "Welsh",
     "payingHalfFee": "Welsh",
     "aRepeatApplicationDiscount": "Welsh",
-    "aHardshipApplication": "Welsh"
+    "aHardshipApplication": "Welsh",
+    "weHaveContactedVoucher": "Welsh",
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>"
 }

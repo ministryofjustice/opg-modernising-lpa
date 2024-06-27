@@ -77,6 +77,11 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 				donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 				nextPage = page.Paths.TaskList
 
+				if donor.Voucher.Allowed {
+					// TODO: MLPAB-1897 send code to donor and MLPAB-1899 contact voucher
+					nextPage = page.Paths.WeHaveContactedVoucher
+				}
+
 				if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
