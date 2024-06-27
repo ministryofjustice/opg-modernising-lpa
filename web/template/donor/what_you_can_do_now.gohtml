@@ -10,6 +10,8 @@
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
             {{ trHtml .App "whatYouCanDoNowContent" }}
+            {{ trHtml .App "replaceFindOrGetNewIDContent" }}
+            {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
 
             {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
 
