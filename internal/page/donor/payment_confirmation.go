@@ -82,7 +82,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 					nextPage = page.Paths.WeHaveContactedVoucher
 				}
 
-				if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+				if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
