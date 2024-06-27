@@ -321,6 +321,58 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 	}
 }
 
+func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) {
+	for _, task := range []actor.PaymentTask{actor.PaymentTaskApproved, actor.PaymentTaskDenied} {
+		t.Run(task.String(), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+			payClient := newMockPayClient(t).
+				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &paymentConfirmationData{
+					App:              testAppData,
+					PaymentReference: "123456789012",
+					FeeType:          pay.FullFee,
+					NextPage:         page.Paths.WeHaveContactedVoucher,
+				}).
+				Return(nil)
+
+			sessionStore := newMockSessionStore(t).
+				withPaySession(r).
+				withExpiredPaySession(r, w)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), mock.Anything).
+				Return(nil)
+
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendPaymentReceived(r.Context(), mock.Anything).
+				Return(nil)
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaUID:  "lpa-uid",
+				FeeType: pay.FullFee,
+				CertificateProvider: actor.CertificateProvider{
+					Email: "certificateprovider@example.com",
+				},
+				Voucher: actor.Voucher{Allowed: true},
+				Tasks: actor.DonorTasks{
+					PayForLpa: task,
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
+}
+
 func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)

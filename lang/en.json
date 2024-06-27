@@ -1154,5 +1154,7 @@
     "payingNoFee": "paying no fee (exemption)",
     "payingHalfFee": "paying a half fee (remission)",
     "aRepeatApplicationDiscount": "a repeat application discount",
-    "aHardshipApplication": "a hardship application (fee waiver)"
+    "aHardshipApplication": "a hardship application (fee waiver)",
+    "weHaveContactedVoucher": "We have contacted the person you would like to vouch for you.",
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>We have sent you an email with a code</li><li>You must give this code to the person vouching for you, so that they can access the service so that they can complete their tasks</li><li>You can continue to sign your LPA</li></ul>"
 }
