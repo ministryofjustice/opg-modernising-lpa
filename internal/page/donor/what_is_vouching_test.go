@@ -52,7 +52,7 @@ func TestGetWhatIsVouchingWhenTemplateError(t *testing.T) {
 func TestPostWhatIsVouching(t *testing.T) {
 	testcases := map[form.YesNo]string{
 		form.Yes: page.Paths.EnterVoucher.Format("lpa-id"),
-		form.No:  page.Paths.TaskList.Format("lpa-id"),
+		form.No:  page.Paths.WhatYouCanDoNow.Format("lpa-id"),
 	}
 
 	for yesNo, path := range testcases {

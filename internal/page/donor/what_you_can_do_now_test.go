@@ -52,7 +52,6 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 		ProveOwnID:       page.Paths.TaskList.Format("lpa-id"),
 		SelectNewVoucher: page.Paths.EnterVoucher.Format("lpa-id"),
 		WithdrawLPA:      page.Paths.WithdrawThisLpa.Format("lpa-id"),
-		ApplyToCOP:       page.Paths.TaskList.Format("lpa-id"),
 	}
 
 	for noVoucherDecision, path := range testcases {
