@@ -111,7 +111,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
-		if donor.Tasks.ConfirmYourIdentityAndSign.Completed() {
+		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
 				return fmt.Errorf("failed to send to lpastore: %w", err)
 			}
