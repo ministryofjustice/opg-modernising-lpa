@@ -20,18 +20,18 @@ const (
 )
 
 type whatYouCanDoNowData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *whatYouCanDoNowForm
-	Options NoVoucherDecisionOptions
+	App    page.AppData
+	Errors validation.List
+	Form   *whatYouCanDoNowForm
 }
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &whatYouCanDoNowData{
-			App:     appData,
-			Form:    &whatYouCanDoNowForm{},
-			Options: NoVoucherDecisionValues,
+			App: appData,
+			Form: &whatYouCanDoNowForm{
+				Options: NoVoucherDecisionValues,
+			},
 		}
 
 		if r.Method == http.MethodPost {
@@ -39,11 +39,25 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if err := donorStore.Put(r.Context(), donor); err != nil {
-					return err
+				var next page.LpaPath
+
+				switch data.Form.DoNext {
+				case ProveOwnID:
+					next = page.Paths.TaskList
+				case SelectNewVoucher:
+					next = page.Paths.EnterVoucher
+				case WithdrawLPA:
+					next = page.Paths.WithdrawThisLpa
+				case ApplyToCOP:
+					donor.WantsToApplyToCourtOfProtection = true
+					if err := donorStore.Put(r.Context(), donor); err != nil {
+						return err
+					}
+
+					next = page.Paths.TaskList
 				}
 
-				return page.Paths.CheckYourDetails.Redirect(w, r, appData, donor)
+				return next.Redirect(w, r, appData, donor)
 			}
 		}
 
@@ -52,16 +66,18 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type whatYouCanDoNowForm struct {
-	DoNext NoVoucherDecision
-	Error  error
+	DoNext  NoVoucherDecision
+	Error   error
+	Options NoVoucherDecisionOptions
 }
 
 func readWhatYouCanDoNowForm(r *http.Request) *whatYouCanDoNowForm {
 	doNext, err := ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
 
 	return &whatYouCanDoNowForm{
-		DoNext: doNext,
-		Error:  err,
+		DoNext:  doNext,
+		Error:   err,
+		Options: NoVoucherDecisionValues,
 	}
 }
 
