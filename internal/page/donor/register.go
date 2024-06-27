@@ -362,7 +362,7 @@ func Register(
 	handleWithDonor(page.Paths.UnableToConfirmIdentity, page.None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
 	handleWithDonor(page.Paths.WhatIsVouching, page.CanGoBack,
-		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
+		WhatIsVouching(tmpls.Get("what_is_vouching.gohtml"), donorStore))
 	handleWithDonor(page.Paths.EnterVoucher, page.CanGoBack,
 		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ConfirmPersonAllowedToVouch, page.CanGoBack,
