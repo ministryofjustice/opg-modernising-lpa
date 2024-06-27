@@ -36,8 +36,7 @@ func WhatIsVouching(tmpl template.Template, donorStore DonorStore) Handler {
 				if donor.HasAVoucher.IsYes() {
 					return page.Paths.EnterVoucher.Redirect(w, r, appData, donor)
 				} else {
-					// temp until no flow built
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return page.Paths.WhatYouCanDoNow.Redirect(w, r, appData, donor)
 				}
 			}
 		}

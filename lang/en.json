@@ -1162,5 +1162,18 @@
     "noIDoNotKnowSomeone": "No, I do not know someone who can vouch for me",
     "yesIfHaveSomeoneCanVouchForYou": "yes if you know someone and they have agreed to vouch for you",
     "weHaveContactedVoucher": "We have contacted the person you would like to vouch for you.",
-    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>We have sent you an email with a code</li><li>You must give this code to the person vouching for you, so that they can access the service so that they can complete their tasks</li><li>You can continue to sign your LPA</li></ul>"
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>We have sent you an email with a code</li><li>You must give this code to the person vouching for you, so that they can access the service so that they can complete their tasks</li><li>You can continue to sign your LPA</li></ul>",
+    "youHaveNotChosenAnyoneToVouchForYou": "You have not chosen anyone to vouch for you",
+    "whatYouCanDoNow": "What you can do now",
+    "whatYouCanDoNowContent": "<p class=\"govuk-body\">The Office of the Public Guardian (OPG) will not be able to register your LPA until you have confirmed your identity.</p><h2 class=\"govuk-heading-m\">Replace, find or get new ID documents</h2><p class=\"govuk-body\">For example, you could:</p><ul class=\"govuk-list govuk-list--bullet govuk-list--spaced\"><li><a href=\"#\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">find a lost National Insurance number (opens in a new tab)</a></li><li><a href=\"#\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">apply online for a UK passport (opens in a new tab)</a></li><li><a href=\"#\" class=\"govuk-link\" target=\"_blank\" rel=\"noreferrer noopener\">replace a lost, stolen, damaged or destroyed driving licence (opens in a new tab)</a></li></ul><h2 class=\"govuk-heading-m\">Register your LPA through the Court of Protection</h2><p class=\"govuk-body\">If you have no other option, you can apply to the Court of Protection to register your LPA without completing an ID check.</p><p class=\"govuk-body\">It costs £371 to register your LPA through the Court of Protection and will take several months.</p>",
+    "onceYouSelectThisOptionYouCannotChangeYourMindWarning": "Once you select this option, you cannot change your mind. If you decide to confirm your identity another way, you’ll need to create a new LPA",
+    "whatWouldYouLikeToDo": "What would you like to do?",
+    "iWillGetOrFindID": "I will get or find ID documents and confirm my own identity",
+    "iHaveSomeoneWhoCanVouch": "I have someone who can vouch for me",
+    "iNoLongerWantToMakeThisLPA": "I no longer want to make this LPA",
+    "iUnderstandIWillNotGetRefundHint": "I understand that I will not get a refund for the LPA fee",
+    "iWillApplyToCOPToRegister": "I will apply to the Court of Protection to register this LPA",
+    "iUnderstandICannotChangeMyMind": "I understand that I cannot change my mind, and will have to pay and wait several months",
+    "ifYouNeedHelpWithGOLContactTheirTeam": "If you need help with GOV.UK One Login, contact their team.",
+    "contactGOL": "Contact GOV.UK One Login"
 }
