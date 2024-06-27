@@ -1,58 +1,32 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .Confirmed }}
     {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
-  {{ else }}
-    {{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}
-  {{ end }}
 {{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ if .Confirmed }}
-        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithOneLogin" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithOneLogin" }}</h1>
 
-        <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-              First Names
-            </dt>
-            <dd class="govuk-summary-list__value">
-              {{ .FirstNames }}
-            </dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-              Last Name
-            </dt>
-            <dd class="govuk-summary-list__value">
-              {{ .LastName }}
-            </dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-              Date of birth
-            </dt>
-            <dd class="govuk-summary-list__value">
-              {{ .DateOfBirth }}
-            </dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-              Confirmed at
-            </dt>
-            <dd class="govuk-summary-list__value">
-              {{ formatDateTime .App .ConfirmedAt }}
-            </dd>
-          </div>
-        </dl>
-      {{ else }}
-        <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityNotConfirmedWithOneLogin" }}</h1>
-
-        <p class="govuk-body">{{ tr .App "pleaseContinueWithADifferentMethod" }}</p>
-      {{ end }}
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">First Names</dt>
+          <dd class="govuk-summary-list__value">{{ .FirstNames }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Last Name</dt>
+          <dd class="govuk-summary-list__value">{{ .LastName }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Date of birth</dt>
+          <dd class="govuk-summary-list__value">{{ .DateOfBirth }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Confirmed at</dt>
+          <dd class="govuk-summary-list__value">{{ formatDateTime .App .ConfirmedAt }}</dd>
+        </div>
+      </dl>
 
       <form novalidate method="post">
         {{ template "continue-button" . }}

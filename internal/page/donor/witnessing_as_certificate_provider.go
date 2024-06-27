@@ -51,7 +51,7 @@ func WitnessingAsCertificateProvider(
 			}
 
 			if data.Errors.None() {
-				donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+				donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
 				donor.WitnessCodeLimiter = nil
 				if donor.WitnessedByCertificateProviderAt.IsZero() {
 					donor.WitnessedByCertificateProviderAt = now()

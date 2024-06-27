@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,7 +19,6 @@ type identityWithOneLoginCallbackData struct {
 	LastName    string
 	DateOfBirth date.Date
 	ConfirmedAt time.Time
-	Confirmed   bool
 }
 
 func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
@@ -38,7 +38,6 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			data.LastName = donor.DonorIdentityUserData.LastName
 			data.DateOfBirth = donor.DonorIdentityUserData.DateOfBirth
 			data.ConfirmedAt = donor.DonorIdentityUserData.RetrievedAt
-			data.Confirmed = true
 
 			return tmpl(w, data)
 		}
@@ -69,21 +68,27 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 
 		donor.DonorIdentityUserData = userData
 
+		if userData.Status.IsFailed() {
+			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskProblem
+		} else {
+			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
+		}
+
 		if err := donorStore.Put(r.Context(), donor); err != nil {
 			return err
 		}
 
-		if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
+		switch donor.DonorIdentityUserData.Status {
+		case identity.StatusFailed:
+			return page.Paths.RegisterWithCourtOfProtection.Redirect(w, r, appData, donor)
+		case identity.StatusInsufficientEvidence:
 			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
 		}
 
-		if donor.DonorIdentityConfirmed() {
-			data.FirstNames = userData.FirstNames
-			data.LastName = userData.LastName
-			data.DateOfBirth = userData.DateOfBirth
-			data.ConfirmedAt = userData.RetrievedAt
-			data.Confirmed = true
-		}
+		data.FirstNames = userData.FirstNames
+		data.LastName = userData.LastName
+		data.DateOfBirth = userData.DateOfBirth
+		data.ConfirmedAt = userData.RetrievedAt
 
 		return tmpl(w, data)
 	}

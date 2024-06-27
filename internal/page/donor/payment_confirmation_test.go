@@ -257,7 +257,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				}},
 				Tasks: actor.DonorTasks{
 					PayForLpa:                  actor.PaymentTaskCompleted,
-					ConfirmYourIdentityAndSign: actor.TaskCompleted,
+					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 				},
 			}
 
@@ -310,7 +310,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				},
 				Tasks: actor.DonorTasks{
 					PayForLpa:                  task,
-					ConfirmYourIdentityAndSign: actor.TaskCompleted,
+					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 				},
 			})
 			resp := w.Result()
@@ -574,7 +574,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		},
 		Tasks: actor.DonorTasks{
 			PayForLpa:                  actor.PaymentTaskApproved,
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	})
 
@@ -608,7 +608,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 		},
 		Tasks: actor.DonorTasks{
 			PayForLpa:                  actor.PaymentTaskApproved,
-			ConfirmYourIdentityAndSign: actor.TaskCompleted,
+			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	})
 

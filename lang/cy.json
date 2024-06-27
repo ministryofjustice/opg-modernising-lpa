@@ -1230,5 +1230,13 @@
     "noIDoNotKnowSomeone": "Welsh",
     "yesIfHaveSomeoneCanVouchForYou": "Welsh",
     "weHaveContactedVoucher": "Welsh",
-    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>"
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
+    "registerYourLpaThroughCOPContent": "<p class=\"govuk-body\">Welsh</p>",
+    "registerYourLpaThroughCOPWarning": "Welsh",
+    "whatWouldYouLikeToDo": "Welsh",
+    "iNoLongerWantToMakeThisLpa": "Welsh",
+    "iNoLongerWantToMakeThisLpaHint": "Welsh",
+    "iWillApplyToCourtOfProtectionToRegisterThisLpa": "Welsh",
+    "iWillApplyToCourtOfProtectionToRegisterThisLpaHint": "Welsh",
+    "whatYouWouldLikeToDo": "Welsh"
 }
