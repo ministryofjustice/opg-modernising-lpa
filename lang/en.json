@@ -1154,5 +1154,11 @@
     "payingNoFee": "paying no fee (exemption)",
     "payingHalfFee": "paying a half fee (remission)",
     "aRepeatApplicationDiscount": "a repeat application discount",
-    "aHardshipApplication": "a hardship application (fee waiver)"
+    "aHardshipApplication": "a hardship application (fee waiver)",
+    "whatIsVouching": "What is vouching?",
+    "whatIsVouchingContent": "<p class=\"govuk-body\">Vouching allows someone you know well to confirm your identity.</p><h2 class=\"govuk-heading-m\">Who can vouch for you</h2><p class=\"govuk-body\">The person you ask to vouch for you must:</p><ul class=\"govuk-list govuk-list--bullet\"><li>be aged 18 or over</li><li>be able to confirm their own identity</li><li>have known you for at least 2 years</li><li>be willing to sign a declaration</li></ul><h2 class=\"govuk-heading-m\">Who cannot vouch for you</h2><p class=\"govuk-body\">The person you choose cannot be:</p><ul class=\"govuk-list govuk-list--bullet\"><li>someone named on your LPA, including yourself</li><li>in a relationship with you</li><li>a member of your family</li><li>living at the same address as you</li></ul><h2 class=\"govuk-heading-m\">How the person will vouch for you</h2><p class=\"govuk-body\">You must ask the person if they are willing to vouch for you first. If they are willing, they will need to confirm their own identity using GOV.UK One Login.</p><p class=\"govuk-body\">They will need either:</p><ul class=\"govuk-list govuk-list--bullet\"><li>a National Insurance number</li><li>a UK passport</li><li>a UK driving licence</li></ul><p class=\"govuk-body\">We will then ask them to sign a declaration and confirm your identity.</p>",
+    "isThereSomeoneWhoCanVouchForYou": "Is there someone who can vouch for you?",
+    "yesIKnowSomeone": "Yes, I know someone and they have agreed to vouch for me",
+    "noIDoNotKnowSomeone": "No, I do not know someone who can vouch for me",
+    "yesIfHaveSomeoneCanVouchForYou": "yes if you know someone and they have agreed to vouch for you"
 }
