@@ -401,6 +401,7 @@ type AppPaths struct {
 	Progress                                             LpaPath
 	ProveYourIdentity                                    LpaPath
 	ReadYourLpa                                          LpaPath
+	RegisterWithCourtOfProtection                        LpaPath
 	RemoveAttorney                                       LpaPath
 	RemovePersonToNotify                                 LpaPath
 	RemoveReplacementAttorney                            LpaPath
@@ -596,6 +597,7 @@ var Paths = AppPaths{
 	Progress:                                             "/progress",
 	ProveYourIdentity:                                    "/prove-your-identity",
 	ReadYourLpa:                                          "/read-your-lpa",
+	RegisterWithCourtOfProtection:                        "/register-with-court-of-protection",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
 	RemoveReplacementAttorney:                            "/remove-replacement-attorney",

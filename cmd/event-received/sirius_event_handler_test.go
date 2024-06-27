@@ -128,7 +128,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
-		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
+		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -206,7 +206,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.HalfFee,
-		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
+		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -402,7 +402,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
+				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -445,7 +445,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.TaskCompleted},
+				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil

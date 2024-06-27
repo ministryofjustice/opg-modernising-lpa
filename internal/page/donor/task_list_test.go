@@ -110,6 +110,36 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"failed identity": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed, LastName: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.RegisterWithCourtOfProtection.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
+		"insufficient evidence for identity": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.UnableToConfirmIdentity.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"attorneys under 18": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{
