@@ -20,9 +20,6 @@ const _AttorneysAct_name = "jointlyjointly-and-severallyjointly-for-some-several
 var _AttorneysAct_index = [...]uint8{0, 7, 28, 65}
 
 func (i AttorneysAct) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= AttorneysAct(len(_AttorneysAct_index)-1) {
 		return "AttorneysAct(" + strconv.FormatInt(int64(i+1), 10) + ")"
