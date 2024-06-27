@@ -27,11 +27,10 @@
         ) }}
       </dl>
 
-      {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
-        {{ template "buttons" (button .App "continue" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
-      {{ else }}
-        {{ template "buttons" (button .App "continue" "link" (global.Paths.WeHaveReceivedVoucherDetails.Format .App.LpaID)) }}
-      {{ end }}
+      <form novalidate method="post">
+        {{ template "buttons" (button .App "continue") }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}
