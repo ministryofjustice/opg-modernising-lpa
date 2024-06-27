@@ -20,7 +20,7 @@ func WhatIsVouching(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &whatIsVouchingData{
 			App:  appData,
-			Form: form.NewYesNoForm(donor.HasAVoucher),
+			Form: form.NewYesNoForm(donor.WantVoucher),
 		}
 
 		if r.Method == http.MethodPost {
@@ -28,12 +28,12 @@ func WhatIsVouching(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				donor.HasAVoucher = f.YesNo
+				donor.WantVoucher = f.YesNo
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 
-				if donor.HasAVoucher.IsYes() {
+				if donor.WantVoucher.IsYes() {
 					return page.Paths.EnterVoucher.Redirect(w, r, appData, donor)
 				} else {
 					return page.Paths.WhatYouCanDoNow.Redirect(w, r, appData, donor)

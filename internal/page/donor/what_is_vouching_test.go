@@ -30,7 +30,7 @@ func TestGetWhatIsVouching(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{HasAVoucher: form.Yes})
+	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{WantVoucher: form.Yes})
 
 	assert.Nil(t, err)
 }
@@ -67,7 +67,7 @@ func TestPostWhatIsVouching(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", HasAVoucher: yesNo}).
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", WantVoucher: yesNo}).
 				Return(nil)
 
 			err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
