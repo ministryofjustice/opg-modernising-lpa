@@ -37,6 +37,15 @@ describe('what you can do now', () => {
 
         cy.url().should('contain', '/task-list')
     })
+
+    it('returns to page when selecting prove identity and sign from task list', () => {
+        cy.contains('a', 'Return to task list').click();
+        cy.url().should('contain', '/task-list')
+
+        cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress').click();
+        cy.url().should('contain', '/what-you-can-do-now')
+    })
+
     it('errors when option not selected', () => {
         cy.contains('button', 'Continue').click();
 

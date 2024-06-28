@@ -67,7 +67,10 @@ func TestPostWhatIsVouching(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", WantVoucher: yesNo}).
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID:       "lpa-id",
+					WantVoucher: yesNo,
+				}).
 				Return(nil)
 
 			err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})

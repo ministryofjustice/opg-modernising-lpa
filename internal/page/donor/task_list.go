@@ -162,13 +162,14 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 }
 
 func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
-	var signPath page.LpaPath
+	signPath := page.Paths.HowToConfirmYourIdentityAndSign
+
 	if donor.DonorIdentityConfirmed() {
 		signPath = page.Paths.ReadYourLpa
 	} else if donor.WantVoucher.IsNo() {
 		signPath = page.Paths.WhatYouCanDoNow
-	} else {
-		signPath = page.Paths.HowToConfirmYourIdentityAndSign
+	} else if donor.DonorIdentityUserData.Status.IsInsufficientEvidence() {
+		signPath = page.Paths.WhatIsVouching
 	}
 
 	return taskListSection{
