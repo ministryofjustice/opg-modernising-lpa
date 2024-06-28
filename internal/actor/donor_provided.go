@@ -125,8 +125,11 @@ type DonorProvidedDetails struct {
 	// on PUT)
 	Version int `hash:"-"`
 
-	// HasAVoucher indicates if the donor knows someone who can vouch for them
-	HasAVoucher form.YesNo
+	// WantVoucher indicates if the donor knows someone who can vouch for them and wants
+	// then to do so
+	WantVoucher form.YesNo
+	// NoVoucherDecision is the option chosen in WhatYouCanDoNow
+	NoVoucherDecision NoVoucherDecision
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher
 
