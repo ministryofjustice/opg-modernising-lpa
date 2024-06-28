@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -48,14 +50,43 @@ func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
 }
 
 func TestPostWhatYouCanDoNow(t *testing.T) {
-	testcases := map[actor.NoVoucherDecision]string{
-		actor.ProveOwnID:       page.Paths.TaskList.Format("lpa-id"),
-		actor.SelectNewVoucher: page.Paths.EnterVoucher.Format("lpa-id"),
-		actor.WithdrawLPA:      page.Paths.WithdrawThisLpa.Format("lpa-id"),
-		actor.ApplyToCOP:       page.Paths.TaskList.Format("lpa-id"),
+	testcases := map[actor.NoVoucherDecision]struct {
+		expectedPath  string
+		expectedDonor *actor.DonorProvidedDetails
+	}{
+		actor.ProveOwnID: {
+			expectedPath: page.Paths.TaskList.Format("lpa-id"),
+			expectedDonor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				DonorIdentityUserData: identity.UserData{},
+			},
+		},
+		actor.SelectNewVoucher: {
+			expectedPath: page.Paths.EnterVoucher.Format("lpa-id"),
+			expectedDonor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				WantVoucher:           form.Yes,
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+		},
+		actor.WithdrawLPA: {
+			expectedPath: page.Paths.WithdrawThisLpa.Format("lpa-id"),
+			expectedDonor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+		},
+		actor.ApplyToCOP: {
+			expectedPath: page.Paths.TaskList.Format("lpa-id"),
+			expectedDonor: &actor.DonorProvidedDetails{
+				LpaID:                            "lpa-id",
+				RegisteringWithCourtOfProtection: true,
+				DonorIdentityUserData:            identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+		},
 	}
 
-	for noVoucherDecision, path := range testcases {
+	for noVoucherDecision, tc := range testcases {
 		t.Run(noVoucherDecision.String(), func(t *testing.T) {
 			f := url.Values{
 				"do-next": {noVoucherDecision.String()},
@@ -67,15 +98,15 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", NoVoucherDecision: noVoucherDecision}).
+				Put(r.Context(), tc.expectedDonor).
 				Return(nil)
 
-			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, path, resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedPath, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -91,7 +122,7 @@ func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", NoVoucherDecision: actor.ApplyToCOP}).
+		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})

@@ -34,14 +34,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x5ea644076c9cf23b
+	const modified uint64 = 0xb4795f8254204619
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*DonorProvidedDetails).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x34870a096e4cb46f,
+		0: 0xc907539bbd47eeda,
 	}
 
 	for version, initial := range testcases {
@@ -91,13 +91,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x1a120f1dea94d94a
+	const modified uint64 = 0xed6b4d9634dfbb96
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x6d1b3fb2b6e41b9e,
+		0: 0x8146b900161c34e3,
 	}
 
 	for version, initial := range testcases {

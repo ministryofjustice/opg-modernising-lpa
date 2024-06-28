@@ -5,6 +5,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -29,22 +31,24 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.NoVoucherDecision = data.Form.DoNext
-				if err := donorStore.Put(r.Context(), donor); err != nil {
-					return err
-				}
-
 				var next page.LpaPath
 
 				switch data.Form.DoNext {
 				case actor.ProveOwnID:
+					donor.DonorIdentityUserData = identity.UserData{}
 					next = page.Paths.TaskList
 				case actor.SelectNewVoucher:
+					donor.WantVoucher = form.Yes
 					next = page.Paths.EnterVoucher
 				case actor.WithdrawLPA:
 					next = page.Paths.WithdrawThisLpa
 				case actor.ApplyToCOP:
+					donor.RegisteringWithCourtOfProtection = true
 					next = page.Paths.TaskList
+				}
+
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
 				}
 
 				return next.Redirect(w, r, appData, donor)
