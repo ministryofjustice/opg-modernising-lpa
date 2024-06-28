@@ -9,7 +9,7 @@
 
       {{ trHtml .App "weCanNotifyUpTo5PeopleContent" }}
 
-      {{ template "people-to-notify-summary" (listPeopleToNotify .App .Donor.PeopleToNotify 2 (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
+      {{ template "people-to-notify-summary" (listPeopleToNotify .App .Donor.PeopleToNotify 2 (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
 
       {{ if eq 5 (len .Donor.PeopleToNotify) }}
         {{ template "information-banner" (content .App "addedMaxPeople") }}

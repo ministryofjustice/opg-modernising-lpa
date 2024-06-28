@@ -20,9 +20,6 @@ const _YesNoMaybe_name = "YesNoMaybe"
 var _YesNoMaybe_index = [...]uint8{0, 3, 5, 10}
 
 func (i YesNoMaybe) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= YesNoMaybe(len(_YesNoMaybe_index)-1) {
 		return "YesNoMaybe(" + strconv.FormatInt(int64(i+1), 10) + ")"

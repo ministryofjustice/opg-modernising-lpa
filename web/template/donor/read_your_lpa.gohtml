@@ -15,13 +15,13 @@
         {{ tr .App "lpaDecisions" }}
       </h2>
 
-      {{ template "lpa-decisions" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
+      {{ template "lpa-decisions" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
 
       <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
         {{ tr .App "peopleNamedOnTheLpa" }}
       </h2>
 
-      {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.Completed)) }}
+      {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
 
       {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID)) }}
     </div>

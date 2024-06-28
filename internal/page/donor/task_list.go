@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,12 +19,13 @@ type taskListData struct {
 }
 
 type taskListItem struct {
-	Name         string
-	Path         string
-	State        actor.TaskState
-	PaymentState actor.PaymentTask
-	Count        int
-	Hidden       bool
+	Name          string
+	Path          string
+	State         actor.TaskState
+	PaymentState  actor.PaymentTask
+	IdentityState actor.IdentityTask
+	Count         int
+	Hidden        bool
 }
 
 type taskListSection struct {
@@ -163,9 +165,14 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 
 func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 	var signPath page.LpaPath
-	if donor.DonorIdentityConfirmed() {
+	switch donor.DonorIdentityUserData.Status {
+	case identity.StatusConfirmed:
 		signPath = page.Paths.ReadYourLpa
-	} else {
+	case identity.StatusFailed:
+		signPath = page.Paths.RegisterWithCourtOfProtection
+	case identity.StatusInsufficientEvidence:
+		signPath = page.Paths.UnableToConfirmIdentity
+	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign
 	}
 
@@ -173,9 +180,9 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 		Heading: "confirmYourIdentityAndSign",
 		Items: []taskListItem{
 			{
-				Name:  "confirmYourIdentityAndSign",
-				Path:  signPath.Format(donor.LpaID),
-				State: donor.Tasks.ConfirmYourIdentityAndSign,
+				Name:          "confirmYourIdentityAndSign",
+				Path:          signPath.Format(donor.LpaID),
+				IdentityState: donor.Tasks.ConfirmYourIdentityAndSign,
 			},
 		},
 	}
