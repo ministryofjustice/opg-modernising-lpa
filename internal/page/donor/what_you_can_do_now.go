@@ -9,16 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-//go:generate enumerator -type NoVoucherDecision -linecomment -empty
-type NoVoucherDecision uint8
-
-const (
-	ProveOwnID       NoVoucherDecision = iota + 1 // prove-own-id
-	SelectNewVoucher                              // select-new-voucher
-	WithdrawLPA                                   // withdraw-lpa
-	ApplyToCOP                                    // apply-to-cop
-)
-
 type whatYouCanDoNowData struct {
 	App    page.AppData
 	Errors validation.List
@@ -30,7 +20,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 		data := &whatYouCanDoNowData{
 			App: appData,
 			Form: &whatYouCanDoNowForm{
-				Options: NoVoucherDecisionValues,
+				Options: actor.NoVoucherDecisionValues,
 			},
 		}
 
@@ -39,21 +29,21 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				donor.NoVoucherDecision = data.Form.DoNext
+				if err := donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+
 				var next page.LpaPath
 
 				switch data.Form.DoNext {
-				case ProveOwnID:
+				case actor.ProveOwnID:
 					next = page.Paths.TaskList
-				case SelectNewVoucher:
+				case actor.SelectNewVoucher:
 					next = page.Paths.EnterVoucher
-				case WithdrawLPA:
+				case actor.WithdrawLPA:
 					next = page.Paths.WithdrawThisLpa
-				case ApplyToCOP:
-					donor.WantsToApplyToCourtOfProtection = true
-					if err := donorStore.Put(r.Context(), donor); err != nil {
-						return err
-					}
-
+				case actor.ApplyToCOP:
 					next = page.Paths.TaskList
 				}
 
@@ -66,18 +56,18 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type whatYouCanDoNowForm struct {
-	DoNext  NoVoucherDecision
+	DoNext  actor.NoVoucherDecision
 	Error   error
-	Options NoVoucherDecisionOptions
+	Options actor.NoVoucherDecisionOptions
 }
 
 func readWhatYouCanDoNowForm(r *http.Request) *whatYouCanDoNowForm {
-	doNext, err := ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
+	doNext, err := actor.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
 
 	return &whatYouCanDoNowForm{
 		DoNext:  doNext,
 		Error:   err,
-		Options: NoVoucherDecisionValues,
+		Options: actor.NoVoucherDecisionValues,
 	}
 }
 

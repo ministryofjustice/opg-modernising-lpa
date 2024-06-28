@@ -23,7 +23,7 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 		Execute(w, &whatYouCanDoNowData{
 			App: testAppData,
 			Form: &whatYouCanDoNowForm{
-				Options: NoVoucherDecisionValues,
+				Options: actor.NoVoucherDecisionValues,
 			},
 		}).
 		Return(nil)
@@ -48,10 +48,11 @@ func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
 }
 
 func TestPostWhatYouCanDoNow(t *testing.T) {
-	testcases := map[NoVoucherDecision]string{
-		ProveOwnID:       page.Paths.TaskList.Format("lpa-id"),
-		SelectNewVoucher: page.Paths.EnterVoucher.Format("lpa-id"),
-		WithdrawLPA:      page.Paths.WithdrawThisLpa.Format("lpa-id"),
+	testcases := map[actor.NoVoucherDecision]string{
+		actor.ProveOwnID:       page.Paths.TaskList.Format("lpa-id"),
+		actor.SelectNewVoucher: page.Paths.EnterVoucher.Format("lpa-id"),
+		actor.WithdrawLPA:      page.Paths.WithdrawThisLpa.Format("lpa-id"),
+		actor.ApplyToCOP:       page.Paths.TaskList.Format("lpa-id"),
 	}
 
 	for noVoucherDecision, path := range testcases {
@@ -64,7 +65,12 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := WhatYouCanDoNow(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", NoVoucherDecision: noVoucherDecision}).
+				Return(nil)
+
+			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -74,31 +80,9 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 	}
 }
 
-func TestPostWhatYouCanDoNowWhenApplyingToCOP(t *testing.T) {
-	f := url.Values{
-		"do-next": {ApplyToCOP.String()},
-	}
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", WantsToApplyToCourtOfProtection: true}).
-		Return(nil)
-
-	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
 func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {
 	f := url.Values{
-		"do-next": {ApplyToCOP.String()},
+		"do-next": {actor.ApplyToCOP.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -107,7 +91,7 @@ func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", WantsToApplyToCourtOfProtection: true}).
+		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", NoVoucherDecision: actor.ApplyToCOP}).
 		Return(expectedError)
 
 	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -152,7 +136,7 @@ func TestReadWhatYouCanDoNowForm(t *testing.T) {
 
 	result := readWhatYouCanDoNowForm(r)
 
-	assert.Equal(WithdrawLPA, result.DoNext)
+	assert.Equal(actor.WithdrawLPA, result.DoNext)
 	assert.Nil(result.Error)
 }
 
@@ -163,12 +147,12 @@ func TestWhatYouCanDoNowFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &whatYouCanDoNowForm{
-				DoNext: WithdrawLPA,
+				DoNext: actor.WithdrawLPA,
 			},
 		},
 		"invalid": {
 			form: &whatYouCanDoNowForm{
-				DoNext: NoVoucherDecision(99),
+				DoNext: actor.NoVoucherDecision(99),
 				Error:  expectedError,
 			},
 			errors: validation.
