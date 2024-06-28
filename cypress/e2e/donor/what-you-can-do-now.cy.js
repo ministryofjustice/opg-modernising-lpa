@@ -35,7 +35,7 @@ describe('what you can do now', () => {
         cy.get('input[name="do-next"]').check('apply-to-cop', { force: true });
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/task-list')
+        cy.url().should('contain', '/register-with-court-of-protection')
     })
 
     it('errors when option not selected', () => {
