@@ -77,7 +77,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 			},
 		},
 		actor.ApplyToCOP: {
-			expectedPath: page.Paths.RegisterWithCourtOfProtection.Format("lpa-id"),
+			expectedPath: page.Paths.TaskList.Format("lpa-id"),
 			expectedDonor: &actor.DonorProvidedDetails{
 				LpaID:                            "lpa-id",
 				RegisteringWithCourtOfProtection: true,
