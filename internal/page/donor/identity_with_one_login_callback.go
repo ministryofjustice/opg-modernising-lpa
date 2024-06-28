@@ -68,6 +68,7 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		donor.DonorIdentityUserData = userData
+		donor.Tasks.ConfirmYourIdentityAndSign = actor.TaskInProgress
 
 		if err := donorStore.Put(r.Context(), donor); err != nil {
 			return err
