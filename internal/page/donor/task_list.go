@@ -165,6 +165,8 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 	var signPath page.LpaPath
 	if donor.DonorIdentityConfirmed() {
 		signPath = page.Paths.ReadYourLpa
+	} else if donor.WantVoucher.IsNo() {
+		signPath = page.Paths.WhatYouCanDoNow
 	} else {
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign
 	}

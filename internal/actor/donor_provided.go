@@ -121,8 +121,14 @@ type DonorProvidedDetails struct {
 	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
 	Version int `hash:"-"`
 
-	// HasAVoucher indicates if the donor knows someone who can vouch for them
-	HasAVoucher form.YesNo
+	// WantVoucher indicates if the donor knows someone who can vouch for them and wants
+	// then to do so
+	WantVoucher form.YesNo
+	// WantsToApplyToCourtOfProtection indicates the donor cannot prove their identity
+	// and has indicated they are applying to the court of protection
+	WantsToApplyToCourtOfProtection bool
+	// NoVoucherDecision is the option chosen in WhatYouCanDoNow
+	NoVoucherDecision NoVoucherDecision
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher
 
