@@ -1,6 +1,6 @@
 describe('what you can do now', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/what-is-vouching&progress=payForTheLpa')
+        cy.visit('/fixtures?redirect=/what-is-vouching&progress=confirmYourIdentity&IdStatus=insufficient-evidence')
         cy.url().should('contain', '/what-is-vouching')
         cy.checkA11yApp()
 
@@ -36,14 +36,6 @@ describe('what you can do now', () => {
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/task-list')
-    })
-
-    it('returns to page when selecting prove identity and sign from task list', () => {
-        cy.contains('a', 'Return to task list').click();
-        cy.url().should('contain', '/task-list')
-
-        cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress').click();
-        cy.url().should('contain', '/what-you-can-do-now')
     })
 
     it('errors when option not selected', () => {

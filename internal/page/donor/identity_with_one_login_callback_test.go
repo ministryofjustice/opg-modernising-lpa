@@ -27,7 +27,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	updatedDonor := &actor.DonorProvidedDetails{
 		Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
-		Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
+		Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.IdentityTaskInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -58,7 +58,6 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 			FirstNames:  "John",
 			LastName:    "Doe",
 			ConfirmedAt: now,
-			Confirmed:   true,
 		}).
 		Return(nil)
 
@@ -230,7 +229,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
-			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
+			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.IdentityTaskInProgress},
 		}).
 		Return(nil)
 
@@ -272,7 +271,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
-			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
+			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.IdentityTaskProblem},
 		}).
 		Return(nil)
 
@@ -292,21 +291,15 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(identity.UserData{Status: identity.StatusFailed}, nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &identityWithOneLoginCallbackData{
-			App: testAppData,
-		}).
-		Return(nil)
-
-	err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "John", LastName: "Doe"},
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.RegisterWithCourtOfProtection.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
@@ -353,7 +346,6 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 			FirstNames:  "first-name",
 			LastName:    "last-name",
 			ConfirmedAt: now,
-			Confirmed:   true,
 		}).
 		Return(nil)
 

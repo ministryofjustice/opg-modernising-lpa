@@ -73,6 +73,7 @@ type FixtureData struct {
 	CertificateProviderEmail  string
 	CertificateProviderMobile string
 	DonorSub                  string
+	IdStatus                  string
 }
 
 func Donor(
@@ -389,14 +390,29 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
-		donorDetails.DonorIdentityUserData = identity.UserData{
-			Status:      identity.StatusConfirmed,
-			RetrievedAt: time.Now(),
-			FirstNames:  donorDetails.Donor.FirstNames,
-			LastName:    donorDetails.Donor.LastName,
-			DateOfBirth: donorDetails.Donor.DateOfBirth,
+		var userData identity.UserData
+
+		switch data.IdStatus {
+		case "failed":
+			userData = identity.UserData{
+				Status: identity.StatusFailed,
+			}
+		case "insufficient-evidence":
+			userData = identity.UserData{
+				Status: identity.StatusInsufficientEvidence,
+			}
+		default:
+			userData = identity.UserData{
+				Status:      identity.StatusConfirmed,
+				RetrievedAt: time.Now(),
+				FirstNames:  donorDetails.Donor.FirstNames,
+				LastName:    donorDetails.Donor.LastName,
+				DateOfBirth: donorDetails.Donor.DateOfBirth,
+			}
 		}
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.TaskInProgress
+
+		donorDetails.DonorIdentityUserData = userData
+		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
@@ -404,7 +420,7 @@ func updateLPAProgress(
 		donorDetails.WantToSignLpa = true
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
@@ -543,5 +559,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
+		IdStatus:                  r.FormValue("id-status"),
 	}
 }

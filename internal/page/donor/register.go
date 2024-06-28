@@ -358,6 +358,8 @@ func Register(
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, donorStore))
+	handleWithDonor(page.Paths.RegisterWithCourtOfProtection, page.None,
+		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore, time.Now))
 
 	handleWithDonor(page.Paths.UnableToConfirmIdentity, page.None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
