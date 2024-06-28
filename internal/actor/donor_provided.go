@@ -124,9 +124,6 @@ type DonorProvidedDetails struct {
 	// WantVoucher indicates if the donor knows someone who can vouch for them and wants
 	// then to do so
 	WantVoucher form.YesNo
-	// WantsToApplyToCourtOfProtection indicates the donor cannot prove their identity
-	// and has indicated they are applying to the court of protection
-	WantsToApplyToCourtOfProtection bool
 	// NoVoucherDecision is the option chosen in WhatYouCanDoNow
 	NoVoucherDecision NoVoucherDecision
 	// Voucher is a person the donor has nominated to vouch for their identity

@@ -1,7 +1,5 @@
 {{ define "radios" }}
   <div class="govuk-radios {{ if .top.Errors.Has .name }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-
-
       {{ range $i, $e := .items }}
       <div class="govuk-radios__item">
         <input class="govuk-radios__input"
