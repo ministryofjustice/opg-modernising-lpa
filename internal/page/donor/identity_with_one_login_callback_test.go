@@ -27,6 +27,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	updatedDonor := &actor.DonorProvidedDetails{
 		Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
+		Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -229,6 +230,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
 		}).
 		Return(nil)
 
@@ -270,6 +272,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 			Donor:                 actor.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
+			Tasks:                 actor.DonorTasks{ConfirmYourIdentityAndSign: actor.TaskInProgress},
 		}).
 		Return(nil)
 
