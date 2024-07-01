@@ -475,6 +475,10 @@ locals {
         {
           name  = "DEV_MODE",
           value = var.app_env_vars.dev_mode
+        },
+        {
+          name  = "SEARCH_INDEXING_DISABLED",
+          value = "1"
         }
       ]
     }
