@@ -61,7 +61,8 @@ module "app" {
   search_index_name                                    = var.search_index_name
   search_collection_arn                                = var.search_collection_arn
   providers = {
-    aws.region = aws.region
+    aws.region     = aws.region
+    aws.management = aws.management
   }
 }
 
