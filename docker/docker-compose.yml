@@ -73,7 +73,7 @@ services:
 
   opensearch:
     container_name: opensearch
-    image: opensearchproject/opensearch:2.14.0
+    image: opensearchproject/opensearch:2.15.0
     environment:
       - node.name=opensearch
       - cluster.name=opensearch-docker-cluster
