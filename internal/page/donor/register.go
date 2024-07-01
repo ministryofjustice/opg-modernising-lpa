@@ -375,6 +375,8 @@ func Register(
 		Guidance(tmpls.Get("we_have_received_voucher_details.gohtml")))
 	handleWithDonor(page.Paths.WeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
+	handleWithDonor(page.Paths.WhatYouCanDoNow, page.CanGoBack,
+		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now.gohtml"), donorStore))
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))

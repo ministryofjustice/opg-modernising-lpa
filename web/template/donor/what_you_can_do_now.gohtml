@@ -1,0 +1,47 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatYouCanDoNow" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" ( notificationBanner .App "important" (trFormatHtml .App "youHaveNotChosenAnyoneToVouchForYou") "heading" ) }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
+
+            {{ trHtml .App "whatYouCanDoNowContent" }}
+            {{ trHtml .App "replaceFindOrGetNewIDContent" }}
+            {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
+
+            {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
+
+            <form novalidate method="post">
+                <div class="govuk-form-group {{ if .Errors.Has "do-next" }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "whatWouldYouLikeToDo" }}</legend>
+
+                        {{ template "error-message" (errorMessage . "do-next") }}
+
+                        {{ template "radios" (items . "do-next" ""
+                        (item .Form.Options.ProveOwnID.String "iWillGetOrFindID")
+                        (item .Form.Options.SelectNewVoucher.String "iHaveSomeoneWhoCanVouch")
+                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                        ) }}
+                    </fieldset>
+                </div>
+
+                <div class="govuk-inset-text">
+                    <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>
+                    <a href="#" class="govuk-link">
+                        {{ tr .App "contactGOL" }}
+                    </a>
+                </div>
+
+                {{ template "buttons" (button .App "continue") }}
+
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
