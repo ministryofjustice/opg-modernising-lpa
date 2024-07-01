@@ -1,6 +1,10 @@
 describe('Enter voucher', () => {
   beforeEach(() => {
-    cy.visit('/fixtures?redirect=/enter-voucher&progress=payForTheLpa');
+    cy.visit('/fixtures?redirect=/what-is-vouching&progress=payForTheLpa');
+    cy.get('input[name="yes-no"]').check('yes', { force: true });
+    cy.contains('button', 'Save and continue').click();
+
+    cy.url().should('contain', '/enter-voucher')
   });
 
   it('adds a voucher', () => {
