@@ -19,9 +19,6 @@ const _LifeSustainingTreatment_name = "option-aoption-b"
 var _LifeSustainingTreatment_index = [...]uint8{0, 8, 16}
 
 func (i LifeSustainingTreatment) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= LifeSustainingTreatment(len(_LifeSustainingTreatment_index)-1) {
 		return "LifeSustainingTreatment(" + strconv.FormatInt(int64(i+1), 10) + ")"

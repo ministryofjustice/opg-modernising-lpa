@@ -57,7 +57,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
 		Donor:                 actor.Donor{CanSign: form.Yes},
-		DonorIdentityUserData: identity.UserData{OK: true},
+		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 	}
 
@@ -81,7 +81,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
 		Donor:                 actor.Donor{CanSign: form.No},
-		DonorIdentityUserData: identity.UserData{OK: true},
+		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 	}
 
@@ -93,7 +93,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		SendToIndependentWitness(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
-			DonorIdentityUserData: identity.UserData{OK: true},
+			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 		}, mock.Anything).
 		Return(nil)
@@ -104,7 +104,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		Return(&actor.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
 			Donor:                 actor.Donor{CanSign: form.No},
-			DonorIdentityUserData: identity.UserData{OK: true},
+			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			CertificateProvider:   actor.CertificateProvider{Mobile: "07535111111"},
 		}, nil)
 

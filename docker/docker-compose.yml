@@ -73,7 +73,7 @@ services:
 
   opensearch:
     container_name: opensearch
-    image: opensearchproject/opensearch:2.14.0
+    image: opensearchproject/opensearch:2.15.0
     environment:
       - node.name=opensearch
       - cluster.name=opensearch-docker-cluster
@@ -120,6 +120,7 @@ services:
       - CLIENT_ID=client-id-value
       - REDIRECT_URL=http://localhost:5050/auth/redirect
       - TEMPLATE_SUB=1
+      - TEMPLATE_RETURN_CODES=1
 
   mock-notify:
     build:

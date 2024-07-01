@@ -34,14 +34,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x19341f9f02d04a20
+	const modified uint64 = 0xb4795f8254204619
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*DonorProvidedDetails).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xe136dc1dfdebbbb0,
+		0: 0xc907539bbd47eeda,
 	}
 
 	for version, initial := range testcases {
@@ -91,13 +91,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xb4f40b404256ad9
+	const modified uint64 = 0xed6b4d9634dfbb96
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0xf9b8a8058a8f224a,
+		0: 0x8146b900161c34e3,
 	}
 
 	for version, initial := range testcases {
@@ -138,21 +138,58 @@ func TestIdentityConfirmed(t *testing.T) {
 		lpa      *DonorProvidedDetails
 		expected bool
 	}{
-		"set": {
+		"confirmed": {
 			lpa: &DonorProvidedDetails{
-				Donor:                 Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{OK: true, FirstNames: "a", LastName: "b"},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				Donor: Donor{
+					FirstNames:  "a",
+					LastName:    "b",
+					DateOfBirth: date.New("2000", "1", "1"),
+				},
 			},
 			expected: true,
 		},
-		"not ok": {
-			lpa:      &DonorProvidedDetails{DonorIdentityUserData: identity.UserData{}},
+		"failed": {
+			lpa: &DonorProvidedDetails{
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
+				Donor: Donor{
+					FirstNames:  "a",
+					LastName:    "b",
+					DateOfBirth: date.New("2000", "1", "1"),
+				},
+			},
 			expected: false,
 		},
-		"no match": {
+		"name does not match": {
 			lpa: &DonorProvidedDetails{
-				Donor:                 Donor{FirstNames: "a", LastName: "b"},
-				DonorIdentityUserData: identity.UserData{},
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				Donor: Donor{
+					FirstNames:  "a",
+					LastName:    "c",
+					DateOfBirth: date.New("2000", "1", "1"),
+				},
+			},
+			expected: false,
+		},
+		"dob does not match": {
+			lpa: &DonorProvidedDetails{
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				Donor: Donor{
+					FirstNames:  "a",
+					LastName:    "b",
+					DateOfBirth: date.New("2000", "1", "2"),
+				},
+			},
+			expected: false,
+		},
+		"insufficient evidence": {
+			lpa: &DonorProvidedDetails{
+				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
+				Donor: Donor{
+					FirstNames:  "a",
+					LastName:    "b",
+					DateOfBirth: date.New("2000", "1", "1"),
+				},
 			},
 			expected: false,
 		},
