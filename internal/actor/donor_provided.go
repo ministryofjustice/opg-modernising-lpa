@@ -34,7 +34,7 @@ type DonorTasks struct {
 	ChooseYourSignatory        TaskState // if .Donor.CanSign.IsNo only
 	CheckYourLpa               TaskState
 	PayForLpa                  PaymentTask
-	ConfirmYourIdentityAndSign TaskState
+	ConfirmYourIdentityAndSign IdentityTask
 }
 
 // DonorProvidedDetails contains all the data related to the LPA application
@@ -118,9 +118,16 @@ type DonorProvidedDetails struct {
 	WithdrawnAt time.Time
 	// PerfectAt is when the Lpa transitioned to the PERFECT status in the lpa-store
 	PerfectAt time.Time
-	// Version is the number of times the LPA has been updated (auto-incremented on PUT)
+	// RegisteringWithCourtOfProtection is set when the donor wishes to take the
+	// Lpa to the Court of Protection for registration.
+	RegisteringWithCourtOfProtection bool
+	// Version is the number of times the LPA has been updated (auto-incremented
+	// on PUT)
 	Version int `hash:"-"`
 
+	// WantVoucher indicates if the donor knows someone who can vouch for them and wants
+	// then to do so
+	WantVoucher form.YesNo
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher
 
@@ -230,7 +237,7 @@ func (l *DonorProvidedDetails) generateCheckedHash() (uint64, error) {
 }
 
 func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
-	return l.DonorIdentityUserData.OK &&
+	return l.DonorIdentityUserData.Status.IsConfirmed() &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }

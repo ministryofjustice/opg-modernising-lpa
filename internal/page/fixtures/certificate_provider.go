@@ -187,7 +187,7 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
 			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 			donorDetails.SignedAt = time.Now()
 		}
@@ -210,7 +210,7 @@ func CertificateProvider(
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
 			certificateProvider.IdentityUserData = identity.UserData{
-				OK:          true,
+				Status:      identity.StatusConfirmed,
 				RetrievedAt: time.Now(),
 				FirstNames:  donorDetails.CertificateProvider.FirstNames,
 				LastName:    donorDetails.CertificateProvider.LastName,

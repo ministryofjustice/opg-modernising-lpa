@@ -111,7 +111,7 @@ var charmap = map[rune][]rune{
 }
 
 type UserData struct {
-	OK          bool
+	Status      Status
 	FirstNames  string
 	LastName    string
 	DateOfBirth date.Date

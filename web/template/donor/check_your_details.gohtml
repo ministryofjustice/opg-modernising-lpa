@@ -26,8 +26,11 @@
           "" true true
         ) }}
       </dl>
-      
-      {{ template "buttons" (button .App "continue" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
+
+      <form novalidate method="post">
+        {{ template "buttons" (button .App "continue") }}
+        {{ template "csrf-field" . }}
+      </form>
     </div>
   </div>
 {{ end }}
