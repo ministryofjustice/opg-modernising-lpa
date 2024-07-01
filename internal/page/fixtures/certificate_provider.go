@@ -187,7 +187,7 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.TaskCompleted
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
 			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 			donorDetails.SignedAt = time.Now()
 		}

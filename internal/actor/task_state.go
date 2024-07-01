@@ -36,3 +36,13 @@ const (
 	PaymentTaskMoreEvidenceRequired
 	PaymentTaskCompleted
 )
+
+//go:generate enumerator -type IdentityTask -trimprefix
+type IdentityTask uint8
+
+const (
+	IdentityTaskNotStarted IdentityTask = iota
+	IdentityTaskInProgress
+	IdentityTaskProblem
+	IdentityTaskCompleted
+)

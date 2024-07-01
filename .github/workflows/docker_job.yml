@@ -58,7 +58,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
       - name: Build ${{ matrix.ecr_repository }} Image
-        uses: docker/build-push-action@v6.1.0
+        uses: docker/build-push-action@v6.2.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -101,7 +101,7 @@ jobs:
           registries: 311462405659
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
-        uses: docker/build-push-action@v6.1.0
+        uses: docker/build-push-action@v6.2.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -117,7 +117,7 @@ jobs:
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
-        uses: docker/build-push-action@v6.1.0
+        uses: docker/build-push-action@v6.2.0
         with:
           context: .
           file: ${{ matrix.path }}

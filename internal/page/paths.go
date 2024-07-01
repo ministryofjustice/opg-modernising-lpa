@@ -401,6 +401,7 @@ type AppPaths struct {
 	Progress                                             LpaPath
 	ProveYourIdentity                                    LpaPath
 	ReadYourLpa                                          LpaPath
+	RegisterWithCourtOfProtection                        LpaPath
 	RemoveAttorney                                       LpaPath
 	RemovePersonToNotify                                 LpaPath
 	RemoveReplacementAttorney                            LpaPath
@@ -417,6 +418,7 @@ type AppPaths struct {
 	UploadEvidence                                       LpaPath
 	UploadEvidenceSSE                                    LpaPath
 	UseExistingAddress                                   LpaPath
+	WeHaveContactedVoucher                               LpaPath
 	WeHaveReceivedVoucherDetails                         LpaPath
 	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
@@ -595,6 +597,7 @@ var Paths = AppPaths{
 	Progress:                                             "/progress",
 	ProveYourIdentity:                                    "/prove-your-identity",
 	ReadYourLpa:                                          "/read-your-lpa",
+	RegisterWithCourtOfProtection:                        "/register-with-court-of-protection",
 	RemoveAttorney:                                       "/remove-attorney",
 	RemovePersonToNotify:                                 "/remove-person-to-notify",
 	RemoveReplacementAttorney:                            "/remove-replacement-attorney",
@@ -615,6 +618,7 @@ var Paths = AppPaths{
 	UploadEvidence:                                       "/upload-evidence",
 	UploadEvidenceSSE:                                    "/upload-evidence-sse",
 	UseExistingAddress:                                   "/use-existing-address",
+	WeHaveContactedVoucher:                               "/we-have-contacted-voucher",
 	WeHaveReceivedVoucherDetails:                         "/we-have-received-voucher-details",
 	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
