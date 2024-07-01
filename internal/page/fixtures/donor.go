@@ -73,6 +73,7 @@ type FixtureData struct {
 	CertificateProviderEmail  string
 	CertificateProviderMobile string
 	DonorSub                  string
+	IdStatus                  string
 }
 
 func Donor(
@@ -389,13 +390,28 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
-		donorDetails.DonorIdentityUserData = identity.UserData{
-			Status:      identity.StatusConfirmed,
-			RetrievedAt: time.Now(),
-			FirstNames:  donorDetails.Donor.FirstNames,
-			LastName:    donorDetails.Donor.LastName,
-			DateOfBirth: donorDetails.Donor.DateOfBirth,
+		var userData identity.UserData
+
+		switch data.IdStatus {
+		case "failed":
+			userData = identity.UserData{
+				Status: identity.StatusFailed,
+			}
+		case "insufficient-evidence":
+			userData = identity.UserData{
+				Status: identity.StatusInsufficientEvidence,
+			}
+		default:
+			userData = identity.UserData{
+				Status:      identity.StatusConfirmed,
+				RetrievedAt: time.Now(),
+				FirstNames:  donorDetails.Donor.FirstNames,
+				LastName:    donorDetails.Donor.LastName,
+				DateOfBirth: donorDetails.Donor.DateOfBirth,
+			}
 		}
+
+		donorDetails.DonorIdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
 	}
 
@@ -543,5 +559,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
+		IdStatus:                  r.FormValue("id-status"),
 	}
 }

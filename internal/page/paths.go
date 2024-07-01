@@ -424,6 +424,7 @@ type AppPaths struct {
 	WhatACertificateProviderDoes                         LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
 	WhatIsVouching                                       LpaPath
+	WhatYouCanDoNow                                      LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
 	WhoCanCorrespondentsDetailsBeSharedWith              LpaPath
@@ -624,6 +625,7 @@ var Paths = AppPaths{
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
 	WhatIsVouching:                                       "/what-is-vouching",
+	WhatYouCanDoNow:                                      "/what-you-can-do-now",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
 	WhoCanCorrespondentsDetailsBeSharedWith:              "/who-can-correspondents-details-be-shared-with",

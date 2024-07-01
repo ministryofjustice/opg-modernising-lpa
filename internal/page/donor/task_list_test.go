@@ -140,6 +140,22 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"does not want a voucher": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:           form.No,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.WhatYouCanDoNow.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"attorneys under 18": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{

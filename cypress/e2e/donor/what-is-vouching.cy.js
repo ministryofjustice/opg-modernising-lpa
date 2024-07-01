@@ -5,20 +5,6 @@ describe('what is vouching', () => {
         cy.checkA11yApp()
     })
 
-    it('can confirm has a voucher', () => {
-        cy.get('input[name="yes-no"]').check('yes', { force: true });
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/enter-voucher')
-    })
-
-    it('can confirm has not got a voucher', () => {
-        cy.get('input[name="yes-no"]').check('no', { force: true });
-        cy.contains('button', 'Save and continue').click();
-
-        cy.url().should('contain', '/task-list')
-    })
-
     it('errors when option not selected', () => {
         cy.contains('button', 'Save and continue').click();
 
