@@ -12,7 +12,7 @@ describe('Your legal rights and responsibilities', () => {
 
     describe('when signed in', () => {
         it('is accessible from the footer', () => {
-            cy.visit('/fixtures?redirect=/your-legal-rights-and-responsibilities');
+            cy.visit('/fixtures?redirect=/your-legal-rights-and-responsibilities&progress=confirmYourIdentity');
             cy.contains('a', 'Continue to signing page');
 
             cy.contains('footer a', 'Your legal rights and responsibilities').click();
