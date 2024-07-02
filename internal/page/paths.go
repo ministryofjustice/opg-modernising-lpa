@@ -106,6 +106,7 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 
 	case Paths.HowToConfirmYourIdentityAndSign,
 		Paths.IdentityWithOneLogin,
+		Paths.LpaYourLegalRightsAndResponsibilities,
 		Paths.SignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
 
