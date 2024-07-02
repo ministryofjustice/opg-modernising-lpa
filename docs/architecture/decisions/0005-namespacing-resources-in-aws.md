@@ -68,9 +68,5 @@ It isn't necessary to include resource type in the name because the resource typ
 
 ## Consequences
 
-- The app service will stop putting items into the index directly
-- DynamoDB streeam will be enabled for all environments
-- An ingestion pipeline will be responsible for adding items to the index from
-  the DynamoDB event stream
-- An ingestion pipeline will be responsible for recovering the index from a
-  table export if it is lost
+- Resources will be easier to identify and grant access to
+- some resources will need renaming
