@@ -1,6 +1,6 @@
 describe('what you can do now', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/what-is-vouching&progress=confirmYourIdentity&IdStatus=insufficient-evidence')
+        cy.visit('/fixtures?redirect=/what-is-vouching&progress=confirmYourIdentity&idStatus=insufficient-evidence')
         cy.url().should('contain', '/what-is-vouching')
         cy.checkA11yApp()
 
@@ -35,7 +35,15 @@ describe('what you can do now', () => {
         cy.get('input[name="do-next"]').check('apply-to-cop', { force: true });
         cy.contains('button', 'Continue').click();
 
+        cy.url().should('contain', '/what-happens-next-applying-to-court-of-protection')
+        cy.checkA11yApp()
+
+        cy.contains('a', 'Return to task list').click();
+
         cy.url().should('contain', '/task-list')
+        cy.checkA11yApp()
+
+        cy.contains('li', "Provide your details").should('contain', 'In progress');
     })
 
     it('errors when option not selected', () => {
