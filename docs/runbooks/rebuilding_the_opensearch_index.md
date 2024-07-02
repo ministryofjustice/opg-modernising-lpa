@@ -44,6 +44,14 @@ tf workspace select <environment name>
 
 (working with preproduction and production environments requires the breakglass role)
 
+uncomment the export block in `terraform/environment/opensearch_ingestion_pipeline.tf`
+
+```yaml
+export:
+  s3_bucket: ${source.tables.s3_bucket_name}
+  s3_sse_kms_key_id: ${source.tables.s3_sse_kms_key_id}
+```
+
 Mark the pipeline for recreation:
 
 ```shell
