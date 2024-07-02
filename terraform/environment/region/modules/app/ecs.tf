@@ -165,9 +165,15 @@ data "aws_secretsmanager_secret" "os_postcode_lookup_api_key" {
   provider = aws.region
 }
 
+# to remove
 data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
   name     = "lpa-store-jwt-secret-key"
   provider = aws.region
+}
+
+data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
+  name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
 }
 
 data "aws_secretsmanager_secret" "rum_monitor_identity_pool_id" {
@@ -268,6 +274,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
       data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
       data.aws_secretsmanager_secret.os_postcode_lookup_api_key.arn,
       data.aws_secretsmanager_secret.private_jwt_key.arn,
+      data.aws_secretsmanager_secret.lpa_store_jwt_key.arn,
     ]
   }
 
