@@ -1,5 +1,5 @@
 resource "aws_iam_role" "opensearch_pipeline" {
-  name               = "${data.aws_default_tags.current.tags.environment-name}-opensearch-pipeline-role"
+  name               = "opensearch-pipeline-role-${data.aws_default_tags.current.tags.environment-name}"
   assume_role_policy = data.aws_iam_policy_document.opensearch_pipeline.json
   provider           = aws.global
 }
