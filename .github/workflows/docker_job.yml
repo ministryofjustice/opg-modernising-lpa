@@ -54,7 +54,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.3.0
         id: buildx_setup
         with:
-          version: v0.12.0
+          version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
       - name: Build ${{ matrix.ecr_repository }} Image
