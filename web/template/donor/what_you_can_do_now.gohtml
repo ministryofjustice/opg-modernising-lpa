@@ -5,7 +5,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" ( notificationBanner .App "important" (trFormatHtml .App "youHaveNotChosenAnyoneToVouchForYou") "heading" ) }}
+            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveNotChosenAnyoneToVouchForYou") "heading" ) }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
