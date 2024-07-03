@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"
+        aws_iam_role.opensearch_ingestion_service_role.arn
       ]
     }
     condition {
