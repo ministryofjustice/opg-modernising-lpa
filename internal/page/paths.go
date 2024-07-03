@@ -423,6 +423,7 @@ type AppPaths struct {
 	WeHaveReceivedVoucherDetails                         LpaPath
 	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
+	WhatHappensNextRegisteringWithCourtOfProtection      LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
 	WhatIsVouching                                       LpaPath
 	WhatYouCanDoNow                                      LpaPath
@@ -624,6 +625,7 @@ var Paths = AppPaths{
 	WeHaveReceivedVoucherDetails:                         "/we-have-received-voucher-details",
 	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
+	WhatHappensNextRegisteringWithCourtOfProtection:      "/what-happens-next-registering-with-court-of-protection",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
 	WhatIsVouching:                                       "/what-is-vouching",
 	WhatYouCanDoNow:                                      "/what-you-can-do-now",
