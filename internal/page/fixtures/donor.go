@@ -559,6 +559,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
-		IdStatus:                  r.FormValue("id-status"),
+		IdStatus:                  r.FormValue("idStatus"),
 	}
 }

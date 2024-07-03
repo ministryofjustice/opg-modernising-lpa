@@ -174,6 +174,10 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 		signPath = page.Paths.UnableToConfirmIdentity
 		if donor.WantVoucher.IsNo() {
 			signPath = page.Paths.WhatYouCanDoNow
+
+			if donor.RegisteringWithCourtOfProtection {
+				signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
+			}
 		}
 	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign

@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveToldUsYouAreApplyingCOP") "heading" ) }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+            {{ $countAttorneys := trCount .App "countAttorneys" (len .Donor.Attorneys.Attorneys)  }}
+            {{ trFormatHtml .App "whatHappensNextRegisteringWithCOPContent" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "CountAttorneys" $countAttorneys }}
+
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+    </div>
+{{ end }}

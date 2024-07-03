@@ -1184,5 +1184,11 @@
     "iUnderstandICannotChangeMyMind": "I understand that I cannot change my mind, and will have to pay and wait several months",
     "ifYouNeedHelpWithGOLContactTheirTeam": "If you need help with GOV.UK One Login, contact their team.",
     "contactGOL": "Contact GOV.UK One Login",
-    "whatYouWouldLikeToDo": "what you would like to do"
+    "whatYouWouldLikeToDo": "what you would like to do",
+    "youHaveToldUsYouAreApplyingCOP": "You have told us that you are applying to the Court of Protection to register this LPA",
+    "countAttorneys": {
+        "one": "attorney",
+        "other": "attorneys"
+    },
+    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">You should now sign your LPA.</p><ul class=\"govuk-list govuk-list--bullet\"><li>Once you have signed, we will contact {{ .CertificateProviderFullName }} to provide their certificate.</li><li>We will then let your {{ .CountAttorneys }} know they can sign your LPA.</li><li>When your LPA is ready, we will contact you with instructions to submit it to the Court of Protection.</li></ul>"
 }
