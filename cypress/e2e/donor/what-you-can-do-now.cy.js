@@ -35,7 +35,7 @@ describe('what you can do now', () => {
         cy.get('input[name="do-next"]').check('apply-to-cop', { force: true });
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/what-happens-next-applying-to-court-of-protection')
+        cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
         cy.checkA11yApp()
 
         cy.contains('a', 'Return to task list').click();
@@ -43,7 +43,7 @@ describe('what you can do now', () => {
         cy.url().should('contain', '/task-list')
         cy.checkA11yApp()
 
-        cy.contains('li', "Provide your details").should('contain', 'In progress');
+        cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress');
     })
 
     it('errors when option not selected', () => {
