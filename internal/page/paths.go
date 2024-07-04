@@ -106,6 +106,7 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 
 	case Paths.HowToConfirmYourIdentityAndSign,
 		Paths.IdentityWithOneLogin,
+		Paths.OneloginIdentityDetails,
 		Paths.LpaYourLegalRightsAndResponsibilities,
 		Paths.SignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
@@ -396,6 +397,7 @@ type AppPaths struct {
 	LpaYourLegalRightsAndResponsibilities                LpaPath
 	MakeANewLPA                                          LpaPath
 	NeedHelpSigningConfirmation                          LpaPath
+	OneloginIdentityDetails                              LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
 	PreviousFee                                          LpaPath
@@ -593,6 +595,7 @@ var Paths = AppPaths{
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	MakeANewLPA:                                          "/make-a-new-lpa",
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
+	OneloginIdentityDetails:                              "/onelogin-identity-details",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
 	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",

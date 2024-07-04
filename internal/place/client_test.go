@@ -175,11 +175,11 @@ func TestAddress(t *testing.T) {
 
 func TestTransformAddressDetailsToAddress(t *testing.T) {
 	testCases := map[string]struct {
-		ad   addressDetails
+		ad   AddressDetails
 		want Address
 	}{
 		"building number no building name": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "1, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "1",
@@ -191,7 +191,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name no building number": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "1A, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "1A",
 				BuildingNumber:    "",
@@ -203,7 +203,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name and building number": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "MELTON HOUSE, 2 MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "2",
@@ -215,7 +215,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building number": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "3, MELTON ROAD, BIRMINGHAM, B14 7ET",
 				BuildingName:      "",
 				BuildingNumber:    "3",
@@ -227,7 +227,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building name": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "MELTON HOUSE, MELTON ROAD, KINGS HEATH, BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "",
@@ -239,7 +239,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"dependent locality building name and building number": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:           "MELTON HOUSE, 5 MELTON ROAD, KINGS HEATH BIRMINGHAM, B14 7ET",
 				BuildingName:      "MELTON HOUSE",
 				BuildingNumber:    "5",
@@ -251,7 +251,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 			want: Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
 		},
 		"building name and sub building name": {
-			ad: addressDetails{
+			ad: AddressDetails{
 				Address:          "APARTMENT 34, CHARLES HOUSE, PARK ROW, NOTTINGHAM, NG1 6GR",
 				SubBuildingName:  "APARTMENT 34",
 				BuildingName:     "CHARLES HOUSE",
@@ -265,7 +265,7 @@ func TestTransformAddressDetailsToAddress(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.want, tc.ad.transformToAddress())
+			assert.Equal(t, tc.want, tc.ad.TransformToAddress())
 		})
 	}
 }

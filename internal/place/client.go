@@ -21,7 +21,7 @@ type Client struct {
 	doer    Doer
 }
 
-type addressDetails struct {
+type AddressDetails struct {
 	Address           string `json:"ADDRESS"`
 	SubBuildingName   string `json:"SUB_BUILDING_NAME"`
 	BuildingName      string `json:"BUILDING_NAME"`
@@ -38,7 +38,7 @@ type postcodeLookupResponse struct {
 }
 
 type ResultSet struct {
-	AddressDetails addressDetails `json:"DPA"`
+	AddressDetails AddressDetails `json:"DPA"`
 }
 
 type BadRequestError struct {
@@ -95,7 +95,7 @@ func (c *Client) LookupPostcode(ctx context.Context, postcode string) ([]Address
 	var addresses []Address
 
 	for _, resultSet := range postcodeLookupResponse.Results {
-		addresses = append(addresses, resultSet.AddressDetails.transformToAddress())
+		addresses = append(addresses, resultSet.AddressDetails.TransformToAddress())
 	}
 
 	return addresses, nil
@@ -141,7 +141,7 @@ func (a Address) String() string {
 	return strings.Join(a.Lines(), ", ")
 }
 
-func (ad *addressDetails) transformToAddress() Address {
+func (ad *AddressDetails) TransformToAddress() Address {
 	a := Address{}
 
 	if len(ad.BuildingName) > 0 {
