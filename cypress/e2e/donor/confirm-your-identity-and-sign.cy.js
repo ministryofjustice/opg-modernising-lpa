@@ -23,7 +23,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Sam Smith (donor)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/one-login/callback');
+      cy.url().should('contain', '/onelogin-identity-details');
       cy.checkA11yApp();
 
       cy.contains('Sam');
@@ -283,4 +283,111 @@ describe('Confirm your identity and sign', () => {
       cy.contains('Withdrawn');
     })
   })
+
+  describe('when identity details do not match LPA', () => {
+    it('can update LPA details', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+          .should('contain', 'Not started')
+          .find('a')
+          .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/onelogin-identity-details');
+      cy.checkA11yApp();
+
+      cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
+      cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
+      cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
+
+      cy.contains('label', 'Yes').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/onelogin-identity-details');
+      cy.checkA11yApp();
+
+      cy.contains('Your LPA details have been updated to match your confirmed identity')
+      cy.get('main').should('not.contain', 'Sam');
+      cy.get('main').should('not.contain', 'Smith');
+      cy.get('main').should('not.contain', '2 January 2000');
+    })
+
+    it('can withdraw LPA', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+          .should('contain', 'Not started')
+          .find('a')
+          .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/onelogin-identity-details');
+      cy.checkA11yApp();
+
+      cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
+      cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
+      cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
+
+      cy.contains('label', 'No').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/withdraw-this-lpa');
+      cy.checkA11yApp();
+    })
+
+    it('errors when option not selected', () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+      cy.contains('li', "Confirm your identity and sign")
+          .should('contain', 'Not started')
+          .find('a')
+          .click();
+
+      cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
+      cy.checkA11yApp();
+
+      cy.contains('h1', 'How to confirm your identity and sign the LPA');
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/prove-your-identity');
+      cy.checkA11yApp();
+      cy.contains('a', 'Continue').click();
+
+      cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+      cy.contains('button', 'Continue').click();
+
+      cy.url().should('contain', '/onelogin-identity-details');
+      cy.checkA11yApp();
+
+      cy.contains('button', 'Continue').click();
+
+      cy.get('.govuk-error-summary').within(() => {
+        cy.contains('Select yes if you would like to update your details');
+      });
+
+      cy.contains('.govuk-error-message', 'Select yes if you would like to update your details');
+    });
+  });
 });
