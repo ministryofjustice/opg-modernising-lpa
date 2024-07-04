@@ -44,7 +44,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 					next = page.Paths.WithdrawThisLpa
 				case actor.ApplyToCOP:
 					donor.RegisteringWithCourtOfProtection = true
-					next = page.Paths.TaskList
+					next = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
