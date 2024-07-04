@@ -284,3 +284,93 @@ func TestParseIdentityClaimWhenIdentityPublicKeyFuncError(t *testing.T) {
 	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
 	assert.Equal(t, expectedError, err)
 }
+
+func TestCredentialAddressTransformToAddress(t *testing.T) {
+	testCases := map[string]struct {
+		ca   credentialAddress
+		want place.Address
+	}{
+		"building number no building name": {
+			ca: credentialAddress{
+				BuildingName:             "",
+				BuildingNumber:           "1",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "1 MELTON ROAD", Line2: "", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"building name no building number": {
+			ca: credentialAddress{
+				BuildingName:             "1A",
+				BuildingNumber:           "",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "1A", Line2: "MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"building name and building number": {
+			ca: credentialAddress{
+				BuildingName:             "MELTON HOUSE",
+				BuildingNumber:           "2",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "MELTON HOUSE", Line2: "2 MELTON ROAD", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"dependent locality building number": {
+			ca: credentialAddress{
+				BuildingName:             "",
+				BuildingNumber:           "3",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "KINGS HEATH",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "3 MELTON ROAD", Line2: "KINGS HEATH", Line3: "", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"dependent locality building name": {
+			ca: credentialAddress{
+				BuildingName:             "MELTON HOUSE",
+				BuildingNumber:           "",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "KINGS HEATH",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "MELTON HOUSE", Line2: "MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"dependent locality building name and building number": {
+			ca: credentialAddress{
+				BuildingName:             "MELTON HOUSE",
+				BuildingNumber:           "5",
+				StreetName:               "MELTON ROAD",
+				DependentAddressLocality: "KINGS HEATH",
+				AddressLocality:          "BIRMINGHAM",
+				PostalCode:               "B14 7ET",
+			},
+			want: place.Address{Line1: "MELTON HOUSE", Line2: "5 MELTON ROAD", Line3: "KINGS HEATH", TownOrCity: "BIRMINGHAM", Postcode: "B14 7ET", Country: "GB"},
+		},
+		"building name and sub building name": {
+			ca: credentialAddress{
+				SubBuildingName: "APARTMENT 34",
+				BuildingName:    "CHARLES HOUSE",
+				StreetName:      "PARK ROW",
+				AddressLocality: "NOTTINGHAM",
+				PostalCode:      "NG1 6GR",
+			},
+			want: place.Address{Line1: "APARTMENT 34, CHARLES HOUSE", Line2: "PARK ROW", TownOrCity: "NOTTINGHAM", Postcode: "NG1 6GR", Country: "GB"},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.want, tc.ca.transformToAddress())
+		})
+	}
+}

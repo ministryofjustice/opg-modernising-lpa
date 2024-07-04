@@ -110,6 +110,21 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"confirmed identity does not match LPA": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "b", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.OneloginIdentityDetails.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"failed identity": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{
