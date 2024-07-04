@@ -15,6 +15,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -159,6 +160,11 @@ func TestParseIdentityClaim(t *testing.T) {
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
 				RetrievedAt: issuedAt,
+				CurrentAddress: place.Address{
+					Line1:    "1 Fake Road",
+					Postcode: "B14 7ED",
+					Country:  "GB",
+				},
 			},
 		},
 		"missing": {
@@ -227,6 +233,14 @@ func TestParseIdentityClaim(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			userInfo := UserInfo{
 				CoreIdentityJWT: tc.token,
+				Addresses: []credentialAddress{{
+					BuildingNumber: "1",
+					StreetName:     "Fake Road",
+					PostalCode:     "B14 7ED",
+					AddressCountry: "GB",
+					ValidFrom:      "2020-01-01",
+					ValidUntil:     "",
+				}},
 			}
 
 			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)

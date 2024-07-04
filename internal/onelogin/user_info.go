@@ -12,19 +12,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
 
 type UserInfo struct {
-	Sub             string           `json:"sub"`
-	Email           string           `json:"email"`
-	EmailVerified   bool             `json:"email_verified"`
-	Phone           string           `json:"phone"`
-	PhoneVerified   bool             `json:"phone_verified"`
-	UpdatedAt       int              `json:"updated_at"`
-	CoreIdentityJWT string           `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT"`
-	ReturnCodes     []ReturnCodeInfo `json:"https://vocab.account.gov.uk/v1/returnCode,omitempty"`
+	Sub             string              `json:"sub"`
+	Email           string              `json:"email"`
+	EmailVerified   bool                `json:"email_verified"`
+	Phone           string              `json:"phone"`
+	PhoneVerified   bool                `json:"phone_verified"`
+	UpdatedAt       int                 `json:"updated_at"`
+	CoreIdentityJWT string              `json:"https://vocab.account.gov.uk/v1/coreIdentityJWT"`
+	ReturnCodes     []ReturnCodeInfo    `json:"https://vocab.account.gov.uk/v1/returnCode,omitempty"`
+	Addresses       []credentialAddress `json:"https://vocab.account.gov.uk/v1/address,omitempty"`
 }
 
 type ReturnCodeInfo struct {
@@ -80,6 +82,36 @@ type CredentialName struct {
 
 type CredentialBirthDate struct {
 	Value date.Date `json:"value"`
+}
+
+type credentialAddress struct {
+	UPRN                           string `json:"uprn"`
+	SubBuildingName                string `json:"subBuildingName"`
+	BuildingName                   string `json:"buildingName"`
+	BuildingNumber                 string `json:"buildingNumber"`
+	DependentStreetName            string `json:"dependentStreetName"`
+	StreetName                     string `json:"streetName"`
+	DoubleDependentAddressLocality string `json:"doubleDependentAddressLocality"`
+	DependentAddressLocality       string `json:"dependentAddressLocality"`
+	AddressLocality                string `json:"addressLocality"`
+	PostalCode                     string `json:"postalCode"`
+	AddressCountry                 string `json:"addressCountry"`
+	ValidFrom                      string `json:"validFrom"`
+	ValidUntil                     string `json:"validUntil"`
+}
+
+func (a credentialAddress) transformToAddress() place.Address {
+	ad := place.AddressDetails{
+		SubBuildingName:   a.SubBuildingName,
+		BuildingName:      a.BuildingName,
+		BuildingNumber:    a.BuildingNumber,
+		ThoroughFareName:  a.StreetName,
+		DependentLocality: a.DependentAddressLocality,
+		Town:              a.AddressLocality,
+		Postcode:          a.PostalCode,
+	}
+
+	return ad.TransformToAddress()
 }
 
 type NamePart struct {
@@ -177,11 +209,20 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 		return identity.UserData{Status: identity.StatusFailed}, nil
 	}
 
+	var currentAddress credentialAddress
+	for _, a := range u.Addresses {
+		if a.ValidUntil == "" {
+			currentAddress = a
+			break
+		}
+	}
+
 	return identity.UserData{
-		Status:      identity.StatusConfirmed,
-		FirstNames:  strings.Join(givenName, " "),
-		LastName:    strings.Join(familyName, " "),
-		DateOfBirth: birthDates[0].Value,
-		RetrievedAt: claims.IssuedAt.Time,
+		Status:         identity.StatusConfirmed,
+		FirstNames:     strings.Join(givenName, " "),
+		LastName:       strings.Join(familyName, " "),
+		DateOfBirth:    birthDates[0].Value,
+		RetrievedAt:    claims.IssuedAt.Time,
+		CurrentAddress: currentAddress.transformToAddress(),
 	}, nil
 }
