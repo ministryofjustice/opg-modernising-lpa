@@ -1190,5 +1190,15 @@
         "one": "attorney",
         "other": "attorneys"
     },
-    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">You should now sign your LPA.</p><ul class=\"govuk-list govuk-list--bullet\"><li>Once you have signed, we will contact {{ .CertificateProviderFullName }} to provide their certificate.</li><li>We will then let your {{ .CountAttorneys }} know they can sign your LPA.</li><li>When your LPA is ready, we will contact you with instructions to submit it to the Court of Protection.</li></ul>"
+    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">You should now sign your LPA.</p><ul class=\"govuk-list govuk-list--bullet\"><li>Once you have signed, we will contact {{ .CertificateProviderFullName }} to provide their certificate.</li><li>We will then let your {{ .CountAttorneys }} know they can sign your LPA.</li><li>When your LPA is ready, we will contact you with instructions to submit it to the Court of Protection.</li></ul>",
+    "yourConfirmedIdentityDetails": "Your confirmed identity details",
+    "theDetailsOnYourLPA": "The details on your LPA",
+    "someDetailsDoNotMatchIdentityDetailsWarning": "Some of the details on your LPA do not match your confirmed identity details",
+    "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess": "Your LPA details have been updated to match your confirmed identity",
+    "confirmedIdentityDetails": "Confirmed identity details",
+    "doesNotMatch": "Does not match",
+    "updateMyLPADetailsToMatchIdentityHint": "Update my LPA details to match my confirmed identity details.",
+    "iUnderstandThisWillWithdrawLPAHint": "I understand that this will withdraw my LPA and I will no longer be able to access it.",
+    "youCanOnlyContinueIfDetailsMatchWarning": "You can only continue with this LPA if the details match your confirmed identity details",
+    "yesIfWouldLikeToUpdateDetails": "yes if you would like to update your details"
 }

@@ -122,6 +122,19 @@ func TestPostOneloginIdentityDetailsWhenNo(t *testing.T) {
 	assert.Equal(t, page.Paths.WithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPostOneloginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	err := OneloginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.ReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostOneloginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
 

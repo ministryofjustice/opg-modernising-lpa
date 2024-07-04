@@ -1,7 +1,7 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-    {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
+    {{ tr .App "yourConfirmedIdentityDetails" }}
 {{ end }}
 
 {{ define "main" }}
@@ -16,9 +16,9 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {{ if not .DetailsMatch }}
-        {{ template "warning-banner" (content .App "Some of the details on your LPA do not match your confirmed identity details") }}
+        {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
       {{ else if .DetailsUpdated }}
-        {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "Your LPA details have been updated to match your confirmed identity") "success" "heading") }}
+        {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
       {{ end}}
 
       <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
@@ -28,14 +28,14 @@
           <dt class="govuk-summary-list__key">{{ tr .App "firstNames" }}</dt>
           <dd class="govuk-summary-list__value">{{ $donor.FirstNames }}</dd>
           {{ if not $firstNamesMatch }}
-            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "Does not match" }}</span></dd>
+            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span></dd>
           {{ end }}
         </div>
         <div class="govuk-summary-list__row {{ if $lastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
           <dt class="govuk-summary-list__key">{{ tr .App "lastName" }}</dt>
           <dd class="govuk-summary-list__value">{{ $donor.LastName }}</dd>
           {{ if not $lastNameMatch }}
-            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "Does not match" }}</span>
+            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
             </dd>
           {{ end}}
         </div>
@@ -43,7 +43,7 @@
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
           <dd class="govuk-summary-list__value">{{ (formatDate .App $donor.DateOfBirth) }}</dd>
           {{ if not $dobMatch }}
-            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "Does not match" }}</span>
+            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
             </dd>
           {{ end}}
         </div>
@@ -51,7 +51,7 @@
           <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
           <dd class="govuk-summary-list__value">{{ template "address-lines" $donor.Address }}</dd>
           {{ if not $addressMatch }}
-            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "Does not match" }}</span></dd>
+            <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span></dd>
           {{ end }}
         </div>
       </dl>
@@ -75,20 +75,22 @@
 
       <form novalidate method="post">
         {{ if not .DetailsMatch }}
-          {{ template "warning" (content .App "You can only continue with this LPA if the details match your confirmed identity details") }}
+          {{ template "warning" (content .App "youCanOnlyContinueIfDetailsMatchWarning") }}
 
           <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
+              {{ template "error-message" (errorMessage . .Form.FieldName) }}
+
               {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-              (item .Form.Options.Yes.String "yes" "hint" "Update my LPA details to match my confirmed identity details.")
-              (item .Form.Options.No.String "no" "hint" "I understand that this will withdraw my LPA and I will no longer be able to access it.")
+              (item .Form.Options.Yes.String "yes" "hint" "updateMyLPADetailsToMatchIdentityHint")
+              (item .Form.Options.No.String "no" "hint" "iUnderstandThisWillWithdrawLPAHint")
               ) }}
             </fieldset>
           </div>
         {{ end }}
 
         {{ if not .DetailsUpdated }}
-          {{ template "buttons" (button .App "saveAndContinue") }}
+          {{ template "buttons" (button .App "continue") }}
         {{ else }}
           {{ template "continue-button" . }}
         {{ end }}
