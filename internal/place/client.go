@@ -146,20 +146,20 @@ func (ad *AddressDetails) TransformToAddress() Address {
 
 	if len(ad.BuildingName) > 0 {
 		if len(ad.SubBuildingName) > 0 {
-			a.Line1 = fmt.Sprintf("%s, %s", ad.SubBuildingName, ad.BuildingName)
+			a.Line1 = strings.TrimSpace(fmt.Sprintf("%s, %s", ad.SubBuildingName, ad.BuildingName))
 		} else {
 			a.Line1 = ad.BuildingName
 		}
 
 		if len(ad.BuildingNumber) > 0 {
-			a.Line2 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+			a.Line2 = strings.TrimSpace(fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName))
 		} else {
 			a.Line2 = ad.ThoroughFareName
 		}
 
 		a.Line3 = ad.DependentLocality
 	} else {
-		a.Line1 = fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName)
+		a.Line1 = strings.TrimSpace(fmt.Sprintf("%s %s", ad.BuildingNumber, ad.ThoroughFareName))
 		a.Line2 = ad.DependentLocality
 	}
 
