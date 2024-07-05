@@ -164,8 +164,10 @@ jobs:
               --request DELETE \
               --region eu-west-1 \
               --service aoss)
-              if [[ $response == *'"acknowledged":true'* ]]; then
+              if [[ $response == *'"acknowledged":true'*]]; then
                 echo "Request successful."
+              elif [[ $response == *'"status":404'* ]]; then
+                echo "Request successful but index not found."
               else
                 exit 1
               fi
