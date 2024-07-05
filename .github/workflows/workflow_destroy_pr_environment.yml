@@ -163,8 +163,11 @@ jobs:
               "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}" \
               --request DELETE \
               --region eu-west-1 \
-              --service aoss | jq -r '.status')
-            if [[ $response != "200" && $response != "404" ]]; then
-              echo "Error: Unexpected response status $response"
-              exit 1
-            fi
+              --service aoss)
+              if [[ $response == *'"acknowledged":true'*]]; then
+                echo "Request successful."
+              elif [[ $response == *'"status":404'* ]]; then
+                echo "Request successful but index not found."
+              else
+                exit 1
+              fi
