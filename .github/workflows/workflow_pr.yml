@@ -131,6 +131,7 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
+
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
     if: always() &&
@@ -183,3 +184,24 @@ jobs:
             echo "PR environment tested, built and deployed but UI tests failed"
             exit 1
           fi
+  test_delete_index:
+    name: Test Delete Index
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [ui_tests_pr_env, create_tags]
+    steps:
+      - name: Delete opensearch index lpas_v2_${{ needs.create_tags.outputs.environment_workspace_name }}
+        run: |
+            pip install awscurl==0.33
+            response=$(awscurl \
+              "${{ secrets.DEVELOPMENT_OPENSEARCH_COLLECTION_ENDPOINT }}/lpas_v2_${{ needs.create_tags.outputs.environment_workspace_name }}" \
+              --request DELETE \
+              --region eu-west-1 \
+              --service aoss)
+              if [[ $response == *'"acknowledged":true'* ]]; then
+                echo "Request successful."
+              elif [[ $response == *'"status":404'* ]]; then
+                echo "Request successful but index not found."
+              else
+                exit 1
+              fi
