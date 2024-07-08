@@ -1,36 +1,23 @@
-resource "aws_kms_key" "sns" {
-  description             = "${local.default_tags.application} SNS encryption key"
-  deletion_window_in_days = 10
+module "sns_kms" {
+  source                  = "./modules/kms_key"
+  encrypted_resource      = "SNS"
+  kms_key_alias_name      = "${local.default_tags.application}_sns_secret_encryption_key"
   enable_key_rotation     = true
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.sns_kms_merged.json : data.aws_iam_policy_document.sns_kms.json
-  multi_region            = true
-  provider                = aws.eu_west_1
-}
-
-resource "aws_kms_replica_key" "sns_replica" {
-  description             = "${local.default_tags.application} SNS multi-region replica key"
-  deletion_window_in_days = 7
-  primary_key_arn         = aws_kms_key.sns.arn
-  provider                = aws.eu_west_2
+  enable_multi_region     = true
+  deletion_window_in_days = 10
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.sns_kms_merged.json : data.aws_iam_policy_document.sns_kms.json
+  providers = {
+    aws.eu_west_1 = aws.eu_west_1
+    aws.eu_west_2 = aws.eu_west_2
+  }
 }
 
 resource "aws_kms_replica_key" "sns_replica_global" {
   description             = "${local.default_tags.application} SNS multi-region replica key"
-  deletion_window_in_days = 7
-  primary_key_arn         = aws_kms_key.sns.arn
+  deletion_window_in_days = 10
+  primary_key_arn         = module.sns_kms.eu_west_1_target_key_arn
+  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.sns_kms_merged.json : data.aws_iam_policy_document.sns_kms.json
   provider                = aws.global
-}
-
-resource "aws_kms_alias" "sns_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_sns_secret_encryption_key"
-  target_key_id = aws_kms_key.sns.key_id
-  provider      = aws.eu_west_1
-}
-
-resource "aws_kms_alias" "sns_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_sns_secret_encryption_key"
-  target_key_id = aws_kms_replica_key.sns_replica.key_id
-  provider      = aws.eu_west_2
 }
 
 resource "aws_kms_alias" "sns_alias_global" {

@@ -17,7 +17,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_
       }
     ],
     AWSOwnedKey = false
-    KmsARN      = aws_kms_alias.opensearch_alias_eu_west_1.target_key_arn
+    KmsARN      = module.opensearch_kms.eu_west_1_target_key_arn
   })
   provider = aws.eu_west_1
 }
@@ -210,7 +210,7 @@ data "pagerduty_service" "main" {
 
 resource "aws_sns_topic" "opensearch" {
   name                                     = "${local.account_name}-opensearch-alarms"
-  kms_master_key_id                        = aws_kms_alias.sns_alias_eu_west_1.target_key_id
+  kms_master_key_id                        = module.sns_kms.eu_west_1_target_key_id
   application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
   application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
   application_success_feedback_sample_rate = 100
