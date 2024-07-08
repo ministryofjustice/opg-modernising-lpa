@@ -4,14 +4,14 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.56.0"
+      version = "~> 5.57.0"
       configuration_aliases = [
         aws.global,
       ]
     }
     pagerduty = {
       source  = "PagerDuty/pagerduty"
-      version = "3.14.4"
+      version = "3.14.5"
     }
   }
 }
