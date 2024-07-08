@@ -12,13 +12,14 @@ func _() {
 	var x [1]struct{}
 	_ = x[IdentityTaskNotStarted-0]
 	_ = x[IdentityTaskInProgress-1]
-	_ = x[IdentityTaskProblem-2]
-	_ = x[IdentityTaskCompleted-3]
+	_ = x[IdentityTaskPending-2]
+	_ = x[IdentityTaskProblem-3]
+	_ = x[IdentityTaskCompleted-4]
 }
 
-const _IdentityTask_name = "NotStartedInProgressProblemCompleted"
+const _IdentityTask_name = "NotStartedInProgressPendingProblemCompleted"
 
-var _IdentityTask_index = [...]uint8{0, 10, 20, 27, 36}
+var _IdentityTask_index = [...]uint8{0, 10, 20, 27, 34, 43}
 
 func (i IdentityTask) String() string {
 	if i >= IdentityTask(len(_IdentityTask_index)-1) {
@@ -49,6 +50,10 @@ func (i IdentityTask) IsInProgress() bool {
 	return i == IdentityTaskInProgress
 }
 
+func (i IdentityTask) IsPending() bool {
+	return i == IdentityTaskPending
+}
+
 func (i IdentityTask) IsProblem() bool {
 	return i == IdentityTaskProblem
 }
@@ -63,6 +68,8 @@ func ParseIdentityTask(s string) (IdentityTask, error) {
 		return IdentityTaskNotStarted, nil
 	case "InProgress":
 		return IdentityTaskInProgress, nil
+	case "Pending":
+		return IdentityTaskPending, nil
 	case "Problem":
 		return IdentityTaskProblem, nil
 	case "Completed":
@@ -75,6 +82,7 @@ func ParseIdentityTask(s string) (IdentityTask, error) {
 type IdentityTaskOptions struct {
 	NotStarted IdentityTask
 	InProgress IdentityTask
+	Pending    IdentityTask
 	Problem    IdentityTask
 	Completed  IdentityTask
 }
@@ -82,6 +90,7 @@ type IdentityTaskOptions struct {
 var IdentityTaskValues = IdentityTaskOptions{
 	NotStarted: IdentityTaskNotStarted,
 	InProgress: IdentityTaskInProgress,
+	Pending:    IdentityTaskPending,
 	Problem:    IdentityTaskProblem,
 	Completed:  IdentityTaskCompleted,
 }
