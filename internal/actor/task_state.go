@@ -43,6 +43,7 @@ type IdentityTask uint8
 const (
 	IdentityTaskNotStarted IdentityTask = iota
 	IdentityTaskInProgress
+	IdentityTaskPending
 	IdentityTaskProblem
 	IdentityTaskCompleted
 )
