@@ -6,7 +6,7 @@ module "eu_west_1" {
   sns_kms_key_alias                                        = aws_kms_alias.sns_alias_eu_west_1.name
   secrets_manager_kms_key_alias                            = aws_kms_alias.secrets_manager_alias_eu_west_1.name
   reduced_fees_uploads_s3_encryption_kms_key_alias         = aws_kms_alias.reduced_fees_uploads_s3_alias_eu_west_1.name
-  dynamodb_exports_s3_bucket_server_side_encryption_key_id = aws_kms_alias.dynamodb_exports_s3_bucket_alias_eu_west_1.name
+  dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket.kms_key_alias_name
   providers = {
     aws.region     = aws.eu_west_1
     aws.management = aws.management_eu_west_1
@@ -22,7 +22,7 @@ module "eu_west_2" {
   sns_kms_key_alias                                        = aws_kms_alias.sns_alias_eu_west_2.name
   secrets_manager_kms_key_alias                            = aws_kms_alias.secrets_manager_alias_eu_west_2.name
   reduced_fees_uploads_s3_encryption_kms_key_alias         = aws_kms_alias.reduced_fees_uploads_s3_alias_eu_west_2.name
-  dynamodb_exports_s3_bucket_server_side_encryption_key_id = aws_kms_alias.dynamodb_exports_s3_bucket_alias_eu_west_2.name
+  dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket.kms_key_alias_name
   providers = {
     aws.region     = aws.eu_west_2
     aws.management = aws.management_eu_west_2
