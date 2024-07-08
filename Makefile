@@ -54,6 +54,10 @@ up: ##@build Builds and brings the app up
 up-dev: ##@build Builds the app and brings up via Air hot reload with Delve debugging enabled using amd binaries
 	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM=linux/$(shell go env GOARCH) docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d --build --force-recreate --remove-orphans app
 
+pull-latest-mock-onelogin: ## @build logs in to management AWS account and pulls the latest mock-onelogin image (assumes ~/.aws/config contains a profile called management)
+	aws-vault exec management -- aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+	docker compose -f docker/docker-compose.yml pull mock-onelogin
+
 run-cypress: ##@testing Runs cypress e2e tests. To run a specific spec file pass in spec e.g. make run-cypress spec=start
 ifdef spec
 	yarn run cypress:run --spec "cypress/e2e/$(spec).cy.js"
