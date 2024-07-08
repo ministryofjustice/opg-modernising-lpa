@@ -146,3 +146,23 @@ moved {
   from = aws_kms_alias.sns_alias_eu_west_2
   to   = module.sns_kms.aws_kms_alias.main_eu_west_2
 }
+
+moved {
+  from = aws_kms_key.sqs
+  to   = module.sqs_kms.aws_kms_key.main
+}
+
+moved {
+  from = aws_kms_replica_key.sqs_replica
+  to   = module.sqs_kms.aws_kms_replica_key.main
+}
+
+moved {
+  from = aws_kms_alias.sqs_alias_eu_west_1
+  to   = module.sqs_kms.aws_kms_alias.main_eu_west_1
+}
+
+moved {
+  from = aws_kms_alias.sqs_alias_eu_west_2
+  to   = module.sqs_kms.aws_kms_alias.main_eu_west_2
+}
