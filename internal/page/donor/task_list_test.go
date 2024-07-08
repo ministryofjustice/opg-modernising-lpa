@@ -173,6 +173,24 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"is applying to court of protection and has signed": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                            "lpa-id",
+				Donor:                            actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData:            identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:                      form.No,
+				RegisteringWithCourtOfProtection: true,
+				SignedAt:                         testNow,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"attorneys under 18": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{

@@ -43,7 +43,15 @@ describe('what you can do now', () => {
         cy.url().should('contain', '/task-list')
         cy.checkA11yApp()
 
-        cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress');
+        cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress').click();
+
+        cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
+        cy.checkA11yApp()
+
+        cy.contains('a', 'Continue').click();
+
+        cy.url().should('contain', '/read-your-lpa')
+        cy.checkA11yApp()
     })
 
     it('errors when option not selected', () => {
