@@ -86,6 +86,7 @@ moved {
   to   = module.opensearch_kms.aws_kms_alias.main_eu_west_2
 }
 
+
 moved {
   from = aws_kms_key.reduced_fees_uploads_s3
   to   = module.reduced_fees_uploads_s3_kms.aws_kms_key.main
@@ -105,6 +106,7 @@ moved {
   from = aws_kms_alias.reduced_fees_uploads_s3_alias_eu_west_2
   to   = module.reduced_fees_uploads_s3_kms.aws_kms_alias.main_eu_west_2
 }
+
 
 moved {
   from = aws_kms_key.secrets_manager
@@ -146,6 +148,7 @@ moved {
   from = aws_kms_alias.sns_alias_eu_west_2
   to   = module.sns_kms.aws_kms_alias.main_eu_west_2
 }
+
 
 moved {
   from = aws_kms_key.sqs
