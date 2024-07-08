@@ -43,3 +43,24 @@ moved {
   from = aws_kms_alias.dynamodb_exports_s3_bucket_alias_eu_west_2
   to   = module.dynamodb_exports_s3_bucket.aws_kms_alias.main_eu_west_2
 }
+
+
+moved {
+  from = aws_kms_key.dynamodb
+  to   = module.dynamodb.aws_kms_key.main
+}
+
+moved {
+  from = aws_kms_replica_key.dynamodb_replica
+  to   = module.dynamodb.aws_kms_replica_key.main
+}
+
+moved {
+  from = aws_kms_alias.dynamodb_alias_eu_west_1
+  to   = module.dynamodb.aws_kms_alias.main_eu_west_1
+}
+
+moved {
+  from = aws_kms_alias.dynamodb_alias_eu_west_2
+  to   = module.dynamodb.aws_kms_alias.main_eu_west_2
+}
