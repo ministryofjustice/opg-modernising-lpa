@@ -81,54 +81,74 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
-	form := url.Values{
-		"witness-code": {"1234"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-	now := time.Now()
-
-	donor := &actor.DonorProvidedDetails{
-		LpaID:                            "lpa-id",
-		DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
-		CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
-		WitnessedByCertificateProviderAt: now,
-		Tasks: actor.DonorTasks{
-			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
-			PayForLpa:                  actor.PaymentTaskCompleted,
+	testcases := map[string]struct {
+		registeringWithCOP                bool
+		expectedIdentityAndSignTaskStatus actor.IdentityTask
+	}{
+		"registering with COP": {
+			registeringWithCOP:                true,
+			expectedIdentityAndSignTaskStatus: actor.IdentityTaskPending,
+		},
+		"proved ID": {
+			expectedIdentityAndSignTaskStatus: actor.IdentityTaskCompleted,
 		},
 	}
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), donor).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"witness-code": {"1234"},
+			}
 
-	shareCodeSender := newMockShareCodeSender(t)
-	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(r.Context(), testAppData, donor).
-		Return(nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+			now := time.Now()
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendLpa(r.Context(), donor).
-		Return(nil)
+			donor := &actor.DonorProvidedDetails{
+				LpaID:                            "lpa-id",
+				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
+				WitnessedByCertificateProviderAt: now,
+				Tasks: actor.DonorTasks{
+					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
+					PayForLpa:                  actor.PaymentTaskCompleted,
+				},
+				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
+			}
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID:                    "lpa-id",
-		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
-		Tasks:                    actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), donor).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+			shareCodeSender := newMockShareCodeSender(t)
+			shareCodeSender.EXPECT().
+				SendCertificateProviderPrompt(r.Context(), testAppData, donor).
+				Return(nil)
+
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				SendLpa(r.Context(), donor).
+				Return(nil)
+
+			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID:                            "lpa-id",
+				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
+				Tasks:                            actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
+
 }
 
 func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {

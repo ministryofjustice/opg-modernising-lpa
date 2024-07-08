@@ -178,6 +178,10 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 			if donor.RegisteringWithCourtOfProtection {
 				signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
 			}
+
+			if !donor.SignedAt.IsZero() {
+				signPath = page.Paths.YouHaveSubmittedYourLpa
+			}
 		}
 	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign
