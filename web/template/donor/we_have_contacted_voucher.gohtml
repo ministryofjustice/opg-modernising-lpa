@@ -8,9 +8,9 @@
       {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "weHaveContactedVoucher") "success" "heading")  }}
 
       <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
-      
+
       {{ trFormatHtml .App "weHaveContactedVoucherContent" }}
-            
+
       <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
     </div>
   </div>
