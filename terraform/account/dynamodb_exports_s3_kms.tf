@@ -1,4 +1,4 @@
-module "dynamodb_exports_s3_bucket" {
+module "dynamodb_exports_s3_bucket_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "dynamodb exports s3 bucket"
   kms_key_alias_name      = "${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"

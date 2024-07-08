@@ -17,7 +17,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_
       }
     ],
     AWSOwnedKey = false
-    KmsARN      = module.opensearch.eu_west_1_target_key_arn
+    KmsARN      = module.opensearch_kms.eu_west_1_target_key_arn
   })
   provider = aws.eu_west_1
 }

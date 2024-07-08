@@ -10,7 +10,7 @@ variable "encrypted_resource" {
 
 variable "kms_key_alias_name" {
   type        = string
-  description = "The alias name for the KMS key."
+  description = "The alias name for the KMS key. Module will prefix alias/ to the name."
 }
 
 variable "enable_key_rotation" {

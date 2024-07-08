@@ -1,4 +1,4 @@
-module "dynamodb" {
+module "dynamodb_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "dynamodb"
   kms_key_alias_name      = "${local.default_tags.application}_dynamodb_encryption"

@@ -1,4 +1,4 @@
-module "opensearch" {
+module "opensearch_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "opensearch"
   kms_key_alias_name      = "${local.default_tags.application}-opensearch-encryption-key"
