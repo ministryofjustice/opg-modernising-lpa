@@ -125,3 +125,24 @@ moved {
   from = aws_kms_alias.secrets_manager_alias_eu_west_2
   to   = module.secrets_manager_kms.aws_kms_alias.main_eu_west_2
 }
+
+
+moved {
+  from = aws_kms_key.sns
+  to   = module.sns_kms.aws_kms_key.main
+}
+
+moved {
+  from = aws_kms_replica_key.sns_replica
+  to   = module.sns_kms.aws_kms_replica_key.main
+}
+
+moved {
+  from = aws_kms_alias.sns_alias_eu_west_1
+  to   = module.sns_kms.aws_kms_alias.main_eu_west_1
+}
+
+moved {
+  from = aws_kms_alias.sns_alias_eu_west_2
+  to   = module.sns_kms.aws_kms_alias.main_eu_west_2
+}

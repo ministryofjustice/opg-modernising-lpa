@@ -3,7 +3,7 @@ module "eu_west_1" {
   count                                                    = contains(local.account.regions, "eu-west-1") ? 1 : 0
   network_cidr_block                                       = "10.162.0.0/16"
   cloudwatch_log_group_kms_key_alias                       = module.cloudwatch_kms.kms_key_alias_name
-  sns_kms_key_alias                                        = aws_kms_alias.sns_alias_eu_west_1.name
+  sns_kms_key_alias                                        = module.sns_kms.kms_key_alias_name
   secrets_manager_kms_key_alias                            = module.secrets_manager_kms.kms_key_alias_name
   reduced_fees_uploads_s3_encryption_kms_key_alias         = module.reduced_fees_uploads_s3_kms.kms_key_alias_name
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.kms_key_alias_name
@@ -19,7 +19,7 @@ module "eu_west_2" {
   count                                                    = contains(local.account.regions, "eu-west-2") ? 1 : 0
   network_cidr_block                                       = "10.162.0.0/16"
   cloudwatch_log_group_kms_key_alias                       = module.cloudwatch_kms.kms_key_alias_name
-  sns_kms_key_alias                                        = aws_kms_alias.sns_alias_eu_west_2.name
+  sns_kms_key_alias                                        = module.sns_kms.kms_key_alias_name
   secrets_manager_kms_key_alias                            = module.secrets_manager_kms.kms_key_alias_name
   reduced_fees_uploads_s3_encryption_kms_key_alias         = module.reduced_fees_uploads_s3_kms.kms_key_alias_name
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.kms_key_alias_name
