@@ -1,30 +1,15 @@
-resource "aws_kms_key" "cloudwatch" {
-  description             = "${local.default_tags.application} Cloudwatch application logs encryption key"
-  deletion_window_in_days = 10
+module "cloudwatch_kms" {
+  source                  = "./modules/kms_key"
+  encrypted_resource      = "Cloudwatch application logs"
+  kms_key_alias_name      = "${local.default_tags.application}_cloudwatch_application_logs_encryption"
   enable_key_rotation     = true
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
-  multi_region            = true
-  provider                = aws.eu_west_1
-}
-
-resource "aws_kms_replica_key" "cloudwatch_replica" {
-  description             = "${local.default_tags.application} Cloudwatch application logs Multi-Region replica key"
-  deletion_window_in_days = 7
-  primary_key_arn         = aws_kms_key.cloudwatch.arn
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
-  provider                = aws.eu_west_2
-}
-
-resource "aws_kms_alias" "cloudwatch_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_cloudwatch_application_logs_encryption"
-  target_key_id = aws_kms_key.cloudwatch.key_id
-  provider      = aws.eu_west_1
-}
-
-resource "aws_kms_alias" "cloudwatch_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_cloudwatch_application_logs_encryption"
-  target_key_id = aws_kms_replica_key.cloudwatch_replica.key_id
-  provider      = aws.eu_west_2
+  enable_multi_region     = true
+  deletion_window_in_days = 10
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.cloudwatch_kms_merged.json : data.aws_iam_policy_document.cloudwatch_kms.json
+  providers = {
+    aws.eu_west_1 = aws.eu_west_1
+    aws.eu_west_2 = aws.eu_west_2
+  }
 }
 
 # See the following link for further information
