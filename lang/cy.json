@@ -1261,5 +1261,15 @@
         "many": "Welsh",
         "other": "Welsh"
     },
-    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">Welsh</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh {{ .CertificateProviderFullName }} Welsh.</li><li>Welsh {{ .CountAttorneys }} Welsh</li><li>Welsh</li></ul>"
+    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">Welsh</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh {{ .CertificateProviderFullName }} Welsh.</li><li>Welsh {{ .CountAttorneys }} Welsh</li><li>Welsh</li></ul>",
+    "yourConfirmedIdentityDetails": "Welsh",
+    "theDetailsOnYourLPA": "Welsh",
+    "someDetailsDoNotMatchIdentityDetailsWarning": "Welsh",
+    "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess": "Welsh",
+    "confirmedIdentityDetails": "Welsh",
+    "doesNotMatch": "Welsh",
+    "updateMyLPADetailsToMatchIdentityHint": "Welsh",
+    "iUnderstandThisWillWithdrawLPAHint": "Welsh",
+    "youCanOnlyContinueIfDetailsMatchWarning": "Welsh",
+    "yesIfWouldLikeToUpdateDetails": "Welsh"
 }
