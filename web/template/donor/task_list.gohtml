@@ -97,6 +97,8 @@
                     <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
                   {{ else if .IdentityState.IsProblem }}
                     <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "thereIsAProblem" }}</strong>
+                  {{ else if .IdentityState.IsPending }}
+                      <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
                   {{ else if not (donorCanGoTo $.Donor .Path) }}
                     <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                   {{ else }}

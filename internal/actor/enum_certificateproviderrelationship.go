@@ -19,6 +19,9 @@ const _CertificateProviderRelationship_name = "personallyprofessionally"
 var _CertificateProviderRelationship_index = [...]uint8{0, 10, 24}
 
 func (i CertificateProviderRelationship) String() string {
+	if i == 0 {
+		return ""
+	}
 	i -= 1
 	if i >= CertificateProviderRelationship(len(_CertificateProviderRelationship_index)-1) {
 		return "CertificateProviderRelationship(" + strconv.FormatInt(int64(i+1), 10) + ")"
