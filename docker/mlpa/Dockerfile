@@ -1,8 +1,8 @@
-FROM golang:1.22.4-alpine as base
+FROM golang:1.22.5-alpine AS base
 
 WORKDIR /app
 
-FROM node:20.2.0-alpine3.16 as asset-env
+FROM node:20.2.0-alpine3.16 AS asset-env
 
 WORKDIR /app
 
@@ -30,7 +30,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install github.com/ai
 
 ENTRYPOINT ["air"]
 
-FROM base as build-env
+FROM base AS build-env
 
 ARG TAG=v0.0.0
 
@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.20.1 as production
+FROM alpine:3.20.1 AS production
 
 WORKDIR /go/bin
 
