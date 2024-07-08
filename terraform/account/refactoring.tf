@@ -64,3 +64,24 @@ moved {
   from = aws_kms_alias.dynamodb_alias_eu_west_2
   to   = module.dynamodb.aws_kms_alias.main_eu_west_2
 }
+
+
+moved {
+  from = aws_kms_key.opensearch
+  to   = module.opensearch.aws_kms_key.main
+}
+
+moved {
+  from = aws_kms_replica_key.opensearch_replica
+  to   = module.opensearch.aws_kms_replica_key.main
+}
+
+moved {
+  from = aws_kms_alias.opensearch_alias_eu_west_1
+  to   = module.opensearch.aws_kms_alias.main_eu_west_1
+}
+
+moved {
+  from = aws_kms_alias.opensearch_alias_eu_west_2
+  to   = module.opensearch.aws_kms_alias.main_eu_west_2
+}
