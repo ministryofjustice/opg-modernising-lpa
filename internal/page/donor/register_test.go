@@ -273,34 +273,54 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 }
 
 func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/lpa/id/path", nil)
+	testcases := map[string]func() *mockDonorStore{
+		"get": func() *mockDonorStore {
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Get(mock.Anything).
+				Return(&actor.DonorProvidedDetails{}, expectedError)
+			return donorStore
+		},
+		"put": func() *mockDonorStore {
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Get(mock.Anything).
+				Return(&actor.DonorProvidedDetails{}, nil)
+			donorStore.EXPECT().
+				Put(mock.Anything, mock.Anything).
+				Return(expectedError)
+			return donorStore
+		},
+	}
 
-	mux := http.NewServeMux()
+	for name, donorStore := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/lpa/id/path", nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "random"}, nil)
+			mux := http.NewServeMux()
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Get(mock.Anything).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+			sessionStore := newMockSessionStore(t)
+			sessionStore.EXPECT().
+				Login(r).
+				Return(&sesh.LoginSession{Sub: "random"}, nil)
 
-	errorHandler := newMockErrorHandler(t)
-	errorHandler.EXPECT().
-		Execute(w, r, expectedError)
+			errorHandler := newMockErrorHandler(t)
+			errorHandler.EXPECT().
+				Execute(w, r, expectedError)
 
-	handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore)
-	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
-		return expectedError
-	})
+			handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore())
+			handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
+				return expectedError
+			})
 
-	mux.ServeHTTP(w, r)
-	resp := w.Result()
+			mux.ServeHTTP(w, r)
+			resp := w.Result()
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
+
 }
 
 func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
