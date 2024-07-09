@@ -1,6 +1,7 @@
 package certificateprovider
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -18,9 +19,10 @@ import (
 )
 
 func TestGetIdentityWithOneLoginCallback(t *testing.T) {
+	now := time.Now()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
-	now := time.Now()
+
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
@@ -29,12 +31,13 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		Tasks: actor.CertificateProviderTasks{
 			ConfirmYourIdentity: actor.TaskCompleted,
 		},
+		LpaID: "lpa-id",
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), updatedCertificateProvider).
 		Return(nil)
@@ -82,6 +85,55 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
+
+	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
+	userData := identity.UserData{Status: identity.StatusFailed}
+
+	updatedCertificateProvider := &actor.CertificateProviderProvidedDetails{
+		IdentityUserData: userData,
+		LpaID:            "lpa-id",
+	}
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Get(r.Context()).
+		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
+	certificateProviderStore.EXPECT().
+		Put(r.Context(), updatedCertificateProvider).
+		Return(nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "John", LastName: "Doe"}}, nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(r).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
+
+	oneLoginClient := newMockOneLoginClient(t)
+	oneLoginClient.EXPECT().
+		Exchange(r.Context(), "a-code", "a-nonce").
+		Return("id-token", "a-jwt", nil)
+	oneLoginClient.EXPECT().
+		UserInfo(r.Context(), "a-jwt").
+		Return(userInfo, nil)
+	oneLoginClient.EXPECT().
+		ParseIdentityClaim(r.Context(), userInfo).
+		Return(userData, nil)
+
+	err := IdentityWithOneLoginCallback(nil, oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, nil)(testAppData, w, r)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.CertificateProvider.UnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 
@@ -111,13 +163,21 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 	sessionIgnored := func(t *testing.T) *mockSessionStore {
 		return nil
 	}
+	certificateProviderOnlyGet := func(t *testing.T) *mockCertificateProviderStore {
+		certificateProviderStore := newMockCertificateProviderStore(t)
+		certificateProviderStore.EXPECT().
+			Get(context.Background()).
+			Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		return certificateProviderStore
+	}
 
 	testCases := map[string]struct {
-		oneLoginClient func(t *testing.T) *mockOneLoginClient
-		sessionStore   func(*testing.T) *mockSessionStore
-		template       func(*testing.T, io.Writer) *mockTemplate
-		url            string
-		error          error
+		oneLoginClient           func(t *testing.T) *mockOneLoginClient
+		sessionStore             func(*testing.T) *mockSessionStore
+		template                 func(*testing.T, io.Writer) *mockTemplate
+		certificateProviderStore func(t *testing.T) *mockCertificateProviderStore
+		url                      string
+		error                    error
 	}{
 		"not a match": {
 			url: "/?code=a-code",
@@ -136,6 +196,23 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore: sessionRetrieved,
 			template:     templateCalled,
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
+				certificateProviderStore := newMockCertificateProviderStore(t)
+				certificateProviderStore.EXPECT().
+					Get(context.Background()).
+					Return(&actor.CertificateProviderProvidedDetails{}, nil)
+				certificateProviderStore.EXPECT().
+					Put(context.Background(), &actor.CertificateProviderProvidedDetails{
+						IdentityUserData: identity.UserData{
+							Status:     identity.StatusConfirmed,
+							FirstNames: "x",
+							LastName:   "y",
+						},
+					}).
+					Return(nil)
+
+				return certificateProviderStore
+			},
 		},
 		"not ok": {
 			url: "/?code=a-code",
@@ -154,6 +231,17 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore: sessionRetrieved,
 			template:     templateCalled,
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
+				certificateProviderStore := newMockCertificateProviderStore(t)
+				certificateProviderStore.EXPECT().
+					Get(context.Background()).
+					Return(&actor.CertificateProviderProvidedDetails{}, nil)
+				certificateProviderStore.EXPECT().
+					Put(context.Background(), &actor.CertificateProviderProvidedDetails{}).
+					Return(nil)
+
+				return certificateProviderStore
+			},
 		},
 		"errored on parse": {
 			url: "/?code=a-code",
@@ -170,9 +258,10 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(identity.UserData{Status: identity.StatusConfirmed}, expectedError)
 				return oneLoginClient
 			},
-			sessionStore: sessionRetrieved,
-			template:     templateIgnored,
-			error:        expectedError,
+			sessionStore:             sessionRetrieved,
+			template:                 templateIgnored,
+			error:                    expectedError,
+			certificateProviderStore: certificateProviderOnlyGet,
 		},
 		"errored on userinfo": {
 			url: "/?code=a-code",
@@ -186,9 +275,10 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(onelogin.UserInfo{}, expectedError)
 				return oneLoginClient
 			},
-			sessionStore: sessionRetrieved,
-			template:     templateIgnored,
-			error:        expectedError,
+			sessionStore:             sessionRetrieved,
+			template:                 templateIgnored,
+			error:                    expectedError,
+			certificateProviderStore: certificateProviderOnlyGet,
 		},
 		"errored on exchange": {
 			url: "/?code=a-code",
@@ -199,17 +289,19 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return("", "", expectedError)
 				return oneLoginClient
 			},
-			sessionStore: sessionRetrieved,
-			template:     templateIgnored,
-			error:        expectedError,
+			sessionStore:             sessionRetrieved,
+			template:                 templateIgnored,
+			error:                    expectedError,
+			certificateProviderStore: certificateProviderOnlyGet,
 		},
 		"provider access denied": {
 			url: "/?error=access_denied",
 			oneLoginClient: func(t *testing.T) *mockOneLoginClient {
 				return newMockOneLoginClient(t)
 			},
-			sessionStore: sessionIgnored,
-			template:     templateCalled,
+			sessionStore:             sessionIgnored,
+			template:                 templateCalled,
+			certificateProviderStore: certificateProviderOnlyGet,
 		},
 	}
 
@@ -217,11 +309,6 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
-
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.EXPECT().
-				Get(r.Context()).
-				Return(&actor.CertificateProviderProvidedDetails{}, nil)
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
@@ -232,7 +319,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			oneLoginClient := tc.oneLoginClient(t)
 			template := tc.template(t, w)
 
-			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, nil)(testAppData, w, r)
+			err := IdentityWithOneLoginCallback(template.Execute, oneLoginClient, sessionStore, tc.certificateProviderStore(t), lpaStoreResolvingService, nil)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -324,9 +411,6 @@ func TestGetIdentityWithOneLoginCallbackWhenLpaStoreErrors(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().

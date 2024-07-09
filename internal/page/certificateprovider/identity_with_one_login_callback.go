@@ -79,13 +79,14 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		certificateProvider.IdentityUserData = userData
-		certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			data.FirstNames = userData.FirstNames
 			data.LastName = userData.LastName
 			data.DateOfBirth = userData.DateOfBirth
 			data.ConfirmedAt = userData.RetrievedAt
+
+			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
@@ -94,8 +95,17 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
 				return err
 			}
+
 		} else {
 			data.CouldNotConfirm = true
+
+			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+				return err
+			}
+		}
+
+		if userData.Status.IsFailed() {
+			return page.Paths.CertificateProvider.UnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		return tmpl(w, data)

@@ -269,10 +269,12 @@ type CertificateProviderPaths struct {
 	EnterDateOfBirth                       CertificateProviderPath
 	IdentityWithOneLogin                   CertificateProviderPath
 	IdentityWithOneLoginCallback           CertificateProviderPath
+	OneloginIdentityDetails                CertificateProviderPath
 	ProveYourIdentity                      CertificateProviderPath
 	ProvideCertificate                     CertificateProviderPath
 	ReadTheLpa                             CertificateProviderPath
 	TaskList                               CertificateProviderPath
+	UnableToConfirmIdentity                CertificateProviderPath
 	WhatHappensNext                        CertificateProviderPath
 	WhatIsYourHomeAddress                  CertificateProviderPath
 	WhoIsEligible                          CertificateProviderPath
@@ -461,9 +463,11 @@ var Paths = AppPaths{
 		Login:                                           "/certificate-provider-login",
 		LoginCallback:                                   "/certificate-provider-login-callback",
 		ProveYourIdentity:                               "/prove-your-identity",
+		OneloginIdentityDetails:                         "/onelogin-identity-details",
 		ProvideCertificate:                              "/provide-certificate",
 		ReadTheLpa:                                      "/read-the-lpa",
 		TaskList:                                        "/task-list",
+		UnableToConfirmIdentity:                         "/unable-to-confirm-identity",
 		WhatHappensNext:                                 "/what-happens-next",
 		WhatIsYourHomeAddress:                           "/what-is-your-home-address",
 		WhoIsEligible:                                   "/certificate-provider-who-is-eligible",
