@@ -190,3 +190,9 @@ variable "real_user_monitoring_cw_logs_enabled" {
   type        = bool
   description = "Enable CloudWatch logging for Real User Monitoring"
 }
+
+variable "waf_alb_association_enabled" {
+  type        = bool
+  description = "Enable WAF association with the ALBs"
+  default     = true
+}
