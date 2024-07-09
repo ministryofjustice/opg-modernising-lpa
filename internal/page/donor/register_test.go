@@ -171,6 +171,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
 					Address:     place.Address{Postcode: "ABC123"},
+					Email:       "a@example.com",
 				},
 					Type:   actor.LpaTypePropertyAndAffairs,
 					Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
@@ -196,7 +197,56 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 			assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 		})
 	}
+}
 
+func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/lpa/123/path", nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random", Email: "a@example.com"}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+		},
+			Type:   actor.LpaTypePropertyAndAffairs,
+			Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
+			LpaUID: "a-uid",
+		}, nil)
+	donorStore.EXPECT().
+		Put(mock.Anything, &actor.DonorProvidedDetails{Donor: actor.Donor{
+			FirstNames:  "Jane",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "1", "2"),
+			Address:     place.Address{Postcode: "ABC123"},
+			Email:       "a@example.com",
+		},
+			Type:   actor.LpaTypePropertyAndAffairs,
+			Tasks:  actor.DonorTasks{YourDetails: actor.TaskCompleted},
+			LpaUID: "a-uid",
+		}).
+		Return(nil)
+
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, _ *actor.DonorProvidedDetails) error {
+		hw.WriteHeader(http.StatusTeapot)
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
 func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
@@ -268,7 +318,7 @@ func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.DonorProvidedDetails{LpaID: "123"}, nil)
+		Return(&actor.DonorProvidedDetails{LpaID: "123", Donor: actor.Donor{Email: "a@example.com"}}, nil)
 
 	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
 	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.DonorProvidedDetails) error {
@@ -295,7 +345,7 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{Email: "a@example.com"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
@@ -338,7 +388,7 @@ func TestMakeLpaHandleErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{Email: "a@example.com"}}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeLpaHandle(mux, sessionStore, errorHandler.Execute, donorStore)
