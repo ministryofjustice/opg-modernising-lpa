@@ -76,6 +76,7 @@ variable "environments" {
       })
       application_load_balancer = object({
         deletion_protection_enabled = bool
+        waf_alb_association_enabled = bool
       })
       cloudwatch_application_insights_enabled = bool
       pagerduty_service_name                  = string
