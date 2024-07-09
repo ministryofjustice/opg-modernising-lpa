@@ -40,6 +40,7 @@ module "eu_west_1" {
   mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
+  waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled
   lpas_table = {
     arn  = aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
@@ -107,6 +108,7 @@ module "eu_west_2" {
   mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
+  waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled
   lpas_table = {
     arn  = local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.lpas_table[0].arn : aws_dynamodb_table.lpas_table.arn,
     name = aws_dynamodb_table.lpas_table.name
