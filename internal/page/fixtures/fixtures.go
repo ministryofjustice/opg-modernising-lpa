@@ -118,7 +118,7 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 	}
 }
 
-func makeDonor() actor.Donor {
+func makeDonor(email string) actor.Donor {
 	return actor.Donor{
 		UID:        actoruid.New(),
 		FirstNames: "Sam",
@@ -131,7 +131,7 @@ func makeDonor() actor.Donor {
 			Postcode:   "B14 7ED",
 			Country:    "GB",
 		},
-		Email:                     testEmail,
+		Email:                     email,
 		DateOfBirth:               date.New("2000", "1", "2"),
 		ThinksCanSign:             actor.Yes,
 		CanSign:                   form.Yes,

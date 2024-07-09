@@ -172,8 +172,7 @@ func updateLPAProgress(
 	var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
-		donorDetails.Donor = makeDonor()
-		donorDetails.Donor.Email = data.DonorEmail
+		donorDetails.Donor = makeDonor(data.DonorEmail)
 
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 
