@@ -26,10 +26,12 @@
               <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
               <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
             </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "dateLpaSigned" }}</dt>
-              <dd class="govuk-summary-list__value">{{ formatDateTime .App .Donor.SignedAt }}</dd>
-            </div>
+            {{ if not .Donor.SignedAt.IsZero}}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">{{ tr .App "dateLpaSigned" }}</dt>
+                <dd class="govuk-summary-list__value">{{ formatDateTime .App .Donor.SignedAt }}</dd>
+              </div>
+            {{ end }}
           </dl>
         </div>
       </div>

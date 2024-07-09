@@ -35,6 +35,7 @@
     </div>
   </div>
 
+  {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
   {{ template "input" (input . "donorSub" "Donor OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
   <div class="govuk-hint govuk-!-padding-bottom-2">
     Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.Start.Format }}">start page</a>
