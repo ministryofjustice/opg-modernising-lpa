@@ -87,3 +87,9 @@ variable "app_ecs_service_security_group_id" {
   type        = string
   description = "ID of the security group for the app ECS service"
 }
+
+variable "waf_alb_association_enabled" {
+  type        = bool
+  description = "Enable WAF association with the ALB"
+  default     = true
+}
