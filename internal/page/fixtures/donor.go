@@ -73,7 +73,9 @@ type FixtureData struct {
 	CertificateProviderEmail  string
 	CertificateProviderMobile string
 	DonorSub                  string
+	DonorEmail                string
 	IdStatus                  string
+	Voucher                   string
 }
 
 func Donor(
@@ -96,8 +98,12 @@ func Donor(
 			data.DonorSub = random.String(16)
 		}
 
+		if data.DonorEmail == "" {
+			data.DonorEmail = testEmail
+		}
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: data.DonorSub})
+			return tmpl(w, &fixturesData{App: appData, Sub: data.DonorSub, DonorEmail: data.DonorEmail})
 		}
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(data.DonorSub))
@@ -167,6 +173,8 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor()
+		donorDetails.Donor.Email = data.DonorEmail
+
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 
 		if data.LpaType == "personal-welfare" {
@@ -401,6 +409,10 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
 			}
+
+			if data.Voucher == "1" {
+				donorDetails.Voucher = makeVoucher(voucherName)
+			}
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -559,6 +571,8 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderEmail:  r.FormValue("certificateProviderEmail"),
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
+		DonorEmail:                r.FormValue("donorEmail"),
 		IdStatus:                  r.FormValue("idStatus"),
+		Voucher:                   r.FormValue("voucher"),
 	}
 }

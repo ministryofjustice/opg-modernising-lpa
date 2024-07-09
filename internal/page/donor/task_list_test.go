@@ -155,6 +155,22 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"insufficient evidence for identity with voucher details": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				Voucher:               actor.Voucher{FirstNames: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.ReadYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"does not want a voucher": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{

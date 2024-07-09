@@ -12,6 +12,8 @@
     Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.CertificateProviderStart.Format }}">start page</a>
   </div>
 
+  {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
+
   <div class="govuk-form-group">
     <div class="govuk-checkboxes" data-module="govuk-checkboxes">
       <div class="govuk-checkboxes__item">

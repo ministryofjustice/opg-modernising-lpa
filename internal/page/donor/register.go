@@ -487,6 +487,16 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 				http.Redirect(w, r, appData.Lang.URL(page.Paths.TaskList.Format(lpa.LpaID)), http.StatusFound)
 			}
 
+			if lpa.Donor.Email == "" && loginSession.OrganisationID == "" {
+				lpa.Donor.Email = loginSession.Email
+				err = donorStore.Put(ctx, lpa)
+
+				if err != nil {
+					errorHandler(w, r, err)
+					return
+				}
+			}
+
 			if loginSession.OrganisationID != "" {
 				appData.SupporterData = &page.SupporterData{
 					LpaType:          lpa.Type,

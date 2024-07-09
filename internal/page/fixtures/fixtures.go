@@ -2,6 +2,7 @@ package fixtures
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -30,9 +31,10 @@ const (
 )
 
 type fixturesData struct {
-	App    page.AppData
-	Sub    string
-	Errors validation.List
+	App        page.AppData
+	Sub        string
+	DonorEmail string
+	Errors     validation.List
 }
 
 type Name struct {
@@ -74,6 +76,10 @@ var (
 		{Firstnames: "Derrick", Lastname: "Carter"},
 		{Firstnames: "Luke", Lastname: "Solomon"},
 		{Firstnames: "Josey", Lastname: "Rebelle"},
+	}
+	voucherName = Name{
+		Firstnames: "Simone",
+		Lastname:   "Sutherland",
 	}
 )
 
@@ -242,4 +248,13 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	}
 
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
+}
+
+func makeVoucher(name Name) actor.Voucher {
+	return actor.Voucher{
+		FirstNames: name.Firstnames,
+		LastName:   name.Lastname,
+		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),
+		Allowed:    true,
+	}
 }

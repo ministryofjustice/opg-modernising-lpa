@@ -30,7 +30,7 @@ func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					donor.WithdrawnAt = now()
+					return page.Paths.WithdrawThisLpa.Redirect(w, r, appData, donor)
 				} else {
 					donor.RegisteringWithCourtOfProtection = true
 				}
