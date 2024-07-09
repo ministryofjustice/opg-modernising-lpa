@@ -74,6 +74,7 @@ type FixtureData struct {
 	CertificateProviderMobile string
 	DonorSub                  string
 	IdStatus                  string
+	Voucher                   string
 }
 
 func Donor(
@@ -401,6 +402,10 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
 			}
+
+			if data.Voucher == "1" {
+				donorDetails.Voucher = makeVoucher(voucherName)
+			}
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -560,5 +565,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
 		IdStatus:                  r.FormValue("idStatus"),
+		Voucher:                   r.FormValue("voucher"),
 	}
 }

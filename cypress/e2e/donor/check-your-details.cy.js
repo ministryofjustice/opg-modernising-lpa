@@ -1,6 +1,6 @@
 describe('Check your details', () => {
   it('shows my details', () => {
-    cy.visit('/fixtures?redirect=/check-your-details&progress=payForTheLpa');
+    cy.visit('/fixtures?redirect=/check-your-details&progress=confirmYourIdentity&idStatus=insufficient-evidence&voucher=1');
 
     cy.checkA11yApp();
     cy.contains('Sam Smith');
