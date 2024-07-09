@@ -1271,5 +1271,6 @@
     "updateMyLPADetailsToMatchIdentityHint": "Welsh",
     "iUnderstandThisWillWithdrawLPAHint": "Welsh",
     "youCanOnlyContinueIfDetailsMatchWarning": "Welsh",
-    "yesIfWouldLikeToUpdateDetails": "Welsh"
+    "yesIfWouldLikeToUpdateDetails": "Welsh",
+    "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Welsh"
 }

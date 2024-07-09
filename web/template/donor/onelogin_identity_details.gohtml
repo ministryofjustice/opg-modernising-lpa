@@ -79,6 +79,8 @@
 
           <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
             <fieldset class="govuk-fieldset">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "wouldYouLikeToUpdateDetailsToMatchIdentityDetails" }}</legend>
+
               {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
               {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
