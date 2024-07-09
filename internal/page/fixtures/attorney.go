@@ -142,7 +142,7 @@ func Attorney(
 		)
 
 		donorDetails.SignedAt = time.Now()
-		donorDetails.Donor = makeDonor()
+		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = actor.LpaTypePersonalWelfare
