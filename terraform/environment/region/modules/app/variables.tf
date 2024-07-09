@@ -158,3 +158,9 @@ variable "search_collection_arn" {
   description = "ARN of the OpenSearch collection to use"
   nullable    = true
 }
+
+variable "waf_alb_association_enabled" {
+  type        = bool
+  description = "Enable WAF association with the ALB"
+  default     = true
+}
