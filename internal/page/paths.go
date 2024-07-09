@@ -87,7 +87,7 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 		Paths.WitnessingAsCertificateProvider,
 		Paths.WitnessingAsIndependentWitness,
 		Paths.YouHaveSubmittedYourLpa:
-		return donor.DonorIdentityConfirmed() || donor.RegisteringWithCourtOfProtection
+		return donor.DonorIdentityConfirmed() || donor.RegisteringWithCourtOfProtection || donor.Voucher.FirstNames != ""
 
 	case Paths.ConfirmYourCertificateProviderIsNotRelated,
 		Paths.CheckYourLpa:

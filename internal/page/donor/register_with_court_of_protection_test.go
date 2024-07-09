@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -52,16 +53,25 @@ func TestGetRegisterWithCourtOfProtectionWhenTemplateErrors(t *testing.T) {
 
 func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 	testCases := map[string]struct {
-		yesNo        form.YesNo
-		updatedDonor *actor.DonorProvidedDetails
+		yesNo            form.YesNo
+		donorStore       func() *mockDonorStore
+		expectedRedirect string
 	}{
 		"yes": {
-			yesNo:        form.Yes,
-			updatedDonor: &actor.DonorProvidedDetails{LpaID: "lpa-id", WithdrawnAt: testNow},
+			yesNo:            form.Yes,
+			expectedRedirect: page.Paths.WithdrawThisLpa.Format("lpa-id"),
+			donorStore:       func() *mockDonorStore { return nil },
 		},
 		"no": {
-			yesNo:        form.No,
-			updatedDonor: &actor.DonorProvidedDetails{LpaID: "lpa-id", RegisteringWithCourtOfProtection: true},
+			yesNo: form.No,
+			donorStore: func() *mockDonorStore {
+				donorStore := newMockDonorStore(t)
+				donorStore.EXPECT().
+					Put(context.Background(), &actor.DonorProvidedDetails{LpaID: "lpa-id", RegisteringWithCourtOfProtection: true}).
+					Return(nil)
+				return donorStore
+			},
+			expectedRedirect: page.Paths.Dashboard.Format(),
 		},
 	}
 
@@ -75,24 +85,19 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donorStore := newMockDonorStore(t)
-			donorStore.EXPECT().
-				Put(r.Context(), tc.updatedDonor).
-				Return(nil)
-
-			err := RegisterWithCourtOfProtection(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := RegisterWithCourtOfProtection(nil, tc.donorStore(), testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Dashboard.Format(), resp.Header.Get("Location"))
+			assert.Equal(t, tc.expectedRedirect, resp.Header.Get("Location"))
 		})
 	}
 }
 
 func TestPostRegisterWithCourtOfProtectionWhenStoreErrors(t *testing.T) {
 	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
 	w := httptest.NewRecorder()
