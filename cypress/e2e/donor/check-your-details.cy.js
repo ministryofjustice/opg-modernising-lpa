@@ -9,6 +9,12 @@ describe('Check your details', () => {
     cy.contains('button', 'Continue').click();
 
     cy.url().should('contain', '/we-have-contacted-voucher');
+    cy.checkA11yApp();
+
+    cy.contains('a', 'Continue').click();
+
+    cy.url().should('contain', '/read-your-lpa');
+    cy.checkA11yApp();
   });
 
   it('tells me about a pending payment', () => {
