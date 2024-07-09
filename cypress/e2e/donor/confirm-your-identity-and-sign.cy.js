@@ -279,8 +279,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'I no longer want to make this LPA').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/dashboard');
-      cy.contains('Withdrawn');
+      cy.url().should('contain', '/withdraw-this-lpa');
     })
   })
 

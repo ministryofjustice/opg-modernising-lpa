@@ -186,6 +186,10 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 				signPath = page.Paths.YouHaveSubmittedYourLpa
 			}
 		}
+
+		if donor.Voucher.FirstNames != "" {
+			signPath = page.Paths.ReadYourLpa
+		}
 	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign
 	}
