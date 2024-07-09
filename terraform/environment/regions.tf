@@ -13,6 +13,12 @@ data "aws_ecr_repository" "mock_pay" {
   provider = aws.management_eu_west_1
 }
 
+data "aws_ecr_image" "mock_onelogin" {
+  repository_name = data.aws_ecr_repository.mock_onelogin.name
+  image_tag       = "latest"
+  provider        = aws.management_eu_west_1
+}
+
 module "allow_list" {
   source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v3.0.1"
 }
@@ -35,7 +41,7 @@ module "eu_west_1" {
   app_service_repository_url              = data.aws_ecr_repository.app.repository_url
   app_service_container_version           = var.container_version
   mock_onelogin_service_repository_url    = data.aws_ecr_repository.mock_onelogin.repository_url
-  mock_onelogin_service_container_version = local.mock_onelogin_version
+  mock_onelogin_service_container_version = data.aws_ecr_image.mock_onelogin.id
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
   mock_pay_service_container_version      = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
