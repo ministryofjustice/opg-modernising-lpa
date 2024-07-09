@@ -48,6 +48,7 @@ func CertificateProvider(
 			lpaType                           = r.FormValue("lpa-type")
 			progress                          = slices.Index(progressValues, r.FormValue("progress"))
 			email                             = r.FormValue("email")
+			donorEmail                        = r.FormValue("donorEmail")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
 			certificateProviderSub            = r.FormValue("certificateProviderSub")
@@ -61,8 +62,12 @@ func CertificateProvider(
 			certificateProviderSub = random.String(16)
 		}
 
+		if donorEmail == "" {
+			donorEmail = testEmail
+		}
+
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: certificateProviderSub})
+			return tmpl(w, &fixturesData{App: appData, Sub: certificateProviderSub, DonorEmail: donorEmail})
 		}
 
 		var (
@@ -132,6 +137,11 @@ func CertificateProvider(
 		)
 
 		donorDetails.Donor = makeDonor()
+
+		if donorEmail != "" {
+			donorDetails.Donor.Email = donorEmail
+		}
+
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
 			donorDetails.Type = actor.LpaTypePersonalWelfare

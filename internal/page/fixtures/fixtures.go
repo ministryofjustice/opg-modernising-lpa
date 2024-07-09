@@ -31,9 +31,10 @@ const (
 )
 
 type fixturesData struct {
-	App    page.AppData
-	Sub    string
-	Errors validation.List
+	App        page.AppData
+	Sub        string
+	DonorEmail string
+	Errors     validation.List
 }
 
 type Name struct {
