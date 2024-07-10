@@ -57,8 +57,7 @@ data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.account.account_name}-app-task-role",
-        aws_iam_role.aws_backup_role.arn,
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/opensearch-pipeline-role-${local.account.account_name}",
       ]
     }
     condition {
