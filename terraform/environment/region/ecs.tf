@@ -34,6 +34,7 @@ module "app" {
   app_allowed_api_arns            = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
   ingress_allow_list_cidr         = concat(var.ingress_allow_list_cidr, split(",", data.aws_ssm_parameter.additional_allowed_ingress_cidrs.value))
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
+  waf_alb_association_enabled     = var.waf_alb_association_enabled
   lpas_table                      = var.lpas_table
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
@@ -60,6 +61,7 @@ module "app" {
   search_endpoint                                      = var.search_endpoint
   search_index_name                                    = var.search_index_name
   search_collection_arn                                = var.search_collection_arn
+
   providers = {
     aws.region     = aws.region
     aws.management = aws.management
@@ -79,6 +81,7 @@ module "mock_onelogin" {
   repository_url                  = var.mock_onelogin_service_repository_url
   container_version               = var.mock_onelogin_service_container_version
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
+  waf_alb_association_enabled     = var.waf_alb_association_enabled
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   redirect_base_url               = var.app_env_vars.auth_redirect_base_url
@@ -110,6 +113,7 @@ module "mock_pay" {
   repository_url                  = var.mock_pay_service_repository_url
   container_version               = var.mock_pay_service_container_version
   alb_deletion_protection_enabled = var.alb_deletion_protection_enabled
+  waf_alb_association_enabled     = var.waf_alb_association_enabled
   container_port                  = 8080
   public_access_enabled           = var.public_access_enabled
   network = {

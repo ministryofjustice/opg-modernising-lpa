@@ -168,6 +168,9 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 	switch donor.DonorIdentityUserData.Status {
 	case identity.StatusConfirmed:
 		signPath = page.Paths.ReadYourLpa
+		if !donor.DonorIdentityConfirmed() {
+			signPath = page.Paths.OneloginIdentityDetails
+		}
 	case identity.StatusFailed:
 		signPath = page.Paths.RegisterWithCourtOfProtection
 	case identity.StatusInsufficientEvidence:
@@ -182,6 +185,10 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 			if !donor.SignedAt.IsZero() {
 				signPath = page.Paths.YouHaveSubmittedYourLpa
 			}
+		}
+
+		if donor.Voucher.FirstNames != "" {
+			signPath = page.Paths.ReadYourLpa
 		}
 	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign

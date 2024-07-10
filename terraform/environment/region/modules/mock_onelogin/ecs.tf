@@ -137,7 +137,7 @@ locals {
     {
       cpu                    = 1,
       essential              = true,
-      image                  = "${var.repository_url}:${var.container_version}",
+      image                  = "${var.repository_url}@${var.container_version}",
       mountPoints            = [],
       readonlyRootFilesystem = true
       name                   = "mock_onelogin",

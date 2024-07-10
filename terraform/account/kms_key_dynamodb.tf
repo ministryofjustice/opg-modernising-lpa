@@ -1,48 +1,28 @@
-resource "aws_kms_key" "reduced_fees_uploads_s3" {
-  description             = "${local.default_tags.application} reduced_fees_uploads_s3 encryption key"
-  deletion_window_in_days = 10
+module "dynamodb_kms" {
+  source                  = "./modules/kms_key"
+  encrypted_resource      = "dynamodb"
+  kms_key_alias_name      = "${local.default_tags.application}_dynamodb_encryption"
   enable_key_rotation     = true
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.reduced_fees_uploads_s3_kms_merged.json : data.aws_iam_policy_document.reduced_fees_uploads_s3_kms.json
-  multi_region            = true
-  provider                = aws.eu_west_1
-  lifecycle {
-    prevent_destroy = true
+  enable_multi_region     = true
+  deletion_window_in_days = 10
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.dynamodb_kms_merged.json : data.aws_iam_policy_document.dynamodb_kms.json
+  providers = {
+    aws.eu_west_1 = aws.eu_west_1
+    aws.eu_west_2 = aws.eu_west_2
   }
-}
-
-resource "aws_kms_replica_key" "reduced_fees_uploads_s3_replica" {
-  description             = "${local.default_tags.application} reduced fees uploads s3 Multi-Region replica key"
-  deletion_window_in_days = 7
-  primary_key_arn         = aws_kms_key.reduced_fees_uploads_s3.arn
-  provider                = aws.eu_west_2
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "aws_kms_alias" "reduced_fees_uploads_s3_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_reduced_fees_uploads_s3_encryption"
-  target_key_id = aws_kms_key.reduced_fees_uploads_s3.key_id
-  provider      = aws.eu_west_1
-}
-
-resource "aws_kms_alias" "reduced_fees_uploads_s3_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_reduced_fees_uploads_s3_encryption"
-  target_key_id = aws_kms_replica_key.reduced_fees_uploads_s3_replica.key_id
-  provider      = aws.eu_west_2
 }
 
 # See the following link for further information
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
-data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms_merged" {
+data "aws_iam_policy_document" "dynamodb_kms_merged" {
   provider = aws.global
   source_policy_documents = [
-    data.aws_iam_policy_document.reduced_fees_uploads_s3_kms.json,
-    data.aws_iam_policy_document.reduced_fees_uploads_s3_kms_development_account_operator_admin.json
+    data.aws_iam_policy_document.dynamodb_kms.json,
+    data.aws_iam_policy_document.dynamodb_kms_development_account_operator_admin.json
   ]
 }
 
-data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms" {
+data "aws_iam_policy_document" "dynamodb_kms" {
   provider = aws.global
 
   statement {
@@ -86,7 +66,7 @@ data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms" {
       variable = "kms:ViaService"
 
       values = [
-        "s3.*.amazonaws.com"
+        "dynamodb.*.amazonaws.com"
       ]
     }
   }
@@ -164,7 +144,7 @@ data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms" {
   }
 }
 
-data "aws_iam_policy_document" "reduced_fees_uploads_s3_kms_development_account_operator_admin" {
+data "aws_iam_policy_document" "dynamodb_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
     sid    = "Dev Account Key Administrator"

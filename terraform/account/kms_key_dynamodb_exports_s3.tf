@@ -1,43 +1,28 @@
-resource "aws_kms_key" "secrets_manager" {
-  description             = "${local.default_tags.application} Secrets Manager secret encryption key"
-  deletion_window_in_days = 10
+module "dynamodb_exports_s3_bucket_kms" {
+  source                  = "./modules/kms_key"
+  encrypted_resource      = "dynamodb exports s3 bucket"
+  kms_key_alias_name      = "${local.default_tags.application}-dynamodb-exports-s3-bucket-encryption"
   enable_key_rotation     = true
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.secrets_manager_kms_merged.json : data.aws_iam_policy_document.secrets_manager_kms.json
-  multi_region            = true
-  provider                = aws.eu_west_1
-}
-
-resource "aws_kms_replica_key" "secrets_manager_replica" {
-  description             = "${local.default_tags.application} Secrets Manager secret multi-region replica key"
-  deletion_window_in_days = 7
-  primary_key_arn         = aws_kms_key.secrets_manager.arn
-  policy                  = local.account.account_name == "development" ? data.aws_iam_policy_document.dynamodb_kms_merged.json : data.aws_iam_policy_document.dynamodb_kms.json
-  provider                = aws.eu_west_2
-}
-
-resource "aws_kms_alias" "secrets_manager_alias_eu_west_1" {
-  name          = "alias/${local.default_tags.application}_secrets_manager_secret_encryption_key"
-  target_key_id = aws_kms_key.secrets_manager.key_id
-  provider      = aws.eu_west_1
-}
-
-resource "aws_kms_alias" "secrets_manager_alias_eu_west_2" {
-  name          = "alias/${local.default_tags.application}_secrets_manager_secret_encryption_key"
-  target_key_id = aws_kms_replica_key.secrets_manager_replica.key_id
-  provider      = aws.eu_west_2
+  enable_multi_region     = true
+  deletion_window_in_days = 10
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.dynamodb_exports_s3_bucket_kms_merged.json : data.aws_iam_policy_document.dynamodb_exports_s3_bucket_kms.json
+  providers = {
+    aws.eu_west_1 = aws.eu_west_1
+    aws.eu_west_2 = aws.eu_west_2
+  }
 }
 
 # See the following link for further information
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
-data "aws_iam_policy_document" "secrets_manager_kms_merged" {
+data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms_merged" {
   provider = aws.global
   source_policy_documents = [
-    data.aws_iam_policy_document.secrets_manager_kms.json,
-    data.aws_iam_policy_document.secrets_manager_kms_development_account_operator_admin.json
+    data.aws_iam_policy_document.dynamodb_exports_s3_bucket_kms.json,
+    data.aws_iam_policy_document.dynamodb_exports_s3_bucket_kms_development_account_operator_admin.json
   ]
 }
 
-data "aws_iam_policy_document" "secrets_manager_kms" {
+data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms" {
   provider = aws.global
 
   statement {
@@ -63,6 +48,7 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
     ]
     actions = [
       "kms:Encrypt",
+      "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
@@ -71,30 +57,16 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.account.account_name}-app-task-role",
+        aws_iam_role.aws_backup_role.arn,
       ]
     }
-  }
+    condition {
+      test     = "StringLike"
+      variable = "kms:ViaService"
 
-  statement {
-    sid    = "Allow Key to be used for Decryption"
-    effect = "Allow"
-    resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
-    ]
-    actions = [
-      "kms:Decrypt",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        # need a better principle and condition as per
-        #  https://docs.aws.amazon.com/secretsmanager/latest/userguide/security-encryption.html
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root",
-        # ECS task role for app
+      values = [
+        "s3.*.amazonaws.com"
       ]
     }
   }
@@ -141,7 +113,7 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
       "kms:CancelKeyDeletion",
-      "kms:ReplicateKey"
+      "kms:ReplicateKey",
     ]
 
     principals {
@@ -152,9 +124,27 @@ data "aws_iam_policy_document" "secrets_manager_kms" {
       ]
     }
   }
+
+  statement {
+    sid    = "Key Administrator Decryption"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Decrypt",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
+      ]
+    }
+  }
 }
 
-data "aws_iam_policy_document" "secrets_manager_kms_development_account_operator_admin" {
+data "aws_iam_policy_document" "dynamodb_exports_s3_bucket_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
     sid    = "Dev Account Key Administrator"
@@ -176,7 +166,7 @@ data "aws_iam_policy_document" "secrets_manager_kms_development_account_operator
       "kms:TagResource",
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
     ]
 
     principals {

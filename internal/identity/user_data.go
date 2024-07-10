@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // https://www.icao.int/publications/Documents/9303_p3_cons_en.pdf
@@ -111,11 +112,12 @@ var charmap = map[rune][]rune{
 }
 
 type UserData struct {
-	Status      Status
-	FirstNames  string
-	LastName    string
-	DateOfBirth date.Date
-	RetrievedAt time.Time
+	Status         Status
+	FirstNames     string
+	LastName       string
+	DateOfBirth    date.Date
+	RetrievedAt    time.Time
+	CurrentAddress place.Address
 }
 
 func (u UserData) MatchName(firstNames, lastName string) bool {

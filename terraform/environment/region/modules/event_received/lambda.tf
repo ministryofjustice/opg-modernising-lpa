@@ -151,6 +151,11 @@ data "aws_kms_alias" "secrets_manager_secret_encryption_key" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "aws_lambda" {
+  name     = "alias/aws/lambda"
+  provider = aws.region
+}
+
 locals {
   policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
 }
@@ -208,6 +213,7 @@ data "aws_iam_policy_document" "event_received" {
 
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+      data.aws_kms_alias.aws_lambda.target_key_arn,
     ]
 
     actions = [
