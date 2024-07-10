@@ -8,7 +8,7 @@ terraform {
     dynamodb_table = "remote_lock"
   }
 }
-
+#
 variable "default_role" {
   type    = string
   default = "modernising-lpa-ci"
