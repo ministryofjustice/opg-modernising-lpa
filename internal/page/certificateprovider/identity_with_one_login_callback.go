@@ -95,7 +95,6 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
 				return err
 			}
-
 		} else {
 			data.CouldNotConfirm = true
 

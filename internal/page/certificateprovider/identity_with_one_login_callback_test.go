@@ -411,6 +411,9 @@ func TestGetIdentityWithOneLoginCallbackWhenLpaStoreErrors(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Get(r.Context()).
 		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+	certificateProviderStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(nil)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
