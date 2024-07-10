@@ -1,0 +1,18 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youHaveBeenUnableToConfirmYourIdentity" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveBeenUnableToConfirmYourIdentity") "heading" ) }}
+
+            {{ trFormatHtml .App "certificateProviderFailedIDContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames  }}
+
+            <div class="govuk-button-group">
+                <a href="{{ link .App (global.Paths.CertificateProvider.ReadTheLpa.Format .App.LpaID ) }}" class="govuk-button govuk-button">{{ tr .App "continue" }}</a>
+                <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID ) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+            </div>
+        </div>
+    </div>
+{{ end }}

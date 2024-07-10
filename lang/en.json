@@ -1201,5 +1201,6 @@
     "iUnderstandThisWillWithdrawLPAHint": "I understand that this will withdraw my LPA and I will no longer be able to access it.",
     "youCanOnlyContinueIfDetailsMatchWarning": "You can only continue with this LPA if the details match your confirmed identity details",
     "yesIfWouldLikeToUpdateDetails": "yes if you would like to update your details",
-    "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Would you like to update the details on your LPA to match your confirmed identity details?"
+    "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Would you like to update the details on your LPA to match your confirmed identity details?",
+    "certificateProviderFailedIDContent": "<p class=\"govuk-body\">{{ .DonorFullName }} may choose to either:</p><ul class=\"govuk-list govuk-list--bullet\"><li>start a new LPA</li><li>register this LPA through the Court of Protection</li></ul><p class=\"govuk-body\">You can still continue to provide your certificate, as this will be needed if {{ .DonorFirstNames }} decides to register this LPA through the Court of Protection.</p>"
 }

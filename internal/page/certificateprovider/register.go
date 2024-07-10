@@ -151,6 +151,8 @@ func Register(
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
 		IdentityWithOneLoginCallback(commonTmpls.Get("identity_with_one_login_callback.gohtml"), oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, lpaStoreClient))
+	handleCertificateProvider(page.Paths.CertificateProvider.UnableToConfirmIdentity, page.None,
+		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService, nil))
 
 	handleCertificateProvider(page.Paths.CertificateProvider.ReadTheLpa, page.None,
 		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, certificateProviderStore))
