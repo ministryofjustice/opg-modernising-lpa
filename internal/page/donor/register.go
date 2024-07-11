@@ -154,7 +154,7 @@ type ProgressTracker interface {
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
-	commonTmpls, tmpls template.Templates,
+	tmpls template.Templates,
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	oneLoginClient OneLoginClient,
@@ -206,7 +206,7 @@ func Register(
 	handleWithDonor(page.Paths.WeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
-		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), donorStore))
+		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,

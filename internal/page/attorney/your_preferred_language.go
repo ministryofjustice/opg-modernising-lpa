@@ -39,7 +39,7 @@ func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, 
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadLanguagePreferenceForm(r, "whichLanguageYoudLikeUsToUseWhenWeContactYou")
+			data.Form = form.ReadLanguagePreferenceForm(r, "whichLanguageYouWouldLikeUsToUseWhenWeContactYou")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {

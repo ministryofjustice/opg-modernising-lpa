@@ -35,6 +35,8 @@ type Donor struct {
 	Channel Channel
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
+	// LpaLanguagePreference is the language the donor prefers to receive the registered LPA in
+	LpaLanguagePreference localize.Lang
 }
 
 func (d Donor) FullName() string {

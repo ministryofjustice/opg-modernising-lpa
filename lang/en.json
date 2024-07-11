@@ -915,7 +915,7 @@
     "whichLanguageWouldYouPreferWhenWeContactYou": "Which language would you prefer us to use when we contact you?",
     "en": "English",
     "cy": "Welsh",
-    "whichLanguageYoudLikeUsToUseWhenWeContactYou": "which language you’d like us to use when we contact you",
+    "whichLanguageYouWouldLikeUsToUseWhenWeContactYou": "which language you would like us to use when we contact you",
     "preferredContactLanguage": "Preferred contact language",
     "addAnotherLpaIfInvited:donor": "Add your LPA that you’ve been invited to access by email.",
     "addAnotherLpaIfInvited:attorney": "Add another LPA if you have been sent an email inviting you to be an attorney.",
@@ -1201,5 +1201,11 @@
     "iUnderstandThisWillWithdrawLPAHint": "I understand that this will withdraw my LPA and I will no longer be able to access it.",
     "youCanOnlyContinueIfDetailsMatchWarning": "You can only continue with this LPA if the details match your confirmed identity details",
     "yesIfWouldLikeToUpdateDetails": "yes if you would like to update your details",
-    "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Would you like to update the details on your LPA to match your confirmed identity details?"
+    "wouldYouLikeToUpdateDetailsToMatchIdentityDetails": "Would you like to update the details on your LPA to match your confirmed identity details?",
+    "yourRegisteredLpaLanguageContent": "<h2 class=\"govuk-heading-m\">Your registered LPA</h2><p class=\"govuk-body\">You can register your LPA in either English or Welsh. It is not possible to have copies in both languages.</p><p class=\"govuk-body\">It’s best to write your LPA in just one language to avoid confusion.</p><p class=\"govuk-body\">You may need to give organisations access to your LPA when you choose for your attorneys to use it. Organisations will also see it in your preferred language.</p>",
+    "youCanOnlyChangeLanguageWarning": "You can only change the language of your LPA until you register it. Once you register, it will only be available in the language you selected.",
+    "youCanReturnToThisPageFromProvideDetails": "You can return to this page from the ‘Provide your details’ section of your task list until you register your LPA.",
+    "inWhichLanguageWouldYouLikeYourLpaRegistered": "In which language would you like your LPA registered?",
+    "usingThisService": "Using this service",
+    "theLanguageInWhichYouWouldLikeYourLpaRegistered": "the language in which you would like your LPA registered"
 }
