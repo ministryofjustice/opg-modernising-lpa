@@ -204,7 +204,6 @@ func App(
 	donor.Register(
 		rootMux,
 		logger,
-		tmpls,
 		donorTmpls,
 		sessionStore,
 		donorStore,

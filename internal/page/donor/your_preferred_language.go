@@ -12,30 +12,31 @@ import (
 )
 
 type yourPreferredLanguageData struct {
-	App       page.AppData
-	Errors    validation.List
-	Form      *form.LanguagePreferenceForm
-	Options   localize.LangOptions
-	FieldName string
+	App     page.AppData
+	Errors  validation.List
+	Form    *yourPreferredLanguageForm
+	Options localize.LangOptions
 }
 
 func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &yourPreferredLanguageData{
 			App: appData,
-			Form: &form.LanguagePreferenceForm{
-				Preference: donor.Donor.ContactLanguagePreference,
+			Form: &yourPreferredLanguageForm{
+				Contact: donor.Donor.ContactLanguagePreference,
+				Lpa:     donor.Donor.LpaLanguagePreference,
 			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
+			Options: localize.LangValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = form.ReadLanguagePreferenceForm(r, "whichLanguageYoudLikeUsToUseWhenWeContactYou")
+			data.Form = readYourPreferredLanguageForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Donor.ContactLanguagePreference = data.Form.Preference
+				donor.Donor.ContactLanguagePreference = data.Form.Contact
+				donor.Donor.LpaLanguagePreference = data.Form.Lpa
+
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
@@ -46,4 +47,34 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 
 		return tmpl(w, data)
 	}
+}
+
+type yourPreferredLanguageForm struct {
+	Contact      localize.Lang
+	ContactError error
+	Lpa          localize.Lang
+	LpaError     error
+}
+
+func readYourPreferredLanguageForm(r *http.Request) *yourPreferredLanguageForm {
+	contact, contactErr := localize.ParseLang(form.PostFormString(r, "contact-language"))
+	lpa, lpaErr := localize.ParseLang(form.PostFormString(r, "lpa-language"))
+
+	return &yourPreferredLanguageForm{
+		Contact:      contact,
+		ContactError: contactErr,
+		Lpa:          lpa,
+		LpaError:     lpaErr,
+	}
+}
+
+func (f *yourPreferredLanguageForm) Validate() validation.List {
+	var errors validation.List
+
+	errors.Error("contact-language", "whichLanguageYouWouldLikeUsToUseWhenWeContactYou", f.ContactError,
+		validation.Selected())
+	errors.Error("lpa-language", "theLanguageInWhichYouWouldLikeYourLpaRegistered", f.LpaError,
+		validation.Selected())
+
+	return errors
 }
