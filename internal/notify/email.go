@@ -158,3 +158,18 @@ func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction boo
 
 	return "654332f4-4e53-4fa1-91d0-f480b577b3d9"
 }
+
+type CertificateProviderFailedIDCheckEmail struct {
+	DonorFullName               string
+	CertificateProviderFullName string
+	LpaType                     string
+	DonorStartPageURL           string
+}
+
+func (e CertificateProviderFailedIDCheckEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "4020a281-8b64-45ec-85c6-19a89c08bcdb"
+	}
+
+	return "26d337be-eef3-405f-96ed-cb2ed76002b3"
+}

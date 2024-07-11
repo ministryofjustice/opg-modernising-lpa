@@ -26,6 +26,7 @@ type AppData struct {
 	AttorneyUID       actoruid.UID
 	LoginSessionEmail string
 	SupporterData     *SupporterData
+	PublicURL         string
 }
 
 type SupporterData struct {
