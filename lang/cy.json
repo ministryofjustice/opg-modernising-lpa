@@ -1278,5 +1278,11 @@
     "youCanReturnToThisPageFromProvideDetails": "Welsh",
     "inWhichLanguageWouldYouLikeYourLpaRegistered": "Welsh",
     "usingThisService": "Welsh",
-    "theLanguageInWhichYouWouldLikeYourLpaRegistered": "Welsh"
+    "theLanguageInWhichYouWouldLikeYourLpaRegistered": "Welsh",
+    "yourLpaLanguage": "Welsh",
+    "yourLpaLanguageContent": "<p class=\"govuk-body\">Welsh {{.Lang}} {{.Lang}}</p>",
+    "anyRestrictionsWillNotBeTranslatedWarning": "Welsh {{.Lang}}",
+    "continueAndRegisterMyLpaIn": "Welsh {{.Lang}}",
+    "changeToRegisterMyLpaIn": "Welsh {{.Lang}}",
+    "iUnderstandThatRestrictionsWillNotBeTranslated": "Welsh"
 }
