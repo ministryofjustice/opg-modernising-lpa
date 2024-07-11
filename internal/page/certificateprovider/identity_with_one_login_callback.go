@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
@@ -51,12 +52,23 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 
 		certificateProvider.IdentityUserData = userData
 
-		if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+		if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 			return err
 		}
 
 		switch certificateProvider.IdentityUserData.Status {
 		case identity.StatusFailed, identity.StatusInsufficientEvidence, identity.StatusUnknown:
+			if !lpa.SignedAt.IsZero() {
+				if err = notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
+					DonorFullName:               lpa.Donor.FullName(),
+					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+					LpaType:                     appData.Localizer.T(lpa.Type.String()),
+					DonorStartPageURL:           appData.PublicURL + page.Paths.Start.Format(),
+				}); err != nil {
+					return err
+				}
+			}
+
 			return page.Paths.CertificateProvider.UnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 		default:
 			return page.Paths.CertificateProvider.OneloginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
