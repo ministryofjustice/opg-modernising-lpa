@@ -384,6 +384,8 @@ func Register(
 
 	handleWithDonor(page.Paths.ReadYourLpa, page.None,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
+	handleWithDonor(page.Paths.YourLpaLanguage, page.CanGoBack,
+		YourLpaLanguage(tmpls.Get("your_lpa_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.LpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithDonor(page.Paths.SignYourLpa, page.CanGoBack,

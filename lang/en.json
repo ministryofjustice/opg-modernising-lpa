@@ -1207,5 +1207,11 @@
     "youCanReturnToThisPageFromProvideDetails": "You can return to this page from the ‘Provide your details’ section of your task list until you register your LPA.",
     "inWhichLanguageWouldYouLikeYourLpaRegistered": "In which language would you like your LPA registered?",
     "usingThisService": "Using this service",
-    "theLanguageInWhichYouWouldLikeYourLpaRegistered": "the language in which you would like your LPA registered"
+    "theLanguageInWhichYouWouldLikeYourLpaRegistered": "the language in which you would like your LPA registered",
+    "yourLpaLanguage": "Your LPA language",
+    "yourLpaLanguageContent": "<p class=\"govuk-body\">You have selected to register your LPA in {{.Lang}}.</p><p class=\"govuk-body\">You may need to give organisations access to your LPA when you choose for your attorneys to use it. Organisations will also see it in {{.Lang}}.</p><p class=\"govuk-body\">You cannot change this or get a copy in another language once you register.</p>",
+    "anyRestrictionsWillNotBeTranslatedWarning": "Any restrictions and conditions you have written will not be translated if you change to register your LPA  in {{.Lang}}",
+    "continueAndRegisterMyLpaIn": "Continue and register my LPA in {{.Lang}}",
+    "changeToRegisterMyLpaIn": "Change to register my LPA in {{.Lang}}",
+    "iUnderstandThatRestrictionsWillNotBeTranslated": "I understand that any restrictions and conditions I have written will not be translated."
 }
