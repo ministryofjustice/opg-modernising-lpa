@@ -390,7 +390,6 @@ type AppPaths struct {
 	HowToSendEvidence                                    LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
 	HowWouldYouLikeToSendEvidence                        LpaPath
-	IdentityConfirmed                                    LpaPath
 	IdentityWithOneLogin                                 LpaPath
 	IdentityWithOneLoginCallback                         LpaPath
 	LifeSustainingTreatment                              LpaPath
@@ -587,7 +586,6 @@ var Paths = AppPaths{
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
-	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithOneLogin:                                 "/id/one-login",
 	IdentityWithOneLoginCallback:                         "/id/one-login/callback",
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
