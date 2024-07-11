@@ -23,7 +23,7 @@
 
       {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
 
-      {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID)) }}
+      {{ template "buttons" (button .App "continue" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}

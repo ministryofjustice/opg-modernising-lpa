@@ -136,6 +136,7 @@ func makeDonor(email string) actor.Donor {
 		ThinksCanSign:             actor.Yes,
 		CanSign:                   form.Yes,
 		ContactLanguagePreference: localize.En,
+		LpaLanguagePreference:     localize.En,
 	}
 }
 
