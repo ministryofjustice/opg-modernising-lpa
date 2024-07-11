@@ -1,27 +1,14 @@
 package certificateprovider
 
 import (
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type identityWithOneLoginCallbackData struct {
-	App             page.AppData
-	Errors          validation.List
-	FirstNames      string
-	LastName        string
-	DateOfBirth     date.Date
-	ConfirmedAt     time.Time
-	CouldNotConfirm bool
-}
-
-func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) page.Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
@@ -33,29 +20,13 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 			return err
 		}
 
-		if r.Method == http.MethodPost {
-			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-				return page.Paths.CertificateProvider.ReadTheLpa.Redirect(w, r, appData, certificateProvider.LpaID)
-			} else {
-				return page.Paths.CertificateProvider.ProveYourIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
-			}
-		}
-
-		data := &identityWithOneLoginCallbackData{App: appData}
-
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-			data.FirstNames = certificateProvider.IdentityUserData.FirstNames
-			data.LastName = certificateProvider.IdentityUserData.LastName
-			data.DateOfBirth = certificateProvider.IdentityUserData.DateOfBirth
-			data.ConfirmedAt = certificateProvider.IdentityUserData.RetrievedAt
-
-			return tmpl(w, data)
+			return page.Paths.CertificateProvider.OneloginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if r.FormValue("error") == "access_denied" {
-			data.CouldNotConfirm = true
-
-			return tmpl(w, data)
+			// TODO: check with team on how we want to communicate this on the page
+			return errors.New("access denied")
 		}
 
 		oneLoginSession, err := sessionStore.OneLogin(r)
@@ -79,25 +50,16 @@ func IdentityWithOneLoginCallback(tmpl template.Template, oneLoginClient OneLogi
 		}
 
 		certificateProvider.IdentityUserData = userData
-		certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
-		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-			data.FirstNames = userData.FirstNames
-			data.LastName = userData.LastName
-			data.DateOfBirth = userData.DateOfBirth
-			data.ConfirmedAt = userData.RetrievedAt
-
-			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
-				return err
-			}
-
-			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
-				return err
-			}
-		} else {
-			data.CouldNotConfirm = true
+		if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+			return err
 		}
 
-		return tmpl(w, data)
+		switch certificateProvider.IdentityUserData.Status {
+		case identity.StatusFailed, identity.StatusInsufficientEvidence, identity.StatusUnknown:
+			return page.Paths.CertificateProvider.UnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
+		default:
+			return page.Paths.CertificateProvider.OneloginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+		}
 	}
 }
