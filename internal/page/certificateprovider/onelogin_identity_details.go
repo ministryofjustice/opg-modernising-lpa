@@ -33,7 +33,10 @@ func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 				return err
 			}
 
-			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+			if certificateProvider.CertificateProviderIdentityConfirmed(
+				lpa.CertificateProvider.FirstNames,
+				lpa.CertificateProvider.LastName,
+			) {
 				certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
 				err = certificateProviderStore.Put(r.Context(), certificateProvider)
