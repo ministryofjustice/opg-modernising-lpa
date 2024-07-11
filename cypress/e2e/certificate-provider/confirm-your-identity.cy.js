@@ -1,5 +1,5 @@
 describe('confirm your identity', () => {
-    it('can see details of a successful ID check', () => {
+    beforeEach(() => {
         cy.visit('/fixtures/certificate-provider?redirect=/task-list&progress=confirmYourDetails');
 
         cy.url().should('contain', '/task-list');
@@ -11,7 +11,9 @@ describe('confirm your identity', () => {
         cy.checkA11yApp();
 
         cy.contains('a', 'Continue').click()
+    })
 
+    it('can see details of a successful ID check', () => {
         cy.get('[name="user"]').check('certificate-provider', { force: true })
 
         cy.contains('button', 'Continue').click()
@@ -38,19 +40,28 @@ describe('confirm your identity', () => {
     })
 
     it('can see next steps when failing an ID check', () => {
-        cy.visit('/fixtures/certificate-provider?redirect=/task-list&progress=confirmYourDetails');
+        cy.get('[name="return-code"]').check('T', { force: true })
+
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/unable-to-confirm-identity');
+        cy.checkA11yApp();
+
+        cy.contains('button', 'Continue').click()
+
+        cy.url().should('contain', '/read-the-lpa');
+        cy.checkA11yApp();
+
+        cy.contains('a', 'Return to task list').click()
 
         cy.url().should('contain', '/task-list');
-        cy.checkA11yApp();
+        cy.contains('li', 'Confirm your identity').should('contain', 'Completed').click();
 
-        cy.contains('li', 'Confirm your identity').should('contain', 'Not started').click();
+        cy.url().should('contain', '/read-the-lpa');
+    })
 
-        cy.url().should('contain', '/prove-your-identity');
-        cy.checkA11yApp();
-
-        cy.contains('a', 'Continue').click()
-
-        cy.get('[name="return-code"]').check('T', { force: true })
+    it('can see next steps when has insufficient evidence for ID', () => {
+        cy.get('[name="return-code"]').check('X', { force: true })
 
         cy.contains('button', 'Continue').click()
 
