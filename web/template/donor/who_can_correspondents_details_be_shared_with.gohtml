@@ -25,7 +25,7 @@
           </fieldset>
         </div>
 
-        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
+        {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
     </div>
