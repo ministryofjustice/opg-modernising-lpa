@@ -4,8 +4,9 @@ describe('Your preferred language', () => {
     cy.url().should('contain', '/your-preferred-language')
   });
 
-  it('can choose a language contact preference', () => {
-    cy.get('[name="language-preference"]').check('en', { force: true })
+  it('can choose language preferences', () => {
+    cy.get('[name="contact-language"]').check('en', { force: true })
+    cy.get('[name="lpa-language"]').check('en', { force: true })
 
     cy.checkA11yApp();
 
@@ -21,9 +22,11 @@ describe('Your preferred language', () => {
     cy.checkA11yApp();
 
     cy.get('.govuk-error-summary').within(() => {
-      cy.contains('Select which language you’d like us to use when we contact you');
+      cy.contains('Select which language you would like us to use when we contact you');
+      cy.contains('Select the language in which you would like your LPA registered');
     });
 
-    cy.contains('.govuk-fieldset .govuk-error-message', 'Select which language you’d like us to use when we contact you');
+    cy.contains('.govuk-fieldset .govuk-error-message', 'Select which language you would like us to use when we contact you');
+    cy.contains('.govuk-fieldset .govuk-error-message', 'Select the language in which you would like your LPA registered');
   })
 })

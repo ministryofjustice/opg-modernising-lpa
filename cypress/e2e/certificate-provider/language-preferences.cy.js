@@ -21,9 +21,9 @@ describe('Your preferred language', () => {
     cy.checkA11yApp();
 
     cy.get('.govuk-error-summary').within(() => {
-      cy.contains('Select which language you’d like us to use when we contact you');
+      cy.contains('Select which language you would like us to use when we contact you');
     });
 
-    cy.contains('.govuk-fieldset .govuk-error-message', 'Select which language you’d like us to use when we contact you');
+    cy.contains('.govuk-fieldset .govuk-error-message', 'Select which language you would like us to use when we contact you');
   })
 })
