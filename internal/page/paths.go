@@ -425,8 +425,8 @@ type AppPaths struct {
 	WeHaveReceivedVoucherDetails                         LpaPath
 	WeHaveUpdatedYourDetails                             LpaPath
 	WhatACertificateProviderDoes                         LpaPath
-	WhatHappensNextRegisteringWithCourtOfProtection      LpaPath
 	WhatHappensNextPostEvidence                          LpaPath
+	WhatHappensNextRegisteringWithCourtOfProtection      LpaPath
 	WhatIsVouching                                       LpaPath
 	WhatYouCanDoNow                                      LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
@@ -445,6 +445,7 @@ type AppPaths struct {
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourLpaLanguage                                      LpaPath
 	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
 }
@@ -628,8 +629,8 @@ var Paths = AppPaths{
 	WeHaveReceivedVoucherDetails:                         "/we-have-received-voucher-details",
 	WeHaveUpdatedYourDetails:                             "/we-have-updated-your-details",
 	WhatACertificateProviderDoes:                         "/what-a-certificate-provider-does",
-	WhatHappensNextRegisteringWithCourtOfProtection:      "/what-happens-next-registering-with-court-of-protection",
 	WhatHappensNextPostEvidence:                          "/what-happens-next-post-evidence",
+	WhatHappensNextRegisteringWithCourtOfProtection:      "/what-happens-next-registering-with-court-of-protection",
 	WhatIsVouching:                                       "/what-is-vouching",
 	WhatYouCanDoNow:                                      "/what-you-can-do-now",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
@@ -649,6 +650,7 @@ var Paths = AppPaths{
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
 	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourLpaLanguage:                                      "/your-lpa-language",
 	YourName:                                             "/your-name",
 	YourPreferredLanguage:                                "/your-preferred-language",
 }

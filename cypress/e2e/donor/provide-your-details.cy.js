@@ -18,7 +18,8 @@ describe('Provide your details', () => {
 
     AddressFormAssertions.assertCanAddAddressFromSelect();
 
-    cy.get('[name="language-preference"]').check('en', { force: true });
+    cy.get('[name="contact-language"]').check('en', { force: true });
+    cy.get('[name="lpa-language"]').check('en', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.get('#f-lpa-type').check('property-and-affairs', { force: true });
