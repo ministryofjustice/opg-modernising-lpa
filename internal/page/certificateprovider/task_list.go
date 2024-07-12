@@ -37,7 +37,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		identityTaskPage := page.Paths.CertificateProvider.ProveYourIdentity
-		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+		if certificateProvider.Tasks.ConfirmYourIdentity.Completed() {
 			identityTaskPage = page.Paths.CertificateProvider.ReadTheLpa
 		}
 
