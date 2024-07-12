@@ -12,6 +12,8 @@
         <div>
           {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
             <strong class="app-tag govuk-tag--grey">{{ tr .App "withdrawn" }}</strong>
+          {{ else if .Item.Lpa.CannotRegister }}
+              <strong class="app-tag govuk-tag--red">{{ tr .App "cannotRegister" }}</strong>
           {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
             <strong class="app-tag govuk-tag--green">{{ tr .App "registered" }}</strong>
           {{ else if not .Item.Lpa.PerfectAt.IsZero }}
@@ -41,6 +43,11 @@
         <div class="govuk-button-group">
           <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
         </div>
+      {{ else if .Item.Lpa.CannotRegister }}
+      <div class="govuk-button-group">
+          <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a><br/>
+          <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpa" }}</a>
+      </div>
       {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
         <p class="govuk-body">
           <a class="govuk-button" href="#">{{ tr .App "viewSignedLpa" }}</a><br/>
