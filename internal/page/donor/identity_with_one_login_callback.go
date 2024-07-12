@@ -12,7 +12,7 @@ import (
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if donor.DonorIdentityConfirmed() {
-			return page.Paths.OneloginIdentityDetails.Redirect(w, r, appData, donor)
+			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -57,7 +57,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		case identity.StatusInsufficientEvidence:
 			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
 		default:
-			return page.Paths.OneloginIdentityDetails.Redirect(w, r, appData, donor)
+			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
 		}
 	}
 }

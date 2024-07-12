@@ -111,6 +111,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = actor.TaskCompleted
 				items[1].State = actor.TaskCompleted
+				items[1].Path = page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")
 				items[2].State = actor.TaskCompleted
 
 				return items

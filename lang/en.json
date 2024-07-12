@@ -1213,5 +1213,6 @@
     "anyRestrictionsWillNotBeTranslatedWarning": "Any restrictions and conditions you have written will not be translated if you change to register your LPA  in {{.Lang}}",
     "continueAndRegisterMyLpaIn": "Continue and register my LPA in {{.Lang}}",
     "changeToRegisterMyLpaIn": "Change to register my LPA in {{.Lang}}",
-    "iUnderstandThatRestrictionsWillNotBeTranslated": "I understand that any restrictions and conditions I have written will not be translated."
+    "iUnderstandThatRestrictionsWillNotBeTranslated": "I understand that any restrictions and conditions I have written will not be translated.",
+    "certificateProviderFailedIDContent": "<p class=\"govuk-body\">{{ .DonorFullName }} may choose to either:</p><ul class=\"govuk-list govuk-list--bullet\"><li>start a new LPA</li><li>register this LPA through the Court of Protection</li></ul><p class=\"govuk-body\">You can still continue to provide your certificate, as this will be needed if {{ .DonorFirstNames }} decides to register this LPA through the Court of Protection.</p>"
 }
