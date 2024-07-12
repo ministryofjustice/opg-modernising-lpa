@@ -23,7 +23,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Sam Smith (donor)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/onelogin-identity-details');
+      cy.url().should('contain', '/one-login-identity-details');
       cy.checkA11yApp();
 
       cy.contains('Sam');
@@ -304,7 +304,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Charlie Cooper (certificate provider)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/onelogin-identity-details');
+      cy.url().should('contain', '/one-login-identity-details');
       cy.checkA11yApp();
 
       cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
@@ -314,7 +314,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/onelogin-identity-details');
+      cy.url().should('contain', '/one-login-identity-details');
       cy.checkA11yApp();
 
       cy.contains('Your LPA details have been updated to match your confirmed identity')
@@ -343,7 +343,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Charlie Cooper (certificate provider)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/onelogin-identity-details');
+      cy.url().should('contain', '/one-login-identity-details');
       cy.checkA11yApp();
 
       cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
@@ -377,7 +377,7 @@ describe('Confirm your identity and sign', () => {
       cy.contains('label', 'Charlie Cooper (certificate provider)').click();
       cy.contains('button', 'Continue').click();
 
-      cy.url().should('contain', '/onelogin-identity-details');
+      cy.url().should('contain', '/one-login-identity-details');
       cy.checkA11yApp();
 
       cy.contains('button', 'Continue').click();

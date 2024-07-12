@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetOneloginIdentityDetails(t *testing.T) {
+func TestGetOneLoginIdentityDetails(t *testing.T) {
 	dob := date.New("1", "2", "3")
 
 	testcases := map[string]struct {
@@ -59,7 +59,7 @@ func TestGetOneloginIdentityDetails(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &oneloginIdentityDetailsData{
+				Execute(w, &oneLoginIdentityDetailsData{
 					App:            testAppData,
 					Form:           form.NewYesNoForm(form.YesNoUnknown),
 					DonorProvided:  tc.donorProvided,
@@ -68,7 +68,7 @@ func TestGetOneloginIdentityDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := OneloginIdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
+			err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -77,7 +77,7 @@ func TestGetOneloginIdentityDetails(t *testing.T) {
 	}
 }
 
-func TestPostOneloginIdentityDetailsWhenYes(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
 
 	w := httptest.NewRecorder()
@@ -95,7 +95,7 @@ func TestPostOneloginIdentityDetailsWhenYes(t *testing.T) {
 			DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}}}).
 		Return(nil)
 
-	err := OneloginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
 		Donor:                 actor.Donor{FirstNames: "a", LastName: "a", DateOfBirth: existingDob, Address: testAddress},
 		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -104,17 +104,17 @@ func TestPostOneloginIdentityDetailsWhenYes(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneloginIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
 }
 
-func TestPostOneloginIdentityDetailsWhenNo(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {form.No.String()}}
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneloginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -122,12 +122,12 @@ func TestPostOneloginIdentityDetailsWhenNo(t *testing.T) {
 	assert.Equal(t, page.Paths.WithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostOneloginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneloginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -135,7 +135,7 @@ func TestPostOneloginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *tes
 	assert.Equal(t, page.Paths.ReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostOneloginIdentityDetailsWhenDonorStoreError(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
 
 	w := httptest.NewRecorder()
@@ -147,14 +147,14 @@ func TestPostOneloginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := OneloginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostOneloginIdentityDetailsWhenValidationError(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenValidationError(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {""}}
 
 	w := httptest.NewRecorder()
@@ -165,12 +165,12 @@ func TestPostOneloginIdentityDetailsWhenValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *oneloginIdentityDetailsData) bool {
+		Execute(w, mock.MatchedBy(func(data *oneLoginIdentityDetailsData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := OneloginIdentityDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "a"}})
+	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "a"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

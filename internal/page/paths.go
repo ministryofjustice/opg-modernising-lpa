@@ -106,7 +106,7 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 
 	case Paths.HowToConfirmYourIdentityAndSign,
 		Paths.IdentityWithOneLogin,
-		Paths.OneloginIdentityDetails,
+		Paths.OneLoginIdentityDetails,
 		Paths.LpaYourLegalRightsAndResponsibilities,
 		Paths.SignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
@@ -270,10 +270,12 @@ type CertificateProviderPaths struct {
 	EnterDateOfBirth                       CertificateProviderPath
 	IdentityWithOneLogin                   CertificateProviderPath
 	IdentityWithOneLoginCallback           CertificateProviderPath
+	OneLoginIdentityDetails                CertificateProviderPath
 	ProveYourIdentity                      CertificateProviderPath
 	ProvideCertificate                     CertificateProviderPath
 	ReadTheLpa                             CertificateProviderPath
 	TaskList                               CertificateProviderPath
+	UnableToConfirmIdentity                CertificateProviderPath
 	WhatHappensNext                        CertificateProviderPath
 	WhatIsYourHomeAddress                  CertificateProviderPath
 	WhoIsEligible                          CertificateProviderPath
@@ -388,7 +390,6 @@ type AppPaths struct {
 	HowToSendEvidence                                    LpaPath
 	HowWouldCertificateProviderPreferToCarryOutTheirRole LpaPath
 	HowWouldYouLikeToSendEvidence                        LpaPath
-	IdentityConfirmed                                    LpaPath
 	IdentityWithOneLogin                                 LpaPath
 	IdentityWithOneLoginCallback                         LpaPath
 	LifeSustainingTreatment                              LpaPath
@@ -397,7 +398,7 @@ type AppPaths struct {
 	LpaYourLegalRightsAndResponsibilities                LpaPath
 	MakeANewLPA                                          LpaPath
 	NeedHelpSigningConfirmation                          LpaPath
-	OneloginIdentityDetails                              LpaPath
+	OneLoginIdentityDetails                              LpaPath
 	PaymentConfirmation                                  LpaPath
 	PreviousApplicationNumber                            LpaPath
 	PreviousFee                                          LpaPath
@@ -463,9 +464,11 @@ var Paths = AppPaths{
 		Login:                                           "/certificate-provider-login",
 		LoginCallback:                                   "/certificate-provider-login-callback",
 		ProveYourIdentity:                               "/prove-your-identity",
+		OneLoginIdentityDetails:                         "/one-login-identity-details",
 		ProvideCertificate:                              "/provide-certificate",
 		ReadTheLpa:                                      "/read-the-lpa",
 		TaskList:                                        "/task-list",
+		UnableToConfirmIdentity:                         "/unable-to-confirm-identity",
 		WhatHappensNext:                                 "/what-happens-next",
 		WhatIsYourHomeAddress:                           "/what-is-your-home-address",
 		WhoIsEligible:                                   "/certificate-provider-who-is-eligible",
@@ -583,7 +586,6 @@ var Paths = AppPaths{
 	HowToSendEvidence:                                    "/how-to-send-evidence",
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: "/how-would-certificate-provider-prefer-to-carry-out-their-role",
 	HowWouldYouLikeToSendEvidence:                        "/how-would-you-like-to-send-evidence",
-	IdentityConfirmed:                                    "/identity-confirmed",
 	IdentityWithOneLogin:                                 "/id/one-login",
 	IdentityWithOneLoginCallback:                         "/id/one-login/callback",
 	LifeSustainingTreatment:                              "/life-sustaining-treatment",
@@ -596,7 +598,7 @@ var Paths = AppPaths{
 	LpaYourLegalRightsAndResponsibilities:                "/your-legal-rights-and-responsibilities",
 	MakeANewLPA:                                          "/make-a-new-lpa",
 	NeedHelpSigningConfirmation:                          "/need-help-signing-confirmation",
-	OneloginIdentityDetails:                              "/onelogin-identity-details",
+	OneLoginIdentityDetails:                              "/one-login-identity-details",
 	PaymentConfirmation:                                  "/payment-confirmation",
 	PreviousApplicationNumber:                            "/previous-application-number",
 	PreviousFee:                                          "/how-much-did-you-previously-pay-for-your-lpa",
