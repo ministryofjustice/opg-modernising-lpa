@@ -85,14 +85,13 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, "publicURL")
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/certificate-provider/123/path",
 			SessionID: "cmFuZG9t",
 			LpaID:     "123",
 			ActorType: actor.TypeCertificateProvider,
-			PublicURL: "publicURL",
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -127,7 +126,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore, "")
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
 	handle(path, page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return nil
 	})
@@ -149,7 +148,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 		Return(nil, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil, "")
+	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
@@ -179,7 +178,7 @@ func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	mux := http.NewServeMux()
-	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore, "")
+	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore)
 	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
 		return nil
 	})

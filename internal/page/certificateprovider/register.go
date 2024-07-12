@@ -128,7 +128,7 @@ func Register(
 	handleRoot(page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider,
 		YouHaveDecidedNotToBeACertificateProvider(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
-	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore, appPublicURL)
+	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore)
 
 	handleCertificateProvider(page.Paths.CertificateProvider.WhoIsEligible, page.None,
 		Guidance(tmpls.Get("who_is_eligible.gohtml"), lpaStoreResolvingService, nil))
@@ -150,7 +150,7 @@ func Register(
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(page.Paths.CertificateProvider.IdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, lpaStoreClient))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, lpaStoreClient, appPublicURL))
 	handleCertificateProvider(page.Paths.CertificateProvider.OneLoginIdentityDetails, page.None,
 		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), certificateProviderStore, lpaStoreResolvingService))
 	handleCertificateProvider(page.Paths.CertificateProvider.UnableToConfirmIdentity, page.None,
@@ -184,7 +184,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 	}
 }
 
-func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore, appPublicURL string) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
+func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore, errorHandler page.ErrorHandler, certificateProviderStore CertificateProviderStore) func(page.CertificateProviderPath, page.HandleOpt, page.Handler) {
 	return func(path page.CertificateProviderPath, opt page.HandleOpt, h page.Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -193,7 +193,6 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
-			appData.PublicURL = appPublicURL
 
 			session, err := sessionStore.Login(r)
 			if err != nil {

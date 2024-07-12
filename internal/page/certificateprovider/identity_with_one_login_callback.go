@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) page.Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, appPublicURL string) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
@@ -63,7 +63,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 					DonorFullName:               lpa.Donor.FullName(),
 					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 					LpaType:                     appData.Localizer.T(lpa.Type.String()),
-					DonorStartPageURL:           appData.PublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
 				}); err != nil {
 					return err
 				}
