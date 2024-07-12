@@ -358,8 +358,8 @@ func Register(
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(page.Paths.IdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore))
-	handleWithDonor(page.Paths.OneloginIdentityDetails, page.CanGoBack,
-		OneloginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), donorStore))
+	handleWithDonor(page.Paths.OneLoginIdentityDetails, page.CanGoBack,
+		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), donorStore))
 	handleWithDonor(page.Paths.RegisterWithCourtOfProtection, page.None,
 		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore, time.Now))
 

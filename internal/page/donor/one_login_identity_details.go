@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type oneloginIdentityDetailsData struct {
+type oneLoginIdentityDetailsData struct {
 	App            page.AppData
 	Errors         validation.List
 	DonorProvided  *actor.DonorProvidedDetails
@@ -20,9 +20,9 @@ type oneloginIdentityDetailsData struct {
 	Form           *form.YesNoForm
 }
 
-func OneloginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
+func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		data := &oneloginIdentityDetailsData{
+		data := &oneLoginIdentityDetailsData{
 			App:            appData,
 			Form:           form.NewYesNoForm(form.YesNoUnknown),
 			DonorProvided:  donor,
@@ -52,7 +52,7 @@ func OneloginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 						return err
 					}
 
-					return page.Paths.OneloginIdentityDetails.RedirectQuery(w, r, appData, donor, url.Values{"detailsUpdated": {"1"}})
+					return page.Paths.OneLoginIdentityDetails.RedirectQuery(w, r, appData, donor, url.Values{"detailsUpdated": {"1"}})
 				} else {
 					return page.Paths.WithdrawThisLpa.Redirect(w, r, appData, donor)
 				}

@@ -59,7 +59,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneloginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
@@ -320,5 +320,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneloginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }

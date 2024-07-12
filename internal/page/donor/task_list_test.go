@@ -119,7 +119,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentityAndSign", Path: page.Paths.OneloginIdentityDetails.Format("lpa-id")},
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.OneLoginIdentityDetails.Format("lpa-id")},
 				}
 
 				return sections
