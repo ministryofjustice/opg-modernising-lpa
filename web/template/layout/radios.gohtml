@@ -1,14 +1,14 @@
 {{ define "radios" }}
   <div class="govuk-radios {{ if .top.Errors.Has .name }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-      {{ range $i, $e := .items }}
+    {{ range $i, $e := .items }}
       <div class="govuk-radios__item">
         <input class="govuk-radios__input"
-               id="f-{{ fieldID $.name $i }}"
-               name="{{ $.name }}"
-               type="radio"
-               value="{{ $e.value }}"
-               {{ if eq $.value $e.value }}checked{{ end }}
-               {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}
+          id="f-{{ fieldID $.name $i }}"
+          name="{{ $.name }}"
+          type="radio"
+          value="{{ $e.value }}"
+          {{ if eq $.value $e.value }}checked{{ end }}
+          {{ if $e.hint }}aria-describedby="{{ fieldID $.name $i }}-item-hint"{{ end }}
         >
         <label class="govuk-label govuk-radios__label" for="f-{{ $.name }}{{ if ne $i 0 }}-{{ inc $i }}{{ end }}">
           {{ trHtml $.top.App $e.label }}
@@ -20,7 +20,7 @@
         {{ end }}
       </div>
       {{ if $e.orDivider }}
-          <div class="govuk-radios__divider">{{ tr $.top.App "or" }}</div>
+        <div class="govuk-radios__divider">{{ tr $.top.App "or" }}</div>
       {{ end }}
     {{ end }}
   </div>
