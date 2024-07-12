@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,11 +24,10 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
-			Form: &form.LanguagePreferenceForm{
-				Preference: localize.Cy,
+			Form: &yourPreferredLanguageForm{
+				Contact: localize.Cy,
 			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
+			Options: localize.LangValues,
 		}).
 		Return(nil)
 
@@ -63,7 +61,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 	for _, lang := range testCases {
 		t.Run(lang.String(), func(t *testing.T) {
-			formValues := url.Values{form.FieldNames.LanguagePreference: {lang.String()}}
+			formValues := url.Values{"contact-language": {lang.String()}, "lpa-language": {lang.String()}}
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -71,7 +69,10 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{ContactLanguagePreference: lang}}).
+				Put(r.Context(), &actor.DonorProvidedDetails{
+					LpaID: "lpa-id",
+					Donor: actor.Donor{ContactLanguagePreference: lang, LpaLanguagePreference: lang},
+				}).
 				Return(nil)
 
 			err := YourPreferredLanguage(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
@@ -85,8 +86,8 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 	}
 }
 
-func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {localize.En.String()}}
+func TestPostYourPreferredLanguageWhenDonorStoreError(t *testing.T) {
+	formValues := url.Values{"contact-language": {localize.En.String()}, "lpa-language": {localize.En.String()}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -106,7 +107,7 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 }
 
 func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
-	formValues := url.Values{form.FieldNames.LanguagePreference: {"not-a-lang"}}
+	formValues := url.Values{"contact-language": {"not-a-lang"}, "lpa-language": {localize.En.String()}}
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
@@ -116,13 +117,12 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
-			Form: &form.LanguagePreferenceForm{
-				Error:      errors.New("invalid Lang 'not-a-lang'"),
-				ErrorLabel: "whichLanguageYoudLikeUsToUseWhenWeContactYou",
+			Form: &yourPreferredLanguageForm{
+				Lpa:          localize.En,
+				ContactError: errors.New("invalid Lang 'not-a-lang'"),
 			},
-			Options:   localize.LangValues,
-			FieldName: form.FieldNames.LanguagePreference,
-			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYoudLikeUsToUseWhenWeContactYou"}),
+			Options: localize.LangValues,
+			Errors:  validation.With("contact-language", validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}),
 		}).
 		Return(nil)
 
@@ -132,4 +132,34 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestReadYourPreferredLanguageForm(t *testing.T) {
+	form := url.Values{"contact-language": {localize.En.String()}, "lpa-language": {localize.Cy.String()}}
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	assert.Equal(t, &yourPreferredLanguageForm{Contact: localize.En, Lpa: localize.Cy}, readYourPreferredLanguageForm(r))
+}
+
+func TestLanguagePreferenceFormValidate(t *testing.T) {
+	testcases := map[string]struct {
+		form   *yourPreferredLanguageForm
+		errors validation.List
+	}{
+		"valid": {
+			form: &yourPreferredLanguageForm{},
+		},
+		"invalid": {
+			form: &yourPreferredLanguageForm{ContactError: errors.New("err"), LpaError: errors.New("arr")},
+			errors: validation.With("contact-language", validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}).
+				With("lpa-language", validation.SelectError{Label: "theLanguageInWhichYouWouldLikeYourLpaRegistered"}),
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.errors, tc.form.Validate())
+		})
+	}
 }
