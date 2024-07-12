@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetOneloginIdentityDetails(t *testing.T) {
+func TestGetOneLoginIdentityDetails(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -30,20 +30,20 @@ func TestGetOneloginIdentityDetails(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &oneloginIdentityDetailsData{
+		Execute(w, &oneLoginIdentityDetailsData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 		}).
 		Return(nil)
 
-	err := OneloginIdentityDetails(template.Execute, certificateProviderStore, nil)(testAppData, w, r)
+	err := OneLoginIdentityDetails(template.Execute, certificateProviderStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetOneloginIdentityDetailsErrors(t *testing.T) {
+func TestGetOneLoginIdentityDetailsErrors(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -81,7 +81,7 @@ func TestGetOneloginIdentityDetailsErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := OneloginIdentityDetails(tc.template().Execute, tc.certificateProviderStore(), nil)(testAppData, w, r)
+			err := OneLoginIdentityDetails(tc.template().Execute, tc.certificateProviderStore(), nil)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -90,7 +90,7 @@ func TestGetOneloginIdentityDetailsErrors(t *testing.T) {
 	}
 }
 
-func TestPostOneloginIdentityDetails(t *testing.T) {
+func TestPostOneLoginIdentityDetails(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -118,7 +118,7 @@ func TestPostOneloginIdentityDetails(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
 
-	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
+	err := OneLoginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -126,7 +126,7 @@ func TestPostOneloginIdentityDetails(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostOneloginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
+func TestPostOneLoginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -144,7 +144,7 @@ func TestPostOneloginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "x", LastName: "y"}}, nil)
 
-	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
+	err := OneLoginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -152,7 +152,7 @@ func TestPostOneloginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProvider.ProveYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostOneloginIdentityDetailsErrors(t *testing.T) {
+func TestPostOneLoginIdentityDetailsErrors(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	w := httptest.NewRecorder()
 
@@ -207,7 +207,7 @@ func TestPostOneloginIdentityDetailsErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := OneloginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService())(testAppData, w, r)
+			err := OneLoginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService())(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)

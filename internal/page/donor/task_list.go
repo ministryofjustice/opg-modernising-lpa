@@ -169,7 +169,7 @@ func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 	case identity.StatusConfirmed:
 		signPath = page.Paths.ReadYourLpa
 		if !donor.DonorIdentityConfirmed() {
-			signPath = page.Paths.OneloginIdentityDetails
+			signPath = page.Paths.OneLoginIdentityDetails
 		}
 	case identity.StatusFailed:
 		signPath = page.Paths.RegisterWithCourtOfProtection

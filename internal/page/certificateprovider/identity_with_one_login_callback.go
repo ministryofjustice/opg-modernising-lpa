@@ -22,7 +22,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-			return page.Paths.CertificateProvider.OneloginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return page.Paths.CertificateProvider.OneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -75,7 +75,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				return err
 			}
 
-			return page.Paths.CertificateProvider.OneloginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return page.Paths.CertificateProvider.OneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 	}
 }

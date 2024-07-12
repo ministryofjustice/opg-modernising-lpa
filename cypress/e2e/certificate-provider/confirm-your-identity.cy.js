@@ -18,7 +18,7 @@ describe('confirm your identity', () => {
 
         cy.contains('button', 'Continue').click()
 
-        cy.url().should('contain', '/onelogin-identity-details');
+        cy.url().should('contain', '/one-login-identity-details');
         cy.checkA11yApp();
 
         cy.contains('Charlie')

@@ -9,20 +9,20 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type oneloginIdentityDetailsData struct {
+type oneLoginIdentityDetailsData struct {
 	App                 page.AppData
 	Errors              validation.List
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
+func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		data := &oneloginIdentityDetailsData{
+		data := &oneLoginIdentityDetailsData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
 		}
@@ -39,8 +39,7 @@ func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 			) {
 				certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
-				err = certificateProviderStore.Put(r.Context(), certificateProvider)
-				if err != nil {
+				if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
