@@ -36,7 +36,7 @@ func TestGetOneloginIdentityDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := OneloginIdentityDetails(template.Execute, certificateProviderStore, nil, nil)(testAppData, w, r)
+	err := OneloginIdentityDetails(template.Execute, certificateProviderStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,7 +81,7 @@ func TestGetOneloginIdentityDetailsErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := OneloginIdentityDetails(tc.template().Execute, tc.certificateProviderStore(), nil, nil)(testAppData, w, r)
+			err := OneloginIdentityDetails(tc.template().Execute, tc.certificateProviderStore(), nil)(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -118,12 +118,7 @@ func TestPostOneloginIdentityDetails(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		SendCertificateProviderConfirmIdentity(r.Context(), "lpa-uid", updatedCertificateProvider).
-		Return(nil)
-
-	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService, lpaStoreClient)(testAppData, w, r)
+	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -149,7 +144,7 @@ func TestPostOneloginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "x", LastName: "y"}}, nil)
 
-	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService, nil)(testAppData, w, r)
+	err := OneloginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -208,40 +203,11 @@ func TestPostOneloginIdentityDetailsErrors(t *testing.T) {
 			},
 			lpaStoreClient: ignoreLpaStoreClient,
 		},
-		"when lpaStoreClient error": {
-			lpaResolvingService: func() *mockLpaStoreResolvingService {
-				service := newMockLpaStoreResolvingService(t)
-				service.EXPECT().
-					Get(mock.Anything).
-					Return(&lpastore.Lpa{CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
-				return service
-			},
-			certificateProviderStore: func() *mockCertificateProviderStore {
-				store := newMockCertificateProviderStore(t)
-				store.EXPECT().
-					Get(mock.Anything).
-					Return(&actor.CertificateProviderProvidedDetails{
-						IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1"), Status: identity.StatusConfirmed},
-						DateOfBirth:      date.New("2000", "1", "1"),
-					}, nil)
-				store.EXPECT().
-					Put(mock.Anything, mock.Anything).
-					Return(nil)
-				return store
-			},
-			lpaStoreClient: func() *mockLpaStoreClient {
-				client := newMockLpaStoreClient(t)
-				client.EXPECT().
-					SendCertificateProviderConfirmIdentity(mock.Anything, mock.Anything, mock.Anything).
-					Return(expectedError)
-				return client
-			},
-		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := OneloginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService(), tc.lpaStoreClient())(testAppData, w, r)
+			err := OneloginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService())(testAppData, w, r)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)

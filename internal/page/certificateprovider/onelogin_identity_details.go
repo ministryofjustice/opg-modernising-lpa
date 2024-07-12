@@ -15,7 +15,7 @@ type oneloginIdentityDetailsData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) page.Handler {
+func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		certificateProvider, err := certificateProviderStore.Get(r.Context())
 		if err != nil {
@@ -41,10 +41,6 @@ func OneloginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 
 				err = certificateProviderStore.Put(r.Context(), certificateProvider)
 				if err != nil {
-					return err
-				}
-
-				if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
 					return err
 				}
 
