@@ -251,5 +251,16 @@ data "aws_iam_policy_document" "event_received" {
     ]
   }
 
+  statement {
+    sid    = "${local.policy_region_prefix}CrossAccountPutAccess"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      var.event_bus_arn
+    ]
+  }
+
   provider = aws.region
 }
