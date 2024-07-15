@@ -68,7 +68,7 @@ switch (context.request.method) {
           break;
 
         case 'REGISTER':
-          if (lpa.status == 'perfect') {
+          if (lpa.status === 'perfect') {
             lpa.status = 'registered';
             lpa.registrationDate = new Date(Date.now()).toISOString();
           }
