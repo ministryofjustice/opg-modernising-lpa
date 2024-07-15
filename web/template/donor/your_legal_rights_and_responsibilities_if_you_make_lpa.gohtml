@@ -1,0 +1,17 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpa" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpa" }}</h1>
+
+            {{ trHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" }}
+
+            <a href="{{ link .App (global.Paths.LpaType.Format .App.LpaID) }}" class="govuk-button" data-module="govuk-button">
+                {{ tr .App "continue" }}
+            </a>
+        </div>
+    </div>
+{{ end }}
