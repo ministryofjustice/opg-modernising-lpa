@@ -24,13 +24,14 @@ function init() {
         new CrossServiceHeader(header).init();
     }
 
-    new DataLossWarning().init()
+    new DataLossWarning(document.getElementById('return-to-tasklist-btn'), document.getElementById('dialog')).init()
+    new DataLossWarning(document.querySelector('.trans-switch a'), document.getElementById('language-dialog')).init()
 
     new FileUploadModal().init()
 
     const backLink = document.querySelector('.govuk-back-link');
     if (backLink) {
-        backLink.addEventListener('click', function (e) {
+        backLink.addEventListener('click', function(e) {
             window.history.back();
             e.preventDefault();
         }, false);

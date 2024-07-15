@@ -1215,6 +1215,7 @@
     "changeToRegisterMyLpaIn": "Change to register my LPA in {{.Lang}}",
     "iUnderstandThatRestrictionsWillNotBeTranslated": "I understand that any restrictions and conditions I have written will not be translated.",
     "certificateProviderFailedIDContent": "<p class=\"govuk-body\">{{ .DonorFullName }} may choose to either:</p><ul class=\"govuk-list govuk-list--bullet\"><li>start a new LPA</li><li>register this LPA through the Court of Protection</li></ul><p class=\"govuk-body\">You can still continue to provide your certificate, as this will be needed if {{ .DonorFirstNames }} decides to register this LPA through the Court of Protection.</p>",
+    "unsavedChangesLanguageDialogContent": "To save before you switch languages, go back to the page and select <span class=\"govuk-!-font-weight-bold\">Save and continue</span>.",
     "cannotRegister": "Cannot register",
     "trackLpa": "Track LPA"
 }
