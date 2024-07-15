@@ -1286,5 +1286,7 @@
     "changeToRegisterMyLpaIn": "Welsh {{.Lang}}",
     "iUnderstandThatRestrictionsWillNotBeTranslated": "Welsh",
     "certificateProviderFailedIDContent": "<p class=\"govuk-body\">{{ .DonorFullName }} Welsh:</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li></ul><p class=\"govuk-body\">Welsh {{ .DonorFirstNames }} Welsh</p>",
-    "unsavedChangesLanguageDialogContent": "Welsh"
+    "unsavedChangesLanguageDialogContent": "Welsh",
+    "yourLegalRightsAndResponsibilitiesIfYouMakeLpa": "Welsh",
+    "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent": "<p class=\"govuk-body-l\">Welsh</p>"
 }
