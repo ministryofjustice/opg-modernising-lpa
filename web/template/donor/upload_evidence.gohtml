@@ -3,196 +3,196 @@
 {{ define "pageTitle" }}{{ tr .App "uploadYourEvidence" }}{{ end }}
 
 {{ define "uploadedList" }}
-  {{ trHtml .App "uploadedFilesContent" }}
+    {{ trHtml .App "uploadedFilesContent" }}
 
-  <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
-    {{ template "csrf-field" . }}
+    <form novalidate method="post" enctype="multipart/form-data" id="delete-form">
+        {{ template "csrf-field" . }}
 
-    <input type="hidden" id="f-delete-action" name="action" value="delete" />
+        <input type="hidden" id="f-delete-action" name="action" value="delete" />
 
-    <dl class="govuk-summary-list">
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-          {{ tr .App "fileName" }}
-        </dt>
-        <dd class="govuk-summary-list__actions"></dd>
-      </div>
-      {{ range $i, $d := .Documents.ScannedNotSent }}
-        <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__value">
-            {{ $d.Filename }}
-          </dt>
-          <dd class="govuk-summary-list__actions">
-            <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
-            <button class="app-button-link">
-              <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
-            </button>
-          </dd>
-        </div>
-      {{ end }}
-    </dl>
-  </form>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    {{ tr .App "fileName" }}
+                </dt>
+                <dd class="govuk-summary-list__actions"></dd>
+            </div>
+            {{ range $i, $d := .Documents.ScannedNotSent }}
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__value">
+                        {{ $d.Filename }}
+                    </dt>
+                    <dd class="govuk-summary-list__actions">
+                        <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
+                        <button class="app-button-link">
+                            <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
+                        </button>
+                    </dd>
+                </div>
+            {{ end }}
+        </dl>
+    </form>
 {{ end }}
 
 {{ define "previouslyUploadedList" }}
-  <h2 class="govuk-heading-m">{{ tr .App "previouslyUploadedFiles" }}</h2>
-  <p class="govuk-body">{{ tr .App "theseFilesHaveAlreadyBeenUploaded" }}</p>
+    <h2 class="govuk-heading-m">{{ tr .App "previouslyUploadedFiles" }}</h2>
+    <p class="govuk-body">{{ tr .App "theseFilesHaveAlreadyBeenUploaded" }}</p>
 
-  <dl class="govuk-summary-list">
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        {{ tr .App "fileName" }}
-      </dt>
-      <dd class="govuk-summary-list__actions govuk-!-font-weight-bold">{{ tr .App "uploadDateAndTime" }}</dd>
-    </div>
-    {{ range $i, $d := .Documents.Sent }}
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__value">
-          {{ $d.Filename }}
-        </dt>
-        <dd class="govuk-summary-list__actions">
-          {{ formatDateTime $.App $d.Uploaded }}
-        </dd>
-      </div>
-    {{ end }}
-  </dl>
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                {{ tr .App "fileName" }}
+            </dt>
+            <dd class="govuk-summary-list__actions govuk-!-font-weight-bold">{{ tr .App "uploadDateAndTime" }}</dd>
+        </div>
+        {{ range $i, $d := .Documents.Sent }}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__value">
+                    {{ $d.Filename }}
+                </dt>
+                <dd class="govuk-summary-list__actions">
+                    {{ formatDateTime $.App $d.Uploaded }}
+                </dd>
+            </div>
+        {{ end }}
+    </dl>
 {{ end }}
 
 {{ define "main" }}
-  {{ if .Deleted }}
-    <div class="moj-banner" role="region" aria-label="information">
-      <svg class="moj-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25">
-        <path d="M13.7,18.5h-2.4v-2.4h2.4V18.5z M12.5,13.7c-0.7,0-1.2-0.5-1.2-1.2V7.7c0-0.7,0.5-1.2,1.2-1.2s1.2,0.5,1.2,1.2v4.8
-	C13.7,13.2,13.2,13.7,12.5,13.7z M12.5,0.5c-6.6,0-12,5.4-12,12s5.4,12,12,12s12-5.4,12-12S19.1,0.5,12.5,0.5z" />
-      </svg>
+    {{ if .Deleted }}
+        <div class="moj-banner" role="region" aria-label="information">
+            <svg class="moj-banner__icon" fill="currentColor" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" height="25" width="25">
+                <path d="M13.7,18.5h-2.4v-2.4h2.4V18.5z M12.5,13.7c-0.7,0-1.2-0.5-1.2-1.2V7.7c0-0.7,0.5-1.2,1.2-1.2s1.2,0.5,1.2,1.2v4.8
+                    C13.7,13.2,13.2,13.7,12.5,13.7z M12.5,0.5c-6.6,0-12,5.4-12,12s5.4,12,12,12s12-5.4,12-12S19.1,0.5,12.5,0.5z" />
+            </svg>
 
-      <div class="moj-banner__message">
-        <h2 class="govuk-heading-m">{{ trFormat .App "youHaveDeletedFile" "Filename" .Deleted }}</h2>
-      </div>
+            <div class="moj-banner__message">
+                <h2 class="govuk-heading-m">{{ trFormat .App "youHaveDeletedFile" "Filename" .Deleted }}</h2>
+            </div>
+        </div>
+    {{ end }}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "uploadYourEvidence" }}</h1>
+
+            {{ trHtml .App "uploadEvidenceContent" }}
+
+            {{ $totalDocumentsCount := (len .Documents) }}
+            {{ if eq $totalDocumentsCount 0 }}
+                {{ template "details" (details . "tipsForTakingPhotosAndCopies" "tipsForTakingPhotosAndCopiesDetails" false) }}
+            {{ end }}
+
+            <div class="govuk-!-width-two-thirds">
+                <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
+                    {{ template "csrf-field" . }}
+
+                    <input type="hidden" id="f-upload-action" name="action" value="upload" />
+
+                    <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
+                        <label class="govuk-label govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
+
+                        {{ template "error-message" (errorMessage . "upload") }}
+
+                        {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
+
+                        <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
+                    </div>
+
+                    <div class="govuk-form-group">
+                        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
+                    </div>
+                </form>
+            </div>
+
+            {{ $scannedDocumentsNotSentCount := (len .Documents.ScannedNotSent) }}
+            {{ $sentDocumentsCount := (len .Documents.Sent) }}
+            {{ $useTabs := and (gt $scannedDocumentsNotSentCount 0) (gt $sentDocumentsCount 0) }}
+
+            {{ if $useTabs }}
+                <div class="govuk-tabs" data-module="govuk-tabs">
+                    <ul class="govuk-tabs__list">
+                        <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                            <a class="govuk-tabs__tab" href="#uploaded">{{ tr .App "uploadedFiles" }}</a>
+                        </li>
+                        <li class="govuk-tabs__list-item">
+                            <a class="govuk-tabs__tab" href="#previouslyUploaded">{{ tr .App "previouslyUploadedFiles" }}</a>
+                        </li>
+                    </ul>
+
+                    <div class="govuk-tabs__panel" id="uploaded">
+                        {{ template "uploadedList" . }}
+                    </div>
+
+                    <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="previouslyUploaded">
+                        {{ template "previouslyUploadedList" . }}
+                    </div>
+                </div>
+            {{ else }}
+                {{ if gt $scannedDocumentsNotSentCount 0 }}
+                    {{ template "uploadedList" . }}
+                {{ else if gt $sentDocumentsCount 0 }}
+                    {{ template "previouslyUploadedList" . }}
+                {{ else }}
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                {{ end }}
+            {{ end }}
+
+            <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
+                {{ template "csrf-field" . }}
+
+                <input type="hidden" id="f-pay-action" name="action" value="pay" />
+
+                <div class="govuk-button-group">
+                    {{ if gt $scannedDocumentsNotSentCount 0 }}
+                        <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
+                    {{ end }}
+                    <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                </div>
+            </form>
+
+            <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
+
+            <div id="dialog"
+                class="app-dialog govuk-!-display-none"
+                class="app-dialog"
+                role="dialog"
+                aria-labelledby="dialog-title"
+                aria-describedby="dialog-description"
+                aria-modal="true"
+                data-start-scan="{{ .StartScan }}">
+
+                <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
+
+                <div class="app-loading-spinner" data-sse-url="{{ link .App (global.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
+                    <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
+                    <div class="app-loading-spinner__content">
+                        <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "DocumentsToScanCount" $totalDocumentsCount }}</h3>
+                    </div>
+                </div>
+
+                <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
+
+                <div class="govuk-button-group">
+                    <button type="button" id='cancel-upload-button' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
+                </div>
+            </div>
+
+            <form novalidate method="post" enctype="multipart/form-data" id="close-connection-form">
+                {{ template "csrf-field" . }}
+                <input type="hidden" id="f-close-connection-action" name="action" value="closeConnection" />
+            </form>
+
+            <form novalidate method="post" enctype="multipart/form-data" id="cancel-upload-form">
+                {{ template "csrf-field" . }}
+                <input type="hidden" id="f-cancel-upload-action" name="action" value="cancelUpload" />
+            </form>
+
+            <form novalidate method="post" enctype="multipart/form-data" id="scan-results-form">
+                {{ template "csrf-field" . }}
+                <input type="hidden" id="f-scan-results-action" name="action" value="scanResults" />
+            </form>
+
+        </div>
     </div>
-  {{ end }}
-
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "uploadYourEvidence" }}</h1>
-
-      {{ trHtml .App "uploadEvidenceContent" }}
-
-      {{ $totalDocumentsCount := (len .Documents) }}
-      {{ if eq $totalDocumentsCount 0 }}
-        {{ template "details" (details . "tipsForTakingPhotosAndCopies" "tipsForTakingPhotosAndCopiesDetails" false) }}
-      {{ end }}
-
-      <div class="govuk-!-width-two-thirds">
-        <form novalidate method="post" enctype="multipart/form-data" id="upload-form">
-          {{ template "csrf-field" . }}
-
-          <input type="hidden" id="f-upload-action" name="action" value="upload" />
-
-          <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
-            <label class="govuk-label govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
-
-            {{ template "error-message" (errorMessage . "upload") }}
-
-            {{ trFormatHtml .App "uploadGuidance" "NumberOfAllowedFiles" .NumberOfAllowedFiles }}
-
-            <input class="govuk-file-upload" id="f-upload" name="upload" type="file" accept="{{ concatComma .MimeTypes }}" multiple />
-          </div>
-
-          <div class="govuk-form-group">
-            <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "uploadFiles" }}</button>
-          </div>
-        </form>
-      </div>
-
-      {{ $scannedDocumentsNotSentCount := (len .Documents.ScannedNotSent) }}
-      {{ $sentDocumentsCount := (len .Documents.Sent) }}
-      {{ $useTabs := and (gt $scannedDocumentsNotSentCount 0) (gt $sentDocumentsCount 0) }}
-
-      {{ if $useTabs }}
-        <div class="govuk-tabs" data-module="govuk-tabs">
-          <ul class="govuk-tabs__list">
-            <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
-              <a class="govuk-tabs__tab" href="#uploaded">{{ tr .App "uploadedFiles" }}</a>
-            </li>
-            <li class="govuk-tabs__list-item">
-              <a class="govuk-tabs__tab" href="#previouslyUploaded">{{ tr .App "previouslyUploadedFiles" }}</a>
-            </li>
-          </ul>
-
-          <div class="govuk-tabs__panel" id="uploaded">
-            {{ template "uploadedList" . }}
-          </div>
-
-          <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="previouslyUploaded">
-            {{ template "previouslyUploadedList" . }}
-          </div>
-        </div>
-      {{ else }}
-        {{ if gt $scannedDocumentsNotSentCount 0 }}
-          {{ template "uploadedList" . }}
-        {{ else if gt $sentDocumentsCount 0 }}
-          {{ template "previouslyUploadedList" . }}
-        {{ else }}
-          <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-        {{ end }}
-      {{ end }}
-
-      <form novalidate method="post" enctype="multipart/form-data" id="pay-form">
-        {{ template "csrf-field" . }}
-
-        <input type="hidden" id="f-pay-action" name="action" value="pay" />
-
-        <div class="govuk-button-group">
-          {{ if gt $scannedDocumentsNotSentCount 0 }}
-            <button type="submit" class="govuk-button" id="continue-or-pay" data-module="govuk-button">{{ if or .FeeType.IsFullFee .FeeType.IsHalfFee }} {{ tr .App "continueToPayment" }} {{ else }} {{ tr .App "continue" }} {{ end }}</button>
-          {{ end }}
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-        </div>
-      </form>
-
-      <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
-
-      <div id="dialog"
-           class="app-dialog govuk-!-display-none"
-           class="app-dialog"
-           role="dialog"
-           aria-labelledby="dialog-title"
-           aria-describedby="dialog-description"
-           aria-modal="true"
-           data-start-scan="{{ .StartScan }}">
-
-        <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr .App "yourFilesAreUploading" }}</h2>
-
-        <div class="app-loading-spinner" data-sse-url="{{ link .App (global.Paths.UploadEvidenceSSE.Format .App.LpaID) }}">
-          <div class="app-loading-spinner__spinner" aria-live="polite" role="status"></div>
-          <div class="app-loading-spinner__content">
-            <h3 id="file-count" class="govuk-heading-s" tabindex="0">{{ trFormat .App "0OfNFilesUploaded" "DocumentsToScanCount" $totalDocumentsCount }}</h3>
-          </div>
-        </div>
-
-        <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml .App "yourFilesAreUploadingContent" }}</p>
-
-        <div class="govuk-button-group">
-          <button type="button" id='cancel-upload-button' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr .App "cancelUpload" }}">{{ tr .App "cancelUpload" }}</button>
-        </div>
-      </div>
-
-      <form novalidate method="post" enctype="multipart/form-data" id="close-connection-form">
-        {{ template "csrf-field" . }}
-        <input type="hidden" id="f-close-connection-action" name="action" value="closeConnection" />
-      </form>
-
-      <form novalidate method="post" enctype="multipart/form-data" id="cancel-upload-form">
-        {{ template "csrf-field" . }}
-        <input type="hidden" id="f-cancel-upload-action" name="action" value="cancelUpload" />
-      </form>
-
-      <form novalidate method="post" enctype="multipart/form-data" id="scan-results-form">
-        {{ template "csrf-field" . }}
-        <input type="hidden" id="f-scan-results-action" name="action" value="scanResults" />
-      </form>
-
-    </div>
-  </div>
 {{ end }}

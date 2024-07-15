@@ -1,12 +1,18 @@
 export class DataLossWarning {
+    constructor(trigger, dialog) {
+        this.trigger = trigger
+        this.dialog = dialog
+    }
+
     init() {
-        this.returnToTaskListButton = document.getElementById('return-to-tasklist-btn')
-        this.dialog = document.getElementById('dialog')
         this.dialogOverlay = document.getElementById('dialog-overlay')
         // so we can reference the same func when removing event
         this.handleTrapFocus = this.handleTrapFocus.bind(this)
 
-        if (this.dialog && this.dialogOverlay && this.returnToTaskListButton) {
+        if (this.dialog && this.dialogOverlay && this.trigger) {
+            this.submitButton = document.querySelector('button[type=submit]')
+            this.backToPage = this.dialog.querySelector('button')
+            this.continueWithoutSaving = this.dialog.querySelector('a')
             this.formValuesOnPageLoad = this.getEncodedStringifiedFormValues()
             this.formValuesPriorToPageLoad = this.getFormValuesFromCookie()
             this.registerListeners()
@@ -41,10 +47,10 @@ export class DataLossWarning {
 
             if (this.dialogVisible()) {
                 this.dialog.addEventListener('keydown', this.handleTrapFocus)
-                document.getElementById('back-to-page-dialog-btn').focus()
+                this.backToPage.focus()
             } else {
                 this.dialog.removeEventListener('keydown', this.handleTrapFocus)
-                this.returnToTaskListButton.focus()
+                this.trigger.focus()
             }
         }
     }
@@ -54,20 +60,22 @@ export class DataLossWarning {
     }
 
     registerListeners() {
-        document.getElementById('return-to-tasklist-btn').addEventListener('click', (e) => {
+        this.trigger.addEventListener('click', (e) => {
             if (this.changesMade() && !this.formEmpty()) {
                 e.preventDefault()
             }
         })
-        document.getElementById('save-and-continue-btn').addEventListener('click', this.addFormValuesToCookie.bind(this))
-        document.getElementById('return-to-tasklist-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
-        document.getElementById('back-to-page-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
-        document.getElementById('return-to-task-list-dialog-btn').addEventListener('click', this.toggleDialogVisibility.bind(this))
+        this.submitButton.addEventListener('click', this.addFormValuesToCookie.bind(this))
+        this.trigger.addEventListener('click', this.toggleDialogVisibility.bind(this))
+        this.backToPage.addEventListener('click', this.toggleDialogVisibility.bind(this))
+        this.continueWithoutSaving.addEventListener('click', this.toggleDialogVisibility.bind(this))
     }
 
     handleTrapFocus(e) {
-        const firstFocusableEl = document.getElementById('dialog-title')
-        const lastFocusableEl = document.getElementById('return-to-task-list-dialog-btn')
+        const focusable = this.dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+        const firstFocusableEl = focusable[0]
+        const lastFocusableEl = focusable[focusable.length - 1]
+
         const KEY_CODE_TAB = 9
         const KEY_CODE_ESC = 27
 
