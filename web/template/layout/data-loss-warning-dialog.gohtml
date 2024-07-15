@@ -1,19 +1,40 @@
 {{ define "data-loss-warning-dialog" }}
-    <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
+  <div id="dialog-overlay" class="app-dialog-overlay govuk-!-display-none" tabindex="-1"></div>
 
-    <div id="dialog"
-         class="app-dialog govuk-!-display-none"
-         role="dialog"
-         aria-labelledby="dialog-title"
-         aria-describedby="dialog-description"
-         aria-modal="true">
+  <div id="dialog"
+    class="app-dialog govuk-!-display-none"
+    role="dialog"
+    aria-labelledby="dialog-title"
+    aria-describedby="dialog-description"
+    aria-modal="true">
 
-        <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr . "youHaveUnsavedChanges" }}</h2>
-        <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml . "unsavedChangesDialogContent" }}</p>
+    <h2 id="dialog-title" class="govuk-heading-l" tabindex="0">{{ tr . "youHaveUnsavedChanges" }}</h2>
+    <p id="dialog-description" class="govuk-body" tabindex="0">{{ trHtml . "unsavedChangesDialogContent" }}</p>
 
-        <div class="govuk-button-group">
-            <button type="button" id='back-to-page-dialog-btn' class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr . "backToPage" }}">{{ tr . "backToPage" }}</button>
-            <a href="{{ link . (global.Paths.TaskList.Format .LpaID) }}" id='return-to-task-list-dialog-btn' class="govuk-button govuk-button--warning">{{ tr . "continueWithoutSaving" }}</a>
-        </div>
+    <div class="govuk-button-group">
+      <button type="button" class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr . "backToPage" }}">{{ tr . "backToPage" }}</button>
+      <a href="{{ link . (global.Paths.TaskList.Format .LpaID) }}" class="govuk-button govuk-button--warning">{{ tr . "continueWithoutSaving" }}</a>
     </div>
+  </div>
+
+  <div id="language-dialog"
+    class="app-dialog govuk-!-display-none"
+    role="dialog"
+    aria-labelledby="language-dialog-title"
+    aria-describedby="language-dialog-description"
+    aria-modal="true">
+
+    <h2 id="language-dialog-title" class="govuk-heading-l" tabindex="0">{{ tr . "youHaveUnsavedChanges" }}</h2>
+    <p id="language-dialog-description" class="govuk-body" tabindex="0">{{ trHtml . "unsavedChangesLanguageDialogContent" }}</p>
+
+    <div class="govuk-button-group">
+      <button type="button" class="govuk-button govuk-button--secondary" data-module="govuk-button" aria-label="{{ tr . "backToPage" }}">{{ tr . "backToPage" }}</button>
+      {{ $prefix := "" }}
+      {{ if isEnglish .Lang }}
+        {{ $prefix = "/cy" }}
+      {{ end }}
+
+      <a href="{{ printf "%s%s%s" $prefix .Path .EncodeQuery }}"  class="govuk-button govuk-button--warning">{{ tr . "continueWithoutSaving" }}</a>
+    </div>
+  </div>
 {{ end }}
