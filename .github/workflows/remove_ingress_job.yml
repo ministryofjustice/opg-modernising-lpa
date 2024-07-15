@@ -34,7 +34,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: actions/setup-python@v5.1.0
+      - uses: actions/setup-python@v5.1.1
         with:
           python-version: '3.9'
           check-latest: true
