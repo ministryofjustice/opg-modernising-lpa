@@ -158,11 +158,6 @@
                     {{ tr .App "termsAndConditions" }}
                   </a>
                 </li>
-                <li class="govuk-footer__inline-list-item">
-                  <a class="govuk-footer__link" href="{{ link .App global.Paths.YourLegalRightsAndResponsibilities.Format }}">
-                    {{ tr .App "yourLegalRightsAndResponsibilities" }}
-                  </a>
-                </li>
                 {{ if global.DevMode }}<li class="govuk-footer__inline-list-item">
                   <a class="govuk-footer__link" href="{{ if .App.Localizer.ShowTranslationKeys }}{{ link .App .App.Page }}{{ else }}{{ link .App .App.Page }}?showTranslationKeys=1{{ end }}">
                     {{ tr .App "toggleTransKeys" }}

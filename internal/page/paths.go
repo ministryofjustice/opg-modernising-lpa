@@ -321,25 +321,24 @@ type AppPaths struct {
 	Supporter           SupporterPaths
 	HealthCheck         HealthCheckPaths
 
-	AttorneyFixtures                   Path
-	AuthRedirect                       Path
-	CertificateProviderFixtures        Path
-	CertificateProviderStart           Path
-	CookiesConsent                     Path
-	Dashboard                          Path
-	DashboardFixtures                  Path
-	DonorSubByLpaUID                   Path
-	EnterAccessCode                    Path
-	Fixtures                           Path
-	Login                              Path
-	LoginCallback                      Path
-	LpaDeleted                         Path
-	LpaWithdrawn                       Path
-	Root                               Path
-	SignOut                            Path
-	Start                              Path
-	SupporterFixtures                  Path
-	YourLegalRightsAndResponsibilities Path
+	AttorneyFixtures            Path
+	AuthRedirect                Path
+	CertificateProviderFixtures Path
+	CertificateProviderStart    Path
+	CookiesConsent              Path
+	Dashboard                   Path
+	DashboardFixtures           Path
+	DonorSubByLpaUID            Path
+	EnterAccessCode             Path
+	Fixtures                    Path
+	Login                       Path
+	LoginCallback               Path
+	LpaDeleted                  Path
+	LpaWithdrawn                Path
+	Root                        Path
+	SignOut                     Path
+	Start                       Path
+	SupporterFixtures           Path
 
 	AboutPayment                                         LpaPath
 	AddCorrespondent                                     LpaPath
@@ -446,6 +445,7 @@ type AppPaths struct {
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
+	YourLegalRightsAndResponsibilitiesIfYouMakeLpa       LpaPath
 	YourLpaLanguage                                      LpaPath
 	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
@@ -651,7 +651,7 @@ var Paths = AppPaths{
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
-	YourLegalRightsAndResponsibilities:                   "/your-legal-rights-and-responsibilities",
+	YourLegalRightsAndResponsibilitiesIfYouMakeLpa:       "/your-legal-rights-and-responsibilities-if-you-make-an-lpa",
 	YourLpaLanguage:                                      "/your-lpa-language",
 	YourName:                                             "/your-name",
 	YourPreferredLanguage:                                "/your-preferred-language",
