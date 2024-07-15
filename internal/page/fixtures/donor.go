@@ -54,6 +54,7 @@ var progressValues = []string{
 	"submitted",
 	"perfect",
 	"withdrawn",
+	"certificateProviderOptedOut",
 	"registered",
 }
 
@@ -434,6 +435,8 @@ func updateLPAProgress(
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
 	}
 
+	var certificateProviderUID actoruid.UID
+
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
@@ -448,6 +451,8 @@ func updateLPAProgress(
 		if err := certificateProviderStore.Put(ctx, certificateProvider); err != nil {
 			return nil, nil, err
 		}
+
+		certificateProviderUID = certificateProvider.UID
 
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpastore.Lpa) error {
 			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
@@ -542,6 +547,12 @@ func updateLPAProgress(
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
 		donorDetails.WithdrawnAt = time.Now()
+	}
+
+	if data.Progress == slices.Index(progressValues, "certificateProviderOptedOut") {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
+			return client.SendCertificateProviderOptOut(ctx, donorDetails.LpaUID, certificateProviderUID)
+		})
 	}
 
 	if data.Progress >= slices.Index(progressValues, "registered") {

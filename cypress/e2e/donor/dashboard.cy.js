@@ -90,4 +90,18 @@ describe('Dashboard', () => {
       cy.contains('I’m a certificate provider');
     });
   })
+
+  context('with an LPA that cannot be registered', () => {
+    it('shows the correct options', () => {
+      cy.visit('/fixtures?redirect=&progress=certificateProviderOptedOut');
+
+      cy.contains('Property and affairs');
+      cy.contains('Sam Smith');
+      cy.contains('strong', 'Cannot register');
+      cy.contains('.app-dashboard-card a').should('not.exist');
+      cy.get('.govuk-dashboard-row a').should('have.length', 2);
+      cy.contains('a', 'View LPA');
+      cy.contains('a', 'Track LPA');
+    });
+  });
 });
