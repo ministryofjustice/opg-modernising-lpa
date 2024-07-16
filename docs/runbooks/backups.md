@@ -78,11 +78,11 @@ easier to manage restored tables going forward. It is not possible to change the
     We are expecting to see updates to our restored dynamoDB table, and changes to services and resources that reference the table name or ARN.
 
     > Things to check for
-    > Policy Documents for API and Admin updating to use new (restored table)
-    > AWS Backup managing the new table
-    > DynamoDB Table tags, point in time restore enabled, server side encryption enabled and TTL activation
-    > ECS Services and Task Definition updates for API and Admin
-    > Plans and Applies always produce a Config file.
+    > 1. Policy Documents for API and Admin updating to use new (restored table)
+    > 1. AWS Backup managing the new table
+    > 1. DynamoDB Table tags, point in time restore enabled, server side encryption enabled and TTL activation
+    > 1. ECS Services and Task Definition updates for app
+    > 1.Lambda function updates for event_received
 
 1. Once happy with the plan, apply the changes
 
@@ -93,15 +93,16 @@ easier to manage restored tables going forward. It is not possible to change the
 1. Commit our changes to the DynamoDB table names, and raise a PR to ensure these persist.
     Once this PR is merged and has reached production, we can release the change freeze.
 
-
 ## Delete the old table
 
-1. At this point we can delete the old tables. They are no longer managed by Terraform, so we must do this in the AWS console.
-    In the AWS console, again while assuming the breakglass role in the production account, navigate to the DynamoDB console.
-    Select Tables from the menu on the left.
+At this point we can delete the old tables. They are no longer managed by Terraform, so we must do this in the AWS console.
 
-Select the tables that we want to delete by ticking them and click on Delete at the top right of the Tables table.
+1. In the AWS console, again while assuming the breakglass role in the production account, navigate to the DynamoDB console.
 
-On the delete dialogue, choose the option to delete all Cloudwatch alarms for the table(s), follow the prompt to confirm that you want the table(s), and click Delete table.
+1. Select Tables from the menu on the left.
+
+1. Select the tables that we want to delete by ticking them and click on Delete at the top right of the Tables table.
+
+1. On the delete dialogue, choose the option to delete all Cloudwatch alarms for the table(s), follow the prompt to confirm that you want the table(s), and click Delete table.
 
 Once deletion of the tables no longer required is completed, so too is the DynamoDB Table restore procedure.
