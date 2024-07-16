@@ -65,6 +65,7 @@ type Factory struct {
 	searchEndpoint        string
 	searchIndexName       string
 	searchIndexingEnabled bool
+	eventClient           EventClient
 
 	// previously constructed values
 	appData         *page.AppData
@@ -178,4 +179,12 @@ func (f *Factory) UidClient() UidClient {
 	}
 
 	return f.uidClient
+}
+
+func (f *Factory) EventClient() EventClient {
+	if f.eventClient == nil {
+		f.eventClient = event.NewClient(f.cfg, f.eventBusName)
+	}
+
+	return f.eventClient
 }

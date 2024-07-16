@@ -18,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
@@ -36,6 +37,7 @@ type factory interface {
 	LpaStoreClient() (LpaStoreClient, error)
 	UidStore() (UidStore, error)
 	UidClient() UidClient
+	EventClient() EventClient
 }
 
 type Handler interface {
@@ -62,6 +64,10 @@ type s3Client interface {
 
 type DocumentStore interface {
 	UpdateScanResults(ctx context.Context, lpaID, objectKey string, virusDetected bool) error
+}
+
+type EventClient interface {
+	SendApplicationUpdated(ctx context.Context, event event.ApplicationUpdated) error
 }
 
 type Event struct {
