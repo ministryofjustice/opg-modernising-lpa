@@ -1289,5 +1289,7 @@
     "cannotRegister": "Methu cofrestru",
     "trackLpa": "Welsh",
     "yourLegalRightsAndResponsibilitiesIfYouMakeLpa": "Welsh",
-    "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent": "<p class=\"govuk-body-l\">Welsh</p>"
+    "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent": "<p class=\"govuk-body-l\">Welsh</p>",
+    "whetherApplyingForDifferentFeeType": "Welsh",
+    "yesToAddCorrespondent": "Welsh"
 }
