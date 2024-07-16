@@ -65,8 +65,8 @@ variable "environments" {
         copy_action_enabled = bool
       })
       dynamodb = object({
+        table_name             = string
         region_replica_enabled = bool
-        stream_enabled         = bool
       })
       ecs = object({
         fargate_spot_capacity_provider_enabled = bool
