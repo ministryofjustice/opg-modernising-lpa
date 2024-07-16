@@ -165,31 +165,35 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 
 func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
 	var signPath page.LpaPath
+
 	switch donor.DonorIdentityUserData.Status {
 	case identity.StatusConfirmed:
-		signPath = page.Paths.ReadYourLpa
-		if !donor.DonorIdentityConfirmed() {
+		if !donor.SignedAt.IsZero() {
+			signPath = page.Paths.YouHaveSubmittedYourLpa
+		} else if donor.DonorIdentityConfirmed() {
+			signPath = page.Paths.ReadYourLpa
+		} else {
 			signPath = page.Paths.OneLoginIdentityDetails
 		}
+
 	case identity.StatusFailed:
 		signPath = page.Paths.RegisterWithCourtOfProtection
+
 	case identity.StatusInsufficientEvidence:
-		signPath = page.Paths.UnableToConfirmIdentity
-		if donor.WantVoucher.IsNo() {
-			signPath = page.Paths.WhatYouCanDoNow
-
-			if donor.RegisteringWithCourtOfProtection {
-				signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
-			}
-
-			if !donor.SignedAt.IsZero() {
-				signPath = page.Paths.YouHaveSubmittedYourLpa
-			}
-		}
-
-		if donor.Voucher.FirstNames != "" {
+		if !donor.SignedAt.IsZero() {
+			signPath = page.Paths.YouHaveSubmittedYourLpa
+		} else if donor.RegisteringWithCourtOfProtection {
+			signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
+		} else if donor.Voucher.FirstNames != "" {
 			signPath = page.Paths.ReadYourLpa
+		} else if donor.WantVoucher.IsYes() {
+			signPath = page.Paths.EnterVoucher
+		} else if donor.WantVoucher.IsNo() {
+			signPath = page.Paths.WhatYouCanDoNow
+		} else {
+			signPath = page.Paths.UnableToConfirmIdentity
 		}
+
 	default:
 		signPath = page.Paths.HowToConfirmYourIdentityAndSign
 	}
