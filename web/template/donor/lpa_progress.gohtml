@@ -9,7 +9,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
       <div class="govuk-body">
-        <span><strong>{{ tr .App "applicationNumber" }}:</strong> {{ .Donor.LpaID }}</span>
+        <span><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Donor.LpaUID }}</span>
       </div>
 
       {{ template "donor-lpa-progress" . }}

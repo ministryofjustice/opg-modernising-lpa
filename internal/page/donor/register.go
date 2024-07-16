@@ -207,6 +207,8 @@ func Register(
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
 		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
+	handleWithDonor(page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.None,
+		Guidance(tmpls.Get("your_legal_rights_and_responsibilities_if_you_make_lpa.gohtml")))
 	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
