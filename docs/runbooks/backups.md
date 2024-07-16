@@ -62,7 +62,6 @@ easier to manage restored tables going forward. It is not possible to change the
 
     ```json
     {
-            },
       "dynamodb": {
         "table_name": "Lpas-20240715",
         "region_replica_enabled": true
