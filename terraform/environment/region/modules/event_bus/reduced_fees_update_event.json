@@ -1,9 +1,0 @@
-[
-  {
-    "Time": "2016-01-14T01:02:03Z",
-    "Source": "reduced-fees",
-    "DetailType": "update",
-    "EventBusName": "testevents-reduced-fees",
-    "Detail": "{\"status\": \"more evidence required\"}"
-  }
-]
