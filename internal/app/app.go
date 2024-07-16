@@ -135,8 +135,6 @@ func App(
 		notFoundHandler)
 	handleRoot(page.Paths.SignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
-	handleRoot(page.Paths.YourLegalRightsAndResponsibilities, None,
-		page.Guidance(tmpls.Get("your_legal_rights_and_responsibilities_general.gohtml")))
 	handleRoot(page.Paths.Start, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
 	handleRoot(page.Paths.CertificateProviderStart, None,
