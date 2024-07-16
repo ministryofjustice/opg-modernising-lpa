@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -187,6 +188,22 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"wants a voucher": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:                 "lpa-id",
+				Donor:                 actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:           form.Yes,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.EnterVoucher.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"is applying to court of protection": {
 			appData: testAppData,
 			donor: &actor.DonorProvidedDetails{
@@ -297,6 +314,59 @@ func TestGetTaskList(t *testing.T) {
 
 				sections[1].Items = []taskListItem{
 					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: actor.PaymentTaskInProgress},
+				}
+
+				return sections
+			},
+		},
+		"signed": {
+			appData: testAppData,
+			donor: &actor.DonorProvidedDetails{
+				LpaID:               "lpa-id",
+				SignedAt:            time.Now(),
+				Donor:               actor.Donor{FirstNames: "this"},
+				CertificateProvider: actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+				Tasks: actor.DonorTasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					WhenCanTheLpaBeUsed:        actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					CheckYourLpa:               actor.TaskCompleted,
+					AddCorrespondent:           actor.TaskCompleted,
+					PayForLpa:                  actor.PaymentTaskCompleted,
+					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+				},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items = []taskListItem{
+					{Name: "provideYourDetails", Path: page.Paths.YourDetails.Format("lpa-id"), State: actor.TaskCompleted},
+					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysGuidance.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys.Format("lpa-id"), State: actor.TaskCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed.Format("lpa-id"), State: actor.TaskCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
+					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: page.Paths.DoYouWantToNotifyPeople.Format("lpa-id")},
+					{Name: "addCorrespondent", Path: page.Paths.AddCorrespondent.Format("lpa-id"), State: actor.TaskCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: page.Paths.GettingHelpSigning.Format("lpa-id"), Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: page.Paths.CheckYourLpa.Format("lpa-id"), State: actor.TaskCompleted},
+				}
+
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: actor.PaymentTaskCompleted},
+				}
+
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: page.Paths.YouHaveSubmittedYourLpa.Format("lpa-id"), IdentityState: actor.IdentityTaskCompleted},
 				}
 
 				return sections
