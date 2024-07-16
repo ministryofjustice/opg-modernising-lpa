@@ -13,6 +13,7 @@ module "event_received" {
     SEARCH_ENDPOINT            = var.search_endpoint
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
+    EVENT_BUS_NAME             = var.event_bus_name
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role
