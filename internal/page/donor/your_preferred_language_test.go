@@ -81,7 +81,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaType.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
