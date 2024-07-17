@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,7 +26,7 @@ type paymentConfirmationData struct {
 	NextPage         page.LpaPath
 }
 
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient) Handler {
+func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -56,6 +57,18 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			}); err != nil {
 				return err
 			}
+		}
+
+		if err := notifyClient.SendEmail(r.Context(), payment.Email, notify.PaymentConfirmationEmail{
+			DonorFullNamesPossessive: appData.Localizer.Possessive(donor.Donor.FullName()),
+			LpaType:                  appData.Localizer.T(donor.Type.String()),
+			PaymentCardFullName:      payment.CardDetails.CardholderName,
+			LpaReferenceNumber:       donor.LpaUID,
+			PaymentReferenceID:       payment.PaymentID,
+			PaymentConfirmationDate:  appData.Localizer.FormatDate(payment.SettlementSummary.CaptureSubmitTime),
+			AmountPaidWithCurrency:   appData.Localizer.PenceToPounds(payment.Amount),
+		}); err != nil {
+			return err
 		}
 
 		nextPage := page.Paths.TaskList

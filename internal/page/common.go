@@ -52,17 +52,18 @@ type Bundle interface {
 }
 
 type Localizer interface {
-	Concat([]string, string) string
-	Count(string, int) string
-	Format(string, map[string]any) string
-	FormatCount(string, int, map[string]interface{}) string
-	FormatDate(date.TimeOrDate) string
-	FormatTime(time.Time) string
-	FormatDateTime(time.Time) string
-	Possessive(string) string
-	SetShowTranslationKeys(bool)
+	Concat(list []string, joiner string) string
+	Count(messageID string, count int) string
+	Format(messageID string, data map[string]interface{}) string
+	FormatCount(messageID string, count int, data map[string]any) string
+	FormatDate(t date.TimeOrDate) string
+	FormatTime(t time.Time) string
+	FormatDateTime(t time.Time) string
+	PenceToPounds(pence int) string
+	Possessive(s string) string
+	SetShowTranslationKeys(s bool)
 	ShowTranslationKeys() bool
-	T(string) string
+	T(messageID string) string
 }
 
 func PostFormString(r *http.Request, name string) string {
