@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -83,6 +84,18 @@ func TestLoginCallback(t *testing.T) {
 			assert.Equal(t, tc.redirect.Format(), resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestLoginCallbackWhenErrorReturned(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?error=hey&error_description=this%20is%20why&state=my-state", nil)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "login error", slog.String("error", "hey"), slog.String("errorDescription", "this is why"))
+
+	err := LoginCallback(logger, nil, nil, nil, testNowFn, nil)(page.AppData{}, w, r)
+	assert.Equal(t, errors.New("access denied"), err)
 }
 
 func TestLoginCallbackWhenMemberGetAnyErrors(t *testing.T) {
