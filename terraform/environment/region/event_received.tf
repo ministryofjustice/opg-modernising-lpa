@@ -13,6 +13,7 @@ module "event_received" {
   lambda_function_image_ecr_url = data.aws_ecr_repository.event_received.repository_url
   lambda_function_image_tag     = var.app_service_container_version
   event_bus_name                = module.event_bus.event_bus.name
+  event_bus_arn                 = module.event_bus.event_bus.arn
   app_public_url                = aws_route53_record.app.fqdn
   uploads_bucket                = module.uploads_s3_bucket.bucket
   uid_base_url                  = var.uid_service.base_url

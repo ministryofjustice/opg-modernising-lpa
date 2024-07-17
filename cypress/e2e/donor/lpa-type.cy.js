@@ -13,6 +13,18 @@ describe('LPA type', () => {
       cy.visit(`http://localhost:9001/?detail-type=uid-requested&detail=${url.split('/')[4]}`);
       cy.contains(`"LpaID":"${url.split('/')[4]}"`);
     });
+
+    cy.visit('/dashboard')
+
+    cy.contains('.govuk-body-s', 'Reference number:')
+      .invoke('text')
+      .then((text) => {
+          const uid = text.split(':')[1].trim();
+          cy.visit(`http://localhost:9001/?detail-type=application-updated&detail=${uid}`);
+
+          cy.contains(`"uid":"${uid}"`);
+          cy.contains('"type":"property-and-affairs"');
+      });
   });
 
   it('errors when unselected', () => {
