@@ -1,4 +1,4 @@
-# Event bus for reduced fees
+# Event bus for opg.poas events
 
 resource "aws_cloudwatch_event_bus" "main" {
   name     = data.aws_default_tags.current.tags.environment-name

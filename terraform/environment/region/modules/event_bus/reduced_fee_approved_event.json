@@ -1,0 +1,9 @@
+[
+  {
+    "Time": "2016-01-14T01:02:03Z",
+    "Source": "opg.poas.sirius",
+    "DetailType": "reduced-fee-approved",
+    "EventBusName": "1353mlpab22",
+    "Detail": "{\"uid\": \"M-C7DW-9C8U-X4NU\"}"
+  }
+]
