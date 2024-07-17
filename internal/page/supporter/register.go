@@ -20,6 +20,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+type Logger interface {
+	InfoContext(ctx context.Context, msg string, args ...any)
+}
+
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
@@ -98,6 +102,7 @@ type ProgressTracker interface {
 
 func Register(
 	rootMux *http.ServeMux,
+	logger Logger,
 	tmpls template.Templates,
 	oneLoginClient OneLoginClient,
 	sessionStore SessionStore,
@@ -122,13 +127,13 @@ func Register(
 	handleRoot(paths.Login, None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
+		LoginCallback(logger, oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
 	handleRoot(paths.EnterYourName, RequireSession,
 		EnterYourName(tmpls.Get("enter_your_name.gohtml"), memberStore))
 	handleRoot(paths.EnterOrganisationName, RequireSession,
-		EnterOrganisationName(tmpls.Get("enter_organisation_name.gohtml"), organisationStore, memberStore, sessionStore))
+		EnterOrganisationName(logger, tmpls.Get("enter_organisation_name.gohtml"), organisationStore, memberStore, sessionStore))
 	handleRoot(paths.EnterReferenceNumber, RequireSession,
-		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
+		EnterReferenceNumber(logger, tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
 	handleRoot(paths.InviteExpired, RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
 	handleRoot(paths.OrganisationDeleted, None,
@@ -156,9 +161,9 @@ func Register(
 	handleWithSupporter(paths.InviteMember, CanGoBack|RequireAdmin,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
 	handleWithSupporter(paths.DeleteOrganisation, CanGoBack,
-		DeleteOrganisation(tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
+		DeleteOrganisation(logger, tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(paths.EditMember, CanGoBack,
-		EditMember(tmpls.Get("edit_member.gohtml"), memberStore))
+		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(paths.DonorAccess, CanGoBack,
 		DonorAccess(tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))

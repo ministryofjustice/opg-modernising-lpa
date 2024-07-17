@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -14,7 +15,7 @@ type enterReferenceNumber struct {
 	Form   *referenceNumberForm
 }
 
-func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessionStore SessionStore) page.Handler {
+func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore MemberStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterReferenceNumber{
 			App: appData,
@@ -53,6 +54,8 @@ func EnterReferenceNumber(tmpl template.Template, memberStore MemberStore, sessi
 
 				loginSession.OrganisationID = invite.OrganisationID
 				loginSession.OrganisationName = invite.OrganisationName
+
+				logger.InfoContext(r.Context(), "member invite redeemed", slog.String("organisationID", loginSession.OrganisationID))
 
 				if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 					return err
