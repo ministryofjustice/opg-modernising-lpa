@@ -27,7 +27,11 @@ func TestSignOut(t *testing.T) {
 		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
 		Return("http://end-session", nil)
 
-	err := SignOut(nil, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "logout")
+
+	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,6 +46,8 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(r.Context(), "unable to end onelogin session", slog.Any("err", expectedError))
+	logger.EXPECT().
+		InfoContext(r.Context(), "logout")
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -71,6 +77,8 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(r.Context(), "unable to expire session", slog.Any("err", expectedError))
+	logger.EXPECT().
+		InfoContext(r.Context(), "logout")
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().

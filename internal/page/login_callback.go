@@ -2,6 +2,7 @@ package page
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -19,7 +20,7 @@ type LoginCallbackSessionStore interface {
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
+func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
 		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
@@ -41,6 +42,8 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Logi
 			Sub:     userInfo.Sub,
 			Email:   userInfo.Email,
 		}
+
+		logger.InfoContext(r.Context(), "login", slog.String("sessionID", session.SessionID()))
 
 		if err := sessionStore.SetLogin(r, w, session); err != nil {
 			return err

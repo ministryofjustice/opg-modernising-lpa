@@ -150,6 +150,7 @@ func App(
 
 	supporter.Register(
 		rootMux,
+		logger,
 		supporterTmpls,
 		oneLoginClient,
 		sessionStore,
@@ -187,6 +188,7 @@ func App(
 
 	attorney.Register(
 		rootMux,
+		logger,
 		tmpls,
 		attorneyTmpls,
 		sessionStore,
