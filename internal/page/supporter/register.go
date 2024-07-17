@@ -166,7 +166,7 @@ func Register(
 		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(paths.DonorAccess, CanGoBack,
-		DonorAccess(tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))
+		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))
 }
 
 type HandleOpt byte
