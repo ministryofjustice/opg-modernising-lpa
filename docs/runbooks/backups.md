@@ -17,20 +17,32 @@ tables. The freeze will help to prevent this.
 tasks.
 - You will need the image tag currently deployed to production
 
+## Turn off the Opensearch ingestion pipeline
+
+1. Sign in to the AWS Console, Assume the breakglass role in the Production account, and navigate to the OpenSearch service.
+
+1. from the menu on the left select Ingestion pipelines.
+
+1. Select the pipeline named `lpas-production-stream` and click on the Actions dropdown at the top right of the table. Choose Stop pipeline. Wait for the pipeline status to change to Stopped.
+
 ## Restore a table from a backup
 
-1. Sign in to the AWS Console, Assume the breakglass role in the Production account, and navigate to AWS Backup.
+1. Navigate to AWS Backup.
 
 1. From the menu on the left, expand My account and click on Backup Vaults.
 
 1. Click on the vault named `eu-west-1-production-backup-vault`. This will show a list of backups for each table that can be used as recovery points.
 
-1. Select a single backup using the Resource ID and Creation time to pick one that is appropriate, and tick it. At the top right of this table, click the Actionsdropdown and choose Restore.
+1. Select a single backup using the Resource ID and Creation time to pick one that is appropriate, and tick it. At the top right of this table, click the Actions dropdown and choose Restore.
 
 1. This will open the Restore backup wizard. Choose a new name for the table. Use the original name plus a `-` then the date of restoration in the format `YYYYMMDD`. For example `production-Lpas-20240715`. This will make is
 easier to manage restored tables going forward. It is not possible to change the name of a DynamoDB after it is created. This new name will be brought into our infrastructure as code. Note that indexes will also be restored.
 
-1. You’ll be taken to the Jobs page on the Restore jobs tab. Restore jobs can take a long time (hours) to complete.
+1. Under Encryption Key, select "choose an AWS KMS key" and select the key labelled `alias/opg-modernising-lpa_dynamodb_encryption` from the dropdown.
+
+1. Under Restore role, elect "Default role".
+
+1. Click Restore backup. This will create a new table with the name you provided. You can monitor the progress of the restore by clicking on the Jobs tab in the AWS Backup console.
 
 ## Bring restored table into service
 
@@ -69,6 +81,12 @@ easier to manage restored tables going forward. It is not possible to change the
     }
     ```
 
+1. Tell terraform to recreate the opensearch ingestion pipeline to use the new table.
+
+    ```shell
+    aws-vault exec identity -- terraform taint 'aws_osis_pipeline.lpas_stream[0]'
+    ```
+
 1. From there we can run a plan to check what will happen.
 
     ```shell
@@ -78,11 +96,12 @@ easier to manage restored tables going forward. It is not possible to change the
     We are expecting to see updates to our restored dynamoDB table, and changes to services and resources that reference the table name or ARN.
 
     > Things to check for
-    > 1. Policy Documents for API and Admin updating to use new (restored table)
+    > 1. Policy Documents for Opensearch pipeline, App task role, Event received role and env vars updating to use new (restored table)
     > 1. AWS Backup managing the new table
-    > 1. DynamoDB Table tags, point in time restore enabled, server side encryption enabled and TTL activation
+    > 1. DynamoDB Table tags, point in time restore enabled, stream enabled
+    > 1. Opensearch pipeline recreated to use new table
     > 1. ECS Services and Task Definition updates for app
-    > 1.Lambda function updates for event_received
+    > 1. Lambda function updates for event_received
 
 1. Once happy with the plan, apply the changes
 
