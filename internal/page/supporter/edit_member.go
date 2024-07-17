@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -18,7 +19,7 @@ type editMemberData struct {
 	CanEditAll bool
 }
 
-func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
+func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		memberID := r.FormValue("id")
 		isLoggedInMember := member.ID == memberID
@@ -70,11 +71,13 @@ func EditMember(tmpl template.Template, memberStore MemberStore) Handler {
 				if canEditAll {
 					if data.Form.Permission != member.Permission {
 						changed = true
+						logger.InfoContext(r.Context(), "member permission changed", slog.String("memberID", member.ID), slog.String("permissionOld", member.Permission.String()), slog.String("permissionNew", data.Form.Permission.String()))
 						member.Permission = data.Form.Permission
 					}
 
 					if data.Form.Status != member.Status {
 						changed = true
+						logger.InfoContext(r.Context(), "member status changed", slog.String("memberID", member.ID), slog.String("statusOld", member.Status.String()), slog.String("statusNew", data.Form.Status.String()))
 						query.Add("statusUpdated", data.Form.Status.String())
 						query.Add("statusEmail", member.Email)
 						member.Status = data.Form.Status
