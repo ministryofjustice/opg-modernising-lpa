@@ -20,6 +20,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+type Logger interface {
+	InfoContext(ctx context.Context, msg string, args ...any)
+}
+
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
@@ -98,6 +102,7 @@ type ProgressTracker interface {
 
 func Register(
 	rootMux *http.ServeMux,
+	logger Logger,
 	tmpls template.Templates,
 	oneLoginClient OneLoginClient,
 	sessionStore SessionStore,
@@ -122,7 +127,7 @@ func Register(
 	handleRoot(paths.Login, None,
 		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
 	handleRoot(paths.LoginCallback, None,
-		LoginCallback(oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
+		LoginCallback(logger, oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
 	handleRoot(paths.EnterYourName, RequireSession,
 		EnterYourName(tmpls.Get("enter_your_name.gohtml"), memberStore))
 	handleRoot(paths.EnterOrganisationName, RequireSession,
