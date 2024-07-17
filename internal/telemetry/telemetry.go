@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -16,14 +17,12 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
-	"google.golang.org/grpc"
 )
 
 func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
 	traceExporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
-		otlptracegrpc.WithDialOption(grpc.WithBlock()))
+		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
 	}
@@ -94,6 +93,15 @@ func (h *SlogHandler) Handle(ctx context.Context, record slog.Record) error {
 	if spanCtx.HasTraceID() {
 		traceID := spanCtx.TraceID()
 		record.AddAttrs(slog.String("trace_id", traceID.String()))
+	}
+
+	session, err := page.SessionDataFromContext(ctx)
+	if err == nil {
+		record.AddAttrs(slog.String("sessionID", session.SessionID))
+
+		if session.OrganisationID != "" {
+			record.AddAttrs(slog.String("organisationID", session.OrganisationID))
+		}
 	}
 
 	return h.handler.Handle(ctx, record)
