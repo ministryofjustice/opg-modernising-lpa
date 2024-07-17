@@ -41,7 +41,7 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 					return err
 				}
 
-				return page.Paths.LpaType.Redirect(w, r, appData, donor)
+				return page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa.Redirect(w, r, appData, donor)
 			}
 		}
 

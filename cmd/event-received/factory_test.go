@@ -186,3 +186,18 @@ func TestUidClientWhenSet(t *testing.T) {
 	client := factory.UidClient()
 	assert.Equal(t, expected, client)
 }
+
+func TestEventClient(t *testing.T) {
+	factory := &Factory{}
+
+	client := factory.EventClient()
+	assert.NotNil(t, client)
+}
+
+func TestEventClientWhenSet(t *testing.T) {
+	expected := newMockEventClient(t)
+	factory := &Factory{eventClient: expected}
+
+	client := factory.EventClient()
+	assert.Equal(t, expected, client)
+}
