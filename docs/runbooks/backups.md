@@ -1,7 +1,7 @@
 # Restoring a DynamoDB Backup
 
-AWS Backup is used to schedule and manage backups for each dynamodb table.
-As with other AWS backup processes, restored backups create a new resource which must be named differently from the resource. If the source were deleted prior to restoration this would not be an
+AWS Backup is used to schedule and manage backups for the dynamodb table.
+As with other AWS backup processes, restored backups create a new resource which must be named differently from the source resource. If the source were deleted prior to restoration this would not be an
 issue, but this comes with risk.
 This document will walk you through how to restore a backup, and bring it into service, and how to delete the old table.
 The guide is targetted at Production restoring a backup of the ActorUsers table, but the screenshots are from Development.
@@ -15,19 +15,10 @@ tables. The freeze will help to prevent this.
 - This restore procedure can take hours to perform.
 - When running this procedure against Production or Preproduction, you will need to be able to assume the breakglass role. If you cannot, you do not have the required permission set to perform these
 tasks.
-- You will need the image tag currently deployed to production
-
-## Turn off the Opensearch ingestion pipeline
-
-1. Sign in to the AWS Console, Assume the breakglass role in the Production account, and navigate to the OpenSearch service.
-
-1. from the menu on the left select Ingestion pipelines.
-
-1. Select the pipeline named `lpas-production-stream` and click on the Actions dropdown at the top right of the table. Choose Stop pipeline. Wait for the pipeline status to change to Stopped.
 
 ## Restore a table from a backup
 
-1. Navigate to AWS Backup.
+1. Sign in to the AWS Console, Assume the breakglass role in the Production account, and navigate to AWS Backup.
 
 1. From the menu on the left, expand My account and click on Backup Vaults.
 
@@ -40,7 +31,7 @@ easier to manage restored tables going forward. It is not possible to change the
 
 1. Under Encryption Key, select "choose an AWS KMS key" and select the key labelled `alias/opg-modernising-lpa_dynamodb_encryption` from the dropdown.
 
-1. Under Restore role, elect "Default role".
+1. Under Restore role, select "Default role".
 
 1. Click Restore backup. This will create a new table with the name you provided. You can monitor the progress of the restore by clicking on the Jobs tab in the AWS Backup console.
 
@@ -96,7 +87,7 @@ easier to manage restored tables going forward. It is not possible to change the
     We are expecting to see updates to our restored dynamoDB table, and changes to services and resources that reference the table name or ARN.
 
     > Things to check for
-    > 1. Policy Documents for Opensearch pipeline, App task role, Event received role and env vars updating to use new (restored table)
+    > 1. Policy Documents for Opensearch pipeline, App task role, Event received role and env vars updating to use new (restored) table
     > 1. AWS Backup managing the new table
     > 1. DynamoDB Table tags, point in time restore enabled, stream enabled
     > 1. Opensearch pipeline recreated to use new table
@@ -109,7 +100,7 @@ easier to manage restored tables going forward. It is not possible to change the
     aws-vault exec identity -- terraform apply
     ```
 
-1. Commit our changes to the DynamoDB table names, and raise a PR to ensure these persist.
+1. Commit our changes to the DynamoDB table name, and raise a PR to ensure this persists.
     Once this PR is merged and has reached production, we can release the change freeze.
 
 ## Delete the old table
