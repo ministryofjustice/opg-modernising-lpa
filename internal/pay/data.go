@@ -1,7 +1,7 @@
 package pay
 
 import (
-	"time"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
 type CreatePaymentBody struct {
@@ -24,7 +24,7 @@ type Link struct {
 }
 
 type CreatePaymentResponse struct {
-	CreatedDate     time.Time       `json:"created_date"`
+	CreatedDate     date.Date       `json:"created_date"`
 	State           State           `json:"State"`
 	Links           map[string]Link `json:"_links"`
 	Amount          int             `json:"amount"`
@@ -68,13 +68,13 @@ type RefundSummary struct {
 }
 
 type SettlementSummary struct {
-	CaptureSubmitTime string `json:"capture_submit_time"`
-	CapturedDate      string `json:"captured_date"`
-	SettledDate       string `json:"settled_date"`
+	CaptureSubmitTime date.Date `json:"capture_submit_time"`
+	CapturedDate      date.Date `json:"captured_date"`
+	SettledDate       date.Date `json:"settled_date"`
 }
 
 type GetPaymentResponse struct {
-	CreatedDate time.Time `json:"created_date"`
+	CreatedDate date.Date `json:"created_date"`
 	Amount      int       `json:"amount"`
 	State       State     `json:"State"`
 	Description string    `json:"description"`
