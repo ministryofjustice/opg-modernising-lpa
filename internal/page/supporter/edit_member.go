@@ -71,13 +71,13 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 				if canEditAll {
 					if data.Form.Permission != member.Permission {
 						changed = true
-						logger.InfoContext(r.Context(), "member permission changed", slog.String("memberID", member.ID), slog.String("permissionOld", member.Permission.String()), slog.String("permissionNew", data.Form.Permission.String()))
+						logger.InfoContext(r.Context(), "member permission changed", slog.String("member_id", member.ID), slog.String("permission_old", member.Permission.String()), slog.String("permission_new", data.Form.Permission.String()))
 						member.Permission = data.Form.Permission
 					}
 
 					if data.Form.Status != member.Status {
 						changed = true
-						logger.InfoContext(r.Context(), "member status changed", slog.String("memberID", member.ID), slog.String("statusOld", member.Status.String()), slog.String("statusNew", data.Form.Status.String()))
+						logger.InfoContext(r.Context(), "member status changed", slog.String("member_id", member.ID), slog.String("status_old", member.Status.String()), slog.String("status_new", data.Form.Status.String()))
 						query.Add("statusUpdated", data.Form.Status.String())
 						query.Add("statusEmail", member.Email)
 						member.Status = data.Form.Status

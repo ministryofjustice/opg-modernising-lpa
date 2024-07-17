@@ -36,7 +36,7 @@ func EnterOrganisationName(logger Logger, tmpl template.Template, organisationSt
 				if err != nil {
 					return err
 				}
-				logger.InfoContext(r.Context(), "organisation created", slog.String("organisationID", organisation.ID))
+				logger.InfoContext(r.Context(), "organisation created", slog.String("organisation_id", organisation.ID))
 
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {

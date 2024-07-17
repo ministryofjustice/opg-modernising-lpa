@@ -204,9 +204,9 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		InfoContext(r.Context(), "member status changed", slog.String("memberID", "member-id"), slog.String("statusOld", "active"), slog.String("statusNew", "suspended"))
+		InfoContext(r.Context(), "member status changed", slog.String("member_id", "member-id"), slog.String("status_old", "active"), slog.String("status_new", "suspended"))
 	logger.EXPECT().
-		InfoContext(r.Context(), "member permission changed", slog.String("memberID", "member-id"), slog.String("permissionOld", "none"), slog.String("permissionNew", "admin"))
+		InfoContext(r.Context(), "member permission changed", slog.String("member_id", "member-id"), slog.String("permission_old", "none"), slog.String("permission_new", "admin"))
 
 	err := EditMember(logger, nil, memberStore)(page.AppData{
 		LoginSessionEmail: "self@example.org",

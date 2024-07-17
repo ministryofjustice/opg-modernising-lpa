@@ -93,7 +93,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		InfoContext(r.Context(), "member invite redeemed", slog.String("organisationID", "org-id"))
+		InfoContext(r.Context(), "member invite redeemed", slog.String("organisation_id", "org-id"))
 
 	err := EnterReferenceNumber(logger, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()

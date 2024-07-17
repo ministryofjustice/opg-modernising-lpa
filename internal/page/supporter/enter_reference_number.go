@@ -55,7 +55,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 				loginSession.OrganisationID = invite.OrganisationID
 				loginSession.OrganisationName = invite.OrganisationName
 
-				logger.InfoContext(r.Context(), "member invite redeemed", slog.String("organisationID", loginSession.OrganisationID))
+				logger.InfoContext(r.Context(), "member invite redeemed", slog.String("organisation_id", loginSession.OrganisationID))
 
 				if err := sessionStore.SetLogin(r, w, loginSession); err != nil {
 					return err

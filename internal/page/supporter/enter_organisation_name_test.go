@@ -90,7 +90,7 @@ func TestPostEnterOrganisationName(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		InfoContext(r.Context(), "organisation created", slog.String("organisationID", "org-id"))
+		InfoContext(r.Context(), "organisation created", slog.String("organisation_id", "org-id"))
 
 	err := EnterOrganisationName(logger, nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()

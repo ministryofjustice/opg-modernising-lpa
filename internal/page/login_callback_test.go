@@ -63,7 +63,7 @@ func TestLoginCallback(t *testing.T) {
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
-				InfoContext(r.Context(), "login", slog.String("sessionID", session.SessionID()))
+				InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
 			err := LoginCallback(logger, client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney)(AppData{}, w, r)
 			assert.Nil(t, err)
@@ -81,7 +81,7 @@ func TestLoginCallbackWhenErrorReturned(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		InfoContext(r.Context(), "login error", slog.String("error", "hey"), slog.String("errorDescription", "this is why"))
+		InfoContext(r.Context(), "login error", slog.String("error", "hey"), slog.String("error_description", "this is why"))
 
 	err := LoginCallback(logger, nil, nil, Paths.Attorney.EnterReferenceNumber, nil, actor.TypeAttorney)(AppData{}, w, r)
 	assert.Equal(t, errors.New("access denied"), err)

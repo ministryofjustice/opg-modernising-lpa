@@ -26,7 +26,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 		if error := r.FormValue("error"); error != "" {
 			logger.InfoContext(r.Context(), "login error",
 				slog.String("error", error),
-				slog.String("errorDescription", r.FormValue("error_description")))
+				slog.String("error_description", r.FormValue("error_description")))
 			return errors.New("access denied")
 		}
 
@@ -51,7 +51,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			Email:   userInfo.Email,
 		}
 
-		logger.InfoContext(r.Context(), "login", slog.String("sessionID", session.SessionID()))
+		logger.InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
 		if err := sessionStore.SetLogin(r, w, session); err != nil {
 			return err

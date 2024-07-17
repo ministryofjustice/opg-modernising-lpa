@@ -97,10 +97,10 @@ func (h *SlogHandler) Handle(ctx context.Context, record slog.Record) error {
 
 	session, err := page.SessionDataFromContext(ctx)
 	if err == nil {
-		record.AddAttrs(slog.String("sessionID", session.SessionID))
+		record.AddAttrs(slog.String("session_id", session.SessionID))
 
 		if session.OrganisationID != "" {
-			record.AddAttrs(slog.String("organisationID", session.OrganisationID))
+			record.AddAttrs(slog.String("organisation_id", session.OrganisationID))
 		}
 	}
 
