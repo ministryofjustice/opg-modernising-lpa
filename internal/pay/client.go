@@ -61,7 +61,7 @@ func (c *Client) CreatePayment(ctx context.Context, lpaUID string, body CreatePa
 		data, _ := io.ReadAll(resp.Body)
 		c.logger.ErrorContext(ctx, "create payment failed",
 			slog.String("body", string(data)),
-			slog.Int("statusCode", resp.StatusCode))
+			slog.Int("status_code", resp.StatusCode))
 
 		return nil, fmt.Errorf("expected 201 got %d", resp.StatusCode)
 	}
@@ -92,7 +92,7 @@ func (c *Client) GetPayment(ctx context.Context, paymentID string) (GetPaymentRe
 		data, _ := io.ReadAll(resp.Body)
 		c.logger.ErrorContext(ctx, "get payment failed",
 			slog.String("body", string(data)),
-			slog.Int("statusCode", resp.StatusCode))
+			slog.Int("status_code", resp.StatusCode))
 
 		return GetPaymentResponse{}, fmt.Errorf("expected 201 got %d", resp.StatusCode)
 	}

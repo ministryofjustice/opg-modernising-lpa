@@ -2,6 +2,8 @@ package page
 
 import (
 	"context"
+	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -19,8 +21,15 @@ type LoginCallbackSessionStore interface {
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
+func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
 	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+		if error := r.FormValue("error"); error != "" {
+			logger.InfoContext(r.Context(), "login error",
+				slog.String("error", error),
+				slog.String("error_description", r.FormValue("error_description")))
+			return errors.New("access denied")
+		}
+
 		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
 			return err
@@ -41,6 +50,8 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Logi
 			Sub:     userInfo.Sub,
 			Email:   userInfo.Email,
 		}
+
+		logger.InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
 		if err := sessionStore.SetLogin(r, w, session); err != nil {
 			return err

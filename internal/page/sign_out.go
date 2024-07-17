@@ -24,6 +24,8 @@ func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginCl
 			endSessionURL = redirectURL
 		}
 
+		logger.InfoContext(r.Context(), "logout")
+
 		http.Redirect(w, r, endSessionURL, http.StatusFound)
 		return nil
 	}
