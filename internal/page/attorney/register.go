@@ -72,6 +72,7 @@ type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
 	rootMux *http.ServeMux,
+	logger Logger,
 	commonTmpls, tmpls template.Templates,
 	sessionStore SessionStore,
 	attorneyStore AttorneyStore,
@@ -87,7 +88,7 @@ func Register(
 	handleRoot(page.Paths.Attorney.Login, None,
 		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.Attorney.LoginCallback))
 	handleRoot(page.Paths.Attorney.LoginCallback, None,
-		page.LoginCallback(oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney))
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
 

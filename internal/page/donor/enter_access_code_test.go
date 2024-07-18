@@ -1,6 +1,7 @@
 package donor
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -29,7 +30,7 @@ func TestGetEnterAccessCode(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCode(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +51,7 @@ func TestGetEnterAccessCodeOnTemplateError(t *testing.T) {
 		Execute(w, data).
 		Return(expectedError)
 
-	err := EnterAccessCode(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -66,7 +67,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCode := actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
+	shareCode := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -78,7 +79,11 @@ func TestPostEnterAccessCode(t *testing.T) {
 		Link(r.Context(), shareCode, "logged-in@example.com").
 		Return(nil)
 
-	err := EnterAccessCode(nil, shareCodeStore, donorStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "donor access added", slog.String("lpa_id", "lpa-id"))
+
+	err := EnterAccessCode(logger, nil, shareCodeStore, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,7 +105,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
 		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
-	err := EnterAccessCode(nil, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -132,7 +137,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
 		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
-	err := EnterAccessCode(template.Execute, shareCodeStore, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -158,7 +163,7 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 		Link(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterAccessCode(nil, shareCodeStore, donorStore)(testAppData, w, r)
+	err := EnterAccessCode(nil, nil, shareCodeStore, donorStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -185,7 +190,7 @@ func TestPostEnterAccessCodeOnValidationError(t *testing.T) {
 		Execute(w, data).
 		Return(nil)
 
-	err := EnterAccessCode(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterAccessCode(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

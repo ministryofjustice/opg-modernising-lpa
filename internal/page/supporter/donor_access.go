@@ -2,6 +2,7 @@ package supporter
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -22,7 +23,7 @@ type donorAccessData struct {
 	ShareCode *actor.ShareCodeData
 }
 
-func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
+func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -57,6 +58,7 @@ func DonorAccess(tmpl template.Template, donorStore DonorStore, shareCodeStore S
 				if err := donorStore.DeleteDonorAccess(r.Context(), shareCodeData); err != nil {
 					return err
 				}
+				logger.InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", appData.LpaID))
 
 				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"accessRemovedFor": {shareCodeData.InviteSentTo},

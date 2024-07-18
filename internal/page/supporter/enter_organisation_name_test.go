@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -27,7 +28,7 @@ func TestGetEnterOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +44,7 @@ func TestGetEnterOrganisationNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -87,7 +88,11 @@ func TestPostEnterOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "organisation created", slog.String("organisation_id", "org-id"))
+
+	err := EnterOrganisationName(logger, nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -122,7 +127,11 @@ func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
 		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything, mock.Anything)
+
+	err := EnterOrganisationName(logger, nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -151,7 +160,11 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything, mock.Anything)
+
+	err := EnterOrganisationName(logger, nil, organisationStore, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -177,7 +190,7 @@ func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterOrganisationName(template.Execute, nil, nil, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, template.Execute, nil, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -199,7 +212,7 @@ func TestPostEnterOrganisationNameWhenMemberStoreErrors(t *testing.T) {
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, nil, memberStore, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -226,7 +239,7 @@ func TestPostEnterOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 		Create(r.Context(), mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := EnterOrganisationName(nil, organisationStore, memberStore, nil)(testAppData, w, r)
+	err := EnterOrganisationName(nil, nil, organisationStore, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
