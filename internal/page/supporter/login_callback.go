@@ -3,6 +3,7 @@ package supporter
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,8 +18,15 @@ type LoginCallbackOneLoginClient interface {
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 }
 
-func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore SessionStore, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
+func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, sessionStore SessionStore, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+		if error := r.FormValue("error"); error != "" {
+			logger.InfoContext(r.Context(), "login error",
+				slog.String("error", error),
+				slog.String("error_description", r.FormValue("error_description")))
+			return errors.New("access denied")
+		}
+
 		oneLoginSession, err := sessionStore.OneLogin(r)
 		if err != nil {
 			return err
@@ -39,6 +47,8 @@ func LoginCallback(oneLoginClient LoginCallbackOneLoginClient, sessionStore Sess
 			Sub:     "supporter-" + userInfo.Sub,
 			Email:   userInfo.Email,
 		}
+
+		logger.InfoContext(r.Context(), "login", slog.String("session_id", loginSession.SessionID()))
 
 		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
