@@ -60,8 +60,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
 
-
-      - uses: actions/cache@v4.0.2
+      - name: setup cache for ${{ matrix.ecr_repository }}
+        id: setup_cache
+        uses: actions/cache@v4.0.2
         with:
           path: ${{ env.BUILD_CACHE }}
           key: ${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
