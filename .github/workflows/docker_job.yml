@@ -25,6 +25,8 @@ permissions:
 
 jobs:
   docker_build_scan_push:
+    env:
+      BUILD_CACHE: /home/runner/.docker/buildkit
     strategy:
       fail-fast: false
       matrix:
@@ -57,28 +59,12 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
-
-
-      - uses: unfor19/install-aws-cli-action@v1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+      - uses: actions/cache@v4.0.2
         with:
-          aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-pull
-          role-duration-seconds: 900
-          role-session-name: GithubActionsECRPullMLPAB
-      - name: ECR Login
-        id: login_ecr_for_pull
-        uses: aws-actions/amazon-ecr-login@v2.0.1
-        with:
-          mask-password: true
-          registries: 311462405659
+          path: ${{ env.BUILD_CACHE }}
+          key: ${{ hashFiles('Dockerfile') }}
 
-      - name: Pull latest for cache
-        env:
-          ECR_REGISTRY: ${{ steps.login_ecr_for_pull.outputs.registry }}
-          TAG: latest
-        run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml pull
+
 
 
 
@@ -91,6 +77,8 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
+          cache-to: type=local,src=${{ env.BUILD_CACHE }}
+          cache-from: type=local,src=${{ env.BUILD_CACHE }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
