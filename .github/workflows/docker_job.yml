@@ -57,6 +57,29 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
+
+
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-pull
+          role-duration-seconds: 900
+          role-session-name: GithubActionsECRPullMLPAB
+      - name: ECR Login
+        id: login_ecr_for_pull
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
+          registries: 311462405659
+
+      - name: Pull latest for cache
+        run: docker pull ${{ matrix.ecr_repository }}:latest
+
+
+
+
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.3.0
         with:
