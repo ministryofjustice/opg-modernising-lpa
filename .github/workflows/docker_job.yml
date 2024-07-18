@@ -64,7 +64,7 @@ jobs:
       - uses: actions/cache@v4.0.2
         with:
           path: ${{ env.BUILD_CACHE }}
-          key: ${{ hashFiles('${{ matrix.path }}') }} ## I think I need a better hash here
+          key: test-${{ hashFiles('${{ matrix.path }}') }} ## I think I need a better hash here
 
 
       - name: Build ${{ matrix.ecr_repository }} Image
