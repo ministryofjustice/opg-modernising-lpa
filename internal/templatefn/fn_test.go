@@ -509,9 +509,9 @@ func TestConcatComma(t *testing.T) {
 }
 
 func TestPenceToPounds(t *testing.T) {
-	assert.Equal(t, "15", penceToPounds(1500))
-	assert.Equal(t, "103.27", penceToPounds(10327))
-	assert.Equal(t, "945,678.99", penceToPounds(94567899))
+	assert.Equal(t, "£15", penceToPounds(1500))
+	assert.Equal(t, "£103.27", penceToPounds(10327))
+	assert.Equal(t, "£945,678.99", penceToPounds(94567899))
 }
 
 func TestContent(t *testing.T) {
