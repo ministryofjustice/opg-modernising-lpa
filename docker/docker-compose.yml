@@ -137,8 +137,7 @@ services:
   mock-uid:
     image: outofcoffee/imposter:latest
     volumes:
-      - ./mock-uid/mock-uid-config.yaml:/opt/imposter/config/mock-uid-config.yaml
-      - ./mock-uid/uid.js:/opt/imposter/config/uid.js
+      - ./mock-uid/:/opt/imposter/config/
     container_name: mock-uid
     ports:
       - "8080:8080"
