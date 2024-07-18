@@ -412,7 +412,7 @@ func Register(
 	handleWithDonor(page.Paths.YouHaveSubmittedYourLpa, page.None,
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
-	handleWithDonor(page.Paths.Progress, page.CanGoBack,
+	handleWithDonor(page.Paths.Progress, page.None,
 		LpaProgress(tmpls.Get("lpa_progress.gohtml"), lpaStoreResolvingService, progressTracker))
 
 	handleWithDonor(page.Paths.UploadEvidenceSSE, page.None,

@@ -149,3 +149,21 @@ body.js-enabled .js-only {
 .app-08rem-font-size {
     font-size: .8rem;
 }
+
+.govuk-button + .moj-button-menu {
+    margin-left: govuk-spacing(3);
+}
+
+.app-not-small-screen {
+    display: none;
+}
+
+@include govuk-media-query($from: tablet) {
+    .app-only-small-screen {
+        display: none;
+    }
+
+    .app-not-small-screen {
+        display: block;
+    }
+}
