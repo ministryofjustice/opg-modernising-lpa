@@ -10,7 +10,7 @@
 
         {{ template "details" (details . "whoCannotVouchForYou" "whoCannotVouchForYouDetails" false) }}
         
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
+        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
         {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
         {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}

@@ -10,7 +10,7 @@
 
                 {{ template "warning" (content .App "yourNameWarning") }}
 
-                {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20") }}
+                {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
                 {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
 
                 {{ template "name-warning" . }}

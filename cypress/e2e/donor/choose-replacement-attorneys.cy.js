@@ -44,7 +44,7 @@ describe('Choose replacement attorneys', () => {
             cy.contains('Enter date of birth');
         });
 
-        cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
+        cy.contains('[for=f-first-names] + div + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Enter date of birth');
     });
@@ -55,7 +55,7 @@ describe('Choose replacement attorneys', () => {
 
         cy.contains('button', 'Save and continue').click();
 
-        cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
+        cy.contains('[for=f-first-names] + div + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
     });
 
