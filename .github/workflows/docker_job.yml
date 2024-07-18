@@ -75,7 +75,7 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          cache-to: type=local,src=${{ env.BUILD_CACHE }}
+          cache-to: type=local,to=${{ env.BUILD_CACHE }}
           cache-from: type=local,src=${{ env.BUILD_CACHE }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
