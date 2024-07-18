@@ -1,25 +1,31 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "myLpa" "LpaType" (lowerFirst (tr .App .Donor.Type.String)) }}
+    {{ tr .App "lpaProgress" }}
 {{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-      <div class="govuk-body">
-        <span><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Donor.LpaUID }}</span>
-      </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+            <div class="govuk-inset-text">
+                <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+                    </div>
+                </dl>
+            </div>
 
-      {{ template "donor-lpa-progress" . }}
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-      <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "backToDashboard" }}</a>
+            {{ template "donor-lpa-progress" . }}
 
-      <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
-
-      {{ template "lpa-decisions" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
-      {{ template "people-named-on-lpa" (lpaDecisions .App .Donor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted)) }}
+            <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "backToDashboard" }}</a>
+        </div>
     </div>
-  </div>
 {{ end }}
