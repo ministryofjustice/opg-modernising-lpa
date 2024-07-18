@@ -27,7 +27,7 @@ var (
 
 func TestCreatePayment(t *testing.T) {
 	expectedResponse := &CreatePaymentResponse{
-		CreatedDate: date.FromTime(created),
+		CreatedDate: created,
 		State: State{
 			Status:   "created",
 			Finished: false,
@@ -171,7 +171,7 @@ func TestGetPayment(t *testing.T) {
 	captured, _ := time.Parse(time.RFC3339Nano, "2022-01-02T12:13:14Z")
 
 	expectedResponse := GetPaymentResponse{
-		CreatedDate: date.FromTime(created),
+		CreatedDate: created,
 		Amount:      8200,
 		State: State{
 			Status:   "success",
@@ -207,7 +207,7 @@ func TestGetPayment(t *testing.T) {
 			AmountAvailable: 4000,
 		},
 		SettlementSummary: SettlementSummary{
-			CaptureSubmitTime: date.FromTime(captured),
+			CaptureSubmitTime: captured,
 			CapturedDate:      date.New("2022", "01", "05"),
 			SettledDate:       date.New("2022", "01", "05"),
 		},

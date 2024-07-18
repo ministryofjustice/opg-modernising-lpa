@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -772,7 +773,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amou
 			Reference: reference,
 			Amount:    amount,
 			SettlementSummary: pay.SettlementSummary{
-				CaptureSubmitTime: date.New("2000", "01", "02"),
+				CaptureSubmitTime: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC),
 				CapturedDate:      date.New("2000", "01", "02"),
 			},
 			CardDetails: pay.CardDetails{CardholderName: "a b"},
@@ -789,7 +790,7 @@ func (m *mockLocalizer) withEmailLocalizations(pence int) *mockLocalizer {
 		T("personal-welfare").
 		Return("translated type")
 	m.EXPECT().
-		FormatDate(date.New("2000", "01", "02")).
+		FormatDate(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)).
 		Return("formatted capture submit time")
 	m.EXPECT().
 		PenceToPounds(pence).
