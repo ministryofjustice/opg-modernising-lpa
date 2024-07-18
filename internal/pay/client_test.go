@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -167,6 +168,8 @@ func TestCreatePaymentWhenJsonError(t *testing.T) {
 }
 
 func TestGetPayment(t *testing.T) {
+	captured, _ := time.Parse(time.RFC3339Nano, "2022-01-02T12:13:14Z")
+
 	expectedResponse := GetPaymentResponse{
 		CreatedDate: created,
 		Amount:      8200,
@@ -204,9 +207,9 @@ func TestGetPayment(t *testing.T) {
 			AmountAvailable: 4000,
 		},
 		SettlementSummary: SettlementSummary{
-			CaptureSubmitTime: "2022-01-02T12:13:14Z",
-			CapturedDate:      "2022-01-05",
-			SettledDate:       "2022-01-05",
+			CaptureSubmitTime: captured,
+			CapturedDate:      date.New("2022", "01", "05"),
+			SettledDate:       date.New("2022", "01", "05"),
 		},
 		DelayedCapture:         false,
 		Moto:                   false,
