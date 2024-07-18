@@ -31,7 +31,7 @@ type CreatePaymentResponse struct {
 	CreatedDate     time.Time       `json:"created_date"`
 	State           State           `json:"State"`
 	Links           map[string]Link `json:"_links"`
-	Amount          AmountPence     `json:"amount"`
+	Amount          int             `json:"amount"`
 	Reference       string          `json:"reference"`
 	Description     string          `json:"description"`
 	ReturnURL       string          `json:"return_url"`
