@@ -68,7 +68,7 @@ jobs:
           role-duration-seconds: 900
           role-session-name: GithubActionsECRPullMLPAB
       - name: ECR Login
-        id: login_ecr
+        id: login_ecr_for_pull
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
