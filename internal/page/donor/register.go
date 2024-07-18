@@ -85,6 +85,7 @@ type OneLoginClient interface {
 
 type NotifyClient interface {
 	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
+	SendEmail(ctx context.Context, to string, email notify.Email) error
 }
 
 type SessionStore interface {
@@ -346,7 +347,7 @@ func Register(
 	handleWithDonor(page.Paths.FeeDenied, page.None,
 		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithDonor(page.Paths.PaymentConfirmation, page.None,
-		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient))
+		PaymentConfirmation(logger, tmpls.Get("payment_confirmation.gohtml"), payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))
 	handleWithDonor(page.Paths.EvidenceSuccessfullyUploaded, page.None,
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithDonor(page.Paths.WhatHappensNextPostEvidence, page.None,

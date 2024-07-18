@@ -111,3 +111,16 @@ func TestLowerFirst(t *testing.T) {
 	assert.Equal(t, "hELLO", LowerFirst("HELLO"))
 	assert.Equal(t, "hello", LowerFirst("hello"))
 }
+
+func TestPenceToPounds(t *testing.T) {
+	en := Localizer{Lang: En}
+	cy := Localizer{Lang: Cy}
+
+	assert.Equal(t, "£15", en.PenceToPounds(1500))
+	assert.Equal(t, "£103.27", en.PenceToPounds(10327))
+	assert.Equal(t, "£945,678.99", en.PenceToPounds(94567899))
+
+	assert.Equal(t, "£15", cy.PenceToPounds(1500))
+	assert.Equal(t, "£103.27", cy.PenceToPounds(10327))
+	assert.Equal(t, "£945,678.99", cy.PenceToPounds(94567899))
+}
