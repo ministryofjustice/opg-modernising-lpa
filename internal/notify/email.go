@@ -173,3 +173,21 @@ func (e CertificateProviderFailedIDCheckEmail) emailID(isProduction bool) string
 
 	return "26d337be-eef3-405f-96ed-cb2ed76002b3"
 }
+
+type PaymentConfirmationEmail struct {
+	DonorFullNamesPossessive string
+	LpaType                  string
+	PaymentCardFullName      string
+	LpaReferenceNumber       string
+	PaymentReferenceID       string
+	PaymentConfirmationDate  string
+	AmountPaidWithCurrency   string
+}
+
+func (e PaymentConfirmationEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "d0946a7d-d7fe-47cb-9b41-464f13727bf3"
+	}
+
+	return "ff757818-f066-4605-8751-af481afe8a2b"
+}
