@@ -89,7 +89,7 @@ func (a AmountPence) Int() int {
 
 type GetPaymentResponse struct {
 	CreatedDate time.Time   `json:"created_date"`
-	Amount      AmountPence `json:"amount"`
+	AmountPence AmountPence `json:"amount"`
 	State       State       `json:"State"`
 	Description string      `json:"description"`
 	Reference   string      `json:"reference"`

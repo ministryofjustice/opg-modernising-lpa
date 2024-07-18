@@ -172,7 +172,7 @@ func TestGetPayment(t *testing.T) {
 
 	expectedResponse := GetPaymentResponse{
 		CreatedDate: created,
-		Amount:      8200,
+		AmountPence: 8200,
 		State: State{
 			Status:   "success",
 			Finished: true,

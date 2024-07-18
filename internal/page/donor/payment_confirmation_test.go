@@ -769,9 +769,9 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amou
 				Status:   "success",
 				Finished: true,
 			},
-			PaymentID: paymentId,
-			Reference: reference,
-			Amount:    pay.AmountPence(amount),
+			PaymentID:   paymentId,
+			Reference:   reference,
+			AmountPence: pay.AmountPence(amount),
 			SettlementSummary: pay.SettlementSummary{
 				CaptureSubmitTime: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC),
 				CapturedDate:      date.New("2000", "01", "02"),
