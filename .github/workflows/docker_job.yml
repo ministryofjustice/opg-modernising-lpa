@@ -75,7 +75,10 @@ jobs:
           registries: 311462405659
 
       - name: Pull latest for cache
-        run: docker pull ${{ matrix.ecr_repository }}:latest
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr_for_pull.outputs.registry }}
+          TAG: latest
+        run: docker compose -f docker/docker-compose.yml -f docker/docker-compose.ci.yml pull
 
 
 
