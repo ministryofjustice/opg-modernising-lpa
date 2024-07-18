@@ -144,7 +144,7 @@ func TestCreatePaymentWhenResponseError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "create payment failed", slog.String("body", "hey"), slog.Int("statusCode", http.StatusBadRequest))
+		ErrorContext(ctx, "create payment failed", slog.String("body", "hey"), slog.Int("status_code", http.StatusBadRequest))
 
 	payClient := Client{doer: doer, logger: logger}
 
@@ -332,7 +332,7 @@ func TestGetPaymentWhenResponseError(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "get payment failed", slog.String("body", "hey"), slog.Int("statusCode", http.StatusBadRequest))
+		ErrorContext(ctx, "get payment failed", slog.String("body", "hey"), slog.Int("status_code", http.StatusBadRequest))
 
 	payClient := Client{doer: doer, logger: logger}
 
