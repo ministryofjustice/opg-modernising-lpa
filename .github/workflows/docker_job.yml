@@ -57,6 +57,10 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
+      - name: Pull latest for cache
+        run: docker pull ${{ matrix.ecr_repository }}:latest
+
+
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.3.0
         with:
