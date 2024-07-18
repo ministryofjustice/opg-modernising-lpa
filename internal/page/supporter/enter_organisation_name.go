@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -14,7 +15,7 @@ type enterOrganisationNameData struct {
 	Form   *organisationNameForm
 }
 
-func EnterOrganisationName(tmpl template.Template, organisationStore OrganisationStore, memberStore MemberStore, sessionStore SessionStore) page.Handler {
+func EnterOrganisationName(logger Logger, tmpl template.Template, organisationStore OrganisationStore, memberStore MemberStore, sessionStore SessionStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := &enterOrganisationNameData{
 			App:  appData,
@@ -35,6 +36,7 @@ func EnterOrganisationName(tmpl template.Template, organisationStore Organisatio
 				if err != nil {
 					return err
 				}
+				logger.InfoContext(r.Context(), "organisation created", slog.String("organisation_id", organisation.ID))
 
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {

@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -47,7 +48,7 @@ func TestGetEditMember(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,7 +64,7 @@ func TestGetEditMemberWhenMemberStoreError(t *testing.T) {
 		GetByID(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -79,7 +80,7 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, &actor.Member{ID: "an-id"})
+	err := EditMember(nil, template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, &actor.Member{ID: "an-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -152,7 +153,7 @@ func TestPostEditMember(t *testing.T) {
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
-			err := EditMember(nil, memberStore)(page.AppData{
+			err := EditMember(nil, nil, memberStore)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				SupporterData: &page.SupporterData{
 					Permission: tc.userPermission,
@@ -172,7 +173,7 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 		"first-names": {"c"},
 		"last-name":   {"d"},
 		"status":      {"suspended"},
-		"permission":  {},
+		"permission":  {"admin"},
 	}
 
 	w := httptest.NewRecorder()
@@ -183,6 +184,7 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 	memberStore.EXPECT().
 		GetByID(r.Context(), "an-id").
 		Return(&actor.Member{
+			ID:         "member-id",
 			FirstNames: "a",
 			LastName:   "b",
 			Email:      "team-member@example.org",
@@ -191,15 +193,22 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 		}, nil)
 	memberStore.EXPECT().
 		Put(r.Context(), &actor.Member{
+			ID:         "member-id",
 			FirstNames: "c",
 			LastName:   "d",
 			Email:      "team-member@example.org",
 			Status:     actor.StatusSuspended,
-			Permission: actor.PermissionNone,
+			Permission: actor.PermissionAdmin,
 		}).
 		Return(nil)
 
-	err := EditMember(nil, memberStore)(page.AppData{
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "member status changed", slog.String("member_id", "member-id"), slog.String("status_old", "active"), slog.String("status_new", "suspended"))
+	logger.EXPECT().
+		InfoContext(r.Context(), "member permission changed", slog.String("member_id", "member-id"), slog.String("permission_old", "none"), slog.String("permission_new", "admin"))
+
+	err := EditMember(logger, nil, memberStore)(page.AppData{
 		LoginSessionEmail: "self@example.org",
 		SupporterData: &page.SupporterData{
 			Permission: actor.PermissionAdmin,
@@ -243,7 +252,7 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := EditMember(nil, nil)(page.AppData{
+			err := EditMember(nil, nil, nil)(page.AppData{
 				LoginSessionEmail: "self@example.org",
 				SupporterData: &page.SupporterData{
 					Permission: tc.userPermission,
@@ -288,7 +297,7 @@ func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
 			Permission: actor.PermissionAdmin,
 		}, nil)
 
-	err := EditMember(nil, memberStore)(page.AppData{
+	err := EditMember(nil, nil, memberStore)(page.AppData{
 		LoginSessionEmail: "self@example.org",
 		SupporterData: &page.SupporterData{
 			Permission: actor.PermissionAdmin,
@@ -320,7 +329,7 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -361,7 +370,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(template.Execute, memberStore)(testAppData, w, r, nil, &actor.Member{})
+	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, nil, &actor.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

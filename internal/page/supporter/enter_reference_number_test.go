@@ -1,6 +1,7 @@
 package supporter
 
 import (
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -30,7 +31,7 @@ func TestGetEnterReferenceNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,7 +52,7 @@ func TestGetEnterReferenceNumberWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -90,7 +91,11 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 		SetLogin(r, w, &sesh.LoginSession{Email: "name@example.com", Sub: "a-sub", OrganisationID: "org-id", OrganisationName: "org name"}).
 		Return(nil)
 
-	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "member invite redeemed", slog.String("organisation_id", "org-id"))
+
+	err := EnterReferenceNumber(logger, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -123,7 +128,7 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, memberStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, template.Execute, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -146,7 +151,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 			CreatedAt:       time.Now().Add(-49 * time.Hour),
 		}, nil)
 
-	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -166,7 +171,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T)
 		InvitedMember(mock.Anything).
 		Return(&actor.MemberInvite{}, expectedError)
 
-	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -193,7 +198,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 		CreateFromInvite(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, memberStore, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -225,7 +230,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -261,7 +266,11 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 		SetLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReferenceNumber(nil, memberStore, sessionStore)(testAppData, w, r)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything, mock.Anything)
+
+	err := EnterReferenceNumber(logger, nil, memberStore, sessionStore)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -286,7 +295,7 @@ func TestPostEnterReferenceNumberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterReferenceNumber(template.Execute, nil, nil)(testAppData, w, r)
+	err := EnterReferenceNumber(nil, template.Execute, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)

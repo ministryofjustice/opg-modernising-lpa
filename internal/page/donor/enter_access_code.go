@@ -2,6 +2,7 @@ package donor
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -17,7 +18,7 @@ type enterAccessCodeData struct {
 	Form   *enterAccessCodeForm
 }
 
-func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore) page.Handler {
+func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore ShareCodeStore, donorStore DonorStore) page.Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
 		data := enterAccessCodeData{
 			App:  appData,
@@ -42,6 +43,7 @@ func EnterAccessCode(tmpl template.Template, shareCodeStore ShareCodeStore, dono
 				if err := donorStore.Link(r.Context(), shareCode, appData.LoginSessionEmail); err != nil {
 					return err
 				}
+				logger.InfoContext(r.Context(), "donor access added", slog.String("lpa_id", shareCode.LpaKey.ID()))
 
 				return page.Paths.Dashboard.Redirect(w, r, appData)
 			}

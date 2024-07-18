@@ -29,7 +29,7 @@ func TestGetDeleteOrganisationName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := DeleteOrganisation(template.Execute, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := DeleteOrganisation(nil, template.Execute, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetDeleteOrganisationNameWhenOrganisationStoreError(t *testing.T) {
 		CountWithQuery(r.Context(), search.CountWithQueryReq{MustNotExist: "RegisteredAt"}).
 		Return(0, expectedError)
 
-	err := DeleteOrganisation(nil, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := DeleteOrganisation(nil, nil, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -66,7 +66,7 @@ func TestGetDeleteOrganisationNameWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteOrganisation(template.Execute, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := DeleteOrganisation(nil, template.Execute, nil, nil, searchClient)(testAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -87,7 +87,11 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 		SoftDelete(r.Context(), &actor.Organisation{}).
 		Return(nil)
 
-	err := DeleteOrganisation(nil, organisationStore, sessionStore, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(r.Context(), "organisation deleted")
+
+	err := DeleteOrganisation(logger, nil, organisationStore, sessionStore, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -95,7 +99,7 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 	assert.Equal(t, page.Paths.Supporter.OrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
 }
 
-func TestPostDeleteOrganisationNameWhenSessionStoreErrorsError(t *testing.T) {
+func TestPostDeleteOrganisationNameWhenSessionStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -109,7 +113,11 @@ func TestPostDeleteOrganisationNameWhenSessionStoreErrorsError(t *testing.T) {
 		ClearLogin(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteOrganisation(nil, organisationStore, sessionStore, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(mock.Anything, mock.Anything)
+
+	err := DeleteOrganisation(logger, nil, organisationStore, sessionStore, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -126,7 +134,7 @@ func TestPostDeleteOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 		SoftDelete(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteOrganisation(nil, organisationStore, nil, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
+	err := DeleteOrganisation(nil, nil, organisationStore, nil, nil)(testOrgMemberAppData, w, r, &actor.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Error(t, err)
