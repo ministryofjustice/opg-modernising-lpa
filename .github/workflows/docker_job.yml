@@ -35,7 +35,7 @@ jobs:
             path: ./docker/mlpa/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
-            path: lambda/create_s3_replication_job/Dockerfile
+            path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
@@ -64,8 +64,7 @@ jobs:
       - uses: actions/cache@v4.0.2
         with:
           path: ${{ env.BUILD_CACHE }}
-          key: test-${{ hashFiles('${{ matrix.path }}') }}
-          # ${{ hashFiles('${{ matrix.path }}') }} ## I think I need a better hash here
+          key: ${{ matrix.ecr_respository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json' }}') }}
 
 
       - name: Build ${{ matrix.ecr_repository }} Image
