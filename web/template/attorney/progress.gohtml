@@ -1,16 +1,28 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ trFormat .App "theirLpa" "FullNamePossessive" (possessive .App .Lpa.Donor.FullName) "LpaType" (tr .App .Lpa.Type.String | lowerFirst) }}
+  {{ tr .App "lpaProgress" }}
 {{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-      <div class="govuk-body">
-        <span><strong>{{ tr .App "referenceNumber" }}:</strong> {{ .Lpa.LpaUID }}</span>
+      <div class="govuk-inset-text">
+          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+              <div class="govuk-summary-list__row">
+                  <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+                  <dd class="govuk-summary-list__value">{{ tr .App .Lpa.Type.String }}</dd>
+              </div>
+              <div class="govuk-summary-list__row">
+                  <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+                  <dd class="govuk-summary-list__value">{{ .Lpa.LpaUID }}</dd>
+              </div>
+          </dl>
       </div>
+
+
+      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
       <div class="app-progress-bar">
         <ol class="app-progress-bar__list">
@@ -30,11 +42,6 @@
       </div>
 
       <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "backToDashboard" }}</a>
-
-      <h2 class="govuk-heading-m">{{ tr .App "lpaDecisions"}}</h2>
-
-      {{ template "lpa-decisions" (lpaDecisions .App .Lpa false) }}
-      {{ template "people-named-on-lpa" (lpaDecisions .App .Lpa false) }}
     </div>
   </div>
 {{ end }}

@@ -3,7 +3,6 @@ describe('Progress', () => {
         cy.visit('/fixtures/attorney?redirect=/progress');
         cy.checkA11yApp();
 
-        cy.contains('h1', 'Sam Smith’s property and affairs LPA');
         cy.contains('li', 'You’ve signed the LPA In progress');
         cy.contains('li', 'All attorneys have signed the LPA Not started');
     });
@@ -12,7 +11,6 @@ describe('Progress', () => {
         cy.visit('/fixtures/attorney?redirect=/progress&progress=signedByAttorney');
         cy.checkA11yApp();
 
-        cy.contains('h1', 'Sam Smith’s property and affairs LPA');
         cy.contains('li', 'You’ve signed the LPA Completed');
         cy.contains('li', 'All attorneys have signed the LPA In progress');
     });
@@ -21,7 +19,6 @@ describe('Progress', () => {
         cy.visit('/fixtures/attorney?redirect=/progress&progress=signedByAllAttorneys');
         cy.checkA11yApp();
 
-        cy.contains('h1', 'Sam Smith’s property and affairs LPA');
         cy.contains('li', 'You’ve signed the LPA Completed');
         cy.contains('li', 'All attorneys have signed the LPA Completed');
     });
