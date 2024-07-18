@@ -1,7 +1,11 @@
 package pay
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/dustin/go-humanize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
 type CreatePaymentBody struct {
@@ -63,23 +67,33 @@ type ThreeDSecure struct {
 }
 
 type RefundSummary struct {
-	Status          string `json:"status"`
-	AmountAvailable int    `json:"amount_available"`
+	Status          string      `json:"status"`
+	AmountAvailable AmountPence `json:"amount_available"`
 }
 
 type SettlementSummary struct {
-	CaptureSubmitTime string `json:"capture_submit_time"`
-	CapturedDate      string `json:"captured_date"`
-	SettledDate       string `json:"settled_date"`
+	CaptureSubmitTime time.Time `json:"capture_submit_time"`
+	CapturedDate      date.Date `json:"captured_date"`
+	SettledDate       date.Date `json:"settled_date"`
+}
+
+type AmountPence int
+
+func (a AmountPence) Pounds() string {
+	return fmt.Sprintf("£%s", humanize.CommafWithDigits(float64(a)/100, 2))
+}
+
+func (a AmountPence) Int() int {
+	return int(a)
 }
 
 type GetPaymentResponse struct {
-	CreatedDate time.Time `json:"created_date"`
-	Amount      int       `json:"amount"`
-	State       State     `json:"State"`
-	Description string    `json:"description"`
-	Reference   string    `json:"reference"`
-	Language    string    `json:"language"`
+	CreatedDate time.Time   `json:"created_date"`
+	AmountPence AmountPence `json:"amount"`
+	State       State       `json:"State"`
+	Description string      `json:"description"`
+	Reference   string      `json:"reference"`
+	Language    string      `json:"language"`
 	//May be useful but until we define if/what we send in CreatePayment we can't marshal the response
 	//
 	//Metadata    struct {

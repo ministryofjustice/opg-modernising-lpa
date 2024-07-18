@@ -1,5 +1,5 @@
 plugin: openapi
-specFile: openapi-spec.json
+specFile: https://raw.githubusercontent.com/alphagov/pay-publicapi/master/openapi/publicapi_spec.json
 response:
   scriptFile: payments.js
 

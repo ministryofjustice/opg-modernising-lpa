@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "feeDenied" }}</h1>
 
-      {{ trFormatHtml .App "feeDeniedContent" "RemainingAmountDue" ( penceToPounds .Donor.FeeAmount) }}
+      {{ trFormatHtml .App "feeDeniedContent" "RemainingAmountDuePounds" ( penceToPounds .Donor.FeeAmount) }}
 
       <form novalidate method="post">
         {{ template "buttons" (button .App "continueToPayment") }}
