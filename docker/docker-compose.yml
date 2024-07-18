@@ -97,18 +97,12 @@ services:
       timeout: 5s
 
   mock-lpa-store:
-    build:
-      context: ..
-      dockerfile: docker/mock-lpa-store/Dockerfile
-      args:
-        IMPOSTER_VERSION: 3.40.0
+    image: outofcoffee/imposter:latest
     volumes:
       - ./mock-lpa-store/:/opt/imposter/config/
     container_name: mock-lpa-store
     ports:
       - "8081:8080"
-    environment:
-      - IMPOSTER_JS_PLUGIN=js-graal
 
   mock-onelogin:
     image: 311462405659.dkr.ecr.eu-west-1.amazonaws.com/mock-onelogin:latest
