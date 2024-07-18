@@ -21,7 +21,7 @@ describe('Your authorised signatory', () => {
             cy.contains('Enter last name');
         });
 
-        cy.contains('[for=f-first-names] + .govuk-error-message', 'Enter first names');
+        cy.contains('[for=f-first-names] + div + .govuk-error-message', 'Enter first names');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Enter last name');
     });
 
@@ -31,7 +31,7 @@ describe('Your authorised signatory', () => {
 
         cy.contains('button', 'Continue').click();
 
-        cy.contains('[for=f-first-names] + .govuk-error-message', 'First names must be 53 characters or less');
+        cy.contains('[for=f-first-names] + div + .govuk-error-message', 'First names must be 53 characters or less');
         cy.contains('[for=f-last-name] + .govuk-error-message', 'Last name must be 61 characters or less');
     });
 
