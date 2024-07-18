@@ -1,0 +1,15 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "becauseYouHaveChosenJointly" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+        {{ trHtml .App "becauseYouHaveChosenJointlyContent" }}
+
+        <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+    </div>
+  </div>
+{{ end }}
