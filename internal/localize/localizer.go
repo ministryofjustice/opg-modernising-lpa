@@ -7,7 +7,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/dustin/go-humanize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
@@ -150,10 +149,6 @@ func (l *Localizer) FormatDateTime(t time.Time) string {
 	}
 
 	return t.Format("2 January 2006 at 3:04pm")
-}
-
-func (l *Localizer) PenceToPounds(pence int) string {
-	return fmt.Sprintf("£%s", humanize.CommafWithDigits(float64(pence)/100, 2))
 }
 
 func LowerFirst(s string) string {

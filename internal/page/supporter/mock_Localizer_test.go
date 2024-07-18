@@ -349,52 +349,6 @@ func (_c *mockLocalizer_FormatTime_Call) RunAndReturn(run func(time.Time) string
 	return _c
 }
 
-// PenceToPounds provides a mock function with given fields: pence
-func (_m *mockLocalizer) PenceToPounds(pence int) string {
-	ret := _m.Called(pence)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PenceToPounds")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(int) string); ok {
-		r0 = rf(pence)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// mockLocalizer_PenceToPounds_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PenceToPounds'
-type mockLocalizer_PenceToPounds_Call struct {
-	*mock.Call
-}
-
-// PenceToPounds is a helper method to define mock.On call
-//   - pence int
-func (_e *mockLocalizer_Expecter) PenceToPounds(pence interface{}) *mockLocalizer_PenceToPounds_Call {
-	return &mockLocalizer_PenceToPounds_Call{Call: _e.mock.On("PenceToPounds", pence)}
-}
-
-func (_c *mockLocalizer_PenceToPounds_Call) Run(run func(pence int)) *mockLocalizer_PenceToPounds_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
-	})
-	return _c
-}
-
-func (_c *mockLocalizer_PenceToPounds_Call) Return(_a0 string) *mockLocalizer_PenceToPounds_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockLocalizer_PenceToPounds_Call) RunAndReturn(run func(int) string) *mockLocalizer_PenceToPounds_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Possessive provides a mock function with given fields: s
 func (_m *mockLocalizer) Possessive(s string) string {
 	ret := _m.Called(s)

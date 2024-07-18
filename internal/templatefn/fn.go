@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -444,8 +445,8 @@ func concatComma(list []string) string {
 	return strings.Join(list, ", ")
 }
 
-func penceToPounds(app page.AppData, pence int) string {
-	return app.Localizer.PenceToPounds(pence)
+func penceToPounds(pence int) string {
+	return fmt.Sprintf("£%s", humanize.CommafWithDigits(float64(pence)/100, 2))
 }
 
 func content(app page.AppData, content string) map[string]interface{} {

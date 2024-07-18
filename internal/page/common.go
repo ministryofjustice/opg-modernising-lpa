@@ -59,7 +59,6 @@ type Localizer interface {
 	FormatDate(t date.TimeOrDate) string
 	FormatTime(t time.Time) string
 	FormatDateTime(t time.Time) string
-	PenceToPounds(pence int) string
 	Possessive(s string) string
 	SetShowTranslationKeys(s bool)
 	ShowTranslationKeys() bool

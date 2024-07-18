@@ -509,14 +509,9 @@ func TestConcatComma(t *testing.T) {
 }
 
 func TestPenceToPounds(t *testing.T) {
-	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
-		Localizer: bundle.For(localize.En),
-	}
-
-	assert.Equal(t, "£15", penceToPounds(app, 1500))
-	assert.Equal(t, "£103.27", penceToPounds(app, 10327))
-	assert.Equal(t, "£945,678.99", penceToPounds(app, 94567899))
+	assert.Equal(t, "£15", penceToPounds(1500))
+	assert.Equal(t, "£103.27", penceToPounds(10327))
+	assert.Equal(t, "£945,678.99", penceToPounds(94567899))
 }
 
 func TestContent(t *testing.T) {

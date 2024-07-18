@@ -45,7 +45,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 			localizer := newMockLocalizer(t).
-				withEmailLocalizations(8200)
+				withEmailLocalizations()
 
 			testAppData.Localizer = localizer
 
@@ -96,7 +96,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t).
-				withEmailPersonalizations(r.Context())
+				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaUID:           "lpa-uid",
@@ -127,7 +127,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(4100)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
@@ -176,7 +176,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t).
-		withEmailPersonalizations(r.Context())
+		withEmailPersonalizations(r.Context(), "£41")
 
 	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Type:    actor.LpaTypePersonalWelfare,
@@ -206,7 +206,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 			localizer := newMockLocalizer(t).
-				withEmailLocalizations(8200)
+				withEmailLocalizations()
 
 			testAppData.Localizer = localizer
 
@@ -255,7 +255,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t).
-				withEmailPersonalizations(r.Context())
+				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Type:    actor.LpaTypePersonalWelfare,
@@ -306,7 +306,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 			localizer := newMockLocalizer(t).
-				withEmailLocalizations(8200)
+				withEmailLocalizations()
 
 			testAppData.Localizer = localizer
 
@@ -349,7 +349,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t).
-				withEmailPersonalizations(r.Context())
+				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Type:    actor.LpaTypePersonalWelfare,
@@ -382,7 +382,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
 
 			localizer := newMockLocalizer(t).
-				withEmailLocalizations(8200)
+				withEmailLocalizations()
 
 			testAppData.Localizer = localizer
 
@@ -411,7 +411,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t).
-				withEmailPersonalizations(r.Context())
+				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Type:    actor.LpaTypePersonalWelfare,
@@ -536,12 +536,12 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(8200)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t).
-		withEmailPersonalizations(r.Context())
+		withEmailPersonalizations(r.Context(), "£82")
 
 	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		CertificateProvider: actor.CertificateProvider{
@@ -604,7 +604,7 @@ func TestGetPaymentConfirmationWhenNotifyClientError(t *testing.T) {
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(4100)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
@@ -643,12 +643,12 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(4100)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t).
-		withEmailPersonalizations(r.Context())
+		withEmailPersonalizations(r.Context(), "£41")
 
 	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
@@ -691,12 +691,12 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(8200)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t).
-		withEmailPersonalizations(r.Context())
+		withEmailPersonalizations(r.Context(), "£82")
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
@@ -736,12 +736,12 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 		Return(nil)
 
 	localizer := newMockLocalizer(t).
-		withEmailLocalizations(8200)
+		withEmailLocalizations()
 
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t).
-		withEmailPersonalizations(r.Context())
+		withEmailPersonalizations(r.Context(), "£82")
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
@@ -771,7 +771,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amou
 			},
 			PaymentID: paymentId,
 			Reference: reference,
-			Amount:    amount,
+			Amount:    pay.AmountPence(amount),
 			SettlementSummary: pay.SettlementSummary{
 				CaptureSubmitTime: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC),
 				CapturedDate:      date.New("2000", "01", "02"),
@@ -782,7 +782,7 @@ func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amou
 	return m
 }
 
-func (m *mockLocalizer) withEmailLocalizations(pence int) *mockLocalizer {
+func (m *mockLocalizer) withEmailLocalizations() *mockLocalizer {
 	m.EXPECT().
 		Possessive("a b").
 		Return("donor name possessive")
@@ -792,13 +792,10 @@ func (m *mockLocalizer) withEmailLocalizations(pence int) *mockLocalizer {
 	m.EXPECT().
 		FormatDate(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)).
 		Return("formatted capture submit time")
-	m.EXPECT().
-		PenceToPounds(pence).
-		Return("formatted amount")
 	return m
 }
 
-func (m *mockNotifyClient) withEmailPersonalizations(ctx context.Context) *mockNotifyClient {
+func (m *mockNotifyClient) withEmailPersonalizations(ctx context.Context, amount string) *mockNotifyClient {
 	m.EXPECT().
 		SendEmail(ctx, "a@example.com", notify.PaymentConfirmationEmail{
 			DonorFullNamesPossessive: "donor name possessive",
@@ -807,7 +804,7 @@ func (m *mockNotifyClient) withEmailPersonalizations(ctx context.Context) *mockN
 			LpaReferenceNumber:       "lpa-uid",
 			PaymentReferenceID:       "abc123",
 			PaymentConfirmationDate:  "formatted capture submit time",
-			AmountPaidWithCurrency:   "formatted amount",
+			AmountPaidWithCurrency:   amount,
 		}).
 		Return(nil)
 	return m
