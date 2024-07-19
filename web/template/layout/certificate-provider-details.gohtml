@@ -20,7 +20,7 @@
         {{ template "summary-row" (summaryRow $.App "contactPreference" $contactValue $carryOutByLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $emailChangeLink := printf "%s#f-email" $carryOutByLink }}
-        {{ template "optional-summary-row" (optionalSummaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "optional-summary-row" (summaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
         {{ $addressLabel := tr .App "address" }}
