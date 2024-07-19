@@ -83,7 +83,6 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
-		"optionalSummaryRow": optionalSummaryRow,
 	}
 }
 
@@ -501,18 +500,6 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 }
 
 func summaryRow(app page.AppData, label string, value any, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
-	return map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Value":           value,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       canChange,
-		"SummarisingSelf": summarisingSelf,
-	}
-}
-
-func optionalSummaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,
