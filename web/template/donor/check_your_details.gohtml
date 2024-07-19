@@ -20,7 +20,7 @@
           (fromLink .App global.Paths.YourDetails "#f-date-of-birth")
           "" true true
         ) }}
-        {{ template "address-summary-row" (addressSummaryRow .App "address"
+        {{ template "address-summary-row" (summaryRow .App "address"
           .Donor.Donor.Address
           (fromLink .App global.Paths.YourAddress "#f-address-line-1")
           "" true true

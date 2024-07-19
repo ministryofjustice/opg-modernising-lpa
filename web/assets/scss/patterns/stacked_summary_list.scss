@@ -1,0 +1,19 @@
+.app-stacked-summary-list {
+    display: block;
+}
+
+.app-stacked-summary-list .govuk-summary-list__row {
+    display: block;
+    @include govuk-responsive-padding(4, "bottom");
+}
+
+.app-stacked-summary-list .govuk-summary-list__key,
+.app-stacked-summary-list .govuk-summary-list__value {
+    display: block;
+    width: 100%;
+}
+
+.app-stacked-summary-list .govuk-summary-list__actions {
+    text-align: unset;
+    width: 100%;
+}
