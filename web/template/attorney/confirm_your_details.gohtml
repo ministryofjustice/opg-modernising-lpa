@@ -32,7 +32,7 @@
           {{ template "summary-row" (summaryRow .App "companyName" .TrustCorporation.Name "" $attorneyFullName false true ) }}
           {{ template "summary-row" (summaryRow .App "companyNumber" .TrustCorporation.CompanyNumber "" $attorneyFullName false true ) }}
           {{ template "summary-row" (summaryRow .App "companyEmailAddress" .TrustCorporation.Email "" $attorneyFullName false true ) }}
-          {{ template "address-summary-row" (addressSummaryRow .App "address" .TrustCorporation.Address "" $attorneyFullName false true ) }}
+          {{ template "address-summary-row" (summaryRow .App "address" .TrustCorporation.Address "" $attorneyFullName false true ) }}
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
@@ -42,7 +42,7 @@
         <dl class="govuk-summary-list">
           {{ template "summary-row" (summaryRow .App "name" .Attorney.FullName "" $attorneyFullName false true ) }}
           {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App .Attorney.DateOfBirth) "" $attorneyFullName false true ) }}
-          {{ template "address-summary-row" (addressSummaryRow .App "address" .Attorney.Address "" $attorneyFullName false true ) }}
+          {{ template "address-summary-row" (summaryRow .App "address" .Attorney.Address "" $attorneyFullName false true ) }}
         </dl>
 
         {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}

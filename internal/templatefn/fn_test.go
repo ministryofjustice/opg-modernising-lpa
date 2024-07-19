@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -578,40 +577,4 @@ func TestSummaryRow(t *testing.T) {
 		"CanChange":       true,
 		"SummarisingSelf": true,
 	}, summaryRow(app, label, value, changeLink, fullName, true, true))
-}
-
-func TestAddressSummaryRow(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	label := "a-label"
-	address := place.Address{Line1: "a"}
-	changeLink := "a-link.com"
-	fullName := "Full Name"
-
-	assert.Equal(t, map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Address":         address,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       true,
-		"SummarisingSelf": true,
-	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true))
-}
-
-func TestOptionalSummaryRow(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	label := "a-label"
-	value := "aValue"
-	changeLink := "a-link.com"
-	fullName := "Full Name"
-
-	assert.Equal(t, map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Value":           value,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       true,
-		"SummarisingSelf": true,
-	}, optionalSummaryRow(app, label, value, changeLink, fullName, true, true))
 }
