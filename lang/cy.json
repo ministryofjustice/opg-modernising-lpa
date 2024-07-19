@@ -1296,5 +1296,9 @@
     "becauseYouHaveChosenJointly": "Welsh",
     "becauseYouHaveChosenJointlyContent": "<p class=\"govuk-body\">Welsh</p>",
     "becauseYouHaveChosenJointlyForSomeSeverallyForOthers": "Welsh",
-    "becauseYouHaveChosenJointlyForSomeSeverallyForOthersContent": "<p class=\"govuk-body\">Welsh</p>"
+    "becauseYouHaveChosenJointlyForSomeSeverallyForOthersContent": "<p class=\"govuk-body\">Welsh</p>",
+    "thisIsNotTheRegisteredLpaWarning": "Welsh",
+    "howLpaCanBeUsed": "Welsh",
+    "trustCorporationAttorney": "Welsh",
+    "replacementTrustCorporationAttorney": "Welsh"
 }
