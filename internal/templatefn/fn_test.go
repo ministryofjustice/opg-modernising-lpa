@@ -1,6 +1,7 @@
 package templatefn
 
 import (
+	"fmt"
 	"html/template"
 	"testing"
 	"time"
@@ -164,6 +165,14 @@ func TestFromLink(t *testing.T) {
 		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
 		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
+}
+
+func TestFromLinkActor(t *testing.T) {
+	uid := actoruid.New()
+	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id/your-details?from=/previous&id=%s#f-first-names", uid.String()),
+		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
+	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous&id="+uid.String(),
+		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, uid, ""))
 }
 
 func TestCheckboxEq(t *testing.T) {
