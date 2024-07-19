@@ -33,7 +33,7 @@
                         ""
                         .FullName false $isDonor) }}
                     
-                    {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         (fromLink $.App global.Paths.YourAddress "#f-address-line-1")
                         .FullName $canChange $isDonor) }}
@@ -88,7 +88,7 @@
                         (fromLink $.App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
                         .FullName $canChange false ) }}
 
-                    {{ template "address-summary-row" (addressSummaryRow $.App $addressLabel
+                    {{ template "address-summary-row" (summaryRow $.App $addressLabel
                         .Address
                         (fromLink $.App global.Paths.CertificateProviderAddress "#f-address-line-1")
                         .FullName $canChange false ) }}
@@ -127,7 +127,7 @@
                         (fromLinkActor $.App global.Paths.ChooseAttorneys .UID "#f-email")
                         .FullName $canChange false) }}
 
-                    {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         (fromLinkActor $.App global.Paths.ChooseAttorneysAddress .UID "#f-address-line-1")
                         .FullName $canChange false) }}
@@ -167,7 +167,7 @@
                             (fromLink $.App global.Paths.EnterTrustCorporation "#f-email")
                             .Name $canChange false) }}
 
-                        {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
                             (fromLink $.App global.Paths.EnterTrustCorporationAddress "#f-address-line-1")
                             .Name $canChange false) }}
@@ -207,7 +207,7 @@
                         (fromLinkActor $.App global.Paths.ChooseReplacementAttorneys .UID "#f-email")
                         .FullName $canChange false) }}
 
-                    {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         (fromLinkActor $.App global.Paths.ChooseReplacementAttorneysAddress .UID "#f-address-line-1")
                         .FullName $canChange false) }}
@@ -247,7 +247,7 @@
                             (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-email")
                             .Name $canChange false) }}
 
-                        {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
                             (fromLink $.App global.Paths.EnterReplacementTrustCorporationAddress "#f-address-line-1")
                             .Name $canChange false) }}
@@ -277,7 +277,7 @@
                         (fromLinkActor $.App global.Paths.ChoosePeopleToNotify .UID "#f-first-names")
                         .FullName $canChange false ) }}
 
-                    {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                    {{ template "address-summary-row" (summaryRow $.App "address"
                         .Address
                         (fromLinkActor $.App global.Paths.ChoosePeopleToNotifyAddress .UID "#f-address-line-1")
                         .FullName $canChange false ) }}
@@ -322,7 +322,7 @@
                             (fromLink $.App global.Paths.YourIndependentWitnessMobile "#f-mobile")
                             .FullName $canChange false ) }}
 
-                        {{ template "address-summary-row" (addressSummaryRow $.App "address"
+                        {{ template "address-summary-row" (summaryRow $.App "address"
                             .Address
                             (fromLink $.App global.Paths.YourIndependentWitnessAddress "#f-address-line-1")
                             .FullName $canChange false) }}
