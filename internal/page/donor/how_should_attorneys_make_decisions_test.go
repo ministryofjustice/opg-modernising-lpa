@@ -115,6 +115,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		updatedDetails  string
 		formType        string
 		formDetails     string
+		redirect        page.LpaPath
 	}{
 		"existing details not set": {
 			existingType:    actor.JointlyAndSeverally,
@@ -123,6 +124,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "some details",
 			formType:        actor.JointlyForSomeSeverallyForOthers.String(),
 			formDetails:     "some details",
+			redirect:        page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers,
 		},
 		"existing details set": {
 			existingType:    actor.JointlyForSomeSeverallyForOthers,
@@ -131,6 +133,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "",
 			formType:        actor.Jointly.String(),
 			formDetails:     "some details",
+			redirect:        page.Paths.BecauseYouHaveChosenJointly,
 		},
 	}
 
@@ -166,7 +169,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
