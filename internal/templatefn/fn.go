@@ -15,7 +15,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -84,7 +83,6 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
-		"addressSummaryRow":  addressSummaryRow,
 		"optionalSummaryRow": optionalSummaryRow,
 	}
 }
@@ -507,19 +505,6 @@ func summaryRow(app page.AppData, label string, value any, changeLink, fullName 
 		"App":             app,
 		"Label":           label,
 		"Value":           value,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       canChange,
-		"SummarisingSelf": summarisingSelf,
-	}
-}
-
-// TODO: replace uses with summaryRow
-func addressSummaryRow(app page.AppData, label string, address place.Address, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
-	return map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Address":         address,
 		"ChangeLink":      changeLink,
 		"FullName":        fullName,
 		"CanChange":       canChange,
