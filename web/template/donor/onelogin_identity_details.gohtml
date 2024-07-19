@@ -68,7 +68,7 @@
 
             {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App $userData.DateOfBirth) "" $donorFullName false true ) }}
 
-            {{ template "address-summary-row" (addressSummaryRow $.App "address" $userData.CurrentAddress "" $donorFullName false true ) }}
+            {{ template "address-summary-row" (summaryRow $.App "address" $userData.CurrentAddress "" $donorFullName false true ) }}
           </dl>
         </div>
       </div>

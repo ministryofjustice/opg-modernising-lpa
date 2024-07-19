@@ -20,12 +20,12 @@
         {{ template "summary-row" (summaryRow $.App "contactPreference" $contactValue $carryOutByLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $emailChangeLink := printf "%s#f-email" $carryOutByLink }}
-        {{ template "optional-summary-row" (optionalSummaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "optional-summary-row" (summaryRow $.App "email" .Lpa.CertificateProvider.Email $emailChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
 
         {{ $addressChangeLink := printf "%s#f-address-line-1" $addressLink }}
         {{ $addressLabel := tr .App "address" }}
         {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }} {{ $addressLabel = tr .App "workAddress" }} {{ end }}
-        {{ template "address-summary-row" (addressSummaryRow $.App $addressLabel .Lpa.CertificateProvider.Address $addressChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
+        {{ template "address-summary-row" (summaryRow $.App $addressLabel .Lpa.CertificateProvider.Address $addressChangeLink .Lpa.CertificateProvider.FullName .CanChange $.App.IsCertificateProvider ) }}
       </dl>
     </div>
   </div>
