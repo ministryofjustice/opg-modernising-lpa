@@ -18,7 +18,7 @@
                         (fromLink $.App global.Paths.YourDetails "#f-first-names")
                         .FullName $canChange $isDonor) }}
 
-                    {{ template "optional-summary-row" (optionalSummaryRow $.App "otherNamesYouAreKnownBy"
+                    {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy"
                         .OtherNames
                         (fromLink $.App global.Paths.YourDetails "#f-other-names")
                         .FullName $canChange $isDonor) }}
@@ -83,7 +83,7 @@
                         (fromLink $.App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "")
                         .FullName $canChange false ) }}
 
-                    {{ template "optional-summary-row" (optionalSummaryRow $.App "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
                         (fromLink $.App global.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole "#f-email")
                         .FullName $canChange false ) }}
@@ -122,7 +122,7 @@
                         (fromLinkActor $.App global.Paths.ChooseAttorneys .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
-                    {{ template "optional-summary-row" (optionalSummaryRow $.App "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
                         (fromLinkActor $.App global.Paths.ChooseAttorneys .UID "#f-email")
                         .FullName $canChange false) }}
@@ -162,7 +162,7 @@
                             (fromLink $.App global.Paths.EnterTrustCorporation "#f-company-number")
                             .Name $canChange false) }}
 
-                        {{ template "optional-summary-row" (optionalSummaryRow $.App "companyEmailAddress"
+                        {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"
                             .Email
                             (fromLink $.App global.Paths.EnterTrustCorporation "#f-email")
                             .Name $canChange false) }}
@@ -202,7 +202,7 @@
                         (fromLinkActor $.App global.Paths.ChooseReplacementAttorneys .UID "#f-date-of-birth")
                         .FullName $canChange false) }}
 
-                    {{ template "optional-summary-row" (optionalSummaryRow $.App "email"
+                    {{ template "optional-summary-row" (summaryRow $.App "email"
                         .Email
                         (fromLinkActor $.App global.Paths.ChooseReplacementAttorneys .UID "#f-email")
                         .FullName $canChange false) }}
@@ -242,7 +242,7 @@
                             (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-company-number")
                             .Name $canChange false) }}
 
-                        {{ template "optional-summary-row" (optionalSummaryRow $.App "companyEmailAddress"
+                        {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress"
                             .Email
                             (fromLink $.App global.Paths.EnterReplacementTrustCorporation "#f-email")
                             .Name $canChange false) }}
