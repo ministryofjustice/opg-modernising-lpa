@@ -1,10 +1,11 @@
 /* Modernising Patterns */
-@import "patterns/progress_bar";
-@import "patterns/service_header";
-@import "patterns/trans_switch";
 @import "patterns/data_loss_warning";
 @import "patterns/loading_spinner";
+@import "patterns/progress_bar";
+@import "patterns/service_header";
+@import "patterns/stacked_summary_list";
 @import "patterns/supporter-lpa-context";
+@import "patterns/trans_switch";
 
 .app-float-right {
     float: right;
@@ -166,4 +167,8 @@ body.js-enabled .js-only {
     .app-not-small-screen {
         display: block;
     }
+}
+
+.app-unbold {
+    font-weight: normal !important;
 }
