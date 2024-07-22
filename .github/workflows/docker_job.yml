@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache@v4.0.2
         with:
           path: ${{ env.BUILD_CACHE }}
-          key: ${{ inputs.checkout-tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
+          key: ${{ inputs.checkout_tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
 
 
       - name: Build ${{ matrix.ecr_repository }} Image
