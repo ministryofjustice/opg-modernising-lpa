@@ -12,6 +12,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+      branch_name:
+        description: 'Branch name'
+        required: true
+        type: string
 
 defaults:
   run:
@@ -59,13 +63,27 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
-      - name: setup cache for ${{ matrix.ecr_repository }}
-        id: setup_cache
-        uses: actions/cache@v4.0.2
-        with:
-          path: ${{ env.BUILD_CACHE }}
-          key: ${{ inputs.checkout_tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
+      # - name: setup cache for ${{ matrix.ecr_repository }}
+      #   id: setup_cache
+      #   uses: actions/cache@v4.0.2
+      #   with:
+      #     path: ${{ env.BUILD_CACHE }}
+      #     key: ${{ inputs.checkout_tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
 
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
+          role-duration-seconds: 900
+          role-session-name: GithubActionsECRPushMLPAB
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
+          registries: 311462405659
 
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.3.0
@@ -75,8 +93,8 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          cache-to: type=local,dest=${{ env.BUILD_CACHE }}
-          cache-from: type=local,src=${{ env.BUILD_CACHE }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:buildcache-${{ inputs.branch_name }}
+          cache-to: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:buildcache-${{ inputs.branch_name }},mode=max
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
