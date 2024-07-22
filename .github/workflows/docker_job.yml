@@ -40,11 +40,11 @@ jobs:
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
-            push_provenance: false
+            push_provenance: mode=max
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
             platforms: linux/amd64
-            push_provenance: false
+            push_provenance: mode=max
           - ecr_repository: modernising-lpa/mock-pay
             path: ./docker/mock-pay/Dockerfile
             platforms: linux/amd64
