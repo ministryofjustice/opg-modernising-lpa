@@ -238,6 +238,10 @@ func Register(
 		RemoveTrustCorporation(tmpls.Get("remove_attorney.gohtml"), donorStore, false))
 	handleWithDonor(page.Paths.HowShouldAttorneysMakeDecisions, page.CanGoBack,
 		HowShouldAttorneysMakeDecisions(tmpls.Get("how_should_attorneys_make_decisions.gohtml"), donorStore))
+	handleWithDonor(page.Paths.BecauseYouHaveChosenJointly, page.CanGoBack,
+		Guidance(tmpls.Get("because_you_have_chosen_jointly.gohtml")))
+	handleWithDonor(page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers, page.CanGoBack,
+		Guidance(tmpls.Get("because_you_have_chosen_jointly_for_some_severally_for_others.gohtml")))
 
 	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, page.None,
 		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))

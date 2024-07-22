@@ -222,11 +222,13 @@ func TestReadEnterCorrespondentDetailsForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readEnterCorrespondentDetailsForm(r)
+	result := readEnterCorrespondentDetailsForm(r, actor.Donor{FirstNames: "Dave", LastName: "Smith", Email: "email@example.com"})
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)
 	assert.Equal("email@example.com", result.Email)
+	assert.True(result.DonorEmailMatch)
+	assert.Equal("Dave Smith", result.DonorFullName)
 }
 
 func TestEnterCorrespondentDetailsFormValidate(t *testing.T) {
@@ -281,6 +283,18 @@ func TestEnterCorrespondentDetailsFormValidate(t *testing.T) {
 			errors: validation.
 				With("email", validation.EmailError{Label: "email"}).
 				With("telephone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phoneNumber"}),
+		},
+		"matching donor email": {
+			form: &enterCorrespondentDetailsForm{
+				FirstNames:      "A",
+				LastName:        "B",
+				Email:           "email@example.com",
+				WantAddress:     form.NewYesNoForm(form.No),
+				DonorEmailMatch: true,
+				DonorFullName:   "Other Person",
+			},
+			errors: validation.
+				With("email", validation.CustomFormattedError{Label: "youProvidedThisEmailForDonorError", Data: map[string]any{"DonorFullName": "Other Person"}}),
 		},
 	}
 
