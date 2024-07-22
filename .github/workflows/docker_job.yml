@@ -12,6 +12,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+      branch_name:
+        description: 'Branch name'
+        required: true
+        type: string
 
 defaults:
   run:
@@ -57,6 +61,28 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
+      # - name: setup cache for ${{ matrix.ecr_repository }}
+      #   id: setup_cache
+      #   uses: actions/cache@v4.0.2
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ inputs.checkout_tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
+
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
+          role-duration-seconds: 900
+          role-session-name: GithubActionsECRPushMLPAB
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          mask-password: true
+          registries: 311462405659
+
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.3.0
         with:
@@ -65,6 +91,8 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
+          cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
@@ -85,20 +113,6 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - uses: unfor19/install-aws-cli-action@v1
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ecr-push
-          role-duration-seconds: 900
-          role-session-name: GithubActionsECRPushMLPAB
-      - name: ECR Login
-        id: login_ecr
-        uses: aws-actions/amazon-ecr-login@v2.0.1
-        with:
-          mask-password: true
-          registries: 311462405659
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
         uses: docker/build-push-action@v6.3.0
@@ -108,12 +122,13 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms:  ${{ matrix.platforms }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: false
-          provenance: false
+          sbom: true
+          provenance: mode=max
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
@@ -124,11 +139,12 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms:  ${{ matrix.platforms }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: false
-          provenance: false
+          sbom: true
+          provenance: mode=max
