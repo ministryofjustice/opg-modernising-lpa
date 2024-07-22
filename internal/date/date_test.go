@@ -63,7 +63,7 @@ func TestToday(t *testing.T) {
 }
 
 func TestFromTime(t *testing.T) {
-	assert.Equal(t, New("2000", "1", "2"), FromTime(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)))
+	assert.Equal(t, New("2000", "01", "02"), FromTime(time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)))
 	assert.Equal(t, Date{}, FromTime(time.Time{}))
 }
 
@@ -99,10 +99,10 @@ func TestAfter(t *testing.T) {
 
 func TestAddDate(t *testing.T) {
 	a := New("1999", "12", "31")
-	b := New("2000", "1", "1")
-	c := New("2000", "1", "31")
+	b := New("2000", "01", "01")
+	c := New("2000", "01", "31")
 	d := New("2000", "12", "31")
-	e := New("2001", "2", "1")
+	e := New("2001", "02", "01")
 
 	assert.Equal(t, b, a.AddDate(0, 0, 1))
 	assert.Equal(t, c, a.AddDate(0, 1, 0))

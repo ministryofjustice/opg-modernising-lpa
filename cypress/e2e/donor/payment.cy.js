@@ -1,4 +1,4 @@
-describe('Pay for LPA', () => {
+describe('Pay for LPA', {pageLoadTimeout: 8000}, () => {
   it('can pay full fee', () => {
     cy.clearCookie('pay');
     cy.getCookie('pay').should('not.exist')
