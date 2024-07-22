@@ -9,7 +9,7 @@
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.Donor.FullName $nameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $otherNameChangeLink := printf "%s?from=%s#f-other-names" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
-        {{ template "optional-summary-row" (optionalSummaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
+        {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .Lpa.Donor.DateOfBirth) $dateOfBirthChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
@@ -17,7 +17,7 @@
         {{ template "summary-row" (summaryRow $.App "email" .Lpa.Donor.Email "" .Lpa.Donor.FullName false $.App.IsDonor) }}
 
         {{ $addressChangeLink := printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.YourAddress.Format .App.LpaID)) .App.Page }}
-        {{ template "address-summary-row" (addressSummaryRow $.App "address" .Lpa.Donor.Address $addressChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
+        {{ template "address-summary-row" (summaryRow $.App "address" .Lpa.Donor.Address $addressChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ if $.App.IsDonor }}
           {{ $languageChangeLink := printf "%s?from=%s" (link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID)) .App.Page }}
