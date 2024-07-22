@@ -1,7 +1,6 @@
 package pay
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -80,7 +79,7 @@ type SettlementSummary struct {
 type AmountPence int
 
 func (a AmountPence) String() string {
-	return fmt.Sprintf("£%s", humanize.CommafWithDigits(float64(a)/100, 2))
+	return "£" + humanize.CommafWithDigits(float64(a)/100, 2)
 }
 
 func (a AmountPence) Pence() int {
