@@ -45,7 +45,14 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				switch donor.AttorneyDecisions.How {
+				case actor.Jointly:
+					return page.Paths.BecauseYouHaveChosenJointly.Redirect(w, r, appData, donor)
+				case actor.JointlyForSomeSeverallyForOthers:
+					return page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers.Redirect(w, r, appData, donor)
+				default:
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				}
 			}
 		}
 

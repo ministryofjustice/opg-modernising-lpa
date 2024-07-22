@@ -1292,5 +1292,14 @@
     "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent": "<p class=\"govuk-body-l\">Welsh</p>",
     "whetherApplyingForDifferentFeeType": "Welsh",
     "yesToAddCorrespondent": "Welsh",
-    "firstNamesHint": "Welsh"
+    "firstNamesHint": "Welsh",
+    "becauseYouHaveChosenJointly": "Welsh",
+    "becauseYouHaveChosenJointlyContent": "<p class=\"govuk-body\">Welsh</p>",
+    "becauseYouHaveChosenJointlyForSomeSeverallyForOthers": "Welsh",
+    "becauseYouHaveChosenJointlyForSomeSeverallyForOthersContent": "<p class=\"govuk-body\">Welsh</p>",
+    "youProvidedThisEmailForDonorError": "Welsh {{.DonorFullName}}",
+    "thisIsNotTheRegisteredLpaWarning": "Welsh",
+    "howLpaCanBeUsed": "Welsh",
+    "trustCorporationAttorney": "Welsh",
+    "replacementTrustCorporationAttorney": "Welsh"
 }

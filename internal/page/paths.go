@@ -343,6 +343,7 @@ type AppPaths struct {
 	AboutPayment                                         LpaPath
 	AddCorrespondent                                     LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
+	BecauseYouHaveChosenJointly                          LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
@@ -449,6 +450,7 @@ type AppPaths struct {
 	YourLpaLanguage                                      LpaPath
 	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
+	BecauseYouHaveChosenJointlyForSomeSeverallyForOthers LpaPath
 }
 
 var Paths = AppPaths{
@@ -529,6 +531,8 @@ var Paths = AppPaths{
 		Dependency: "/health-check/dependency",
 	},
 
+	BecauseYouHaveChosenJointly:                          "/because-you-have-chosen-jointly",
+	BecauseYouHaveChosenJointlyForSomeSeverallyForOthers: "/because-you-have-chosen-jointly-for-some-severally-for-others",
 	AboutPayment:                                         "/about-payment",
 	AddCorrespondent:                                     "/add-correspondent",
 	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
