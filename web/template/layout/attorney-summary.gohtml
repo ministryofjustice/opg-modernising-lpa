@@ -25,10 +25,10 @@
           {{ template "summary-row" (summaryRow $.App "companyNumber" .TrustCorporation.CompanyNumber $companyNumberChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
           {{ $companyEmailAddressChangeLink := printf "%s#f-email" (link .App .Link.TrustCorporation) }}
-          {{ template "optional-summary-row" (optionalSummaryRow $.App "companyEmailAddress" .TrustCorporation.Email $companyEmailAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
+          {{ template "optional-summary-row" (summaryRow $.App "companyEmailAddress" .TrustCorporation.Email $companyEmailAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
 
           {{ $companyAddressChangeLink := printf "%s#f-address-line-1" (link .App .Link.TrustCorporationAddress) }}
-          {{ template "address-summary-row" (addressSummaryRow $.App "address" .TrustCorporation.Address $companyAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
+          {{ template "address-summary-row" (summaryRow $.App "address" .TrustCorporation.Address $companyAddressChangeLink .TrustCorporation.Name $.CanChange (eq $.App.AttorneyUID .TrustCorporation.UID)) }}
         </dl>
       </div>
     </div>
@@ -60,10 +60,10 @@
           {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .DateOfBirth) $dobChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
 
           {{ $emailChangeLink := printf "%s&id=%s#f-email" (link $.App $.Link.Attorney) .UID }}
-          {{ template "optional-summary-row" (optionalSummaryRow $.App "email" .Email $emailChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
+          {{ template "optional-summary-row" (summaryRow $.App "email" .Email $emailChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
 
           {{ $addressChangeLink := printf "%s&id=%s#f-address-line-1" (link $.App $.Link.AttorneyAddress) .UID }}
-          {{ template "address-summary-row" (addressSummaryRow $.App "address" .Address $addressChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
+          {{ template "address-summary-row" (summaryRow $.App "address" .Address $addressChangeLink .FullName $.CanChange (eq $.App.AttorneyUID .UID)) }}
         </dl>
       </div>
     </div>

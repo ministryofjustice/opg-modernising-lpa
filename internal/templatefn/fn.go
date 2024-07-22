@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -52,6 +52,7 @@ func All(globals *Globals) map[string]any {
 		"inc":                inc,
 		"link":               link,
 		"fromLink":           fromLink,
+		"fromLinkActor":      fromLinkActor,
 		"stringContains":     strings.Contains,
 		"tr":                 tr,
 		"trFormat":           trFormat,
@@ -80,8 +81,6 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
-		"addressSummaryRow":  addressSummaryRow,
-		"optionalSummaryRow": optionalSummaryRow,
 	}
 }
 
@@ -191,6 +190,10 @@ type lpaIDPath interface{ Format(string) string }
 
 func fromLink(app page.AppData, path lpaIDPath, field string) string {
 	return app.Lang.URL(path.Format(app.LpaID)) + "?from=" + app.Page + field
+}
+
+func fromLinkActor(app page.AppData, path lpaIDPath, uid actoruid.UID, field string) string {
+	return app.Lang.URL(path.Format(app.LpaID)) + "?from=" + app.Page + "&id=" + uid.String() + field
 }
 
 // checkboxEq allows matching in the checkboxes.gohtml template for a value that
@@ -490,31 +493,7 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	return data
 }
 
-func summaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
-	return map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Value":           value,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       canChange,
-		"SummarisingSelf": summarisingSelf,
-	}
-}
-
-func addressSummaryRow(app page.AppData, label string, address place.Address, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
-	return map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Address":         address,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       canChange,
-		"SummarisingSelf": summarisingSelf,
-	}
-}
-
-func optionalSummaryRow(app page.AppData, label, value, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+func summaryRow(app page.AppData, label string, value any, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,
