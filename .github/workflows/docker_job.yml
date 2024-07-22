@@ -122,6 +122,7 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms:  ${{ matrix.platforms }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
@@ -138,6 +139,7 @@ jobs:
           builder: ${{ steps.buildx_setup.outputs.name }}
           push: true
           platforms:  ${{ matrix.platforms }}
+          cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:main-${{ inputs.tag }}
