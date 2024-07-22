@@ -22,9 +22,9 @@ func (_m *mockLocalizer) EXPECT() *mockLocalizer_Expecter {
 	return &mockLocalizer_Expecter{mock: &_m.Mock}
 }
 
-// Concat provides a mock function with given fields: _a0, _a1
-func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
-	ret := _m.Called(_a0, _a1)
+// Concat provides a mock function with given fields: list, joiner
+func (_m *mockLocalizer) Concat(list []string, joiner string) string {
+	ret := _m.Called(list, joiner)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Concat")
@@ -32,7 +32,7 @@ func (_m *mockLocalizer) Concat(_a0 []string, _a1 string) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func([]string, string) string); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(list, joiner)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -46,13 +46,13 @@ type mockLocalizer_Concat_Call struct {
 }
 
 // Concat is a helper method to define mock.On call
-//   - _a0 []string
-//   - _a1 string
-func (_e *mockLocalizer_Expecter) Concat(_a0 interface{}, _a1 interface{}) *mockLocalizer_Concat_Call {
-	return &mockLocalizer_Concat_Call{Call: _e.mock.On("Concat", _a0, _a1)}
+//   - list []string
+//   - joiner string
+func (_e *mockLocalizer_Expecter) Concat(list interface{}, joiner interface{}) *mockLocalizer_Concat_Call {
+	return &mockLocalizer_Concat_Call{Call: _e.mock.On("Concat", list, joiner)}
 }
 
-func (_c *mockLocalizer_Concat_Call) Run(run func(_a0 []string, _a1 string)) *mockLocalizer_Concat_Call {
+func (_c *mockLocalizer_Concat_Call) Run(run func(list []string, joiner string)) *mockLocalizer_Concat_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].([]string), args[1].(string))
 	})
@@ -69,9 +69,9 @@ func (_c *mockLocalizer_Concat_Call) RunAndReturn(run func([]string, string) str
 	return _c
 }
 
-// Count provides a mock function with given fields: _a0, _a1
-func (_m *mockLocalizer) Count(_a0 string, _a1 int) string {
-	ret := _m.Called(_a0, _a1)
+// Count provides a mock function with given fields: messageID, count
+func (_m *mockLocalizer) Count(messageID string, count int) string {
+	ret := _m.Called(messageID, count)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Count")
@@ -79,7 +79,7 @@ func (_m *mockLocalizer) Count(_a0 string, _a1 int) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string, int) string); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(messageID, count)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -93,13 +93,13 @@ type mockLocalizer_Count_Call struct {
 }
 
 // Count is a helper method to define mock.On call
-//   - _a0 string
-//   - _a1 int
-func (_e *mockLocalizer_Expecter) Count(_a0 interface{}, _a1 interface{}) *mockLocalizer_Count_Call {
-	return &mockLocalizer_Count_Call{Call: _e.mock.On("Count", _a0, _a1)}
+//   - messageID string
+//   - count int
+func (_e *mockLocalizer_Expecter) Count(messageID interface{}, count interface{}) *mockLocalizer_Count_Call {
+	return &mockLocalizer_Count_Call{Call: _e.mock.On("Count", messageID, count)}
 }
 
-func (_c *mockLocalizer_Count_Call) Run(run func(_a0 string, _a1 int)) *mockLocalizer_Count_Call {
+func (_c *mockLocalizer_Count_Call) Run(run func(messageID string, count int)) *mockLocalizer_Count_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string), args[1].(int))
 	})
@@ -116,9 +116,9 @@ func (_c *mockLocalizer_Count_Call) RunAndReturn(run func(string, int) string) *
 	return _c
 }
 
-// Format provides a mock function with given fields: _a0, _a1
-func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
-	ret := _m.Called(_a0, _a1)
+// Format provides a mock function with given fields: messageID, data
+func (_m *mockLocalizer) Format(messageID string, data map[string]interface{}) string {
+	ret := _m.Called(messageID, data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Format")
@@ -126,7 +126,7 @@ func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) string); ok {
-		r0 = rf(_a0, _a1)
+		r0 = rf(messageID, data)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -140,13 +140,13 @@ type mockLocalizer_Format_Call struct {
 }
 
 // Format is a helper method to define mock.On call
-//   - _a0 string
-//   - _a1 map[string]interface{}
-func (_e *mockLocalizer_Expecter) Format(_a0 interface{}, _a1 interface{}) *mockLocalizer_Format_Call {
-	return &mockLocalizer_Format_Call{Call: _e.mock.On("Format", _a0, _a1)}
+//   - messageID string
+//   - data map[string]interface{}
+func (_e *mockLocalizer_Expecter) Format(messageID interface{}, data interface{}) *mockLocalizer_Format_Call {
+	return &mockLocalizer_Format_Call{Call: _e.mock.On("Format", messageID, data)}
 }
 
-func (_c *mockLocalizer_Format_Call) Run(run func(_a0 string, _a1 map[string]interface{})) *mockLocalizer_Format_Call {
+func (_c *mockLocalizer_Format_Call) Run(run func(messageID string, data map[string]interface{})) *mockLocalizer_Format_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string), args[1].(map[string]interface{}))
 	})
@@ -163,9 +163,9 @@ func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]in
 	return _c
 }
 
-// FormatCount provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockLocalizer) FormatCount(_a0 string, _a1 int, _a2 map[string]interface{}) string {
-	ret := _m.Called(_a0, _a1, _a2)
+// FormatCount provides a mock function with given fields: messageID, count, data
+func (_m *mockLocalizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
+	ret := _m.Called(messageID, count, data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FormatCount")
@@ -173,7 +173,7 @@ func (_m *mockLocalizer) FormatCount(_a0 string, _a1 int, _a2 map[string]interfa
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string, int, map[string]interface{}) string); ok {
-		r0 = rf(_a0, _a1, _a2)
+		r0 = rf(messageID, count, data)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -187,14 +187,14 @@ type mockLocalizer_FormatCount_Call struct {
 }
 
 // FormatCount is a helper method to define mock.On call
-//   - _a0 string
-//   - _a1 int
-//   - _a2 map[string]interface{}
-func (_e *mockLocalizer_Expecter) FormatCount(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockLocalizer_FormatCount_Call {
-	return &mockLocalizer_FormatCount_Call{Call: _e.mock.On("FormatCount", _a0, _a1, _a2)}
+//   - messageID string
+//   - count int
+//   - data map[string]interface{}
+func (_e *mockLocalizer_Expecter) FormatCount(messageID interface{}, count interface{}, data interface{}) *mockLocalizer_FormatCount_Call {
+	return &mockLocalizer_FormatCount_Call{Call: _e.mock.On("FormatCount", messageID, count, data)}
 }
 
-func (_c *mockLocalizer_FormatCount_Call) Run(run func(_a0 string, _a1 int, _a2 map[string]interface{})) *mockLocalizer_FormatCount_Call {
+func (_c *mockLocalizer_FormatCount_Call) Run(run func(messageID string, count int, data map[string]interface{})) *mockLocalizer_FormatCount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string), args[1].(int), args[2].(map[string]interface{}))
 	})
@@ -211,9 +211,9 @@ func (_c *mockLocalizer_FormatCount_Call) RunAndReturn(run func(string, int, map
 	return _c
 }
 
-// FormatDate provides a mock function with given fields: _a0
-func (_m *mockLocalizer) FormatDate(_a0 date.TimeOrDate) string {
-	ret := _m.Called(_a0)
+// FormatDate provides a mock function with given fields: t
+func (_m *mockLocalizer) FormatDate(t date.TimeOrDate) string {
+	ret := _m.Called(t)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FormatDate")
@@ -221,7 +221,7 @@ func (_m *mockLocalizer) FormatDate(_a0 date.TimeOrDate) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(date.TimeOrDate) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(t)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -235,12 +235,12 @@ type mockLocalizer_FormatDate_Call struct {
 }
 
 // FormatDate is a helper method to define mock.On call
-//   - _a0 date.TimeOrDate
-func (_e *mockLocalizer_Expecter) FormatDate(_a0 interface{}) *mockLocalizer_FormatDate_Call {
-	return &mockLocalizer_FormatDate_Call{Call: _e.mock.On("FormatDate", _a0)}
+//   - t date.TimeOrDate
+func (_e *mockLocalizer_Expecter) FormatDate(t interface{}) *mockLocalizer_FormatDate_Call {
+	return &mockLocalizer_FormatDate_Call{Call: _e.mock.On("FormatDate", t)}
 }
 
-func (_c *mockLocalizer_FormatDate_Call) Run(run func(_a0 date.TimeOrDate)) *mockLocalizer_FormatDate_Call {
+func (_c *mockLocalizer_FormatDate_Call) Run(run func(t date.TimeOrDate)) *mockLocalizer_FormatDate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(date.TimeOrDate))
 	})
@@ -257,9 +257,9 @@ func (_c *mockLocalizer_FormatDate_Call) RunAndReturn(run func(date.TimeOrDate) 
 	return _c
 }
 
-// FormatDateTime provides a mock function with given fields: _a0
-func (_m *mockLocalizer) FormatDateTime(_a0 time.Time) string {
-	ret := _m.Called(_a0)
+// FormatDateTime provides a mock function with given fields: t
+func (_m *mockLocalizer) FormatDateTime(t time.Time) string {
+	ret := _m.Called(t)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FormatDateTime")
@@ -267,7 +267,7 @@ func (_m *mockLocalizer) FormatDateTime(_a0 time.Time) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(time.Time) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(t)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -281,12 +281,12 @@ type mockLocalizer_FormatDateTime_Call struct {
 }
 
 // FormatDateTime is a helper method to define mock.On call
-//   - _a0 time.Time
-func (_e *mockLocalizer_Expecter) FormatDateTime(_a0 interface{}) *mockLocalizer_FormatDateTime_Call {
-	return &mockLocalizer_FormatDateTime_Call{Call: _e.mock.On("FormatDateTime", _a0)}
+//   - t time.Time
+func (_e *mockLocalizer_Expecter) FormatDateTime(t interface{}) *mockLocalizer_FormatDateTime_Call {
+	return &mockLocalizer_FormatDateTime_Call{Call: _e.mock.On("FormatDateTime", t)}
 }
 
-func (_c *mockLocalizer_FormatDateTime_Call) Run(run func(_a0 time.Time)) *mockLocalizer_FormatDateTime_Call {
+func (_c *mockLocalizer_FormatDateTime_Call) Run(run func(t time.Time)) *mockLocalizer_FormatDateTime_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(time.Time))
 	})
@@ -303,9 +303,9 @@ func (_c *mockLocalizer_FormatDateTime_Call) RunAndReturn(run func(time.Time) st
 	return _c
 }
 
-// FormatTime provides a mock function with given fields: _a0
-func (_m *mockLocalizer) FormatTime(_a0 time.Time) string {
-	ret := _m.Called(_a0)
+// FormatTime provides a mock function with given fields: t
+func (_m *mockLocalizer) FormatTime(t time.Time) string {
+	ret := _m.Called(t)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FormatTime")
@@ -313,7 +313,7 @@ func (_m *mockLocalizer) FormatTime(_a0 time.Time) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(time.Time) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(t)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -327,12 +327,12 @@ type mockLocalizer_FormatTime_Call struct {
 }
 
 // FormatTime is a helper method to define mock.On call
-//   - _a0 time.Time
-func (_e *mockLocalizer_Expecter) FormatTime(_a0 interface{}) *mockLocalizer_FormatTime_Call {
-	return &mockLocalizer_FormatTime_Call{Call: _e.mock.On("FormatTime", _a0)}
+//   - t time.Time
+func (_e *mockLocalizer_Expecter) FormatTime(t interface{}) *mockLocalizer_FormatTime_Call {
+	return &mockLocalizer_FormatTime_Call{Call: _e.mock.On("FormatTime", t)}
 }
 
-func (_c *mockLocalizer_FormatTime_Call) Run(run func(_a0 time.Time)) *mockLocalizer_FormatTime_Call {
+func (_c *mockLocalizer_FormatTime_Call) Run(run func(t time.Time)) *mockLocalizer_FormatTime_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(time.Time))
 	})
@@ -349,9 +349,9 @@ func (_c *mockLocalizer_FormatTime_Call) RunAndReturn(run func(time.Time) string
 	return _c
 }
 
-// Possessive provides a mock function with given fields: _a0
-func (_m *mockLocalizer) Possessive(_a0 string) string {
-	ret := _m.Called(_a0)
+// Possessive provides a mock function with given fields: s
+func (_m *mockLocalizer) Possessive(s string) string {
+	ret := _m.Called(s)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Possessive")
@@ -359,7 +359,7 @@ func (_m *mockLocalizer) Possessive(_a0 string) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(s)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -373,12 +373,12 @@ type mockLocalizer_Possessive_Call struct {
 }
 
 // Possessive is a helper method to define mock.On call
-//   - _a0 string
-func (_e *mockLocalizer_Expecter) Possessive(_a0 interface{}) *mockLocalizer_Possessive_Call {
-	return &mockLocalizer_Possessive_Call{Call: _e.mock.On("Possessive", _a0)}
+//   - s string
+func (_e *mockLocalizer_Expecter) Possessive(s interface{}) *mockLocalizer_Possessive_Call {
+	return &mockLocalizer_Possessive_Call{Call: _e.mock.On("Possessive", s)}
 }
 
-func (_c *mockLocalizer_Possessive_Call) Run(run func(_a0 string)) *mockLocalizer_Possessive_Call {
+func (_c *mockLocalizer_Possessive_Call) Run(run func(s string)) *mockLocalizer_Possessive_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string))
 	})
@@ -395,9 +395,9 @@ func (_c *mockLocalizer_Possessive_Call) RunAndReturn(run func(string) string) *
 	return _c
 }
 
-// SetShowTranslationKeys provides a mock function with given fields: _a0
-func (_m *mockLocalizer) SetShowTranslationKeys(_a0 bool) {
-	_m.Called(_a0)
+// SetShowTranslationKeys provides a mock function with given fields: s
+func (_m *mockLocalizer) SetShowTranslationKeys(s bool) {
+	_m.Called(s)
 }
 
 // mockLocalizer_SetShowTranslationKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetShowTranslationKeys'
@@ -406,12 +406,12 @@ type mockLocalizer_SetShowTranslationKeys_Call struct {
 }
 
 // SetShowTranslationKeys is a helper method to define mock.On call
-//   - _a0 bool
-func (_e *mockLocalizer_Expecter) SetShowTranslationKeys(_a0 interface{}) *mockLocalizer_SetShowTranslationKeys_Call {
-	return &mockLocalizer_SetShowTranslationKeys_Call{Call: _e.mock.On("SetShowTranslationKeys", _a0)}
+//   - s bool
+func (_e *mockLocalizer_Expecter) SetShowTranslationKeys(s interface{}) *mockLocalizer_SetShowTranslationKeys_Call {
+	return &mockLocalizer_SetShowTranslationKeys_Call{Call: _e.mock.On("SetShowTranslationKeys", s)}
 }
 
-func (_c *mockLocalizer_SetShowTranslationKeys_Call) Run(run func(_a0 bool)) *mockLocalizer_SetShowTranslationKeys_Call {
+func (_c *mockLocalizer_SetShowTranslationKeys_Call) Run(run func(s bool)) *mockLocalizer_SetShowTranslationKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(bool))
 	})
@@ -473,9 +473,9 @@ func (_c *mockLocalizer_ShowTranslationKeys_Call) RunAndReturn(run func() bool) 
 	return _c
 }
 
-// T provides a mock function with given fields: _a0
-func (_m *mockLocalizer) T(_a0 string) string {
-	ret := _m.Called(_a0)
+// T provides a mock function with given fields: messageID
+func (_m *mockLocalizer) T(messageID string) string {
+	ret := _m.Called(messageID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for T")
@@ -483,7 +483,7 @@ func (_m *mockLocalizer) T(_a0 string) string {
 
 	var r0 string
 	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(_a0)
+		r0 = rf(messageID)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
@@ -497,12 +497,12 @@ type mockLocalizer_T_Call struct {
 }
 
 // T is a helper method to define mock.On call
-//   - _a0 string
-func (_e *mockLocalizer_Expecter) T(_a0 interface{}) *mockLocalizer_T_Call {
-	return &mockLocalizer_T_Call{Call: _e.mock.On("T", _a0)}
+//   - messageID string
+func (_e *mockLocalizer_Expecter) T(messageID interface{}) *mockLocalizer_T_Call {
+	return &mockLocalizer_T_Call{Call: _e.mock.On("T", messageID)}
 }
 
-func (_c *mockLocalizer_T_Call) Run(run func(_a0 string)) *mockLocalizer_T_Call {
+func (_c *mockLocalizer_T_Call) Run(run func(messageID string)) *mockLocalizer_T_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string))
 	})

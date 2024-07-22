@@ -34,7 +34,7 @@ func Pay(
 		}
 
 		createPaymentBody := pay.CreatePaymentBody{
-			Amount:      donor.FeeAmount(),
+			Amount:      donor.FeeAmount().Pence(),
 			Reference:   randomString(12),
 			Description: "Property and Finance LPA",
 			ReturnURL:   appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
