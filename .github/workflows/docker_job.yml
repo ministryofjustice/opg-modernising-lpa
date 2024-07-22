@@ -91,7 +91,7 @@ jobs:
           platforms: linux/amd64
           push: false
           load: true
-          # cache-from: type=registry,src=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
+          cache-from: type=registry,src=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
