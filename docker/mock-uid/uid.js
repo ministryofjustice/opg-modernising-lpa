@@ -1,9 +1,9 @@
-var characters = '346789QWERTYUPADFGHJKLXCVBNM'
+const characters = '346789QWERTYUPADFGHJKLXCVBNM'
 
-var generateRandom4Chars = function() {
-    var result = [];
+const generateRandom4Chars = function() {
+    let result = [];
 
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
         result.push(characters.charAt(Math.floor(Math.random() * characters.length)));
     }
 
@@ -11,9 +11,9 @@ var generateRandom4Chars = function() {
 }
 
 //gross, but imposter doesn't support ES6 out of the box (also explains vars)
-var uid = 'M-'+generateRandom4Chars()+'-'+generateRandom4Chars()+'-'+generateRandom4Chars()
+const uid = `M-${generateRandom4Chars()}-${generateRandom4Chars()}-${generateRandom4Chars()}`
 
 respond()
     .withStatusCode(201)
     .withHeader('Content-Type', 'application/json')
-    .withContent('{"uid":"'+uid+'"}');
+    .withContent(`{"uid":"${uid}"}`);
