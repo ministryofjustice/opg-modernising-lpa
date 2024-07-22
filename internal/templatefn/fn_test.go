@@ -1,6 +1,7 @@
 package templatefn
 
 import (
+	"fmt"
 	"html/template"
 	"testing"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -164,6 +164,14 @@ func TestFromLink(t *testing.T) {
 		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
 		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
+}
+
+func TestFromLinkActor(t *testing.T) {
+	uid := actoruid.New()
+	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id/your-details?from=/previous&id=%s#f-first-names", uid.String()),
+		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
+	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous&id="+uid.String(),
+		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, uid, ""))
 }
 
 func TestCheckboxEq(t *testing.T) {
@@ -578,40 +586,4 @@ func TestSummaryRow(t *testing.T) {
 		"CanChange":       true,
 		"SummarisingSelf": true,
 	}, summaryRow(app, label, value, changeLink, fullName, true, true))
-}
-
-func TestAddressSummaryRow(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	label := "a-label"
-	address := place.Address{Line1: "a"}
-	changeLink := "a-link.com"
-	fullName := "Full Name"
-
-	assert.Equal(t, map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Address":         address,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       true,
-		"SummarisingSelf": true,
-	}, addressSummaryRow(app, label, address, changeLink, fullName, true, true))
-}
-
-func TestOptionalSummaryRow(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
-	label := "a-label"
-	value := "aValue"
-	changeLink := "a-link.com"
-	fullName := "Full Name"
-
-	assert.Equal(t, map[string]any{
-		"App":             app,
-		"Label":           label,
-		"Value":           value,
-		"ChangeLink":      changeLink,
-		"FullName":        fullName,
-		"CanChange":       true,
-		"SummarisingSelf": true,
-	}, optionalSummaryRow(app, label, value, changeLink, fullName, true, true))
 }
