@@ -79,11 +79,11 @@ type SettlementSummary struct {
 
 type AmountPence int
 
-func (a AmountPence) Pounds() string {
+func (a AmountPence) String() string {
 	return fmt.Sprintf("£%s", humanize.CommafWithDigits(float64(a)/100, 2))
 }
 
-func (a AmountPence) Int() int {
+func (a AmountPence) Pence() int {
 	return int(a)
 }
 

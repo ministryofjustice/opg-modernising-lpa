@@ -45,7 +45,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		paymentDetail := actor.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentID,
-			Amount:           payment.AmountPence.Int(),
+			Amount:           payment.AmountPence.Pence(),
 		}
 		if !slices.Contains(donor.PaymentDetails, paymentDetail) {
 			donor.PaymentDetails = append(donor.PaymentDetails, paymentDetail)
@@ -53,7 +53,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			if err := eventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
 				UID:       donor.LpaUID,
 				PaymentID: payment.PaymentID,
-				Amount:    payment.AmountPence.Int(),
+				Amount:    payment.AmountPence.Pence(),
 			}); err != nil {
 				return err
 			}
@@ -66,7 +66,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			LpaReferenceNumber:       donor.LpaUID,
 			PaymentReferenceID:       payment.PaymentID,
 			PaymentConfirmationDate:  appData.Localizer.FormatDate(payment.SettlementSummary.CaptureSubmitTime),
-			AmountPaidWithCurrency:   payment.AmountPence.Pounds(),
+			AmountPaidWithCurrency:   payment.AmountPence.String(),
 		}); err != nil {
 			return err
 		}
