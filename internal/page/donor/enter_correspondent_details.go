@@ -33,7 +33,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEnterCorrespondentDetailsForm(r)
+			data.Form = readEnterCorrespondentDetailsForm(r, donor.Donor)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -69,22 +69,28 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 }
 
 type enterCorrespondentDetailsForm struct {
-	FirstNames   string
-	LastName     string
-	Email        string
-	Organisation string
-	Telephone    string
-	WantAddress  *form.YesNoForm
+	FirstNames      string
+	LastName        string
+	Email           string
+	Organisation    string
+	Telephone       string
+	WantAddress     *form.YesNoForm
+	DonorEmailMatch bool
+	DonorFullName   string
 }
 
-func readEnterCorrespondentDetailsForm(r *http.Request) *enterCorrespondentDetailsForm {
+func readEnterCorrespondentDetailsForm(r *http.Request, donor actor.Donor) *enterCorrespondentDetailsForm {
+	email := page.PostFormString(r, "email")
+
 	return &enterCorrespondentDetailsForm{
-		FirstNames:   page.PostFormString(r, "first-names"),
-		LastName:     page.PostFormString(r, "last-name"),
-		Email:        page.PostFormString(r, "email"),
-		Organisation: page.PostFormString(r, "organisation"),
-		Telephone:    page.PostFormString(r, "telephone"),
-		WantAddress:  form.ReadYesNoForm(r, "yesToAddAnAddress"),
+		FirstNames:      page.PostFormString(r, "first-names"),
+		LastName:        page.PostFormString(r, "last-name"),
+		Email:           page.PostFormString(r, "email"),
+		Organisation:    page.PostFormString(r, "organisation"),
+		Telephone:       page.PostFormString(r, "telephone"),
+		WantAddress:     form.ReadYesNoForm(r, "yesToAddAnAddress"),
+		DonorEmailMatch: email == donor.Email,
+		DonorFullName:   donor.FullName(),
 	}
 }
 
@@ -102,6 +108,13 @@ func (f *enterCorrespondentDetailsForm) Validate() validation.List {
 	errors.String("email", "email", f.Email,
 		validation.Empty(),
 		validation.Email())
+
+	if f.DonorEmailMatch {
+		errors.Add("email", validation.CustomFormattedError{
+			Label: "youProvidedThisEmailForDonorError",
+			Data:  map[string]any{"DonorFullName": f.DonorFullName},
+		})
+	}
 
 	errors.String("telephone", "phoneNumber", f.Telephone,
 		validation.Telephone())
