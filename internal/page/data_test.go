@@ -388,23 +388,23 @@ func TestLpaCost(t *testing.T) {
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
 		Donor        *actor.DonorProvidedDetails
-		ExpectedCost int
+		ExpectedCost pay.AmountPence
 	}{
 		"not paid": {
 			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
-			ExpectedCost: 4100,
+			ExpectedCost: pay.AmountPence(4100),
 		},
 		"fully paid": {
 			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
-			ExpectedCost: 0,
+			ExpectedCost: pay.AmountPence(0),
 		},
 		"denied partially paid": {
 			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
-			ExpectedCost: 4100,
+			ExpectedCost: pay.AmountPence(4100),
 		},
 		"denied fully paid": {
 			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
-			ExpectedCost: 0,
+			ExpectedCost: pay.AmountPence(0),
 		},
 	}
 
