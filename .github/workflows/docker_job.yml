@@ -65,13 +65,6 @@ jobs:
           version: v0.15.1
           platforms: linux/amd64,linux/arm64
 
-      # - name: setup cache for ${{ matrix.ecr_repository }}
-      #   id: setup_cache
-      #   uses: actions/cache@v4.0.2
-      #   with:
-      #     path: /tmp/.buildx-cache
-      #     key: ${{ inputs.checkout_tag }}-${{ matrix.ecr_repository }}-${{ hashFiles('go.mod', 'go.sum', 'package.json') }}
-
       - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -96,11 +89,12 @@ jobs:
           push: false
           load: true
           cache-from: type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
-          # cache-to: type=registry,mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:cache-${{ inputs.branch_name }}
           tags: |
             ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
+        env:
+          SOURCE_DATE_EPOCH: 0
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
@@ -133,6 +127,8 @@ jobs:
             TAG=${{inputs.tag}}
           sbom: true
           provenance: ${{ matrix.push_provenance }}
+        env:
+          SOURCE_DATE_EPOCH: 0
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
@@ -152,3 +148,5 @@ jobs:
             TAG=${{inputs.tag}}
           sbom: true
           provenance: ${{ matrix.push_provenance }}
+        env:
+          SOURCE_DATE_EPOCH: 0
