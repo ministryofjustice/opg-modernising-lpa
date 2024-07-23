@@ -18,6 +18,17 @@ describe('Sign', () => {
             cy.contains('h1', 'You’ve formally agreed to be an attorney');
         });
 
+        it('can be opted out of', () => {
+            cy.contains('a', 'I do not want to be an attorney').click();
+
+            cy.url().should('contain', '/confirm-you-do-not-want-to-be-an-attorney');
+            cy.checkA11yApp();
+            cy.contains('button', 'Confirm').click();
+
+            cy.url().should('contain', '/you-have-decided-not-to-be-an-attorney');
+            cy.checkA11yApp();
+        });
+
         it('shows an error when not selected', () => {
             cy.contains('button', 'Submit signature').click();
 
@@ -46,6 +57,17 @@ describe('Sign', () => {
             cy.checkA11yApp();
 
             cy.contains('h1', 'You’ve formally agreed to be a replacement attorney');
+        });
+
+        it('can be opted out of', () => {
+            cy.contains('a', 'I do not want to be an attorney').click();
+
+            cy.url().should('contain', '/confirm-you-do-not-want-to-be-an-attorney');
+            cy.checkA11yApp();
+            cy.contains('button', 'Confirm').click();
+
+            cy.url().should('contain', '/you-have-decided-not-to-be-an-attorney');
+            cy.checkA11yApp();
         });
 
         it('shows an error when not selected', () => {
