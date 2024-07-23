@@ -211,3 +211,11 @@ func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpa
 
 	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
 }
+
+func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
+	body := updateRequest{
+		Type: "ATTORNEY_OPT_OUT",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actorUID, body)
+}
