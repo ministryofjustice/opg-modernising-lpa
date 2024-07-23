@@ -404,6 +404,23 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
+	saved := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: actor.Donor{FirstNames: "a", LastName: "b"}, Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskCompleted}}
+	err := saved.UpdateHash()
+
+	saved.Tasks.CheckYourLpa = actor.TaskInProgress
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
+
+	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
+
+	err = donorStore.Put(ctx, &actor.DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: actor.Donor{FirstNames: "a", LastName: "b"}, Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskCompleted}})
+	assert.Nil(t, err)
+}
+
 func TestDonorStorePutWhenError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().Put(ctx, mock.Anything).Return(expectedError)
