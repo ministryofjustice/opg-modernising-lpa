@@ -358,14 +358,14 @@ func (l *DonorProvidedDetails) Cost() int {
 	return pay.Cost(l.FeeType, l.PreviousFee)
 }
 
-func (l *DonorProvidedDetails) FeeAmount() int {
+func (l *DonorProvidedDetails) FeeAmount() pay.AmountPence {
 	paid := 0
 
 	for _, payment := range l.PaymentDetails {
 		paid += payment.Amount
 	}
 
-	return l.Cost() - paid
+	return pay.AmountPence(l.Cost() - paid)
 }
 
 // CertificateProviderSharesDetails will return true if the last name or address

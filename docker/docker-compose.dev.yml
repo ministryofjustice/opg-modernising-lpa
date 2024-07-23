@@ -48,3 +48,9 @@ services:
     ports:
       - "9000:8080"
     entrypoint: aws-lambda-rie /var/task/event-received
+
+  mock-pay:
+    image: outofcoffee/imposter:latest
+    container_name: mock-pay
+    volumes:
+      - ./mock-pay/:/opt/imposter/config/
