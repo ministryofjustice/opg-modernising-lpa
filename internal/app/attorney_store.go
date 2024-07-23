@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -73,4 +74,21 @@ func (s *attorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails
 func (s *attorneyStore) Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error {
 	attorney.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, attorney)
+}
+
+func (s *attorneyStore) Delete(ctx context.Context) error {
+	data, err := page.SessionDataFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	if data.LpaID == "" || data.SessionID == "" {
+		return errors.New("attorneyStore.Delete requires LpaID and SessionID")
+	}
+
+	if err := s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(data.LpaID), dynamo.AttorneyKey(data.SessionID)); err != nil {
+		return fmt.Errorf("error deleting attorney: %w", err)
+	}
+
+	return nil
 }
