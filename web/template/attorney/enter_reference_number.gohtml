@@ -1,11 +1,11 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "enterYourAttorneyReferenceNumber" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "enterYourReferenceNumber" }}{{ end }}
 
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "enterYourAttorneyReferenceNumber" }}</h1>
+      <h1 class="govuk-heading-xl">{{ tr .App "enterYourReferenceNumber" }}</h1>
 
       {{ trHtml .App "attorneyReferenceNumberContent" }}
 
