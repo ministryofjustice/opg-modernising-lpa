@@ -1,4 +1,4 @@
-package certificateprovider
+package attorney
 
 import (
 	"errors"
@@ -27,7 +27,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 			if data.Errors.None() {
 				referenceNumber := data.Form.ReferenceNumber
 
-				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, referenceNumber)
+				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, referenceNumber)
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
@@ -41,7 +41,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					return err
 				}
 
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return page.Paths.Attorney.ConfirmDontWantToBeAttorneyLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 
