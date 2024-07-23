@@ -2,6 +2,8 @@
 
 This terraform configuration manages per-environment resources.
 
+just a random change
+
 Per-account or otherwise shared resources are managed in `../account`
 
 ## Namespace resources
