@@ -286,7 +286,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			resp := w.Result()
 
 			assert.Nil(t, err)
-			assert.Equal(t, page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
+			assert.Equal(t, page.Paths.CertificateProvider.YouHaveDecidedNotToBeCertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 		})
 	}
@@ -341,10 +341,17 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 
 				return lpaStoreClient
 			},
-			shareCodeStore: func() *mockShareCodeStore { return nil },
-			donorStore:     func() *mockDonorStore { return nil },
-			localizer:      func() *mockLocalizer { return localizer },
-			notifyClient:   func() *mockNotifyClient { return nil },
+			shareCodeStore: func() *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, nil)
+
+				return shareCodeStore
+			},
+			donorStore:   func() *mockDonorStore { return nil },
+			localizer:    func() *mockLocalizer { return localizer },
+			notifyClient: func() *mockNotifyClient { return nil },
 		},
 		"when donorStore.GetAny() error": {
 			sessionStore: func() *mockSessionStore {
@@ -364,7 +371,14 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 				return lpaStoreResolvingService
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			shareCodeStore: func() *mockShareCodeStore { return nil },
+			shareCodeStore: func() *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, nil)
+
+				return shareCodeStore
+			},
 			donorStore: func() *mockDonorStore {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
@@ -394,7 +408,14 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 				return lpaStoreResolvingService
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			shareCodeStore: func() *mockShareCodeStore { return nil },
+			shareCodeStore: func() *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, nil)
+
+				return shareCodeStore
+			},
 			donorStore: func() *mockDonorStore {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
@@ -426,14 +447,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient {
-				lpaStoreClient := newMockLpaStoreClient(t)
-				lpaStoreClient.EXPECT().
-					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil)
-
-				return lpaStoreClient
-			},
+			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			shareCodeStore: func() *mockShareCodeStore {
 				shareCodeStore := newMockShareCodeStore(t)
 				shareCodeStore.EXPECT().
@@ -482,9 +496,16 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 
 				return shareCodeStore
 			},
-			donorStore:   func() *mockDonorStore { return nil },
-			localizer:    func() *mockLocalizer { return localizer },
-			notifyClient: func() *mockNotifyClient { return nil },
+			donorStore: func() *mockDonorStore { return nil },
+			localizer:  func() *mockLocalizer { return localizer },
+			notifyClient: func() *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
+
+				return client
+			},
 		},
 		"when notifyClient.SendActorEmail() error": {
 			sessionStore: func() *mockSessionStore {
@@ -516,9 +537,6 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 				shareCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
 					Return(shareCodeData, nil)
-				shareCodeStore.EXPECT().
-					Delete(mock.Anything, mock.Anything).
-					Return(nil)
 
 				return shareCodeStore
 			},
