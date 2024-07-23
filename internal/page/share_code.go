@@ -126,8 +126,9 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			AttorneyStartPageURL:      s.appPublicURL + Paths.Attorney.Start.Format(),
 			ShareCode:                 shareCode,
+			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -148,8 +149,9 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			AttorneyStartPageURL:      s.appPublicURL + Paths.Attorney.Start.Format(),
 			ShareCode:                 shareCode,
+			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -176,6 +178,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
+			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -202,6 +205,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
 			ShareCode:                 shareCode,
+			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
 		})
 }
 

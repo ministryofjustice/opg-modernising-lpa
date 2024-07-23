@@ -8,13 +8,19 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
+
+type Localizer interface {
+	page.Localizer
+}
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
@@ -32,8 +38,10 @@ type Logger interface {
 
 type SessionStore interface {
 	Login(r *http.Request) (*sesh.LoginSession, error)
+	LpaData(r *http.Request) (*sesh.LpaDataSession, error)
 	OneLogin(r *http.Request) (*sesh.OneLoginSession, error)
 	SetLogin(r *http.Request, w http.ResponseWriter, session *sesh.LoginSession) error
+	SetLpaData(r *http.Request, w http.ResponseWriter, lpaDataSession *sesh.LpaDataSession) error
 	SetOneLogin(r *http.Request, w http.ResponseWriter, session *sesh.OneLoginSession) error
 }
 
@@ -53,6 +61,7 @@ type AttorneyStore interface {
 	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.AttorneyProvidedDetails, error)
 	Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error)
 	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
+	Delete(ctx context.Context) error
 }
 
 type AddressClient interface {
@@ -66,6 +75,11 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendAttorney(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error
+	SendAttorneyOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
+}
+
+type NotifyClient interface {
+	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -82,6 +96,8 @@ func Register(
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	notifyClient NotifyClient,
+	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -91,6 +107,12 @@ func Register(
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney))
 	handleRoot(page.Paths.Attorney.EnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
+	handleRoot(page.Paths.Attorney.EnterReferenceNumberOptOut, None,
+		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
+	handleRoot(page.Paths.Attorney.ConfirmDontWantToBeAttorneyLoggedOut, None,
+		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, sessionStore, notifyClient, appPublicURL))
+	handleRoot(page.Paths.Attorney.YouHaveDecidedNotToBeAttorney, None,
+		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 
 	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
@@ -118,6 +140,9 @@ func Register(
 		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
 	handleAttorney(page.Paths.Attorney.Progress, None,
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
+
+	handleAttorney(page.Paths.Attorney.ConfirmDontWantToBeAttorney, CanGoBack,
+		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, lpaStoreClient, attorneyStore, notifyClient, appPublicURL))
 }
 
 type handleOpt byte

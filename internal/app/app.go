@@ -199,6 +199,8 @@ func App(
 		dashboardStore,
 		lpaStoreClient,
 		lpaStoreResolvingService,
+		notifyClient,
+		appPublicURL,
 	)
 
 	donor.Register(
