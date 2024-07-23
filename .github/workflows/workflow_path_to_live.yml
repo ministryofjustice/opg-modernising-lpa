@@ -47,6 +47,7 @@ jobs:
     needs: [go_unit_tests,create_tags]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
+      branch_name: main
 
   terraform_account_workflow_development:
     name: TF Apply Dev Account
