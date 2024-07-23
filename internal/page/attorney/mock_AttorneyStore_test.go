@@ -83,6 +83,52 @@ func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// Delete provides a mock function with given fields: ctx
+func (_m *mockAttorneyStore) Delete(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockAttorneyStore_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type mockAttorneyStore_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockAttorneyStore_Expecter) Delete(ctx interface{}) *mockAttorneyStore_Delete_Call {
+	return &mockAttorneyStore_Delete_Call{Call: _e.mock.On("Delete", ctx)}
+}
+
+func (_c *mockAttorneyStore_Delete_Call) Run(run func(ctx context.Context)) *mockAttorneyStore_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockAttorneyStore_Delete_Call) Return(_a0 error) *mockAttorneyStore_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockAttorneyStore_Delete_Call) RunAndReturn(run func(context.Context) error) *mockAttorneyStore_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: ctx
 func (_m *mockAttorneyStore) Get(ctx context.Context) (*actor.AttorneyProvidedDetails, error) {
 	ret := _m.Called(ctx)
