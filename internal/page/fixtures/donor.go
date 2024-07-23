@@ -129,6 +129,7 @@ func Donor(
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
+
 		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
@@ -327,6 +328,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 		donorDetails.CheckedAt = time.Now()
+		_ = donorDetails.UpdateCheckedHash()
 		donorDetails.Tasks.CheckYourLpa = actor.TaskCompleted
 	}
 

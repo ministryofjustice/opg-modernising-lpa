@@ -268,6 +268,10 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		return err
 	}
 
+	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.Completed() {
+		donor.Tasks.CheckYourLpa = actor.TaskInProgress
+	}
+
 	// By not setting UpdatedAt until a UID exists, queries for SK=DONOR#xyz on
 	// SKUpdatedAtIndex will not return UID-less LPAs.
 	if donor.LpaUID != "" {
