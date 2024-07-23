@@ -2,6 +2,7 @@ package attorney
 
 import (
 	"errors"
+	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -41,3 +42,11 @@ var (
 		ActorType:   actor.TypeReplacementTrustCorporation,
 	}
 )
+
+func evalT[T any](fn func(*testing.T) T, t *testing.T) T {
+	if fn == nil {
+		return *new(T)
+	}
+
+	return fn(t)
+}
