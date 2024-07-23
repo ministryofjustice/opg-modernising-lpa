@@ -53,6 +53,7 @@ jobs:
             platforms: linux/amd64
             push_provenance: mode=max
             push_sbom: true
+
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
