@@ -22,17 +22,12 @@ func TestGuidance(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(certificateProvider, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &guidanceData{App: testAppData, Lpa: donor, CertificateProvider: certificateProvider}).
 		Return(nil)
 
-	err := Guidance(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := Guidance(template.Execute, lpaStoreResolvingService)(testAppData, w, r, certificateProvider)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,7 +44,7 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Execute, nil, nil)(testAppData, w, r)
+	err := Guidance(template.Execute, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,26 +60,7 @@ func TestGuidanceWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, expectedError)
 
-	err := Guidance(nil, lpaStoreResolvingService, nil)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGuidanceWhenCertificateProviderStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
-
-	err := Guidance(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := Guidance(nil, lpaStoreResolvingService)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -103,7 +79,7 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 		Execute(w, &guidanceData{App: testAppData, Lpa: &lpastore.Lpa{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)
+	err := Guidance(template.Execute, lpaStoreResolvingService)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }

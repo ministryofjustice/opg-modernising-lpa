@@ -554,7 +554,8 @@
     "certificateProvidedConcerns": "<p class=\"govuk-body\">Os bydd unrhyw bryderon o gwbl gan Swyddfa’r Gwarcheidwad Cyhoeddus ynghylch LPA {{ .DonorFirstNamesPossessive }} yn y dyfodol, gallem gysylltu â chi.</p> <p class=\"govuk-body\">Os bydd angen i chi adrodd am bryder o gwbl, gallwch wneud hyn ar unrhyw adeg gan ddefnyddio’r <a href=\"/\" class=\"govuk-link\">gwasanaeth adrodd am bryder ynghylch LPA</a>.</p>",
     "goToYourDashboard": "Mynd i’ch dangosfwrdd",
     "beAnAttorney": "Bod yn atwrnai ar atwrneiaeth arhosol (LPA)",
-    "enterYourAttorneyReferenceNumber": "Rhowch eich cyfeirnod",
+    "enterYourReferenceNumber": "Rhowch eich cyfeirnod",
+    "enterYourAttorneyReferenceNumber": "Welsh",
     "attorneyReferenceNumberContent": "<p class=\"govuk-body\">Gallwch weld y cyfeirnod yn yr e-bost sy’n eich gwahodd i fod yn atwrnai neu’n atwrnai wrth gefn.</p>",
     "attorneyReferenceNumber": "Cyfeirnod",
     "attorney18OrOverWarning": "Rhaid i chi fod yn 18 oed neu hŷn i fod yn atwrnai.",
@@ -1301,5 +1302,14 @@
     "thisIsNotTheRegisteredLpaWarning": "Welsh",
     "howLpaCanBeUsed": "Welsh",
     "trustCorporationAttorney": "Welsh",
-    "replacementTrustCorporationAttorney": "Welsh"
+    "replacementTrustCorporationAttorney": "Welsh",
+    "iDoNotWantToBeAttorney": "Welsh",
+    "confirmYouDoNotWantToBeAttorney": "Welsh",
+    "youHaveToldUsYouDoNotWantToBeAttorneyOn": "Welsh {{.DonorFullNamePossessive}}",
+    "whenYouConfirmWeWillContactToExplain": "Welsh {{.DonorFullName}}",
+    "youHaveConfirmedYouDoNotWantToBeAttorney": "Welsh",
+    "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "Welsh {{.DonorFullNamePossessive}}",
+    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
+    "youHaveChosenNotToFormallyNotifyAnyone": "Welsh",
+    "theDonorHasChosenNotToFormallyNotifyAnyone": "Welsh"
 }

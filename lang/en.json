@@ -504,7 +504,8 @@
     "certificateProvidedConcerns": "<p class=\"govuk-body\">If the Office of the Public Guardian ever has any concerns about {{ .DonorFirstNamesPossessive }} LPA in future, we may contact you.</p> <p class=\"govuk-body\">If you ever need to report a concern, you can do this at any time using the <a href=\"/\" class=\"govuk-link\">report a concern about an LPA service</a>.</p>",
     "goToYourDashboard": "Go to your dashboard",
     "beAnAttorney": "Be an attorney on a lasting power of attorney (LPA)",
-    "enterYourAttorneyReferenceNumber": "Enter your reference number",
+    "enterYourReferenceNumber": "Enter your reference number",
+    "enterYourAttorneyReferenceNumber": "Enter your attorney reference number",
     "attorneyReferenceNumberContent": "<p class=\"govuk-body\">You can find this in the email inviting you to be an attorney or a replacement attorney.</p>",
     "attorneyReferenceNumber": "Reference number",
     "attorney18OrOverWarning": "You must be aged 18 or over to be an attorney.",
@@ -1230,5 +1231,14 @@
     "thisIsNotTheRegisteredLpaWarning": "This is not the registered LPA. You cannot use it or give organisations access to it.",
     "howLpaCanBeUsed": "How the LPA can be used",
     "trustCorporationAttorney": "Trust corporation attorney",
-    "replacementTrustCorporationAttorney": "Replacement trust corporation attorney"
+    "replacementTrustCorporationAttorney": "Replacement trust corporation attorney",
+    "iDoNotWantToBeAttorney": "I do not want to be an attorney",
+    "confirmYouDoNotWantToBeAttorney": "Confirm you do not want to be an attorney",
+    "youHaveToldUsYouDoNotWantToBeAttorneyOn": "You have told us that you do not want to be an attorney on {{.DonorFullNamePossessive}} LPA:",
+    "whenYouConfirmWeWillContactToExplain": "When you confirm, we will contact {{.DonorFullName}} to explain what they can do next.",
+    "youHaveConfirmedYouDoNotWantToBeAttorney": "You have confirmed that you do not want to be an attorney",
+    "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "You have confirmed that you do not want to be {{.DonorFullNamePossessive}} attorney.",
+    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">We have let {{.DonorFirstNames}} know about your decision.</p><p class=\"govuk-body\">You do not need to do anything else.</p>",
+    "youHaveChosenNotToFormallyNotifyAnyone": "You have chosen not to formally notify anyone of the registration of this LPA.",
+    "theDonorHasChosenNotToFormallyNotifyAnyone": "The donor has chosen not to formally notify anyone of the registration of this LPA."
 }
