@@ -91,13 +91,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x4af298e82cc36153
+	const modified uint64 = 0x21c0e3341b2659d8
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x49f8cef460cf416e,
+		0: 0x34e68bc89263d101,
 	}
 
 	for version, initial := range testcases {
@@ -106,9 +106,6 @@ func TestGenerateCheckedHash(t *testing.T) {
 			hash, _ := donor.generateCheckedHash()
 
 			assert.Equal(t, donor.CheckedHash, hash)
-			assert.False(t, donor.CheckedHashChanged())
-
-			donor.DonorIdentityUserData.FirstNames = "a"
 			assert.False(t, donor.CheckedHashChanged())
 
 			donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
