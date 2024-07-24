@@ -108,6 +108,9 @@ func TestGenerateCheckedHash(t *testing.T) {
 			assert.Equal(t, donor.CheckedHash, hash)
 			assert.False(t, donor.CheckedHashChanged())
 
+			donor.DonorIdentityUserData.FirstNames = "a"
+			assert.False(t, donor.CheckedHashChanged())
+
 			donor.Attorneys.Attorneys[0].DateOfBirth = date.New("2001", "1", "2")
 			assert.True(t, donor.CheckedHashChanged())
 

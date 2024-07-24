@@ -11,6 +11,8 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+        {{ trHtml .App (printStruct .Donor) }}
+
       {{ if .App.SupporterData }}
         <div class="govuk-breadcrumbs">
           <ol class="govuk-breadcrumbs__list">

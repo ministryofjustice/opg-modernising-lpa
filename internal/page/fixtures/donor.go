@@ -126,6 +126,12 @@ func Donor(
 
 		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
+		if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
+			if err = donorDetails.UpdateCheckedHash(); err != nil {
+				return fmt.Errorf("problem updating checkedHash: %w", err)
+			}
+		}
+
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
@@ -328,7 +334,6 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 		donorDetails.CheckedAt = time.Now()
-		_ = donorDetails.UpdateCheckedHash()
 		donorDetails.Tasks.CheckYourLpa = actor.TaskCompleted
 	}
 
