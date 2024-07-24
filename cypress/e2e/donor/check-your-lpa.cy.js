@@ -185,6 +185,39 @@ describe('Check the LPA', () => {
     })
   })
 
+  it("must check and send again when making LPA changes after certificate provider is contacted", () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'Completed');
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Not started');
+      cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+      cy.url().should('contain', '/add-correspondent');
+
+      cy.contains('label', 'No').click();
+
+      cy.contains('button', 'Save and continue').click();
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Cannot start yet');
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+      cy.get('#f-checked-and-happy').check({ force: true })
+      cy.contains('button', 'Confirm').click();
+
+      cy.url().should('contain', '/lpa-details-saved');
+
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'Completed');
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Not started');
+  })
+
   it("errors when not selected", () => {
     cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent');
     cy.contains('button', 'Confirm').click();

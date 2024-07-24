@@ -50,7 +50,7 @@ type DonorProvidedDetails struct {
 	// LpaUID is a unique identifier created after sending basic LPA details to the UID service
 	LpaUID string `dynamodbav:",omitempty"`
 	// CreatedAt is when the LPA was created
-	CreatedAt time.Time
+	CreatedAt time.Time `hash:"-"`
 	// UpdatedAt is when the LPA was last updated
 	UpdatedAt time.Time `hash:"-"`
 	// The donor the LPA relates to
@@ -175,10 +175,11 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	// The following fields don't contain LPA data, so aren't part of what gets
 	// checked.
 	switch field {
+	case "DonorIdentityUserData":
+		return false, nil
 	case "CheckedAt",
 		"Tasks",
 		"PaymentDetails",
-		"DonorIdentityUserData",
 		"WantToApplyForLpa",
 		"WantToSignLpa",
 		"SignedAt",
@@ -193,7 +194,10 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"FeeType",
 		"EvidenceDelivery",
 		"PreviousApplicationNumber",
-		"PreviousFee":
+		"PreviousFee",
+		"RegisteringWithCourtOfProtection",
+		"WantVoucher",
+		"Voucher":
 		return false, nil
 	}
 
