@@ -36,7 +36,7 @@ func TestGetConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeCertificateProvider(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeCertificateProvider(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, "example.com")(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -84,7 +84,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, tc.lpaStoreResolvingService(), nil, nil, nil, nil, "example.com")(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(tc.template().Execute, tc.lpaStoreResolvingService(), nil, nil, nil, nil, "example.com")(testAppData, w, r, nil)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -234,7 +234,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				SendActorEmail(r.Context(), "a@example.com", "lpa-uid", tc.email).
 				Return(nil)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient, "example.com")(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient, "example.com")(testAppData, w, r, nil)
 
 			resp := w.Result()
 
@@ -447,7 +447,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 			testAppData.Localizer = tc.localizer()
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.certificateProviderStore(), tc.notifyClient(), "example.com")(testAppData, w, r)
+			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.certificateProviderStore(), tc.notifyClient(), "example.com")(testAppData, w, r, nil)
 
 			resp := w.Result()
 
