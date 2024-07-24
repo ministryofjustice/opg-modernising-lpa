@@ -29,7 +29,7 @@ func TestGetReadTheLpa(t *testing.T) {
 		Execute(w, &readTheLpaData{App: testAppData, Lpa: donor}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestGetReadTheLpaWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -66,7 +66,7 @@ func TestGetReadTheLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r)
+	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -86,9 +86,6 @@ func TestPostReadTheLpa(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.EXPECT().
 		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
 			Tasks: actor.CertificateProviderTasks{
 				ReadTheLpa: actor.TaskCompleted,
@@ -96,7 +93,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -126,7 +123,7 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 				Get(r.Context()).
 				Return(donor, nil)
 
-			err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r)
+			err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -134,31 +131,6 @@ func TestPostReadTheLpaWhenNotReady(t *testing.T) {
 			assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
-}
-
-func TestPostReadTheLpaWithAttorneyWhenCertificateStoreGetErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpastore.Lpa{
-			LpaID:    "lpa-id",
-			SignedAt: time.Now(),
-			Paid:     true,
-		}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(nil, expectedError)
-
-	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
@@ -176,13 +148,10 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-	certificateProviderStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

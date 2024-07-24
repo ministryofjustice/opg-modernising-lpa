@@ -17,10 +17,11 @@ type guidanceData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		data := &guidanceData{
-			App: appData,
+			App:                 appData,
+			CertificateProvider: certificateProvider,
 		}
 
 		if lpaStoreResolvingService != nil {
@@ -29,14 +30,6 @@ func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				return err
 			}
 			data.Lpa = lpa
-		}
-
-		if certificateProviderStore != nil {
-			certificateProvider, err := certificateProviderStore.Get(r.Context())
-			if err != nil {
-				return err
-			}
-			data.CertificateProvider = certificateProvider
 		}
 
 		return tmpl(w, data)
