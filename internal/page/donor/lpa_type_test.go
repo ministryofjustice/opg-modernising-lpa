@@ -154,6 +154,41 @@ func TestPostLpaType(t *testing.T) {
 	}
 }
 
+func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
+	form := url.Values{
+		"lpa-type": {actor.LpaTypePersonalWelfare.String()},
+	}
+
+	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "an-id"})
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, mock.MatchedBy(func(data *lpaTypeData) bool {
+			return assert.Equal(t, validation.With("lpa-type", validation.CustomError{Label: "youMustDeleteTrustCorporationToChangeLpaType"}), data.Errors)
+		})).
+		Return(nil)
+
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+		LpaID: "lpa-id",
+		Donor: actor.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address:     place.Address{Postcode: "F1 1FF"},
+		},
+		Attorneys: actor.Attorneys{
+			TrustCorporation: actor.TrustCorporation{Name: "a"},
+		},
+		HasSentApplicationUpdatedEvent: true,
+	})
+
+	assert.Nil(t, err)
+}
+
 func TestPostLpaTypeWhenSessionErrors(t *testing.T) {
 	form := url.Values{
 		"lpa-type": {actor.LpaTypePropertyAndAffairs.String()},
@@ -253,8 +288,9 @@ func TestReadLpaTypeForm(t *testing.T) {
 
 func TestLpaTypeFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *lpaTypeForm
-		errors validation.List
+		form                *lpaTypeForm
+		hasTrustCorporation bool
+		errors              validation.List
 	}{
 		"valid": {
 			form: &lpaTypeForm{},
@@ -265,11 +301,23 @@ func TestLpaTypeFormValidate(t *testing.T) {
 			},
 			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		},
+		"to personal welfare": {
+			form: &lpaTypeForm{
+				LpaType: actor.LpaTypePersonalWelfare,
+			},
+		},
+		"to personal welfare when trust corporation": {
+			form: &lpaTypeForm{
+				LpaType: actor.LpaTypePersonalWelfare,
+			},
+			hasTrustCorporation: true,
+			errors:              validation.With("lpa-type", validation.CustomError{Label: "youMustDeleteTrustCorporationToChangeLpaType"}),
+		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
+			assert.Equal(t, tc.errors, tc.form.Validate(tc.hasTrustCorporation))
 		})
 	}
 }

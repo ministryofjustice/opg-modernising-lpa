@@ -1311,5 +1311,6 @@
     "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "Welsh {{.DonorFullNamePossessive}}",
     "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
     "youHaveChosenNotToFormallyNotifyAnyone": "Welsh",
-    "theDonorHasChosenNotToFormallyNotifyAnyone": "Welsh"
+    "theDonorHasChosenNotToFormallyNotifyAnyone": "Welsh",
+    "youMustDeleteTrustCorporationToChangeLpaType": "Welsh"
 }
