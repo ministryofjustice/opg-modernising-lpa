@@ -264,6 +264,11 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 		return nil
 	}
 
+	// Enforces donor to send notifications to certificate provider when LPA data has changed
+	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.Completed() {
+		donor.Tasks.CheckYourLpa = actor.TaskInProgress
+	}
+
 	if err := donor.UpdateHash(); err != nil {
 		return err
 	}
