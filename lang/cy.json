@@ -1309,5 +1309,7 @@
     "whenYouConfirmWeWillContactToExplain": "Welsh {{.DonorFullName}}",
     "youHaveConfirmedYouDoNotWantToBeAttorney": "Welsh",
     "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "Welsh {{.DonorFullNamePossessive}}",
-    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>"
+    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
+    "youHaveChosenNotToFormallyNotifyAnyone": "Welsh",
+    "theDonorHasChosenNotToFormallyNotifyAnyone": "Welsh"
 }
