@@ -129,11 +129,6 @@ func TestGetTaskList(t *testing.T) {
 				Get(r.Context()).
 				Return(tc.donor, nil)
 
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.EXPECT().
-				Get(r.Context()).
-				Return(tc.certificateProvider, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &taskListData{
@@ -147,7 +142,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, lpaStoreResolvingService, certificateProviderStore)(tc.appData, w, r)
+			err := TaskList(template.Execute, lpaStoreResolvingService)(tc.appData, w, r, tc.certificateProvider)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -165,26 +160,7 @@ func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, expectedError)
 
-	err := TaskList(nil, lpaStoreResolvingService, nil)(testAppData, w, r)
-
-	assert.Equal(t, expectedError, err)
-}
-
-func TestGetTaskListWhenCertificateProviderStoreErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
-
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(mock.Anything).
-		Return(nil, expectedError)
-
-	err := TaskList(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -198,17 +174,12 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r)
+	err := TaskList(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

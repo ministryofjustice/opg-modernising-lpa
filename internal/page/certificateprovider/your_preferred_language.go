@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -20,13 +21,8 @@ type yourPreferredLanguageData struct {
 	Lpa       *lpastore.Lpa
 }
 
-func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		certificateProvider, err := certificateProviderStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err

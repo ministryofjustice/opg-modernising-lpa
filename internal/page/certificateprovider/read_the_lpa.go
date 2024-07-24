@@ -16,8 +16,8 @@ type readTheLpaData struct {
 	Lpa    *lpastore.Lpa
 }
 
-func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
@@ -26,11 +26,6 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 		if r.Method == http.MethodPost {
 			if lpa.SignedAt.IsZero() || !lpa.Paid {
 				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
-			}
-
-			certificateProvider, err := certificateProviderStore.Get(r.Context())
-			if err != nil {
-				return err
 			}
 
 			certificateProvider.Tasks.ReadTheLpa = actor.TaskCompleted

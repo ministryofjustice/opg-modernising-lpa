@@ -15,13 +15,8 @@ type oneLoginIdentityDetailsData struct {
 	CertificateProvider *actor.CertificateProviderProvidedDetails
 }
 
-func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		certificateProvider, err := certificateProviderStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		data := &oneLoginIdentityDetailsData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
