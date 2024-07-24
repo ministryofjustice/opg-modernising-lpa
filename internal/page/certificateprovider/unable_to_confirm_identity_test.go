@@ -29,7 +29,7 @@ func TestGetUnableToConfirmIdentity(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UnableToConfirmIdentity(template.Execute, nil, lpaResolvingService)(testAppData, w, r)
+	err := UnableToConfirmIdentity(template.Execute, nil, lpaResolvingService)(testAppData, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -74,7 +74,7 @@ func TestGetUnableToConfirmIdentityErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := UnableToConfirmIdentity(tc.template().Execute, nil, tc.lpaResolvingService())(testAppData, w, r)
+			err := UnableToConfirmIdentity(tc.template().Execute, nil, tc.lpaResolvingService())(testAppData, w, r, nil)
 			resp := w.Result()
 
 			assert.Equal(t, expectedError, err)
@@ -89,16 +89,13 @@ func TestPostUnableToConfirmIdentity(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Get(r.Context()).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"}, nil)
-	certificateProviderStore.EXPECT().
 		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.CertificateProviderTasks{ConfirmYourIdentity: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r)
+	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -106,37 +103,18 @@ func TestPostUnableToConfirmIdentity(t *testing.T) {
 	assert.Equal(t, page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostUnableToConfirmIdentityErrors(t *testing.T) {
-	testcases := map[string]func() *mockCertificateProviderStore{
-		"when certificateProviderStore.Get() error": func() *mockCertificateProviderStore {
-			store := newMockCertificateProviderStore(t)
-			store.EXPECT().
-				Get(mock.Anything).
-				Return(nil, expectedError)
-			return store
-		},
-		"when certificateProviderStore.Put() error": func() *mockCertificateProviderStore {
-			store := newMockCertificateProviderStore(t)
-			store.EXPECT().
-				Get(mock.Anything).
-				Return(&actor.CertificateProviderProvidedDetails{}, nil)
-			store.EXPECT().
-				Put(mock.Anything, mock.Anything).
-				Return(expectedError)
-			return store
-		},
-	}
+func TestPostUnableToConfirmIdentityWhenCertificateProviderStoreErrors(t *testing.T) {
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	for name, certificateProviderStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			r := httptest.NewRequest(http.MethodPost, "/", nil)
-			w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/", nil)
+	w := httptest.NewRecorder()
 
-			err := UnableToConfirmIdentity(nil, certificateProviderStore(), nil)(testAppData, w, r)
-			resp := w.Result()
+	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	resp := w.Result()
 
-			assert.Equal(t, expectedError, err)
-			assert.Equal(t, http.StatusOK, resp.StatusCode)
-		})
-	}
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
