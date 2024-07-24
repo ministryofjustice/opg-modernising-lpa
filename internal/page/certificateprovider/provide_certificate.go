@@ -30,8 +30,8 @@ func ProvideCertificate(
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
-) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
@@ -39,11 +39,6 @@ func ProvideCertificate(
 
 		if lpa.SignedAt.IsZero() {
 			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
-		}
-
-		certificateProvider, err := certificateProviderStore.Get(r.Context())
-		if err != nil {
-			return err
 		}
 
 		if !certificateProvider.SignedAt.IsZero() {

@@ -16,18 +16,12 @@ type unableToConfirmIdentityData struct {
 	Errors validation.List
 }
 
-func UnableToConfirmIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+func UnableToConfirmIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		if r.Method == http.MethodPost {
-			certificateProvider, err := certificateProviderStore.Get(r.Context())
-			if err != nil {
-				return err
-			}
-
 			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
 
-			err = certificateProviderStore.Put(r.Context(), certificateProvider)
-			if err != nil {
+			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err
 			}
 
