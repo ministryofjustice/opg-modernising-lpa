@@ -8,7 +8,7 @@
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">{{ tr .App "thankYou" }}</h1>
                 <div class="govuk-panel__body">
-                    {{ trFormat .App "weHaveContactedDonorToLetThemKnowYourDecision" "DonorFullName" .DonorFullName }}
+                    {{ trFormat .App "weHaveContactedDonorToLetThemKnowYourDecision" "DonorFullName" (.App.Query.Get "donorFullName") }}
                 </div>
             </div>
 

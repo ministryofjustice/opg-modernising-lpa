@@ -12,6 +12,7 @@ type InitialOriginalAttorneyEmail struct {
 	AttorneyStartPageURL      string
 	ShareCode                 string
 	DonorFirstNamesPossessive string
+	AttorneyOptOutURL         string
 }
 
 func (e InitialOriginalAttorneyEmail) emailID(isProduction bool) string {
@@ -30,6 +31,7 @@ type InitialReplacementAttorneyEmail struct {
 	AttorneyStartPageURL      string
 	ShareCode                 string
 	DonorFirstNamesPossessive string
+	AttorneyOptOutURL         string
 }
 
 func (e InitialReplacementAttorneyEmail) emailID(isProduction bool) string {
@@ -190,4 +192,16 @@ func (e PaymentConfirmationEmail) emailID(isProduction bool) string {
 	}
 
 	return "ff757818-f066-4605-8751-af481afe8a2b"
+}
+
+type AttorneyOptedOutEmail struct {
+	AttorneyFullName  string
+	DonorFullName     string
+	LpaType           string
+	LpaUID            string
+	DonorStartPageURL string
+}
+
+func (e AttorneyOptedOutEmail) emailID(isProduction bool) string {
+	return "TODO"
 }
