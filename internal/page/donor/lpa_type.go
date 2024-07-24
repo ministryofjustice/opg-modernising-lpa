@@ -30,7 +30,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 
 		if r.Method == http.MethodPost {
 			data.Form = readLpaTypeForm(r)
-			data.Errors = data.Form.Validate()
+			data.Errors = data.Form.Validate(donor.Attorneys.TrustCorporation.Name != "" || donor.ReplacementAttorneys.TrustCorporation.Name != "")
 
 			if data.Errors.None() {
 				session, err := page.SessionDataFromContext(r.Context())
@@ -85,11 +85,15 @@ func readLpaTypeForm(r *http.Request) *lpaTypeForm {
 	}
 }
 
-func (f *lpaTypeForm) Validate() validation.List {
+func (f *lpaTypeForm) Validate(hasTrustCorporation bool) validation.List {
 	var errors validation.List
 
 	errors.Error("lpa-type", "theTypeOfLpaToMake", f.Error,
 		validation.Selected())
+
+	if f.LpaType.IsPersonalWelfare() && hasTrustCorporation {
+		errors.Add("lpa-type", validation.CustomError{Label: "youMustDeleteTrustCorporationToChangeLpaType"})
+	}
 
 	return errors
 }
