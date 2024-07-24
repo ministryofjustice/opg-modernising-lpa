@@ -86,7 +86,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/certificate-provider/123/path",
 			SessionID: "cmFuZG9t",
@@ -95,9 +95,11 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123"}, certificateProvider)
 
+		sessionData, _ := page.SessionDataFromContext(hr.Context())
 		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -127,7 +129,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle(path, page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
 		return nil
 	})
 
@@ -149,7 +151,9 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil)
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
+		return nil
+	})
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -179,7 +183,7 @@ func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore)
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
 		return nil
 	})
 
