@@ -1238,5 +1238,7 @@
     "whenYouConfirmWeWillContactToExplain": "When you confirm, we will contact {{.DonorFullName}} to explain what they can do next.",
     "youHaveConfirmedYouDoNotWantToBeAttorney": "You have confirmed that you do not want to be an attorney",
     "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "You have confirmed that you do not want to be {{.DonorFullNamePossessive}} attorney.",
-    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">We have let {{.DonorFirstNames}} know about your decision.</p><p class=\"govuk-body\">You do not need to do anything else.</p>"
+    "youHaveConfirmedYouDoNotWantToBeAttorneyContent": "<p class=\"govuk-body\">We have let {{.DonorFirstNames}} know about your decision.</p><p class=\"govuk-body\">You do not need to do anything else.</p>",
+    "youHaveChosenNotToFormallyNotifyAnyone": "You have chosen not to formally notify anyone of the registration of this LPA.",
+    "theDonorHasChosenNotToFormallyNotifyAnyone": "The donor has chosen not to formally notify anyone of the registration of this LPA."
 }
