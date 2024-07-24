@@ -162,7 +162,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	if data.LpaID == "" {
-		return nil, errors.New("donorStore.Get requires LpaID")
+		return nil, errors.New("donorStore.GetAny requires LpaID")
 	}
 
 	var sk dynamo.SK = dynamo.DonorKey("")
@@ -222,7 +222,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	if data.SessionID == "" {
-		return nil, errors.New("donorStore.Get requires SessionID")
+		return nil, errors.New("donorStore.Latest requires SessionID")
 	}
 
 	var donor *actor.DonorProvidedDetails
@@ -318,7 +318,7 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	}
 
 	if data.SessionID == "" || data.LpaID == "" {
-		return errors.New("donorStore.Create requires SessionID and LpaID")
+		return errors.New("donorStore.Delete requires SessionID and LpaID")
 	}
 
 	keys, err := s.dynamoClient.AllKeysByPK(ctx, dynamo.LpaKey(data.LpaID))

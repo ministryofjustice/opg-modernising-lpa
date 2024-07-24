@@ -50,7 +50,7 @@ type DonorProvidedDetails struct {
 	// LpaUID is a unique identifier created after sending basic LPA details to the UID service
 	LpaUID string `dynamodbav:",omitempty"`
 	// CreatedAt is when the LPA was created
-	CreatedAt time.Time
+	CreatedAt time.Time `hash:"-"`
 	// UpdatedAt is when the LPA was last updated
 	UpdatedAt time.Time `hash:"-"`
 	// The donor the LPA relates to

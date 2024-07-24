@@ -109,7 +109,7 @@ func Donor(
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(data.DonorSub))
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: data.DonorSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: data.DonorSub, Email: data.DonorEmail}); err != nil {
 			return err
 		}
 
