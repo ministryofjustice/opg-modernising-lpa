@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 )
@@ -339,6 +340,33 @@ func TestDonorCanGoTo(t *testing.T) {
 				},
 			},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
+			expected: true,
+		},
+		"read lpa without task": {
+			donor:    &actor.DonorProvidedDetails{},
+			url:      Paths.ReadYourLpa.Format("123"),
+			expected: false,
+		},
+		"read lpa with tasks": {
+			donor: &actor.DonorProvidedDetails{
+				Donor: actor.Donor{
+					CanSign: form.Yes,
+				},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				Type:                  actor.LpaTypePersonalWelfare,
+				Tasks: actor.DonorTasks{
+					YourDetails:                actor.TaskCompleted,
+					ChooseAttorneys:            actor.TaskCompleted,
+					ChooseReplacementAttorneys: actor.TaskCompleted,
+					LifeSustainingTreatment:    actor.TaskCompleted,
+					Restrictions:               actor.TaskCompleted,
+					CertificateProvider:        actor.TaskCompleted,
+					PeopleToNotify:             actor.TaskCompleted,
+					CheckYourLpa:               actor.TaskCompleted,
+					PayForLpa:                  actor.PaymentTaskCompleted,
+				},
+			},
+			url:      Paths.ReadYourLpa.Format("123"),
 			expected: true,
 		},
 	}
