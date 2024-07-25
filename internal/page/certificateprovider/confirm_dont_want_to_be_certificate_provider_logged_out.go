@@ -39,6 +39,11 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 		}
 
 		if r.Method == http.MethodPost {
+			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
+			if err != nil {
+				return err
+			}
+
 			var email notify.Email
 
 			if !lpa.SignedAt.IsZero() {
@@ -79,8 +84,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				}
 			}
 
-			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
-			if err != nil {
+			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
 				return err
 			}
 
@@ -88,11 +92,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				return err
 			}
 
-			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
-				return err
-			}
-
-			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeACertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
+			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
 		}
 
 		return tmpl(w, data)

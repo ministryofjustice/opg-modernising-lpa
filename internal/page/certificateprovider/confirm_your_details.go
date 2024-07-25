@@ -20,13 +20,8 @@ type confirmYourDetailsData struct {
 	DetailComponentContent string
 }
 
-func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
-		certificateProvider, err := certificateProviderStore.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err

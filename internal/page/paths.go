@@ -87,7 +87,9 @@ func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
 		Paths.WitnessingAsCertificateProvider,
 		Paths.WitnessingAsIndependentWitness,
 		Paths.YouHaveSubmittedYourLpa:
-		return donor.DonorIdentityConfirmed() || donor.RegisteringWithCourtOfProtection || donor.Voucher.FirstNames != ""
+		return section1Completed &&
+			(donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending()) &&
+			(donor.DonorIdentityConfirmed() || donor.RegisteringWithCourtOfProtection || donor.Voucher.FirstNames != "")
 
 	case Paths.ConfirmYourCertificateProviderIsNotRelated,
 		Paths.CheckYourLpa:
@@ -237,23 +239,27 @@ func (p SupporterLpaPath) IsManageOrganisation() bool {
 }
 
 type AttorneyPaths struct {
-	EnterReferenceNumber Path
-	Login                Path
-	LoginCallback        Path
-	Start                Path
+	ConfirmDontWantToBeAttorneyLoggedOut Path
+	EnterReferenceNumber                 Path
+	EnterReferenceNumberOptOut           Path
+	Login                                Path
+	LoginCallback                        Path
+	Start                                Path
+	YouHaveDecidedNotToBeAttorney        Path
 
-	CodeOfConduct             AttorneyPath
-	ConfirmYourDetails        AttorneyPath
-	MobileNumber              AttorneyPath
-	Progress                  AttorneyPath
-	ReadTheLpa                AttorneyPath
-	RightsAndResponsibilities AttorneyPath
-	Sign                      AttorneyPath
-	TaskList                  AttorneyPath
-	WhatHappensNext           AttorneyPath
-	WhatHappensWhenYouSign    AttorneyPath
-	WouldLikeSecondSignatory  AttorneyPath
-	YourPreferredLanguage     AttorneyPath
+	CodeOfConduct               AttorneyPath
+	ConfirmDontWantToBeAttorney AttorneyPath
+	ConfirmYourDetails          AttorneyPath
+	MobileNumber                AttorneyPath
+	Progress                    AttorneyPath
+	ReadTheLpa                  AttorneyPath
+	RightsAndResponsibilities   AttorneyPath
+	Sign                        AttorneyPath
+	TaskList                    AttorneyPath
+	WhatHappensNext             AttorneyPath
+	WhatHappensWhenYouSign      AttorneyPath
+	WouldLikeSecondSignatory    AttorneyPath
+	YourPreferredLanguage       AttorneyPath
 }
 
 type CertificateProviderPaths struct {
@@ -262,7 +268,7 @@ type CertificateProviderPaths struct {
 	EnterReferenceNumber                            Path
 	EnterReferenceNumberOptOut                      Path
 	ConfirmDontWantToBeCertificateProviderLoggedOut Path
-	YouHaveDecidedNotToBeACertificateProvider       Path
+	YouHaveDecidedNotToBeCertificateProvider        Path
 
 	CertificateProvided                    CertificateProviderPath
 	ConfirmDontWantToBeCertificateProvider CertificateProviderPath
@@ -475,28 +481,32 @@ var Paths = AppPaths{
 		WhatHappensNext:                                 "/what-happens-next",
 		WhatIsYourHomeAddress:                           "/what-is-your-home-address",
 		WhoIsEligible:                                   "/certificate-provider-who-is-eligible",
-		YouHaveDecidedNotToBeACertificateProvider:       "/you-have-decided-not-to-be-a-certificate-provider",
+		YouHaveDecidedNotToBeCertificateProvider:        "/you-have-decided-not-to-be-a-certificate-provider",
 		YourPreferredLanguage:                           "/your-preferred-language",
 		YourRole:                                        "/your-role",
 	},
 
 	Attorney: AttorneyPaths{
-		CodeOfConduct:             "/code-of-conduct",
-		ConfirmYourDetails:        "/confirm-your-details",
-		EnterReferenceNumber:      "/attorney-enter-reference-number",
-		Login:                     "/attorney-login",
-		LoginCallback:             "/attorney-login-callback",
-		MobileNumber:              "/mobile-number",
-		Progress:                  "/progress",
-		ReadTheLpa:                "/read-the-lpa",
-		RightsAndResponsibilities: "/legal-rights-and-responsibilities",
-		Sign:                      "/sign",
-		Start:                     "/attorney-start",
-		TaskList:                  "/task-list",
-		WhatHappensNext:           "/what-happens-next",
-		WhatHappensWhenYouSign:    "/what-happens-when-you-sign-the-lpa",
-		WouldLikeSecondSignatory:  "/would-like-second-signatory",
-		YourPreferredLanguage:     "/your-preferred-language",
+		CodeOfConduct:                        "/code-of-conduct",
+		ConfirmDontWantToBeAttorney:          "/confirm-you-do-not-want-to-be-an-attorney",
+		ConfirmDontWantToBeAttorneyLoggedOut: "/confirm-you-do-not-want-to-be-an-attorney",
+		ConfirmYourDetails:                   "/confirm-your-details",
+		EnterReferenceNumber:                 "/attorney-enter-reference-number",
+		EnterReferenceNumberOptOut:           "/attorney-enter-reference-number-opt-out",
+		Login:                                "/attorney-login",
+		LoginCallback:                        "/attorney-login-callback",
+		MobileNumber:                         "/mobile-number",
+		Progress:                             "/progress",
+		ReadTheLpa:                           "/read-the-lpa",
+		RightsAndResponsibilities:            "/legal-rights-and-responsibilities",
+		Sign:                                 "/sign",
+		Start:                                "/attorney-start",
+		TaskList:                             "/task-list",
+		WhatHappensNext:                      "/what-happens-next",
+		WhatHappensWhenYouSign:               "/what-happens-when-you-sign-the-lpa",
+		WouldLikeSecondSignatory:             "/would-like-second-signatory",
+		YouHaveDecidedNotToBeAttorney:        "/you-have-decided-not-to-be-an-attorney",
+		YourPreferredLanguage:                "/your-preferred-language",
 	},
 
 	Supporter: SupporterPaths{
