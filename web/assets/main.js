@@ -42,8 +42,11 @@ function init() {
     const backLink = document.querySelector('.govuk-back-link');
     if (backLink) {
         backLink.addEventListener('click', function(e) {
-            window.history.back();
             e.preventDefault();
+
+            const previousURL = document.referrer
+            const newURL = previousURL + (previousURL.includes('?') ? '&' : '?') + "back=1"
+            window.location.replace(newURL)
         }, false);
     }
 
