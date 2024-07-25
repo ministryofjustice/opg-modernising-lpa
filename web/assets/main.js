@@ -45,8 +45,14 @@ function init() {
             e.preventDefault();
 
             const previousURL = document.referrer
-            const newURL = previousURL + (previousURL.includes('?') ? '&' : '?') + "back=1"
-            window.location.replace(newURL)
+
+            // for manually typed URLs
+            if (previousURL === '') {
+                window.history.back()
+            } else {
+                window.location.replace(previousURL)
+            }
+
         }, false);
     }
 
