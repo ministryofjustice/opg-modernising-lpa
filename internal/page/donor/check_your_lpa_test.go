@@ -89,7 +89,7 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: true,
 			},
-			Completed: true,
+			CertificateProviderContacted: true,
 		}).
 		Return(nil)
 
