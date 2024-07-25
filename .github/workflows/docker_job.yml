@@ -122,6 +122,8 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
+          sbom: false
+          provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
 
@@ -141,5 +143,7 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
             TAG=${{inputs.tag}}
+          sbom: false
+          provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
