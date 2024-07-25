@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -387,7 +388,7 @@ func updateLPAProgress(
 		donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
 		if data.PaymentTaskProgress != "" {
-			taskState, err := actor.ParsePaymentTask(data.PaymentTaskProgress)
+			taskState, err := task.ParsePaymentState(data.PaymentTaskProgress)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -8,6 +8,8 @@ all: true
 packages:
   github.com/ministryofjustice/opg-modernising-lpa/cmd/event-received:
   github.com/ministryofjustice/opg-modernising-lpa/internal/app:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo:
   github.com/ministryofjustice/opg-modernising-lpa/internal/event:
   github.com/ministryofjustice/opg-modernising-lpa/internal/lambda:

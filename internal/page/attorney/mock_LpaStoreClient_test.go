@@ -3,10 +3,9 @@
 package attorney
 
 import (
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-
 	context "context"
+
+	attorneydata "github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 
@@ -27,7 +26,7 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // SendAttorney provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *actor.AttorneyProvidedDetails) error {
+func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *attorneydata.Provided) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -35,7 +34,7 @@ func (_m *mockLpaStoreClient) SendAttorney(_a0 context.Context, _a1 *lpastore.Lp
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *lpastore.Lpa, *attorneydata.Provided) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +51,14 @@ type mockLpaStoreClient_SendAttorney_Call struct {
 // SendAttorney is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 *lpastore.Lpa
-//   - _a2 *actor.AttorneyProvidedDetails
+//   - _a2 *attorneydata.Provided
 func (_e *mockLpaStoreClient_Expecter) SendAttorney(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockLpaStoreClient_SendAttorney_Call {
 	return &mockLpaStoreClient_SendAttorney_Call{Call: _e.mock.On("SendAttorney", _a0, _a1, _a2)}
 }
 
-func (_c *mockLpaStoreClient_SendAttorney_Call) Run(run func(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *actor.AttorneyProvidedDetails)) *mockLpaStoreClient_SendAttorney_Call {
+func (_c *mockLpaStoreClient_SendAttorney_Call) Run(run func(_a0 context.Context, _a1 *lpastore.Lpa, _a2 *attorneydata.Provided)) *mockLpaStoreClient_SendAttorney_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*lpastore.Lpa), args[2].(*actor.AttorneyProvidedDetails))
+		run(args[0].(context.Context), args[1].(*lpastore.Lpa), args[2].(*attorneydata.Provided))
 	})
 	return _c
 }
@@ -69,55 +68,7 @@ func (_c *mockLpaStoreClient_SendAttorney_Call) Return(_a0 error) *mockLpaStoreC
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendAttorney_Call) RunAndReturn(run func(context.Context, *lpastore.Lpa, *actor.AttorneyProvidedDetails) error) *mockLpaStoreClient_SendAttorney_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SendAttorneyOptOut provides a mock function with given fields: ctx, lpaUID, actorUID
-func (_m *mockLpaStoreClient) SendAttorneyOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
-	ret := _m.Called(ctx, lpaUID, actorUID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SendAttorneyOptOut")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) error); ok {
-		r0 = rf(ctx, lpaUID, actorUID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockLpaStoreClient_SendAttorneyOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAttorneyOptOut'
-type mockLpaStoreClient_SendAttorneyOptOut_Call struct {
-	*mock.Call
-}
-
-// SendAttorneyOptOut is a helper method to define mock.On call
-//   - ctx context.Context
-//   - lpaUID string
-//   - actorUID actoruid.UID
-func (_e *mockLpaStoreClient_Expecter) SendAttorneyOptOut(ctx interface{}, lpaUID interface{}, actorUID interface{}) *mockLpaStoreClient_SendAttorneyOptOut_Call {
-	return &mockLpaStoreClient_SendAttorneyOptOut_Call{Call: _e.mock.On("SendAttorneyOptOut", ctx, lpaUID, actorUID)}
-}
-
-func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) Run(run func(ctx context.Context, lpaUID string, actorUID actoruid.UID)) *mockLpaStoreClient_SendAttorneyOptOut_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID))
-	})
-	return _c
-}
-
-func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) Return(_a0 error) *mockLpaStoreClient_SendAttorneyOptOut_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) RunAndReturn(run func(context.Context, string, actoruid.UID) error) *mockLpaStoreClient_SendAttorneyOptOut_Call {
+func (_c *mockLpaStoreClient_SendAttorney_Call) RunAndReturn(run func(context.Context, *lpastore.Lpa, *attorneydata.Provided) error) *mockLpaStoreClient_SendAttorney_Call {
 	_c.Call.Return(run)
 	return _c
 }

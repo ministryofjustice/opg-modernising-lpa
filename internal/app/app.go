@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -99,7 +100,7 @@ func App(
 		searchClient: searchClient,
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
-	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
