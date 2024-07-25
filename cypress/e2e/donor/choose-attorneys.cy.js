@@ -139,5 +139,8 @@ describe('Choose attorneys', () => {
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys-address');
+
+        cy.contains('a', 'Back').click()
+        cy.url().should('contain', '/choose-attorneys-summary');
     });
 });

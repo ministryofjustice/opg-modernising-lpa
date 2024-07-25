@@ -138,5 +138,8 @@ describe('Choose replacement attorneys', () => {
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys-address');
+
+        cy.contains('a', 'Back').click()
+        cy.url().should('contain', '/choose-replacement-attorneys-summary');
     });
 });
