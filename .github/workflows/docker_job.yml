@@ -36,8 +36,8 @@ jobs:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
             platforms: linux/amd64
-            push_provenance: mode=max # options are false, mode=min, mode=max, false is required for lambda functions at this time
-            push_sbom: true # options are false, true, false is required for lambda functions at this time
+            push_provenance: false # options are false, mode=min, mode=max, false is required for lambda functions at this time
+            push_sbom: false # options are false, true, false is required for lambda functions at this time
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
@@ -51,8 +51,8 @@ jobs:
           - ecr_repository: modernising-lpa/mock-pay
             path: ./docker/mock-pay/Dockerfile
             platforms: linux/amd64
-            push_provenance: mode=max
-            push_sbom: true
+            push_provenance: false
+            push_sbom: false
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
