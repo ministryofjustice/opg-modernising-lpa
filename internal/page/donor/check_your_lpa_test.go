@@ -54,6 +54,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: true,
 			},
+			CertificateProviderContacted: true,
 		}).
 		Return(nil)
 
