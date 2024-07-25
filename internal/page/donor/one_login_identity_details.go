@@ -47,6 +47,9 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 					donor.Donor.LastName = donor.DonorIdentityUserData.LastName
 					donor.Donor.DateOfBirth = donor.DonorIdentityUserData.DateOfBirth
 					donor.Donor.Address = donor.DonorIdentityUserData.CurrentAddress
+					if err := donor.UpdateCheckedHash(); err != nil {
+						return err
+					}
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
