@@ -17,12 +17,12 @@ import (
 )
 
 type checkYourLpaData struct {
-	App         page.AppData
-	Errors      validation.List
-	Donor       *actor.DonorProvidedDetails
-	Form        *checkYourLpaForm
-	Completed   bool
-	CanContinue bool
+	App                          page.AppData
+	Errors                       validation.List
+	Donor                        *actor.DonorProvidedDetails
+	Form                         *checkYourLpaForm
+	CertificateProviderContacted bool
+	CanContinue                  bool
 }
 
 type checkYourLpaNotifier struct {
@@ -113,8 +113,8 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			Form: &checkYourLpaForm{
 				CheckedAndHappy: !donor.CheckedAt.IsZero(),
 			},
-			Completed:   donor.Tasks.CheckYourLpa.Completed(),
-			CanContinue: donor.CheckedHashChanged(),
+			CertificateProviderContacted: !donor.CheckedAt.IsZero(),
+			CanContinue:                  donor.CheckedHashChanged(),
 		}
 
 		if r.Method == http.MethodPost && data.CanContinue {
@@ -128,7 +128,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					return err
 				}
 
-				if err := notifier.Notify(r.Context(), appData, donor, data.Completed); err != nil {
+				if err := notifier.Notify(r.Context(), appData, donor, data.CertificateProviderContacted); err != nil {
 					return err
 				}
 
@@ -136,7 +136,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 					return err
 				}
 
-				if !data.Completed {
+				if !data.CertificateProviderContacted {
 					return page.Paths.LpaDetailsSaved.RedirectQuery(w, r, appData, donor, url.Values{"firstCheck": {"1"}})
 				}
 

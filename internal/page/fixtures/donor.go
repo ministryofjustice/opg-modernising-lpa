@@ -109,7 +109,7 @@ func Donor(
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(data.DonorSub))
 
-		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: data.DonorSub, Email: testEmail}); err != nil {
+		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: data.DonorSub, Email: data.DonorEmail}); err != nil {
 			return err
 		}
 
@@ -126,9 +126,16 @@ func Donor(
 
 		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
+		if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
+			if err = donorDetails.UpdateCheckedHash(); err != nil {
+				return fmt.Errorf("problem updating checkedHash: %w", err)
+			}
+		}
+
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
+
 		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
 			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
 				return err
