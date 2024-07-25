@@ -66,6 +66,7 @@ describe('Check the LPA', () => {
       it('content is tailored for paper CPs, a details component is shown and nav redirects to payment', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent&certificateProvider=paper');
 
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
 
@@ -84,8 +85,18 @@ describe('Check the LPA', () => {
 
     describe('on subsequent check when LPA has not been paid for', () => {
       it('content is tailored for paper CPs, a warning component is shown and nav redirects to payment', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=checkAndSendToYourCertificateProvider&certificateProvider=paper');
+        cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider&certificateProvider=paper');
 
+        cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+        cy.url().should('contain', '/add-correspondent');
+        cy.contains('label', 'No').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
@@ -104,8 +115,18 @@ describe('Check the LPA', () => {
 
     describe('on subsequent check when LPA has been paid for', () => {
       it('content is tailored for paper CPs, a warning component is shown and nav redirects to dashboard', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=payForTheLpa&certificateProvider=paper');
+        cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa&certificateProvider=paper');
 
+        cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+        cy.url().should('contain', '/add-correspondent');
+        cy.contains('label', 'No').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy to show it to my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
@@ -128,6 +149,7 @@ describe('Check the LPA', () => {
       it('content is tailored for online CPs, a details component is shown and nav redirects to payment', () => {
         cy.visit('/fixtures?redirect=/check-your-lpa&progress=addCorrespondent');
 
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('details').contains('What happens if I need to make changes later?')
 
@@ -146,8 +168,18 @@ describe('Check the LPA', () => {
 
     describe('on subsequent check when LPA has not been paid for', () => {
       it('content is tailored for online CPs, a warning component is shown and nav redirects to payment', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=checkAndSendToYourCertificateProvider');
+        cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
 
+        cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+        cy.url().should('contain', '/add-correspondent');
+        cy.contains('label', 'No').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
@@ -166,8 +198,18 @@ describe('Check the LPA', () => {
 
     describe('on subsequent check when LPA has been paid for', () => {
       it('content is tailored for online CPs, a warning component is shown and nav redirects to dashboard', () => {
-        cy.visit('/fixtures?redirect=/check-your-lpa&progress=payForTheLpa');
+        cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
 
+        cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+        cy.url().should('contain', '/add-correspondent');
+        cy.contains('label', 'No').click();
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+        cy.url().should('contain', '/check-your-lpa');
         cy.get('label[for=f-checked-and-happy]').contains('I’ve checked this LPA and I’m happy for OPG to share it with my certificate provider, Charlie Cooper')
         cy.get('.govuk-warning-text').contains('Once you select the confirm button, your certificate provider will be sent a text telling them you have changed your LPA.')
 
@@ -183,6 +225,37 @@ describe('Check the LPA', () => {
         cy.url().should('contain', '/dashboard');
       })
     })
+  })
+
+  it("must check and send again when making LPA changes after certificate provider is contacted", () => {
+      cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'Completed');
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Not started');
+      cy.contains('li', 'Add a correspondent').should('contain', 'Completed').click();
+
+      cy.url().should('contain', '/add-correspondent');
+      cy.contains('label', 'No').click();
+      cy.contains('button', 'Save and continue').click();
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Cannot start yet');
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'In progress').click();
+
+      cy.get('#f-checked-and-happy').check({ force: true })
+      cy.contains('button', 'Confirm').click();
+
+      cy.url().should('contain', '/lpa-details-saved');
+
+      cy.contains('a', 'Continue').click();
+
+      cy.url().should('contain', '/task-list');
+
+      cy.contains('li', 'Check and send to your certificate provider').should('contain', 'Completed');
+      cy.contains('li', 'Pay for the LPA').should('contain', 'Not started');
   })
 
   it("errors when not selected", () => {

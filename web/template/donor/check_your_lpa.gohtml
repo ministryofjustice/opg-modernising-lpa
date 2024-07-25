@@ -41,7 +41,7 @@
             </div>
           </div>
 
-          {{ if .Completed }}
+          {{ if .CertificateProviderContacted }}
             {{ template "warning" (content .App "onceYouClickCertificateProviderWillBeSentText") }}
           {{ else }}
             {{ template "details" (details . "whatHappensIfIChange" "whatHappensIfIChangeDetails" false) }}

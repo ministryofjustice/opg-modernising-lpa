@@ -176,6 +176,7 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	// checked.
 	switch field {
 	case "CheckedAt",
+		"CreatedAt",
 		"Tasks",
 		"PaymentDetails",
 		"DonorIdentityUserData",
@@ -193,7 +194,10 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"FeeType",
 		"EvidenceDelivery",
 		"PreviousApplicationNumber",
-		"PreviousFee":
+		"PreviousFee",
+		"RegisteringWithCourtOfProtection",
+		"WantVoucher",
+		"Voucher":
 		return false, nil
 	}
 

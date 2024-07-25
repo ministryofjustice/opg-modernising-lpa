@@ -87,12 +87,16 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
+	updated := &actor.DonorProvidedDetails{
+		LpaID:                 "lpa-id",
+		Donor:                 actor.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
+		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+	}
+	updated.UpdateCheckedHash()
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			LpaID:                 "lpa-id",
-			Donor:                 actor.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
-			DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}}}).
+		Put(r.Context(), updated).
 		Return(nil)
 
 	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
