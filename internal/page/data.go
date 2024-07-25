@@ -7,45 +7,21 @@
 //   - [actor.CertificateProviderProvidedDetails] - details about the certificate provider, provided by the certificate provider
 //   - [actor.Attorney] - details about an attorney or replacement attorney, provided by the applicant
 //   - [actor.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
-//   - [actor.AttorneyProvidedDetails] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney
+//   - [attorneydata.Provided] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney
 //   - [actor.PersonToNotify] - details about a person to notify, provided by the applicant
 package page
 
 import (
-	"context"
-
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
-type SessionData struct {
-	SessionID string
-	LpaID     string
+type SessionData = appcontext.SessionData
+type SessionMissingError = appcontext.SessionMissingError
 
-	// if a supporter
-	Email          string
-	OrganisationID string
-}
-
-type SessionMissingError struct{}
-
-func (s SessionMissingError) Error() string {
-	return "Session data not set"
-}
-
-func SessionDataFromContext(ctx context.Context) (*SessionData, error) {
-	data, ok := ctx.Value((*SessionData)(nil)).(*SessionData)
-
-	if !ok {
-		return nil, SessionMissingError{}
-	}
-
-	return data, nil
-}
-
-func ContextWithSessionData(ctx context.Context, data *SessionData) context.Context {
-	return context.WithValue(ctx, (*SessionData)(nil), data)
-}
+var SessionDataFromContext = appcontext.SessionDataFromContext
+var ContextWithSessionData = appcontext.ContextWithSessionData
 
 func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
 	if attorneys.Len() == 0 {
