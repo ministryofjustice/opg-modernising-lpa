@@ -107,10 +107,13 @@ func TestPostYourDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
 
 	testCases := map[string]struct {
-		form   url.Values
-		person actor.Donor
+		url      string
+		form     url.Values
+		person   actor.Donor
+		redirect string
 	}{
 		"valid": {
+			url: "/",
 			form: url.Values{
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -119,8 +122,10 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			person: actor.Donor{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
+			redirect: page.Paths.YourAddress.Format("lpa-id"),
 		},
 		"warning ignored": {
+			url: "/",
 			form: url.Values{
 				"date-of-birth-day":   {"2"},
 				"date-of-birth-month": {"1"},
@@ -130,6 +135,19 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			person: actor.Donor{
 				DateOfBirth: date.New("1900", "1", "2"),
 			},
+			redirect: page.Paths.YourAddress.Format("lpa-id"),
+		},
+		"making another lpa": {
+			url: "/?makingAnotherLPA=1",
+			form: url.Values{
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+			},
+			person: actor.Donor{
+				DateOfBirth: date.New(validBirthYear, "1", "2"),
+			},
+			redirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=dateOfBirth",
 		},
 	}
 
@@ -137,7 +155,7 @@ func TestPostYourDateOfBirth(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -159,36 +177,55 @@ func TestPostYourDateOfBirth(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id")+"?detail=dateOfBirth", resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
 		})
 	}
 }
 
 func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
-	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
-	f := url.Values{
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {validBirthYear},
+	testcases := map[string]struct {
+		url      string
+		redirect page.LpaPath
+	}{
+		"making first": {
+			url:      "/",
+			redirect: page.Paths.YourDetails,
+		},
+		"making another": {
+			url:      "/?makingAnotherLPA=1",
+			redirect: page.Paths.MakeANewLPA,
+		},
 	}
 
-	w := httptest.NewRecorder()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+			validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+			f := url.Values{
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {validBirthYear},
+			}
 
-	err := YourDateOfBirth(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		LpaID: "lpa-id",
-		Donor: actor.Donor{
-			DateOfBirth: date.New(validBirthYear, "1", "2"),
-		},
-		HasSentApplicationUpdatedEvent: true,
-	})
-	resp := w.Result()
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.MakeANewLPA.Format("lpa-id"), resp.Header.Get("Location"))
+			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			err := YourDateOfBirth(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+				LpaID: "lpa-id",
+				Donor: actor.Donor{
+					DateOfBirth: date.New(validBirthYear, "1", "2"),
+				},
+				HasSentApplicationUpdatedEvent: true,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostYourDateOfBirthWhenInputRequired(t *testing.T) {

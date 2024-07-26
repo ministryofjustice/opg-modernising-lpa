@@ -369,6 +369,18 @@ func TestDonorCanGoTo(t *testing.T) {
 			url:      Paths.ReadYourLpa.Format("123"),
 			expected: true,
 		},
+		"your name when identity not set": {
+			donor:    &actor.DonorProvidedDetails{},
+			url:      Paths.YourName.Format("123"),
+			expected: true,
+		},
+		"your name when identity set": {
+			donor: &actor.DonorProvidedDetails{
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+			url:      Paths.YourName.Format("123"),
+			expected: false,
+		},
 	}
 
 	for name, tc := range testCases {
