@@ -3,9 +3,9 @@ import 'cypress-axe'
 import "cypress-real-events"
 
 export const
-    TestEmail = 'simulate-delivered@notifications.service.gov.uk',
-    TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
-    TestMobile = '07700900000'
+TestEmail = 'simulate-delivered@notifications.service.gov.uk',
+TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
+TestMobile = '07700900000'
 
 export function randomShareCode() {
     const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
@@ -42,7 +42,7 @@ export const AddressFormAssertions = {
         cy.get('#f-address-town').type('Someville');
         cy.get('#f-address-postcode').type('NG1');
 
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
     },
 
     assertCanAddAddressFromSelect() {
@@ -54,7 +54,7 @@ export const AddressFormAssertions = {
         cy.checkA11yApp();
 
         cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.checkA11yApp();
 
@@ -63,7 +63,7 @@ export const AddressFormAssertions = {
         cy.get('#f-address-line-3').should('have.value', '');
         cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
         cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
     },
 
     assertErrorsWhenPostcodeEmpty() {
@@ -90,7 +90,7 @@ export const AddressFormAssertions = {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
 
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select an address from the list');
@@ -103,7 +103,7 @@ export const AddressFormAssertions = {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
 
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Select your address from the list');
@@ -116,7 +116,7 @@ export const AddressFormAssertions = {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
         cy.contains('a', manualAddressLinkText).click();
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter address line 1');
@@ -131,7 +131,7 @@ export const AddressFormAssertions = {
         cy.get('#f-address-line-1').invoke('val', 'a'.repeat(51));
         cy.get('#f-address-line-2').invoke('val', 'b'.repeat(51));
         cy.get('#f-address-line-3').invoke('val', 'c'.repeat(51));
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Address line 1 must be 50 characters or less');
         cy.contains('[for=f-address-line-2] + .govuk-error-message', 'Address line 2 must be 50 characters or less');
@@ -142,7 +142,7 @@ export const AddressFormAssertions = {
         cy.get('#f-lookup-postcode').type('NG1');
         cy.contains('button', 'Find address').click();
         cy.contains('a', manualAddressLinkText).click();
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.get('.govuk-error-summary').within(() => {
             cy.contains('Enter line 1 of your address');
@@ -157,7 +157,7 @@ export const AddressFormAssertions = {
         cy.get('#f-address-line-1').invoke('val', 'a'.repeat(51));
         cy.get('#f-address-line-2').invoke('val', 'b'.repeat(51));
         cy.get('#f-address-line-3').invoke('val', 'c'.repeat(51));
-        cy.contains('button', 'Continue').click();
+        cy.get('form').submit();
 
         cy.contains('[for=f-address-line-1] + .govuk-error-message', 'Line 1 of your address must be 50 characters or less');
         cy.contains('[for=f-address-line-2] + .govuk-error-message', 'Line 2 of your address must be 50 characters or less');
