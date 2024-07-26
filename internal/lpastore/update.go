@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 )
 
 type updateRequest struct {
@@ -112,7 +113,7 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
 }
 
-func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *actor.AttorneyProvidedDetails) error {
+func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *attorneydata.Provided) error {
 	var attorneyKey string
 	var lpaAttorney Attorney
 	var lpaTrustCorp TrustCorporation
