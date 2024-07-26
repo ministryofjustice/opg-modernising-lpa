@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -99,7 +100,7 @@ func App(
 		now:          time.Now,
 		searchClient: searchClient,
 	}
-	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient, time.Now)
 	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
