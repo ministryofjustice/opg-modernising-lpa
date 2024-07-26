@@ -1,179 +1,170 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if eq .Form.Action "manual" }}
-      {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
-  {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
-      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) "FullName" (tr .App .ActorLabel | lowerFirst) }}
-  {{ else if eq .Form.Action "postcode" }}
-      {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
-  {{ else if eq .Form.Action "reuse" "reuse-select" }}
-      {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
-  {{ else }}
-      {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
-  {{ end }}
+    {{ if eq .Form.Action "manual" }}
+        {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (tr .App .ActorLabel | possessive .App) "FullName" (tr .App .ActorLabel) }}
+    {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
+        {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) "FullName" (tr .App .ActorLabel | lowerFirst) }}
+    {{ else if eq .Form.Action "postcode" }}
+        {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+    {{ else if eq .Form.Action "reuse" "reuse-select" }}
+        {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
+    {{ else }}
+        {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (tr .App .ActorLabel | possessive .App | lowerFirst) }}
+    {{ end }}
 {{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        {{ if eq .Form.Action "manual" }}
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading">
-                {{ if .FullName }}
-                  {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ if eq .Form.Action "manual" }}
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <h1 class="govuk-fieldset__heading">
+                                {{ if .FullName }}
+                                    {{ trFormat .App .TitleKeys.Manual "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
+                                {{ else }}
+                                    {{ template "pageTitle" . }}
+                                {{ end }}
+                            </h1>
+                        </legend>
+
+                        {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
+                        {{ template "input" (input . .Form.FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
+                        {{ template "input" (input . .Form.FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
+                        {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
+                        {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
+                    </fieldset>
+
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                    <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="manual" />
+
+                {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
+                    <div id="select" class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                                <h1 class="govuk-fieldset__heading">
+                                    {{ if .FullName }}
+                                        {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
+                                    {{ else }}
+                                        {{ template "pageTitle" . }}
+                                    {{ end }}
+                                </h1>
+                            </legend>
+
+                            <label class="govuk-label" for="f-select-address">
+                                {{ tr .App "selectAnAddress" }}
+                            </label>
+                            {{ template "error-message" (errorMessage . "select-address") }}
+
+                            <select class="govuk-select {{ if .Errors.Has "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
+                                <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
+                                {{ range .Addresses }}
+                                    <option value="{{ .Encode }}">{{ .String }}</option>
+                                {{ end }}
+                            </select>
+                        </fieldset>
+                    </div>
+
+                    <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
+
+                    <p class="govuk-body">
+                        <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
+                            {{ tr .App "cantFindTheirAddressInList" }}
+                        </a>
+                    </p>
+
+                    {{ template "button" (button .App "continue") }}
+                    <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-select" />
+                    
+                {{ else if eq .Form.Action "postcode" }}
+                    <div id="find" class="govuk-form-group {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                                <h1 class="govuk-fieldset__heading">
+                                    {{ if .FullName }}
+                                        {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (possessive .App .FullName) }}
+                                    {{ else }}
+                                        {{ template "pageTitle" . }}
+                                    {{ end }}
+                                </h1>
+                            </legend>
+
+                            <label class="govuk-label" for="f-lookup-postcode">
+                                {{ tr .App "postcode" }}
+                            </label>
+                            {{ template "error-message" (errorMessage . "lookup-postcode") }}
+
+                            <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
+                        </fieldset>
+                    </div>
+
+                    <p class="govuk-body">
+                        <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
+                            {{ tr .App "enterAddressManually" }}
+                        </a>
+                    </p>
+
+                    {{ template "button" (button .App "findAddress") }}
+                    <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" />
+
+                {{ else if eq .Form.Action "reuse" "reuse-select" }}
+                    <div class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                                <h1 class="govuk-fieldset__heading">
+                                    {{ if .FullName }}
+                                        {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" .FullName }}
+                                    {{ else }}
+                                        {{ template "pageTitle" . }}
+                                    {{ end }}
+                                </h1>
+                            </legend>
+                            {{ template "error-message" (errorMessage . "select-address") }}
+
+                            <div class="govuk-radios govuk-radios--small {{ if .Errors.Has "select-address" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                                {{ range $i, $a := .Addresses }}
+                                    <div class="govuk-radios__item">
+                                        <input class="govuk-radios__input" id="f-{{ fieldID "select-address" $i }}" name="select-address" type="radio" value="{{ $a.Encode }}">
+                                        <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "select-address" $i }}">
+                                            {{ range $a.Lines }}{{ . }}<br/>{{ end }}
+                                        </label>
+                                    </div>
+                                {{end}}
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                    <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
+
                 {{ else }}
-                  {{ template "pageTitle" . }}
+                    <div class="govuk-form-group {{ if .Errors.Has .Form.FieldNames.Action }}govuk-form-group--error{{ end }}">
+                        <fieldset class="govuk-fieldset">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                                <h1 class="govuk-fieldset__heading">
+                                    {{ if .FullName }}
+                                        {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (possessive .App .FullName) }}
+                                    {{ else }}
+                                        {{ template "pageTitle" . }}
+                                    {{ end }}
+                                </h1>
+                            </legend>
+                            {{ template "error-message" (errorMessage . .Form.FieldNames.Action) }}
+
+                            {{ template "radios" (items . .Form.FieldNames.Action .Form.Action
+                                (item "reuse" "useAnAddressYouAlreadyEntered")
+                                (item "postcode" "enterNewAddress")
+                                ) }}
+                        </fieldset>
+                    </div>
+
+                    {{ template "buttons" (button .App "continue") }}
                 {{ end }}
-              </h1>
-            </legend>
 
-            {{ template "input" (input . .Form.FieldNames.Line1 "addressLine1" .Form.Address.Line1 "autocomplete" "address-line1") }}
-            {{ template "input" (input . .Form.FieldNames.Line2 "addressLine2" .Form.Address.Line2 "autocomplete" "address-line2") }}
-            {{ template "input" (input . .Form.FieldNames.Line3 "addressLine3" .Form.Address.Line3 "autocomplete" "address-line3") }}
-            {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
-            {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
-          </fieldset>
-
-          <div class="govuk-button-group">
-            <button name="{{ .Form.FieldNames.Action }}" value="manual" class="govuk-button" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
-          </div>
-
-        {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
-          <div id="select" class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                <h1 class="govuk-fieldset__heading">
-                  {{ if .FullName }}
-                      {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullNamePossessive" (possessive .App .FullName) "FullName" .FullName }}
-                  {{ else }}
-                    {{ template "pageTitle" . }}
-                  {{ end }}
-                </h1>
-              </legend>
-
-              <label class="govuk-label" for="f-select-address">
-                {{ tr .App "selectAnAddress" }}
-              </label>
-              {{ template "error-message" (errorMessage . "select-address") }}
-
-              <select class="govuk-select {{ if .Errors.Has "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
-                <option value="">{{ trCount .App "addressesFound" (len .Addresses) }}</option>
-                {{ range .Addresses }}
-                  <option value="{{ .Encode }}">{{ .String }}</option>
-                {{ end }}
-              </select>
-            </fieldset>
-          </div>
-
-          <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
-
-          <p class="govuk-body">
-            <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
-              {{ tr .App "cantFindTheirAddressInList" }}
-            </a>
-          </p>
-
-          <div class="govuk-button-group">
-            <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">
-              {{ tr .App "continue" }}
-            </button>
-          </div>
-
-        {{ else if eq .Form.Action "postcode" }}
-          <div id="find" class="govuk-form-group {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                <h1 class="govuk-fieldset__heading">
-                  {{ if .FullName }}
-                    {{ trFormat .App .TitleKeys.Postcode "FullNamePossessive" (possessive .App .FullName) }}
-                  {{ else }}
-                    {{ template "pageTitle" . }}
-                  {{ end }}
-                </h1>
-              </legend>
-
-              <label class="govuk-label" for="f-lookup-postcode">
-                {{ tr .App "postcode" }}
-              </label>
-              {{ template "error-message" (errorMessage . "lookup-postcode") }}
-
-              <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
-            </fieldset>
-          </div>
-
-          <p class="govuk-body">
-            <a href="?action=manual{{ if .UID }}&id={{ .UID }}{{ end }}" class="govuk-link govuk-link--no-visited-state">
-              {{ tr .App "enterAddressManually" }}
-            </a>
-          </p>
-
-          <div class="govuk-button-group">
-            <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">
-              {{ tr .App "findAddress" }}
-            </button>
-          </div>
-
-        {{ else if eq .Form.Action "reuse" "reuse-select" }}
-          <div class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                <h1 class="govuk-fieldset__heading">
-                  {{ if .FullName }}
-                    {{ trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" .FullName }}
-                  {{ else }}
-                    {{ template "pageTitle" . }}
-                  {{ end }}
-                </h1>
-              </legend>
-              {{ template "error-message" (errorMessage . "select-address") }}
-
-              <div class="govuk-radios govuk-radios--small {{ if .Errors.Has "select-address" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-                {{ range $i, $a := .Addresses }}
-                  <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="f-{{ fieldID "select-address" $i }}" name="select-address" type="radio" value="{{ $a.Encode }}">
-                    <label class="govuk-label govuk-radios__label" for="f-{{ fieldID "select-address" $i }}">
-                      {{ range $a.Lines }}{{ . }}<br/>{{ end }}
-                    </label>
-                  </div>
-                {{end}}
-              </div>
-            </fieldset>
-          </div>
-
-          {{ template "buttons" (button .App "saveAndContinue") }}
-          <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
-
-        {{ else }}
-          <div class="govuk-form-group {{ if .Errors.Has .Form.FieldNames.Action }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                <h1 class="govuk-fieldset__heading">
-                  {{ if .FullName }}
-                    {{ trFormat .App .TitleKeys.ReuseOrNew "FullNamePossessive" (possessive .App .FullName) }}
-                  {{ else }}
-                    {{ template "pageTitle" . }}
-                  {{ end }}
-                </h1>
-              </legend>
-              {{ template "error-message" (errorMessage . .Form.FieldNames.Action) }}
-
-              {{ template "radios" (items . .Form.FieldNames.Action .Form.Action
-                (item "reuse" "useAnAddressYouAlreadyEntered")
-                (item "postcode" "enterNewAddress")
-              ) }}
-            </fieldset>
-          </div>
-
-          {{ template "buttons" (button .App "continue") }}
-        {{ end }}
-
-        {{ template "csrf-field" . }}
-      </form>
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 {{ end }}
