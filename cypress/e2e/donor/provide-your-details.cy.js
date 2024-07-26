@@ -29,7 +29,7 @@ describe('Provide your details', () => {
         cy.contains('a', 'Continue').click();
 
         cy.get('#f-lpa-type').check('property-and-affairs', { force: true });
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url()
             .then(url => {

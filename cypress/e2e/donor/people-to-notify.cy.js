@@ -37,7 +37,7 @@ describe('People to notify', () => {
         cy.get('#f-address-town').type("BIRMINGHAM");
         cy.get('#f-address-postcode').type("B14 7ED");
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
@@ -91,7 +91,7 @@ describe('People to notify', () => {
         cy.get('#f-address-town').clear().type('Newshire');
         cy.get('#f-address-postcode').clear().type('A12 3BC');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-people-to-notify-summary');
 
