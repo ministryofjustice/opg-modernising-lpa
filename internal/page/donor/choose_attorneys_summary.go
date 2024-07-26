@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,7 +19,7 @@ type chooseAttorneysSummaryData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func ChooseAttorneysSummary(tmpl template.Template) Handler {
+func ChooseAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if donor.Attorneys.Len() == 0 {
 			return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
@@ -40,8 +41,8 @@ func ChooseAttorneysSummary(tmpl template.Template) Handler {
 					redirectUrl = page.Paths.HowShouldAttorneysMakeDecisions
 				}
 
-				if data.Form.YesNo == form.Yes {
-					return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+				if data.Form.YesNo.IsYes() {
+					return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}, "id": {newUID().String()}})
 				} else {
 					return redirectUrl.Redirect(w, r, appData, donor)
 				}

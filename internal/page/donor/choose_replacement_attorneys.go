@@ -22,14 +22,15 @@ type chooseReplacementAttorneysData struct {
 	ShowTrustCorporationLink bool
 }
 
-func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
+func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
-		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
+		uid := actoruid.FromRequest(r)
 
-		if r.Method == http.MethodGet && donor.ReplacementAttorneys.Len() > 0 && !attorneyFound && !addAnother {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
+		if uid.IsZero() {
+			return page.Paths.TaskList.Redirect(w, r, appData, donor)
 		}
+
+		attorney, attorneyFound := donor.ReplacementAttorneys.Get(uid)
 
 		data := &chooseReplacementAttorneysData{
 			App:   appData,
@@ -65,7 +66,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore, n
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{UID: newUID()}
+					attorney = actor.Attorney{UID: uid}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
