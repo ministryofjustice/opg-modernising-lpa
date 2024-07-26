@@ -63,10 +63,6 @@ describe('Make a new LPA', () => {
         cy.get('main').should('not.contain', 'WEST MIDLANDS');
         cy.contains("a", "Continue").click();
 
-        // TODO for now, so the donor can answer can you sign online. When we revisit donor flow we will fix the
-        //   ordering and use single question pages for initial LPA creation (and move error/warning e2e to own files).
-        cy.url().should('contain', '/your-details');
-        cy.get('#f-first-names').should('have.value', 'a');
-        cy.get('#f-last-name').should('have.value', 'b');
+        cy.url().should('contain', '/can-you-sign-your-lpa');
     });
 })
