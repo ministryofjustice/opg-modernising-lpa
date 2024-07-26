@@ -2,9 +2,11 @@ package donor
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -17,7 +19,7 @@ type wantReplacementAttorneysData struct {
 	Donor  *actor.DonorProvidedDetails
 }
 
-func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
+func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		data := &wantReplacementAttorneysData{
 			App:   appData,
@@ -31,13 +33,9 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 
 			if data.Errors.None() {
 				donor.WantReplacementAttorneys = f.YesNo
-				var redirectUrl page.LpaPath
 
-				if donor.WantReplacementAttorneys == form.No {
+				if donor.WantReplacementAttorneys.IsNo() {
 					donor.ReplacementAttorneys = actor.Attorneys{}
-					redirectUrl = page.Paths.TaskList
-				} else {
-					redirectUrl = page.Paths.ChooseReplacementAttorneys
 				}
 
 				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
@@ -46,7 +44,11 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Han
 					return err
 				}
 
-				return redirectUrl.Redirect(w, r, appData, donor)
+				if donor.WantReplacementAttorneys.IsYes() {
+					return page.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"id": {newUID().String()}})
+				} else {
+					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				}
 			}
 		}
 
