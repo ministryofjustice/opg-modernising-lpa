@@ -5,8 +5,7 @@ package supporter
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,7 +23,7 @@ func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
 }
 
 // Delete provides a mock function with given fields: ctx, data
-func (_m *mockShareCodeStore) Delete(ctx context.Context, data actor.ShareCodeData) error {
+func (_m *mockShareCodeStore) Delete(ctx context.Context, data sharecode.ShareCodeData) error {
 	ret := _m.Called(ctx, data)
 
 	if len(ret) == 0 {
@@ -32,7 +31,7 @@ func (_m *mockShareCodeStore) Delete(ctx context.Context, data actor.ShareCodeDa
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, actor.ShareCodeData) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData) error); ok {
 		r0 = rf(ctx, data)
 	} else {
 		r0 = ret.Error(0)
@@ -48,14 +47,14 @@ type mockShareCodeStore_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - data actor.ShareCodeData
+//   - data sharecode.ShareCodeData
 func (_e *mockShareCodeStore_Expecter) Delete(ctx interface{}, data interface{}) *mockShareCodeStore_Delete_Call {
 	return &mockShareCodeStore_Delete_Call{Call: _e.mock.On("Delete", ctx, data)}
 }
 
-func (_c *mockShareCodeStore_Delete_Call) Run(run func(ctx context.Context, data actor.ShareCodeData)) *mockShareCodeStore_Delete_Call {
+func (_c *mockShareCodeStore_Delete_Call) Run(run func(ctx context.Context, data sharecode.ShareCodeData)) *mockShareCodeStore_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(actor.ShareCodeData))
+		run(args[0].(context.Context), args[1].(sharecode.ShareCodeData))
 	})
 	return _c
 }
@@ -65,28 +64,28 @@ func (_c *mockShareCodeStore_Delete_Call) Return(_a0 error) *mockShareCodeStore_
 	return _c
 }
 
-func (_c *mockShareCodeStore_Delete_Call) RunAndReturn(run func(context.Context, actor.ShareCodeData) error) *mockShareCodeStore_Delete_Call {
+func (_c *mockShareCodeStore_Delete_Call) RunAndReturn(run func(context.Context, sharecode.ShareCodeData) error) *mockShareCodeStore_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetDonor provides a mock function with given fields: ctx
-func (_m *mockShareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, error) {
+func (_m *mockShareCodeStore) GetDonor(ctx context.Context) (sharecode.ShareCodeData, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDonor")
 	}
 
-	var r0 actor.ShareCodeData
+	var r0 sharecode.ShareCodeData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (actor.ShareCodeData, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (sharecode.ShareCodeData, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) actor.ShareCodeData); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) sharecode.ShareCodeData); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(actor.ShareCodeData)
+		r0 = ret.Get(0).(sharecode.ShareCodeData)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
@@ -116,18 +115,18 @@ func (_c *mockShareCodeStore_GetDonor_Call) Run(run func(ctx context.Context)) *
 	return _c
 }
 
-func (_c *mockShareCodeStore_GetDonor_Call) Return(_a0 actor.ShareCodeData, _a1 error) *mockShareCodeStore_GetDonor_Call {
+func (_c *mockShareCodeStore_GetDonor_Call) Return(_a0 sharecode.ShareCodeData, _a1 error) *mockShareCodeStore_GetDonor_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockShareCodeStore_GetDonor_Call) RunAndReturn(run func(context.Context) (actor.ShareCodeData, error)) *mockShareCodeStore_GetDonor_Call {
+func (_c *mockShareCodeStore_GetDonor_Call) RunAndReturn(run func(context.Context) (sharecode.ShareCodeData, error)) *mockShareCodeStore_GetDonor_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PutDonor provides a mock function with given fields: ctx, shareCode, data
-func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
+func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode string, data sharecode.ShareCodeData) error {
 	ret := _m.Called(ctx, shareCode, data)
 
 	if len(ret) == 0 {
@@ -135,7 +134,7 @@ func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode string, da
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, actor.ShareCodeData) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, sharecode.ShareCodeData) error); ok {
 		r0 = rf(ctx, shareCode, data)
 	} else {
 		r0 = ret.Error(0)
@@ -152,14 +151,14 @@ type mockShareCodeStore_PutDonor_Call struct {
 // PutDonor is a helper method to define mock.On call
 //   - ctx context.Context
 //   - shareCode string
-//   - data actor.ShareCodeData
+//   - data sharecode.ShareCodeData
 func (_e *mockShareCodeStore_Expecter) PutDonor(ctx interface{}, shareCode interface{}, data interface{}) *mockShareCodeStore_PutDonor_Call {
 	return &mockShareCodeStore_PutDonor_Call{Call: _e.mock.On("PutDonor", ctx, shareCode, data)}
 }
 
-func (_c *mockShareCodeStore_PutDonor_Call) Run(run func(ctx context.Context, shareCode string, data actor.ShareCodeData)) *mockShareCodeStore_PutDonor_Call {
+func (_c *mockShareCodeStore_PutDonor_Call) Run(run func(ctx context.Context, shareCode string, data sharecode.ShareCodeData)) *mockShareCodeStore_PutDonor_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(actor.ShareCodeData))
+		run(args[0].(context.Context), args[1].(string), args[2].(sharecode.ShareCodeData))
 	})
 	return _c
 }
@@ -169,7 +168,7 @@ func (_c *mockShareCodeStore_PutDonor_Call) Return(_a0 error) *mockShareCodeStor
 	return _c
 }
 
-func (_c *mockShareCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, string, actor.ShareCodeData) error) *mockShareCodeStore_PutDonor_Call {
+func (_c *mockShareCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, string, sharecode.ShareCodeData) error) *mockShareCodeStore_PutDonor_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type LpaStoreResolvingService interface {
@@ -19,26 +19,7 @@ type LpaStoreResolvingService interface {
 }
 
 // An lpaLink is used to join an actor to an LPA.
-type lpaLink struct {
-	// PK is the same as the PK for the LPA
-	PK dynamo.LpaKeyType
-	// SK is the subKey for the current user
-	SK dynamo.SubKeyType
-	// DonorKey is the donorKey for the donor
-	DonorKey dynamo.LpaOwnerKeyType
-	// ActorType is the type for the current user
-	ActorType actor.Type
-	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex
-	UpdatedAt time.Time
-}
-
-func (l lpaLink) UserSub() string {
-	if l.SK == "" {
-		return ""
-	}
-
-	return strings.Split(l.SK.SK(), dynamo.SubKey("").SK())[1]
-}
+type lpaLink = temporary.LpaLink
 
 type dashboardStore struct {
 	dynamoClient             DynamoClient
