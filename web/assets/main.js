@@ -43,16 +43,7 @@ function init() {
     if (backLink) {
         backLink.addEventListener('click', function(e) {
             e.preventDefault();
-
-            const previousURL = document.referrer
-
-            // for manually typed URLs
-            if (previousURL === '') {
-                window.history.back()
-            } else {
-                window.location.replace(previousURL)
-            }
-
+            window.history.back()
         }, false);
     }
 
