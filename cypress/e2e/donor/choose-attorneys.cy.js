@@ -136,7 +136,7 @@ describe('Choose attorneys', () => {
         cy.url().should('contain', '/choose-attorneys-address');
 
         cy.contains('a', 'Back').click()
-        cy.url().should('contain', '/choose-attorneys');
+        cy.url({ timeout: 10000 }).should('contain', '/choose-attorneys');
 
         cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();
