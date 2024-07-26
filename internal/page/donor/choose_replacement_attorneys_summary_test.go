@@ -39,7 +39,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, donor)
+			err := ChooseReplacementAttorneysSummary(template.Execute, nil)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -52,7 +52,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
@@ -72,12 +72,12 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneys.Format("lpa-id")+"?addAnother=1", resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneys.Format("lpa-id")+"?addAnother=1&id="+testUID.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
@@ -141,7 +141,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseReplacementAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.replacementAttorneys,
 				AttorneyDecisions: actor.AttorneyDecisions{
@@ -181,7 +181,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
