@@ -40,7 +40,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, donor)
+			err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -49,11 +49,23 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	}
 }
 
+func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.Paths.ChooseAttorneys.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+}
+
 func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := ChooseAttorneysSummary(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,10 +79,15 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 		expectedUrl      string
 		Attorneys        actor.Attorneys
 	}{
-		"add attorney": {
+		"add attorney - no attorneys": {
 			addMoreFormValue: form.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
 			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{}},
+		},
+		"add attorney - with attorney": {
+			addMoreFormValue: form.Yes,
+			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
+			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: form.No,
@@ -94,7 +111,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -122,7 +139,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
