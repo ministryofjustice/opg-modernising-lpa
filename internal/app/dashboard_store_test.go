@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -55,11 +56,11 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:  "789",
 		LpaUID: "M",
 	}
-	lpa789Attorney := &actor.AttorneyProvidedDetails{
+	lpa789Attorney := &attorneydata.Provided{
 		PK:    dynamo.LpaKey("789"),
 		SK:    dynamo.AttorneyKey(sessionID),
 		LpaID: "789",
-		Tasks: actor.AttorneyTasks{ConfirmYourDetails: actor.TaskInProgress},
+		Tasks: attorneydata.Tasks{ConfirmYourDetails: actor.TaskInProgress},
 	}
 	lpaNoUIDDonor := &actor.DonorProvidedDetails{
 		PK:        dynamo.LpaKey("0"),
@@ -181,7 +182,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		LpaUID:      "M",
 		SubmittedAt: aTime,
 	}
-	lpaSubmittedAttorney := &actor.AttorneyProvidedDetails{
+	lpaSubmittedAttorney := &attorneydata.Provided{
 		PK:    dynamo.LpaKey("submitted"),
 		SK:    dynamo.AttorneyKey(sessionID),
 		LpaID: "submitted",
@@ -194,7 +195,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		LpaUID:      "M",
 		SubmittedAt: aTime,
 	}
-	lpaSubmittedReplacementAttorney := &actor.AttorneyProvidedDetails{
+	lpaSubmittedReplacementAttorney := &attorneydata.Provided{
 		PK:            dynamo.LpaKey("submitted-replacement"),
 		SK:            dynamo.AttorneyKey(sessionID),
 		LpaID:         "submitted-replacement",

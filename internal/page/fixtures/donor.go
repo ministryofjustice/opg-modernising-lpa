@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -22,6 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -394,7 +396,7 @@ func updateLPAProgress(
 		donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
 
 		if data.PaymentTaskProgress != "" {
-			taskState, err := actor.ParsePaymentTask(data.PaymentTaskProgress)
+			taskState, err := task.ParsePaymentState(data.PaymentTaskProgress)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -523,7 +525,7 @@ func updateLPAProgress(
 				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 				attorney.Tasks.SignTheLpa = actor.TaskCompleted
 				attorney.WouldLikeSecondSignatory = form.No
-				attorney.AuthorisedSignatories = [2]actor.TrustCorporationSignatory{{
+				attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",

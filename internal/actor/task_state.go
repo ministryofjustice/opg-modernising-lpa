@@ -1,49 +1,33 @@
 package actor
 
-type TaskState uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+
+type TaskState = task.State
 
 const (
-	TaskNotStarted TaskState = iota
-	TaskInProgress
-	TaskCompleted
+	TaskNotStarted = task.StateNotStarted
+	TaskInProgress = task.StateInProgress
+	TaskCompleted  = task.StateCompleted
 )
 
-func (t TaskState) NotStarted() bool { return t == TaskNotStarted }
-func (t TaskState) InProgress() bool { return t == TaskInProgress }
-func (t TaskState) Completed() bool  { return t == TaskCompleted }
-
-func (t TaskState) String() string {
-	switch t {
-	case TaskNotStarted:
-		return "notStarted"
-	case TaskInProgress:
-		return "inProgress"
-	case TaskCompleted:
-		return "completed"
-	}
-	return ""
-}
-
-//go:generate enumerator -type PaymentTask -trimprefix
-type PaymentTask uint8
+type PaymentTask = task.PaymentState
 
 const (
-	PaymentTaskNotStarted PaymentTask = iota
-	PaymentTaskInProgress
-	PaymentTaskPending
-	PaymentTaskApproved
-	PaymentTaskDenied
-	PaymentTaskMoreEvidenceRequired
-	PaymentTaskCompleted
+	PaymentTaskNotStarted           = task.PaymentStateNotStarted
+	PaymentTaskInProgress           = task.PaymentStateInProgress
+	PaymentTaskPending              = task.PaymentStatePending
+	PaymentTaskApproved             = task.PaymentStateApproved
+	PaymentTaskDenied               = task.PaymentStateDenied
+	PaymentTaskMoreEvidenceRequired = task.PaymentStateMoreEvidenceRequired
+	PaymentTaskCompleted            = task.PaymentStateCompleted
 )
 
-//go:generate enumerator -type IdentityTask -trimprefix
-type IdentityTask uint8
+type IdentityTask = task.IdentityState
 
 const (
-	IdentityTaskNotStarted IdentityTask = iota
-	IdentityTaskInProgress
-	IdentityTaskPending
-	IdentityTaskProblem
-	IdentityTaskCompleted
+	IdentityTaskNotStarted = task.IdentityStateNotStarted
+	IdentityTaskInProgress = task.IdentityStateInProgress
+	IdentityTaskPending    = task.IdentityStatePending
+	IdentityTaskProblem    = task.IdentityStateProblem
+	IdentityTaskCompleted  = task.IdentityStateCompleted
 )
