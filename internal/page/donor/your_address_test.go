@@ -136,15 +136,23 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 func TestPostYourAddressManual(t *testing.T) {
 	testCases := map[string]struct {
 		url              string
+		appData          page.AppData
 		expectedRedirect string
 	}{
 		"making first LPA": {
 			url:              "/",
-			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+			appData:          testAppData,
+			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
+			appData:          testAppData,
 			expectedRedirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=address",
+		},
+		"supporter": {
+			url:              "/",
+			appData:          testSupporterAppData,
+			expectedRedirect: page.Paths.YourEmail.Format("lpa-id"),
 		},
 	}
 
@@ -174,7 +182,7 @@ func TestPostYourAddressManual(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourAddress(nil, nil, nil, donorStore)(tc.appData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{
 					Address: place.Address{Line1: "a", Line2: "b", Line3: "c", TownOrCity: "d"},
@@ -197,7 +205,7 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 	}{
 		"making first LPA": {
 			url:              "/",
-			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
@@ -306,7 +314,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CanYouSignYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
