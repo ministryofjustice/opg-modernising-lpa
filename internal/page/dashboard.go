@@ -44,7 +44,7 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 				return err
 			}
 
-			path := Paths.YourDetails
+			path := Paths.YourName
 			if form.hasExistingDonorLPAs {
 				path = Paths.MakeANewLPA
 			}

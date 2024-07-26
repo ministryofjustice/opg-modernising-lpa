@@ -12,10 +12,12 @@ import (
 )
 
 type yourDateOfBirthData struct {
-	App        page.AppData
-	Errors     validation.List
-	Form       *yourDateOfBirthForm
-	DobWarning string
+	App              page.AppData
+	Errors           validation.List
+	Form             *yourDateOfBirthForm
+	DobWarning       string
+	CanTaskList      bool
+	MakingAnotherLPA bool
 }
 
 func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
@@ -25,6 +27,8 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 			Form: &yourDateOfBirthForm{
 				Dob: donor.Donor.DateOfBirth,
 			},
+			CanTaskList:      !donor.Type.Empty(),
+			MakingAnotherLPA: r.FormValue("makingAnotherLPA") == "1",
 		}
 
 		if r.Method == http.MethodPost {
@@ -38,7 +42,11 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 
 			if data.Errors.None() && data.DobWarning == "" {
 				if donor.Donor.DateOfBirth == data.Form.Dob {
-					return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+					if data.MakingAnotherLPA {
+						return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+					}
+
+					return page.Paths.YourDetails.Redirect(w, r, appData, donor)
 				}
 
 				donor.Donor.DateOfBirth = data.Form.Dob
@@ -48,7 +56,11 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
-				return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
+				if data.MakingAnotherLPA {
+					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
+				}
+
+				return page.Paths.YourAddress.Redirect(w, r, appData, donor)
 			}
 		}
 

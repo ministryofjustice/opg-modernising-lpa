@@ -15,17 +15,17 @@
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
-                        (fromLink $.App global.Paths.YourDetails "#f-first-names")
+                        (fromLink $.App global.Paths.YourName "#f-first-names")
                         .FullName $canChange $isDonor) }}
 
                     {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy"
                         .OtherNames
-                        (fromLink $.App global.Paths.YourDetails "#f-other-names")
+                        (fromLink $.App global.Paths.YourName "#f-other-names")
                         .FullName $canChange $isDonor) }}
 
                     {{ template "summary-row" (summaryRow $.App "dateOfBirth"
                         (formatDate $.App .DateOfBirth)
-                        (fromLink $.App global.Paths.YourDetails "#f-date-of-birth")
+                        (fromLink $.App global.Paths.YourDateOfBirth "#f-date-of-birth")
                         .FullName $canChange $isDonor) }}
 
                     {{ template "summary-row" (summaryRow $.App "email"

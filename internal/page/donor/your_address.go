@@ -25,7 +25,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 			data.Form.Address = &donor.Donor.Address
 		}
 
-		data.MakingAnotherLPA = r.URL.Query().Get("makingAnotherLPA") != ""
+		data.MakingAnotherLPA = r.FormValue("makingAnotherLPA") == "1"
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
@@ -56,7 +56,11 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"address"}})
 					}
 
-					return page.Paths.YourPreferredLanguage.Redirect(w, r, appData, donor)
+					if appData.SupporterData != nil {
+						return page.Paths.YourEmail.Redirect(w, r, appData, donor)
+					}
+
+					return page.Paths.CanYouSignYourLpa.Redirect(w, r, appData, donor)
 				}
 
 			case "postcode-select":
