@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -18,7 +19,7 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	certificateProvider := &actor.CertificateProviderProvidedDetails{
+	certificateProvider := &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b"},
 		LpaID:            "lpa-id",
 	}
@@ -47,7 +48,7 @@ func TestGetOneLoginIdentityDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := OneLoginIdentityDetails(template.Execute, nil, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := OneLoginIdentityDetails(template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -58,11 +59,11 @@ func TestPostOneLoginIdentityDetails(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	w := httptest.NewRecorder()
 
-	updatedCertificateProvider := &actor.CertificateProviderProvidedDetails{
+	updatedCertificateProvider := &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
 		LpaID:            "lpa-id",
 		DateOfBirth:      date.New("2000", "1", "1"),
-		Tasks:            actor.CertificateProviderTasks{ConfirmYourIdentity: actor.TaskCompleted},
+		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: actor.TaskCompleted},
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -75,7 +76,7 @@ func TestPostOneLoginIdentityDetails(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
 
-	err := OneLoginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{
+	err := OneLoginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
 		DateOfBirth:      date.New("2000", "1", "1"),
 		LpaID:            "lpa-id",
@@ -96,7 +97,7 @@ func TestPostOneLoginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "x", LastName: "y"}}, nil)
 
-	err := OneLoginIdentityDetails(nil, nil, lpaResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{
+	err := OneLoginIdentityDetails(nil, nil, lpaResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
 		DateOfBirth:      date.New("2000", "1", "1"),
 		LpaID:            "lpa-id",
@@ -153,7 +154,7 @@ func TestPostOneLoginIdentityDetailsErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			err := OneLoginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService())(testAppData, w, r, &actor.CertificateProviderProvidedDetails{
+			err := OneLoginIdentityDetails(nil, tc.certificateProviderStore(), tc.lpaResolvingService())(testAppData, w, r, &certificateproviderdata.Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1"), Status: identity.StatusConfirmed},
 				DateOfBirth:      date.New("2000", "1", "1"),
 			})

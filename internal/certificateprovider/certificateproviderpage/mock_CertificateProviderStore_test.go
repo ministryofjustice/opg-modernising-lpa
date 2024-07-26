@@ -5,7 +5,7 @@ package certificateproviderpage
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -26,23 +26,23 @@ func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_E
 }
 
 // Create provides a mock function with given fields: ctx, shareCode, email
-func (_m *mockCertificateProviderStore) Create(ctx context.Context, shareCode sharecode.ShareCodeData, email string) (*actor.CertificateProviderProvidedDetails, error) {
+func (_m *mockCertificateProviderStore) Create(ctx context.Context, shareCode sharecode.ShareCodeData, email string) (*certificateproviderdata.Provided, error) {
 	ret := _m.Called(ctx, shareCode, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *actor.CertificateProviderProvidedDetails
+	var r0 *certificateproviderdata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) (*actor.CertificateProviderProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) (*certificateproviderdata.Provided, error)); ok {
 		return rf(ctx, shareCode, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) *actor.CertificateProviderProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) *certificateproviderdata.Provided); ok {
 		r0 = rf(ctx, shareCode, email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.CertificateProviderProvidedDetails)
+			r0 = ret.Get(0).(*certificateproviderdata.Provided)
 		}
 	}
 
@@ -75,12 +75,12 @@ func (_c *mockCertificateProviderStore_Create_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) Return(_a0 *certificateproviderdata.Provided, _a1 error) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, sharecode.ShareCodeData, string) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Create_Call {
+func (_c *mockCertificateProviderStore_Create_Call) RunAndReturn(run func(context.Context, sharecode.ShareCodeData, string) (*certificateproviderdata.Provided, error)) *mockCertificateProviderStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -132,23 +132,23 @@ func (_c *mockCertificateProviderStore_Delete_Call) RunAndReturn(run func(contex
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *mockCertificateProviderStore) Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+func (_m *mockCertificateProviderStore) Get(ctx context.Context) (*certificateproviderdata.Provided, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *actor.CertificateProviderProvidedDetails
+	var r0 *certificateproviderdata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.CertificateProviderProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*certificateproviderdata.Provided, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.CertificateProviderProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *certificateproviderdata.Provided); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.CertificateProviderProvidedDetails)
+			r0 = ret.Get(0).(*certificateproviderdata.Provided)
 		}
 	}
 
@@ -179,18 +179,18 @@ func (_c *mockCertificateProviderStore_Get_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Get_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_Get_Call {
+func (_c *mockCertificateProviderStore_Get_Call) Return(_a0 *certificateproviderdata.Provided, _a1 error) *mockCertificateProviderStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_Get_Call {
+func (_c *mockCertificateProviderStore_Get_Call) RunAndReturn(run func(context.Context) (*certificateproviderdata.Provided, error)) *mockCertificateProviderStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, certificateProvider
-func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error {
 	ret := _m.Called(ctx, certificateProvider)
 
 	if len(ret) == 0 {
@@ -198,7 +198,7 @@ func (_m *mockCertificateProviderStore) Put(ctx context.Context, certificateProv
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.CertificateProviderProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *certificateproviderdata.Provided) error); ok {
 		r0 = rf(ctx, certificateProvider)
 	} else {
 		r0 = ret.Error(0)
@@ -214,14 +214,14 @@ type mockCertificateProviderStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
-//   - certificateProvider *actor.CertificateProviderProvidedDetails
+//   - certificateProvider *certificateproviderdata.Provided
 func (_e *mockCertificateProviderStore_Expecter) Put(ctx interface{}, certificateProvider interface{}) *mockCertificateProviderStore_Put_Call {
 	return &mockCertificateProviderStore_Put_Call{Call: _e.mock.On("Put", ctx, certificateProvider)}
 }
 
-func (_c *mockCertificateProviderStore_Put_Call) Run(run func(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails)) *mockCertificateProviderStore_Put_Call {
+func (_c *mockCertificateProviderStore_Put_Call) Run(run func(ctx context.Context, certificateProvider *certificateproviderdata.Provided)) *mockCertificateProviderStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.CertificateProviderProvidedDetails))
+		run(args[0].(context.Context), args[1].(*certificateproviderdata.Provided))
 	})
 	return _c
 }
@@ -231,7 +231,7 @@ func (_c *mockCertificateProviderStore_Put_Call) Return(_a0 error) *mockCertific
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_Put_Call) RunAndReturn(run func(context.Context, *actor.CertificateProviderProvidedDetails) error) *mockCertificateProviderStore_Put_Call {
+func (_c *mockCertificateProviderStore_Put_Call) RunAndReturn(run func(context.Context, *certificateproviderdata.Provided) error) *mockCertificateProviderStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -90,7 +91,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 		}), shareCodeData, "a@b.com").
-		Return(&actor.CertificateProviderProvidedDetails{}, nil)
+		Return(&certificateproviderdata.Provided{}, nil)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 
@@ -125,7 +126,7 @@ func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(mock.Anything, mock.Anything, mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{}, dynamo.ConditionalCheckFailedError{})
+		Return(&certificateproviderdata.Provided{}, dynamo.ConditionalCheckFailedError{})
 
 	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, certificateProviderStore)(testAppData, w, r)
 

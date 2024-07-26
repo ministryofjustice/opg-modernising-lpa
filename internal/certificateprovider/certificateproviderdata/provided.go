@@ -1,4 +1,4 @@
-package actor
+package certificateproviderdata
 
 import (
 	"time"
@@ -9,10 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-// CertificateProviderProvidedDetails contains details about the certificate provider, provided by the certificate provider
-type CertificateProviderProvidedDetails struct {
+// Provided contains details about the certificate provider, provided by the certificate provider
+type Provided struct {
 	PK dynamo.LpaKeyType
 	SK dynamo.CertificateProviderKeyType
 	// UID of the actor
@@ -30,22 +31,22 @@ type CertificateProviderProvidedDetails struct {
 	// SignedAt is when the certificate provider submitted their signature
 	SignedAt time.Time
 	// Tasks the certificate provider will complete
-	Tasks CertificateProviderTasks
+	Tasks Tasks
 	// ContactLanguagePreference is the language the certificate provider prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
 	// Email is the email address returned from OneLogin when the certificate provider logged in
 	Email string
 }
 
-func (c *CertificateProviderProvidedDetails) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
+func (c *Provided) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
 	return c.IdentityUserData.Status.IsConfirmed() &&
 		c.IdentityUserData.MatchName(firstNames, lastName) &&
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
 }
 
-type CertificateProviderTasks struct {
-	ConfirmYourDetails    TaskState
-	ConfirmYourIdentity   TaskState
-	ReadTheLpa            TaskState
-	ProvideTheCertificate TaskState
+type Tasks struct {
+	ConfirmYourDetails    task.State
+	ConfirmYourIdentity   task.State
+	ReadTheLpa            task.State
+	ProvideTheCertificate task.State
 }

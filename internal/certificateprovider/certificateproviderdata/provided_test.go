@@ -1,4 +1,4 @@
-package actor
+package certificateproviderdata
 
 import (
 	"testing"
@@ -10,14 +10,14 @@ import (
 
 func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		cp          *CertificateProviderProvidedDetails
+		cp          *Provided
 		firstNames  string
 		lastName    string
 		dateOfBirth date.Date
 		expected    bool
 	}{
 		"confirmed": {
-			cp: &CertificateProviderProvidedDetails{
+			cp: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				DateOfBirth:      date.New("2000", "1", "1"),
 			},
@@ -27,13 +27,13 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 			expected:    true,
 		},
 		"failed": {
-			cp: &CertificateProviderProvidedDetails{
+			cp: &Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusFailed},
 			},
 			expected: false,
 		},
 		"name does not match": {
-			cp: &CertificateProviderProvidedDetails{
+			cp: &Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			firstNames: "a",
@@ -41,7 +41,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 			expected:   false,
 		},
 		"dob does not match": {
-			cp: &CertificateProviderProvidedDetails{
+			cp: &Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			firstNames:  "a",
@@ -50,7 +50,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 			expected:    false,
 		},
 		"insufficient evidence": {
-			cp: &CertificateProviderProvidedDetails{
+			cp: &Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 			firstNames: "a",
@@ -58,7 +58,7 @@ func TestCertificateProviderProvidedIdentityConfirmed(t *testing.T) {
 			expected:   false,
 		},
 		"none": {
-			cp:       &CertificateProviderProvidedDetails{},
+			cp:       &Provided{},
 			expected: false,
 		},
 	}

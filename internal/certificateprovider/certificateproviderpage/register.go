@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -19,7 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.CertificateProviderProvidedDetails) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
@@ -32,10 +33,10 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.CertificateProviderProvidedDetails, error)
+	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
 	Delete(ctx context.Context) error
-	Get(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
-	Put(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	Get(ctx context.Context) (*certificateproviderdata.Provided, error)
+	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type OneLoginClient interface {
@@ -85,8 +86,8 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *lpastore.Lpa) error
-	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error
+	SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpastore.Lpa) error
+	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
 }
 

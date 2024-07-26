@@ -5,7 +5,7 @@ package certificateproviderpage
 import (
 	http "net/http"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -26,7 +26,7 @@ func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
 }
 
 // Execute provides a mock function with given fields: data, w, r, details
-func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.CertificateProviderProvidedDetails) error {
+func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error {
 	ret := _m.Called(data, w, r, details)
 
 	if len(ret) == 0 {
@@ -34,7 +34,7 @@ func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *actor.CertificateProviderProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *certificateproviderdata.Provided) error); ok {
 		r0 = rf(data, w, r, details)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type mockHandler_Execute_Call struct {
 //   - data page.AppData
 //   - w http.ResponseWriter
 //   - r *http.Request
-//   - details *actor.CertificateProviderProvidedDetails
+//   - details *certificateproviderdata.Provided
 func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}, details interface{}) *mockHandler_Execute_Call {
 	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, details)}
 }
 
-func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, details *actor.CertificateProviderProvidedDetails)) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided)) *mockHandler_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*actor.CertificateProviderProvidedDetails))
+		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*certificateproviderdata.Provided))
 	})
 	return _c
 }
@@ -69,7 +69,7 @@ func (_c *mockHandler_Execute_Call) Return(_a0 error) *mockHandler_Execute_Call 
 	return _c
 }
 
-func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *actor.CertificateProviderProvidedDetails) error) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *certificateproviderdata.Provided) error) *mockHandler_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }

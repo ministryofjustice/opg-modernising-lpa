@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -86,14 +87,14 @@ func TestPostReadTheLpa(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
-			Tasks: actor.CertificateProviderTasks{
+		Put(r.Context(), &certificateproviderdata.Provided{
+			Tasks: certificateproviderdata.Tasks{
 				ReadTheLpa: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -151,7 +152,7 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := ReadTheLpa(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

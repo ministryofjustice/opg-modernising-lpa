@@ -4,7 +4,7 @@
 //   - [actor.Lpa] - details about the LPA being drafted
 //   - [actor.Donor] - details about the donor, provided by the applicant
 //   - [actor.CertificateProvider] - details about the certificate provider, provided by the applicant
-//   - [actor.CertificateProviderProvidedDetails] - details about the certificate provider, provided by the certificate provider
+//   - [certificateproviderdata.Provided] - details about the certificate provider, provided by the certificate provider
 //   - [actor.Attorney] - details about an attorney or replacement attorney, provided by the applicant
 //   - [actor.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
 //   - [attorneydata.Provided] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney

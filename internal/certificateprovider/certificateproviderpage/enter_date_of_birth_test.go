@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -40,7 +41,7 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -67,7 +68,7 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{DateOfBirth: date.New("1997", "1", "2")})
+	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{DateOfBirth: date.New("1997", "1", "2")})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -112,7 +113,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -124,8 +125,8 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 
 	testCases := map[string]struct {
 		form      url.Values
-		retrieved *actor.CertificateProviderProvidedDetails
-		updated   *actor.CertificateProviderProvidedDetails
+		retrieved *certificateproviderdata.Provided
+		updated   *certificateproviderdata.Provided
 	}{
 		"valid": {
 			form: url.Values{
@@ -133,11 +134,11 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			retrieved: &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"},
-			updated: &actor.CertificateProviderProvidedDetails{
+			retrieved: &certificateproviderdata.Provided{LpaID: "lpa-id"},
+			updated: &certificateproviderdata.Provided{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				Tasks: actor.CertificateProviderTasks{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskInProgress,
 				},
 			},
@@ -148,16 +149,16 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-month": {"1"},
 				"date-of-birth-year":  {validBirthYear},
 			},
-			retrieved: &actor.CertificateProviderProvidedDetails{
+			retrieved: &certificateproviderdata.Provided{
 				LpaID: "lpa-id",
-				Tasks: actor.CertificateProviderTasks{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
-			updated: &actor.CertificateProviderProvidedDetails{
+			updated: &certificateproviderdata.Provided{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
-				Tasks: actor.CertificateProviderTasks{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -169,11 +170,11 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				"date-of-birth-year":  {"1900"},
 				"ignore-dob-warning":  {"dateOfBirthIsOver100"},
 			},
-			retrieved: &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"},
-			updated: &actor.CertificateProviderProvidedDetails{
+			retrieved: &certificateproviderdata.Provided{LpaID: "lpa-id"},
+			updated: &certificateproviderdata.Provided{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New("1900", "1", "2"),
-				Tasks: actor.CertificateProviderTasks{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskInProgress,
 				},
 			},
@@ -226,16 +227,16 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
+		Put(r.Context(), &certificateproviderdata.Provided{
 			LpaID:       "lpa-id",
 			DateOfBirth: date.New("1980", "1", "2"),
-			Tasks: actor.CertificateProviderTasks{
+			Tasks: certificateproviderdata.Tasks{
 				ConfirmYourDetails: actor.TaskInProgress,
 			},
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
+	err := EnterDateOfBirth(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -291,7 +292,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+			err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
