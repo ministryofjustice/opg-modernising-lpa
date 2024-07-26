@@ -5,13 +5,13 @@
     </div>
     <div class="govuk-summary-card__content">
       <dl class="govuk-summary-list">
-        {{ $nameChangeLink := printf "%s?from=%s#f-first-names" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
+        {{ $nameChangeLink := printf "%s?from=%s#f-first-names" (link .App (global.Paths.YourName.Format .App.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.Donor.FullName $nameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
-        {{ $otherNameChangeLink := printf "%s?from=%s#f-other-names" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
+        {{ $otherNameChangeLink := printf "%s?from=%s#f-other-names" (link .App (global.Paths.YourName.Format .App.LpaID)) .App.Page }}
         {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
-        {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDetails.Format .App.LpaID)) .App.Page }}
+        {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDateOfBirth.Format .App.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .Lpa.Donor.DateOfBirth) $dateOfBirthChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ template "summary-row" (summaryRow $.App "email" .Lpa.Donor.Email "" .Lpa.Donor.FullName false $.App.IsDonor) }}

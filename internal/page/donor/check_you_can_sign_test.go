@@ -40,7 +40,7 @@ func TestGetCheckYouCanSign(t *testing.T) {
 
 func TestPostCheckYouCanSign(t *testing.T) {
 	testcases := map[form.YesNo]page.LpaPath{
-		form.Yes: page.Paths.YourAddress,
+		form.Yes: page.Paths.YourPreferredLanguage,
 		form.No:  page.Paths.NeedHelpSigningConfirmation,
 	}
 

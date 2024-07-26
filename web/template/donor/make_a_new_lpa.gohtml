@@ -3,56 +3,40 @@
 {{ define "pageTitle" }}{{ tr .App "makeANewLPA" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "makeANewLPA" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "makeANewLPA" }}</h1>
 
-      {{ trHtml .App "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated" }}
+            {{ trHtml .App "youShouldOnlyChangeYourDetailsIfTheyNeedToBeUpdated" }}
 
-      <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-          <h2 class="govuk-summary-card__title">{{ .Donor.Donor.FullName }}</h2>
-        </div>
-        <div class="govuk-summary-card__content">
-          <dl class="govuk-summary-list">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "name" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourName.Format .App.LpaID) }}#f-first-names">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "name" }}</span>
-                  </a>
-                </dd>
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">{{ .Donor.Donor.FullName }}</h2>
+                </div>
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        {{ template "summary-row" (summaryRow .App "name"
+                            .Donor.Donor.FullName
+                            (printf "%s?makingAnotherLPA=1#f-first-names" (link .App (global.Paths.YourName.Format .App.LpaID)))
+                            "" true true) }}
+
+                        {{ template "summary-row" (summaryRow .App "dateOfBirth"
+                            (formatDate .App .Donor.Donor.DateOfBirth)
+                            (printf "%s?makingAnotherLPA=1#f-date-of-birth" (link .App (global.Paths.YourDateOfBirth.Format .App.LpaID)))
+                            "" true true) }}
+
+                        {{ template "address-summary-row" (summaryRow .App "address"
+                            .Donor.Donor.Address
+                            (printf "%s?makingAnotherLPA=1#f-address-line-1" (link .App (global.Paths.YourAddress.Format .App.LpaID)))
+                            "" true true) }}
+                    </dl>
+                </div>
             </div>
 
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-              <dd class="govuk-summary-list__value">{{ formatDate .App .Donor.Donor.DateOfBirth }}</dd>
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App (global.Paths.YourDateOfBirth.Format .App.LpaID) }}#f-date-of-birth">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "dateOfBirth" }}</span>
-                  </a>
-                </dd>
+            <div class="govuk-button-group">
+                <a href="{{ link .App (global.Paths.YourName.Format .App.LpaID ) }}" class="govuk-button govuk-button">{{ tr .App "continue" }}</a>
+                <a href="{{ link .App (global.Paths.Dashboard.Format ) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
             </div>
-
-            {{ $addressLink := printf "%s?action=manual&makingAnotherLPA=1#f-address-line-1" (global.Paths.YourAddress.Format .App.LpaID) }}
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-              <dd class="govuk-summary-list__value">{{ template "address-lines" .Donor.Donor.Address }}</dd>
-                <dd class="govuk-summary-list__actions">
-                  <a class="govuk-link govuk-link--no-visited-state" href="{{ link .App $addressLink }}">
-                    {{ tr .App "change" }}<span class="govuk-visually-hidden"> {{ tr .App "address" }}</span>
-                  </a>
-                </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-        <div class="govuk-button-group">
-          <a href="{{ link .App (global.Paths.YourDetails.Format .App.LpaID ) }}" class="govuk-button govuk-button">{{ tr .App "continue" }}</a>
-          <a href="{{ link .App (global.Paths.Dashboard.Format ) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
         </div>
     </div>
-  </div>
 {{ end }}
