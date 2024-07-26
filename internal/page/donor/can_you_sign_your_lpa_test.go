@@ -156,7 +156,7 @@ func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestReadYourDetailsForm(t *testing.T) {
+func TestReadCanYouSignYourLpaForm(t *testing.T) {
 	f := url.Values{
 		"can-sign": {actor.Yes.String()},
 	}
@@ -164,13 +164,13 @@ func TestReadYourDetailsForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readYourDetailsForm(r)
+	result := readCanYouSignYourLpaForm(r)
 
 	assert.Equal(t, actor.Yes, result.CanSign)
 	assert.Nil(t, result.CanSignError)
 }
 
-func TestYourDetailsFormValidate(t *testing.T) {
+func TestCanYouSignYourLpaFormValidate(t *testing.T) {
 	testCases := map[string]struct {
 		form   *canYouSignYourLpaForm
 		errors validation.List
