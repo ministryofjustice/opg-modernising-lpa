@@ -140,5 +140,7 @@ describe('Choose attorneys', () => {
 
         cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/choose-attorneys-address');
     });
 });
