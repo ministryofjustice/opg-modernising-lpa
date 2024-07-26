@@ -34,7 +34,7 @@ func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
-				redirect := page.Paths.YourAddress
+				redirect := page.Paths.YourPreferredLanguage
 				if donor.Donor.CanSign.IsNo() {
 					redirect = page.Paths.NeedHelpSigningConfirmation
 				}

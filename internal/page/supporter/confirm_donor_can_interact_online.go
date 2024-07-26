@@ -33,7 +33,7 @@ func ConfirmDonorCanInteractOnline(tmpl template.Template, organisationStore Org
 					return err
 				}
 
-				return page.Paths.YourDetails.Redirect(w, r, appData, donorProvided)
+				return page.Paths.YourName.Redirect(w, r, appData, donorProvided)
 			} else if data.Form.YesNo.IsNo() {
 				return page.Paths.Supporter.ContactOPGForPaperForms.Redirect(w, r, appData)
 			}
