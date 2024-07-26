@@ -82,7 +82,7 @@ describe('Your date of birth', () => {
         it('shows task list button', () => {
             cy.contains('a', 'Return to task list');
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-details');
+            cy.url().should('contain', '/your-address');
         });
     });
 });
