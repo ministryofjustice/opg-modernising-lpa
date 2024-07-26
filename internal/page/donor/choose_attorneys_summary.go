@@ -22,7 +22,7 @@ type chooseAttorneysSummaryData struct {
 func ChooseAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
 		if donor.Attorneys.Len() == 0 {
-			return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}})
+			return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"id": {newUID().String()}})
 		}
 
 		data := &chooseAttorneysSummaryData{

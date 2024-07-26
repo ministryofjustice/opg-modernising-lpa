@@ -73,7 +73,7 @@ describe('Choose replacement attorneys task', () => {
     cy.visitLpa('/task-list');
 
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
