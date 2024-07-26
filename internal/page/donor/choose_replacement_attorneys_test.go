@@ -58,7 +58,7 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+			r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -73,7 +73,7 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChooseReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				Type:      tc.lpaType,
 				Attorneys: tc.attorneys,
 			})
@@ -85,22 +85,21 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 	}
 }
 
-func TestGetChooseReplacementAttorneysFromStore(t *testing.T) {
+func TestGetChooseReplacementAttorneysWhenNoID(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneys(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", UID: actoruid.New()}}}})
+	err := ChooseReplacementAttorneys(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "John", UID: actoruid.New()}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
-	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -108,7 +107,7 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-					{UID: uid, DateOfBirth: date.New("1900", "1", "2")},
+					{UID: testUID, DateOfBirth: date.New("1900", "1", "2")},
 				}},
 			},
 			Form: &chooseAttorneysForm{
@@ -118,10 +117,10 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChooseReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor: actor.Donor{},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{UID: uid, DateOfBirth: date.New("1900", "1", "2")},
+			{UID: testUID, DateOfBirth: date.New("1900", "1", "2")},
 		}},
 	})
 	resp := w.Result()
@@ -132,14 +131,14 @@ func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
 
 func TestGetChooseReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?id="+testUID.String(), nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -211,7 +210,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donorStore := newMockDonorStore(t)
@@ -224,7 +223,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -316,7 +315,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
 				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 				ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
@@ -345,9 +344,8 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 		"date-of-birth-year":  {"2000"},
 	}
 
-	uid := actoruid.New()
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -359,7 +357,7 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 				{
 					FirstNames:  "Jane",
 					LastName:    "Doe",
-					UID:         uid,
+					UID:         testUID,
 					Address:     place.Address{Line1: "abc"},
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
@@ -368,18 +366,18 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 		}).
 		Return(nil)
 
-	err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
 		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
-			{FirstNames: "Jane", LastName: "Doe", UID: uid, Address: place.Address{Line1: "abc"}},
+			{FirstNames: "Jane", LastName: "Doe", UID: testUID, Address: place.Address{Line1: "abc"}},
 		}},
 	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
@@ -491,7 +489,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
+			r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			template := newMockTemplate(t)
@@ -501,7 +499,7 @@ func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChooseReplacementAttorneys(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
+			err := ChooseReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -521,7 +519,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/?id="+testUID.String(), strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	donorStore := newMockDonorStore(t)
@@ -529,7 +527,7 @@ func TestPostChooseReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChooseReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }

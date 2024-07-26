@@ -2,7 +2,12 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose replacement attorneys', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
+        cy.visit('/fixtures?redirect=/do-you-want-replacement-attorneys&progress=chooseYourAttorneys');
+
+        cy.get('input[name="yes-no"]').check('yes', { force: true })
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/choose-replacement-attorneys');
     });
 
     it('can be submitted', () => {
@@ -84,8 +89,6 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
-
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-date-of-birth').type('1');
@@ -101,8 +104,6 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('permanently warns when date of birth is under 18', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
-
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
@@ -124,8 +125,6 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when date of birth is over 100', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=chooseYourAttorneys');
-
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
@@ -137,6 +136,14 @@ describe('Choose replacement attorneys', () => {
         cy.contains('By continuing, you confirm that this person is more than 100 years old. If not, please change their date of birth.');
 
         cy.contains('button', 'Save and continue').click();
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
+
+        cy.contains('a', 'Back').click()
+        cy.url({ timeout: 10000 }).should('contain', '/choose-replacement-attorneys');
+
+        cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/choose-replacement-attorneys-address');
     });
 });
