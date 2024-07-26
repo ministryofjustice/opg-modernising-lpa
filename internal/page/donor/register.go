@@ -197,23 +197,27 @@ func Register(
 	handleWithDonor(page.Paths.MakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
 	handleWithDonor(page.Paths.YourDetails, page.None,
-		YourDetails(tmpls.Get("your_details.gohtml"), donorStore, sessionStore))
+		Guidance(tmpls.Get("your_details.gohtml")))
 	handleWithDonor(page.Paths.YourName, page.None,
-		YourName(tmpls.Get("your_name.gohtml"), donorStore))
+		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
 	handleWithDonor(page.Paths.YourDateOfBirth, page.None,
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourAddress, page.None,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(page.Paths.YourEmail, page.None,
+		YourEmail(tmpls.Get("your_email.gohtml"), donorStore))
 	handleWithDonor(page.Paths.WeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
+	handleWithDonor(page.Paths.CanYouSignYourLpa, page.None,
+		CanYouSignYourLpa(tmpls.Get("can_you_sign_your_lpa.gohtml"), donorStore))
+	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
+		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
 		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
 	handleWithDonor(page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.None,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities_if_you_make_lpa.gohtml")))
 	handleWithDonor(page.Paths.LpaType, page.None,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
-	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
-		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
 	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, page.None,
 		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
