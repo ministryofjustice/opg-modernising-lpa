@@ -12,10 +12,11 @@ import (
 )
 
 type lpaTypeData struct {
-	App     page.AppData
-	Errors  validation.List
-	Form    *lpaTypeForm
-	Options actor.LpaTypeOptions
+	App         page.AppData
+	Errors      validation.List
+	Form        *lpaTypeForm
+	Options     actor.LpaTypeOptions
+	CanTaskList bool
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
@@ -25,7 +26,8 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			Form: &lpaTypeForm{
 				LpaType: donor.Type,
 			},
-			Options: actor.LpaTypeValues,
+			Options:     actor.LpaTypeValues,
+			CanTaskList: !donor.Type.Empty(),
 		}
 
 		if r.Method == http.MethodPost {
