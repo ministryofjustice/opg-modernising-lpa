@@ -49,7 +49,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 	}
 }
 
-func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
+func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -61,18 +61,6 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneys(t *testing.T) {
 	assert.Equal(t, page.Paths.ChooseAttorneys.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 }
 
-func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	err := ChooseAttorneysSummary(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneys.Format("lpa-id")+"?addAnother=1", resp.Header.Get("Location"))
-}
-
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		addMoreFormValue form.YesNo
@@ -81,7 +69,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add attorney - no attorneys": {
 			addMoreFormValue: form.Yes,
-			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1",
+			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{}},
 		},
 		"add attorney - with attorney": {

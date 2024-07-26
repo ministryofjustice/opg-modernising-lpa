@@ -41,12 +41,12 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		}
 
 		chooseAttorneysLink := page.Paths.ChooseAttorneysGuidance.Format(donor.LpaID)
-		if len(donor.Attorneys.Attorneys) > 0 || donor.Attorneys.TrustCorporation.Name != "" {
+		if donor.Attorneys.Len() > 0 {
 			chooseAttorneysLink = page.Paths.ChooseAttorneysSummary.Format(donor.LpaID)
 		}
 
 		chooseReplacementAttorneysLink := page.Paths.DoYouWantReplacementAttorneys.Format(donor.LpaID)
-		if len(donor.ReplacementAttorneys.Attorneys) > 0 || donor.ReplacementAttorneys.TrustCorporation.Name != "" {
+		if donor.ReplacementAttorneys.Len() > 0 {
 			chooseReplacementAttorneysLink = page.Paths.ChooseReplacementAttorneysSummary.Format(donor.LpaID)
 		}
 
