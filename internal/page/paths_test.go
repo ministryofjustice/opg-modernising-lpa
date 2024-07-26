@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -443,28 +444,28 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 
 func TestAttorneyCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		attorney *actor.AttorneyProvidedDetails
+		attorney *attorneydata.Provided
 		url      string
 		expected bool
 	}{
 		"empty path": {
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &attorneydata.Provided{},
 			url:      "",
 			expected: false,
 		},
 		"unexpected path": {
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &attorneydata.Provided{},
 			url:      "/whatever",
 			expected: true,
 		},
 		"unrestricted path": {
-			attorney: &actor.AttorneyProvidedDetails{},
+			attorney: &attorneydata.Provided{},
 			url:      Paths.Attorney.ConfirmYourDetails.Format("123"),
 			expected: true,
 		},
 		"sign without task": {
-			attorney: &actor.AttorneyProvidedDetails{
-				Tasks: actor.AttorneyTasks{
+			attorney: &attorneydata.Provided{
+				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -472,8 +473,8 @@ func TestAttorneyCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"sign with task": {
-			attorney: &actor.AttorneyProvidedDetails{
-				Tasks: actor.AttorneyTasks{
+			attorney: &attorneydata.Provided{
+				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 					ReadTheLpa:         actor.TaskCompleted,
 				},
@@ -482,8 +483,8 @@ func TestAttorneyCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"would like second signatory not trust corp": {
-			attorney: &actor.AttorneyProvidedDetails{
-				Tasks: actor.AttorneyTasks{
+			attorney: &attorneydata.Provided{
+				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 					ReadTheLpa:         actor.TaskCompleted,
 				},
@@ -492,8 +493,8 @@ func TestAttorneyCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"would like second signatory as trust corp": {
-			attorney: &actor.AttorneyProvidedDetails{
-				Tasks: actor.AttorneyTasks{
+			attorney: &attorneydata.Provided{
+				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 					ReadTheLpa:         actor.TaskCompleted,
 				},

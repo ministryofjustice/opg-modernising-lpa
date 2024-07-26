@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -18,7 +20,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
@@ -99,7 +100,7 @@ func App(
 		searchClient: searchClient,
 	}
 	certificateProviderStore := &certificateProviderStore{dynamoClient: lpaDynamoClient, now: time.Now}
-	attorneyStore := &attorneyStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
 	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
@@ -186,7 +187,7 @@ func App(
 		appPublicURL,
 	)
 
-	attorney.Register(
+	attorneypage.Register(
 		rootMux,
 		logger,
 		tmpls,
