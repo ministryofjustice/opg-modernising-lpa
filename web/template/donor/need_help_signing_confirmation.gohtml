@@ -10,7 +10,7 @@
       {{ trHtml .App "weKnowYouWillNeedHelpSigningContent" }}
 
       <div class="govuk-button-group">
-        <a class="govuk-button" href="{{ link .App (global.Paths.YourAddress.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
+        <a class="govuk-button" href="{{ link .App (global.Paths.YourPreferredLanguage.Format .App.LpaID) }}" data-module="govuk-button">{{ tr $.App "continue" }}</a>
       </div>
     </div>
   </div>

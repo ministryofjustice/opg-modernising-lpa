@@ -350,6 +350,8 @@ type AppPaths struct {
 	AddCorrespondent                                     LpaPath
 	AreYouApplyingForFeeDiscountOrExemption              LpaPath
 	BecauseYouHaveChosenJointly                          LpaPath
+	BecauseYouHaveChosenJointlyForSomeSeverallyForOthers LpaPath
+	CanYouSignYourLpa                                    LpaPath
 	CertificateProviderAddress                           LpaPath
 	CertificateProviderDetails                           LpaPath
 	CertificateProviderOptOut                            LpaPath
@@ -449,6 +451,7 @@ type AppPaths struct {
 	YourAuthorisedSignatory                              LpaPath
 	YourDateOfBirth                                      LpaPath
 	YourDetails                                          LpaPath
+	YourEmail                                            LpaPath
 	YourIndependentWitness                               LpaPath
 	YourIndependentWitnessAddress                        LpaPath
 	YourIndependentWitnessMobile                         LpaPath
@@ -456,7 +459,6 @@ type AppPaths struct {
 	YourLpaLanguage                                      LpaPath
 	YourName                                             LpaPath
 	YourPreferredLanguage                                LpaPath
-	BecauseYouHaveChosenJointlyForSomeSeverallyForOthers LpaPath
 }
 
 var Paths = AppPaths{
@@ -541,13 +543,14 @@ var Paths = AppPaths{
 		Dependency: "/health-check/dependency",
 	},
 
-	BecauseYouHaveChosenJointly:                          "/because-you-have-chosen-jointly",
+	AboutPayment:                            "/about-payment",
+	AddCorrespondent:                        "/add-correspondent",
+	AreYouApplyingForFeeDiscountOrExemption: "/are-you-applying-for-fee-discount-or-exemption",
+	AttorneyFixtures:                        "/fixtures/attorney",
+	AuthRedirect:                            "/auth/redirect",
+	BecauseYouHaveChosenJointly:             "/because-you-have-chosen-jointly",
 	BecauseYouHaveChosenJointlyForSomeSeverallyForOthers: "/because-you-have-chosen-jointly-for-some-severally-for-others",
-	AboutPayment:                                         "/about-payment",
-	AddCorrespondent:                                     "/add-correspondent",
-	AreYouApplyingForFeeDiscountOrExemption:              "/are-you-applying-for-fee-discount-or-exemption",
-	AttorneyFixtures:                                     "/fixtures/attorney",
-	AuthRedirect:                                         "/auth/redirect",
+	CanYouSignYourLpa:                                    "/can-you-sign-your-lpa",
 	CertificateProviderAddress:                           "/certificate-provider-address",
 	CertificateProviderDetails:                           "/certificate-provider-details",
 	CertificateProviderFixtures:                          "/fixtures/certificate-provider",
@@ -662,6 +665,7 @@ var Paths = AppPaths{
 	YourAuthorisedSignatory:                              "/your-authorised-signatory",
 	YourDateOfBirth:                                      "/your-date-of-birth",
 	YourDetails:                                          "/your-details",
+	YourEmail:                                            "/your-email",
 	YourIndependentWitness:                               "/your-independent-witness",
 	YourIndependentWitnessAddress:                        "/your-independent-witness-address",
 	YourIndependentWitnessMobile:                         "/your-independent-witness-mobile",
