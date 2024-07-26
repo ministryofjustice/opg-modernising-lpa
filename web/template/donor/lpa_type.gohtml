@@ -24,7 +24,13 @@
           </fieldset>
         </div>
 
-        {{ template "continue-button" . }}
+
+        {{ if .CanTaskList }}
+            {{ template "buttons" (button .App "saveAndContinue") }}
+        {{ else }}
+            {{ template "button" (button .App "saveAndContinue") }}
+        {{ end }}
+
         {{ template "csrf-field" . }}
       </form>
     </div>

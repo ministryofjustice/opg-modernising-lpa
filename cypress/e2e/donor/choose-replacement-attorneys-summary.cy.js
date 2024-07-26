@@ -45,7 +45,7 @@ describe('Choose replacement attorneys summary', () => {
       .click();
 
     cy.get('#f-address-line-1').clear().type('4 RICHMOND PLACE');
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys-summary');
     cy.contains('dd', '4 RICHMOND PLACE');
@@ -80,7 +80,7 @@ describe('Choose replacement attorneys summary', () => {
 
     cy.url().should('contain', '/choose-replacement-attorneys-address');
     cy.get('#f-address-line-1').should('have.value', '5 RICHMOND PLACE');
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys-summary');
 

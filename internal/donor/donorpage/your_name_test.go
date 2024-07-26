@@ -175,7 +175,7 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 	}{
 		"making first": {
 			url:      "/",
-			redirect: page.Paths.YourDetails,
+			redirect: page.Paths.YourDateOfBirth,
 		},
 		"making another": {
 			url:      "/?makingAnotherLPA=1",
