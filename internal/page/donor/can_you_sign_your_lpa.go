@@ -30,7 +30,7 @@ func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readYourDetailsForm(r)
+			data.Form = readCanYouSignYourLpaForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -61,7 +61,7 @@ type canYouSignYourLpaForm struct {
 	CanSignError error
 }
 
-func readYourDetailsForm(r *http.Request) *canYouSignYourLpaForm {
+func readCanYouSignYourLpaForm(r *http.Request) *canYouSignYourLpaForm {
 	canSign, canSignError := actor.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
 	return &canYouSignYourLpaForm{
