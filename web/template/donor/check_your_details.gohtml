@@ -17,7 +17,7 @@
         ) }}
         {{ template "summary-row" (summaryRow .App "dateOfBirth"
           (formatDate .App .Donor.Donor.DateOfBirth)
-          (fromLink .App global.Paths.YourDetails "#f-date-of-birth")
+          (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
           "" true true
         ) }}
         {{ template "address-summary-row" (summaryRow .App "address"

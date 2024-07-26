@@ -140,7 +140,7 @@ func TestPostYourAddressManual(t *testing.T) {
 	}{
 		"making first LPA": {
 			url:              "/",
-			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
@@ -197,7 +197,7 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 	}{
 		"making first LPA": {
 			url:              "/",
-			expectedRedirect: page.Paths.YourPreferredLanguage.Format("lpa-id"),
+			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
@@ -306,7 +306,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.CanYouSignYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {
