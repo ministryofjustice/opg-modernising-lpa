@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 )
 
 type Path string
@@ -141,7 +142,7 @@ func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appD
 	return nil
 }
 
-func (p AttorneyPath) canVisit(attorney *actor.AttorneyProvidedDetails) bool {
+func (p AttorneyPath) canVisit(attorney *attorneydata.Provided) bool {
 	switch p {
 	case Paths.Attorney.RightsAndResponsibilities,
 		Paths.Attorney.WhatHappensWhenYouSign,
@@ -706,7 +707,7 @@ func CertificateProviderCanGoTo(certificateProvider *actor.CertificateProviderPr
 	return true
 }
 
-func AttorneyCanGoTo(attorney *actor.AttorneyProvidedDetails, url string) bool {
+func AttorneyCanGoTo(attorney *attorneydata.Provided, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false
