@@ -1,0 +1,7 @@
+{{ define "button" }}
+    {{ if .link }}
+        <a href="{{ link .app .link }}" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</a>
+    {{ else }}
+        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</button>
+    {{ end }}
+{{ end }}

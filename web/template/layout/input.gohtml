@@ -1,17 +1,23 @@
 {{ define "input" }}
-  <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }}">
-    <label class="{{ if .context }}govuk-heading-m{{ else }}govuk-label{{ end }} {{.labelClasses}}" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
-    {{ if .context }}
-      <p class="govuk-body">
-        {{ tr .top.App .context }}
-      </p>
-    {{ end }}
-    {{ if .hint }}
-      <div id="{{ .name }}-hint" class="govuk-hint">
-        {{ tr .top.App .hint }}
-      </div>
-    {{ end }}
-    {{ template "error-message" (errorMessage .top .name) }}
-    <input class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
-  </div>
+    <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }}">
+        {{ if .heading }}
+            <h1 class="govuk-label-wrapper">
+                <label class="govuk-label govuk-label--xl {{.labelClasses}}" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
+            </h1>
+        {{ else }}
+            <label class="{{ if .context }}govuk-heading-m{{ else }}govuk-label{{ end }} {{.labelClasses}}" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
+        {{ end }}
+        {{ if .context }}
+            <p class="govuk-body">
+                {{ tr .top.App .context }}
+            </p>
+        {{ end }}
+        {{ if .hint }}
+            <div id="{{ .name }}-hint" class="govuk-hint">
+                {{ tr .top.App .hint }}
+            </div>
+        {{ end }}
+        {{ template "error-message" (errorMessage .top .name) }}
+        <input class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
+    </div>
 {{ end }}
