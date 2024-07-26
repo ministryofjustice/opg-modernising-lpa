@@ -43,7 +43,7 @@ function init() {
     if (backLink) {
         backLink.addEventListener('click', function(e) {
             e.preventDefault();
-            window.history.back()
+            window.history.back();
         }, false);
     }
 
