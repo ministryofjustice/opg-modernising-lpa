@@ -251,7 +251,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[1] = taskListItem{
 					Name:  "chooseYourAttorneys",
-					Path:  page.Paths.ChooseAttorneysGuidance.Format("lpa-id"),
+					Path:  page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
 					State: actor.TaskNotStarted,
 					Count: 1,
 				}
@@ -301,8 +301,8 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: "provideYourDetails", Path: page.Paths.YourDetails.Format("lpa-id"), State: actor.TaskCompleted},
-					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysGuidance.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys.Format("lpa-id"), State: actor.TaskInProgress, Count: 1},
+					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysSummary.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), State: actor.TaskInProgress, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
@@ -350,8 +350,8 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: "provideYourDetails", Path: page.Paths.YourDetails.Format("lpa-id"), State: actor.TaskCompleted},
-					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysGuidance.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys.Format("lpa-id"), State: actor.TaskCompleted, Count: 1},
+					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysSummary.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), State: actor.TaskCompleted, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskCompleted},
@@ -402,8 +402,8 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
 					{Name: "provideYourDetails", Path: page.Paths.YourDetails.Format("lpa-id"), State: actor.TaskCompleted},
-					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysGuidance.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.DoYouWantReplacementAttorneys.Format("lpa-id"), State: actor.TaskInProgress, Count: 1},
+					{Name: "chooseYourAttorneys", Path: page.Paths.ChooseAttorneysSummary.Format("lpa-id"), State: actor.TaskCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), State: actor.TaskInProgress, Count: 1},
 					{Name: "chooseWhenTheLpaCanBeUsed", Path: page.Paths.WhenCanTheLpaBeUsed.Format("lpa-id"), State: actor.TaskInProgress},
 					{Name: "addRestrictionsToTheLpa", Path: page.Paths.Restrictions.Format("lpa-id"), State: actor.TaskCompleted},
 					{Name: "chooseYourCertificateProvider", Path: page.Paths.WhatACertificateProviderDoes.Format("lpa-id"), State: actor.TaskInProgress},
