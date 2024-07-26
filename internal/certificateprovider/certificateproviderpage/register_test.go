@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -82,11 +83,11 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+		Return(&certificateproviderdata.Provided{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		assert.Equal(t, page.AppData{
 			Page:      "/certificate-provider/123/path",
 			SessionID: "cmFuZG9t",
@@ -95,7 +96,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		assert.Equal(t, &actor.CertificateProviderProvidedDetails{LpaID: "123"}, certificateProvider)
+		assert.Equal(t, &certificateproviderdata.Provided{LpaID: "123"}, certificateProvider)
 
 		sessionData, _ := page.SessionDataFromContext(hr.Context())
 		assert.Equal(t, &page.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
@@ -125,11 +126,11 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{LpaID: "123"}, nil)
+		Return(&certificateproviderdata.Provided{LpaID: "123"}, nil)
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
+	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 
@@ -151,7 +152,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil)
-	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
+	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 
@@ -175,7 +176,7 @@ func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.CertificateProviderProvidedDetails{}, expectedError)
+		Return(&certificateproviderdata.Provided{}, expectedError)
 
 	errorHandler := newMockErrorHandler(t)
 	errorHandler.EXPECT().
@@ -183,7 +184,7 @@ func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore)
-	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.CertificateProviderProvidedDetails) error {
+	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -89,13 +90,13 @@ func TestPostUnableToConfirmIdentity(t *testing.T) {
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Put(r.Context(), &actor.CertificateProviderProvidedDetails{
+		Put(r.Context(), &certificateproviderdata.Provided{
 			LpaID: "lpa-id",
-			Tasks: actor.CertificateProviderTasks{ConfirmYourIdentity: actor.TaskCompleted},
+			Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
+	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -112,7 +113,7 @@ func TestPostUnableToConfirmIdentityWhenCertificateProviderStoreErrors(t *testin
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	w := httptest.NewRecorder()
 
-	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := UnableToConfirmIdentity(nil, certificateProviderStore, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

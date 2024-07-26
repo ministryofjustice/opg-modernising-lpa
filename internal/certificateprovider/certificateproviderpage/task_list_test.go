@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -17,13 +18,13 @@ import (
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
 		donor               *lpastore.Lpa
-		certificateProvider *actor.CertificateProviderProvidedDetails
+		certificateProvider *certificateproviderdata.Provided
 		appData             page.AppData
 		expected            func([]taskListItem) []taskListItem
 	}{
 		"empty": {
 			donor:               &lpastore.Lpa{LpaID: "lpa-id"},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			certificateProvider: &certificateproviderdata.Provided{},
 			appData:             testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[1].Disabled = true
@@ -37,8 +38,8 @@ func TestGetTaskList(t *testing.T) {
 				LpaID: "lpa-id",
 				Paid:  true,
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -56,8 +57,8 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -76,9 +77,9 @@ func TestGetTaskList(t *testing.T) {
 				SignedAt: time.Now(),
 				Paid:     true,
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
+			certificateProvider: &certificateproviderdata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Tasks: actor.CertificateProviderTasks{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
 					ProvideTheCertificate: actor.TaskCompleted,
@@ -100,8 +101,8 @@ func TestGetTaskList(t *testing.T) {
 				SignedAt: time.Now(),
 				Paid:     true,
 			},
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:    actor.TaskCompleted,
 					ConfirmYourIdentity:   actor.TaskCompleted,
 					ProvideTheCertificate: actor.TaskCompleted,
@@ -160,7 +161,7 @@ func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, expectedError)
 
-	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -179,7 +180,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := TaskList(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

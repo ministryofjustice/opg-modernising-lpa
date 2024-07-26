@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -56,7 +57,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 				Donor:               lpastore.Donor{Channel: tc.DonorChannel},
 				CertificateProvider: lpastore.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
 			}
-			certificateProvider := &actor.CertificateProviderProvidedDetails{}
+			certificateProvider := &certificateproviderdata.Provided{}
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
@@ -93,7 +94,7 @@ func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, expectedError)
 
-	err := ConfirmYourDetails(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := ConfirmYourDetails(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -112,7 +113,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -138,15 +139,15 @@ func TestPostConfirmYourDetails(t *testing.T) {
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
-				Put(r.Context(), &actor.CertificateProviderProvidedDetails{
+				Put(r.Context(), &certificateproviderdata.Provided{
 					LpaID: "lpa-id",
-					Tasks: actor.CertificateProviderTasks{
+					Tasks: certificateproviderdata.Tasks{
 						ConfirmYourDetails: actor.TaskCompleted,
 					},
 				}).
 				Return(nil)
 
-			err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
+			err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -170,6 +171,6 @@ func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
 	assert.Equal(t, expectedError, err)
 }

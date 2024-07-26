@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -628,7 +629,7 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendCertificateProvider(context.Background(),
-				&actor.CertificateProviderProvidedDetails{
+				&certificateproviderdata.Provided{
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
@@ -703,7 +704,7 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			return client.SendCertificateProvider(context.Background(),
-				&actor.CertificateProviderProvidedDetails{
+				&certificateproviderdata.Provided{
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					HomeAddress: place.Address{

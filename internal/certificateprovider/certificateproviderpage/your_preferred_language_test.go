@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -40,7 +40,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 
 	resp := w.Result()
 
@@ -57,7 +57,7 @@ func TestGetYourPreferredLanguageWhenLpaStoreResolvingServiceError(t *testing.T)
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, expectedError)
 
-	err := YourPreferredLanguage(nil, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(nil, nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,7 +78,7 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -98,7 +98,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
-				Put(r.Context(), &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id", ContactLanguagePreference: lang}).
+				Put(r.Context(), &certificateproviderdata.Provided{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -106,7 +106,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 				Get(r.Context()).
 				Return(&lpastore.Lpa{}, nil)
 
-			err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
+			err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -133,7 +133,7 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpastore.Lpa{}, nil)
 
-	err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{})
+	err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -167,7 +167,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &actor.CertificateProviderProvidedDetails{LpaID: "lpa-id"})
+	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
