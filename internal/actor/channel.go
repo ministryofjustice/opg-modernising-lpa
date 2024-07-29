@@ -1,9 +1,10 @@
 package actor
 
-//go:generate enumerator -type Channel -linecomment -empty -trimprefix
-type Channel uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
+type Channel = donordata.Channel
 
 const (
-	ChannelPaper  Channel = iota + 1 // paper
-	ChannelOnline                    // online
+	ChannelPaper  = donordata.ChannelPaper
+	ChannelOnline = donordata.ChannelOnline
 )
