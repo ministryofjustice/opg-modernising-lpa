@@ -50,7 +50,8 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 			Form: &lpaTypeForm{
 				LpaType: actor.LpaTypePropertyAndAffairs,
 			},
-			Options: actor.LpaTypeValues,
+			Options:     actor.LpaTypeValues,
+			CanTaskList: true,
 		}).
 		Return(nil)
 
