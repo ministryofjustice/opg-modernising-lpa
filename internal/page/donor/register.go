@@ -200,23 +200,23 @@ func Register(
 		Guidance(tmpls.Get("your_details.gohtml")))
 	handleWithDonor(page.Paths.YourName, page.None,
 		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
-	handleWithDonor(page.Paths.YourDateOfBirth, page.None,
+	handleWithDonor(page.Paths.YourDateOfBirth, page.CanGoBack,
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourAddress, page.None,
+	handleWithDonor(page.Paths.YourAddress, page.CanGoBack,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
-	handleWithDonor(page.Paths.YourEmail, page.None,
+	handleWithDonor(page.Paths.YourEmail, page.CanGoBack,
 		YourEmail(tmpls.Get("your_email.gohtml"), donorStore))
 	handleWithDonor(page.Paths.WeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
-	handleWithDonor(page.Paths.CanYouSignYourLpa, page.None,
+	handleWithDonor(page.Paths.CanYouSignYourLpa, page.CanGoBack,
 		CanYouSignYourLpa(tmpls.Get("can_you_sign_your_lpa.gohtml"), donorStore))
-	handleWithDonor(page.Paths.CheckYouCanSign, page.None,
+	handleWithDonor(page.Paths.CheckYouCanSign, page.CanGoBack,
 		CheckYouCanSign(tmpls.Get("check_you_can_sign.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourPreferredLanguage, page.None,
+	handleWithDonor(page.Paths.YourPreferredLanguage, page.CanGoBack,
 		YourPreferredLanguage(tmpls.Get("your_preferred_language.gohtml"), donorStore))
-	handleWithDonor(page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.None,
+	handleWithDonor(page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities_if_you_make_lpa.gohtml")))
-	handleWithDonor(page.Paths.LpaType, page.None,
+	handleWithDonor(page.Paths.LpaType, page.CanGoBack,
 		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
 	handleWithDonor(page.Paths.NeedHelpSigningConfirmation, page.None,
 		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))

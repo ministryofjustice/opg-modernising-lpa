@@ -54,7 +54,12 @@
           </fieldset>
         </div>
 
-        <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
+        {{ if .CanTaskList }}
+            {{ template "buttons" (button .App "saveAndContinue") }}
+        {{ else }}
+            {{ template "button" (button .App "saveAndContinue") }}
+        {{ end }}
+        
         {{ template "csrf-field" . }}
       </form>
     </div>

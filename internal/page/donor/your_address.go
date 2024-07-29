@@ -26,6 +26,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 		}
 
 		data.MakingAnotherLPA = r.FormValue("makingAnotherLPA") == "1"
+		data.CanTaskList = !donor.Type.Empty()
 
 		if r.Method == http.MethodPost {
 			data.Form = form.ReadAddressForm(r)
