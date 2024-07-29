@@ -1,15 +1,15 @@
 package attorneydata
 
 import (
-	context "context"
+	"context"
 	"encoding/json"
 	"errors"
 	"time"
 
-	types "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
