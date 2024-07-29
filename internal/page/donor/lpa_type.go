@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -15,7 +16,7 @@ type lpaTypeData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *lpaTypeForm
-	Options actor.LpaTypeOptions
+	Options donordata.LpaTypeOptions
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
@@ -25,7 +26,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			Form: &lpaTypeForm{
 				LpaType: donor.Type,
 			},
-			Options: actor.LpaTypeValues,
+			Options: donordata.LpaTypeValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -77,7 +78,7 @@ type lpaTypeForm struct {
 }
 
 func readLpaTypeForm(r *http.Request) *lpaTypeForm {
-	lpaType, err := actor.ParseLpaType(page.PostFormString(r, "lpa-type"))
+	lpaType, err := donordata.ParseLpaType(page.PostFormString(r, "lpa-type"))
 
 	return &lpaTypeForm{
 		LpaType: lpaType,

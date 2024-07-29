@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -14,7 +15,7 @@ type canYouSignYourLpaData struct {
 	App               page.AppData
 	Errors            validation.List
 	Form              *canYouSignYourLpaForm
-	YesNoMaybeOptions actor.YesNoMaybeOptions
+	YesNoMaybeOptions donordata.YesNoMaybeOptions
 	CanTaskList       bool
 }
 
@@ -25,7 +26,7 @@ func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			Form: &canYouSignYourLpaForm{
 				CanSign: donor.Donor.ThinksCanSign,
 			},
-			YesNoMaybeOptions: actor.YesNoMaybeValues,
+			YesNoMaybeOptions: donordata.YesNoMaybeValues,
 			CanTaskList:       !donor.Type.Empty(),
 		}
 
@@ -62,7 +63,7 @@ type canYouSignYourLpaForm struct {
 }
 
 func readYourDetailsForm(r *http.Request) *canYouSignYourLpaForm {
-	canSign, canSignError := actor.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
+	canSign, canSignError := donordata.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
 	return &canYouSignYourLpaForm{
 		CanSign:      canSign,
