@@ -52,7 +52,7 @@ describe('Choose attorneys task', () => {
     cy.contains('button', 'Find address').click();
     cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
     cy.contains('button', 'Continue').click();
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
     cy.contains('a', 'Choose your attorneys').parent().parent().contains('1 added');

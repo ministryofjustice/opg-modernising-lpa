@@ -50,7 +50,7 @@ describe('Make a new LPA', () => {
         cy.get('#f-address-line-3').should('have.value', 'WEST MIDLANDS').clear()
         cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
         cy.get('#f-address-postcode').should('have.value', 'B14 7ED');
-        cy.contains("button", "Continue").click();
+        cy.contains("button", "Save and continue").click();
 
         cy.url().should('contain', '/we-have-updated-your-details');
         cy.checkA11yApp();
