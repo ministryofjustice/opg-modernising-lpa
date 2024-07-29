@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.20.1 AS production
+FROM alpine:3.20.2 AS production
 
 WORKDIR /go/bin
 
