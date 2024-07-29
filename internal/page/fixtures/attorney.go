@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -34,8 +35,8 @@ type CertificateProviderStore interface {
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*actor.AttorneyProvidedDetails, error)
-	Put(ctx context.Context, attorney *actor.AttorneyProvidedDetails) error
+	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
 func Attorney(
@@ -249,7 +250,7 @@ func Attorney(
 
 			if isTrustCorporation {
 				attorney.WouldLikeSecondSignatory = form.No
-				attorney.AuthorisedSignatories = [2]actor.TrustCorporationSignatory{{
+				attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
@@ -260,7 +261,7 @@ func Attorney(
 			}
 		}
 
-		var signings []*actor.AttorneyProvidedDetails
+		var signings []*attorneydata.Provided
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
@@ -317,7 +318,7 @@ func Attorney(
 					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
 					attorney.Tasks.SignTheLpa = actor.TaskCompleted
 					attorney.WouldLikeSecondSignatory = form.No
-					attorney.AuthorisedSignatories = [2]actor.TrustCorporationSignatory{{
+					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",

@@ -3,48 +3,49 @@
 {{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ tr .App "yourDetails" }}</h1>
+    {{ $hasNoIdentity := .Donor.DonorIdentityUserData.Status.IsUnknown }}
 
-        <p class="govuk-body">{{tr .App "yourDetailsContent"}}</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ tr .App "yourDetails" }}</h1>
 
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
-        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+                <dl class="govuk-summary-list">
+                    {{ template "summary-row" (summaryRow .App "firstNames"
+                        .Donor.Donor.FirstNames
+                        (fromLink .App global.Paths.YourName "#f-first-names")
+                        .Donor.Donor.FullName $hasNoIdentity true) }}
 
-        {{ template "name-warning" . }}
+                    {{ template "summary-row" (summaryRow .App "lastName"
+                        .Donor.Donor.LastName
+                        (fromLink .App global.Paths.YourName "#f-last-name")
+                        .Donor.Donor.FullName $hasNoIdentity true) }}
 
-        {{ template "input" (input . "other-names" "otherNamesYouAreKnownByOptional" .Form.OtherNames "hint" "otherNamesHint" "classes" "govuk-input--width-20") }}
+                    {{ template "summary-row" (summaryRow .App "dateOfBirth"
+                        (formatDate .App .Donor.Donor.DateOfBirth)
+                        (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
+                        .Donor.Donor.FullName $hasNoIdentity true) }}
 
-        {{ if .App.SupporterData }}
-          {{ template "input" (input . "email" "emailOptional" .Form.Email "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-        {{ end }}
+                    {{ template "address-summary-row" (summaryRow $.App "address"
+                        .Donor.Donor.Address
+                        (fromLink .App global.Paths.YourAddress "#f-address-line-1")
+                        .Donor.Donor.FullName true true) }}
 
-        {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+                    {{ if .App.SupporterData }}
+                        {{ template "summary-row" (summaryRow .App "email"
+                            .Donor.Donor.Email
+                            (fromLink .App global.Paths.YourEmail "#f-email")
+                            .Donor.Donor.FullName true true) }}
+                    {{ end }}
+                </dl>
 
-        {{ template "dob-warning" . }}
+                {{ if not $hasNoIdentity }}
+                    <p class="govuk-inset-text">{{ tr .App "someOfTheseDetailsCanNoLongerBeChanged" }}</p>
+                {{ end }}
 
-        <div class="govuk-form-group {{ if .Errors.Has "can-sign" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-              {{ tr .App "canYouSignYourselfOnline" }}
-            </legend>
-            <p class="govuk-body">{{ tr .App "canYouSignYourselfGuidance" }}</p>
-
-            {{ template "error-message" (errorMessage . "can-sign") }}
-
-            {{ template "radios" (items . "can-sign" .Form.CanSign.String
-              (item .YesNoMaybeOptions.Yes.String "yesGallaf")
-              (item .YesNoMaybeOptions.No.String "noNaAllaf")
-              (item .YesNoMaybeOptions.Maybe.String "iDontKnow")
-            ) }}
-          </fieldset>
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.CanYouSignYourLpa.Format .App.LpaID))  }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "continue-button" . }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
