@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -43,11 +44,11 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:  "456",
 		LpaUID: "M",
 	}
-	lpa456CertificateProvider := &actor.CertificateProviderProvidedDetails{
+	lpa456CertificateProvider := &certificateproviderdata.Provided{
 		PK:    dynamo.LpaKey("456"),
 		SK:    dynamo.CertificateProviderKey(sessionID),
 		LpaID: "456",
-		Tasks: actor.CertificateProviderTasks{ConfirmYourDetails: actor.TaskCompleted},
+		Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: actor.TaskCompleted},
 	}
 	lpa789 := &lpastore.Lpa{LpaID: "789", LpaUID: "M"}
 	lpa789Donor := &actor.DonorProvidedDetails{
@@ -75,7 +76,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:  "signed-by-cp",
 		LpaUID: "M",
 	}
-	lpaCertifiedCertificateProvider := &actor.CertificateProviderProvidedDetails{
+	lpaCertifiedCertificateProvider := &certificateproviderdata.Provided{
 		PK:       dynamo.LpaKey("signed-by-cp"),
 		SK:       dynamo.CertificateProviderKey(sessionID),
 		LpaID:    "signed-by-cp",

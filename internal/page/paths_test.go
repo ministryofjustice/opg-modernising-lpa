@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -393,33 +394,33 @@ func TestDonorCanGoTo(t *testing.T) {
 
 func TestCertificateProviderCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		certificateProvider *actor.CertificateProviderProvidedDetails
+		certificateProvider *certificateproviderdata.Provided
 		url                 string
 		expected            bool
 	}{
 		"empty path": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			certificateProvider: &certificateproviderdata.Provided{},
 			url:                 "",
 			expected:            false,
 		},
 		"unexpected path": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			certificateProvider: &certificateproviderdata.Provided{},
 			url:                 "/whatever",
 			expected:            true,
 		},
 		"unrestricted path": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			certificateProvider: &certificateproviderdata.Provided{},
 			url:                 Paths.CertificateProvider.ConfirmYourDetails.Format("123"),
 			expected:            true,
 		},
 		"identity without task": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{},
+			certificateProvider: &certificateproviderdata.Provided{},
 			url:                 Paths.CertificateProvider.IdentityWithOneLogin.Format("123"),
 			expected:            false,
 		},
 		"identity with task": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -427,8 +428,8 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"provide certificate without task": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails: actor.TaskCompleted,
 				},
 			},
@@ -436,8 +437,8 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"provide certificate with task": {
-			certificateProvider: &actor.CertificateProviderProvidedDetails{
-				Tasks: actor.CertificateProviderTasks{
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:  actor.TaskCompleted,
 					ConfirmYourIdentity: actor.TaskCompleted,
 				},

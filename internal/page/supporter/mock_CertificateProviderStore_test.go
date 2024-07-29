@@ -5,7 +5,7 @@ package supporter
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -24,23 +24,23 @@ func (_m *mockCertificateProviderStore) EXPECT() *mockCertificateProviderStore_E
 }
 
 // GetAny provides a mock function with given fields: ctx
-func (_m *mockCertificateProviderStore) GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error) {
+func (_m *mockCertificateProviderStore) GetAny(ctx context.Context) (*certificateproviderdata.Provided, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAny")
 	}
 
-	var r0 *actor.CertificateProviderProvidedDetails
+	var r0 *certificateproviderdata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.CertificateProviderProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*certificateproviderdata.Provided, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.CertificateProviderProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *certificateproviderdata.Provided); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.CertificateProviderProvidedDetails)
+			r0 = ret.Get(0).(*certificateproviderdata.Provided)
 		}
 	}
 
@@ -71,12 +71,12 @@ func (_c *mockCertificateProviderStore_GetAny_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_GetAny_Call) Return(_a0 *actor.CertificateProviderProvidedDetails, _a1 error) *mockCertificateProviderStore_GetAny_Call {
+func (_c *mockCertificateProviderStore_GetAny_Call) Return(_a0 *certificateproviderdata.Provided, _a1 error) *mockCertificateProviderStore_GetAny_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockCertificateProviderStore_GetAny_Call) RunAndReturn(run func(context.Context) (*actor.CertificateProviderProvidedDetails, error)) *mockCertificateProviderStore_GetAny_Call {
+func (_c *mockCertificateProviderStore_GetAny_Call) RunAndReturn(run func(context.Context) (*certificateproviderdata.Provided, error)) *mockCertificateProviderStore_GetAny_Call {
 	_c.Call.Return(run)
 	return _c
 }
