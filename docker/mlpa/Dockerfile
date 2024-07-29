@@ -2,7 +2,7 @@ FROM golang:1.22.5-alpine AS base
 
 WORKDIR /app
 
-FROM node:20.2.0-alpine3.16 AS asset-env
+FROM node:20.16.0-alpine3.20 AS asset-env
 
 WORKDIR /app
 
