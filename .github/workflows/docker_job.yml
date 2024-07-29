@@ -36,23 +36,15 @@ jobs:
           - ecr_repository: modernising-lpa/app
             path: ./docker/mlpa/Dockerfile
             platforms: linux/amd64
-            push_provenance: mode=max # options are false, mode=min, mode=max, false is required for lambda functions at this time
-            push_sbom: true # options are false, true, false is required for lambda functions at this time
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
-            push_provenance: false
-            push_sbom: false
           - ecr_repository: modernising-lpa/event-received
             path: ./docker/event-received/Dockerfile
             platforms: linux/amd64
-            push_provenance: false
-            push_sbom: false
           - ecr_repository: modernising-lpa/mock-pay
             path: ./docker/mock-pay/Dockerfile
             platforms: linux/amd64
-            push_provenance: mode=max
-            push_sbom: true
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
@@ -130,8 +122,8 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ inputs.tag }}
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: ${{ matrix.push_sbom }}
-          provenance: ${{ matrix.push_provenance }}
+          sbom: false
+          provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
 
@@ -151,7 +143,7 @@ jobs:
             ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           build-args: |
             TAG=${{inputs.tag}}
-          sbom: ${{ matrix.push_sbom }}
-          provenance: ${{ matrix.push_provenance }}
+          sbom: false
+          provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
