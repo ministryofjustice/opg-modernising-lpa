@@ -39,3 +39,5 @@ multi-reporter-config.json
 /logs/*
 /pacts/*
 /coverage/*
+
+SBOM/exports/*
