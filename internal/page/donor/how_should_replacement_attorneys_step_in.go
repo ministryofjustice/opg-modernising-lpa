@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -13,7 +14,7 @@ type howShouldReplacementAttorneysStepInData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *howShouldReplacementAttorneysStepInForm
-	Options actor.ReplacementAttorneysStepInOptions
+	Options donordata.ReplacementAttorneysStepInOptions
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
@@ -24,7 +25,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 				WhenToStepIn: donor.HowShouldReplacementAttorneysStepIn,
 				OtherDetails: donor.HowShouldReplacementAttorneysStepInDetails,
 			},
-			Options: actor.ReplacementAttorneysStepInValues,
+			Options: donordata.ReplacementAttorneysStepInValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -65,7 +66,7 @@ type howShouldReplacementAttorneysStepInForm struct {
 }
 
 func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
-	when, err := actor.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
+	when, err := donordata.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
 
 	return &howShouldReplacementAttorneysStepInForm{
 		WhenToStepIn: when,

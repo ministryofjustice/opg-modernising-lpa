@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -28,7 +29,7 @@ func TestGetLpaType(t *testing.T) {
 		Execute(w, &lpaTypeData{
 			App:     testAppData,
 			Form:    &lpaTypeForm{},
-			Options: actor.LpaTypeValues,
+			Options: donordata.LpaTypeValues,
 		}).
 		Return(nil)
 
@@ -50,7 +51,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 			Form: &lpaTypeForm{
 				LpaType: actor.LpaTypePropertyAndAffairs,
 			},
-			Options: actor.LpaTypeValues,
+			Options: donordata.LpaTypeValues,
 		}).
 		Return(nil)
 

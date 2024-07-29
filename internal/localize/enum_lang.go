@@ -19,9 +19,6 @@ const _Lang_name = "ency"
 var _Lang_index = [...]uint8{0, 2, 4}
 
 func (i Lang) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= Lang(len(_Lang_index)-1) {
 		return "Lang(" + strconv.FormatInt(int64(i+1), 10) + ")"

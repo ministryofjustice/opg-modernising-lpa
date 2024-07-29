@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App:     testAppData,
 			Form:    &howShouldReplacementAttorneysStepInForm{},
-			Options: actor.ReplacementAttorneysStepInValues,
+			Options: donordata.ReplacementAttorneysStepInValues,
 		}).
 		Return(nil)
 
@@ -49,7 +50,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 				WhenToStepIn: actor.ReplacementAttorneysStepInAnotherWay,
 				OtherDetails: "some details",
 			},
-			Options: actor.ReplacementAttorneysStepInValues,
+			Options: donordata.ReplacementAttorneysStepInValues,
 		}).
 		Return(nil)
 
