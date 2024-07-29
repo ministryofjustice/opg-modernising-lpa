@@ -40,4 +40,4 @@ multi-reporter-config.json
 /pacts/*
 /coverage/*
 
-SBOM/exports/*
+scripts/sbom_exporter/exports/*
