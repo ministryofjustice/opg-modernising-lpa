@@ -38,6 +38,7 @@ jobs:
       - name: Download pact
         run: |
           go mod tidy
+          go install github.com/pact-foundation/pact-go/v2
           mkdir -p ~/pact-lib
           pact-go -l DEBUG -d ~/pact-lib install
 
