@@ -48,7 +48,7 @@ describe('Your name', () => {
         it('shows task list button', () => {
             cy.contains('a', 'Return to task list');
             cy.contains('button', 'Save and continue').click();
-            cy.url().should('contain', '/your-details');
+            cy.url().should('contain', '/your-date-of-birth');
         });
 
         it('warns when name shared with other actor', () => {
