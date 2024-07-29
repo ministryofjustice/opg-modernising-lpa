@@ -21,9 +21,6 @@ const _PreviousFee_name = "FullHalfExemptionHardship"
 var _PreviousFee_index = [...]uint8{0, 4, 8, 17, 25}
 
 func (i PreviousFee) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= PreviousFee(len(_PreviousFee_index)-1) {
 		return "PreviousFee(" + strconv.FormatInt(int64(i+1), 10) + ")"

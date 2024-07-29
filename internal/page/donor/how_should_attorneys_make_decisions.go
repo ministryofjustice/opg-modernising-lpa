@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,7 +15,7 @@ type howShouldAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Donor   *actor.DonorProvidedDetails
-	Options actor.AttorneysActOptions
+	Options donordata.AttorneysActOptions
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
@@ -26,7 +27,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 				DecisionsDetails: donor.AttorneyDecisions.Details,
 			},
 			Donor:   donor,
-			Options: actor.AttorneysActValues,
+			Options: donordata.AttorneysActValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -69,7 +70,7 @@ type howShouldAttorneysMakeDecisionsForm struct {
 }
 
 func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel, detailsErrorLabel string) *howShouldAttorneysMakeDecisionsForm {
-	how, err := actor.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
+	how, err := donordata.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
 
 	return &howShouldAttorneysMakeDecisionsForm{
 		DecisionsType:     how,

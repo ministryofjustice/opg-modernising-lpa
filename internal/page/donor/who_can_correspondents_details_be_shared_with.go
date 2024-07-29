@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -13,7 +14,7 @@ type whoCanCorrespondentsDetailsBeSharedWithData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *whoCanCorrespondentsDetailsBeSharedWithForm
-	Options actor.CorrespondentShareOptions
+	Options donordata.CorrespondentShareOptions
 }
 
 func WhoCanCorrespondentsDetailsBeSharedWith(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,7 +24,7 @@ func WhoCanCorrespondentsDetailsBeSharedWith(tmpl template.Template, donorStore 
 			Form: &whoCanCorrespondentsDetailsBeSharedWithForm{
 				Share: donor.Correspondent.Share,
 			},
-			Options: actor.CorrespondentShareValues,
+			Options: donordata.CorrespondentShareValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -53,7 +54,7 @@ type whoCanCorrespondentsDetailsBeSharedWithForm struct {
 
 func readWhoCanCorrespondentsDetailsBeSharedWithForm(r *http.Request) *whoCanCorrespondentsDetailsBeSharedWithForm {
 	r.ParseForm()
-	share, err := actor.ParseCorrespondentShare(r.PostForm["share"])
+	share, err := donordata.ParseCorrespondentShare(r.PostForm["share"])
 
 	return &whoCanCorrespondentsDetailsBeSharedWithForm{
 		Share: share,
