@@ -16,6 +16,7 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -461,7 +462,7 @@ func TestClientServiceContract(t *testing.T) {
 						Attorneys: []Attorney{{UID: uid}},
 					},
 				},
-				&actor.AttorneyProvidedDetails{
+				&attorneydata.Provided{
 					UID:                       uid,
 					Mobile:                    "07777777",
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
@@ -554,11 +555,11 @@ func TestClientServiceContract(t *testing.T) {
 						},
 					},
 				},
-				&actor.AttorneyProvidedDetails{
+				&attorneydata.Provided{
 					UID:                       uid,
 					Mobile:                    "07777777",
 					ContactLanguagePreference: localize.Cy,
-					AuthorisedSignatories: [2]actor.TrustCorporationSignatory{
+					AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{
 						{
 							FirstNames:        "John",
 							LastName:          "Smith",
@@ -794,7 +795,7 @@ func TestClientServiceContract(t *testing.T) {
 				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{
 					"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
-					"status":  matchers.String("processing"),
+					"status":  matchers.Regex("in-progress", "in-progress|processing|cannot-register|statutory-waiting-period|perfect|registered"),
 					"lpaType": matchers.String("personal-welfare"),
 					"channel": matchers.String("online"),
 					"donor": matchers.Like(map[string]any{
@@ -925,7 +926,7 @@ func TestClientServiceContract(t *testing.T) {
 				b.JSONBody(matchers.Map{
 					"lpas": matchers.EachLike(matchers.Map{
 						"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
-						"status":  matchers.String("processing"),
+						"status":  matchers.Regex("in-progress", "in-progress|processing|cannot-register|statutory-waiting-period|perfect|registered"),
 						"lpaType": matchers.String("personal-welfare"),
 						"channel": matchers.String("online"),
 						"donor": matchers.Like(map[string]any{

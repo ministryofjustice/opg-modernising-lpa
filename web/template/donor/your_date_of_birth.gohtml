@@ -1,20 +1,42 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "yourDateOfBirth" }}{{ end }}
+{{ define "pageTitle" }}
+    {{ if .MakingAnotherLPA }}
+        {{ tr .App "yourDateOfBirth" }}
+    {{ else }}
+        {{ tr .App "whatIsYourDateOfBirth" }}
+    {{ end }}
+{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
-                <h1 class="govuk-heading-xl">{{ tr .App "yourDateOfBirth" }}</h1>
+                {{ if .MakingAnotherLPA }}
+                    <h1 class="govuk-heading-xl">{{ tr .App "yourDateOfBirth" }}</h1>
 
-                {{ template "warning" (content .App "yourDateOfBirthWarning") }}
+                    {{ template "warning" (content .App "yourDateOfBirthWarning") }}
 
-                {{ template "date" (input . "date-of-birth" "dateOfBirth" .Form.Dob "hint" "dateOfBirthHint") }}
+                    {{ template "date" (input . "date-of-birth" "dateOfBirth"
+                        .Form.Dob
+                        "hint" "dateOfBirthHint") }}
+                {{ else }}
+                    {{ template "date" (input . "date-of-birth" "whatIsYourDateOfBirth"
+                        .Form.Dob
+                        "heading" true
+                        "hint" "dateOfBirthHint") }}
+                {{ end }}
 
                 {{ template "dob-warning" . }}
 
-                {{ template "continue-button" . }}
+                {{ if .MakingAnotherLPA }}
+                    {{ template "continue-button" . }}
+                {{ else if .CanTaskList }}
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "button" (button .App "saveAndContinue") }}
+                {{ end }}
+                
                 {{ template "csrf-field" . }}
             </form>
         </div>

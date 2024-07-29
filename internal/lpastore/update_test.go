@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -150,12 +151,12 @@ func TestClientSendAttorney(t *testing.T) {
 	uid2, _ := actoruid.Parse("846360af-304f-466b-bda1-df7bc47bbad6")
 
 	testcases := map[string]struct {
-		attorney *actor.AttorneyProvidedDetails
+		attorney *attorneydata.Provided
 		donor    *Lpa
 		json     string
 	}{
 		"attorney": {
-			attorney: &actor.AttorneyProvidedDetails{
+			attorney: &attorneydata.Provided{
 				UID:                       uid2,
 				Mobile:                    "07777",
 				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
@@ -173,7 +174,7 @@ func TestClientSendAttorney(t *testing.T) {
 			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/1/mobile","old":null,"new":"07777"},{"key":"/attorneys/1/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/1/email","old":"a@example.com","new":"b@example.com"},{"key":"/attorneys/1/channel","old":"paper","new":"online"},{"key":"/attorneys/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},
 		"replacement attorney": {
-			attorney: &actor.AttorneyProvidedDetails{
+			attorney: &attorneydata.Provided{
 				UID:                       uid2,
 				IsReplacement:             true,
 				Mobile:                    "07777",
@@ -197,11 +198,11 @@ func TestClientSendAttorney(t *testing.T) {
 			json: `{"type":"ATTORNEY_SIGN","changes":[{"key":"/attorneys/3/mobile","old":null,"new":"07777"},{"key":"/attorneys/3/contactLanguagePreference","old":null,"new":"cy"},{"key":"/attorneys/3/email","old":"a@example.com","new":"b@example.com"},{"key":"/attorneys/3/channel","old":"paper","new":"online"},{"key":"/attorneys/3/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},
 		"trust corporation": {
-			attorney: &actor.AttorneyProvidedDetails{
+			attorney: &attorneydata.Provided{
 				UID:                uid2,
 				IsTrustCorporation: true,
 				Mobile:             "07777",
-				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
+				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
@@ -224,12 +225,12 @@ func TestClientSendAttorney(t *testing.T) {
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/email","old":"","new":"a@example.com"},{"key":"/trustCorporations/0/channel","old":"paper","new":"online"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/trustCorporations/0/signatories/1/firstNames","old":null,"new":"Dave"},{"key":"/trustCorporations/0/signatories/1/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/1/professionalTitle","old":null,"new":"Assistant to the Director"},{"key":"/trustCorporations/0/signatories/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000007Z"}]}`,
 		},
 		"replacement trust corporation": {
-			attorney: &actor.AttorneyProvidedDetails{
+			attorney: &attorneydata.Provided{
 				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
-				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
+				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
@@ -249,12 +250,12 @@ func TestClientSendAttorney(t *testing.T) {
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/1/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/1/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/1/channel","old":"paper","new":"online"},{"key":"/trustCorporations/1/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/1/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/1/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/1/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},
 		"replacement trust corporation when also attorney trust corporation": {
-			attorney: &actor.AttorneyProvidedDetails{
+			attorney: &attorneydata.Provided{
 				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
 				Mobile:             "07777",
-				AuthorisedSignatories: [2]actor.TrustCorporationSignatory{{
+				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",
 					ProfessionalTitle: "Director",
