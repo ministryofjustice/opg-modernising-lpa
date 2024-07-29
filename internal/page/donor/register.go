@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -49,7 +50,7 @@ type GetDonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
 }
 
 type EvidenceReceivedStore interface {
