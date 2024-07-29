@@ -1,0 +1,12 @@
+deployments:
+  environmentMapping:
+    development:
+      - "dev_*"
+      - "weblate"
+    testing:
+      - "demo"
+      - "ur"
+    staging:
+      - "preproduction"
+    production:
+      - "production"
