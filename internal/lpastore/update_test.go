@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -90,7 +91,7 @@ func TestClientSendPerfect(t *testing.T) {
 func TestClientSendCertificateProvider(t *testing.T) {
 	uid, _ := actoruid.Parse("399ce2f7-f3bd-4feb-9207-699ff4d99cbf")
 
-	certificateProvider := &actor.CertificateProviderProvidedDetails{
+	certificateProvider := &certificateproviderdata.Provided{
 		UID: uid,
 		HomeAddress: place.Address{
 			Line1:      "line-1",
@@ -419,7 +420,7 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendCertificateProviderConfirmIdentity(ctx, "lpa-uid", &actor.CertificateProviderProvidedDetails{
+	err := client.SendCertificateProviderConfirmIdentity(ctx, "lpa-uid", &certificateproviderdata.Provided{
 		UID: uid,
 		IdentityUserData: identity.UserData{
 			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),

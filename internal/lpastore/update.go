@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 )
 
 type updateRequest struct {
@@ -69,7 +70,7 @@ func (c *Client) SendPerfect(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
-func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *actor.CertificateProviderProvidedDetails, lpa *Lpa) error {
+func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
@@ -201,7 +202,7 @@ func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *actor.Dono
 	return c.sendUpdate(ctx, donor.LpaUID, donor.Donor.UID, body)
 }
 
-func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *actor.CertificateProviderProvidedDetails) error {
+func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{
