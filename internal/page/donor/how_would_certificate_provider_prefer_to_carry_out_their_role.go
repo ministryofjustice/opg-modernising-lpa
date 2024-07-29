@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,7 +15,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
-	Options             actor.ChannelOptions
+	Options             donordata.ChannelOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
@@ -26,7 +27,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				CarryOutBy: donor.CertificateProvider.CarryOutBy,
 				Email:      donor.CertificateProvider.Email,
 			},
-			Options: actor.ChannelValues,
+			Options: donordata.ChannelValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -56,7 +57,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	channel, err := actor.ParseChannel(page.PostFormString(r, "carry-out-by"))
+	channel, err := donordata.ParseChannel(page.PostFormString(r, "carry-out-by"))
 
 	email := page.PostFormString(r, "email")
 	if channel.IsPaper() {

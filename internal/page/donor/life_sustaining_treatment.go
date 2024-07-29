@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -13,7 +14,7 @@ type lifeSustainingTreatmentData struct {
 	App     page.AppData
 	Errors  validation.List
 	Form    *lifeSustainingTreatmentForm
-	Options actor.LifeSustainingTreatmentOptions
+	Options donordata.LifeSustainingTreatmentOptions
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,7 +24,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 			Form: &lifeSustainingTreatmentForm{
 				Option: donor.LifeSustainingTreatmentOption,
 			},
-			Options: actor.LifeSustainingTreatmentValues,
+			Options: donordata.LifeSustainingTreatmentValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -51,7 +52,7 @@ type lifeSustainingTreatmentForm struct {
 }
 
 func readLifeSustainingTreatmentForm(r *http.Request) *lifeSustainingTreatmentForm {
-	option, err := actor.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
+	option, err := donordata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
 
 	return &lifeSustainingTreatmentForm{
 		Option: option,

@@ -1,10 +1,11 @@
 package actor
 
-//go:generate enumerator -type ReplacementAttorneysStepIn -linecomment -trimprefix -empty
-type ReplacementAttorneysStepIn uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
+type ReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepIn
 
 const (
-	ReplacementAttorneysStepInWhenAllCanNoLongerAct ReplacementAttorneysStepIn = iota + 1 // all-can-no-longer-act
-	ReplacementAttorneysStepInWhenOneCanNoLongerAct                                       // one-can-no-longer-act
-	ReplacementAttorneysStepInAnotherWay                                                  // another-way
+	ReplacementAttorneysStepInWhenAllCanNoLongerAct = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+	ReplacementAttorneysStepInWhenOneCanNoLongerAct = donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct
+	ReplacementAttorneysStepInAnotherWay            = donordata.ReplacementAttorneysStepInAnotherWay
 )

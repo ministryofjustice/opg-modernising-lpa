@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,7 +15,7 @@ type whenCanTheLpaBeUsedData struct {
 	Errors  validation.List
 	Donor   *actor.DonorProvidedDetails
 	Form    *whenCanTheLpaBeUsedForm
-	Options actor.CanBeUsedWhenOptions
+	Options donordata.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
@@ -25,7 +26,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 			Form: &whenCanTheLpaBeUsedForm{
 				When: donor.WhenCanTheLpaBeUsed,
 			},
-			Options: actor.CanBeUsedWhenValues,
+			Options: donordata.CanBeUsedWhenValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -53,7 +54,7 @@ type whenCanTheLpaBeUsedForm struct {
 }
 
 func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
-	when, err := actor.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
+	when, err := donordata.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
 
 	return &whenCanTheLpaBeUsedForm{
 		When:  when,

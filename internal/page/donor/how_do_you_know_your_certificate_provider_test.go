@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,7 +25,7 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		Execute(w, &howDoYouKnowYourCertificateProviderData{
 			App:     testAppData,
 			Form:    &howDoYouKnowYourCertificateProviderForm{},
-			Options: actor.CertificateProviderRelationshipValues,
+			Options: donordata.CertificateProviderRelationshipValues,
 		}).
 		Return(nil)
 
@@ -49,7 +50,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			Form:                &howDoYouKnowYourCertificateProviderForm{How: actor.Personally},
-			Options:             actor.CertificateProviderRelationshipValues,
+			Options:             donordata.CertificateProviderRelationshipValues,
 		}).
 		Return(nil)
 

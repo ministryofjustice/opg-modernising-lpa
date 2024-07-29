@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,7 +25,7 @@ func TestGetHowLongHaveYouKnownCertificateProvider(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
-			Options: actor.CertificateProviderRelationshipLengthValues,
+			Options: donordata.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 
@@ -47,7 +48,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
 			RelationshipLength:  actor.GreaterThanEqualToTwoYears,
-			Options:             actor.CertificateProviderRelationshipLengthValues,
+			Options:             donordata.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 
@@ -66,7 +67,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 	template.EXPECT().
 		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
-			Options: actor.CertificateProviderRelationshipLengthValues,
+			Options: donordata.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(expectedError)
 
@@ -156,7 +157,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:     testAppData,
 			Errors:  validation.With("relationship-length", validation.SelectError{Label: "howLongYouHaveKnownCertificateProvider"}),
-			Options: actor.CertificateProviderRelationshipLengthValues,
+			Options: donordata.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
 

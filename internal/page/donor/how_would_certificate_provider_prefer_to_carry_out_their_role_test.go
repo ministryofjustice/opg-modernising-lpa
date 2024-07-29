@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.ChannelValues,
+			Options: donordata.ChannelValues,
 		}).
 		Return(nil)
 
@@ -44,7 +45,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 			App:                 testAppData,
 			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.ChannelPaper},
-			Options:             actor.ChannelValues,
+			Options:             donordata.ChannelValues,
 		}).
 		Return(nil)
 
@@ -66,7 +67,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: actor.ChannelValues,
+			Options: donordata.ChannelValues,
 		}).
 		Return(expectedError)
 
