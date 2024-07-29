@@ -32,5 +32,8 @@
         "cypress-parallel": "^0.14.0",
         "cypress-real-events": "^1.8.1",
         "stop-only": "^3.3.2"
+    },
+    "engines": {
+        "node": "20.16.0"
     }
 }
