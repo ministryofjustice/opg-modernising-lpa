@@ -10,7 +10,7 @@ describe('Choose attorneys task', () => {
   it('is in progress if I start adding an attorney', () => {
     cy.visit('/fixtures?redirect=/task-list');
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
@@ -30,7 +30,7 @@ describe('Choose attorneys task', () => {
   it('is completed if enter an attorneys details using address', () => {
     cy.visit('/fixtures?redirect=/task-list');
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.get('#f-first-names').type('John');
     cy.get('#f-last-name').type('Doe');
@@ -61,7 +61,7 @@ describe('Choose attorneys task', () => {
   it('is in progress if I enter multiple attorneys details', () => {
     cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
@@ -84,7 +84,7 @@ describe('Choose attorneys task', () => {
   it('is completed if I enter multiple attorneys details with how they act', () => {
     cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
@@ -114,7 +114,7 @@ describe('Choose attorneys task', () => {
   it('is completed if I enter multiple attorneys details when jointly', () => {
     cy.visit('/fixtures?redirect=/task-list&progress=chooseYourAttorneys&attorneys=single');
     cy.contains('a', 'Choose your attorneys').click();
-    cy.contains('a', 'Continue').click();
+    cy.contains('button', 'Continue').click();
 
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
