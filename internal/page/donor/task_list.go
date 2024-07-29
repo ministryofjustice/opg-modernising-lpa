@@ -40,6 +40,16 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			return err
 		}
 
+		chooseAttorneysLink := page.Paths.ChooseAttorneysGuidance.Format(donor.LpaID)
+		if donor.Attorneys.Len() > 0 {
+			chooseAttorneysLink = page.Paths.ChooseAttorneysSummary.Format(donor.LpaID)
+		}
+
+		chooseReplacementAttorneysLink := page.Paths.DoYouWantReplacementAttorneys.Format(donor.LpaID)
+		if donor.ReplacementAttorneys.Len() > 0 {
+			chooseReplacementAttorneysLink = page.Paths.ChooseReplacementAttorneysSummary.Format(donor.LpaID)
+		}
+
 		section1 := taskListSection{
 			Heading: "fillInTheLpa",
 			Items: []taskListItem{
@@ -50,13 +60,13 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 				},
 				{
 					Name:  "chooseYourAttorneys",
-					Path:  page.Paths.ChooseAttorneysGuidance.Format(donor.LpaID),
+					Path:  chooseAttorneysLink,
 					State: donor.Tasks.ChooseAttorneys,
 					Count: donor.Attorneys.Len(),
 				},
 				{
 					Name:  "chooseYourReplacementAttorneys",
-					Path:  page.Paths.DoYouWantReplacementAttorneys.Format(donor.LpaID),
+					Path:  chooseReplacementAttorneysLink,
 					State: donor.Tasks.ChooseReplacementAttorneys,
 					Count: donor.ReplacementAttorneys.Len(),
 				},

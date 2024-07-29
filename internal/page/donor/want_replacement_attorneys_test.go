@@ -29,7 +29,7 @@ func TestGetWantReplacementAttorneys(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -63,7 +63,7 @@ func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{WantReplacementAttorneys: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -79,7 +79,7 @@ func TestGetWantReplacementAttorneysWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -94,14 +94,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 		existingReplacementAttorneys actor.Attorneys
 		expectedReplacementAttorneys actor.Attorneys
 		taskState                    actor.TaskState
-		redirect                     page.LpaPath
+		redirect                     string
 	}{
 		"yes": {
 			yesNo:                        form.Yes,
 			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 			expectedReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
 			taskState:                    actor.TaskInProgress,
-			redirect:                     page.Paths.ChooseReplacementAttorneys,
+			redirect:                     page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 		},
 		"no": {
 			yesNo: form.No,
@@ -111,7 +111,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			}},
 			expectedReplacementAttorneys: actor.Attorneys{},
 			taskState:                    actor.TaskCompleted,
-			redirect:                     page.Paths.TaskList,
+			redirect:                     page.Paths.TaskList.Format("lpa-id"),
 		},
 	}
 
@@ -135,7 +135,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := WantReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.existingReplacementAttorneys,
 				Tasks:                actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
@@ -144,7 +144,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
 		})
 	}
 }
@@ -163,7 +163,7 @@ func TestPostWantReplacementAttorneysWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WantReplacementAttorneys(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WantReplacementAttorneys(nil, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -180,7 +180,7 @@ func TestPostWantReplacementAttorneysWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WantReplacementAttorneys(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
