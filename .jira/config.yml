@@ -6,6 +6,7 @@ deployments:
     testing:
       - "demo"
       - "ur"
+      - "test"
     staging:
       - "preproduction"
     production:
