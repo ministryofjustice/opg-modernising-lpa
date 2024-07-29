@@ -13,7 +13,7 @@ COPY --link internal ./internal
 RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received
 RUN zip event-received.zip event-received
 
-FROM localstack/localstack:3.5.0 as localstack
+FROM localstack/localstack:3.6.0 as localstack
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 
