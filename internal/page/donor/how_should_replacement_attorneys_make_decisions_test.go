@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
-			Options: actor.AttorneysActValues,
+			Options: donordata.AttorneysActValues,
 			Donor:   &actor.DonorProvidedDetails{},
 		}).
 		Return(nil)
@@ -47,7 +48,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsType:    actor.Jointly,
 				DecisionsDetails: "some decisions",
 			},
-			Options: actor.AttorneysActValues,
+			Options: donordata.AttorneysActValues,
 			Donor:   &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
 		}).
 		Return(nil)
