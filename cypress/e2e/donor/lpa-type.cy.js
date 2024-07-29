@@ -6,7 +6,7 @@ describe('LPA type', () => {
 
     cy.checkA11yApp();
 
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
     cy.url().should('contain', '/task-list');
 
     cy.url().then((url) => {
@@ -30,7 +30,7 @@ describe('LPA type', () => {
   it('errors when unselected', () => {
     cy.visit('/fixtures?redirect=/lpa-type');
 
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.get('.govuk-error-summary').within(() => {
       cy.contains('Select the type of LPA to make');
