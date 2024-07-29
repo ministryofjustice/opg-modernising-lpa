@@ -23,16 +23,13 @@ describe('Error pages', () => {
     });
 
     it('shows for invalid CSRF tokens', () => {
-        cy.visit('/fixtures?redirect=/your-details');
+        cy.visit('/fixtures?redirect=/your-name');
         cy.clearCookie('csrf');
 
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
 
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
 
         cy.contains('Sorry, there is a problem with the service');
     });

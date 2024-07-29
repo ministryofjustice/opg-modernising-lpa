@@ -37,6 +37,12 @@ make up
 make run-cypress
 ```
 
+Cypress is run locally rather than in docker. To ensure version parity of nodeJS use a version manager, such as asdf, to parse `.tool-versions`:
+
+```shell
+asdf install
+```
+
 ### Local development
 
 To run the app in dev mode on amd64/intel:
