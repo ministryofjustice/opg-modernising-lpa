@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 		Execute(w, &lifeSustainingTreatmentData{
 			App:     testAppData,
 			Form:    &lifeSustainingTreatmentForm{},
-			Options: actor.LifeSustainingTreatmentValues,
+			Options: donordata.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 
@@ -45,7 +46,7 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 			Form: &lifeSustainingTreatmentForm{
 				Option: actor.LifeSustainingTreatmentOptionA,
 			},
-			Options: actor.LifeSustainingTreatmentValues,
+			Options: donordata.LifeSustainingTreatmentValues,
 		}).
 		Return(nil)
 

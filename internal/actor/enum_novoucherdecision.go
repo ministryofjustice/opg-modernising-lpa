@@ -21,9 +21,6 @@ const _NoVoucherDecision_name = "prove-own-idselect-new-voucherwithdraw-lpaapply
 var _NoVoucherDecision_index = [...]uint8{0, 12, 30, 42, 54}
 
 func (i NoVoucherDecision) String() string {
-	if i == 0 {
-		return ""
-	}
 	i -= 1
 	if i >= NoVoucherDecision(len(_NoVoucherDecision_index)-1) {
 		return "NoVoucherDecision(" + strconv.FormatInt(int64(i+1), 10) + ")"

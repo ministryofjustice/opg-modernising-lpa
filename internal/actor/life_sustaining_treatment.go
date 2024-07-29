@@ -1,9 +1,10 @@
 package actor
 
-//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
-type LifeSustainingTreatment uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
+type LifeSustainingTreatment = donordata.LifeSustainingTreatment
 
 const (
-	LifeSustainingTreatmentOptionA LifeSustainingTreatment = iota + 1 // option-a
-	LifeSustainingTreatmentOptionB                                    // option-b
+	LifeSustainingTreatmentOptionA = donordata.LifeSustainingTreatmentOptionA
+	LifeSustainingTreatmentOptionB = donordata.LifeSustainingTreatmentOptionB
 )

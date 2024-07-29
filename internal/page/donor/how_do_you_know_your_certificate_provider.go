@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -15,7 +16,7 @@ type howDoYouKnowYourCertificateProviderData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	Form                *howDoYouKnowYourCertificateProviderForm
-	Options             actor.CertificateProviderRelationshipOptions
+	Options             donordata.CertificateProviderRelationshipOptions
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
@@ -26,7 +27,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 			Form: &howDoYouKnowYourCertificateProviderForm{
 				How: donor.CertificateProvider.Relationship,
 			},
-			Options: actor.CertificateProviderRelationshipValues,
+			Options: donordata.CertificateProviderRelationshipValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -67,7 +68,7 @@ type howDoYouKnowYourCertificateProviderForm struct {
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
-	how, err := actor.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
+	how, err := donordata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
 
 	return &howDoYouKnowYourCertificateProviderForm{
 		How:   how,

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 		Execute(w, &whoCanCorrespondentsDetailsBeSharedWithData{
 			App:     testAppData,
 			Form:    &whoCanCorrespondentsDetailsBeSharedWithForm{},
-			Options: actor.CorrespondentShareValues,
+			Options: donordata.CorrespondentShareValues,
 		}).
 		Return(nil)
 
@@ -45,7 +46,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithFromStore(t *testing.T) {
 			Form: &whoCanCorrespondentsDetailsBeSharedWithForm{
 				Share: actor.CorrespondentShareAttorneys,
 			},
-			Options: actor.CorrespondentShareValues,
+			Options: donordata.CorrespondentShareValues,
 		}).
 		Return(nil)
 
