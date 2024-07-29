@@ -34,6 +34,8 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 			MakingAnotherLPA: r.FormValue("makingAnotherLPA") == "1",
 		}
 
+		data.App.CanGoBack = data.CanTaskList || data.MakingAnotherLPA
+
 		if r.Method == http.MethodPost {
 			data.Form = readYourNameForm(r)
 			data.Errors = data.Form.Validate()
@@ -57,7 +59,7 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 						return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 					}
 
-					return page.Paths.YourDetails.Redirect(w, r, appData, donor)
+					return page.Paths.YourDateOfBirth.Redirect(w, r, appData, donor)
 				}
 
 				if appData.SupporterData == nil {
