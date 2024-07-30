@@ -1,0 +1,45 @@
+name: "[WD] Export Software Bill of Materials (SBOM)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Tag to export SBOM for'
+        required: true
+        type: string
+        default: 'latest'
+
+permissions:
+  id-token: write
+  contents: write
+  security-events: write
+  pull-requests: none
+  actions: none
+  checks: none
+  deployments: none
+  issues: none
+  packages: none
+  repository-projects: none
+  statuses: none
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  export_sbom:
+    name: Export Software Bill of Materials (SBOM) for ${{ inputs.image_tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsExportSBOM
+      - name: Request and Download SBO Export for ${{ inputs.image_tag }}
+        working-directory: scripts/sbom_exporter
+        id: export_and_download_sbom
+        run: |
+          ./export_ecr_image_sbom.sh modernising-lpa ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json
