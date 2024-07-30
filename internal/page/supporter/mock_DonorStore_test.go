@@ -5,8 +5,7 @@ package supporter
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 
 	mock "github.com/stretchr/testify/mock"
@@ -75,23 +74,23 @@ func (_c *mockDonorStore_DeleteDonorAccess_Call) RunAndReturn(run func(context.C
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *mockDonorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) Get(ctx context.Context) (*donordata.DonorProvidedDetails, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *actor.DonorProvidedDetails
+	var r0 *donordata.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.DonorProvidedDetails, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.DonorProvidedDetails); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.DonorProvidedDetails)
 		}
 	}
 
@@ -122,34 +121,34 @@ func (_c *mockDonorStore_Get_Call) Run(run func(ctx context.Context)) *mockDonor
 	return _c
 }
 
-func (_c *mockDonorStore_Get_Call) Return(_a0 *actor.DonorProvidedDetails, _a1 error) *mockDonorStore_Get_Call {
+func (_c *mockDonorStore_Get_Call) Return(_a0 *donordata.DonorProvidedDetails, _a1 error) *mockDonorStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.DonorProvidedDetails, error)) *mockDonorStore_Get_Call {
+func (_c *mockDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*donordata.DonorProvidedDetails, error)) *mockDonorStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByKeys provides a mock function with given fields: ctx, keys
-func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.DonorProvidedDetails, error) {
 	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByKeys")
 	}
 
-	var r0 []actor.DonorProvidedDetails
+	var r0 []donordata.DonorProvidedDetails
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)); ok {
 		return rf(ctx, keys)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []donordata.DonorProvidedDetails); ok {
 		r0 = rf(ctx, keys)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]actor.DonorProvidedDetails)
+			r0 = ret.Get(0).([]donordata.DonorProvidedDetails)
 		}
 	}
 
@@ -181,18 +180,18 @@ func (_c *mockDonorStore_GetByKeys_Call) Run(run func(ctx context.Context, keys 
 	return _c
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) Return(_a0 []actor.DonorProvidedDetails, _a1 error) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) Return(_a0 []donordata.DonorProvidedDetails, _a1 error) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]actor.DonorProvidedDetails, error)) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, donor
-func (_m *mockDonorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (_m *mockDonorStore) Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, donor)
 
 	if len(ret) == 0 {
@@ -200,7 +199,7 @@ func (_m *mockDonorStore) Put(ctx context.Context, donor *actor.DonorProvidedDet
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -216,14 +215,14 @@ type mockDonorStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *actor.DonorProvidedDetails
+//   - donor *donordata.DonorProvidedDetails
 func (_e *mockDonorStore_Expecter) Put(ctx interface{}, donor interface{}) *mockDonorStore_Put_Call {
 	return &mockDonorStore_Put_Call{Call: _e.mock.On("Put", ctx, donor)}
 }
 
-func (_c *mockDonorStore_Put_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) Run(run func(ctx context.Context, donor *donordata.DonorProvidedDetails)) *mockDonorStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails))
 	})
 	return _c
 }
@@ -233,7 +232,7 @@ func (_c *mockDonorStore_Put_Call) Return(_a0 error) *mockDonorStore_Put_Call {
 	return _c
 }
 
-func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails) error) *mockDonorStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }
