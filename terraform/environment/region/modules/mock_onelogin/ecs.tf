@@ -172,7 +172,7 @@ locals {
         },
         {
           name  = "CLIENT_ID",
-          value = "37iOvkzc5BIRKsFSu5l3reZmFlA"
+          value = "kr4jYy8X1CovT5KvhbwXb_DoMFo"
         },
         {
           name  = "REDIRECT_URL",
