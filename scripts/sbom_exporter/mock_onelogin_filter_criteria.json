@@ -1,0 +1,14 @@
+{
+  "ecrImageTags": [
+      {
+          "comparison": "EQUALS",
+          "value": "latest"
+      }
+  ],
+  "ecrRepositoryName": [
+      {
+        "comparison": "EQUALS",
+        "value": "mock-onelogin"
+      }
+  ]
+}
