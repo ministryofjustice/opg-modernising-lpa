@@ -85,7 +85,7 @@ type CredentialBirthDate struct {
 }
 
 type credentialAddress struct {
-	UPRN                           string `json:"uprn"`
+	UPRN                           int    `json:"uprn"`
 	SubBuildingName                string `json:"subBuildingName"`
 	BuildingName                   string `json:"buildingName"`
 	BuildingNumber                 string `json:"buildingNumber"`
