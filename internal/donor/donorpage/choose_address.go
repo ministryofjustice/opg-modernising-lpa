@@ -39,6 +39,7 @@ type chooseAddressData struct {
 	Form             *form.AddressForm
 	TitleKeys        titleKeys
 	MakingAnotherLPA bool
+	CanTaskList      bool
 }
 
 type titleKeys struct {

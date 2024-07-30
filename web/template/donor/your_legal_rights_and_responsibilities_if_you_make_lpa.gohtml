@@ -9,9 +9,11 @@
 
             {{ trHtml .App "yourLegalRightsAndResponsibilitiesIfYouMakeLpaContent" }}
 
-            <a href="{{ link .App (global.Paths.LpaType.Format .App.LpaID) }}" class="govuk-button" data-module="govuk-button">
-                {{ tr .App "continue" }}
-            </a>
+            {{ if .Donor.Type.Empty }}
+                {{ template "button" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
+            {{ else }}
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaType.Format .App.LpaID)) }}
+            {{ end }}
         </div>
     </div>
 {{ end }}
