@@ -41,3 +41,4 @@ multi-reporter-config.json
 /coverage/*
 
 scripts/sbom_exporter/exports/*
+scripts/sbom_exporter/tmp.*.json

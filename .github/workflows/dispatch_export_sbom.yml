@@ -30,6 +30,8 @@ jobs:
     name: Export Software Bill of Materials (SBOM) for ${{ inputs.image_tag }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: unfor19/install-aws-cli-action@v1
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
