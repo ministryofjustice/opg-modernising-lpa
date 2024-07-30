@@ -53,7 +53,7 @@ describe('Dashboard', () => {
 
         cy.contains('a', 'Continue').click()
         cy.get('#f-lpa-type').check('property-and-affairs');
-        cy.contains('button', 'Continue').click();
+        cy.contains('button', 'Save and continue').click();
         cy.contains('You are drafting John Doe’s property and affairs LPA').should('not.exist');
 
         cy.contains('li', 'Provide your details').click();
