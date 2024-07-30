@@ -39,9 +39,9 @@ while true; do
     if [ "$STATUS" != "IN_PROGRESS" ]; then
         echo "Final response:"
         echo $RESPONSE | jq -C
-        mkdir -p exports/$IMAGE_TAG
+        mkdir -p exports/$SERVICE_NAME/$IMAGE_TAG
         echo "downloading SBOMs from S3..."
-        aws s3 cp s3://opg-aws-inspector-sbom/$SERVICE_NAME/$IMAGE_TAG/SPDX_2_3_outputs_$REPORT_ID/account=$ACCOUNT_ID/resource=AWS_ECR_CONTAINER_IMAGE/ ./exports/$IMAGE_TAG --recursive
+        aws s3 cp s3://opg-aws-inspector-sbom/$SERVICE_NAME/$IMAGE_TAG/SPDX_2_3_outputs_$REPORT_ID/account=$ACCOUNT_ID/resource=AWS_ECR_CONTAINER_IMAGE/ ./exports/$SERVICE_NAME/$IMAGE_TAG --recursive
         break
     fi
 

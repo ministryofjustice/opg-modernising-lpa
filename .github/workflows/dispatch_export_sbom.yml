@@ -39,8 +39,19 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-sbom-export
           role-duration-seconds: 900
           role-session-name: GithubActionsExportSBOM
-      - name: Request and Download SBO Export for ${{ inputs.image_tag }}
+      - name: Request and Download SBO Export for modernising-lpa ${{ inputs.image_tag }}
         working-directory: scripts/sbom_exporter
-        id: export_and_download_sbom
+        id: export_and_download_modernising_lpa_sbom
         run: |
           ./export_ecr_image_sbom.sh modernising-lpa ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json
+      - name: Request and Download SBO Export for mock-onelogin ${{ inputs.image_tag }}
+        working-directory: scripts/sbom_exporter
+        id: export_and_download_mock_onelogin_sbom
+        run: |
+          ./export_ecr_image_sbom.sh mock-onelogin latest mock_onelogin_filter_criteria.json
+      - name: Upload SBOMs as a Github artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: modernising-lpa-sbom-${{ inputs.image_tag }}
+          path: '${{ github.workspace }}/exports/*/*.json'
+          retention-days: 20 # 90 is the default
