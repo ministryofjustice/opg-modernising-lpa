@@ -7,7 +7,6 @@ on:
         description: 'Tag to export SBOM for'
         required: true
         type: string
-        default: 'latest'
 
 permissions:
   id-token: write
