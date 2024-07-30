@@ -119,6 +119,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         if: inputs.skip != true
+        with:
+          node-version-file: "package.json"
 
       - name: Install dependencies
         if: inputs.skip != true

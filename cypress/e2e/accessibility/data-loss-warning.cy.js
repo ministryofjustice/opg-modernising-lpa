@@ -1,7 +1,8 @@
 describe('Data loss warnings', () => {
     describe('Return to task list', () => {
         it('locks focus to data loss warning dialog', () => {
-            cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
+            cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
+            cy.contains('button', 'Continue').click()
 
             cy.get('#f-first-names').type('John');
             cy.contains('a', 'Return to task list').click()
@@ -60,7 +61,8 @@ describe('Data loss warnings', () => {
 
     describe('Change language', () => {
         it('locks focus to data loss warning dialog', () => {
-            cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
+            cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
+            cy.contains('button', 'Continue').click()
 
             cy.get('#f-first-names').type('John');
             cy.contains('a', 'Cymraeg').click()

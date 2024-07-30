@@ -1,10 +1,11 @@
 package actor
 
-//go:generate enumerator -type YesNoMaybe -linecomment -empty
-type YesNoMaybe uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
+type YesNoMaybe = donordata.YesNoMaybe
 
 const (
-	Yes YesNoMaybe = iota + 1
-	No
-	Maybe
+	Yes   = donordata.Yes
+	No    = donordata.No
+	Maybe = donordata.Maybe
 )

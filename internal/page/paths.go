@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 )
 
 type Path string
@@ -173,7 +174,7 @@ func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-func (p CertificateProviderPath) canVisit(certificateProvider *actor.CertificateProviderProvidedDetails) bool {
+func (p CertificateProviderPath) canVisit(certificateProvider *certificateproviderdata.Provided) bool {
 	switch p {
 	case Paths.CertificateProvider.ProveYourIdentity,
 		Paths.CertificateProvider.IdentityWithOneLogin,
@@ -693,7 +694,7 @@ func DonorCanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
 	return true
 }
 
-func CertificateProviderCanGoTo(certificateProvider *actor.CertificateProviderProvidedDetails, url string) bool {
+func CertificateProviderCanGoTo(certificateProvider *certificateproviderdata.Provided, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false

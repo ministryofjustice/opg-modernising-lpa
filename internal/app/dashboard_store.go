@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -191,7 +192,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		if isCertificateProviderKey(ks) {
-			certificateProviderProvidedDetails := &actor.CertificateProviderProvidedDetails{}
+			certificateProviderProvidedDetails := &certificateproviderdata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, certificateProviderProvidedDetails); err != nil {
 				return nil, nil, nil, err
 			}

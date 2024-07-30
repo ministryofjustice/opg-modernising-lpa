@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('What is your home address', () => {
     beforeEach(() => {
