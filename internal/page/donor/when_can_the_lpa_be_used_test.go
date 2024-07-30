@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 			App:     testAppData,
 			Donor:   &actor.DonorProvidedDetails{},
 			Form:    &whenCanTheLpaBeUsedForm{},
-			Options: actor.CanBeUsedWhenValues,
+			Options: donordata.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
@@ -47,7 +48,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 			Form: &whenCanTheLpaBeUsedForm{
 				When: actor.CanBeUsedWhenHasCapacity,
 			},
-			Options: actor.CanBeUsedWhenValues,
+			Options: donordata.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 

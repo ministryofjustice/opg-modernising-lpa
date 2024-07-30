@@ -1,10 +1,11 @@
 package actor
 
-//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix
-type CanBeUsedWhen uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
+type CanBeUsedWhen = donordata.CanBeUsedWhen
 
 const (
-	CanBeUsedWhenUnknown      CanBeUsedWhen = iota
-	CanBeUsedWhenCapacityLost               // when-capacity-lost
-	CanBeUsedWhenHasCapacity                // when-has-capacity
+	CanBeUsedWhenUnknown      = donordata.CanBeUsedWhenUnknown
+	CanBeUsedWhenCapacityLost = donordata.CanBeUsedWhenCapacityLost
+	CanBeUsedWhenHasCapacity  = donordata.CanBeUsedWhenHasCapacity
 )

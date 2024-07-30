@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,7 +15,7 @@ type howLongHaveYouKnownCertificateProviderData struct {
 	Errors              validation.List
 	CertificateProvider actor.CertificateProvider
 	RelationshipLength  actor.CertificateProviderRelationshipLength
-	Options             actor.CertificateProviderRelationshipLengthOptions
+	Options             donordata.CertificateProviderRelationshipLengthOptions
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
@@ -23,7 +24,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
 			RelationshipLength:  donor.CertificateProvider.RelationshipLength,
-			Options:             actor.CertificateProviderRelationshipLengthValues,
+			Options:             donordata.CertificateProviderRelationshipLengthValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -54,7 +55,7 @@ type howLongHaveYouKnownCertificateProviderForm struct {
 }
 
 func readHowLongHaveYouKnownCertificateProviderForm(r *http.Request) *howLongHaveYouKnownCertificateProviderForm {
-	relationshipLength, err := actor.ParseCertificateProviderRelationshipLength(page.PostFormString(r, "relationship-length"))
+	relationshipLength, err := donordata.ParseCertificateProviderRelationshipLength(page.PostFormString(r, "relationship-length"))
 
 	return &howLongHaveYouKnownCertificateProviderForm{
 		RelationshipLength: relationshipLength,

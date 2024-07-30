@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -49,7 +50,7 @@ type GetDonorStore interface {
 }
 
 type CertificateProviderStore interface {
-	GetAny(ctx context.Context) (*actor.CertificateProviderProvidedDetails, error)
+	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
 }
 
 type EvidenceReceivedStore interface {
@@ -225,9 +226,9 @@ func Register(
 		TaskList(tmpls.Get("task_list.gohtml"), evidenceReceivedStore))
 
 	handleWithDonor(page.Paths.ChooseAttorneysGuidance, page.None,
-		Guidance(tmpls.Get("choose_attorneys_guidance.gohtml")))
+		ChooseAttorneysGuidance(tmpls.Get("choose_attorneys_guidance.gohtml"), actoruid.New))
 	handleWithDonor(page.Paths.ChooseAttorneys, page.CanGoBack,
-		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore, actoruid.New))
+		ChooseAttorneys(tmpls.Get("choose_attorneys.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChooseAttorneysAddress, page.CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterTrustCorporation, page.CanGoBack,
@@ -235,7 +236,7 @@ func Register(
 	handleWithDonor(page.Paths.EnterTrustCorporationAddress, page.CanGoBack,
 		EnterTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.ChooseAttorneysSummary, page.CanGoBack,
-		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml")))
+		ChooseAttorneysSummary(tmpls.Get("choose_attorneys_summary.gohtml"), actoruid.New))
 	handleWithDonor(page.Paths.RemoveAttorney, page.CanGoBack,
 		RemoveAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(page.Paths.RemoveTrustCorporation, page.CanGoBack,
@@ -248,9 +249,9 @@ func Register(
 		Guidance(tmpls.Get("because_you_have_chosen_jointly_for_some_severally_for_others.gohtml")))
 
 	handleWithDonor(page.Paths.DoYouWantReplacementAttorneys, page.None,
-		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore))
+		WantReplacementAttorneys(tmpls.Get("do_you_want_replacement_attorneys.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneys, page.CanGoBack,
-		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore, actoruid.New))
+		ChooseReplacementAttorneys(tmpls.Get("choose_replacement_attorneys.gohtml"), donorStore))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.EnterReplacementTrustCorporation, page.CanGoBack,
@@ -258,7 +259,7 @@ func Register(
 	handleWithDonor(page.Paths.EnterReplacementTrustCorporationAddress, page.CanGoBack,
 		EnterReplacementTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(page.Paths.ChooseReplacementAttorneysSummary, page.CanGoBack,
-		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml")))
+		ChooseReplacementAttorneysSummary(tmpls.Get("choose_replacement_attorneys_summary.gohtml"), actoruid.New))
 	handleWithDonor(page.Paths.RemoveReplacementAttorney, page.CanGoBack,
 		RemoveReplacementAttorney(tmpls.Get("remove_attorney.gohtml"), donorStore))
 	handleWithDonor(page.Paths.RemoveReplacementTrustCorporation, page.CanGoBack,

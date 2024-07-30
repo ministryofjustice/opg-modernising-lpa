@@ -2,7 +2,8 @@ import { TestEmail } from "../../support/e2e";
 
 describe('Choose attorneys', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/choose-attorneys');
+        cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
+        cy.contains('button', 'Continue').click();
     });
 
     it('can be submitted', () => {
@@ -85,8 +86,6 @@ describe('Choose attorneys', () => {
     });
 
     it('warns when name shared with other actor', () => {
-        cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
-
         cy.get('#f-first-names').type('Sam');
         cy.get('#f-last-name').type('Smith');
         cy.get('#f-date-of-birth').type('1');
@@ -102,31 +101,27 @@ describe('Choose attorneys', () => {
     });
 
     it('permanently warns when date of birth is under 18', () => {
-        cy.visit('/fixtures?redirect=/choose-replacement-attorneys&progress=provideYourDetails');
-
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
         cy.get('#f-date-of-birth-month').type('2');
         cy.get('#f-date-of-birth-year').type(new Date().getFullYear() - 1);
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/choose-attorneys');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
 
         cy.contains('button', 'Save and continue').click();
-        cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.url().should('contain', '/choose-attorneys-address');
 
-        cy.visitLpa("/choose-replacement-attorneys-summary")
+        cy.visitLpa("/choose-attorneys-summary")
         cy.contains('a', 'Change').click()
-        cy.url().should('contain', '/choose-replacement-attorneys');
+        cy.url().should('contain', '/choose-attorneys');
 
         cy.contains('This attorney is under 18 years old. You can continue making your LPA but you will not be able to sign it until they are 18.');
     });
 
     it('warns when date of birth is over 100', () => {
-        cy.visit('/fixtures?redirect=/choose-attorneys&progress=provideYourDetails');
-
         cy.get('#f-first-names').type('John');
         cy.get('#f-last-name').type('Doe');
         cy.get('#f-date-of-birth').type('1');
@@ -139,5 +134,14 @@ describe('Choose attorneys', () => {
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-attorneys-address');
+
+        // TODO workout why cypress with later versions of node breaks when using back links
+        // cy.contains('a', 'Back').click()
+        // cy.url().should('contain', '/choose-attorneys');
+        //
+        // cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
+        // cy.contains('button', 'Save and continue').click();
+        //
+        // cy.url().should('contain', '/choose-attorneys-address');
     });
 });

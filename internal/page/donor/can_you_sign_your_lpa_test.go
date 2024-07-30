@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,7 +25,7 @@ func TestGetCanYouSignYourLpa(t *testing.T) {
 		On("Execute", w, &canYouSignYourLpaData{
 			App:               testAppData,
 			Form:              &canYouSignYourLpaForm{},
-			YesNoMaybeOptions: actor.YesNoMaybeValues,
+			YesNoMaybeOptions: donordata.YesNoMaybeValues,
 		}).
 		Return(nil)
 
