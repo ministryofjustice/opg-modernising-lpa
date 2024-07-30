@@ -42,4 +42,4 @@ jobs:
         working-directory: scripts/sbom_exporter
         id: export_and_download_sbom
         run: |
-          ./export_ecr_image_sbom.sh ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json
+          ./export_ecr_image_sbom.sh modernising-lpa ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json

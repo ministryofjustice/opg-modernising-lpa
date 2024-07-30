@@ -2,14 +2,15 @@
 set -e
 
 # Check if both arguments are provided
-if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: $0 <image_tag> <filter_criteria_file>"
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+  echo "Usage: $0 <service_name> <image_tag> <filter_criteria_file>"
   exit 1
 fi
 
 # Use the provided arguments
 IMAGE_TAG=$1
 FILTER_CRITERIA_FILE=$2
+SERVICE_NAME=$3
 ACCOUNT_ID=311462405659
 
 echo "Using image tag: $IMAGE_TAG"
@@ -23,7 +24,7 @@ REQUEST=$(aws-vault exec management-operator -- \
     aws inspector2 create-sbom-export \
     --report-format SPDX_2_3 \
     --resource-filter-criteria file://tmp.$$.json \
-    --s3-destination bucketName=opg-aws-inspector-sbom,keyPrefix=$IMAGE_TAG,kmsKeyArn=arn:aws:kms:eu-west-1:311462405659:key/mrk-1899eeb57e6045d1a85310e1edda47c9)
+    --s3-destination bucketName=opg-aws-inspector-sbom,keyPrefix=$SERVICE_NAME/$IMAGE_TAG,kmsKeyArn=arn:aws:kms:eu-west-1:311462405659:key/mrk-1899eeb57e6045d1a85310e1edda47c9)
 
 rm tmp.$$.json
 
@@ -42,7 +43,7 @@ while true; do
         mkdir -p exports/$IMAGE_TAG
         echo "downloading SBOMs from S3..."
         aws-vault exec management-operator -- \
-            aws s3 cp s3://opg-aws-inspector-sbom/$IMAGE_TAG/SPDX_2_3_outputs_$REPORT_ID/account=$ACCOUNT_ID/resource=AWS_ECR_CONTAINER_IMAGE/ ./exports/$IMAGE_TAG --recursive
+            aws s3 cp s3://opg-aws-inspector-sbom/$SERVICE_NAME/$IMAGE_TAG/SPDX_2_3_outputs_$REPORT_ID/account=$ACCOUNT_ID/resource=AWS_ECR_CONTAINER_IMAGE/ ./exports/$IMAGE_TAG --recursive
         break
     fi
 
