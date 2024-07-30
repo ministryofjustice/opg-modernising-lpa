@@ -12,6 +12,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
+type EventClient interface {
+	SendUidRequested(context.Context, event.UidRequested) error
+	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
+	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
+	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
+}
+
 type documentStore struct {
 	dynamoClient DynamoClient
 	s3Client     S3Client

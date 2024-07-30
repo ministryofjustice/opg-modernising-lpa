@@ -5,8 +5,7 @@ package donorpage
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	mock "github.com/stretchr/testify/mock"
 
 	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,7 +25,7 @@ func (_m *mockDocumentStore) EXPECT() *mockDocumentStore_Expecter {
 }
 
 // Create provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *mockDocumentStore) Create(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 string, _a3 []byte) (page.Document, error) {
+func (_m *mockDocumentStore) Create(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 string, _a3 []byte) (page.Document, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
@@ -35,16 +34,16 @@ func (_m *mockDocumentStore) Create(_a0 context.Context, _a1 *actor.DonorProvide
 
 	var r0 page.Document
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, string, []byte) (page.Document, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails, string, []byte) (page.Document, error)); ok {
 		return rf(_a0, _a1, _a2, _a3)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, string, []byte) page.Document); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails, string, []byte) page.Document); ok {
 		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Get(0).(page.Document)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *actor.DonorProvidedDetails, string, []byte) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *donordata.DonorProvidedDetails, string, []byte) error); ok {
 		r1 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r1 = ret.Error(1)
@@ -60,16 +59,16 @@ type mockDocumentStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *actor.DonorProvidedDetails
+//   - _a1 *donordata.DonorProvidedDetails
 //   - _a2 string
 //   - _a3 []byte
 func (_e *mockDocumentStore_Expecter) Create(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockDocumentStore_Create_Call {
 	return &mockDocumentStore_Create_Call{Call: _e.mock.On("Create", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *mockDocumentStore_Create_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 string, _a3 []byte)) *mockDocumentStore_Create_Call {
+func (_c *mockDocumentStore_Create_Call) Run(run func(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 string, _a3 []byte)) *mockDocumentStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails), args[2].(string), args[3].([]byte))
+		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails), args[2].(string), args[3].([]byte))
 	})
 	return _c
 }
@@ -79,7 +78,7 @@ func (_c *mockDocumentStore_Create_Call) Return(_a0 page.Document, _a1 error) *m
 	return _c
 }
 
-func (_c *mockDocumentStore_Create_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails, string, []byte) (page.Document, error)) *mockDocumentStore_Create_Call {
+func (_c *mockDocumentStore_Create_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails, string, []byte) (page.Document, error)) *mockDocumentStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -284,7 +283,7 @@ func (_c *mockDocumentStore_Put_Call) RunAndReturn(run func(context.Context, pag
 }
 
 // Submit provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockDocumentStore) Submit(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Documents) error {
+func (_m *mockDocumentStore) Submit(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Documents) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -292,7 +291,7 @@ func (_m *mockDocumentStore) Submit(_a0 context.Context, _a1 *actor.DonorProvide
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails, page.Documents) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails, page.Documents) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -308,15 +307,15 @@ type mockDocumentStore_Submit_Call struct {
 
 // Submit is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *actor.DonorProvidedDetails
+//   - _a1 *donordata.DonorProvidedDetails
 //   - _a2 page.Documents
 func (_e *mockDocumentStore_Expecter) Submit(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockDocumentStore_Submit_Call {
 	return &mockDocumentStore_Submit_Call{Call: _e.mock.On("Submit", _a0, _a1, _a2)}
 }
 
-func (_c *mockDocumentStore_Submit_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails, _a2 page.Documents)) *mockDocumentStore_Submit_Call {
+func (_c *mockDocumentStore_Submit_Call) Run(run func(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Documents)) *mockDocumentStore_Submit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails), args[2].(page.Documents))
+		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails), args[2].(page.Documents))
 	})
 	return _c
 }
@@ -326,7 +325,7 @@ func (_c *mockDocumentStore_Submit_Call) Return(_a0 error) *mockDocumentStore_Su
 	return _c
 }
 
-func (_c *mockDocumentStore_Submit_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails, page.Documents) error) *mockDocumentStore_Submit_Call {
+func (_c *mockDocumentStore_Submit_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails, page.Documents) error) *mockDocumentStore_Submit_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/opensearch-project/opensearch-go/v4"
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 	requestsigner "github.com/opensearch-project/opensearch-go/v4/signer/awsv2"
@@ -230,7 +230,7 @@ func baseQuery(sk string) map[string]map[string]any {
 }
 
 func getSKFromContext(ctx context.Context) (string, error) {
-	session, err := page.SessionDataFromContext(ctx)
+	session, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return "", err
 	}
