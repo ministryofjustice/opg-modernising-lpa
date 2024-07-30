@@ -8,9 +8,9 @@ if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
 fi
 
 # Use the provided arguments
-IMAGE_TAG=$1
-FILTER_CRITERIA_FILE=$2
-SERVICE_NAME=$3
+SERVICE_NAME=$1
+IMAGE_TAG=$2
+FILTER_CRITERIA_FILE=$3
 ACCOUNT_ID=311462405659
 
 echo "Using image tag: $IMAGE_TAG"
