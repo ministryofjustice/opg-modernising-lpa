@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -22,7 +23,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -205,7 +205,7 @@ func App(
 		appPublicURL,
 	)
 
-	donor.Register(
+	donorpage.Register(
 		rootMux,
 		logger,
 		donorTmpls,
