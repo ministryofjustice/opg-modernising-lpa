@@ -46,7 +46,7 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 						return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
 					}
 
-					return page.Paths.YourDetails.Redirect(w, r, appData, donor)
+					return page.Paths.YourAddress.Redirect(w, r, appData, donor)
 				}
 
 				donor.Donor.DateOfBirth = data.Form.Dob
