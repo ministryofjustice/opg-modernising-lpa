@@ -1244,5 +1244,6 @@
     "whatIsYourName": "What is your name?",
     "canYouSignTheLpaYourselfOnline": "Can you sign the LPA yourself online?",
     "whatIsYourEmailOptional": "What is your email address? (optional)",
-    "someOfTheseDetailsCanNoLongerBeChanged": "Some of these details can no longer be changed because they have been successfully matched with your confirmed identity details."
+    "someOfTheseDetailsCanNoLongerBeChanged": "Some of these details can no longer be changed because they have been successfully matched with your confirmed identity details.",
+    "whichFeeTypeYouAreApplyingFor": "which fee type you are applying for"
 }
