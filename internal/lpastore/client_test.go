@@ -796,7 +796,7 @@ func TestClientServiceContract(t *testing.T) {
 				// b.Header("Content-Type", matchers.String("application/json"))
 				b.JSONBody(matchers.Map{
 					"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
-					"status":  matchers.Regex("in-progress", "in-progress|processing|cannot-register|statutory-waiting-period|perfect|registered"),
+					"status":  matchers.Regex("in-progress", "in-progress|cannot-register|statutory-waiting-period|registered"),
 					"lpaType": matchers.String("personal-welfare"),
 					"channel": matchers.String("online"),
 					"donor": matchers.Like(map[string]any{
@@ -927,7 +927,7 @@ func TestClientServiceContract(t *testing.T) {
 				b.JSONBody(matchers.Map{
 					"lpas": matchers.EachLike(matchers.Map{
 						"uid":     matchers.Regex("M-0000-1111-2222", "M(-[A-Z0-9]{4}){3}"),
-						"status":  matchers.Regex("in-progress", "in-progress|processing|cannot-register|statutory-waiting-period|perfect|registered"),
+						"status":  matchers.Regex("in-progress", "in-progress|cannot-register|statutory-waiting-period|registered"),
 						"lpaType": matchers.String("personal-welfare"),
 						"channel": matchers.String("online"),
 						"donor": matchers.Like(map[string]any{
