@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -29,7 +30,7 @@ func TestUserInfo(t *testing.T) {
 		CoreIdentityJWT: "a jwt",
 		Addresses: []credentialAddress{
 			{
-				UPRN:                           10022812929,
+				UPRN:                           json.Number("10022812929"),
 				SubBuildingName:                "FLAT 5",
 				BuildingName:                   "WEST LEA",
 				BuildingNumber:                 "16",
@@ -43,7 +44,7 @@ func TestUserInfo(t *testing.T) {
 				ValidFrom:                      "2022-01-01",
 			},
 			{
-				UPRN:                     10002345923,
+				UPRN:                     json.Number("10002345923"),
 				BuildingName:             "SAWLEY MARINA",
 				StreetName:               "INGWORTH ROAD",
 				DependentAddressLocality: "LONG EATON",
@@ -298,7 +299,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			userInfo := UserInfo{
 				CoreIdentityJWT: tc.token,
 				Addresses: []credentialAddress{{
-					UPRN:           456,
+					UPRN:           json.Number("456"),
 					BuildingNumber: "2",
 					StreetName:     "Fake Road",
 					PostalCode:     "B14 7ED",
@@ -306,7 +307,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					ValidFrom:      "2019-01-01",
 					ValidUntil:     "2019-31-12",
 				}, {
-					UPRN:           123,
+					UPRN:           json.Number("123"),
 					BuildingNumber: "1",
 					StreetName:     "Fake Road",
 					PostalCode:     "B14 7ED",
@@ -365,7 +366,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 	}{
 		"building number no building name": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "",
 				BuildingNumber:           "1",
 				StreetName:               "MELTON ROAD",
@@ -377,7 +378,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name no building number": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "1A",
 				BuildingNumber:           "",
 				StreetName:               "MELTON ROAD",
@@ -389,7 +390,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name and building number": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "2",
 				StreetName:               "MELTON ROAD",
@@ -401,7 +402,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building number": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "",
 				BuildingNumber:           "3",
 				StreetName:               "MELTON ROAD",
@@ -413,7 +414,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building name": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "",
 				StreetName:               "MELTON ROAD",
@@ -425,7 +426,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building name and building number": {
 			ca: credentialAddress{
-				UPRN:                     123,
+				UPRN:                     json.Number("123"),
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "5",
 				StreetName:               "MELTON ROAD",
@@ -437,7 +438,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name and sub building name": {
 			ca: credentialAddress{
-				UPRN:            123,
+				UPRN:            json.Number("123"),
 				SubBuildingName: "APARTMENT 34",
 				BuildingName:    "CHARLES HOUSE",
 				StreetName:      "PARK ROW",
