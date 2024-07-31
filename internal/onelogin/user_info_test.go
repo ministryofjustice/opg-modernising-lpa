@@ -1,14 +1,13 @@
 package onelogin
 
 import (
-	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,9 +20,74 @@ import (
 )
 
 func TestUserInfo(t *testing.T) {
-	expectedUserInfo := UserInfo{Email: "email@example.com"}
+	expectedUserInfo := UserInfo{
+		Sub:             "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
+		Email:           "email@example.com",
+		EmailVerified:   true,
+		Phone:           "01406946277",
+		PhoneVerified:   true,
+		CoreIdentityJWT: "a jwt",
+		Addresses: []credentialAddress{
+			{
+				UPRN:                           10022812929,
+				SubBuildingName:                "FLAT 5",
+				BuildingName:                   "WEST LEA",
+				BuildingNumber:                 "16",
+				DependentStreetName:            "KINGS PARK",
+				StreetName:                     "HIGH STREET",
+				DoubleDependentAddressLocality: "EREWASH",
+				DependentAddressLocality:       "LONG EATON",
+				AddressLocality:                "GREAT MISSENDEN",
+				PostalCode:                     "HP16 0AL",
+				AddressCountry:                 "GB",
+				ValidFrom:                      "2022-01-01",
+			},
+			{
+				UPRN:                     10002345923,
+				BuildingName:             "SAWLEY MARINA",
+				StreetName:               "INGWORTH ROAD",
+				DependentAddressLocality: "LONG EATON",
+				AddressLocality:          "NOTTINGHAM",
+				PostalCode:               "BH12 1JY",
+				AddressCountry:           "GB",
+				ValidUntil:               "2022-01-01",
+			},
+		},
+	}
 
-	data, _ := json.Marshal(expectedUserInfo)
+	body := `{  "sub": "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
+  "email": "email@example.com",
+  "email_verified": true,
+  "phone": "01406946277",
+  "phone_verified": true,
+  "https://vocab.account.gov.uk/v1/coreIdentityJWT": "a jwt",
+  "https://vocab.account.gov.uk/v1/address": [
+    {
+      "uprn": 10022812929,
+      "subBuildingName": "FLAT 5",
+      "buildingName": "WEST LEA",
+      "buildingNumber": "16",
+      "dependentStreetName": "KINGS PARK",
+      "streetName": "HIGH STREET",
+      "doubleDependentAddressLocality": "EREWASH",
+      "dependentAddressLocality": "LONG EATON",
+      "addressLocality": "GREAT MISSENDEN",
+      "postalCode": "HP16 0AL",
+      "addressCountry": "GB",
+      "validFrom": "2022-01-01"
+    },
+    {
+      "uprn": 10002345923,
+      "buildingName": "SAWLEY MARINA",
+      "streetName": "INGWORTH ROAD",
+      "dependentAddressLocality": "LONG EATON",
+      "addressLocality": "NOTTINGHAM",
+      "postalCode": "BH12 1JY",
+      "addressCountry": "GB",
+      "validUntil": "2022-01-01"
+    }
+  ]
+}`
 
 	httpClient := newMockDoer(t)
 	httpClient.EXPECT().
@@ -34,7 +98,7 @@ func TestUserInfo(t *testing.T) {
 		})).
 		Return(&http.Response{
 			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(bytes.NewReader(data)),
+			Body:       io.NopCloser(strings.NewReader(body)),
 		}, nil)
 
 	c := &Client{
@@ -234,6 +298,15 @@ func TestParseIdentityClaim(t *testing.T) {
 			userInfo := UserInfo{
 				CoreIdentityJWT: tc.token,
 				Addresses: []credentialAddress{{
+					UPRN:           456,
+					BuildingNumber: "2",
+					StreetName:     "Fake Road",
+					PostalCode:     "B14 7ED",
+					AddressCountry: "GB",
+					ValidFrom:      "2019-01-01",
+					ValidUntil:     "2019-31-12",
+				}, {
+					UPRN:           123,
 					BuildingNumber: "1",
 					StreetName:     "Fake Road",
 					PostalCode:     "B14 7ED",
@@ -292,6 +365,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 	}{
 		"building number no building name": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "",
 				BuildingNumber:           "1",
 				StreetName:               "MELTON ROAD",
@@ -303,6 +377,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name no building number": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "1A",
 				BuildingNumber:           "",
 				StreetName:               "MELTON ROAD",
@@ -314,6 +389,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name and building number": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "2",
 				StreetName:               "MELTON ROAD",
@@ -325,6 +401,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building number": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "",
 				BuildingNumber:           "3",
 				StreetName:               "MELTON ROAD",
@@ -336,6 +413,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building name": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "",
 				StreetName:               "MELTON ROAD",
@@ -347,6 +425,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"dependent locality building name and building number": {
 			ca: credentialAddress{
+				UPRN:                     123,
 				BuildingName:             "MELTON HOUSE",
 				BuildingNumber:           "5",
 				StreetName:               "MELTON ROAD",
@@ -358,6 +437,7 @@ func TestCredentialAddressTransformToAddress(t *testing.T) {
 		},
 		"building name and sub building name": {
 			ca: credentialAddress{
+				UPRN:            123,
 				SubBuildingName: "APARTMENT 34",
 				BuildingName:    "CHARLES HOUSE",
 				StreetName:      "PARK ROW",
