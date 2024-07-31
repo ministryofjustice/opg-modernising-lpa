@@ -43,7 +43,7 @@ while true; do
         echo "downloading SBOMs from S3..."
         aws s3 cp s3://opg-aws-inspector-sbom/$SERVICE_NAME/$IMAGE_TAG/SPDX_2_3_outputs_$REPORT_ID/account=$ACCOUNT_ID/resource=AWS_ECR_CONTAINER_IMAGE/ ./exports/$SERVICE_NAME/$IMAGE_TAG --recursive
         echo "replacing : with - ..."
-        for f in exports/$SERVICE_NAME/$IMAGE_TAG/*.json; do mv -v -- "$f" "$(echo "$f" | tr ':' '-')"; done
+        for f in exports/$SERVICE_NAME/$IMAGE_TAG/*.json; do mv -- "$f" "$(echo "$f" | tr ':' '-')"; done
         break
     fi
     echo "Status is $STATUS. Retrying in 10 seconds..."
