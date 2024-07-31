@@ -51,4 +51,4 @@ jobs:
         with:
           name: modernising-lpa-sbom-${{ inputs.image_tag }}
           path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
-          retention-days: 20 # 90 is the default
+          retention-days: 20
