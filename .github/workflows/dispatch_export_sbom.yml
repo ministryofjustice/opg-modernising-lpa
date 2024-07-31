@@ -51,6 +51,7 @@ jobs:
         run: |
           ./export_ecr_image_sbom.sh mock-onelogin latest mock_onelogin_filter_criteria.json
       - name: Upload SBOMs as a Github artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: modernising-lpa-sbom-${{ inputs.image_tag }}
