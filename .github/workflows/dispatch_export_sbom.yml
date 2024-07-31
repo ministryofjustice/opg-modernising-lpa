@@ -59,3 +59,7 @@ jobs:
           name: ${{ matrix.service }}-sbom-${{ matrix.image_tag }}
           path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
           retention-days: 20 # 90 is the default
+      - name: Put download URL in summary
+        if: always()
+        run: |
+          echo "Download ${{ matrix.service }} ${{ matrix.image_tag }} SBOMs from: ${{ steps.export_and_download_sbom.outputs.download_url }}" >> $GITHUB_STEP_SUMMARY
