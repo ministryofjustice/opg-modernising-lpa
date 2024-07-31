@@ -51,11 +51,11 @@ jobs:
         working-directory: scripts/sbom_exporter
         id: export_and_download_sbom
         run: |
-          ./export_ecr_image_sbom.sh ${ matrix.service }} ${{ matrix.image_tag }} ${{ matrix.filter_criteria }}
+          ./export_ecr_image_sbom.sh ${{ matrix.service }} ${{ matrix.image_tag }} ${{ matrix.filter_criteria }}
       - name: Upload SBOMs as a Github artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${ matrix.service }}-sbom-${{ matrix.image_tag }}
+          name: ${{ matrix.service }}-sbom-${{ matrix.image_tag }}
           path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
           retention-days: 20 # 90 is the default
