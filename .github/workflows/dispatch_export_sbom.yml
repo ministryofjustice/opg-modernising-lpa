@@ -28,14 +28,7 @@ defaults:
 jobs:
 
   export_sbom:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - service: modernising-lpa
-            image_tag: ${{ inputs.image_tag }}
-            filter_criteria: modernising_lpa_filter_criteria.json
-    name: Export Software Bill of Materials (SBOM) for ${{ matrix.image_tag }}
+    name: Export Software Bill of Materials (SBOM) for modernising-lpa ${{ inputs.image_tag }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,19 +40,15 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-sbom-export
           role-duration-seconds: 900
           role-session-name: GithubActionsExportSBOM
-      - name: Request and Download SBOM Export for ${{ matrix.service }} ${{ matrix.image_tag }}
+      - name: Request and Download SBOM Export for modernising-lpa ${{ inputs.image_tag }}
         working-directory: scripts/sbom_exporter
         id: export_and_download_sbom
         run: |
-          ./export_ecr_image_sbom.sh ${{ matrix.service }} ${{ matrix.image_tag }} ${{ matrix.filter_criteria }}
+          ./export_ecr_image_sbom.sh modernising-lpa ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json
       - name: Upload SBOMs as a Github artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.service }}-sbom-${{ matrix.image_tag }}
+          name: modernising-lpa-sbom-${{ inputs.image_tag }}
           path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
           retention-days: 20 # 90 is the default
-      - name: Put download URL in summary
-        if: always()
-        run: |
-          echo "Download ${{ matrix.service }} ${{ matrix.image_tag }} SBOMs from: ${{ steps.export_and_download_sbom.outputs.download_url }}" >> $GITHUB_STEP_SUMMARY
