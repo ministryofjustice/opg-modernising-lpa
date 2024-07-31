@@ -55,7 +55,7 @@ describe('Choose attorneys summary', () => {
     cy.url().should('match', /id=\w*/);
 
     cy.get('#f-address-line-1').clear().type('1 RICHMOND PLACE');
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-attorneys-summary');
 
@@ -94,7 +94,7 @@ describe('Choose attorneys summary', () => {
 
     cy.url().should('contain', '/choose-attorneys-address');
     cy.get('#f-address-line-1').should('have.value', '5 RICHMOND PLACE');
-    cy.contains('button', 'Continue').click();
+    cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-attorneys-summary');
 

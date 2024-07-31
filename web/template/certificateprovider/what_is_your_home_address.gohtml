@@ -26,9 +26,9 @@
                         {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
                         {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
 
-                        <button name="{{ .Form.FieldNames.Action }}" value="manual" class="govuk-button govuk-!-margin-top-6" data-module="govuk-button">
-                            {{ tr .App "continue" }}
-                        </button>
+
+                        {{ template "buttons" (button .App "saveAndContinue") }}
+                        <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="manual" />
 
                     {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
                         <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
@@ -52,10 +52,9 @@
                             </a>
                         </p>
 
-                        <div class="govuk-button-group">
-                            <button name="{{ .Form.FieldNames.Action }}" value="postcode-select" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
-                            <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-                        </div>
+                        {{ template "buttons" (button .App "continue") }}
+                        <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-select" />
+
                     {{ else }}
                         <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
 
@@ -75,10 +74,8 @@
 
                         <div class="govuk-inset-text">{{ tr .App "yourHomeAddressWillNotBeShown" }}</div>
 
-                        <div class="govuk-button-group">
-                            <button name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" class="govuk-button" data-module="govuk-button">{{ tr .App "findAddress" }}</button>
-                            <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-                        </div>
+                        {{ template "button" (button .App "findAddress") }}
+                        <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" />
                     {{ end }}
                 </fieldset>
 
