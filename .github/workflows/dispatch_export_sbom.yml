@@ -44,6 +44,7 @@ jobs:
         id: export_and_download_modernising_lpa_sbom
         run: |
           ./export_ecr_image_sbom.sh modernising-lpa ${{ inputs.image_tag }} modernising_lpa_filter_criteria.json
+          pwd
       # - name: Request and Download SBO Export for mock-onelogin ${{ inputs.image_tag }}
       #   working-directory: scripts/sbom_exporter
       #   id: export_and_download_mock_onelogin_sbom
@@ -53,5 +54,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: modernising-lpa-sbom-${{ inputs.image_tag }}
-          path: '${{ github.workspace }}/exports/**/*.json'
+          path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
           retention-days: 20 # 90 is the default
