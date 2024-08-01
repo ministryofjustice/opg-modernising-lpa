@@ -15,11 +15,11 @@ type addCorrespondentData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.DonorProvidedDetails
 }
 
 func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &addCorrespondentData{
 			App:   appData,
 			Donor: donor,

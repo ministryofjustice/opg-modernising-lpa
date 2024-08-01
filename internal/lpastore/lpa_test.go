@@ -34,14 +34,14 @@ func TestClientSendLpa(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *actor.DonorProvidedDetails
+		donor *donordata.DonorProvidedDetails
 		json  string
 	}{
 		"minimal": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.DonorProvidedDetails{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePropertyAndAffairs,
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -96,10 +96,10 @@ func TestClientSendLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.DonorProvidedDetails{
 				LpaUID: "M-0000-1111-2222",
 				Type:   actor.LpaTypePersonalWelfare,
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -317,7 +317,7 @@ func TestClientSendLpa(t *testing.T) {
 
 func TestClientSendLpaWhenNewRequestError(t *testing.T) {
 	client := New("http://base", nil, nil)
-	err := client.SendLpa(nil, &actor.DonorProvidedDetails{})
+	err := client.SendLpa(nil, &donordata.DonorProvidedDetails{})
 
 	assert.NotNil(t, err)
 }
@@ -331,7 +331,7 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 		Return("", expectedError)
 
 	client := New("http://base", secretsClient, nil)
-	err := client.SendLpa(ctx, &actor.DonorProvidedDetails{})
+	err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -350,7 +350,7 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := New("http://base", secretsClient, doer)
-	err := client.SendLpa(ctx, &actor.DonorProvidedDetails{})
+	err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -376,7 +376,7 @@ func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
 				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
 			client := New("http://base", secretsClient, doer)
-			err := client.SendLpa(ctx, &actor.DonorProvidedDetails{})
+			err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
 
 			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
 		})

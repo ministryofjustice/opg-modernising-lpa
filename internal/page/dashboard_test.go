@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -134,7 +134,7 @@ func TestPostDashboard(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Create(r.Context()).
-				Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+				Return(&donordata.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
 
 			err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 			resp := w.Result()
@@ -153,7 +153,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Create(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "123"}, expectedError)
+		Return(&donordata.DonorProvidedDetails{LpaID: "123"}, expectedError)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()

@@ -121,8 +121,8 @@ func makeTrustCorporation(name string) donordata.TrustCorporation {
 	}
 }
 
-func makeDonor(email string) actor.Donor {
-	return actor.Donor{
+func makeDonor(email string) donordata.Donor {
+	return donordata.Donor{
 		UID:        actoruid.New(),
 		FirstNames: "Sam",
 		LastName:   "Smith",

@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -28,7 +29,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -39,15 +40,15 @@ type Logger interface {
 }
 
 type DonorStore interface {
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Latest(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	Get(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	Latest(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
 	Delete(ctx context.Context) error
 	Link(ctx context.Context, data actor.ShareCodeData, donorEmail string) error
 }
 
 type GetDonorStore interface {
-	Get(context.Context) (*actor.DonorProvidedDetails, error)
+	Get(context.Context) (*donordata.DonorProvidedDetails, error)
 }
 
 type CertificateProviderStore interface {
@@ -75,7 +76,7 @@ type AddressClient interface {
 
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderPrompt(context.Context, page.AppData, *donordata.DonorProvidedDetails) error
 }
 
 type OneLoginClient interface {
@@ -101,8 +102,8 @@ type SessionStore interface {
 }
 
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
-	SendToIndependentWitness(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
+	SendToCertificateProvider(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
+	SendToIndependentWitness(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
 }
 
 type UidClient interface {
@@ -122,8 +123,8 @@ type DocumentStore interface {
 	Put(context.Context, page.Document) error
 	Delete(context.Context, page.Document) error
 	DeleteInfectedDocuments(context.Context, page.Documents) error
-	Create(context.Context, *actor.DonorProvidedDetails, string, []byte) (page.Document, error)
-	Submit(context.Context, *actor.DonorProvidedDetails, page.Documents) error
+	Create(context.Context, *donordata.DonorProvidedDetails, string, []byte) (page.Document, error)
+	Submit(context.Context, *donordata.DonorProvidedDetails, page.Documents) error
 }
 
 type EventClient interface {
@@ -140,8 +141,8 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
-	SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error
-	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, details *donordata.DonorProvidedDetails) error
 }
 
 type ShareCodeStore interface {

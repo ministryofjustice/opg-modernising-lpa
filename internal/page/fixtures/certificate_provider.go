@@ -83,11 +83,11 @@ func CertificateProvider(
 			return err
 		}
 
-		var donorDetails *actor.DonorProvidedDetails
+		var donorDetails *donordata.DonorProvidedDetails
 
 		if donorChannel == "paper" {
 			lpaID := random.UuidString()
-			donorDetails = &actor.DonorProvidedDetails{
+			donorDetails = &donordata.DonorProvidedDetails{
 				PK:                             dynamo.LpaKey(lpaID),
 				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                          lpaID,

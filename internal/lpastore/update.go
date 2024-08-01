@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -191,7 +190,7 @@ func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID strin
 	return c.sendUpdate(ctx, lpaUID, actorUID, body)
 }
 
-func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
 	body := updateRequest{
 		Type: "DONOR_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{

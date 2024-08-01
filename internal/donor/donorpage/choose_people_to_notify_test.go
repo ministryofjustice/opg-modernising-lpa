@@ -28,7 +28,7 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,7 +41,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{
 			{
@@ -71,7 +71,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -117,7 +117,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := ChoosePeopleToNotify(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChoosePeopleToNotify(nil, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:          "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
@@ -168,17 +168,17 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:          "lpa-id",
-					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+					Donor:          donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
-					Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
+					Tasks:          donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
 
@@ -202,18 +202,18 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			PeopleToNotify: actor.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
 				UID:        uid,
 			}},
-			Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
+			Tasks: donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		PeopleToNotify: actor.PeopleToNotify{{
 			FirstNames: "John",
@@ -278,8 +278,8 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
-				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
 
@@ -304,7 +304,7 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -369,8 +369,8 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 
 func TestPersonToNotifyMatches(t *testing.T) {
 	uid := actoruid.New()
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
@@ -399,8 +399,8 @@ func TestPersonToNotifyMatches(t *testing.T) {
 
 func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
 	uid := actoruid.New()
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "", LastName: ""},
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "", LastName: ""},
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},

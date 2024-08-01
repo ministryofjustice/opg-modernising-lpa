@@ -9,8 +9,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -28,7 +28,7 @@ type LambdaClient interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, donor *donordata.DonorProvidedDetails) error
 	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
 }
 
@@ -38,7 +38,7 @@ type SecretsClient interface {
 
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderPrompt(context.Context, page.AppData, *donordata.DonorProvidedDetails) error
 	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
 }
 

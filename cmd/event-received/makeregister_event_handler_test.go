@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -61,8 +62,8 @@ func TestHandleUidRequested(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
-				Donor:     actor.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
+			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{
+				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
 				Type:      actor.LpaTypePersonalWelfare,
 				CreatedAt: testNow,
 				LpaUID:    "M-1111-2222-3333",
@@ -170,7 +171,7 @@ func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{})
+			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})

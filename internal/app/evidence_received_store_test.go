@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +50,7 @@ func TestEvidenceReceivedStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &donordata.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 

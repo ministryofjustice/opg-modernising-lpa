@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -21,7 +20,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -39,7 +38,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -55,9 +54,9 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
-		Donor:                 actor.Donor{CanSign: form.Yes},
+		Donor:                 donordata.Donor{CanSign: form.Yes},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
 	}
@@ -79,9 +78,9 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
-		Donor:                 actor.Donor{CanSign: form.No},
+		Donor:                 donordata.Donor{CanSign: form.No},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
 	}
@@ -91,9 +90,9 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		SendToCertificateProvider(r.Context(), donor, mock.Anything).
 		Return(nil)
 	witnessCodeSender.EXPECT().
-		SendToIndependentWitness(r.Context(), &actor.DonorProvidedDetails{
+		SendToIndependentWitness(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
-			Donor:                 actor.Donor{CanSign: form.No},
+			Donor:                 donordata.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
 		}, mock.Anything).
@@ -102,9 +101,9 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&donordata.DonorProvidedDetails{
 			LpaID:                 "lpa-id",
-			Donor:                 actor.Donor{CanSign: form.No},
+			Donor:                 donordata.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
 		}, nil)
@@ -118,7 +117,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 }
 
 func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{Donor: actor.Donor{CanSign: form.No}, CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.DonorProvidedDetails{Donor: donordata.Donor{CanSign: form.No}, CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	testcases := map[string]struct {
 		setupWitnessCodeSender func(witnessCodeSender *mockWitnessCodeSender)

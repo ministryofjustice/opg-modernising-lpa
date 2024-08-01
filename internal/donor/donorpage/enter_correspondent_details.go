@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -19,7 +20,7 @@ type enterCorrespondentDetailsData struct {
 }
 
 func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
 			Form: &enterCorrespondentDetailsForm{
@@ -79,7 +80,7 @@ type enterCorrespondentDetailsForm struct {
 	DonorFullName   string
 }
 
-func readEnterCorrespondentDetailsForm(r *http.Request, donor actor.Donor) *enterCorrespondentDetailsForm {
+func readEnterCorrespondentDetailsForm(r *http.Request, donor donordata.Donor) *enterCorrespondentDetailsForm {
 	email := page.PostFormString(r, "email")
 
 	return &enterCorrespondentDetailsForm{

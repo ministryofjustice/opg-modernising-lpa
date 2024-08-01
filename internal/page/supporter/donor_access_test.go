@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ import (
 )
 
 func TestGetDonorAccess(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{Donor: actor.Donor{Email: "x"}}
+	donor := &donordata.DonorProvidedDetails{Donor: donordata.Donor{Email: "x"}}
 	shareCodeData := actor.ShareCodeData{PK: dynamo.ShareKey(dynamo.DonorShareKey("1"))}
 
 	testcases := map[string]struct {
@@ -80,7 +81,7 @@ func TestGetDonorAccessWhenDonorStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+		Return(&donordata.DonorProvidedDetails{}, expectedError)
 
 	err := DonorAccess(nil, nil, donorStore, nil, nil, "", nil)(testLpaAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
@@ -93,7 +94,7 @@ func TestGetDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&donordata.DonorProvidedDetails{}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -116,14 +117,14 @@ func TestPostDonorAccess(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{
+		Return(&donordata.DonorProvidedDetails{
 			Type:  actor.LpaTypePropertyAndAffairs,
-			Donor: actor.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
+			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
 		}, nil)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			Type:  actor.LpaTypePropertyAndAffairs,
-			Donor: actor.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
+			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
 		}).
 		Return(nil)
 
@@ -176,7 +177,7 @@ func TestPostDonorAccessWhenDonorUpdateErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&donordata.DonorProvidedDetails{}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
@@ -200,7 +201,7 @@ func TestPostDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{Email: "email@example.com"}}, nil)
+		Return(&donordata.DonorProvidedDetails{Donor: donordata.Donor{Email: "email@example.com"}}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -224,7 +225,7 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{Donor: actor.Donor{Email: "email@example.com"}}, nil)
+		Return(&donordata.DonorProvidedDetails{Donor: donordata.Donor{Email: "email@example.com"}}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -259,7 +260,7 @@ func TestPostDonorAccessWhenValidationError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&donordata.DonorProvidedDetails{}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -292,7 +293,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&donordata.DonorProvidedDetails{}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -322,7 +323,7 @@ func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, nil)
+		Return(&donordata.DonorProvidedDetails{}, nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -397,7 +398,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
+	donor := &donordata.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -438,7 +439,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
+	donor := &donordata.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -464,7 +465,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 		GetDonor(mock.Anything).
 		Return(actor.ShareCodeData{}, nil)
 
-	donor := &actor.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
+	donor := &donordata.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

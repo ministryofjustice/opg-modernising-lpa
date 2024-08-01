@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -26,11 +26,11 @@ func TestGetLpaDetailsSaved(t *testing.T) {
 				Execute(w, LpaDetailsSavedData{
 					App:          testAppData,
 					IsFirstCheck: expectedIsFirstCheck,
-					Donor:        &actor.DonorProvidedDetails{},
+					Donor:        &donordata.DonorProvidedDetails{},
 				}).
 				Return(nil)
 
-			err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetLpaDetailsSavedOnTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

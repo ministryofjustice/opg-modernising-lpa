@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,7 +17,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	updateDonor := func(donor *actor.DonorProvidedDetails) {
+	updateDonor := func(donor *donordata.DonorProvidedDetails) {
 		donor.Attorneys.TrustCorporation = donordata.TrustCorporation{}
 		if donor.Attorneys.Len() == 1 {
 			donor.AttorneyDecisions = donordata.AttorneyDecisions{}
@@ -26,7 +25,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 	}
 
 	if isReplacement {
-		updateDonor = func(donor *actor.DonorProvidedDetails) {
+		updateDonor = func(donor *donordata.DonorProvidedDetails) {
 			donor.ReplacementAttorneys.TrustCorporation = donordata.TrustCorporation{}
 			if donor.ReplacementAttorneys.Len() == 1 {
 				donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
@@ -34,7 +33,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		}
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		name := donor.Attorneys.TrustCorporation.Name
 		if isReplacement {
 			name = donor.ReplacementAttorneys.TrustCorporation.Name

@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -95,8 +96,8 @@ type LpaStoreClient interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type DonorStore interface {
-	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	GetAny(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
 }
 
 func Register(

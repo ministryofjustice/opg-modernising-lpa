@@ -34,7 +34,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,7 +57,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Type: actor.LpaTypePropertyAndAffairs})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Type: actor.LpaTypePropertyAndAffairs})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -73,7 +73,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,21 +81,21 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	testcases := map[actor.LpaType]*actor.DonorProvidedDetails{
+	testcases := map[actor.LpaType]*donordata.DonorProvidedDetails{
 		actor.LpaTypePropertyAndAffairs: {
 			LpaID: "lpa-id",
-			Donor: actor.Donor{
+			Donor: donordata.Donor{
 				FirstNames:  "John",
 				LastName:    "Smith",
 				DateOfBirth: date.New("2000", "01", "01"),
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:  actor.LpaTypePropertyAndAffairs,
-			Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted},
+			Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 		actor.LpaTypePersonalWelfare: {
 			LpaID: "lpa-id",
-			Donor: actor.Donor{
+			Donor: donordata.Donor{
 				FirstNames:  "John",
 				LastName:    "Smith",
 				DateOfBirth: date.New("2000", "01", "01"),
@@ -103,7 +103,7 @@ func TestPostLpaType(t *testing.T) {
 			},
 			Type:                actor.LpaTypePersonalWelfare,
 			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
-			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted},
+			Tasks:               donordata.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 	}
 
@@ -138,9 +138,9 @@ func TestPostLpaType(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					FirstNames:  "John",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "01", "01"),
@@ -175,9 +175,9 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames:  "John",
 			LastName:    "Smith",
 			DateOfBirth: date.New("2000", "01", "01"),
@@ -201,7 +201,7 @@ func TestPostLpaTypeWhenSessionErrors(t *testing.T) {
 	r, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := LpaType(nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := LpaType(nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 
@@ -229,7 +229,7 @@ func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 		SendUidRequested(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 
@@ -252,7 +252,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -269,7 +269,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -12,11 +12,11 @@ import (
 type checkYourDetailsData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.DonorProvidedDetails
 }
 
 func CheckYourDetails(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		if r.Method == http.MethodPost {
 			if !donor.Tasks.PayForLpa.IsCompleted() {
 				return page.Paths.WeHaveReceivedVoucherDetails.Redirect(w, r, appData, donor)

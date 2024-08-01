@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -19,7 +20,7 @@ func Pay(
 	randomString func(int) string,
 	appPublicURL string,
 ) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		if donor.FeeType.IsNoFee() || donor.FeeType.IsHardshipFee() || donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
 			donor.Tasks.PayForLpa = actor.PaymentTaskPending
 			if err := donorStore.Put(r.Context(), donor); err != nil {
