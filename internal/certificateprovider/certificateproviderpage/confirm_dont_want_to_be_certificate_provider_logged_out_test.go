@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -149,7 +150,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -178,7 +179,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 					FirstNames: "d e", LastName: "f",
 				},
 				CannotRegister: true,
-				Type:           actor.LpaTypePersonalWelfare,
+				Type:           donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
@@ -203,33 +204,33 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(ctx).
-					Return(&actor.DonorProvidedDetails{
+					Return(&donordata.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
-						Donor: actor.Donor{
+						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: actor.DonorTasks{
+						Tasks: donordata.DonorTasks{
 							CertificateProvider: actor.TaskCompleted,
 							CheckYourLpa:        actor.TaskCompleted,
 						},
-						CertificateProvider: actor.CertificateProvider{
+						CertificateProvider: donordata.CertificateProvider{
 							UID:        actoruid.New(),
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: actor.LpaTypePersonalWelfare,
+						Type: donordata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
-					Put(ctx, &actor.DonorProvidedDetails{
+					Put(ctx, &donordata.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
-						Donor: actor.Donor{
+						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: actor.DonorTasks{
+						Tasks: donordata.DonorTasks{
 							CertificateProvider: actor.TaskNotStarted,
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
-						CertificateProvider: actor.CertificateProvider{},
-						Type:                actor.LpaTypePersonalWelfare,
+						CertificateProvider: donordata.CertificateProvider{},
+						Type:                donordata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 
@@ -384,7 +385,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(ctx).
-					Return(&actor.DonorProvidedDetails{}, expectedError)
+					Return(&donordata.DonorProvidedDetails{}, expectedError)
 
 				return donorStore
 			},
@@ -421,7 +422,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(ctx).
-					Return(&actor.DonorProvidedDetails{}, nil)
+					Return(&donordata.DonorProvidedDetails{}, nil)
 				donorStore.EXPECT().
 					Put(ctx, mock.Anything).
 					Return(expectedError)

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -29,7 +28,7 @@ func TestGetCanYouSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +44,7 @@ func TestGetCanYouSignYourLpaWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -55,34 +54,34 @@ func TestGetCanYouSignYourLpaWhenTemplateErrors(t *testing.T) {
 func TestPostCanYouSignYourLpa(t *testing.T) {
 	testCases := map[string]struct {
 		form     url.Values
-		person   actor.Donor
+		person   donordata.Donor
 		redirect page.LpaPath
 	}{
 		"can sign": {
 			form: url.Values{
-				"can-sign": {actor.Yes.String()},
+				"can-sign": {donordata.Yes.String()},
 			},
-			person: actor.Donor{
-				ThinksCanSign: actor.Yes,
+			person: donordata.Donor{
+				ThinksCanSign: donordata.Yes,
 				CanSign:       form.Yes,
 			},
 			redirect: page.Paths.YourPreferredLanguage,
 		},
 		"cannot sign": {
 			form: url.Values{
-				"can-sign": {actor.No.String()},
+				"can-sign": {donordata.No.String()},
 			},
-			person: actor.Donor{
-				ThinksCanSign: actor.No,
+			person: donordata.Donor{
+				ThinksCanSign: donordata.No,
 			},
 			redirect: page.Paths.CheckYouCanSign,
 		},
 		"maybe can sign": {
 			form: url.Values{
-				"can-sign": {actor.Maybe.String()},
+				"can-sign": {donordata.Maybe.String()},
 			},
-			person: actor.Donor{
-				ThinksCanSign: actor.Maybe,
+			person: donordata.Donor{
+				ThinksCanSign: donordata.Maybe,
 			},
 			redirect: page.Paths.CheckYouCanSign,
 		},
@@ -97,13 +96,13 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &actor.DonorProvidedDetails{
+				On("Put", r.Context(), &donordata.DonorProvidedDetails{
 					LpaID: "lpa-id",
 					Donor: tc.person,
 				}).
 				Return(nil)
 
-			err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
 			})
 			resp := w.Result()
@@ -131,7 +130,7 @@ func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -140,7 +139,7 @@ func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
 
 func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"can-sign": {actor.Yes.String()},
+		"can-sign": {donordata.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -152,13 +151,13 @@ func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestReadCanYouSignYourLpaForm(t *testing.T) {
 	f := url.Values{
-		"can-sign": {actor.Yes.String()},
+		"can-sign": {donordata.Yes.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -166,7 +165,7 @@ func TestReadCanYouSignYourLpaForm(t *testing.T) {
 
 	result := readCanYouSignYourLpaForm(r)
 
-	assert.Equal(t, actor.Yes, result.CanSign)
+	assert.Equal(t, donordata.Yes, result.CanSign)
 	assert.Nil(t, result.CanSignError)
 }
 

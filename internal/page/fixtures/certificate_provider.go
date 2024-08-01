@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -19,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -82,11 +84,11 @@ func CertificateProvider(
 			return err
 		}
 
-		var donorDetails *actor.DonorProvidedDetails
+		var donorDetails *donordata.DonorProvidedDetails
 
 		if donorChannel == "paper" {
 			lpaID := random.UuidString()
-			donorDetails = &actor.DonorProvidedDetails{
+			donorDetails = &donordata.DonorProvidedDetails{
 				PK:                             dynamo.LpaKey(lpaID),
 				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                          lpaID,
@@ -139,13 +141,13 @@ func CertificateProvider(
 
 		donorDetails.Donor = makeDonor(donorEmail)
 
-		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		donorDetails.Type = donordata.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+			donorDetails.Type = donordata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -165,11 +167,11 @@ func CertificateProvider(
 			donorDetails.LpaUID = makeUID()
 		}
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {
@@ -177,7 +179,7 @@ func CertificateProvider(
 		}
 
 		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = actor.Professionally
+			donorDetails.CertificateProvider.Relationship = donordata.Professionally
 		}
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
@@ -186,11 +188,11 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
+			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
-			donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {

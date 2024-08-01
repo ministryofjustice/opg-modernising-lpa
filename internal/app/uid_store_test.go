@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
@@ -32,8 +32,8 @@ func TestUidStoreSet(t *testing.T) {
 				":now": testNow,
 			})
 
-			returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			returnValues, _ := attributevalue.MarshalMap(donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					FirstNames: "x",
 					LastName:   "y",
 				},
@@ -79,8 +79,8 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 }
 
 func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
-	returnValues, _ := attributevalue.MarshalMap(actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	returnValues, _ := attributevalue.MarshalMap(donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{
 			FirstNames: "x",
 			LastName:   "y",
 		},

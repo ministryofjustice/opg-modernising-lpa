@@ -2,25 +2,26 @@
 //
 // Useful links:
 //   - [actor.Lpa] - details about the LPA being drafted
-//   - [actor.Donor] - details about the donor, provided by the applicant
-//   - [actor.CertificateProvider] - details about the certificate provider, provided by the applicant
+//   - [donordata.Donor] - details about the donor, provided by the applicant
+//   - [donordata.CertificateProvider] - details about the certificate provider, provided by the applicant
 //   - [certificateproviderdata.Provided] - details about the certificate provider, provided by the certificate provider
-//   - [actor.Attorney] - details about an attorney or replacement attorney, provided by the applicant
-//   - [actor.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
+//   - [donordata.Attorney] - details about an attorney or replacement attorney, provided by the applicant
+//   - [donordata.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
 //   - [attorneydata.Provided] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney
-//   - [actor.PersonToNotify] - details about a person to notify, provided by the applicant
+//   - [donordata.PersonToNotify] - details about a person to notify, provided by the applicant
 package page
 
 import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
 var SessionDataFromContext = appcontext.SessionDataFromContext
 var ContextWithSessionData = appcontext.ContextWithSessionData
 
-func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDecisions) actor.TaskState {
+func ChooseAttorneysState(attorneys donordata.Attorneys, decisions donordata.AttorneyDecisions) actor.TaskState {
 	if attorneys.Len() == 0 {
 		return actor.TaskNotStarted
 	}
@@ -36,7 +37,7 @@ func ChooseAttorneysState(attorneys actor.Attorneys, decisions actor.AttorneyDec
 	return actor.TaskCompleted
 }
 
-func ChooseReplacementAttorneysState(donor *actor.DonorProvidedDetails) actor.TaskState {
+func ChooseReplacementAttorneysState(donor *donordata.DonorProvidedDetails) actor.TaskState {
 	if donor.WantReplacementAttorneys == form.No {
 		return actor.TaskCompleted
 	}

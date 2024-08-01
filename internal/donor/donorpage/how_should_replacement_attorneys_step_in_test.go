@@ -29,8 +29,8 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 	})
 	resp := w.Result()
 
@@ -47,15 +47,15 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App: testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: actor.ReplacementAttorneysStepInAnotherWay,
+				WhenToStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
 				OtherDetails: "some details",
 			},
 			Options: donordata.ReplacementAttorneysStepInValues,
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		HowShouldReplacementAttorneysStepIn:        actor.ReplacementAttorneysStepInAnotherWay,
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		HowShouldReplacementAttorneysStepIn:        donordata.ReplacementAttorneysStepInAnotherWay,
 		HowShouldReplacementAttorneysStepInDetails: "some details",
 	})
 	resp := w.Result()
@@ -66,7 +66,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	form := url.Values{
-		"when-to-step-in": {actor.ReplacementAttorneysStepInAnotherWay.String()},
+		"when-to-step-in": {donordata.ReplacementAttorneysStepInAnotherWay.String()},
 		"other-details":   {"some details"},
 	}
 
@@ -76,15 +76,15 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:                               "lpa-id",
-			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInAnotherWay,
+			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -94,60 +94,60 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
-		Attorneys                            actor.Attorneys
-		ReplacementAttorneys                 actor.Attorneys
-		HowAttorneysMakeDecisions            actor.AttorneysAct
-		HowReplacementAttorneysMakeDecisions actor.AttorneysAct
-		HowShouldReplacementAttorneysStepIn  actor.ReplacementAttorneysStepIn
+		Attorneys                            donordata.Attorneys
+		ReplacementAttorneys                 donordata.Attorneys
+		HowAttorneysMakeDecisions            donordata.AttorneysAct
+		HowReplacementAttorneysMakeDecisions donordata.AttorneysAct
+		HowShouldReplacementAttorneysStepIn  donordata.ReplacementAttorneysStepIn
 		ExpectedRedirectUrl                  page.LpaPath
 		TaskState                            actor.TaskState
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly": {
-			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:            actor.Jointly,
-			HowShouldReplacementAttorneysStepIn:  actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
-			HowReplacementAttorneysMakeDecisions: actor.Jointly,
+			HowAttorneysMakeDecisions:            donordata.Jointly,
+			HowShouldReplacementAttorneysStepIn:  donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowReplacementAttorneysMakeDecisions: donordata.Jointly,
 			ExpectedRedirectUrl:                  page.Paths.TaskList,
 			TaskState:                            actor.TaskInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           actor.TaskNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           actor.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           actor.TaskInProgress,
 		},
@@ -165,25 +165,25 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:                               "lpa-id",
 					Attorneys:                           tc.Attorneys,
-					AttorneyDecisions:                   actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
+					AttorneyDecisions:                   donordata.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
-					ReplacementAttorneyDecisions:        actor.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
+					ReplacementAttorneyDecisions:        donordata.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn,
-					Tasks:                               actor.DonorTasks{ChooseReplacementAttorneys: tc.TaskState},
+					Tasks:                               donordata.DonorTasks{ChooseReplacementAttorneys: tc.TaskState},
 				}).
 				Return(nil)
 
 			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:                        "lpa-id",
 				Attorneys:                    tc.Attorneys,
-				AttorneyDecisions:            actor.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
+				AttorneyDecisions:            donordata.AttorneyDecisions{How: tc.HowAttorneysMakeDecisions},
 				ReplacementAttorneys:         tc.ReplacementAttorneys,
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
 			})
 			resp := w.Result()
 
@@ -196,23 +196,23 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingWhenStepIn   actor.ReplacementAttorneysStepIn
+		existingWhenStepIn   donordata.ReplacementAttorneysStepIn
 		existingOtherDetails string
-		updatedWhenStepIn    actor.ReplacementAttorneysStepIn
+		updatedWhenStepIn    donordata.ReplacementAttorneysStepIn
 		updatedOtherDetails  string
-		formWhenStepIn       actor.ReplacementAttorneysStepIn
+		formWhenStepIn       donordata.ReplacementAttorneysStepIn
 		formOtherDetails     string
 	}{
 		"existing otherDetails not set": {
-			existingWhenStepIn:   actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			existingWhenStepIn:   donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			existingOtherDetails: "",
-			updatedWhenStepIn:    actor.ReplacementAttorneysStepInAnotherWay,
+			updatedWhenStepIn:    donordata.ReplacementAttorneysStepInAnotherWay,
 			updatedOtherDetails:  "some details",
 		},
 		"existing otherDetails set": {
-			existingWhenStepIn:   actor.ReplacementAttorneysStepInAnotherWay,
+			existingWhenStepIn:   donordata.ReplacementAttorneysStepInAnotherWay,
 			existingOtherDetails: "some details",
-			updatedWhenStepIn:    actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			updatedWhenStepIn:    donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			updatedOtherDetails:  "",
 		},
 	}
@@ -230,7 +230,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:                               "lpa-id",
 					HowShouldReplacementAttorneysStepIn: tc.updatedWhenStepIn,
 					HowShouldReplacementAttorneysStepInDetails: tc.updatedOtherDetails}).
@@ -238,7 +238,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			template := newMockTemplate(t)
 
-			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:                               "lpa-id",
 				HowShouldReplacementAttorneysStepIn: tc.existingWhenStepIn,
 				HowShouldReplacementAttorneysStepInDetails: tc.existingOtherDetails,
@@ -269,7 +269,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -278,7 +278,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) {
 	form := url.Values{
-		"when-to-step-in": {actor.ReplacementAttorneysStepInAnotherWay.String()},
+		"when-to-step-in": {donordata.ReplacementAttorneysStepInAnotherWay.String()},
 		"other-details":   {"some details"},
 	}
 
@@ -288,14 +288,14 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
-			HowShouldReplacementAttorneysStepIn:        actor.ReplacementAttorneysStepInAnotherWay,
+		Put(r.Context(), &donordata.DonorProvidedDetails{
+			HowShouldReplacementAttorneysStepIn:        donordata.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := HowShouldReplacementAttorneysStepIn(template.Execute, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -318,7 +318,7 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 		},
 		"missing other details": {
 			form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: actor.ReplacementAttorneysStepInAnotherWay,
+				WhenToStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
 			},
 			expectedErrors: validation.With("other-details", validation.EnterError{Label: "detailsOfWhenToStepIn"}),
 		},

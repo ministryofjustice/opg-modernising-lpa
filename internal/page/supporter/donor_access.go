@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -19,7 +20,7 @@ type donorAccessData struct {
 	App       page.AppData
 	Errors    validation.List
 	Form      *donorAccessForm
-	Donor     *actor.DonorProvidedDetails
+	Donor     *donordata.DonorProvidedDetails
 	ShareCode *actor.ShareCodeData
 }
 

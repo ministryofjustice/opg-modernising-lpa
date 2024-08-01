@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 )
 
 type Path string
@@ -40,7 +40,7 @@ func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
-func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, donor *actor.DonorProvidedDetails) error {
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.DonorProvidedDetails) error {
 	rurl := p.Format(donor.LpaID)
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -50,7 +50,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	return nil
 }
 
-func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, donor *actor.DonorProvidedDetails, query url.Values) error {
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.DonorProvidedDetails, query url.Values) error {
 	rurl := p.Format(donor.LpaID) + "?" + query.Encode()
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -60,7 +60,7 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 	return nil
 }
 
-func (p LpaPath) canVisit(donor *actor.DonorProvidedDetails) bool {
+func (p LpaPath) canVisit(donor *donordata.DonorProvidedDetails) bool {
 	section1Completed := donor.Tasks.YourDetails.Completed() &&
 		donor.Tasks.ChooseAttorneys.Completed() &&
 		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
@@ -680,7 +680,7 @@ var Paths = AppPaths{
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
-func DonorCanGoTo(donor *actor.DonorProvidedDetails, url string) bool {
+func DonorCanGoTo(donor *donordata.DonorProvidedDetails, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false

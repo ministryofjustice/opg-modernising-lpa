@@ -22,7 +22,7 @@ type lpaTypeData struct {
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{
@@ -44,7 +44,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 
 				donor.Type = data.Form.LpaType
 				if donor.Type.IsPersonalWelfare() {
-					donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+					donor.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 				}
 				donor.Tasks.YourDetails = actor.TaskCompleted
 				donor.HasSentApplicationUpdatedEvent = false
@@ -76,7 +76,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 }
 
 type lpaTypeForm struct {
-	LpaType actor.LpaType
+	LpaType donordata.LpaType
 	Error   error
 }
 

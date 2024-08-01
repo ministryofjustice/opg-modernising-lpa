@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -29,7 +30,7 @@ type AppData struct {
 }
 
 type SupporterData struct {
-	LpaType              actor.LpaType
+	LpaType              donordata.LpaType
 	DonorFullName        string
 	OrganisationName     string
 	IsManageOrganisation bool

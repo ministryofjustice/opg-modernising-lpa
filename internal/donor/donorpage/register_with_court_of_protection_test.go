@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -28,7 +28,7 @@ func TestGetRegisterWithCourtOfProtection(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetRegisterWithCourtOfProtectionWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -67,7 +67,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 			donorStore: func() *mockDonorStore {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
-					Put(context.Background(), &actor.DonorProvidedDetails{LpaID: "lpa-id", RegisteringWithCourtOfProtection: true}).
+					Put(context.Background(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", RegisteringWithCourtOfProtection: true}).
 					Return(nil)
 				return donorStore
 			},
@@ -85,7 +85,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := RegisterWithCourtOfProtection(nil, tc.donorStore(), testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := RegisterWithCourtOfProtection(nil, tc.donorStore(), testNowFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -109,7 +109,7 @@ func TestPostRegisterWithCourtOfProtectionWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RegisterWithCourtOfProtection(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := RegisterWithCourtOfProtection(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -126,7 +126,7 @@ func TestPostRegisterWithCourtOfProtectionWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -28,7 +28,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,14 +44,14 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithFromStore(t *testing.T) {
 		Execute(w, &whoCanCorrespondentsDetailsBeSharedWithData{
 			App: testAppData,
 			Form: &whoCanCorrespondentsDetailsBeSharedWithForm{
-				Share: actor.CorrespondentShareAttorneys,
+				Share: donordata.CorrespondentShareAttorneys,
 			},
 			Options: donordata.CorrespondentShareValues,
 		}).
 		Return(nil)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{Share: actor.CorrespondentShareAttorneys},
+	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Correspondent: donordata.Correspondent{Share: donordata.CorrespondentShareAttorneys},
 	})
 	resp := w.Result()
 
@@ -68,7 +68,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithWhenTemplateErrors(t *testing
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -77,7 +77,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithWhenTemplateErrors(t *testing
 
 func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -86,18 +86,18 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
-				Share: actor.CorrespondentShareAttorneys,
+			Correspondent: donordata.Correspondent{
+				Share: donordata.CorrespondentShareAttorneys,
 			},
-			Tasks: actor.DonorTasks{
+			Tasks: donordata.DonorTasks{
 				AddCorrespondent: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := WhoCanCorrespondentsDetailsBeSharedWith(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -107,7 +107,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 
 func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -119,7 +119,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenStoreErrors(t *testing.T
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhoCanCorrespondentsDetailsBeSharedWith(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -140,7 +140,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenValidationErrors(t *test
 		})).
 		Return(nil)
 
-	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -149,7 +149,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenValidationErrors(t *test
 
 func TestReadWhoCanCorrespondentsDetailsBeSharedWithForm(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String(), actor.CorrespondentShareCertificateProvider.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String(), donordata.CorrespondentShareCertificateProvider.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -157,7 +157,7 @@ func TestReadWhoCanCorrespondentsDetailsBeSharedWithForm(t *testing.T) {
 
 	result := readWhoCanCorrespondentsDetailsBeSharedWithForm(r)
 
-	assert.Equal(t, actor.CorrespondentShareAttorneys|actor.CorrespondentShareCertificateProvider, result.Share)
+	assert.Equal(t, donordata.CorrespondentShareAttorneys|donordata.CorrespondentShareCertificateProvider, result.Share)
 	assert.Nil(t, result.Error)
 }
 

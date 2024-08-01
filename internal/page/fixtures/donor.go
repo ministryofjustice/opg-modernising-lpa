@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -36,7 +37,7 @@ type DynamoClient interface {
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
-	Create(ctx context.Context, donor *actor.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
+	Create(ctx context.Context, donor *donordata.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
 }
 
 var progressValues = []string{
@@ -171,7 +172,7 @@ func Donor(
 
 func updateLPAProgress(
 	data FixtureData,
-	donorDetails *actor.DonorProvidedDetails,
+	donorDetails *donordata.DonorProvidedDetails,
 	donorSessionID string,
 	r *http.Request,
 	certificateProviderStore CertificateProviderStore,
@@ -179,17 +180,17 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
-) (*actor.DonorProvidedDetails, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
+) (*donordata.DonorProvidedDetails, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor(data.DonorEmail)
 
-		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		donorDetails.Type = donordata.LpaTypePropertyAndAffairs
 
 		if data.LpaType == "personal-welfare" {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.Type = donordata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 		}
 
 		if data.UseRealID {
@@ -210,15 +211,15 @@ func updateLPAProgress(
 		}
 
 		if data.Donor == "cannot-sign" {
-			donorDetails.Donor.ThinksCanSign = actor.No
+			donorDetails.Donor.ThinksCanSign = donordata.No
 			donorDetails.Donor.CanSign = form.No
 
-			donorDetails.AuthorisedSignatory = actor.AuthorisedSignatory{
+			donorDetails.AuthorisedSignatory = donordata.AuthorisedSignatory{
 				FirstNames: "Allie",
 				LastName:   "Adams",
 			}
 
-			donorDetails.IndependentWitness = actor.IndependentWitness{
+			donorDetails.IndependentWitness = donordata.IndependentWitness{
 				FirstNames: "Indie",
 				LastName:   "Irwin",
 			}
@@ -233,8 +234,8 @@ func updateLPAProgress(
 	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:without-address"`), &withoutAddressUID)
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourAttorneys") {
-		donorDetails.Attorneys.Attorneys = []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
-		donorDetails.AttorneyDecisions.How = actor.JointlyAndSeverally
+		donorDetails.Attorneys.Attorneys = []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
+		donorDetails.AttorneyDecisions.How = donordata.JointlyAndSeverally
 
 		switch data.Attorneys {
 		case "without-address":
@@ -247,11 +248,11 @@ func updateLPAProgress(
 			donorDetails.Attorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 		case "single":
 			donorDetails.Attorneys.Attorneys = donorDetails.Attorneys.Attorneys[:1]
-			donorDetails.AttorneyDecisions = actor.AttorneyDecisions{}
+			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{}
 		case "jointly":
-			donorDetails.AttorneyDecisions.How = actor.Jointly
+			donorDetails.AttorneyDecisions.How = donordata.Jointly
 		case "jointly-for-some-severally-for-others":
-			donorDetails.AttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+			donorDetails.AttorneyDecisions.How = donordata.JointlyForSomeSeverallyForOthers
 			donorDetails.AttorneyDecisions.Details = "do this and that"
 		}
 
@@ -259,8 +260,8 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
-		donorDetails.ReplacementAttorneys.Attorneys = []actor.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
-		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct
+		donorDetails.ReplacementAttorneys.Attorneys = []donordata.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
+		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 		switch data.ReplacementAttorneys {
 		case "without-address":
@@ -273,18 +274,18 @@ func updateLPAProgress(
 			donorDetails.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 		case "single":
 			donorDetails.ReplacementAttorneys.Attorneys = donorDetails.ReplacementAttorneys.Attorneys[:1]
-			donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepIn(0)
+			donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepIn(0)
 		}
 
 		donorDetails.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
-		if donorDetails.Type == actor.LpaTypePersonalWelfare {
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+		if donorDetails.Type == donordata.LpaTypePersonalWelfare {
+			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 			donorDetails.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
 			donorDetails.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
 		}
 	}
@@ -297,7 +298,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if data.CertificateProvider == "paper" {
-			donorDetails.CertificateProvider.CarryOutBy = actor.ChannelPaper
+			donorDetails.CertificateProvider.CarryOutBy = donordata.ChannelPaper
 		}
 
 		if data.CertificateProviderEmail != "" {
@@ -313,7 +314,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "peopleToNotifyAboutYourLpa") {
 		donorDetails.DoYouWantToNotifyPeople = form.Yes
-		donorDetails.PeopleToNotify = []actor.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
+		donorDetails.PeopleToNotify = []donordata.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
 		switch data.PeopleToNotify {
 		case "without-address":
 			donorDetails.PeopleToNotify[0].UID = withoutAddressUID
@@ -389,12 +390,12 @@ func updateLPAProgress(
 			donorDetails.FeeType = pay.FullFee
 		}
 
-		donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
+		donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 			PaymentReference: random.String(12),
 			PaymentId:        random.String(12),
 		})
 
-		donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if data.PaymentTaskProgress != "" {
 			taskState, err := task.ParsePaymentState(data.PaymentTaskProgress)
@@ -470,7 +471,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
-		for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
+		for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 

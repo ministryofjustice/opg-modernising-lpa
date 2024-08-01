@@ -5,8 +5,8 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -16,11 +16,11 @@ type chooseReplacementAttorneysSummaryData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.DonorProvidedDetails
 }
 
 func ChooseReplacementAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		if donor.ReplacementAttorneys.Len() == 0 {
 			return page.Paths.DoYouWantReplacementAttorneys.Redirect(w, r, appData, donor)
 		}

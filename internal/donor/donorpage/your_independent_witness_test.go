@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,7 +28,7 @@ func TestGetYourIndependentWitness(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,8 +49,8 @@ func TestGetYourIndependentWitnessFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		IndependentWitness: actor.IndependentWitness{
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		IndependentWitness: donordata.IndependentWitness{
 			FirstNames: "John",
 		},
 	})
@@ -68,7 +69,7 @@ func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,14 +79,14 @@ func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 func TestPostYourIndependentWitness(t *testing.T) {
 	testCases := map[string]struct {
 		form   url.Values
-		person actor.IndependentWitness
+		person donordata.IndependentWitness
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			person: actor.IndependentWitness{
+			person: donordata.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -96,7 +97,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				"last-name":           {"Smith"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Smith").String()},
 			},
-			person: actor.IndependentWitness{
+			person: donordata.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
@@ -112,17 +113,17 @@ func TestPostYourIndependentWitness(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:              "lpa-id",
-					Donor:              actor.Donor{FirstNames: "John", LastName: "Smith"},
+					Donor:              donordata.Donor{FirstNames: "John", LastName: "Smith"},
 					IndependentWitness: tc.person,
-					Tasks:              actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
+					Tasks:              donordata.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
+				Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
 
@@ -146,22 +147,22 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			IndependentWitness: actor.IndependentWitness{
+			IndependentWitness: donordata.IndependentWitness{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
-			Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
+			Tasks: donordata.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		IndependentWitness: actor.IndependentWitness{
+		IndependentWitness: donordata.IndependentWitness{
 			FirstNames: "John",
 		},
-		Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
+		Tasks: donordata.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -226,8 +227,8 @@ func TestPostYourIndependentWitnessWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -255,8 +256,8 @@ func TestPostYourIndependentWitnessWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -326,23 +327,23 @@ func TestYourIndependentWitnessFormValidate(t *testing.T) {
 }
 
 func TestIndependentWitnessMatches(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "x", "y"))
@@ -359,10 +360,10 @@ func TestIndependentWitnessMatches(t *testing.T) {
 }
 
 func TestIndependentWitnessMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-		PeopleToNotify:       actor.PeopleToNotify{{}},
+	donor := &donordata.DonorProvidedDetails{
+		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		PeopleToNotify:       donordata.PeopleToNotify{{}},
 	}
 
 	assert.Equal(t, actor.TypeNone, independentWitnessMatches(donor, "", ""))
