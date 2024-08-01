@@ -32,7 +32,7 @@ func TestUidStoreSet(t *testing.T) {
 				":now": testNow,
 			})
 
-			returnValues, _ := attributevalue.MarshalMap(donordata.DonorProvidedDetails{
+			returnValues, _ := attributevalue.MarshalMap(donordata.Provided{
 				Donor: donordata.Donor{
 					FirstNames: "x",
 					LastName:   "y",
@@ -79,7 +79,7 @@ func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
 }
 
 func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
-	returnValues, _ := attributevalue.MarshalMap(donordata.DonorProvidedDetails{
+	returnValues, _ := attributevalue.MarshalMap(donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "x",
 			LastName:   "y",

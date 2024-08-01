@@ -44,8 +44,8 @@ type OneLoginClient interface {
 }
 
 type DonorStore interface {
-	Create(context.Context) (*donordata.DonorProvidedDetails, error)
-	Put(context.Context, *donordata.DonorProvidedDetails) error
+	Create(context.Context) (*donordata.Provided, error)
+	Put(context.Context, *donordata.Provided) error
 }
 
 type Bundle interface {

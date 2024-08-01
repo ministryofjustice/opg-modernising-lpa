@@ -20,7 +20,7 @@ func TestGetWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.Provided{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -38,7 +38,7 @@ func TestGetWitnessingYourSignatureWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.Provided{CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -54,7 +54,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{CanSign: form.Yes},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -78,7 +78,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{CanSign: form.No},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -90,7 +90,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 		SendToCertificateProvider(r.Context(), donor, mock.Anything).
 		Return(nil)
 	witnessCodeSender.EXPECT().
-		SendToIndependentWitness(r.Context(), &donordata.DonorProvidedDetails{
+		SendToIndependentWitness(r.Context(), &donordata.Provided{
 			LpaID:                 "lpa-id",
 			Donor:                 donordata.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -101,7 +101,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
-		Return(&donordata.DonorProvidedDetails{
+		Return(&donordata.Provided{
 			LpaID:                 "lpa-id",
 			Donor:                 donordata.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -117,7 +117,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 }
 
 func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
-	donor := &donordata.DonorProvidedDetails{Donor: donordata.Donor{CanSign: form.No}, CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
+	donor := &donordata.Provided{Donor: donordata.Donor{CanSign: form.No}, CertificateProvider: donordata.CertificateProvider{Mobile: "07535111111"}}
 
 	testcases := map[string]struct {
 		setupWitnessCodeSender func(witnessCodeSender *mockWitnessCodeSender)

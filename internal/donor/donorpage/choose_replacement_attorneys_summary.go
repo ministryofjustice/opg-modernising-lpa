@@ -16,11 +16,11 @@ type chooseReplacementAttorneysSummaryData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func ChooseReplacementAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if donor.ReplacementAttorneys.Len() == 0 {
 			return page.Paths.DoYouWantReplacementAttorneys.Redirect(w, r, appData, donor)
 		}

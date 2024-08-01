@@ -33,11 +33,11 @@ func TestClientSendLpa(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *donordata.DonorProvidedDetails
+		donor *donordata.Provided
 		json  string
 	}{
 		"minimal": {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
 				Type:   donordata.LpaTypePropertyAndAffairs,
 				Donor: donordata.Donor{
@@ -95,7 +95,7 @@ func TestClientSendLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
 				Type:   donordata.LpaTypePersonalWelfare,
 				Donor: donordata.Donor{
@@ -316,7 +316,7 @@ func TestClientSendLpa(t *testing.T) {
 
 func TestClientSendLpaWhenNewRequestError(t *testing.T) {
 	client := New("http://base", nil, nil)
-	err := client.SendLpa(nil, &donordata.DonorProvidedDetails{})
+	err := client.SendLpa(nil, &donordata.Provided{})
 
 	assert.NotNil(t, err)
 }
@@ -330,7 +330,7 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 		Return("", expectedError)
 
 	client := New("http://base", secretsClient, nil)
-	err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
+	err := client.SendLpa(ctx, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -349,7 +349,7 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := New("http://base", secretsClient, doer)
-	err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
+	err := client.SendLpa(ctx, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -375,7 +375,7 @@ func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
 				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
 			client := New("http://base", secretsClient, doer)
-			err := client.SendLpa(ctx, &donordata.DonorProvidedDetails{})
+			err := client.SendLpa(ctx, &donordata.Provided{})
 
 			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
 		})

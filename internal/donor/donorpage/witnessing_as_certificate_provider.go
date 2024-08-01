@@ -15,7 +15,7 @@ type witnessingAsCertificateProviderData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *witnessingAsCertificateProviderForm
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func WitnessingAsCertificateProvider(
@@ -25,7 +25,7 @@ func WitnessingAsCertificateProvider(
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
 ) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &witnessingAsCertificateProviderData{
 			App:   appData,
 			Donor: donor,

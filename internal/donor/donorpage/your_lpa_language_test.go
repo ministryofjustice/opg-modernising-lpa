@@ -30,7 +30,7 @@ func TestGetYourLpaLanguage(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{LpaLanguagePreference: localize.En},
 	})
 	resp := w.Result()
@@ -48,7 +48,7 @@ func TestGetYourLpaLanguageWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -66,7 +66,7 @@ func TestPostYourLpaLanguageWhenContinue(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := YourLpaLanguage(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := YourLpaLanguage(nil, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{LpaLanguagePreference: lang},
 			})
@@ -106,13 +106,13 @@ func TestPostYourLpaLanguageWhenSwitch(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: donordata.Donor{LpaLanguagePreference: tc.expectedLanguage},
 				}).
 				Return(nil)
 
-			err := YourLpaLanguage(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := YourLpaLanguage(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{LpaLanguagePreference: tc.selectedLanguage},
 			})
@@ -139,7 +139,7 @@ func TestPostYourLpaLanguageWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourLpaLanguage(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := YourLpaLanguage(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -156,7 +156,7 @@ func TestPostYourLpaLanguageWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := YourLpaLanguage(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

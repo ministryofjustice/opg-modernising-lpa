@@ -26,7 +26,7 @@ func TestGetDashboard(t *testing.T) {
 
 			keys := []dynamo.Keys{{PK: dynamo.LpaKey("a"), SK: dynamo.OrganisationKey("b")}}
 			pagination := &search.Pagination{Total: 10}
-			donors := []donordata.DonorProvidedDetails{{LpaID: "abc"}}
+			donors := []donordata.Provided{{LpaID: "abc"}}
 
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().

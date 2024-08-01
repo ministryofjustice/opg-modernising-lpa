@@ -83,7 +83,7 @@ func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger,
 	}
 }
 
-func (s *donorStore) Create(ctx context.Context) (*DonorProvidedDetails, error) {
+func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (s *donorStore) Create(ctx context.Context) (*DonorProvidedDetails, error) 
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 		LpaID:     lpaID,
@@ -201,7 +201,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.ShareCodeData
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *donorStore) GetAny(ctx context.Context) (*DonorProvidedDetails, error) {
+func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -217,7 +217,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*DonorProvidedDetails, error) 
 	}
 
 	var donor struct {
-		DonorProvidedDetails
+		Provided
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -228,10 +228,10 @@ func (s *donorStore) GetAny(ctx context.Context) (*DonorProvidedDetails, error) 
 		err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), donor.ReferencedSK, &donor)
 	}
 
-	return &donor.DonorProvidedDetails, err
+	return &donor.Provided, err
 }
 
-func (s *donorStore) Get(ctx context.Context) (*DonorProvidedDetails, error) {
+func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func (s *donorStore) Get(ctx context.Context) (*DonorProvidedDetails, error) {
 	}
 
 	var donor struct {
-		DonorProvidedDetails
+		Provided
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -258,10 +258,10 @@ func (s *donorStore) Get(ctx context.Context) (*DonorProvidedDetails, error) {
 		err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), donor.ReferencedSK, &donor)
 	}
 
-	return &donor.DonorProvidedDetails, err
+	return &donor.Provided, err
 }
 
-func (s *donorStore) Latest(ctx context.Context) (*DonorProvidedDetails, error) {
+func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (s *donorStore) Latest(ctx context.Context) (*DonorProvidedDetails, error) 
 		return nil, errors.New("donorStore.Latest requires SessionID")
 	}
 
-	var donor *DonorProvidedDetails
+	var donor *Provided
 	if err := s.dynamoClient.LatestForActor(ctx, dynamo.DonorKey(data.SessionID), &donor); err != nil {
 		return nil, err
 	}
@@ -279,7 +279,7 @@ func (s *donorStore) Latest(ctx context.Context) (*DonorProvidedDetails, error) 
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]DonorProvidedDetails, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Provided, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -289,10 +289,10 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Donor
 		return nil, err
 	}
 
-	var donors []DonorProvidedDetails
+	var donors []Provided
 	err = attributevalue.UnmarshalListOfMaps(items, &donors)
 
-	mappedDonors := map[string]DonorProvidedDetails{}
+	mappedDonors := map[string]Provided{}
 	for _, donor := range donors {
 		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
 	}
@@ -305,7 +305,7 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Donor
 	return donors, err
 }
 
-func (s *donorStore) Put(ctx context.Context, donor *DonorProvidedDetails) error {
+func (s *donorStore) Put(ctx context.Context, donor *Provided) error {
 	if !donor.HashChanged() {
 		return nil
 	}

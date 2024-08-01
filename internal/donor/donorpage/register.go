@@ -29,7 +29,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error
+type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -40,15 +40,15 @@ type Logger interface {
 }
 
 type DonorStore interface {
-	Get(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	Latest(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
+	Get(ctx context.Context) (*donordata.Provided, error)
+	Latest(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
 	Link(ctx context.Context, data actor.ShareCodeData, donorEmail string) error
 }
 
 type GetDonorStore interface {
-	Get(context.Context) (*donordata.DonorProvidedDetails, error)
+	Get(context.Context) (*donordata.Provided, error)
 }
 
 type CertificateProviderStore interface {
@@ -76,7 +76,7 @@ type AddressClient interface {
 
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *donordata.DonorProvidedDetails) error
+	SendCertificateProviderPrompt(context.Context, page.AppData, *donordata.Provided) error
 }
 
 type OneLoginClient interface {
@@ -102,8 +102,8 @@ type SessionStore interface {
 }
 
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
-	SendToIndependentWitness(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
+	SendToCertificateProvider(context.Context, *donordata.Provided, page.Localizer) error
+	SendToIndependentWitness(context.Context, *donordata.Provided, page.Localizer) error
 }
 
 type UidClient interface {
@@ -123,8 +123,8 @@ type DocumentStore interface {
 	Put(context.Context, page.Document) error
 	Delete(context.Context, page.Document) error
 	DeleteInfectedDocuments(context.Context, page.Documents) error
-	Create(context.Context, *donordata.DonorProvidedDetails, string, []byte) (page.Document, error)
-	Submit(context.Context, *donordata.DonorProvidedDetails, page.Documents) error
+	Create(context.Context, *donordata.Provided, string, []byte) (page.Document, error)
+	Submit(context.Context, *donordata.Provided, page.Documents) error
 }
 
 type EventClient interface {
@@ -141,8 +141,8 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
-	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.DonorProvidedDetails) error
-	SendLpa(ctx context.Context, details *donordata.DonorProvidedDetails) error
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
+	SendLpa(ctx context.Context, details *donordata.Provided) error
 }
 
 type ShareCodeStore interface {

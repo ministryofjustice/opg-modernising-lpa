@@ -45,7 +45,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(ctx, &donordata.DonorProvidedDetails{
+				Put(ctx, &donordata.Provided{
 					LpaUID:                   "lpa-uid",
 					Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 					CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
@@ -68,7 +68,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				randomCode:   func(int) string { return tc.randomCode },
 				now:          func() time.Time { return now },
 			}
-			err := sender.SendToCertificateProvider(ctx, &donordata.DonorProvidedDetails{
+			err := sender.SendToCertificateProvider(ctx, &donordata.Provided{
 				LpaUID:              "lpa-uid",
 				Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 				CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
@@ -85,7 +85,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 	ctx := context.Background()
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
-	err := sender.SendToCertificateProvider(ctx, &donordata.DonorProvidedDetails{
+	err := sender.SendToCertificateProvider(ctx, &donordata.Provided{
 		CertificateProviderCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
@@ -117,7 +117,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.SendToCertificateProvider(context.Background(), &donordata.DonorProvidedDetails{
+	err := sender.SendToCertificateProvider(context.Background(), &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                donordata.LpaTypePropertyAndAffairs,
@@ -137,7 +137,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 		randomCode: func(int) string { return "1234" },
 		now:        time.Now,
 	}
-	err := sender.SendToCertificateProvider(context.Background(), &donordata.DonorProvidedDetails{
+	err := sender.SendToCertificateProvider(context.Background(), &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                donordata.LpaTypePropertyAndAffairs,
@@ -161,7 +161,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(ctx, &donordata.DonorProvidedDetails{
+		Put(ctx, &donordata.Provided{
 			LpaUID:                  "lpa-uid",
 			Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
@@ -184,7 +184,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          func() time.Time { return now },
 	}
-	err := sender.SendToIndependentWitness(ctx, &donordata.DonorProvidedDetails{
+	err := sender.SendToIndependentWitness(ctx, &donordata.Provided{
 		LpaUID:             "lpa-uid",
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
@@ -199,7 +199,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 	ctx := context.Background()
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
-	err := sender.SendToIndependentWitness(ctx, &donordata.DonorProvidedDetails{
+	err := sender.SendToIndependentWitness(ctx, &donordata.Provided{
 		IndependentWitnessCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
@@ -231,7 +231,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.SendToIndependentWitness(context.Background(), &donordata.DonorProvidedDetails{
+	err := sender.SendToIndependentWitness(context.Background(), &donordata.Provided{
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:               donordata.LpaTypePropertyAndAffairs,
@@ -251,7 +251,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 		randomCode: func(int) string { return "1234" },
 		now:        time.Now,
 	}
-	err := sender.SendToIndependentWitness(context.Background(), &donordata.DonorProvidedDetails{
+	err := sender.SendToIndependentWitness(context.Background(), &donordata.Provided{
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:               donordata.LpaTypePropertyAndAffairs,

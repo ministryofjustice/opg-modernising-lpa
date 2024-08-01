@@ -34,7 +34,7 @@ func TestGetLpaType(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,7 +57,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Type: donordata.LpaTypePropertyAndAffairs})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Type: donordata.LpaTypePropertyAndAffairs})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -73,7 +73,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,7 +81,7 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	testcases := map[donordata.LpaType]*donordata.DonorProvidedDetails{
+	testcases := map[donordata.LpaType]*donordata.Provided{
 		donordata.LpaTypePropertyAndAffairs: {
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
@@ -91,7 +91,7 @@ func TestPostLpaType(t *testing.T) {
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:  donordata.LpaTypePropertyAndAffairs,
-			Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted},
+			Tasks: donordata.Tasks{YourDetails: actor.TaskCompleted},
 		},
 		donordata.LpaTypePersonalWelfare: {
 			LpaID: "lpa-id",
@@ -103,7 +103,7 @@ func TestPostLpaType(t *testing.T) {
 			},
 			Type:                donordata.LpaTypePersonalWelfare,
 			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
-			Tasks:               donordata.DonorTasks{YourDetails: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{YourDetails: actor.TaskCompleted},
 		},
 	}
 
@@ -138,7 +138,7 @@ func TestPostLpaType(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					FirstNames:  "John",
@@ -175,7 +175,7 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames:  "John",
@@ -201,7 +201,7 @@ func TestPostLpaTypeWhenSessionErrors(t *testing.T) {
 	r, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := LpaType(nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := LpaType(nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 	})
 
@@ -229,7 +229,7 @@ func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 		SendUidRequested(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := LpaType(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 	})
 
@@ -252,7 +252,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -269,7 +269,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

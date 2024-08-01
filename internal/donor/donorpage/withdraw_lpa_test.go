@@ -21,11 +21,11 @@ func TestGetWithdrawLpa(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &withdrawLpaData{
 			App:   testAppData,
-			Donor: &donordata.DonorProvidedDetails{},
+			Donor: &donordata.Provided{},
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,7 +41,7 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,13 +57,13 @@ func TestPostWithdrawLpa(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaUID:      "lpa-uid",
 			WithdrawnAt: now,
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,6 +81,6 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

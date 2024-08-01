@@ -19,7 +19,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	ResolveList(ctx context.Context, donors []*donordata.DonorProvidedDetails) ([]*lpastore.Lpa, error)
+	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error)
 }
 
 // An lpaLink is used to join an actor to an LPA.
@@ -105,7 +105,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 	var (
 		referencedKeys []dynamo.Keys
-		donorsDetails  []*donordata.DonorProvidedDetails
+		donorsDetails  []*donordata.Provided
 	)
 	for _, item := range lpasOrProvidedDetails {
 		var ks dynamo.Keys
@@ -115,7 +115,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 		if isLpaKey(ks) {
 			var donorDetails struct {
-				donordata.DonorProvidedDetails
+				donordata.Provided
 				ReferencedSK dynamo.OrganisationKeyType
 			}
 			if err := attributevalue.UnmarshalMap(item, &donorDetails); err != nil {
@@ -125,7 +125,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			if donorDetails.ReferencedSK != "" {
 				referencedKeys = append(referencedKeys, dynamo.Keys{PK: ks.PK, SK: donorDetails.ReferencedSK})
 			} else if donorDetails.LpaUID != "" {
-				donorsDetails = append(donorsDetails, &donorDetails.DonorProvidedDetails)
+				donorsDetails = append(donorsDetails, &donorDetails.Provided)
 			}
 		}
 	}
@@ -137,7 +137,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		for _, item := range referencedLpas {
-			donorDetails := &donordata.DonorProvidedDetails{}
+			donorDetails := &donordata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
 				return nil, nil, nil, err
 			}

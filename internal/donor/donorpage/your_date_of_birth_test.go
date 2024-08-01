@@ -29,7 +29,7 @@ func TestGetYourDateOfBirth(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +50,7 @@ func TestGetYourDateOfBirthFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			DateOfBirth: date.New("2000", "1", "2"),
 		},
@@ -76,7 +76,7 @@ func TestGetYourDateOfBirthDobWarningIsAlwaysShown(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			DateOfBirth: date.New("1900", "01", "02"),
 		},
@@ -96,7 +96,7 @@ func TestGetYourDateOfBirthWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Donor: donordata.Donor{FirstNames: "John", DateOfBirth: date.New("2000", "1", "2")}})
+	err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "John", DateOfBirth: date.New("2000", "1", "2")}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -160,13 +160,13 @@ func TestPostYourDateOfBirth(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: tc.person,
 				}).
 				Return(nil)
 
-			err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					DateOfBirth: date.New("2000", "1", "2"),
@@ -212,7 +212,7 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := YourDateOfBirth(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := YourDateOfBirth(nil, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{
 					DateOfBirth: date.New(validBirthYear, "1", "2"),
@@ -279,7 +279,7 @@ func TestPostYourDateOfBirthWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Donor: donordata.Donor{DateOfBirth: date.New("2000", "1", "2")}})
+			err := YourDateOfBirth(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{DateOfBirth: date.New("2000", "1", "2")}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -304,7 +304,7 @@ func TestPostYourDateOfBirthWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := YourDateOfBirth(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			DateOfBirth: date.New("2000", "1", "2"),
 		},

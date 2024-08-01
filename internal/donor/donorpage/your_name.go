@@ -23,7 +23,7 @@ type yourNameData struct {
 }
 
 func YourName(tmpl template.Template, donorStore DonorStore, sessionStore SessionStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourNameData{
 			App: appData,
 			Form: &yourNameForm{
@@ -129,7 +129,7 @@ func (f *yourNameForm) Validate() validation.List {
 	return errors
 }
 
-func donorMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func donorMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

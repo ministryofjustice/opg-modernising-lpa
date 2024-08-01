@@ -190,7 +190,7 @@ func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID strin
 	return c.sendUpdate(ctx, lpaUID, actorUID, body)
 }
 
-func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
+func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error {
 	body := updateRequest{
 		Type: "DONOR_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{

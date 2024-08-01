@@ -562,7 +562,7 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 		App:       app,
 		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, &donordata.DonorProvidedDetails{}, true))
+	}, lpaDecisions(app, &donordata.Provided{}, true))
 }
 
 func TestSummaryRow(t *testing.T) {

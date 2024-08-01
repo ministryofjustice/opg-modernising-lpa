@@ -21,7 +21,7 @@ type SearchClient interface {
 type dashboardData struct {
 	App         page.AppData
 	Errors      validation.List
-	Donors      []donordata.DonorProvidedDetails
+	Donors      []donordata.Provided
 	CurrentPage int
 	Pagination  *search.Pagination
 }

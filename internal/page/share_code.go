@@ -68,7 +68,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *donordata.DonorProvidedDetails) error {
+func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *donordata.Provided) error {
 	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err

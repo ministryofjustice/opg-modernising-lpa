@@ -23,23 +23,23 @@ func (_m *mockGetDonorStore) EXPECT() *mockGetDonorStore_Expecter {
 }
 
 // Get provides a mock function with given fields: _a0
-func (_m *mockGetDonorStore) Get(_a0 context.Context) (*donordata.DonorProvidedDetails, error) {
+func (_m *mockGetDonorStore) Get(_a0 context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *donordata.DonorProvidedDetails
+	var r0 *donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.Provided, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *donordata.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.Provided); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*donordata.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.Provided)
 		}
 	}
 
@@ -70,12 +70,12 @@ func (_c *mockGetDonorStore_Get_Call) Run(run func(_a0 context.Context)) *mockGe
 	return _c
 }
 
-func (_c *mockGetDonorStore_Get_Call) Return(_a0 *donordata.DonorProvidedDetails, _a1 error) *mockGetDonorStore_Get_Call {
+func (_c *mockGetDonorStore_Get_Call) Return(_a0 *donordata.Provided, _a1 error) *mockGetDonorStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockGetDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*donordata.DonorProvidedDetails, error)) *mockGetDonorStore_Get_Call {
+func (_c *mockGetDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*donordata.Provided, error)) *mockGetDonorStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

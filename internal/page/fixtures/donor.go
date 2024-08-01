@@ -37,7 +37,7 @@ type DynamoClient interface {
 type DocumentStore interface {
 	GetAll(context.Context) (page.Documents, error)
 	Put(context.Context, page.Document) error
-	Create(ctx context.Context, donor *donordata.DonorProvidedDetails, filename string, data []byte) (page.Document, error)
+	Create(ctx context.Context, donor *donordata.Provided, filename string, data []byte) (page.Document, error)
 }
 
 var progressValues = []string{
@@ -172,7 +172,7 @@ func Donor(
 
 func updateLPAProgress(
 	data FixtureData,
-	donorDetails *donordata.DonorProvidedDetails,
+	donorDetails *donordata.Provided,
 	donorSessionID string,
 	r *http.Request,
 	certificateProviderStore CertificateProviderStore,
@@ -180,7 +180,7 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
-) (*donordata.DonorProvidedDetails, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
+) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {

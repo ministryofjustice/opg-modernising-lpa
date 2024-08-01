@@ -14,11 +14,11 @@ import (
 type chooseAttorneysGuidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func ChooseAttorneysGuidance(tmpl template.Template, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &chooseAttorneysGuidanceData{
 			App:   appData,
 			Donor: donor,

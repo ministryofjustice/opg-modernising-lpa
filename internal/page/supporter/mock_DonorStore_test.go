@@ -74,23 +74,23 @@ func (_c *mockDonorStore_DeleteDonorAccess_Call) RunAndReturn(run func(context.C
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *mockDonorStore) Get(ctx context.Context) (*donordata.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) Get(ctx context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *donordata.DonorProvidedDetails
+	var r0 *donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.Provided, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *donordata.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.Provided); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*donordata.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.Provided)
 		}
 	}
 
@@ -121,34 +121,34 @@ func (_c *mockDonorStore_Get_Call) Run(run func(ctx context.Context)) *mockDonor
 	return _c
 }
 
-func (_c *mockDonorStore_Get_Call) Return(_a0 *donordata.DonorProvidedDetails, _a1 error) *mockDonorStore_Get_Call {
+func (_c *mockDonorStore_Get_Call) Return(_a0 *donordata.Provided, _a1 error) *mockDonorStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*donordata.DonorProvidedDetails, error)) *mockDonorStore_Get_Call {
+func (_c *mockDonorStore_Get_Call) RunAndReturn(run func(context.Context) (*donordata.Provided, error)) *mockDonorStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByKeys provides a mock function with given fields: ctx, keys
-func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error) {
 	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByKeys")
 	}
 
-	var r0 []donordata.DonorProvidedDetails
+	var r0 []donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) ([]donordata.Provided, error)); ok {
 		return rf(ctx, keys)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []donordata.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) []donordata.Provided); ok {
 		r0 = rf(ctx, keys)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]donordata.DonorProvidedDetails)
+			r0 = ret.Get(0).([]donordata.Provided)
 		}
 	}
 
@@ -180,18 +180,18 @@ func (_c *mockDonorStore_GetByKeys_Call) Run(run func(ctx context.Context, keys 
 	return _c
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) Return(_a0 []donordata.DonorProvidedDetails, _a1 error) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) Return(_a0 []donordata.Provided, _a1 error) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)) *mockDonorStore_GetByKeys_Call {
+func (_c *mockDonorStore_GetByKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) ([]donordata.Provided, error)) *mockDonorStore_GetByKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, donor
-func (_m *mockDonorStore) Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
+func (_m *mockDonorStore) Put(ctx context.Context, donor *donordata.Provided) error {
 	ret := _m.Called(ctx, donor)
 
 	if len(ret) == 0 {
@@ -199,7 +199,7 @@ func (_m *mockDonorStore) Put(ctx context.Context, donor *donordata.DonorProvide
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
 		r0 = rf(ctx, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -220,9 +220,9 @@ func (_e *mockDonorStore_Expecter) Put(ctx interface{}, donor interface{}) *mock
 	return &mockDonorStore_Put_Call{Call: _e.mock.On("Put", ctx, donor)}
 }
 
-func (_c *mockDonorStore_Put_Call) Run(run func(ctx context.Context, donor *donordata.DonorProvidedDetails)) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) Run(run func(ctx context.Context, donor *donordata.Provided)) *mockDonorStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
 	})
 	return _c
 }
@@ -232,7 +232,7 @@ func (_c *mockDonorStore_Put_Call) Return(_a0 error) *mockDonorStore_Put_Call {
 	return _c
 }
 
-func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails) error) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockDonorStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

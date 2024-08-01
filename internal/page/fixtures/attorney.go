@@ -27,9 +27,9 @@ import (
 )
 
 type DonorStore interface {
-	Create(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	Create(ctx context.Context) (*donordata.Provided, error)
 	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
-	Put(ctx context.Context, donorProvidedDetails *donordata.DonorProvidedDetails) error
+	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {

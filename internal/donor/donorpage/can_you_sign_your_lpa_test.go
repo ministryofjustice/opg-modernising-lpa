@@ -28,7 +28,7 @@ func TestGetCanYouSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetCanYouSignYourLpaWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -96,13 +96,13 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &donordata.DonorProvidedDetails{
+				On("Put", r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: tc.person,
 				}).
 				Return(nil)
 
-			err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 			})
 			resp := w.Result()
@@ -130,7 +130,7 @@ func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -151,7 +151,7 @@ func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
