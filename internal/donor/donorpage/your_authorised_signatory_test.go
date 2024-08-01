@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -328,11 +329,11 @@ func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
 func TestSignatoryMatches(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
@@ -360,8 +361,8 @@ func TestSignatoryMatches(t *testing.T) {
 
 func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
-		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 		PeopleToNotify:       actor.PeopleToNotify{{}},
 	}
 

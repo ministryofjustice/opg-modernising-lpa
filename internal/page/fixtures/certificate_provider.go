@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -165,11 +166,11 @@ func CertificateProvider(
 			donorDetails.LpaUID = makeUID()
 		}
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: actor.JointlyAndSeverally}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {

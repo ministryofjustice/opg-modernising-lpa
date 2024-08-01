@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -56,8 +57,8 @@ func Dashboard(
 			donor.Donor = makeDonor(testEmail)
 			donor.Type = actor.LpaTypePropertyAndAffairs
 
-			donor.Attorneys = actor.Attorneys{
-				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+			donor.Attorneys = donordata.Attorneys{
+				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			}
 
 			if err := donorStore.Put(donorCtx, donor); err != nil {
@@ -91,8 +92,8 @@ func Dashboard(
 				return err
 			}
 			donor.Donor = makeDonor(testEmail)
-			donor.Attorneys = actor.Attorneys{
-				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+			donor.Attorneys = donordata.Attorneys{
+				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			}
 			donor.LpaUID = makeUID()
 

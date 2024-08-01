@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -62,7 +63,7 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 
 func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 	testCases := map[string]struct {
-		howWorkTogether  actor.AttorneysAct
+		howWorkTogether  donordata.AttorneysAct
 		expectedTransKey string
 	}{
 		"jointly": {
@@ -90,7 +91,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 					App: testAppData,
 					Donor: &actor.DonorProvidedDetails{
 						DoYouWantToNotifyPeople: form.Yes,
-						AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
+						AttorneyDecisions:       donordata.AttorneyDecisions{How: tc.howWorkTogether},
 					},
 					Form:            form.NewYesNoForm(form.Yes),
 					HowWorkTogether: tc.expectedTransKey,
@@ -99,7 +100,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 
 			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 				DoYouWantToNotifyPeople: form.Yes,
-				AttorneyDecisions:       actor.AttorneyDecisions{How: tc.howWorkTogether},
+				AttorneyDecisions:       donordata.AttorneyDecisions{How: tc.howWorkTogether},
 			})
 			resp := w.Result()
 

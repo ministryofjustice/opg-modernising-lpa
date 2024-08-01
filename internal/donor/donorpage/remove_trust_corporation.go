@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -20,7 +21,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 	updateDonor := func(donor *actor.DonorProvidedDetails) {
 		donor.Attorneys.TrustCorporation = actor.TrustCorporation{}
 		if donor.Attorneys.Len() == 1 {
-			donor.AttorneyDecisions = actor.AttorneyDecisions{}
+			donor.AttorneyDecisions = donordata.AttorneyDecisions{}
 		}
 	}
 
@@ -28,7 +29,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		updateDonor = func(donor *actor.DonorProvidedDetails) {
 			donor.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{}
 			if donor.ReplacementAttorneys.Len() == 1 {
-				donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+				donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
 			}
 		}
 	}

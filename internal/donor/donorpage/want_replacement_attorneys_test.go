@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -42,7 +43,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	template := newMockTemplate(t)
 
-	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "this"}}}})
+	err := WantReplacementAttorneys(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "this"}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -91,25 +92,25 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 
 	testCases := map[string]struct {
 		yesNo                        form.YesNo
-		existingReplacementAttorneys actor.Attorneys
-		expectedReplacementAttorneys actor.Attorneys
+		existingReplacementAttorneys donordata.Attorneys
+		expectedReplacementAttorneys donordata.Attorneys
 		taskState                    actor.TaskState
 		redirect                     string
 	}{
 		"yes": {
 			yesNo:                        form.Yes,
-			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
-			expectedReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
+			expectedReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 			taskState:                    actor.TaskInProgress,
 			redirect:                     page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 		},
 		"no": {
 			yesNo: form.No,
-			existingReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 				{UID: uid},
 				{UID: actoruid.New()},
 			}},
-			expectedReplacementAttorneys: actor.Attorneys{},
+			expectedReplacementAttorneys: donordata.Attorneys{},
 			taskState:                    actor.TaskCompleted,
 			redirect:                     page.Paths.TaskList.Format("lpa-id"),
 		},

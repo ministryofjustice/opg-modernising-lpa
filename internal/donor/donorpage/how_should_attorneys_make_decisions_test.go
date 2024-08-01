@@ -48,12 +48,12 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 				DecisionsType:    actor.Jointly,
 				DecisionsDetails: "some decisions",
 			},
-			Donor:   &actor.DonorProvidedDetails{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
+			Donor:   &actor.DonorProvidedDetails{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
 			Options: donordata.AttorneysActValues,
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{AttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
+	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -86,14 +86,14 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	attorneys := actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}}
+	attorneys := donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:             "lpa-id",
 			Attorneys:         attorneys,
-			AttorneyDecisions: actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
+			AttorneyDecisions: donordata.AttorneyDecisions{How: actor.JointlyAndSeverally},
 			Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -110,9 +110,9 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingType    actor.AttorneysAct
+		existingType    donordata.AttorneysAct
 		existingDetails string
-		updatedType     actor.AttorneysAct
+		updatedType     donordata.AttorneysAct
 		updatedDetails  string
 		formType        string
 		formDetails     string
@@ -153,8 +153,8 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:             "lpa-id",
-					Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
-					AttorneyDecisions: actor.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
+					Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
+					AttorneyDecisions: donordata.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
 					Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
 				}).
 				Return(nil)
@@ -163,8 +163,8 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			err := HowShouldAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
-				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
-				AttorneyDecisions: actor.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
+				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
+				AttorneyDecisions: donordata.AttorneyDecisions{Details: tc.existingDetails, How: tc.existingType},
 			})
 			resp := w.Result()
 

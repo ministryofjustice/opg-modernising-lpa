@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -54,8 +55,8 @@ func TestClientSendLpa(t *testing.T) {
 					OtherNames:                "JJ",
 					ContactLanguagePreference: localize.Cy,
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -68,7 +69,7 @@ func TestClientSendLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneys: actor.Attorneys{},
+				ReplacementAttorneys: donordata.Attorneys{},
 				WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
 				CertificateProvider: actor.CertificateProvider{
 					UID:        certificateProviderUID,
@@ -115,7 +116,7 @@ func TestClientSendLpa(t *testing.T) {
 					OtherNames:                "JJ",
 					ContactLanguagePreference: localize.En,
 				},
-				Attorneys: actor.Attorneys{
+				Attorneys: donordata.Attorneys{
 					TrustCorporation: actor.TrustCorporation{
 						UID:           trustCorporationUID,
 						Name:          "Trusty",
@@ -130,7 +131,7 @@ func TestClientSendLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					},
-					Attorneys: []actor.Attorney{{
+					Attorneys: []donordata.Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -159,10 +160,10 @@ func TestClientSendLpa(t *testing.T) {
 						},
 					}},
 				},
-				AttorneyDecisions: actor.AttorneyDecisions{
+				AttorneyDecisions: donordata.AttorneyDecisions{
 					How: actor.Jointly,
 				},
-				ReplacementAttorneys: actor.Attorneys{
+				ReplacementAttorneys: donordata.Attorneys{
 					TrustCorporation: actor.TrustCorporation{
 						UID:           replacementTrustCorporationUID,
 						Name:          "UnTrusty",
@@ -176,7 +177,7 @@ func TestClientSendLpa(t *testing.T) {
 							Country:    "GB",
 						},
 					},
-					Attorneys: []actor.Attorney{{
+					Attorneys: []donordata.Attorney{{
 						UID:         replacementAttorneyUID,
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -206,7 +207,7 @@ func TestClientSendLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
 					How:     actor.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
@@ -528,7 +529,7 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				AttorneyDecisions: actor.AttorneyDecisions{
+				AttorneyDecisions: donordata.AttorneyDecisions{
 					How: actor.Jointly,
 				},
 				ReplacementAttorneys: Attorneys{
@@ -576,7 +577,7 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
 					How:     actor.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
@@ -899,7 +900,7 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					AttorneyDecisions: actor.AttorneyDecisions{
+					AttorneyDecisions: donordata.AttorneyDecisions{
 						How: actor.Jointly,
 					},
 					ReplacementAttorneys: Attorneys{
@@ -947,7 +948,7 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+					ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
 						How:     actor.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},

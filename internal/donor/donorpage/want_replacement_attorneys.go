@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -35,7 +36,7 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, new
 				donor.WantReplacementAttorneys = f.YesNo
 
 				if donor.WantReplacementAttorneys.IsNo() {
-					donor.ReplacementAttorneys = actor.Attorneys{}
+					donor.ReplacementAttorneys = donordata.Attorneys{}
 				}
 
 				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)

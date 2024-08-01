@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -85,8 +86,8 @@ var (
 	}
 )
 
-func makeAttorney(name Name) actor.Attorney {
-	return actor.Attorney{
+func makeAttorney(name Name) donordata.Attorney {
+	return donordata.Attorney{
 		UID:         actoruid.New(),
 		FirstNames:  name.Firstnames,
 		LastName:    name.Lastname,

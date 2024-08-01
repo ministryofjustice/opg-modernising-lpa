@@ -183,7 +183,7 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 			DateOfBirth: date.New("2000", "01", "01"),
 			Address:     place.Address{Postcode: "F1 1FF"},
 		},
-		Attorneys: actor.Attorneys{
+		Attorneys: donordata.Attorneys{
 			TrustCorporation: actor.TrustCorporation{Name: "a"},
 		},
 		HasSentApplicationUpdatedEvent: true,

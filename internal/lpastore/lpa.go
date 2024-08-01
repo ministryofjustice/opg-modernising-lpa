@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -30,9 +31,9 @@ type lpaRequest struct {
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
 	CertificateProvider                         lpaRequestCertificateProvider    `json:"certificateProvider"`
 	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisions                   donordata.AttorneysAct           `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        actor.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct           `json:"howReplacementAttorneysMakeDecisions,omitempty"`
 	HowReplacementAttorneysMakeDecisionsDetails string                           `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails,omitempty"`
@@ -365,9 +366,9 @@ type lpaResponse struct {
 	TrustCorporations                           []lpaResponseTrustCorporation    `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider              `json:"certificateProvider"`
 	PeopleToNotify                              []lpaRequestPersonToNotify       `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   actor.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisions                   donordata.AttorneysAct           `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                           `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        actor.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct           `json:"howReplacementAttorneysMakeDecisions,omitempty"`
 	HowReplacementAttorneysMakeDecisionsDetails string                           `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails,omitempty"`
@@ -437,8 +438,8 @@ type Lpa struct {
 	ReplacementAttorneys                       Attorneys
 	CertificateProvider                        CertificateProvider
 	PeopleToNotify                             actor.PeopleToNotify
-	AttorneyDecisions                          actor.AttorneyDecisions
-	ReplacementAttorneyDecisions               actor.AttorneyDecisions
+	AttorneyDecisions                          donordata.AttorneyDecisions
+	ReplacementAttorneyDecisions               donordata.AttorneyDecisions
 	HowShouldReplacementAttorneysStepIn        actor.ReplacementAttorneysStepIn
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
@@ -575,11 +576,11 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		},
 		CertificateProvider: l.CertificateProvider,
 		PeopleToNotify:      peopleToNotify,
-		AttorneyDecisions: actor.AttorneyDecisions{
+		AttorneyDecisions: donordata.AttorneyDecisions{
 			How:     l.HowAttorneysMakeDecisions,
 			Details: l.HowAttorneysMakeDecisionsDetails,
 		},
-		ReplacementAttorneyDecisions: actor.AttorneyDecisions{
+		ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
 			How:     l.HowReplacementAttorneysMakeDecisions,
 			Details: l.HowReplacementAttorneysMakeDecisionsDetails,
 		},

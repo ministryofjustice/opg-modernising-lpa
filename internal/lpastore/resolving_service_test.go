@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/stretchr/testify/assert"
@@ -68,12 +69,12 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
-				Attorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
+				Attorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
 					TrustCorporation: actor.TrustCorporation{Name: "b"},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
 					TrustCorporation: actor.TrustCorporation{Name: "d"},
 				},
 				DonorIdentityUserData: identity.UserData{
@@ -298,12 +299,12 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					Relationship: actor.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
-				Attorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
+				Attorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
 					TrustCorporation: actor.TrustCorporation{Name: "b"},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
 					TrustCorporation: actor.TrustCorporation{Name: "d"},
 				},
 			}},

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -67,7 +68,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
+			Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
 				Email:         "name@example.com",
