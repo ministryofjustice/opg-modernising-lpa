@@ -13,7 +13,7 @@ import (
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 	Options             donordata.ChannelOptions
 }

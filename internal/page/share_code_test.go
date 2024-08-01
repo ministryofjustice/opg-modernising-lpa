@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -18,7 +19,7 @@ import (
 
 func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -102,7 +103,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 	}
 
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -217,7 +218,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 	ctx := context.Background()
 
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -278,7 +279,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 
 func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -332,7 +333,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 	actorUID := actoruid.New()
 
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			UID:        actorUID,
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -392,7 +393,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 	}
 
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
@@ -475,7 +476,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			CarryOutBy: actor.ChannelPaper,
 		},
 	}
@@ -495,7 +496,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			CarryOutBy: actor.ChannelPaper,
 		},
 	}
@@ -522,7 +523,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 	ctx := context.Background()
 
 	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",

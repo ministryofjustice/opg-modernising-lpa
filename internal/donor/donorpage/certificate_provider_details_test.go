@@ -41,7 +41,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	}{
 		"uk mobile": {
 			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames: "John",
 					Mobile:     "07777",
 				},
@@ -53,7 +53,7 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 		},
 		"non-uk mobile": {
 			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:     "John",
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -111,7 +111,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 func TestPostCertificateProviderDetails(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
-		certificateProviderDetails actor.CertificateProvider
+		certificateProviderDetails donordata.CertificateProvider
 	}{
 		"valid": {
 			form: url.Values{
@@ -119,7 +119,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"last-name":   {"Rey"},
 				"mobile":      {"07535111111"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
@@ -133,7 +133,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"has-non-uk-mobile": {"1"},
 				"non-uk-mobile":     {"+337575757"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:            testUID,
 				FirstNames:     "John",
 				LastName:       "Rey",
@@ -148,7 +148,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":              {"07535111111"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "Jane",
 				LastName:   "Doe",
@@ -162,7 +162,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":                      {"07535111111"},
 				"ignore-similar-name-warning": {"yes"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "Joyce",
 				LastName:   "Doe",
@@ -225,7 +225,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 				FirstNames: "Jane",
 				LastName:   "Doe",
 			},
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
@@ -446,7 +446,7 @@ func TestCertificateProviderMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
@@ -477,7 +477,7 @@ func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},

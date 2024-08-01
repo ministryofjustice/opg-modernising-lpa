@@ -724,7 +724,7 @@ func TestAttorneyMatches(t *testing.T) {
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
@@ -758,7 +758,7 @@ func TestAttorneyMatchesEmptyNamesIgnored(t *testing.T) {
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},

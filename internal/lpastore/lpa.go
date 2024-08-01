@@ -346,7 +346,7 @@ type CertificateProvider struct {
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
-	Relationship actor.CertificateProviderRelationship
+	Relationship donordata.CertificateProviderRelationship
 }
 
 func (c CertificateProvider) FullName() string {

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -148,7 +149,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 
 	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "John",
 		},
 		Tasks: actor.DonorTasks{

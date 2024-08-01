@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -45,14 +46,14 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Joan"},
 			},
 			Form: &witnessingAsCertificateProviderForm{},
 		}).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, time.Now)(testAppData, w, r, &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Joan"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "Joan"},
 	})
 	resp := w.Result()
 
@@ -109,7 +110,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				LpaID:                            "lpa-id",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
-				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
+				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: now,
 				Tasks: actor.DonorTasks{
 					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
@@ -137,7 +138,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				LpaID:                            "lpa-id",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
-				CertificateProvider:              actor.CertificateProvider{FirstNames: "Fred"},
+				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				Tasks:                            actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
 			})
@@ -164,7 +165,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		LpaID:                            "lpa-id",
 		DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProvider:              actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		Tasks: actor.DonorTasks{
@@ -180,7 +181,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		Tasks:                    actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
 	})
@@ -220,7 +221,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-		CertificateProvider:      actor.CertificateProvider{FirstNames: "Fred"},
+		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
 		Tasks:                    actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
 	})
 	assert.Equal(t, expectedError, err)
@@ -247,7 +248,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &actor.DonorProvidedDetails{
-		CertificateProvider:      actor.CertificateProvider{Email: "name@example.com"},
+		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		Tasks:                    actor.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
 	})

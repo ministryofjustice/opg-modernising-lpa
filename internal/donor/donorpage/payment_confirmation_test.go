@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -72,7 +73,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 					LpaUID:           "lpa-uid",
 					FeeType:          pay.FullFee,
 					EvidenceDelivery: tc.evidenceDelivery,
-					CertificateProvider: actor.CertificateProvider{
+					CertificateProvider: donordata.CertificateProvider{
 						Email: "certificateprovider@example.com",
 					},
 					PaymentDetails: []actor.Payment{{
@@ -102,7 +103,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 				LpaUID:           "lpa-uid",
 				FeeType:          pay.FullFee,
 				EvidenceDelivery: tc.evidenceDelivery,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: actor.DonorTasks{
@@ -152,7 +153,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 			LpaUID:  "lpa-uid",
 			FeeType: pay.HalfFee,
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: donordata.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
 			PaymentDetails: []actor.Payment{{
@@ -183,7 +184,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 		LpaUID:  "lpa-uid",
 		FeeType: pay.HalfFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: actor.DonorTasks{
@@ -231,7 +232,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 					Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 					LpaUID:  "lpa-uid",
 					FeeType: pay.FullFee,
-					CertificateProvider: actor.CertificateProvider{
+					CertificateProvider: donordata.CertificateProvider{
 						Email: "certificateprovider@example.com",
 					},
 					PaymentDetails: []actor.Payment{{
@@ -262,7 +263,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 				Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: actor.DonorTasks{
@@ -288,7 +289,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
 				PaymentDetails: []actor.Payment{{
@@ -356,7 +357,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: actor.DonorTasks{
@@ -418,7 +419,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
 				Voucher: actor.Voucher{Allowed: true},
@@ -453,7 +454,7 @@ func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, nil, nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaUID: "lpa-uid",
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: actor.DonorTasks{
@@ -544,7 +545,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		withEmailPersonalizations(r.Context(), "£82")
 
 	err := PaymentConfirmation(logger, template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 		Type:   actor.LpaTypePersonalWelfare,
@@ -573,7 +574,7 @@ func TestGetPaymentConfirmationWhenEventClientError(t *testing.T) {
 
 	err := PaymentConfirmation(nil, nil, payClient, nil, sessionStore, nil, nil, eventClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		FeeType: pay.HalfFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 	})
@@ -612,7 +613,7 @@ func TestGetPaymentConfirmationWhenNotifyClientError(t *testing.T) {
 		Type:    actor.LpaTypePersonalWelfare,
 		Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.HalfFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 	})
@@ -655,7 +656,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 		Type:    actor.LpaTypePersonalWelfare,
 		Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.HalfFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 	})
@@ -703,7 +704,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		Type:    actor.LpaTypePersonalWelfare,
 		Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.FullFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: actor.DonorTasks{
@@ -748,7 +749,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 		Type:    actor.LpaTypePersonalWelfare,
 		Donor:   actor.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.FullFee,
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: actor.DonorTasks{

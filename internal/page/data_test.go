@@ -511,7 +511,7 @@ func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			donor := &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{LastName: tc.donor},
-				CertificateProvider: actor.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
+				CertificateProvider: donordata.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
 			}
 
 			for _, a := range tc.attorneys {
@@ -565,7 +565,7 @@ func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			donor := &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{Address: tc.donor},
-				CertificateProvider: actor.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
+				CertificateProvider: donordata.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
 			}
 
 			for _, attorney := range tc.attorneys {

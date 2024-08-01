@@ -71,7 +71,7 @@ func TestClientSendLpa(t *testing.T) {
 				},
 				ReplacementAttorneys: donordata.Attorneys{},
 				WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
@@ -214,7 +214,7 @@ func TestClientSendLpa(t *testing.T) {
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",

@@ -143,15 +143,15 @@ func makeDonor(email string) actor.Donor {
 	}
 }
 
-func makeCertificateProvider() actor.CertificateProvider {
-	return actor.CertificateProvider{
+func makeCertificateProvider() donordata.CertificateProvider {
+	return donordata.CertificateProvider{
 		UID:                actoruid.New(),
 		FirstNames:         "Charlie",
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       actor.Personally,
-		RelationshipLength: actor.GreaterThanEqualToTwoYears,
+		Relationship:       donordata.Personally,
+		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
 		CarryOutBy:         actor.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
