@@ -445,7 +445,6 @@ type AppPaths struct {
 	WhatYouCanDoNow                                      LpaPath
 	WhenCanTheLpaBeUsed                                  LpaPath
 	WhichFeeTypeAreYouApplyingFor                        LpaPath
-	WhoCanCorrespondentsDetailsBeSharedWith              LpaPath
 	WithdrawThisLpa                                      LpaPath
 	WitnessingAsCertificateProvider                      LpaPath
 	WitnessingAsIndependentWitness                       LpaPath
@@ -659,7 +658,6 @@ var Paths = AppPaths{
 	WhatYouCanDoNow:                                      "/what-you-can-do-now",
 	WhenCanTheLpaBeUsed:                                  "/when-can-the-lpa-be-used",
 	WhichFeeTypeAreYouApplyingFor:                        "/which-fee-type-are-you-applying-for",
-	WhoCanCorrespondentsDetailsBeSharedWith:              "/who-can-correspondents-details-be-shared-with",
 	WithdrawThisLpa:                                      "/withdraw-this-lpa",
 	WitnessingAsCertificateProvider:                      "/witnessing-as-certificate-provider",
 	WitnessingAsIndependentWitness:                       "/witnessing-as-independent-witness",
