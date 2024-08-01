@@ -37,7 +37,7 @@ func WitnessingAsCertificateProvider(
 			data.Errors = data.Form.Validate()
 
 			if donor.WitnessCodeLimiter == nil {
-				donor.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
+				donor.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
 			}
 
 			if !donor.WitnessCodeLimiter.Allow(now()) {
