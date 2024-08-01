@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -34,7 +35,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 
 		if r.Method == http.MethodPost {
 			if r.PostFormValue("action") == "choose-new" {
-				donor.CertificateProvider = actor.CertificateProvider{}
+				donor.CertificateProvider = donordata.CertificateProvider{}
 				donor.Tasks.CertificateProvider = actor.TaskNotStarted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

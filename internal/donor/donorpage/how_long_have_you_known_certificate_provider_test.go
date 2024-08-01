@@ -40,14 +40,14 @@ func TestGetHowLongHaveYouKnownCertificateProviderFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears}
+	certificateProvider := donordata.CertificateProvider{RelationshipLength: donordata.GreaterThanEqualToTwoYears}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howLongHaveYouKnownCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
-			RelationshipLength:  actor.GreaterThanEqualToTwoYears,
+			RelationshipLength:  donordata.GreaterThanEqualToTwoYears,
 			Options:             donordata.CertificateProviderRelationshipLengthValues,
 		}).
 		Return(nil)
@@ -80,7 +80,7 @@ func TestGetHowLongHaveYouKnownCertificateProviderWhenTemplateErrors(t *testing.
 
 func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) {
 	form := url.Values{
-		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
+		"relationship-length": {donordata.GreaterThanEqualToTwoYears.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -93,7 +93,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 			LpaID:               "lpa-id",
 			Attorneys:           donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   donordata.AttorneyDecisions{How: donordata.Jointly},
-			CertificateProvider: actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears},
+			CertificateProvider: donordata.CertificateProvider{RelationshipLength: donordata.GreaterThanEqualToTwoYears},
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -130,7 +130,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) 
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
+		"relationship-length": {donordata.GreaterThanEqualToTwoYears.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -170,7 +170,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderWhenValidationErrors(t *testi
 
 func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
 	form := url.Values{
-		"relationship-length": {actor.GreaterThanEqualToTwoYears.String()},
+		"relationship-length": {donordata.GreaterThanEqualToTwoYears.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -178,7 +178,7 @@ func TestReadHowLongHaveYouKnownCertificateProviderForm(t *testing.T) {
 
 	result := readHowLongHaveYouKnownCertificateProviderForm(r)
 
-	assert.Equal(t, actor.GreaterThanEqualToTwoYears, result.RelationshipLength)
+	assert.Equal(t, donordata.GreaterThanEqualToTwoYears, result.RelationshipLength)
 }
 
 func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
@@ -188,7 +188,7 @@ func TestHowLongHaveYouKnownCertificateProviderFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &howLongHaveYouKnownCertificateProviderForm{
-				RelationshipLength: actor.GreaterThanEqualToTwoYears,
+				RelationshipLength: donordata.GreaterThanEqualToTwoYears,
 			},
 		},
 		"invalid": {

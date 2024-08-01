@@ -43,14 +43,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	template.EXPECT().
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper},
+			CertificateProvider: donordata.CertificateProvider{CarryOutBy: actor.ChannelPaper},
 			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: actor.ChannelPaper},
 			Options:             donordata.ChannelValues,
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: actor.ChannelPaper},
 	})
 	resp := w.Result()
 
@@ -107,7 +107,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 			donorStore.EXPECT().
 				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
-					CertificateProvider: actor.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
+					CertificateProvider: donordata.CertificateProvider{CarryOutBy: tc.carryOutBy, Email: tc.email},
 				}).
 				Return(nil)
 
@@ -135,13 +135,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
-			CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Email: ""},
+			CertificateProvider: donordata.CertificateProvider{CarryOutBy: actor.ChannelPaper, Email: ""},
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline, Email: "a@b.com"},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: actor.ChannelOnline, Email: "a@b.com"},
 	})
 	resp := w.Result()
 

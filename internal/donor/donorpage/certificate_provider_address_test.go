@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -21,7 +22,7 @@ func TestGetCertificateProviderAddress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{
+	certificateProvider := donordata.CertificateProvider{
 		FirstNames: "John",
 		LastName:   "Smith",
 		Address:    place.Address{},
@@ -49,11 +50,11 @@ func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *tes
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{
+	certificateProvider := donordata.CertificateProvider{
 		FirstNames:   "John",
 		LastName:     "Smith",
 		Address:      place.Address{},
-		Relationship: actor.Professionally,
+		Relationship: donordata.Professionally,
 	}
 
 	template := newMockTemplate(t)
@@ -84,7 +85,7 @@ func TestGetCertificateProviderAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	certificateProvider := actor.CertificateProvider{
+	certificateProvider := donordata.CertificateProvider{
 		Address: testAddress,
 	}
 
@@ -114,7 +115,7 @@ func TestGetCertificateProviderAddressManual(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?action=manual", nil)
 
-	certificateProvider := actor.CertificateProvider{
+	certificateProvider := donordata.CertificateProvider{
 		Address: testAddress,
 	}
 
@@ -180,7 +181,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
-			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
 			Tasks:               actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(nil)
@@ -210,7 +211,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
-			CertificateProvider: actor.CertificateProvider{Address: testAddress},
+			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
 			Tasks:               actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
 		}).
 		Return(expectedError)
@@ -238,7 +239,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: donordata.CertificateProvider{
 				FirstNames: "John",
 				Address:    testAddress,
 			},
@@ -248,7 +249,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 
 	err := CertificateProviderAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		CertificateProvider: actor.CertificateProvider{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -631,7 +632,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: donordata.CertificateProvider{
 				Address: place.Address{
 					Line1:      "a",
 					Line2:      "b",

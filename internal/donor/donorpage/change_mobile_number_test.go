@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -35,7 +36,7 @@ func TestGetChangeMobileNumber(t *testing.T) {
 				Return(nil)
 
 			err := ChangeMobileNumber(template.Execute, newMockWitnessCodeSender(t), actorType)(testAppData, w, r, &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{FirstNames: "Certificate", LastName: "Provided"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Certificate", LastName: "Provided"},
 				IndependentWitness:  actor.IndependentWitness{FirstNames: "Independent", LastName: "Witness"},
 			})
 			resp := w.Result()
@@ -53,7 +54,7 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 	}{
 		"certificate provider uk mobile": {
 			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Mobile: "07777",
 				},
 			},
@@ -61,7 +62,7 @@ func TestGetChangeMobileNumberFromStore(t *testing.T) {
 		},
 		"certificate provider non-uk mobile": {
 			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Mobile:         "07777",
 					HasNonUKMobile: true,
 				},
@@ -141,7 +142,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 			actorType: actor.TypeCertificateProvider,
 			donor: &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Mobile: "07535111111",
 				},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -157,7 +158,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 			actorType: actor.TypeCertificateProvider,
 			donor: &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					Mobile:         "+337575757",
 					HasNonUKMobile: true,
 				},

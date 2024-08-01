@@ -267,7 +267,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Donor:               actor.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				CertificateProvider: actor.CertificateProvider{LastName: "a"},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[9].Path = page.Paths.ConfirmYourCertificateProviderIsNotRelated.Format("lpa-id")
@@ -280,7 +280,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Donor:               actor.Donor{FirstNames: "this"},
-				CertificateProvider: actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
@@ -326,7 +326,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:               "lpa-id",
 				SignedAt:            time.Now(),
 				Donor:               actor.Donor{FirstNames: "this"},
-				CertificateProvider: actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
@@ -383,7 +383,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Donor:               actor.Donor{FirstNames: "this"},
-				CertificateProvider: actor.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},

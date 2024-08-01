@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -20,7 +21,7 @@ func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore)
 		data := &chooseNewCertificateProviderData{Donor: donor, App: appData}
 
 		if r.Method == http.MethodPost {
-			donor.CertificateProvider = actor.CertificateProvider{}
+			donor.CertificateProvider = donordata.CertificateProvider{}
 
 			if err := donorStore.Put(r.Context(), donor); err != nil {
 				return err

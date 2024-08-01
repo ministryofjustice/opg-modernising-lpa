@@ -26,9 +26,9 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaID:       "1",
 				LpaUID:      "M-1111",
 				SubmittedAt: time.Now(),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Tasks: actor.DonorTasks{
 					CheckYourLpa: actor.TaskCompleted,
@@ -55,7 +55,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: Donor{Channel: actor.ChannelOnline},
 			},
@@ -64,9 +64,9 @@ func TestResolvingServiceGet(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
 				Attorneys: donordata.Attorneys{
@@ -88,7 +88,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: Donor{
 					Channel: actor.ChannelOnline,
@@ -136,7 +136,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Drafted:     true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: actor.Professionally,
+					Relationship: donordata.Professionally,
 				},
 				Donor: Donor{Channel: actor.ChannelPaper},
 			},
@@ -255,9 +255,9 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaID:       "1",
 				LpaUID:      "M-1111",
 				SubmittedAt: time.Now(),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Tasks: actor.DonorTasks{
 					CheckYourLpa: actor.TaskCompleted,
@@ -285,7 +285,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: Donor{Channel: actor.ChannelOnline},
 			}},
@@ -294,9 +294,9 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			donors: []*actor.DonorProvidedDetails{{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
 				Attorneys: donordata.Attorneys{
@@ -314,7 +314,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: donordata.Personally,
 				},
 				Donor: Donor{Channel: actor.ChannelOnline},
 				Attorneys: Attorneys{
@@ -358,7 +358,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				Submitted:   true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: actor.Professionally,
+					Relationship: donordata.Professionally,
 				},
 				Donor: Donor{Channel: actor.ChannelPaper},
 			}},

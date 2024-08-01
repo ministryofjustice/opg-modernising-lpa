@@ -220,7 +220,7 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
@@ -375,7 +375,7 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",

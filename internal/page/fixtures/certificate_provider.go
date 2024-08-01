@@ -178,7 +178,7 @@ func CertificateProvider(
 		}
 
 		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = actor.Professionally
+			donorDetails.CertificateProvider.Relationship = donordata.Professionally
 		}
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)

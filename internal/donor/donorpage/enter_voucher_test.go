@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -62,7 +63,7 @@ func TestPostEnterVoucher(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
 			Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-			CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+			CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 			Voucher: actor.Voucher{
 				FirstNames: "John",
 				LastName:   "Bloggs",
@@ -75,7 +76,7 @@ func TestPostEnterVoucher(t *testing.T) {
 	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:               "lpa-id",
 		Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 	})
 	resp := w.Result()
 
@@ -108,7 +109,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-					CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+					CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 					Voucher: actor.Voucher{
 						FirstNames: tc.First,
 						LastName:   tc.Last,
@@ -120,7 +121,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 			err := EnterVoucher(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:               "lpa-id",
 				Donor:               actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-				CertificateProvider: actor.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
 			})
 			resp := w.Result()
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -88,7 +89,7 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
 		// address question
-		lpa.CertificateProvider.Relationship = actor.Professionally
+		lpa.CertificateProvider.Relationship = donordata.Professionally
 		lpa.Donor.Channel = actor.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
