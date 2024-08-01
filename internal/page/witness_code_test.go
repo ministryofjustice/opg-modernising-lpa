@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +49,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 					LpaUID:                   "lpa-uid",
 					Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 					CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
-					CertificateProviderCodes: actor.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
+					CertificateProviderCodes: donordata.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
 					Type:                     donordata.LpaTypePropertyAndAffairs,
 				}).
 				Return(nil)
@@ -87,7 +86,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToCertificateProvider(ctx, &donordata.DonorProvidedDetails{
-		CertificateProviderCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -166,7 +165,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 			LpaUID:                  "lpa-uid",
 			Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
-			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+			IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 			Type:                    donordata.LpaTypePropertyAndAffairs,
 		}).
 		Return(nil)
@@ -201,7 +200,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
 	err := sender.SendToIndependentWitness(ctx, &donordata.DonorProvidedDetails{
-		IndependentWitnessCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
+		IndependentWitnessCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)

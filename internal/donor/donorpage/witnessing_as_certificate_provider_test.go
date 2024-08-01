@@ -110,7 +110,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			donor := &donordata.DonorProvidedDetails{
 				LpaID:                            "lpa-id",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: now,
 				Tasks: donordata.DonorTasks{
@@ -138,7 +138,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:                            "lpa-id",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				Tasks:                            donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
@@ -167,7 +167,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		LpaID:                            "lpa-id",
 		DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		Tasks: donordata.DonorTasks{
 			PayForLpa:                  task.PaymentStatePending,
@@ -183,7 +183,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 	})
 	resp := w.Result()
@@ -221,7 +221,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
 		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 	})
@@ -250,7 +250,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &donordata.DonorProvidedDetails{
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 	})
 
@@ -274,7 +274,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
 		Return(nil)
@@ -284,7 +284,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
@@ -292,7 +292,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
 
@@ -316,7 +316,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
 		Return(nil)
@@ -326,7 +326,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
@@ -334,7 +334,7 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
 
@@ -359,7 +359,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			})
 		})).
 		Return(nil)
@@ -369,7 +369,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeExpired"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "1234"},
@@ -377,7 +377,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
 	})
 	resp := w.Result()
 
@@ -401,7 +401,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.DonorProvidedDetails) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 			})
 		})).
 		Return(nil)
@@ -411,7 +411,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.DonorProvidedDetails{
-				CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
@@ -420,7 +420,7 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 
 	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		WitnessCodeLimiter:       donordata.NewLimiter(time.Minute, 0, 10),
-		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
 
