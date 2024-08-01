@@ -18,7 +18,7 @@ type sendUsYourEvidenceByPostData struct {
 }
 
 func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &sendUsYourEvidenceByPostData{
 			App:     appData,
 			FeeType: donor.FeeType,

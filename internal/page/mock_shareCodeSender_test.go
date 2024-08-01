@@ -15,11 +15,11 @@ type mockShareCodeSender struct {
 }
 
 // SendAttorneys provides a mock function with given fields: ctx, appData, donor
-func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *donordata.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *donordata.Provided) error {
 	ret := _m.Called(ctx, appData, donor)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, AppData, *donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, AppData, *donordata.Provided) error); ok {
 		r0 = rf(ctx, appData, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -29,11 +29,11 @@ func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppDat
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, appData, identity, donor
-func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, appData AppData, identity bool, donor *donordata.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, appData AppData, identity bool, donor *donordata.Provided) error {
 	ret := _m.Called(ctx, appData, identity, donor)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, AppData, bool, *donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, AppData, bool, *donordata.Provided) error); ok {
 		r0 = rf(ctx, appData, identity, donor)
 	} else {
 		r0 = ret.Error(0)

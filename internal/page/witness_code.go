@@ -33,7 +33,7 @@ func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *Wit
 	}
 }
 
-func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor *donordata.DonorProvidedDetails, localizer Localizer) error {
+func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor *donordata.Provided, localizer Localizer) error {
 	if !donor.CertificateProviderCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}
@@ -56,7 +56,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	})
 }
 
-func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *donordata.DonorProvidedDetails, localizer Localizer) error {
+func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *donordata.Provided, localizer Localizer) error {
 	if !donor.IndependentWitnessCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}

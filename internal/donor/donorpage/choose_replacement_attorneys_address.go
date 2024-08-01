@@ -12,7 +12,7 @@ import (
 )
 
 func ChooseReplacementAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		attorney, _ := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
 		data := newChooseAddressData(

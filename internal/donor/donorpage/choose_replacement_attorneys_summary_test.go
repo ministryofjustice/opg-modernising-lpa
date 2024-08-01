@@ -7,12 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +29,7 @@ func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donor := &donordata.DonorProvidedDetails{ReplacementAttorneys: attorneys}
+			donor := &donordata.Provided{ReplacementAttorneys: attorneys}
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -53,9 +53,9 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -73,7 +73,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseReplacementAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -142,7 +142,7 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.replacementAttorneys,
 				AttorneyDecisions: donordata.AttorneyDecisions{
@@ -150,9 +150,9 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 					Details: tc.decisionDetails,
 				},
 				Attorneys: tc.attorneys,
-				Tasks: donordata.DonorTasks{
-					YourDetails:     actor.TaskCompleted,
-					ChooseAttorneys: actor.TaskCompleted,
+				Tasks: donordata.Tasks{
+					YourDetails:     task.StateCompleted,
+					ChooseAttorneys: task.StateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -182,7 +182,7 @@ func TestPostChooseReplacementAttorneySummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseReplacementAttorneysSummary(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseReplacementAttorneysSummary(template.Execute, nil)(testAppData, w, r, &donordata.Provided{ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

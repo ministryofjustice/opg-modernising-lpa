@@ -9,7 +9,7 @@ import (
 )
 
 type DonorStore interface {
-	GetAny(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	GetAny(ctx context.Context) (*donordata.Provided, error)
 }
 
 type LpaClient interface {
@@ -48,7 +48,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	return s.merge(lpa, donor), nil
 }
 
-func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.DonorProvidedDetails) ([]*Lpa, error) {
+func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*Lpa, error) {
 	lpaUIDs := make([]string, len(donors))
 	for i, donor := range donors {
 		lpaUIDs[i] = donor.LpaUID
@@ -76,7 +76,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.
 	return result, nil
 }
 
-func (s *ResolvingService) merge(lpa *Lpa, donor *donordata.DonorProvidedDetails) *Lpa {
+func (s *ResolvingService) merge(lpa *Lpa, donor *donordata.Provided) *Lpa {
 	lpa.LpaKey = donor.PK
 	lpa.LpaOwnerKey = donor.SK
 	lpa.LpaID = donor.LpaID

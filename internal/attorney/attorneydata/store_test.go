@@ -43,7 +43,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Email:              "a@example.com",
 			}
 
-			shareCode := sharecode.ShareCodeData{
+			shareCode := sharecode.Data{
 				PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
 				SK:                    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 				ActorUID:              uid,
@@ -91,7 +91,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &Store{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, sharecode.ShareCodeData{}, "")
+	_, err := attorneyStore.Create(ctx, sharecode.Data{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -107,7 +107,7 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 
 			attorneyStore := &Store{}
 
-			_, err := attorneyStore.Create(ctx, sharecode.ShareCodeData{}, "")
+			_, err := attorneyStore.Create(ctx, sharecode.Data{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -124,7 +124,7 @@ func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	attorneyStore := &Store{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	_, err := attorneyStore.Create(ctx, sharecode.ShareCodeData{
+	_, err := attorneyStore.Create(ctx, sharecode.Data{
 		PK: dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")

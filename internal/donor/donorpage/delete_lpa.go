@@ -13,12 +13,12 @@ import (
 type deleteLpaData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func DeleteLpa(tmpl template.Template, donorStore DonorStore) Handler {
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if err := donorStore.Delete(r.Context()); err != nil {
 				return err

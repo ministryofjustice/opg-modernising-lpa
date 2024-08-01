@@ -19,7 +19,7 @@ type canYouSignYourLpaData struct {
 }
 
 func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &canYouSignYourLpaData{
 			App: appData,
 			Form: &canYouSignYourLpaForm{

@@ -487,7 +487,7 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	switch v := lpa.(type) {
 	case *lpastore.Lpa:
 		data.Lpa = v
-	case *donordata.DonorProvidedDetails:
+	case *donordata.Provided:
 		data.Lpa = lpastore.FromDonorProvidedDetails(v)
 	}
 

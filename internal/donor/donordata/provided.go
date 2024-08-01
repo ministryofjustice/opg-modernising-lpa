@@ -23,7 +23,7 @@ const (
 	currentCheckedHashVersion uint8 = 0
 )
 
-type DonorTasks struct {
+type Tasks struct {
 	YourDetails                task.State
 	ChooseAttorneys            task.State
 	ChooseReplacementAttorneys task.State
@@ -39,8 +39,8 @@ type DonorTasks struct {
 	ConfirmYourIdentityAndSign task.IdentityState
 }
 
-// DonorProvidedDetails contains all the data related to the LPA application
-type DonorProvidedDetails struct {
+// Provided contains all the data related to the LPA application
+type Provided struct {
 	PK dynamo.LpaKeyType      `hash:"-"`
 	SK dynamo.LpaOwnerKeyType `hash:"-"`
 	// Hash is used to determine whether the Lpa has been changed since last read
@@ -74,7 +74,7 @@ type DonorProvidedDetails struct {
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
-	Tasks DonorTasks
+	Tasks Tasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
 	// Information returned by the identity service related to the applicant
@@ -156,7 +156,7 @@ type DonorProvidedDetails struct {
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
-func (d *DonorProvidedDetails) HashInclude(field string, _ any) (bool, error) {
+func (d *Provided) HashInclude(field string, _ any) (bool, error) {
 	if d.HashVersion > currentHashVersion {
 		return false, errors.New("HashVersion too high")
 	}
@@ -167,7 +167,7 @@ func (d *DonorProvidedDetails) HashInclude(field string, _ any) (bool, error) {
 // toCheck filters the fields used for hashing further, for the use of
 // determining whether the LPA data has changed since it was checked by the
 // donor.
-type toCheck DonorProvidedDetails
+type toCheck Provided
 
 func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	if c.CheckedHashVersion > currentCheckedHashVersion {
@@ -206,49 +206,49 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	return true, nil
 }
 
-func (l *DonorProvidedDetails) NamesChanged(firstNames, lastName, otherNames string) bool {
+func (l *Provided) NamesChanged(firstNames, lastName, otherNames string) bool {
 	return l.Donor.FirstNames != firstNames || l.Donor.LastName != lastName || l.Donor.OtherNames != otherNames
 }
 
-func (l *DonorProvidedDetails) HashChanged() bool {
+func (l *Provided) HashChanged() bool {
 	hash, _ := l.generateHash()
 
 	return hash != l.Hash
 }
 
-func (l *DonorProvidedDetails) UpdateHash() (err error) {
+func (l *Provided) UpdateHash() (err error) {
 	l.HashVersion = currentHashVersion
 	l.Hash, err = l.generateHash()
 	return err
 }
 
-func (l *DonorProvidedDetails) generateHash() (uint64, error) {
+func (l *Provided) generateHash() (uint64, error) {
 	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
 }
 
-func (l *DonorProvidedDetails) CheckedHashChanged() bool {
+func (l *Provided) CheckedHashChanged() bool {
 	hash, _ := l.generateCheckedHash()
 
 	return hash != l.CheckedHash
 }
 
-func (l *DonorProvidedDetails) UpdateCheckedHash() (err error) {
+func (l *Provided) UpdateCheckedHash() (err error) {
 	l.CheckedHashVersion = currentCheckedHashVersion
 	l.CheckedHash, err = l.generateCheckedHash()
 	return err
 }
 
-func (l *DonorProvidedDetails) generateCheckedHash() (uint64, error) {
+func (l *Provided) generateCheckedHash() (uint64, error) {
 	return hashstructure.Hash(toCheck(*l), hashstructure.FormatV2, nil)
 }
 
-func (l *DonorProvidedDetails) DonorIdentityConfirmed() bool {
+func (l *Provided) DonorIdentityConfirmed() bool {
 	return l.DonorIdentityUserData.Status.IsConfirmed() &&
 		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
 		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
 }
 
-func (l *DonorProvidedDetails) AttorneysAndCpSigningDeadline() time.Time {
+func (l *Provided) AttorneysAndCpSigningDeadline() time.Time {
 	return l.SignedAt.Add((24 * time.Hour) * 28)
 }
 
@@ -259,7 +259,7 @@ type Under18ActorDetails struct {
 	Type        temporary.ActorType
 }
 
-func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
+func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 	var data []Under18ActorDetails
 	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
 
@@ -288,7 +288,7 @@ func (l *DonorProvidedDetails) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-func (l *DonorProvidedDetails) ActorAddresses() []place.Address {
+func (l *Provided) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
 	if l.Donor.Address.String() != "" {
@@ -314,7 +314,7 @@ func (l *DonorProvidedDetails) ActorAddresses() []place.Address {
 	return addresses
 }
 
-func (l *DonorProvidedDetails) AllLayAttorneysFirstNames() []string {
+func (l *Provided) AllLayAttorneysFirstNames() []string {
 	var names []string
 
 	for _, a := range l.Attorneys.Attorneys {
@@ -328,7 +328,7 @@ func (l *DonorProvidedDetails) AllLayAttorneysFirstNames() []string {
 	return names
 }
 
-func (l *DonorProvidedDetails) AllLayAttorneysFullNames() []string {
+func (l *Provided) AllLayAttorneysFullNames() []string {
 	var names []string
 
 	for _, a := range l.Attorneys.Attorneys {
@@ -342,7 +342,7 @@ func (l *DonorProvidedDetails) AllLayAttorneysFullNames() []string {
 	return names
 }
 
-func (l *DonorProvidedDetails) TrustCorporationsNames() []string {
+func (l *Provided) TrustCorporationsNames() []string {
 	var names []string
 
 	if l.Attorneys.TrustCorporation.Name != "" {
@@ -356,7 +356,7 @@ func (l *DonorProvidedDetails) TrustCorporationsNames() []string {
 	return names
 }
 
-func (l *DonorProvidedDetails) Cost() int {
+func (l *Provided) Cost() int {
 	if l.Tasks.PayForLpa.IsDenied() {
 		return 8200
 	}
@@ -364,7 +364,7 @@ func (l *DonorProvidedDetails) Cost() int {
 	return pay.Cost(l.FeeType, l.PreviousFee)
 }
 
-func (l *DonorProvidedDetails) FeeAmount() pay.AmountPence {
+func (l *Provided) FeeAmount() pay.AmountPence {
 	paid := 0
 
 	for _, payment := range l.PaymentDetails {
@@ -378,7 +378,7 @@ func (l *DonorProvidedDetails) FeeAmount() pay.AmountPence {
 // of the certificate provider matches that of the donor or one of the
 // attorneys. For a match of the last name we break on '-' to account for
 // double-barrelled names.
-func (l *DonorProvidedDetails) CertificateProviderSharesDetails() bool {
+func (l *Provided) CertificateProviderSharesDetails() bool {
 	certificateProviderParts := strings.Split(l.CertificateProvider.LastName, "-")
 
 	donorParts := strings.Split(l.Donor.LastName, "-")

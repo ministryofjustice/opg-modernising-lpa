@@ -50,7 +50,7 @@ func TestEvidenceReceivedStoreGetWhenDataStoreError(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &donordata.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &donordata.Provided{LpaID: "an-id"}, expectedError)
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 

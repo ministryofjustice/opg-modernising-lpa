@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -130,7 +130,7 @@ func TestPostProvideCertificate(t *testing.T) {
 		LpaID:    "lpa-id",
 		SignedAt: now,
 		Tasks: certificateproviderdata.Tasks{
-			ProvideTheCertificate: actor.TaskCompleted,
+			ProvideTheCertificate: task.StateCompleted,
 		},
 		Email: "a@example.com",
 	}
@@ -220,7 +220,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		LpaID:    "lpa-id",
 		SignedAt: signedAt,
 		Tasks: certificateproviderdata.Tasks{
-			ProvideTheCertificate: actor.TaskCompleted,
+			ProvideTheCertificate: task.StateCompleted,
 		},
 		Email: "a@example.com",
 	}

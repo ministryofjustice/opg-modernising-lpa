@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -52,7 +52,7 @@ func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreR
 			if data.Errors.None() && data.DobWarning == "" {
 				certificateProvider.DateOfBirth = data.Form.Dob
 				if !certificateProvider.Tasks.ConfirmYourDetails.Completed() {
-					certificateProvider.Tasks.ConfirmYourDetails = actor.TaskInProgress
+					certificateProvider.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
 
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {

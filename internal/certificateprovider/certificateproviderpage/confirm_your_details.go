@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -29,7 +29,7 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 		}
 
 		if r.Method == http.MethodPost {
-			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
 
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err

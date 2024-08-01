@@ -26,7 +26,7 @@ func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
 }
 
 // Execute provides a mock function with given fields: data, w, r, donor
-func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 	ret := _m.Called(data, w, r, donor)
 
 	if len(ret) == 0 {
@@ -34,7 +34,7 @@ func (_m *mockHandler) Execute(data page.AppData, w http.ResponseWriter, r *http
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(page.AppData, http.ResponseWriter, *http.Request, *donordata.Provided) error); ok {
 		r0 = rf(data, w, r, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -57,9 +57,9 @@ func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r inter
 	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, donor)}
 }
 
-func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails)) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) Run(run func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided)) *mockHandler_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*donordata.DonorProvidedDetails))
+		run(args[0].(page.AppData), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*donordata.Provided))
 	})
 	return _c
 }
@@ -69,7 +69,7 @@ func (_c *mockHandler_Execute_Call) Return(_a0 error) *mockHandler_Execute_Call 
 	return _c
 }
 
-func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *donordata.DonorProvidedDetails) error) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) RunAndReturn(run func(page.AppData, http.ResponseWriter, *http.Request, *donordata.Provided) error) *mockHandler_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }

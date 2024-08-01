@@ -4,22 +4,22 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type whenCanTheLpaBeUsedData struct {
 	App     page.AppData
 	Errors  validation.List
-	Donor   *donordata.DonorProvidedDetails
+	Donor   *donordata.Provided
 	Form    *whenCanTheLpaBeUsedForm
 	Options donordata.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &whenCanTheLpaBeUsedData{
 			App:   appData,
 			Donor: donor,
@@ -35,7 +35,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 
 			if data.Errors.None() {
 				donor.WhenCanTheLpaBeUsed = data.Form.When
-				donor.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+				donor.Tasks.WhenCanTheLpaBeUsed = task.StateCompleted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}

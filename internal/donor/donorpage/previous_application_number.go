@@ -17,7 +17,7 @@ type previousApplicationNumberData struct {
 }
 
 func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &previousApplicationNumberData{
 			App: appData,
 			Form: &previousApplicationNumberForm{

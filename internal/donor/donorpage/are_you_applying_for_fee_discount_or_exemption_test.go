@@ -28,7 +28,7 @@ func TestGetAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestGetAreYouApplyingForFeeDiscountOrExemptionWhenTemplateErrors(t *testing
 		}).
 		Return(expectedError)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -63,7 +63,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}}
+	donor := &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}}
 
 	payer := newMockHandler(t)
 	payer.EXPECT().
@@ -72,10 +72,10 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{Email: "a@b.com"},
-			Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateInProgress},
+			Tasks: donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
 		}).
 		Return(nil)
 
@@ -97,7 +97,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenDonorStoreErrors(t *test
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -120,7 +120,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenPayerErrors(t *testing.T
 		Put(r.Context(), mock.Anything).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, payer.Execute, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -135,14 +135,14 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{Email: "a@b.com"},
-			Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateInProgress},
+			Tasks: donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
 		}).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -168,7 +168,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenValidationError(t *testi
 		})).
 		Return(nil)
 
-	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}})
+	err := AreYouApplyingForFeeDiscountOrExemption(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{Email: "a@b.com"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
