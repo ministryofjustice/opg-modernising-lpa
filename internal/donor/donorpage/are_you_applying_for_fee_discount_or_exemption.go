@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -31,7 +31,7 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handl
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Tasks.PayForLpa = actor.PaymentTaskInProgress
+				donor.Tasks.PayForLpa = task.PaymentStateInProgress
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}

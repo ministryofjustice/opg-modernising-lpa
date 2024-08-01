@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,7 +50,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 		Tasks: donordata.DonorTasks{
-			PayForLpa: actor.PaymentTaskCompleted,
+			PayForLpa: task.PaymentStateCompleted,
 		},
 	})
 	resp := w.Result()

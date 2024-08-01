@@ -390,12 +390,12 @@ func updateLPAProgress(
 			donorDetails.FeeType = pay.FullFee
 		}
 
-		donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
+		donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 			PaymentReference: random.String(12),
 			PaymentId:        random.String(12),
 		})
 
-		donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if data.PaymentTaskProgress != "" {
 			taskState, err := task.ParsePaymentState(data.PaymentTaskProgress)

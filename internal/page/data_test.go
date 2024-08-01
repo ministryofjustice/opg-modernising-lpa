@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -370,7 +371,7 @@ func TestLpaCost(t *testing.T) {
 		expected int
 	}{
 		"denied": {
-			donor:    &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			donor:    &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}},
 			expected: 8200,
 		},
 		"half": {
@@ -396,15 +397,15 @@ func TestFeeAmount(t *testing.T) {
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"fully paid": {
-			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 		"denied partially paid": {
-			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}},
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"denied fully paid": {
-			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 	}

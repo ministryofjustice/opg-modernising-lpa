@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,7 +82,7 @@ func TestLpaPathRedirect(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
@@ -339,7 +340,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
@@ -366,7 +367,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			url:      Paths.ReadYourLpa.Format("123"),

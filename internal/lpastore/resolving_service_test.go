@@ -9,6 +9,7 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -32,7 +33,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Tasks: donordata.DonorTasks{
 					CheckYourLpa: actor.TaskCompleted,
-					PayForLpa:    actor.PaymentTaskCompleted,
+					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
@@ -261,7 +262,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				},
 				Tasks: donordata.DonorTasks{
 					CheckYourLpa: actor.TaskCompleted,
-					PayForLpa:    actor.PaymentTaskCompleted,
+					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status: identity.StatusConfirmed,
