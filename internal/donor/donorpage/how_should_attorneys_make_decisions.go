@@ -62,7 +62,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
-	DecisionsType     actor.AttorneysAct
+	DecisionsType     donordata.AttorneysAct
 	Error             error
 	DecisionsDetails  string
 	errorLabel        string

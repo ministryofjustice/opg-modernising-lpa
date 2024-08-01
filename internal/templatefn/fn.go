@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -350,7 +351,7 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 	case lpastore.Attorneys:
 		data.Attorneys = v.Attorneys
 		data.TrustCorporation = v.TrustCorporation
-	case actor.Attorneys:
+	case donordata.Attorneys:
 		for _, a := range v.Attorneys {
 			data.Attorneys = append(data.Attorneys, lpastore.Attorney{
 				UID:         a.UID,

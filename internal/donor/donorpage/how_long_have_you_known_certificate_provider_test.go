@@ -91,8 +91,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:               "lpa-id",
-			Attorneys:           actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
-			AttorneyDecisions:   actor.AttorneyDecisions{How: actor.Jointly},
+			Attorneys:           donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
+			AttorneyDecisions:   donordata.AttorneyDecisions{How: actor.Jointly},
 			CertificateProvider: actor.CertificateProvider{RelationshipLength: actor.GreaterThanEqualToTwoYears},
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 		}).
@@ -100,8 +100,8 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 
 	err := HowLongHaveYouKnownCertificateProvider(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:             "lpa-id",
-		Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
-		AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+		Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
+		AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
 		Tasks:             actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()

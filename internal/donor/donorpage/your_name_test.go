@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -316,11 +317,11 @@ func TestPostYourNameWhenStoreErrors(t *testing.T) {
 func TestDonorMatches(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
@@ -349,10 +350,10 @@ func TestDonorMatches(t *testing.T) {
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
 		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},

@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -233,7 +234,7 @@ func updateLPAProgress(
 	json.Unmarshal([]byte(`"urn:opg:poas:makeregister:users:without-address"`), &withoutAddressUID)
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourAttorneys") {
-		donorDetails.Attorneys.Attorneys = []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
+		donorDetails.Attorneys.Attorneys = []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
 		donorDetails.AttorneyDecisions.How = actor.JointlyAndSeverally
 
 		switch data.Attorneys {
@@ -247,7 +248,7 @@ func updateLPAProgress(
 			donorDetails.Attorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 		case "single":
 			donorDetails.Attorneys.Attorneys = donorDetails.Attorneys.Attorneys[:1]
-			donorDetails.AttorneyDecisions = actor.AttorneyDecisions{}
+			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{}
 		case "jointly":
 			donorDetails.AttorneyDecisions.How = actor.Jointly
 		case "jointly-for-some-severally-for-others":
@@ -259,7 +260,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
-		donorDetails.ReplacementAttorneys.Attorneys = []actor.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
+		donorDetails.ReplacementAttorneys.Attorneys = []donordata.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
 		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 		switch data.ReplacementAttorneys {
@@ -470,7 +471,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
-		for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
+		for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 			for _, a := range list.Attorneys {
 				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 

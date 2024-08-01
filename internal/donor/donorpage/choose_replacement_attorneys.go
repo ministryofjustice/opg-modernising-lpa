@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -66,7 +67,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) H
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{UID: uid}
+					attorney = donordata.Attorney{UID: uid}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
