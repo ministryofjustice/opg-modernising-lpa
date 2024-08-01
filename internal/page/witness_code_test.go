@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,7 +49,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				Put(ctx, &actor.DonorProvidedDetails{
 					LpaUID:                   "lpa-uid",
 					Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-					CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
+					CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
 					CertificateProviderCodes: actor.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
 					Type:                     actor.LpaTypePropertyAndAffairs,
 				}).
@@ -71,7 +72,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 			err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
 				LpaUID:              "lpa-uid",
 				Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-				CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+				CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 				Type:                actor.LpaTypePropertyAndAffairs,
 			}, localizer)
 
@@ -118,7 +119,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 		now:          time.Now,
 	}
 	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                actor.LpaTypePropertyAndAffairs,
 	}, localizer)
@@ -138,7 +139,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 		now:        time.Now,
 	}
 	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
+		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
 		Type:                actor.LpaTypePropertyAndAffairs,
 	}, nil)

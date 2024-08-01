@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -36,7 +37,7 @@ func TestGetChooseAttorneysAddress(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 			UID:        uid,
 			FirstNames: "John",
 			LastName:   "Smith",
@@ -54,7 +55,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
-	attorney := actor.Attorney{
+	attorney := donordata.Attorney{
 		UID:     uid,
 		Address: testAddress,
 	}
@@ -76,7 +77,7 @@ func TestGetChooseAttorneysAddressFromStore(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 	})
 	resp := w.Result()
 
@@ -106,7 +107,7 @@ func TestGetChooseAttorneysAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -132,7 +133,7 @@ func TestGetChooseAttorneysAddressWhenTemplateErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -160,7 +161,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 				UID:        uid,
 				FirstNames: "a",
 				Address:    testAddress,
@@ -170,7 +171,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 			UID:        uid,
 			FirstNames: "a",
 			Address:    place.Address{},
@@ -204,7 +205,7 @@ func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 			UID:     uid,
 			Address: place.Address{},
 		}}},
@@ -233,7 +234,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 				UID:        uid,
 				FirstNames: "John",
 				Address:    testAddress,
@@ -243,7 +244,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 			UID:        uid,
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
@@ -269,7 +270,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	attorney := actor.Attorney{
+	attorney := donordata.Attorney{
 		UID:     uid,
 		Address: place.Address{},
 	}
@@ -299,7 +300,7 @@ func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 	})
 	resp := w.Result()
 
@@ -337,7 +338,7 @@ func TestPostChooseAttorneysAddressPostcodeSelect(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -384,7 +385,7 @@ func TestPostChooseAttorneysAddressPostcodeSelectWhenValidationError(t *testing.
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -430,7 +431,7 @@ func TestPostChooseAttorneysPostcodeLookup(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -477,7 +478,7 @@ func TestPostChooseAttorneysPostcodeLookupError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -529,7 +530,7 @@ func TestPostChooseAttorneysPostcodeLookupInvalidPostcodeError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -573,7 +574,7 @@ func TestPostChooseAttorneysPostcodeLookupValidPostcodeNoAddresses(t *testing.T)
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -608,7 +609,7 @@ func TestPostChooseAttorneysPostcodeLookupWhenValidationError(t *testing.T) {
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -644,7 +645,7 @@ func TestPostChooseAttorneysAddressReuse(t *testing.T) {
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -663,7 +664,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	updatedAttorney := actor.Attorney{
+	updatedAttorney := donordata.Attorney{
 		UID: uid,
 		Address: place.Address{
 			Line1:      "a",
@@ -679,14 +680,14 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID:     "lpa-id",
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{updatedAttorney}},
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{updatedAttorney}},
 			Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
 	err := ChooseAttorneysAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID:     "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -724,7 +725,7 @@ func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) 
 
 	err := ChooseAttorneysAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{UID: uid}}},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 	})
 	resp := w.Result()
 
@@ -768,7 +769,7 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 
 			donor := &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{
 						UID: uid,
 						Address: place.Address{

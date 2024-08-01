@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -38,7 +39,7 @@ func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
 		"matches donor": {
 			donor: &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Smith"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
 				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
 			matches: []actor.Type{actor.TypeDonor, actor.TypeCertificateProvider},
@@ -46,7 +47,7 @@ func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
 		"matches donor last name": {
 			donor: &actor.DonorProvidedDetails{
 				Donor:               actor.Donor{FirstNames: "Dave", LastName: "Smith"},
-				CertificateProvider: actor.CertificateProvider{FirstNames: "John", LastName: "Smith"},
+				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
 				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
 			matches:      []actor.Type{actor.TypeCertificateProvider},

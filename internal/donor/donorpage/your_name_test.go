@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -149,14 +150,14 @@ func TestPostYourName(t *testing.T) {
 				Put(r.Context(), &actor.DonorProvidedDetails{
 					LpaID:               "lpa-id",
 					Donor:               tc.person,
-					CertificateProvider: actor.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
+					CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
 				}).
 				Return(nil)
 
 			err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 				LpaID:                          "lpa-id",
 				Donor:                          actor.Donor{FirstNames: "John"},
-				CertificateProvider:            actor.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
+				CertificateProvider:            donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
 				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
@@ -316,15 +317,15 @@ func TestPostYourNameWhenStoreErrors(t *testing.T) {
 func TestDonorMatches(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
@@ -349,13 +350,13 @@ func TestDonorMatches(t *testing.T) {
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
 		PeopleToNotify: actor.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},

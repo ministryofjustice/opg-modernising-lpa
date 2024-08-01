@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -70,7 +71,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{UID: uid}
+					attorney = donordata.Attorney{UID: uid}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
@@ -207,6 +208,6 @@ func attorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstN
 	return actor.TypeNone
 }
 
-func (f *chooseAttorneysForm) NameHasChanged(attorney actor.Attorney) bool {
+func (f *chooseAttorneysForm) NameHasChanged(attorney donordata.Attorney) bool {
 	return attorney.FirstNames != f.FirstNames || attorney.LastName != f.LastName
 }

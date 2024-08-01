@@ -13,8 +13,8 @@ import (
 type howLongHaveYouKnownCertificateProviderData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
-	RelationshipLength  actor.CertificateProviderRelationshipLength
+	CertificateProvider donordata.CertificateProvider
+	RelationshipLength  donordata.CertificateProviderRelationshipLength
 	Options             donordata.CertificateProviderRelationshipLengthOptions
 }
 
@@ -32,7 +32,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				if form.RelationshipLength == actor.LessThanTwoYears {
+				if form.RelationshipLength == donordata.LessThanTwoYears {
 					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, donor)
 				}
 
@@ -50,7 +50,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 }
 
 type howLongHaveYouKnownCertificateProviderForm struct {
-	RelationshipLength actor.CertificateProviderRelationshipLength
+	RelationshipLength donordata.CertificateProviderRelationshipLength
 	Error              error
 }
 

@@ -49,7 +49,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 }
 
 type whenCanTheLpaBeUsedForm struct {
-	When  actor.CanBeUsedWhen
+	When  donordata.CanBeUsedWhen
 	Error error
 }
 

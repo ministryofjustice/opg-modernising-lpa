@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -346,11 +347,11 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	}
 	lpaStoreTrustCorporation := lpastore.TrustCorporation{Name: "a"}
 
-	actorAttorneys := []actor.Attorney{
+	actorAttorneys := []donordata.Attorney{
 		{UID: uid1},
 		{UID: uid2},
 	}
-	actorTrustCorporation := actor.TrustCorporation{Name: "a"}
+	actorTrustCorporation := donordata.TrustCorporation{Name: "a"}
 
 	testcases := map[string]struct {
 		attorneys    any
@@ -373,7 +374,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 			},
 		},
 		"dynamo": {
-			attorneys: actor.Attorneys{
+			attorneys: donordata.Attorneys{
 				Attorneys:        actorAttorneys,
 				TrustCorporation: actorTrustCorporation,
 			},
@@ -403,7 +404,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 			},
 		},
 		"dynamo replacement": {
-			attorneys: actor.Attorneys{
+			attorneys: donordata.Attorneys{
 				Attorneys:        actorAttorneys,
 				TrustCorporation: actorTrustCorporation,
 			},

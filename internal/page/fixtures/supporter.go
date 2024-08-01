@@ -12,6 +12,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -111,8 +112,8 @@ func Supporter(
 				donor.Donor = makeDonor(testEmail)
 				donor.Type = actor.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
-				donor.Attorneys = actor.Attorneys{
-					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+				donor.Attorneys = donordata.Attorneys{
+					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 				}
 				donor.Tasks.YourDetails = actor.TaskCompleted
 				donor.Tasks.ChooseAttorneys = actor.TaskCompleted
@@ -164,8 +165,8 @@ func Supporter(
 					donor.Donor = makeDonor(testEmail)
 					donor.Type = actor.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
-					donor.Attorneys = actor.Attorneys{
-						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+					donor.Attorneys = donordata.Attorneys{
+						Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 					}
 
 					var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error

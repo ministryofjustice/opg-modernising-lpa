@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -192,8 +193,8 @@ func TestClientServiceContract(t *testing.T) {
 					Address:                   address,
 					ContactLanguagePreference: localize.En,
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
@@ -201,16 +202,16 @@ func TestClientServiceContract(t *testing.T) {
 						Email:       "alice@example.com",
 						Address:     address,
 					}},
-					TrustCorporation: actor.TrustCorporation{
+					TrustCorporation: donordata.TrustCorporation{
 						UID:           actoruid.New(),
 						Name:          "Trust us Corp.",
 						CompanyNumber: "66654321",
 						Address:       address,
 					},
 				},
-				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -219,7 +220,7 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
@@ -354,8 +355,8 @@ func TestClientServiceContract(t *testing.T) {
 					OtherNames:                "JJ",
 					ContactLanguagePreference: localize.Cy,
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
@@ -364,8 +365,8 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -374,7 +375,7 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",

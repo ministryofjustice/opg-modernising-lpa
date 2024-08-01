@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -142,10 +143,10 @@ func CertificateProvider(
 		donorDetails.Type = actor.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
 			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -165,11 +166,11 @@ func CertificateProvider(
 			donorDetails.LpaUID = makeUID()
 		}
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {
@@ -177,7 +178,7 @@ func CertificateProvider(
 		}
 
 		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = actor.Professionally
+			donorDetails.CertificateProvider.Relationship = donordata.Professionally
 		}
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)

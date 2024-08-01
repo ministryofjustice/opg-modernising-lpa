@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -34,7 +35,7 @@ func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Ha
 				if data.Form.YesNo == form.Yes {
 					donor.ReplacementAttorneys.Delete(attorney)
 					if donor.ReplacementAttorneys.Len() == 1 {
-						donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+						donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
 					}
 
 					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)

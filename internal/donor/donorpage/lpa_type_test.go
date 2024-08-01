@@ -102,7 +102,7 @@ func TestPostLpaType(t *testing.T) {
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:                actor.LpaTypePersonalWelfare,
-			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 	}
@@ -183,8 +183,8 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 			DateOfBirth: date.New("2000", "01", "01"),
 			Address:     place.Address{Postcode: "F1 1FF"},
 		},
-		Attorneys: actor.Attorneys{
-			TrustCorporation: actor.TrustCorporation{Name: "a"},
+		Attorneys: donordata.Attorneys{
+			TrustCorporation: donordata.TrustCorporation{Name: "a"},
 		},
 		HasSentApplicationUpdatedEvent: true,
 	})

@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -85,8 +86,8 @@ var (
 	}
 )
 
-func makeAttorney(name Name) actor.Attorney {
-	return actor.Attorney{
+func makeAttorney(name Name) donordata.Attorney {
+	return donordata.Attorney{
 		UID:         actoruid.New(),
 		FirstNames:  name.Firstnames,
 		LastName:    name.Lastname,
@@ -103,8 +104,8 @@ func makeAttorney(name Name) actor.Attorney {
 	}
 }
 
-func makeTrustCorporation(name string) actor.TrustCorporation {
-	return actor.TrustCorporation{
+func makeTrustCorporation(name string) donordata.TrustCorporation {
+	return donordata.TrustCorporation{
 		UID:           actoruid.New(),
 		Name:          name,
 		CompanyNumber: "555555555",
@@ -142,15 +143,15 @@ func makeDonor(email string) actor.Donor {
 	}
 }
 
-func makeCertificateProvider() actor.CertificateProvider {
-	return actor.CertificateProvider{
+func makeCertificateProvider() donordata.CertificateProvider {
+	return donordata.CertificateProvider{
 		UID:                actoruid.New(),
 		FirstNames:         "Charlie",
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       actor.Personally,
-		RelationshipLength: actor.GreaterThanEqualToTwoYears,
+		Relationship:       donordata.Personally,
+		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
 		CarryOutBy:         actor.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",

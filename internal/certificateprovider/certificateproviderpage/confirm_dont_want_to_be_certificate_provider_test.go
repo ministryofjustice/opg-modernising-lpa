@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -178,7 +179,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CertificateProvider: actor.TaskCompleted,
 							CheckYourLpa:        actor.TaskCompleted,
 						},
-						CertificateProvider: actor.CertificateProvider{
+						CertificateProvider: donordata.CertificateProvider{
 							UID:        uid,
 							FirstNames: "d e", LastName: "f",
 						},
@@ -194,7 +195,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CertificateProvider: actor.TaskNotStarted,
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
-						CertificateProvider: actor.CertificateProvider{},
+						CertificateProvider: donordata.CertificateProvider{},
 						Type:                actor.LpaTypePersonalWelfare,
 					}).
 					Return(nil)

@@ -45,15 +45,15 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    actor.Jointly,
+				DecisionsType:    donordata.Jointly,
 				DecisionsDetails: "some decisions",
 			},
 			Options: donordata.AttorneysActValues,
-			Donor:   &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}},
+			Donor:   &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "some decisions", How: actor.Jointly}})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -78,7 +78,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 
 func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {actor.Jointly.String()},
+		"decision-type": {donordata.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -88,7 +88,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly}}).
+		Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -104,31 +104,31 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	testCases := map[string]struct {
 		form      url.Values
-		existing  actor.AttorneyDecisions
-		attorneys actor.Attorneys
-		updated   actor.AttorneyDecisions
+		existing  donordata.AttorneyDecisions
+		attorneys donordata.Attorneys
+		updated   donordata.AttorneyDecisions
 		taskState actor.TaskState
 		redirect  page.LpaPath
 	}{
 		"existing details not set": {
 			form: url.Values{
-				"decision-type": {actor.JointlyForSomeSeverallyForOthers.String()},
+				"decision-type": {donordata.JointlyForSomeSeverallyForOthers.String()},
 				"mixed-details": {"some details"},
 			},
-			existing:  actor.AttorneyDecisions{How: actor.JointlyAndSeverally},
-			attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
-			updated:   actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			existing:  donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
+			updated:   donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
 			form: url.Values{
-				"decision-type": {actor.Jointly.String()},
+				"decision-type": {donordata.Jointly.String()},
 				"mixed-details": {"some details"},
 			},
-			existing:  actor.AttorneyDecisions{How: actor.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
-			updated:   actor.AttorneyDecisions{How: actor.Jointly},
+			existing:  donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
+			updated:   donordata.AttorneyDecisions{How: donordata.Jointly},
 			taskState: actor.TaskCompleted,
 			redirect:  page.Paths.TaskList,
 		},
@@ -168,7 +168,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"decision-type": {actor.Jointly.String()},
+		"decision-type": {donordata.Jointly.String()},
 		"mixed-details": {"some decisions"},
 	}
 
@@ -213,7 +213,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {actor.Jointly.String()},
+		"decision-type": {donordata.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -223,7 +223,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: actor.AttorneyDecisions{Details: "", How: actor.Jointly}}).
+		Put(r.Context(), &actor.DonorProvidedDetails{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "", How: donordata.Jointly}}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)
