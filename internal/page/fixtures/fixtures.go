@@ -193,7 +193,6 @@ func makeCorrespondent(name Name) actor.Correspondent {
 		},
 		Organisation: "Ashfurlong and partners",
 		WantAddress:  form.Yes,
-		Share:        actor.CorrespondentShareAttorneys | actor.CorrespondentShareCertificateProvider,
 		Email:        testEmail,
 		Telephone:    testMobile,
 	}

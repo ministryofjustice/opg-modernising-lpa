@@ -5,14 +5,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-//go:generate enumerator -type CorrespondentShare -linecomment -trimprefix -empty -bits
-type CorrespondentShare uint8
-
-const (
-	CorrespondentShareAttorneys CorrespondentShare = 2 << iota
-	CorrespondentShareCertificateProvider
-)
-
 type Correspondent struct {
 	FirstNames   string
 	LastName     string
@@ -21,7 +13,6 @@ type Correspondent struct {
 	Telephone    string
 	WantAddress  form.YesNo
 	Address      place.Address
-	Share        CorrespondentShare
 }
 
 func (c Correspondent) FullName() string {
