@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -115,7 +116,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -145,7 +146,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type:           actor.LpaTypePersonalWelfare,
+				Type:           donordata.LpaTypePersonalWelfare,
 				CannotRegister: true,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
@@ -169,33 +170,33 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&actor.DonorProvidedDetails{
+					Return(&donordata.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
-						Donor: actor.Donor{
+						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: actor.DonorTasks{
+						Tasks: donordata.DonorTasks{
 							CertificateProvider: actor.TaskCompleted,
 							CheckYourLpa:        actor.TaskCompleted,
 						},
-						CertificateProvider: actor.CertificateProvider{
+						CertificateProvider: donordata.CertificateProvider{
 							UID:        uid,
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: actor.LpaTypePersonalWelfare,
+						Type: donordata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
-					Put(r.Context(), &actor.DonorProvidedDetails{
+					Put(r.Context(), &donordata.DonorProvidedDetails{
 						LpaUID: "lpa-uid",
-						Donor: actor.Donor{
+						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: actor.DonorTasks{
+						Tasks: donordata.DonorTasks{
 							CertificateProvider: actor.TaskNotStarted,
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
-						CertificateProvider: actor.CertificateProvider{},
-						Type:                actor.LpaTypePersonalWelfare,
+						CertificateProvider: donordata.CertificateProvider{},
+						Type:                donordata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 
@@ -318,7 +319,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&actor.DonorProvidedDetails{}, expectedError)
+					Return(&donordata.DonorProvidedDetails{}, expectedError)
 
 				return donorStore
 			},
@@ -348,7 +349,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&actor.DonorProvidedDetails{}, nil)
+					Return(&donordata.DonorProvidedDetails{}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), mock.Anything).
 					Return(expectedError)

@@ -9,9 +9,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -60,18 +62,18 @@ func TestLpaPathFormat(t *testing.T) {
 func TestLpaPathRedirect(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
-		donor    *actor.DonorProvidedDetails
+		donor    *donordata.DonorProvidedDetails
 		expected string
 	}{
 		"redirect": {
 			url: "/",
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
+				Type: donordata.LpaTypePersonalWelfare,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -80,14 +82,14 @@ func TestLpaPathRedirect(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			expected: Paths.HowToConfirmYourIdentityAndSign.Format("lpa-id"),
 		},
 		"redirect with from": {
 			url:      "/?from=" + Paths.Restrictions.Format("lpa-id"),
-			donor:    &actor.DonorProvidedDetails{LpaID: "lpa-id", Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
+			donor:    &donordata.DonorProvidedDetails{LpaID: "lpa-id", Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted}},
 			expected: Paths.Restrictions.Format("lpa-id"),
 		},
 	}
@@ -111,7 +113,7 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &actor.DonorProvidedDetails{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
+	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &donordata.DonorProvidedDetails{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -244,24 +246,24 @@ func TestSupporterLpaPathIsManageOrganisation(t *testing.T) {
 
 func TestDonorCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
-		donor    *actor.DonorProvidedDetails
+		donor    *donordata.DonorProvidedDetails
 		url      string
 		expected bool
 	}{
 		"empty path": {
-			donor:    &actor.DonorProvidedDetails{},
+			donor:    &donordata.DonorProvidedDetails{},
 			url:      "",
 			expected: false,
 		},
 		"unexpected path": {
-			donor:    &actor.DonorProvidedDetails{},
+			donor:    &donordata.DonorProvidedDetails{},
 			url:      "/whatever",
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
-			donor: &actor.DonorProvidedDetails{
-				Type: actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
+			donor: &donordata.DonorProvidedDetails{
+				Type: donordata.LpaTypePersonalWelfare,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -276,10 +278,10 @@ func TestDonorCanGoTo(t *testing.T) {
 			expected: false,
 		},
 		"check your lpa when can sign": {
-			donor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{CanSign: form.Yes},
-				Type:  actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
+			donor: &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{CanSign: form.Yes},
+				Type:  donordata.LpaTypePersonalWelfare,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -294,17 +296,17 @@ func TestDonorCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"about payment without task": {
-			donor:    &actor.DonorProvidedDetails{LpaID: "123"},
+			donor:    &donordata.DonorProvidedDetails{LpaID: "123"},
 			url:      Paths.AboutPayment.Format("123"),
 			expected: false,
 		},
 		"about payment with tasks": {
-			donor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			donor: &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePropertyAndAffairs,
-				Tasks: actor.DonorTasks{
+				Type: donordata.LpaTypePropertyAndAffairs,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -319,17 +321,17 @@ func TestDonorCanGoTo(t *testing.T) {
 			expected: true,
 		},
 		"identity without task": {
-			donor:    &actor.DonorProvidedDetails{},
+			donor:    &donordata.DonorProvidedDetails{},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: false,
 		},
 		"identity with tasks": {
-			donor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			donor: &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
+				Type: donordata.LpaTypePersonalWelfare,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -338,25 +340,25 @@ func TestDonorCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			url:      Paths.IdentityWithOneLogin.Format("123"),
 			expected: true,
 		},
 		"read lpa without task": {
-			donor:    &actor.DonorProvidedDetails{},
+			donor:    &donordata.DonorProvidedDetails{},
 			url:      Paths.ReadYourLpa.Format("123"),
 			expected: false,
 		},
 		"read lpa with tasks": {
-			donor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			donor: &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Type:                  actor.LpaTypePersonalWelfare,
-				Tasks: actor.DonorTasks{
+				Type:                  donordata.LpaTypePersonalWelfare,
+				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -365,19 +367,19 @@ func TestDonorCanGoTo(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					PeopleToNotify:             actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
 			url:      Paths.ReadYourLpa.Format("123"),
 			expected: true,
 		},
 		"your name when identity not set": {
-			donor:    &actor.DonorProvidedDetails{},
+			donor:    &donordata.DonorProvidedDetails{},
 			url:      Paths.YourName.Format("123"),
 			expected: true,
 		},
 		"your name when identity set": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.DonorProvidedDetails{
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			url:      Paths.YourName.Format("123"),

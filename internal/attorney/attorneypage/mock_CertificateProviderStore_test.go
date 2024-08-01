@@ -5,7 +5,7 @@ package attorneypage
 import (
 	context "context"
 
-	 "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 
 	mock "github.com/stretchr/testify/mock"
 )

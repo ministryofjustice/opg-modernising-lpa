@@ -12,10 +12,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -124,15 +126,15 @@ func TestHandleFeeApproved(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	donorProvided := actor.DonorProvidedDetails{
+	donorProvided := donordata.DonorProvidedDetails{
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
-		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+		Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 	}
 
 	completedDonorProvided := donorProvided
-	completedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	completedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -202,15 +204,15 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	donorProvided := actor.DonorProvidedDetails{
+	donorProvided := donordata.DonorProvidedDetails{
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.HalfFee,
-		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+		Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 	}
 
 	completedDonorProvided := donorProvided
-	completedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskApproved
+	completedDonorProvided.Tasks.PayForLpa = task.PaymentStateApproved
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -270,11 +272,11 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	donorProvided := actor.DonorProvidedDetails{
+	donorProvided := donordata.DonorProvidedDetails{
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
-		Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+		Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 	}
 
 	client := newMockDynamodbClient(t)
@@ -296,7 +298,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	now := time.Now()
 
 	updatedDonorProvided := donorProvided
-	updatedDonorProvided.Tasks.PayForLpa = actor.PaymentTaskCompleted
+	updatedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = now
 
@@ -309,9 +311,9 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
-	testcases := []actor.PaymentTask{
-		actor.PaymentTaskCompleted,
-		actor.PaymentTaskApproved,
+	testcases := []task.PaymentState{
+		task.PaymentStateCompleted,
+		task.PaymentStateApproved,
 	}
 
 	for _, taskState := range testcases {
@@ -332,11 +334,11 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 			client.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-					b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
+					b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{
 						PK:      dynamo.LpaKey("123"),
 						SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 						FeeType: pay.NoFee,
-						Tasks:   actor.DonorTasks{PayForLpa: taskState},
+						Tasks:   donordata.DonorTasks{PayForLpa: taskState},
 					})
 					attributevalue.Unmarshal(b, v)
 					return nil
@@ -360,14 +362,14 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	client.
 		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
 		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -398,11 +400,11 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+				Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -441,11 +443,11 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   actor.DonorTasks{PayForLpa: actor.PaymentTaskPending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+				Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -467,7 +469,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: now}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -481,7 +483,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -522,10 +524,10 @@ func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
+			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{
 				PK:    dynamo.LpaKey("123"),
 				SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+				Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
 			})
 
 			attributevalue.Unmarshal(b, v)
@@ -544,7 +546,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: now}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -558,7 +560,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -577,7 +579,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	}
 
 	now := time.Now()
-	updated := &actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}, FeeType: pay.FullFee, UpdatedAt: now}
+	updated := &donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}, FeeType: pay.FullFee, UpdatedAt: now}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -591,7 +593,7 @@ func TestHandleFeeDenied(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -632,7 +634,7 @@ func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -660,7 +662,7 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(actor.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+			b, _ := attributevalue.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})
@@ -684,7 +686,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	lpa := &lpastore.Lpa{
 		Donor: lpastore.Donor{FirstNames: "Dave", LastName: "Smith"},
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel:    actor.ChannelOnline,
+			Channel:    donordata.ChannelOnline,
 			UID:        uid,
 			FirstNames: "John",
 			LastName:   "Smith",
@@ -697,7 +699,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
 		Return(dynamo.NotFoundError{})
 	client.EXPECT().
-		Put(ctx, &actor.DonorProvidedDetails{
+		Put(ctx, &donordata.DonorProvidedDetails{
 			PK:        dynamo.LpaKey(testUuidString),
 			SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 			LpaID:     testUuidString,
@@ -754,7 +756,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: actor.ChannelPaper,
+			Channel: donordata.ChannelPaper,
 		},
 	}
 
@@ -819,7 +821,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: actor.ChannelOnline,
+			Channel: donordata.ChannelOnline,
 		},
 	}
 
@@ -845,7 +847,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: actor.ChannelOnline,
+			Channel: donordata.ChannelOnline,
 		},
 	}
 
@@ -881,7 +883,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: actor.ChannelPaper,
+			Channel: donordata.ChannelPaper,
 		},
 	}
 
@@ -915,7 +917,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: actor.ChannelOnline,
+			Channel: donordata.ChannelOnline,
 		},
 	}
 
@@ -967,7 +969,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: actor.ChannelPaper,
+				Channel: donordata.ChannelPaper,
 			},
 		}, nil)
 
@@ -998,7 +1000,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: actor.ChannelPaper,
+				Channel: donordata.ChannelPaper,
 			},
 		}, nil)
 
@@ -1021,7 +1023,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: actor.ChannelPaper,
+				Channel: donordata.ChannelPaper,
 			},
 		}, nil)
 

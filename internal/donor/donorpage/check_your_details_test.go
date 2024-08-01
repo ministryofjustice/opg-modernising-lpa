@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +15,7 @@ func TestGetCheckYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{}
+	donor := &donordata.DonorProvidedDetails{}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -34,10 +35,10 @@ func TestGetCheckYourDetailsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &checkYourDetailsData{App: testAppData, Donor: &actor.DonorProvidedDetails{}}).
+		Execute(w, &checkYourDetailsData{App: testAppData, Donor: &donordata.DonorProvidedDetails{}}).
 		Return(expectedError)
 
-	err := CheckYourDetails(template.Execute)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CheckYourDetails(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -46,10 +47,10 @@ func TestPostCheckYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := CheckYourDetails(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Tasks: actor.DonorTasks{
-			PayForLpa: actor.PaymentTaskCompleted,
+		Tasks: donordata.DonorTasks{
+			PayForLpa: task.PaymentStateCompleted,
 		},
 	})
 	resp := w.Result()
@@ -63,7 +64,7 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := CheckYourDetails(nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

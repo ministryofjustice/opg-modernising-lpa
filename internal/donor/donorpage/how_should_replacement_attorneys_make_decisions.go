@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -15,11 +14,11 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Options donordata.AttorneysActOptions
-	Donor   *actor.DonorProvidedDetails
+	Donor   *donordata.DonorProvidedDetails
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &howShouldReplacementAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
@@ -35,7 +34,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.ReplacementAttorneyDecisions = actor.MakeAttorneyDecisions(
+				donor.ReplacementAttorneyDecisions = donordata.MakeAttorneyDecisions(
 					donor.ReplacementAttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)

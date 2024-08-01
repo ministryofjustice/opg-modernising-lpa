@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 )
@@ -50,7 +50,7 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 		return fmt.Errorf("uidStore update failed: %w", err)
 	}
 
-	var donor *actor.DonorProvidedDetails
+	var donor *donordata.DonorProvidedDetails
 	if err := attributevalue.UnmarshalMap(newAttrs, &donor); err != nil {
 		return fmt.Errorf("uidStore unmarshal failed: %w", err)
 	}

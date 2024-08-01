@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -28,7 +29,7 @@ func TestGetEnterCorrespondentDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,8 +51,8 @@ func TestGetEnterCorrespondentDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 		},
 	})
@@ -70,7 +71,7 @@ func TestGetEnterCorrespondentDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -91,22 +92,22 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: actor.Correspondent{
+			Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
+			Correspondent: donordata.Correspondent{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
 				WantAddress: form.No,
 			},
-			Tasks: actor.DonorTasks{AddCorrespondent: actor.TaskCompleted},
+			Tasks: donordata.DonorTasks{AddCorrespondent: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
+		Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 	})
 	resp := w.Result()
 
@@ -129,22 +130,22 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: actor.Correspondent{
+			Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
+			Correspondent: donordata.Correspondent{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
 				WantAddress: form.Yes,
 			},
-			Tasks: actor.DonorTasks{AddCorrespondent: actor.TaskInProgress},
+			Tasks: donordata.DonorTasks{AddCorrespondent: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
+		Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 	})
 	resp := w.Result()
 
@@ -171,8 +172,8 @@ func TestPostEnterCorrespondentDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 			LastName:   "Doe",
 		},
@@ -200,8 +201,8 @@ func TestPostEnterCorrespondentDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	err := EnterCorrespondentDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -222,7 +223,7 @@ func TestReadEnterCorrespondentDetailsForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readEnterCorrespondentDetailsForm(r, actor.Donor{FirstNames: "Dave", LastName: "Smith", Email: "email@example.com"})
+	result := readEnterCorrespondentDetailsForm(r, donordata.Donor{FirstNames: "Dave", LastName: "Smith", Email: "email@example.com"})
 
 	assert.Equal("John", result.FirstNames)
 	assert.Equal("Doe", result.LastName)

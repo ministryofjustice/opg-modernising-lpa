@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -26,9 +27,9 @@ import (
 )
 
 type DonorStore interface {
-	Create(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	Create(ctx context.Context) (*donordata.DonorProvidedDetails, error)
 	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
-	Put(ctx context.Context, donorProvidedDetails *actor.DonorProvidedDetails) error
+	Put(ctx context.Context, donorProvidedDetails *donordata.DonorProvidedDetails) error
 }
 
 type CertificateProviderStore interface {
@@ -148,12 +149,12 @@ func Attorney(
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+			donorDetails.Type = donordata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.Type = actor.LpaTypePropertyAndAffairs
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.Type = donordata.LpaTypePropertyAndAffairs
+			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -175,12 +176,12 @@ func Attorney(
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys:        []actor.Attorney{makeAttorney(attorneyNames[0])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys:        []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("First Choice Trust Corporation Ltd."),
 		}
-		donorDetails.ReplacementAttorneys = actor.Attorneys{
-			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
+		donorDetails.ReplacementAttorneys = donordata.Attorneys{
+			Attorneys:        []donordata.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
 
@@ -207,9 +208,9 @@ func Attorney(
 			attorneyUID = donorDetails.Attorneys.Attorneys[0].UID
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
-		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
-		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
+		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
+		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
@@ -265,7 +266,7 @@ func Attorney(
 
 		var signings []*attorneydata.Provided
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
-			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
+			for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
 					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 

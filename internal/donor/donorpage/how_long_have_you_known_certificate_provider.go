@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -13,13 +12,13 @@ import (
 type howLongHaveYouKnownCertificateProviderData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
-	RelationshipLength  actor.CertificateProviderRelationshipLength
+	CertificateProvider donordata.CertificateProvider
+	RelationshipLength  donordata.CertificateProviderRelationshipLength
 	Options             donordata.CertificateProviderRelationshipLengthOptions
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -32,7 +31,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				if form.RelationshipLength == actor.LessThanTwoYears {
+				if form.RelationshipLength == donordata.LessThanTwoYears {
 					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, donor)
 				}
 
@@ -50,7 +49,7 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 }
 
 type howLongHaveYouKnownCertificateProviderForm struct {
-	RelationshipLength actor.CertificateProviderRelationshipLength
+	RelationshipLength donordata.CertificateProviderRelationshipLength
 	Error              error
 }
 

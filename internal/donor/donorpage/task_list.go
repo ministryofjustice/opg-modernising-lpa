@@ -5,15 +5,17 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type taskListData struct {
 	App              page.AppData
 	Errors           validation.List
-	Donor            *actor.DonorProvidedDetails
+	Donor            *donordata.DonorProvidedDetails
 	Sections         []taskListSection
 	EvidenceReceived bool
 }
@@ -22,7 +24,7 @@ type taskListItem struct {
 	Name          string
 	Path          string
 	State         actor.TaskState
-	PaymentState  actor.PaymentTask
+	PaymentState  task.PaymentState
 	IdentityState actor.IdentityTask
 	Count         int
 	Hidden        bool
@@ -34,7 +36,7 @@ type taskListSection struct {
 }
 
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		evidenceReceived, err := evidenceReceivedStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -122,8 +124,8 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 	}
 }
 
-func taskListTypeSpecificStep(donor *actor.DonorProvidedDetails) taskListItem {
-	if donor.Type == actor.LpaTypePersonalWelfare {
+func taskListTypeSpecificStep(donor *donordata.DonorProvidedDetails) taskListItem {
+	if donor.Type == donordata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
 			Path:  page.Paths.LifeSustainingTreatment.Format(donor.LpaID),
@@ -138,7 +140,7 @@ func taskListTypeSpecificStep(donor *actor.DonorProvidedDetails) taskListItem {
 	}
 }
 
-func taskListCheckLpaPath(donor *actor.DonorProvidedDetails) page.LpaPath {
+func taskListCheckLpaPath(donor *donordata.DonorProvidedDetails) page.LpaPath {
 	if len(donor.Under18ActorDetails()) > 0 {
 		return page.Paths.YouCannotSignYourLpaYet
 	} else if donor.CertificateProviderSharesDetails() {
@@ -148,14 +150,14 @@ func taskListCheckLpaPath(donor *actor.DonorProvidedDetails) page.LpaPath {
 	}
 }
 
-func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
+func taskListPaymentSection(donor *donordata.DonorProvidedDetails) taskListSection {
 	var paymentPath string
 	switch donor.Tasks.PayForLpa {
-	case actor.PaymentTaskApproved:
+	case task.PaymentStateApproved:
 		paymentPath = page.Paths.FeeApproved.Format(donor.LpaID)
-	case actor.PaymentTaskDenied:
+	case task.PaymentStateDenied:
 		paymentPath = page.Paths.FeeDenied.Format(donor.LpaID)
-	case actor.PaymentTaskMoreEvidenceRequired:
+	case task.PaymentStateMoreEvidenceRequired:
 		paymentPath = page.Paths.UploadEvidence.Format(donor.LpaID)
 	default:
 		paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)
@@ -173,7 +175,7 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 	}
 }
 
-func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
+func taskListSignSection(donor *donordata.DonorProvidedDetails) taskListSection {
 	var signPath page.LpaPath
 
 	switch donor.DonorIdentityUserData.Status {
