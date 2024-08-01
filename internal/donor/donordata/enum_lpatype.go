@@ -19,6 +19,9 @@ const _LpaType_name = "personal-welfareproperty-and-affairs"
 var _LpaType_index = [...]uint8{0, 16, 36}
 
 func (i LpaType) String() string {
+	if i == 0 {
+		return ""
+	}
 	i -= 1
 	if i >= LpaType(len(_LpaType_index)-1) {
 		return "LpaType(" + strconv.FormatInt(int64(i+1), 10) + ")"
