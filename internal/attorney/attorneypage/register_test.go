@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -54,7 +55,7 @@ func TestMakeHandle(t *testing.T) {
 }
 
 func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
@@ -73,9 +74,9 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -146,7 +147,7 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 }
 
 func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
@@ -177,9 +178,9 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
 
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
+		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -244,9 +245,9 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 				}, appData)
 				assert.Equal(t, w, hw)
 
-				sessionData, _ := page.SessionDataFromContext(hr.Context())
+				sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
 
-				assert.Equal(t, &page.SessionData{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
+				assert.Equal(t, &appcontext.SessionData{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
 			})
@@ -262,7 +263,7 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 func TestMakeAttorneyHandleExistingSessionDataWhenCannotGoToURL(t *testing.T) {
 	path := page.Paths.Attorney.Sign
 
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{SessionID: "ignored-session-id"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)

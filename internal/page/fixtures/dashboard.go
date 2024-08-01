@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -44,12 +45,12 @@ func Dashboard(
 		}
 
 		if asDonor {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID}))
 			if err != nil {
 				return err
 			}
 
-			donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			donorCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			donor.LpaUID = makeUID()
 			donor.Donor = makeDonor(testEmail)
@@ -65,18 +66,18 @@ func Dashboard(
 		}
 
 		if asCertificateProvider {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
 			donor.Donor = makeDonor(testEmail)
 			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			_, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donor.CertificateProvider.UID, donor.SK, testEmail)
 			if err != nil {
@@ -85,7 +86,7 @@ func Dashboard(
 		}
 
 		if asAttorney {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
@@ -95,11 +96,11 @@ func Dashboard(
 			}
 			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
+			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			attorneyCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			attorneyCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			attorney, err := createAttorney(
 				attorneyCtx,

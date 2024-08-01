@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -36,7 +37,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			data.Errors = data.Form.Validate(donor.Attorneys.TrustCorporation.Name != "" || donor.ReplacementAttorneys.TrustCorporation.Name != "")
 
 			if data.Errors.None() {
-				session, err := page.SessionDataFromContext(r.Context())
+				session, err := appcontext.SessionDataFromContext(r.Context())
 				if err != nil {
 					return err
 				}

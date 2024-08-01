@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -81,7 +82,7 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
@@ -137,7 +138,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
