@@ -76,12 +76,12 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 				Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
@@ -91,12 +91,12 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 				Tasks:                        actor.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
@@ -105,7 +105,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:     "lpa-id",
@@ -119,7 +119,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:                "lpa-id",

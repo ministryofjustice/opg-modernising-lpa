@@ -86,12 +86,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 				Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
@@ -100,7 +100,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			donor: &actor.DonorProvidedDetails{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
 			updatedDonor: &actor.DonorProvidedDetails{
 				LpaID:     "lpa-id",

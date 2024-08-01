@@ -35,7 +35,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.AttorneyDecisions = actor.MakeAttorneyDecisions(
+				donor.AttorneyDecisions = donordata.MakeAttorneyDecisions(
 					donor.AttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
@@ -47,9 +47,9 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 				}
 
 				switch donor.AttorneyDecisions.How {
-				case actor.Jointly:
+				case donordata.Jointly:
 					return page.Paths.BecauseYouHaveChosenJointly.Redirect(w, r, appData, donor)
-				case actor.JointlyForSomeSeverallyForOthers:
+				case donordata.JointlyForSomeSeverallyForOthers:
 					return page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers.Redirect(w, r, appData, donor)
 				default:
 					return page.Paths.TaskList.Redirect(w, r, appData, donor)
@@ -87,7 +87,7 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	errors.Error("decision-type", f.errorLabel, f.Error,
 		validation.Selected())
 
-	if f.DecisionsType == actor.JointlyForSomeSeverallyForOthers {
+	if f.DecisionsType == donordata.JointlyForSomeSeverallyForOthers {
 		errors.String("mixed-details", f.detailsErrorLabel, f.DecisionsDetails,
 			validation.Empty())
 	}

@@ -67,15 +67,15 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 		expectedTransKey string
 	}{
 		"jointly": {
-			howWorkTogether:  actor.Jointly,
+			howWorkTogether:  donordata.Jointly,
 			expectedTransKey: "jointlyDescription",
 		},
 		"jointly and severally": {
-			howWorkTogether:  actor.JointlyAndSeverally,
+			howWorkTogether:  donordata.JointlyAndSeverally,
 			expectedTransKey: "jointlyAndSeverallyDescription",
 		},
 		"jointly for some severally for others": {
-			howWorkTogether:  actor.JointlyForSomeSeverallyForOthers,
+			howWorkTogether:  donordata.JointlyForSomeSeverallyForOthers,
 			expectedTransKey: "jointlyForSomeSeverallyForOthersDescription",
 		},
 	}

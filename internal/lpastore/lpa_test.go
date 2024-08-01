@@ -161,7 +161,7 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				AttorneyDecisions: donordata.AttorneyDecisions{
-					How: actor.Jointly,
+					How: donordata.Jointly,
 				},
 				ReplacementAttorneys: donordata.Attorneys{
 					TrustCorporation: donordata.TrustCorporation{
@@ -208,7 +208,7 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-					How:     actor.JointlyForSomeSeverallyForOthers,
+					How:     donordata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -530,7 +530,7 @@ func TestClientLpa(t *testing.T) {
 					}},
 				},
 				AttorneyDecisions: donordata.AttorneyDecisions{
-					How: actor.Jointly,
+					How: donordata.Jointly,
 				},
 				ReplacementAttorneys: Attorneys{
 					TrustCorporation: TrustCorporation{
@@ -578,7 +578,7 @@ func TestClientLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-					How:     actor.JointlyForSomeSeverallyForOthers,
+					How:     donordata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
@@ -901,7 +901,7 @@ func TestClientLpas(t *testing.T) {
 						}},
 					},
 					AttorneyDecisions: donordata.AttorneyDecisions{
-						How: actor.Jointly,
+						How: donordata.Jointly,
 					},
 					ReplacementAttorneys: Attorneys{
 						TrustCorporation: TrustCorporation{
@@ -949,7 +949,7 @@ func TestClientLpas(t *testing.T) {
 						}},
 					},
 					ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-						How:     actor.JointlyForSomeSeverallyForOthers,
+						How:     donordata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
 					HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
