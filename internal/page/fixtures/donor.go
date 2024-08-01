@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -115,7 +116,7 @@ func Donor(
 			return err
 		}
 
-		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+		donorDetails, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
 		if err != nil {
 			return err
 		}
@@ -126,7 +127,7 @@ func Donor(
 			return err
 		}
 
-		donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+		donorCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
 
 		if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 			if err = donorDetails.UpdateCheckedHash(); err != nil {
@@ -349,7 +350,7 @@ func updateLPAProgress(
 			donorDetails.FeeType = feeType
 
 			stagedForUpload, err := documentStore.Create(
-				page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
+				page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}),
 				donorDetails,
 				"supporting-evidence.png",
 				make([]byte, 64),
@@ -362,12 +363,12 @@ func updateLPAProgress(
 			stagedForUpload.Scanned = true
 			stagedForUpload.VirusDetected = data.WithVirus
 
-			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), stagedForUpload); err != nil {
+			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}), stagedForUpload); err != nil {
 				return nil, nil, err
 			}
 
 			previouslyUploaded, err := documentStore.Create(
-				page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}),
+				page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}),
 				donorDetails,
 				"previously-uploaded-evidence.png",
 				make([]byte, 64),
@@ -381,7 +382,7 @@ func updateLPAProgress(
 			previouslyUploaded.VirusDetected = false
 			previouslyUploaded.Sent = time.Now()
 
-			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}), previouslyUploaded); err != nil {
+			if err := documentStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}), previouslyUploaded); err != nil {
 				return nil, nil, err
 			}
 		} else {
@@ -447,7 +448,7 @@ func updateLPAProgress(
 	var certificateProviderUID actoruid.UID
 
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+		ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 		certificateProvider, err := createCertificateProvider(ctx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
@@ -471,7 +472,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
 		for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 			for _, a := range list.Attorneys {
-				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 				attorney, err := createAttorney(
 					ctx,
@@ -504,7 +505,7 @@ func updateLPAProgress(
 			}
 
 			if list.TrustCorporation.Name != "" {
-				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 				attorney, err := createAttorney(
 					ctx,

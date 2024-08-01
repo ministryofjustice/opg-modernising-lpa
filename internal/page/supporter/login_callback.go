@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -50,7 +51,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 
 		logger.InfoContext(r.Context(), "login", slog.String("session_id", loginSession.SessionID()))
 
-		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
+		sessionData := &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
 		ctx := page.ContextWithSessionData(r.Context(), sessionData)
 
 		member, err := memberStore.GetAny(ctx)

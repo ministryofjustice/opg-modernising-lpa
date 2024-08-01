@@ -1,4 +1,4 @@
-package app
+package donordata
 
 import (
 	"context"
@@ -7,14 +7,44 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
+
+type Logger interface {
+	InfoContext(ctx context.Context, msg string, args ...any)
+	WarnContext(ctx context.Context, msg string, args ...any)
+	ErrorContext(ctx context.Context, msg string, args ...any)
+}
+
+type DynamoClient interface {
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
+	Put(ctx context.Context, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	BatchPut(ctx context.Context, items []interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	OneByUID(ctx context.Context, uid string, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
+}
 
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (uid.CreateCaseResponse, error)
@@ -27,6 +57,10 @@ type EventClient interface {
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 
+type SearchClient interface {
+	Index(ctx context.Context, lpa search.Lpa) error
+}
+
 type donorStore struct {
 	dynamoClient DynamoClient
 	eventClient  EventClient
@@ -37,8 +71,20 @@ type donorStore struct {
 	searchClient SearchClient
 }
 
-func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger, searchClient SearchClient) *donorStore {
+	return &donorStore{
+		dynamoClient: dynamoClient,
+		eventClient:  eventClient,
+		logger:       logger,
+		uuidString:   uuid.NewString,
+		newUID:       actoruid.New,
+		now:          time.Now,
+		searchClient: searchClient,
+	}
+}
+
+func (s *donorStore) Create(ctx context.Context) (*DonorProvidedDetails, error) {
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -50,15 +96,15 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &DonorProvidedDetails{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
-		Donor: actor.Donor{
+		Donor: Donor{
 			UID:     donorUID,
-			Channel: actor.ChannelOnline,
+			Channel: ChannelOnline,
 		},
 	}
 
@@ -83,11 +129,11 @@ func (s *donorStore) Create(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, lpaLink{
+	if err := s.dynamoClient.Create(ctx, temporary.LpaLink{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.SubKey(data.SessionID),
 		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
-		ActorType: actor.TypeDonor,
+		ActorType: temporary.ActorTypeDonor,
 		UpdatedAt: s.now(),
 	}); err != nil {
 		return nil, err
@@ -112,13 +158,13 @@ type lpaReference struct {
 //     for the organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows
 //     the Lpa to be shown on the donor's dashboard.
-func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error {
+func (s *donorStore) Link(ctx context.Context, shareCode sharecode.ShareCodeData, donorEmail string) error {
 	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
 	}
 
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -127,10 +173,10 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData, do
 		return errors.New("donorStore.Link requires SessionID")
 	}
 
-	var link lpaLink
+	var link temporary.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
-	} else if link.ActorType == actor.TypeDonor {
+	} else if link.ActorType == temporary.ActorTypeDonor {
 		return errors.New("a donor link already exists for " + shareCode.LpaKey.ID())
 	}
 
@@ -143,11 +189,11 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData, do
 			SK:           dynamo.DonorKey(data.SessionID),
 			ReferencedSK: organisationKey,
 		}).
-		Create(lpaLink{
+		Create(temporary.LpaLink{
 			PK:        shareCode.LpaKey,
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
-			ActorType: actor.TypeDonor,
+			ActorType: temporary.ActorTypeDonor,
 			UpdatedAt: s.now(),
 		}).
 		Put(shareCode)
@@ -155,8 +201,8 @@ func (s *donorStore) Link(ctx context.Context, shareCode actor.ShareCodeData, do
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+func (s *donorStore) GetAny(ctx context.Context) (*DonorProvidedDetails, error) {
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +217,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 	}
 
 	var donor struct {
-		actor.DonorProvidedDetails
+		DonorProvidedDetails
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -185,8 +231,8 @@ func (s *donorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return &donor.DonorProvidedDetails, err
 }
 
-func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+func (s *donorStore) Get(ctx context.Context) (*DonorProvidedDetails, error) {
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +247,7 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 	}
 
 	var donor struct {
-		actor.DonorProvidedDetails
+		DonorProvidedDetails
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -215,8 +261,8 @@ func (s *donorStore) Get(ctx context.Context) (*actor.DonorProvidedDetails, erro
 	return &donor.DonorProvidedDetails, err
 }
 
-func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+func (s *donorStore) Latest(ctx context.Context) (*DonorProvidedDetails, error) {
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +271,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 		return nil, errors.New("donorStore.Latest requires SessionID")
 	}
 
-	var donor *actor.DonorProvidedDetails
+	var donor *DonorProvidedDetails
 	if err := s.dynamoClient.LatestForActor(ctx, dynamo.DonorKey(data.SessionID), &donor); err != nil {
 		return nil, err
 	}
@@ -233,7 +279,7 @@ func (s *donorStore) Latest(ctx context.Context) (*actor.DonorProvidedDetails, e
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]DonorProvidedDetails, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -243,10 +289,10 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 		return nil, err
 	}
 
-	var donors []actor.DonorProvidedDetails
+	var donors []DonorProvidedDetails
 	err = attributevalue.UnmarshalListOfMaps(items, &donors)
 
-	mappedDonors := map[string]actor.DonorProvidedDetails{}
+	mappedDonors := map[string]DonorProvidedDetails{}
 	for _, donor := range donors {
 		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
 	}
@@ -259,14 +305,14 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor
 	return donors, err
 }
 
-func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (s *donorStore) Put(ctx context.Context, donor *DonorProvidedDetails) error {
 	if !donor.HashChanged() {
 		return nil
 	}
 
 	// Enforces donor to send notifications to certificate provider when LPA data has changed
 	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.Completed() {
-		donor.Tasks.CheckYourLpa = actor.TaskInProgress
+		donor.Tasks.CheckYourLpa = task.StateInProgress
 	}
 
 	if err := donor.UpdateHash(); err != nil {
@@ -312,7 +358,7 @@ func (s *donorStore) Put(ctx context.Context, donor *actor.DonorProvidedDetails)
 }
 
 func (s *donorStore) Delete(ctx context.Context) error {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -341,13 +387,13 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error {
+func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.ShareCodeData) error {
 	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
 	}
 
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -360,7 +406,7 @@ func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData actor.
 		return errors.New("cannot remove access to another organisations LPA")
 	}
 
-	var link lpaLink
+	var link temporary.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
 		return err
 	}

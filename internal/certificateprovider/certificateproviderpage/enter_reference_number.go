@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -46,7 +47,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{
 					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaKey.ID(),
 				})

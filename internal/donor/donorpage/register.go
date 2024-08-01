@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -446,7 +447,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 				appData.LoginSessionEmail = session.Email
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -474,13 +475,13 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			appData.SessionID = loginSession.SessionID()
 			appData.LoginSessionEmail = loginSession.Email
 
-			sessionData, err := page.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
-				sessionData = &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
+				sessionData = &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			}
 

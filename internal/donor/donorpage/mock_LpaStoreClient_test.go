@@ -5,8 +5,7 @@ package donorpage
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 
 	mock "github.com/stretchr/testify/mock"
@@ -85,7 +84,7 @@ func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, st
 }
 
 // SendDonorConfirmIdentity provides a mock function with given fields: ctx, donor
-func (_m *mockLpaStoreClient) SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error {
+func (_m *mockLpaStoreClient) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, donor)
 
 	if len(ret) == 0 {
@@ -93,7 +92,7 @@ func (_m *mockLpaStoreClient) SendDonorConfirmIdentity(ctx context.Context, dono
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -109,14 +108,14 @@ type mockLpaStoreClient_SendDonorConfirmIdentity_Call struct {
 
 // SendDonorConfirmIdentity is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *actor.DonorProvidedDetails
+//   - donor *donordata.DonorProvidedDetails
 func (_e *mockLpaStoreClient_Expecter) SendDonorConfirmIdentity(ctx interface{}, donor interface{}) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
 	return &mockLpaStoreClient_SendDonorConfirmIdentity_Call{Call: _e.mock.On("SendDonorConfirmIdentity", ctx, donor)}
 }
 
-func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Run(run func(ctx context.Context, donor *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Run(run func(ctx context.Context, donor *donordata.DonorProvidedDetails)) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails))
 	})
 	return _c
 }
@@ -126,13 +125,13 @@ func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Return(_a0 error) *m
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails) error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendLpa provides a mock function with given fields: ctx, details
-func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error {
+func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *donordata.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, details)
 
 	if len(ret) == 0 {
@@ -140,7 +139,7 @@ func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *actor.DonorP
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, details)
 	} else {
 		r0 = ret.Error(0)
@@ -156,14 +155,14 @@ type mockLpaStoreClient_SendLpa_Call struct {
 
 // SendLpa is a helper method to define mock.On call
 //   - ctx context.Context
-//   - details *actor.DonorProvidedDetails
+//   - details *donordata.DonorProvidedDetails
 func (_e *mockLpaStoreClient_Expecter) SendLpa(ctx interface{}, details interface{}) *mockLpaStoreClient_SendLpa_Call {
 	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", ctx, details)}
 }
 
-func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(ctx context.Context, details *actor.DonorProvidedDetails)) *mockLpaStoreClient_SendLpa_Call {
+func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(ctx context.Context, details *donordata.DonorProvidedDetails)) *mockLpaStoreClient_SendLpa_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails))
 	})
 	return _c
 }
@@ -173,7 +172,7 @@ func (_c *mockLpaStoreClient_SendLpa_Call) Return(_a0 error) *mockLpaStoreClient
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockLpaStoreClient_SendLpa_Call {
+func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails) error) *mockLpaStoreClient_SendLpa_Call {
 	_c.Call.Return(run)
 	return _c
 }
