@@ -33,6 +33,10 @@ func (c *Client) SendUidRequested(ctx context.Context, event UidRequested) error
 	return c.send(ctx, "uid-requested", event)
 }
 
+func (c *Client) SendApplicationDeleted(ctx context.Context, event ApplicationDeleted) error {
+	return c.send(ctx, "application-deleted", event)
+}
+
 func (c *Client) SendApplicationUpdated(ctx context.Context, event ApplicationUpdated) error {
 	return c.send(ctx, "application-updated", event)
 }
