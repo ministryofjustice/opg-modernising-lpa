@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -87,9 +88,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(mock.MatchedBy(func(ctx context.Context) bool {
-			session, _ := page.SessionDataFromContext(ctx)
+			session, _ := appcontext.SessionDataFromContext(ctx)
 
-			return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+			return assert.Equal(t, &appcontext.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 		}), shareCodeData, "a@b.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 
