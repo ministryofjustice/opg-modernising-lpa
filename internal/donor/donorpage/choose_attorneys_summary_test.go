@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -17,12 +17,12 @@ import (
 )
 
 func TestGetChooseAttorneysSummary(t *testing.T) {
-	testcases := map[string]*actor.DonorProvidedDetails{
+	testcases := map[string]*donordata.DonorProvidedDetails{
 		"attorney": {
-			Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
+			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 		},
 		"trust corporation": {
-			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 		},
 	}
 
@@ -53,7 +53,7 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,27 +65,27 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		addMoreFormValue form.YesNo
 		expectedUrl      string
-		Attorneys        actor.Attorneys
+		Attorneys        donordata.Attorneys
 	}{
 		"add attorney - no attorneys": {
 			addMoreFormValue: form.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{}},
+			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{}},
 		},
 		"add attorney - with attorney": {
 			addMoreFormValue: form.Yes,
 			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}}},
+			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}}},
+			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: form.No,
 			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
-			Attorneys:        actor.Attorneys{Attorneys: []actor.Attorney{{UID: actoruid.New()}, {UID: actoruid.New()}}},
+			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}, {UID: actoruid.New()}}},
 		},
 	}
 
@@ -99,7 +99,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -127,7 +127,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

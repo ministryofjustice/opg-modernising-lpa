@@ -14,13 +14,13 @@ import (
 type howDoYouKnowYourCertificateProviderData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *howDoYouKnowYourCertificateProviderForm
 	Options             donordata.CertificateProviderRelationshipOptions
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -36,7 +36,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 
 			if data.Errors.None() {
 				if data.Form.How.IsProfessionally() && donor.CertificateProvider.Relationship.IsPersonally() {
-					donor.CertificateProvider.RelationshipLength = actor.RelationshipLengthUnknown
+					donor.CertificateProvider.RelationshipLength = donordata.RelationshipLengthUnknown
 				}
 
 				if !donor.CertificateProvider.Relationship.Empty() && data.Form.How != donor.CertificateProvider.Relationship {
@@ -63,7 +63,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 }
 
 type howDoYouKnowYourCertificateProviderForm struct {
-	How   actor.CertificateProviderRelationship
+	How   donordata.CertificateProviderRelationship
 	Error error
 }
 

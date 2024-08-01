@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,7 +17,7 @@ type howShouldReplacementAttorneysStepInData struct {
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &howShouldReplacementAttorneysStepInData{
 			App: appData,
 			Form: &howShouldReplacementAttorneysStepInForm{
@@ -35,7 +34,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 			if data.Errors.None() {
 				donor.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if donor.HowShouldReplacementAttorneysStepIn != actor.ReplacementAttorneysStepInAnotherWay {
+				if donor.HowShouldReplacementAttorneysStepIn != donordata.ReplacementAttorneysStepInAnotherWay {
 					donor.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
 					donor.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
@@ -60,7 +59,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 }
 
 type howShouldReplacementAttorneysStepInForm struct {
-	WhenToStepIn actor.ReplacementAttorneysStepIn
+	WhenToStepIn donordata.ReplacementAttorneysStepIn
 	Error        error
 	OtherDetails string
 }
@@ -81,7 +80,7 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	errors.Error("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.Error,
 		validation.Selected())
 
-	if f.WhenToStepIn == actor.ReplacementAttorneysStepInAnotherWay {
+	if f.WhenToStepIn == donordata.ReplacementAttorneysStepInAnotherWay {
 		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
 			validation.Empty())
 	}

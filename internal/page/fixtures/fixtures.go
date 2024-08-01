@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -85,8 +86,8 @@ var (
 	}
 )
 
-func makeAttorney(name Name) actor.Attorney {
-	return actor.Attorney{
+func makeAttorney(name Name) donordata.Attorney {
+	return donordata.Attorney{
 		UID:         actoruid.New(),
 		FirstNames:  name.Firstnames,
 		LastName:    name.Lastname,
@@ -103,8 +104,8 @@ func makeAttorney(name Name) actor.Attorney {
 	}
 }
 
-func makeTrustCorporation(name string) actor.TrustCorporation {
-	return actor.TrustCorporation{
+func makeTrustCorporation(name string) donordata.TrustCorporation {
+	return donordata.TrustCorporation{
 		UID:           actoruid.New(),
 		Name:          name,
 		CompanyNumber: "555555555",
@@ -120,8 +121,8 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 	}
 }
 
-func makeDonor(email string) actor.Donor {
-	return actor.Donor{
+func makeDonor(email string) donordata.Donor {
+	return donordata.Donor{
 		UID:        actoruid.New(),
 		FirstNames: "Sam",
 		LastName:   "Smith",
@@ -135,23 +136,23 @@ func makeDonor(email string) actor.Donor {
 		},
 		Email:                     email,
 		DateOfBirth:               date.New("2000", "1", "2"),
-		ThinksCanSign:             actor.Yes,
+		ThinksCanSign:             donordata.Yes,
 		CanSign:                   form.Yes,
 		ContactLanguagePreference: localize.En,
 		LpaLanguagePreference:     localize.En,
 	}
 }
 
-func makeCertificateProvider() actor.CertificateProvider {
-	return actor.CertificateProvider{
+func makeCertificateProvider() donordata.CertificateProvider {
+	return donordata.CertificateProvider{
 		UID:                actoruid.New(),
 		FirstNames:         "Charlie",
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       actor.Personally,
-		RelationshipLength: actor.GreaterThanEqualToTwoYears,
-		CarryOutBy:         actor.ChannelOnline,
+		Relationship:       donordata.Personally,
+		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
+		CarryOutBy:         donordata.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
@@ -163,8 +164,8 @@ func makeCertificateProvider() actor.CertificateProvider {
 	}
 }
 
-func makePersonToNotify(name Name) actor.PersonToNotify {
-	return actor.PersonToNotify{
+func makePersonToNotify(name Name) donordata.PersonToNotify {
+	return donordata.PersonToNotify{
 		UID:        actoruid.New(),
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
@@ -179,8 +180,8 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
-func makeCorrespondent(name Name) actor.Correspondent {
-	return actor.Correspondent{
+func makeCorrespondent(name Name) donordata.Correspondent {
+	return donordata.Correspondent{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Address: place.Address{
@@ -252,8 +253,8 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
 
-func makeVoucher(name Name) actor.Voucher {
-	return actor.Voucher{
+func makeVoucher(name Name) donordata.Voucher {
+	return donordata.Voucher{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -38,7 +38,7 @@ func NewDocumentStore(dynamoClient DynamoClient, s3Client S3Client, eventClient 
 	}
 }
 
-func (s *documentStore) Create(ctx context.Context, donor *actor.DonorProvidedDetails, filename string, data []byte) (page.Document, error) {
+func (s *documentStore) Create(ctx context.Context, donor *donordata.DonorProvidedDetails, filename string, data []byte) (page.Document, error) {
 	key := donor.LpaUID + "/evidence/" + s.randomUUID()
 
 	document := page.Document{
@@ -117,7 +117,7 @@ func (s *documentStore) Delete(ctx context.Context, document page.Document) erro
 	return s.dynamoClient.DeleteOne(ctx, document.PK, document.SK)
 }
 
-func (s *documentStore) Submit(ctx context.Context, donor *actor.DonorProvidedDetails, documents page.Documents) error {
+func (s *documentStore) Submit(ctx context.Context, donor *donordata.DonorProvidedDetails, documents page.Documents) error {
 	var unsentDocuments []any
 	var unsentEvidence []event.Evidence
 

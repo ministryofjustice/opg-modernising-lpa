@@ -5,8 +5,8 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,11 +14,11 @@ import (
 type chooseAttorneysGuidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.DonorProvidedDetails
 }
 
 func ChooseAttorneysGuidance(tmpl template.Template, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &chooseAttorneysGuidanceData{
 			App:   appData,
 			Donor: donor,

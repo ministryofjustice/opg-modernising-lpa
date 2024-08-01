@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -32,8 +33,8 @@ func TestGetEnterCorrespondentAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 			LastName:   "Smith",
 		},
@@ -65,8 +66,8 @@ func TestGetEnterCorrespondentAddressFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Correspondent: donordata.Correspondent{
 			Address: address,
 		},
 	})
@@ -95,7 +96,7 @@ func TestGetEnterCorrespondentAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -117,7 +118,7 @@ func TestGetEnterCorrespondentAddressWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -140,18 +141,18 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				Address: testAddress,
 			},
-			Tasks: actor.DonorTasks{
+			Tasks: donordata.DonorTasks{
 				AddCorrespondent: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -180,7 +181,7 @@ func TestPostEnterCorrespondentAddressManualWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -201,21 +202,21 @@ func TestPostEnterCorrespondentAddressManualFromStore(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: actor.DonorTasks{
+			Tasks: donordata.DonorTasks{
 				AddCorrespondent: actor.TaskCompleted,
 			},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Correspondent: actor.Correspondent{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -260,7 +261,7 @@ func TestPostEnterCorrespondentAddressManualWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -301,7 +302,7 @@ func TestPostEnterCorrespondentAddressSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -344,7 +345,7 @@ func TestPostEnterCorrespondentAddressSelectWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -386,7 +387,7 @@ func TestPostEnterCorrespondentAddressLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -429,7 +430,7 @@ func TestPostEnterCorrespondentAddressLookupError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -477,7 +478,7 @@ func TestPostEnterCorrespondentAddressInvalidPostcodeError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -519,7 +520,7 @@ func TestPostEnterCorrespondentAddressValidPostcodeNoAddresses(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -550,7 +551,7 @@ func TestPostEnterCorrespondentAddressLookupWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -581,8 +582,8 @@ func TestPostEnterCorrespondentAddressReuse(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane"}},
 	})
 	resp := w.Result()
 
@@ -600,7 +601,7 @@ func TestPostEnterCorrespondentAddressReuseSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	updatedCorrespondent := actor.Correspondent{
+	updatedCorrespondent := donordata.Correspondent{
 		Address: place.Address{
 			Line1:      "a",
 			Line2:      "b",
@@ -613,14 +614,14 @@ func TestPostEnterCorrespondentAddressReuseSelect(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:         "lpa-id",
 			Correspondent: updatedCorrespondent,
-			Tasks:         actor.DonorTasks{AddCorrespondent: actor.TaskCompleted},
+			Tasks:         donordata.DonorTasks{AddCorrespondent: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -645,7 +646,7 @@ func TestPostEnterCorrespondentAddressReuseSelectWhenError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 
@@ -677,8 +678,8 @@ func TestPostEnterCorrespondentAddressReuseSelectWhenValidationError(t *testing.
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{Address: place.Address{Line1: "donor lane"}},
+	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{Address: place.Address{Line1: "donor lane"}},
 	})
 	resp := w.Result()
 

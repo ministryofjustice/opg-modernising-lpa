@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -32,12 +33,12 @@ func TestGetLpaProgress(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &lpaProgressData{
 			App:      testAppData,
-			Donor:    &actor.DonorProvidedDetails{LpaUID: "lpa-uid"},
+			Donor:    &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"},
 			Progress: page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}},
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +54,7 @@ func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -76,6 +77,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
