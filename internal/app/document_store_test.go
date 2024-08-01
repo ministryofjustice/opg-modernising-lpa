@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -27,7 +28,7 @@ func TestNewDocumentStore(t *testing.T) {
 }
 
 func TestDocumentStoreGetAll(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -54,7 +55,7 @@ func TestDocumentStoreGetAllMissingSessionData(t *testing.T) {
 }
 
 func TestDocumentStoreGetAllMissingLpaIdInSession(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{})
 
 	documentStore := documentStore{}
 	_, err := documentStore.GetAll(ctx)
@@ -63,7 +64,7 @@ func TestDocumentStoreGetAllMissingLpaIdInSession(t *testing.T) {
 }
 
 func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSKError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -81,7 +82,7 @@ func TestDocumentStoreGetAllWhenDynamoClientAllByPartialSKError(t *testing.T) {
 }
 
 func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -100,7 +101,7 @@ func TestDocumentStoreGetAllWhenNoResults(t *testing.T) {
 }
 
 func TestDocumentStoreUpdateScanResults(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Update(
@@ -121,7 +122,7 @@ func TestDocumentStoreUpdateScanResults(t *testing.T) {
 }
 
 func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		Update(
@@ -142,7 +143,7 @@ func TestDocumentStoreUpdateScanResultsWhenUpdateError(t *testing.T) {
 }
 
 func TestDocumentStorePut(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -157,7 +158,7 @@ func TestDocumentStorePut(t *testing.T) {
 }
 
 func TestDocumentStorePutWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -172,7 +173,7 @@ func TestDocumentStorePutWhenDynamoClientError(t *testing.T) {
 }
 
 func TestDeleteInfectedDocuments(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -193,7 +194,7 @@ func TestDeleteInfectedDocuments(t *testing.T) {
 }
 
 func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -214,7 +215,7 @@ func TestDeleteInfectedDocumentsWhenDynamoClientError(t *testing.T) {
 }
 
 func TestDeleteInfectedDocumentsNonInfectedDocumentsAreNotDeleted(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	documentStore := documentStore{}
 
@@ -227,7 +228,7 @@ func TestDeleteInfectedDocumentsNonInfectedDocumentsAreNotDeleted(t *testing.T) 
 }
 
 func TestDelete(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
 	s3Client.EXPECT().
@@ -247,7 +248,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestDeleteWhenS3ClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
 	s3Client.EXPECT().
@@ -262,7 +263,7 @@ func TestDeleteWhenS3ClientError(t *testing.T) {
 }
 
 func TestDeleteWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123"})
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
 
 	s3Client := newMockS3Client(t)
 	s3Client.EXPECT().

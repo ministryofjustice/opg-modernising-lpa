@@ -8,8 +8,8 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type organisationStore struct {
@@ -30,7 +30,7 @@ type organisationLink struct {
 }
 
 func (s *organisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (s *organisationStore) Create(ctx context.Context, member *actor.Member, na
 }
 
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 }
 
 func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

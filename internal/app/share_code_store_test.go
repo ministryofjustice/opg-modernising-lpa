@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -156,7 +157,7 @@ func TestNewShareCodeStore(t *testing.T) {
 }
 
 func TestShareCodeStoreGetDonor(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{
+	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})

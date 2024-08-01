@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -70,7 +71,7 @@ func Supporter(
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
-			supporterCtx       = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID, Email: testEmail})
+			supporterCtx       = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: supporterSessionID, Email: testEmail})
 		)
 
 		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
@@ -89,7 +90,7 @@ func Supporter(
 			loginSession.OrganisationID = org.ID
 			loginSession.OrganisationName = org.Name
 
-			organisationCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID})
+			organisationCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{OrganisationID: org.ID})
 
 			if suspended {
 				member.Status = actor.StatusSuspended
@@ -104,7 +105,7 @@ func Supporter(
 				if err != nil {
 					return err
 				}
-				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
+				donorCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor(testEmail)
@@ -157,7 +158,7 @@ func Supporter(
 					if err != nil {
 						return err
 					}
-					donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+					donorCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
 
 					donor.LpaUID = makeUID()
 					donor.Donor = makeDonor(testEmail)
@@ -230,7 +231,7 @@ func Supporter(
 						ReferenceNumber:  random.String(12),
 					}
 
-					if err := dynamoClient.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), invite); err != nil {
+					if err := dynamoClient.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{OrganisationID: org.ID}), invite); err != nil {
 						return fmt.Errorf("error creating member invite: %w", err)
 					}
 				}
@@ -256,7 +257,7 @@ func Supporter(
 
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
 					sub := []byte(random.String(16))
-					memberCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
+					memberCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
