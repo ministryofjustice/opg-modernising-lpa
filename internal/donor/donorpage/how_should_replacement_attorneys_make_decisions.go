@@ -35,7 +35,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.ReplacementAttorneyDecisions = actor.MakeAttorneyDecisions(
+				donor.ReplacementAttorneyDecisions = donordata.MakeAttorneyDecisions(
 					donor.ReplacementAttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)

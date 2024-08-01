@@ -209,7 +209,7 @@ func TestClientServiceContract(t *testing.T) {
 						Address:       address,
 					},
 				},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: actor.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 				ReplacementAttorneys: donordata.Attorneys{
 					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),

@@ -170,7 +170,7 @@ func CertificateProvider(
 			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {

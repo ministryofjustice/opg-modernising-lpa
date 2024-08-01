@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -31,11 +32,11 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 		}
 
 		switch donor.AttorneyDecisions.How {
-		case actor.Jointly:
+		case donordata.Jointly:
 			data.HowWorkTogether = "jointlyDescription"
-		case actor.JointlyAndSeverally:
+		case donordata.JointlyAndSeverally:
 			data.HowWorkTogether = "jointlyAndSeverallyDescription"
-		case actor.JointlyForSomeSeverallyForOthers:
+		case donordata.JointlyForSomeSeverallyForOthers:
 			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
 		}
 

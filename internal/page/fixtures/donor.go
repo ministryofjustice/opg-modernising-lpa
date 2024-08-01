@@ -235,7 +235,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourAttorneys") {
 		donorDetails.Attorneys.Attorneys = []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
-		donorDetails.AttorneyDecisions.How = actor.JointlyAndSeverally
+		donorDetails.AttorneyDecisions.How = donordata.JointlyAndSeverally
 
 		switch data.Attorneys {
 		case "without-address":
@@ -250,9 +250,9 @@ func updateLPAProgress(
 			donorDetails.Attorneys.Attorneys = donorDetails.Attorneys.Attorneys[:1]
 			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{}
 		case "jointly":
-			donorDetails.AttorneyDecisions.How = actor.Jointly
+			donorDetails.AttorneyDecisions.How = donordata.Jointly
 		case "jointly-for-some-severally-for-others":
-			donorDetails.AttorneyDecisions.How = actor.JointlyForSomeSeverallyForOthers
+			donorDetails.AttorneyDecisions.How = donordata.JointlyForSomeSeverallyForOthers
 			donorDetails.AttorneyDecisions.Details = "do this and that"
 		}
 
