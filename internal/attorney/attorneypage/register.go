@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -169,7 +170,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				}
 
 				appData.SessionID = session.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -196,13 +197,13 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := page.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			attorney, err := attorneyStore.Get(ctx)

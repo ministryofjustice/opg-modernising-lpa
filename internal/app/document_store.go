@@ -7,10 +7,18 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
+
+type EventClient interface {
+	SendUidRequested(context.Context, event.UidRequested) error
+	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
+	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
+	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
+}
 
 type documentStore struct {
 	dynamoClient DynamoClient
@@ -53,7 +61,7 @@ func (s *documentStore) Create(ctx context.Context, donor *actor.DonorProvidedDe
 }
 
 func (s *documentStore) GetAll(ctx context.Context) (page.Documents, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

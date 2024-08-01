@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -61,7 +62,7 @@ func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, 
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
 	}

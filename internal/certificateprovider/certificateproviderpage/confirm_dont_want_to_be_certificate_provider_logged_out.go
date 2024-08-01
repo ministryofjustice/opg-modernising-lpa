@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,7 +27,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 			return err
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: session.LpaID})
+		ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: session.LpaID})
 
 		lpa, err := lpaStoreResolvingService.Get(ctx)
 		if err != nil {

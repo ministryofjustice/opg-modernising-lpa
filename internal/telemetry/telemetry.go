@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/felixge/httpsnoop"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -95,7 +95,7 @@ func (h *SlogHandler) Handle(ctx context.Context, record slog.Record) error {
 		record.AddAttrs(slog.String("trace_id", traceID.String()))
 	}
 
-	session, err := page.SessionDataFromContext(ctx)
+	session, err := appcontext.SessionDataFromContext(ctx)
 	if err == nil {
 		record.AddAttrs(slog.String("session_id", session.SessionID))
 
