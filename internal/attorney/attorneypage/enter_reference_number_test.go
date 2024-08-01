@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -115,9 +116,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Create(mock.MatchedBy(func(ctx context.Context) bool {
-					session, _ := page.SessionDataFromContext(ctx)
+					session, _ := appcontext.SessionDataFromContext(ctx)
 
-					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+					return assert.Equal(t, &appcontext.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 				}), tc.shareCode, "a@example.com").
 				Return(&attorneydata.Provided{}, nil)
 
