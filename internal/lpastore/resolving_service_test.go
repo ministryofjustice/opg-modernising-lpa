@@ -71,11 +71,11 @@ func TestResolvingServiceGet(t *testing.T) {
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
 				Attorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
-					TrustCorporation: actor.TrustCorporation{Name: "b"},
+					TrustCorporation: donordata.TrustCorporation{Name: "b"},
 				},
 				ReplacementAttorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
-					TrustCorporation: actor.TrustCorporation{Name: "d"},
+					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
@@ -301,11 +301,11 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				Donor: actor.Donor{Channel: actor.ChannelOnline},
 				Attorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
-					TrustCorporation: actor.TrustCorporation{Name: "b"},
+					TrustCorporation: donordata.TrustCorporation{Name: "b"},
 				},
 				ReplacementAttorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
-					TrustCorporation: actor.TrustCorporation{Name: "d"},
+					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
 			}},
 			uids: []string{"M-1111"},

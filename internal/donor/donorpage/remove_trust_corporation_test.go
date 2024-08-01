@@ -19,7 +19,7 @@ import (
 )
 
 func TestGetRemoveTrustCorporation(t *testing.T) {
-	trustCorporation := actor.TrustCorporation{Name: "hey ltd"}
+	trustCorporation := donordata.TrustCorporation{Name: "hey ltd"}
 
 	testcases := map[string]struct {
 		isReplacement bool
@@ -64,7 +64,7 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 
 func TestPostRemoveTrustCorporation(t *testing.T) {
 	attorney := donordata.Attorney{UID: actoruid.New(), Email: "a"}
-	trustCorporation := actor.TrustCorporation{Name: "a"}
+	trustCorporation := donordata.TrustCorporation{Name: "a"}
 
 	testcases := map[string]struct {
 		isReplacement bool

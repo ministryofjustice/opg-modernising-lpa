@@ -21,7 +21,7 @@ import (
 func TestGetChooseReplacementAttorneysSummary(t *testing.T) {
 	testcases := map[string]donordata.Attorneys{
 		"attorneys":         {Attorneys: []donordata.Attorney{{}}},
-		"trust corporation": {TrustCorporation: actor.TrustCorporation{Name: "a"}},
+		"trust corporation": {TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 	}
 
 	for name, attorneys := range testcases {

@@ -202,7 +202,7 @@ func TestClientServiceContract(t *testing.T) {
 						Email:       "alice@example.com",
 						Address:     address,
 					}},
-					TrustCorporation: actor.TrustCorporation{
+					TrustCorporation: donordata.TrustCorporation{
 						UID:           actoruid.New(),
 						Name:          "Trust us Corp.",
 						CompanyNumber: "66654321",

@@ -69,7 +69,7 @@ func TestPostEnterReplacementTrustCorporation(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			ReplacementAttorneys: donordata.Attorneys{
-				TrustCorporation: actor.TrustCorporation{
+				TrustCorporation: donordata.TrustCorporation{
 					Name:          "Co co.",
 					CompanyNumber: "453345",
 					Email:         "name@example.com",

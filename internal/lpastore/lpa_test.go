@@ -117,7 +117,7 @@ func TestClientSendLpa(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 				},
 				Attorneys: donordata.Attorneys{
-					TrustCorporation: actor.TrustCorporation{
+					TrustCorporation: donordata.TrustCorporation{
 						UID:           trustCorporationUID,
 						Name:          "Trusty",
 						CompanyNumber: "55555",
@@ -164,7 +164,7 @@ func TestClientSendLpa(t *testing.T) {
 					How: actor.Jointly,
 				},
 				ReplacementAttorneys: donordata.Attorneys{
-					TrustCorporation: actor.TrustCorporation{
+					TrustCorporation: donordata.TrustCorporation{
 						UID:           replacementTrustCorporationUID,
 						Name:          "UnTrusty",
 						CompanyNumber: "65555",

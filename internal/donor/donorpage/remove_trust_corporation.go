@@ -19,7 +19,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 	}
 
 	updateDonor := func(donor *actor.DonorProvidedDetails) {
-		donor.Attorneys.TrustCorporation = actor.TrustCorporation{}
+		donor.Attorneys.TrustCorporation = donordata.TrustCorporation{}
 		if donor.Attorneys.Len() == 1 {
 			donor.AttorneyDecisions = donordata.AttorneyDecisions{}
 		}
@@ -27,7 +27,7 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 
 	if isReplacement {
 		updateDonor = func(donor *actor.DonorProvidedDetails) {
-			donor.ReplacementAttorneys.TrustCorporation = actor.TrustCorporation{}
+			donor.ReplacementAttorneys.TrustCorporation = donordata.TrustCorporation{}
 			if donor.ReplacementAttorneys.Len() == 1 {
 				donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
 			}

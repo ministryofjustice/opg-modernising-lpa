@@ -46,12 +46,12 @@ func TestGetChooseReplacementAttorneys(t *testing.T) {
 		},
 		"property and affairs with trust corporation": {
 			lpaType:                   actor.LpaTypePropertyAndAffairs,
-			attorneys:                 donordata.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},
 		"personal welfare with trust corporation": {
 			lpaType:                   actor.LpaTypePersonalWelfare,
-			attorneys:                 donordata.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},
 	}
