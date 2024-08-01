@@ -298,7 +298,7 @@ func TestPostWitnessingAsIndependentWitnessCodeLimitBreached(t *testing.T) {
 		Return(nil)
 
 	err := WitnessingAsIndependentWitness(template.Execute, donorStore, time.Now)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		WitnessCodeLimiter:      actor.NewLimiter(time.Minute, 0, 10),
+		WitnessCodeLimiter:      donordata.NewLimiter(time.Minute, 0, 10),
 		IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
