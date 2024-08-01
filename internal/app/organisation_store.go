@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -86,7 +87,7 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error) {
+func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -99,13 +100,13 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.DonorProvidedDetails{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey(data.OrganisationID)),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			UID: donorUID,
 		},
 	}

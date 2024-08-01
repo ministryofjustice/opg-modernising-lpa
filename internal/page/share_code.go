@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -67,7 +68,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
+func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *donordata.DonorProvidedDetails) error {
 	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err

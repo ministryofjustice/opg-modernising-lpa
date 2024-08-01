@@ -17,7 +17,7 @@ import (
 type chooseAttorneysData struct {
 	App                      page.AppData
 	Errors                   validation.List
-	Donor                    *actor.DonorProvidedDetails
+	Donor                    *donordata.DonorProvidedDetails
 	Form                     *chooseAttorneysForm
 	ShowDetails              bool
 	DobWarning               string
@@ -26,7 +26,7 @@ type chooseAttorneysData struct {
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		uid := actoruid.FromRequest(r)
 
 		if uid.IsZero() {
@@ -166,7 +166,7 @@ func (f *chooseAttorneysForm) DobWarning() string {
 	return ""
 }
 
-func attorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
+func attorneyMatches(donor *donordata.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

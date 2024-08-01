@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -193,7 +194,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	lpaID := uuidString()
 
-	if err := client.Put(ctx, &actor.DonorProvidedDetails{
+	if err := client.Put(ctx, &donordata.DonorProvidedDetails{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 		LpaID:     lpaID,

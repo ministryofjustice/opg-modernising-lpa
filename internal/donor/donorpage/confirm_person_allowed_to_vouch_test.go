@@ -32,21 +32,21 @@ func TestConfirmPersonAllowedToVouchDataMultipleMatches(t *testing.T) {
 
 func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
 	testcases := map[string]struct {
-		donor        *actor.DonorProvidedDetails
+		donor        *donordata.DonorProvidedDetails
 		matches      []actor.Type
 		matchSurname bool
 	}{
 		"matches donor": {
-			donor: &actor.DonorProvidedDetails{
-				Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+			donor: &donordata.DonorProvidedDetails{
+				Donor:               donordata.Donor{FirstNames: "John", LastName: "Smith"},
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
 				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
 			matches: []actor.Type{actor.TypeDonor, actor.TypeCertificateProvider},
 		},
 		"matches donor last name": {
-			donor: &actor.DonorProvidedDetails{
-				Donor:               actor.Donor{FirstNames: "Dave", LastName: "Smith"},
+			donor: &donordata.DonorProvidedDetails{
+				Donor:               donordata.Donor{FirstNames: "Dave", LastName: "Smith"},
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
 				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
@@ -89,7 +89,7 @@ func TestGetConfirmPersonAllowedToVouchWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -125,13 +125,13 @@ func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:   "lpa-id",
 					Voucher: tc.voucher,
 				}).
 				Return(nil)
 
-			err := ConfirmPersonAllowedToVouch(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ConfirmPersonAllowedToVouch(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:   "lpa-id",
 				Voucher: actor.Voucher{FirstNames: "John"},
 			})
@@ -158,7 +158,7 @@ func TestPostConfirmPersonAllowedToVouchWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmPersonAllowedToVouch(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ConfirmPersonAllowedToVouch(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -175,7 +175,7 @@ func TestPostConfirmPersonAllowedToVouchWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ConfirmPersonAllowedToVouch(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

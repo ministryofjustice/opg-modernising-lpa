@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -13,7 +14,7 @@ import (
 type taskListData struct {
 	App              page.AppData
 	Errors           validation.List
-	Donor            *actor.DonorProvidedDetails
+	Donor            *donordata.DonorProvidedDetails
 	Sections         []taskListSection
 	EvidenceReceived bool
 }
@@ -34,7 +35,7 @@ type taskListSection struct {
 }
 
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		evidenceReceived, err := evidenceReceivedStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -122,7 +123,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 	}
 }
 
-func taskListTypeSpecificStep(donor *actor.DonorProvidedDetails) taskListItem {
+func taskListTypeSpecificStep(donor *donordata.DonorProvidedDetails) taskListItem {
 	if donor.Type == actor.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
@@ -138,7 +139,7 @@ func taskListTypeSpecificStep(donor *actor.DonorProvidedDetails) taskListItem {
 	}
 }
 
-func taskListCheckLpaPath(donor *actor.DonorProvidedDetails) page.LpaPath {
+func taskListCheckLpaPath(donor *donordata.DonorProvidedDetails) page.LpaPath {
 	if len(donor.Under18ActorDetails()) > 0 {
 		return page.Paths.YouCannotSignYourLpaYet
 	} else if donor.CertificateProviderSharesDetails() {
@@ -148,7 +149,7 @@ func taskListCheckLpaPath(donor *actor.DonorProvidedDetails) page.LpaPath {
 	}
 }
 
-func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
+func taskListPaymentSection(donor *donordata.DonorProvidedDetails) taskListSection {
 	var paymentPath string
 	switch donor.Tasks.PayForLpa {
 	case actor.PaymentTaskApproved:
@@ -173,7 +174,7 @@ func taskListPaymentSection(donor *actor.DonorProvidedDetails) taskListSection {
 	}
 }
 
-func taskListSignSection(donor *actor.DonorProvidedDetails) taskListSection {
+func taskListSignSection(donor *donordata.DonorProvidedDetails) taskListSection {
 	var signPath page.LpaPath
 
 	switch donor.DonorIdentityUserData.Status {

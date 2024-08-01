@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -20,7 +21,7 @@ type changeMobileNumberData struct {
 }
 
 func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
-	var send func(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
+	var send func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
 	var redirect page.LpaPath
 	switch actorType {
 	case actor.TypeIndependentWitness:
@@ -33,7 +34,7 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 		panic("ChangeMobileNumber only supports IndependentWitness or CertificateProvider actors")
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &changeMobileNumberData{
 			App:        appData,
 			Form:       &changeMobileNumberForm{},

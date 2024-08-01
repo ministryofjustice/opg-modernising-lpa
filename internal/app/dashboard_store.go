@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,7 +19,7 @@ import (
 )
 
 type LpaStoreResolvingService interface {
-	ResolveList(ctx context.Context, donors []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error)
+	ResolveList(ctx context.Context, donors []*donordata.DonorProvidedDetails) ([]*lpastore.Lpa, error)
 }
 
 // An lpaLink is used to join an actor to an LPA.
@@ -104,7 +105,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 	var (
 		referencedKeys []dynamo.Keys
-		donorsDetails  []*actor.DonorProvidedDetails
+		donorsDetails  []*donordata.DonorProvidedDetails
 	)
 	for _, item := range lpasOrProvidedDetails {
 		var ks dynamo.Keys
@@ -114,7 +115,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 		if isLpaKey(ks) {
 			var donorDetails struct {
-				actor.DonorProvidedDetails
+				donordata.DonorProvidedDetails
 				ReferencedSK dynamo.OrganisationKeyType
 			}
 			if err := attributevalue.UnmarshalMap(item, &donorDetails); err != nil {
@@ -136,7 +137,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		for _, item := range referencedLpas {
-			donorDetails := &actor.DonorProvidedDetails{}
+			donorDetails := &donordata.DonorProvidedDetails{}
 			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
 				return nil, nil, nil, err
 			}

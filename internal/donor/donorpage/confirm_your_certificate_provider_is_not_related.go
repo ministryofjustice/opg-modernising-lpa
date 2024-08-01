@@ -16,11 +16,11 @@ type confirmYourCertificateProviderIsNotRelatedData struct {
 	App    page.AppData
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.DonorProvidedDetails
 }
 
 func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
 			App:   appData,
 			Form:  form.NewYesNoForm(form.YesNoUnknown),

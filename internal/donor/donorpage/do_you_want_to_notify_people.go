@@ -15,12 +15,12 @@ type doYouWantToNotifyPeopleData struct {
 	App             page.AppData
 	Errors          validation.List
 	Form            *form.YesNoForm
-	Donor           *actor.DonorProvidedDetails
+	Donor           *donordata.DonorProvidedDetails
 	HowWorkTogether string
 }
 
 func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		if len(donor.PeopleToNotify) > 0 {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}

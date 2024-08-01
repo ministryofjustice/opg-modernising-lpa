@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -19,7 +20,7 @@ import (
 type checkYourLpaData struct {
 	App                          page.AppData
 	Errors                       validation.List
-	Donor                        *actor.DonorProvidedDetails
+	Donor                        *donordata.DonorProvidedDetails
 	Form                         *checkYourLpaForm
 	CertificateProviderContacted bool
 	CanContinue                  bool
@@ -32,7 +33,7 @@ type checkYourLpaNotifier struct {
 	appPublicURL             string
 }
 
-func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData, donor *donordata.DonorProvidedDetails, wasCompleted bool) error {
 	if donor.CertificateProvider.CarryOutBy.IsPaper() {
 		return n.sendPaperNotification(ctx, appData, donor, wasCompleted)
 	}
@@ -40,7 +41,7 @@ func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData page.AppData,
 	return n.sendOnlineNotification(ctx, appData, donor, wasCompleted)
 }
 
-func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData page.AppData, donor *donordata.DonorProvidedDetails, wasCompleted bool) error {
 	var sms notify.SMS
 	if wasCompleted {
 		sms = notify.CertificateProviderActingOnPaperDetailsChangedSMS{
@@ -60,7 +61,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 	return n.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
 }
 
-func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *actor.DonorProvidedDetails, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData page.AppData, donor *donordata.DonorProvidedDetails, wasCompleted bool) error {
 	if !wasCompleted {
 		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
 			LpaKey:                      donor.PK,
@@ -106,7 +107,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 		appPublicURL:             appPublicURL,
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &checkYourLpaData{
 			App:   appData,
 			Donor: donor,

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -18,7 +17,7 @@ import (
 )
 
 func TestGetChooseAttorneysSummary(t *testing.T) {
-	testcases := map[string]*actor.DonorProvidedDetails{
+	testcases := map[string]*donordata.DonorProvidedDetails{
 		"attorney": {
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 		},
@@ -54,7 +53,7 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,7 +99,7 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
+			err := ChooseAttorneysSummary(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: tc.Attorneys})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -128,7 +127,7 @@ func TestPostChooseAttorneysSummaryFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
+	err := ChooseAttorneysSummary(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

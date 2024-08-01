@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestGetFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &donordata.DonorProvidedDetails{Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -31,7 +32,7 @@ func TestPostFeeDenied(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &donordata.DonorProvidedDetails{Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockHandler(t)
 	payer.EXPECT().
@@ -49,7 +50,7 @@ func TestPostFeeDeniedWhenPayerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
+	donor := &donordata.DonorProvidedDetails{Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}}
 
 	payer := newMockHandler(t)
 	payer.EXPECT().

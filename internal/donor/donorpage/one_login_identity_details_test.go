@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -22,29 +22,29 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 	dob := date.New("1", "2", "3")
 
 	testcases := map[string]struct {
-		donorProvided          *actor.DonorProvidedDetails
+		donorProvided          *donordata.DonorProvidedDetails
 		expectedDetailsMatch   bool
 		expectedDetailsUpdated bool
 		url                    string
 	}{
 		"details match": {
-			donorProvided: &actor.DonorProvidedDetails{
-				Donor:                 actor.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
+			donorProvided: &donordata.DonorProvidedDetails{
+				Donor:                 donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: dob, CurrentAddress: testAddress},
 			},
 			expectedDetailsMatch: true,
 			url:                  "/",
 		},
 		"details do not match": {
-			donorProvided: &actor.DonorProvidedDetails{
-				Donor:                 actor.Donor{FirstNames: "a"},
+			donorProvided: &donordata.DonorProvidedDetails{
+				Donor:                 donordata.Donor{FirstNames: "a"},
 				DonorIdentityUserData: identity.UserData{FirstNames: "b"},
 			},
 			url: "/",
 		},
 		"details updated": {
-			donorProvided: &actor.DonorProvidedDetails{
-				Donor:                 actor.Donor{FirstNames: "a"},
+			donorProvided: &donordata.DonorProvidedDetails{
+				Donor:                 donordata.Donor{FirstNames: "a"},
 				DonorIdentityUserData: identity.UserData{FirstNames: "b"},
 			},
 			url:                    "/?detailsUpdated=1",
@@ -87,9 +87,9 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
-	updated := &actor.DonorProvidedDetails{
+	updated := &donordata.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
-		Donor:                 actor.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
+		Donor:                 donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
 		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
 	}
 	updated.UpdateCheckedHash()
@@ -99,9 +99,9 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 		Put(r.Context(), updated).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID:                 "lpa-id",
-		Donor:                 actor.Donor{FirstNames: "a", LastName: "a", DateOfBirth: existingDob, Address: testAddress},
+		Donor:                 donordata.Donor{FirstNames: "a", LastName: "a", DateOfBirth: existingDob, Address: testAddress},
 		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
 	})
 	resp := w.Result()
@@ -118,7 +118,7 @@ func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -131,7 +131,7 @@ func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *tes
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -151,7 +151,7 @@ func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -174,7 +174,7 @@ func TestPostOneLoginIdentityDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "a"}})
+	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Donor: donordata.Donor{FirstNames: "a"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

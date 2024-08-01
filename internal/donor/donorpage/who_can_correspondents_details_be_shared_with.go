@@ -18,7 +18,7 @@ type whoCanCorrespondentsDetailsBeSharedWithData struct {
 }
 
 func WhoCanCorrespondentsDetailsBeSharedWith(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &whoCanCorrespondentsDetailsBeSharedWithData{
 			App: appData,
 			Form: &whoCanCorrespondentsDetailsBeSharedWithForm{

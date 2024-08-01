@@ -353,7 +353,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&actor.DonorProvidedDetails{
+			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&donordata.DonorProvidedDetails{
 				WantReplacementAttorneys:            tc.want,
 				AttorneyDecisions:                   tc.attorneyDecisions,
 				ReplacementAttorneys:                tc.replacementAttorneys,
@@ -366,15 +366,15 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestLpaCost(t *testing.T) {
 	testCases := map[string]struct {
-		donor    *actor.DonorProvidedDetails
+		donor    *donordata.DonorProvidedDetails
 		expected int
 	}{
 		"denied": {
-			donor:    &actor.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			donor:    &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			expected: 8200,
 		},
 		"half": {
-			donor:    &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
+			donor:    &donordata.DonorProvidedDetails{FeeType: pay.HalfFee},
 			expected: 4100,
 		},
 	}
@@ -388,23 +388,23 @@ func TestLpaCost(t *testing.T) {
 
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
-		Donor        *actor.DonorProvidedDetails
+		Donor        *donordata.DonorProvidedDetails
 		ExpectedCost pay.AmountPence
 	}{
 		"not paid": {
-			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee},
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"fully paid": {
-			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 		"denied partially paid": {
-			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"denied fully paid": {
-			Donor:        &actor.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: actor.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			Donor:        &donordata.DonorProvidedDetails{FeeType: pay.HalfFee, PaymentDetails: []actor.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 	}
@@ -509,8 +509,8 @@ func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			donor := &actor.DonorProvidedDetails{
-				Donor:               actor.Donor{LastName: tc.donor},
+			donor := &donordata.DonorProvidedDetails{
+				Donor:               donordata.Donor{LastName: tc.donor},
 				CertificateProvider: donordata.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
 			}
 
@@ -563,8 +563,8 @@ func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			donor := &actor.DonorProvidedDetails{
-				Donor:               actor.Donor{Address: tc.donor},
+			donor := &donordata.DonorProvidedDetails{
+				Donor:               donordata.Donor{Address: tc.donor},
 				CertificateProvider: donordata.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
 			}
 

@@ -23,13 +23,13 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &whenCanTheLpaBeUsedData{
 			App:     testAppData,
-			Donor:   &actor.DonorProvidedDetails{},
+			Donor:   &donordata.DonorProvidedDetails{},
 			Form:    &whenCanTheLpaBeUsedForm{},
 			Options: donordata.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &whenCanTheLpaBeUsedData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity},
+			Donor: &donordata.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
 				When: donordata.CanBeUsedWhenHasCapacity,
 			},
@@ -52,7 +52,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -86,16 +86,16 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:               "lpa-id",
 			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
-			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
+			Tasks:               donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -115,10 +115,10 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity, Tasks: actor.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+		Put(r.Context(), &donordata.DonorProvidedDetails{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity, Tasks: donordata.DonorTasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -135,7 +135,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

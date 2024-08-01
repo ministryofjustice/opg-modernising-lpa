@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -19,11 +19,11 @@ func TestGetChooseAttorneysGuidance(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAttorneysGuidanceData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{},
+			Donor: &donordata.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestGetChooseAttorneysGuidanceWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -51,7 +51,7 @@ func TestPostChooseAttorneysGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseAttorneysGuidance(nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := ChooseAttorneysGuidance(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

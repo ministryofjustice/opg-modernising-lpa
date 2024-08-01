@@ -27,7 +27,7 @@ func TestGetEnterTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -66,18 +66,18 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
 				Email:         "name@example.com",
 			}},
-			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+			Tasks: donordata.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -104,8 +104,8 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
 
@@ -129,7 +129,7 @@ func TestPostEnterTrustCorporationWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
