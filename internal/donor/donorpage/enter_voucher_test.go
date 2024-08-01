@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -64,7 +63,7 @@ func TestPostEnterVoucher(t *testing.T) {
 			LpaID:               "lpa-id",
 			Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
-			Voucher: actor.Voucher{
+			Voucher: donordata.Voucher{
 				FirstNames: "John",
 				LastName:   "Bloggs",
 				Email:      "john@example.com",
@@ -110,7 +109,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 					LpaID:               "lpa-id",
 					Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
-					Voucher: actor.Voucher{
+					Voucher: donordata.Voucher{
 						FirstNames: tc.First,
 						LastName:   tc.Last,
 						Email:      "jane@example.com",

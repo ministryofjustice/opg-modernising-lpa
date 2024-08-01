@@ -53,7 +53,7 @@ func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) 
 					donor.Voucher.Allowed = true
 					redirect = page.Paths.CheckYourDetails
 				} else {
-					donor.Voucher = actor.Voucher{}
+					donor.Voucher = donordata.Voucher{}
 					redirect = page.Paths.EnterVoucher
 				}
 

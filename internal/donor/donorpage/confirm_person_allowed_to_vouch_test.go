@@ -40,7 +40,7 @@ func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
 			donor: &donordata.DonorProvidedDetails{
 				Donor:               donordata.Donor{FirstNames: "John", LastName: "Smith"},
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
-				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
+				Voucher:             donordata.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
 			matches: []actor.Type{actor.TypeDonor, actor.TypeCertificateProvider},
 		},
@@ -48,7 +48,7 @@ func TestGetConfirmPersonAllowedToVouch(t *testing.T) {
 			donor: &donordata.DonorProvidedDetails{
 				Donor:               donordata.Donor{FirstNames: "Dave", LastName: "Smith"},
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John", LastName: "Smith"},
-				Voucher:             actor.Voucher{FirstNames: "John", LastName: "Smith"},
+				Voucher:             donordata.Voucher{FirstNames: "John", LastName: "Smith"},
 			},
 			matches:      []actor.Type{actor.TypeCertificateProvider},
 			matchSurname: true,
@@ -99,12 +99,12 @@ func TestGetConfirmPersonAllowedToVouchWhenTemplateErrors(t *testing.T) {
 func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo    form.YesNo
-		voucher  actor.Voucher
+		voucher  donordata.Voucher
 		redirect page.LpaPath
 	}{
 		"yes": {
 			yesNo:    form.Yes,
-			voucher:  actor.Voucher{FirstNames: "John", Allowed: true},
+			voucher:  donordata.Voucher{FirstNames: "John", Allowed: true},
 			redirect: page.Paths.CheckYourDetails,
 		},
 		"no": {
@@ -133,7 +133,7 @@ func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 
 			err := ConfirmPersonAllowedToVouch(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:   "lpa-id",
-				Voucher: actor.Voucher{FirstNames: "John"},
+				Voucher: donordata.Voucher{FirstNames: "John"},
 			})
 			resp := w.Result()
 

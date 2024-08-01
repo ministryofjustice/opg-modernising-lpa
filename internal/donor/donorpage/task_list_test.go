@@ -164,7 +164,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                 "lpa-id",
 				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
-				Voucher:               actor.Voucher{FirstNames: "a"},
+				Voucher:               donordata.Voucher{FirstNames: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{

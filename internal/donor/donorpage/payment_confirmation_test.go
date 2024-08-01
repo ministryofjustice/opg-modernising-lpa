@@ -423,7 +423,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
-				Voucher: actor.Voucher{Allowed: true},
+				Voucher: donordata.Voucher{Allowed: true},
 				Tasks: donordata.DonorTasks{
 					PayForLpa: task,
 				},

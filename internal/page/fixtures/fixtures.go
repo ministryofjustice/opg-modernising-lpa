@@ -253,8 +253,8 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
 
-func makeVoucher(name Name) actor.Voucher {
-	return actor.Voucher{
+func makeVoucher(name Name) donordata.Voucher {
+	return donordata.Voucher{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),
