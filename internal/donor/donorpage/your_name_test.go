@@ -326,7 +326,7 @@ func TestDonorMatches(t *testing.T) {
 			{FirstNames: "i", LastName: "j"},
 		}},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
@@ -357,7 +357,7 @@ func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
 			{FirstNames: "", LastName: ""},
 		}},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},
 	}

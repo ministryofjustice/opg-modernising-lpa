@@ -10,7 +10,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -437,7 +436,7 @@ type Lpa struct {
 	Attorneys                                  Attorneys
 	ReplacementAttorneys                       Attorneys
 	CertificateProvider                        CertificateProvider
-	PeopleToNotify                             actor.PeopleToNotify
+	PeopleToNotify                             donordata.PeopleToNotify
 	AttorneyDecisions                          donordata.AttorneyDecisions
 	ReplacementAttorneyDecisions               donordata.AttorneyDecisions
 	HowShouldReplacementAttorneysStepIn        actor.ReplacementAttorneysStepIn
@@ -528,9 +527,9 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		}
 	}
 
-	var peopleToNotify []actor.PersonToNotify
+	var peopleToNotify []donordata.PersonToNotify
 	for _, p := range l.PeopleToNotify {
-		peopleToNotify = append(peopleToNotify, actor.PersonToNotify{
+		peopleToNotify = append(peopleToNotify, donordata.PersonToNotify{
 			UID:        p.UID,
 			FirstNames: p.FirstNames,
 			LastName:   p.LastName,

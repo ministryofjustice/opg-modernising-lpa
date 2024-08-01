@@ -230,7 +230,7 @@ func TestClientSendLpa(t *testing.T) {
 					},
 					CarryOutBy: donordata.ChannelOnline,
 				},
-				PeopleToNotify: actor.PeopleToNotify{{
+				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
@@ -604,7 +604,7 @@ func TestClientLpa(t *testing.T) {
 						Type:      "one-login",
 					},
 				},
-				PeopleToNotify: actor.PeopleToNotify{{
+				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
@@ -971,7 +971,7 @@ func TestClientLpas(t *testing.T) {
 						},
 						Channel: donordata.ChannelOnline,
 					},
-					PeopleToNotify: actor.PeopleToNotify{{
+					PeopleToNotify: donordata.PeopleToNotify{{
 						UID:        personToNotifyUID,
 						FirstNames: "Peter",
 						LastName:   "Notify",

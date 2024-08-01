@@ -23,7 +23,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
-	personToNotify := actor.PersonToNotify{
+	personToNotify := donordata.PersonToNotify{
 		UID: uid,
 		Address: place.Address{
 			Line1: "1 Road way",
@@ -40,7 +40,7 @@ func TestGetRemovePersonToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotify}})
+	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 
 	resp := w.Result()
 
@@ -52,14 +52,14 @@ func TestGetRemovePersonToNotifyAttorneyDoesNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=invalid-id", nil)
 
-	personToNotify := actor.PersonToNotify{
+	personToNotify := donordata.PersonToNotify{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotify}})
+	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotify}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -77,24 +77,24 @@ func TestPostRemovePersonToNotify(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	personToNotifyWithAddress := actor.PersonToNotify{
+	personToNotifyWithAddress := donordata.PersonToNotify{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := actor.PersonToNotify{
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
 		UID:     uid,
 		Address: place.Address{},
 	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
+		Put(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(nil)
 
-	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -112,19 +112,19 @@ func TestPostRemovePersonToNotifyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	personToNotifyWithAddress := actor.PersonToNotify{
+	personToNotifyWithAddress := donordata.PersonToNotify{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := actor.PersonToNotify{
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
 		UID:     uid,
 		Address: place.Address{},
 	}
 
-	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -142,24 +142,24 @@ func TestPostRemovePersonToNotifyErrorOnPutStore(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	personToNotifyWithAddress := actor.PersonToNotify{
+	personToNotifyWithAddress := donordata.PersonToNotify{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	personToNotifyWithoutAddress := actor.PersonToNotify{
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
 		UID:     uid,
 		Address: place.Address{},
 	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithAddress}}).
+		Put(r.Context(), &donordata.DonorProvidedDetails{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithAddress}}).
 		Return(expectedError)
 
-	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
+	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress, personToNotifyWithAddress}})
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -176,7 +176,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	personToNotifyWithoutAddress := actor.PersonToNotify{
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
 		UID:     uid,
 		Address: place.Address{},
 	}
@@ -190,7 +190,7 @@ func TestRemovePersonToNotifyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress}})
+	err := RemovePersonToNotify(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -207,7 +207,7 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+uid.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	personToNotifyWithoutAddress := actor.PersonToNotify{
+	personToNotifyWithoutAddress := donordata.PersonToNotify{
 		UID:     uid,
 		Address: place.Address{},
 	}
@@ -216,14 +216,14 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:          "lpa-id",
-			PeopleToNotify: actor.PeopleToNotify{},
+			PeopleToNotify: donordata.PeopleToNotify{},
 			Tasks:          donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskNotStarted},
 		}).
 		Return(nil)
 
 	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID:          "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{personToNotifyWithoutAddress},
+		PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress},
 		Tasks:          donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, PeopleToNotify: actor.TaskCompleted},
 	})
 	resp := w.Result()

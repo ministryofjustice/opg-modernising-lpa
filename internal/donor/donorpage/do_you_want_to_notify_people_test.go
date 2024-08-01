@@ -118,7 +118,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 
 	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{UID: actoruid.New()},
 		},
 	})

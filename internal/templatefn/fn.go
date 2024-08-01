@@ -395,7 +395,7 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 	return data
 }
 
-func listPeopleToNotify(app page.AppData, peopleToNotify actor.PeopleToNotify, headingLevel int, canChange bool) map[string]interface{} {
+func listPeopleToNotify(app page.AppData, peopleToNotify donordata.PeopleToNotify, headingLevel int, canChange bool) map[string]interface{} {
 	return map[string]interface{}{
 		"App":            app,
 		"HeadingLevel":   headingLevel,

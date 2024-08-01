@@ -58,7 +58,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 
 			if data.Errors.None() && data.NameWarning == nil {
 				if personFound == false {
-					personToNotify = actor.PersonToNotify{
+					personToNotify = donordata.PersonToNotify{
 						UID:        newUID(),
 						FirstNames: data.Form.FirstNames,
 						LastName:   data.Form.LastName,
