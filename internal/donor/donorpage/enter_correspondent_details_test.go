@@ -112,7 +112,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WhoCanCorrespondentsDetailsBeSharedWith.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
