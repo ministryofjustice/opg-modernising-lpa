@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -74,17 +75,17 @@ func TestGetAddCorrespondentWhenTemplateErrors(t *testing.T) {
 func TestPostAddCorrespondent(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo                 form.YesNo
-		existingCorrespondent actor.Correspondent
+		existingCorrespondent donordata.Correspondent
 		existingTaskState     actor.TaskState
-		expectedCorrespondent actor.Correspondent
+		expectedCorrespondent donordata.Correspondent
 		expectedTaskState     actor.TaskState
 		redirect              page.LpaPath
 	}{
 		"yes was yes": {
 			yesNo:                 form.Yes,
-			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
+			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			existingTaskState:     actor.TaskCompleted,
-			expectedCorrespondent: actor.Correspondent{FirstNames: "John"},
+			expectedCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			expectedTaskState:     actor.TaskCompleted,
 			redirect:              page.Paths.EnterCorrespondentDetails,
 		},
@@ -101,7 +102,7 @@ func TestPostAddCorrespondent(t *testing.T) {
 		},
 		"no was yes": {
 			yesNo:                 form.No,
-			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
+			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			existingTaskState:     actor.TaskCompleted,
 			expectedTaskState:     actor.TaskCompleted,
 			redirect:              page.Paths.TaskList,

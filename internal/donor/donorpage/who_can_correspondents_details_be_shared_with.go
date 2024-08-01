@@ -48,7 +48,7 @@ func WhoCanCorrespondentsDetailsBeSharedWith(tmpl template.Template, donorStore 
 }
 
 type whoCanCorrespondentsDetailsBeSharedWithForm struct {
-	Share actor.CorrespondentShare
+	Share donordata.CorrespondentShare
 	Error error
 }
 

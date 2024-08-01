@@ -44,14 +44,14 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithFromStore(t *testing.T) {
 		Execute(w, &whoCanCorrespondentsDetailsBeSharedWithData{
 			App: testAppData,
 			Form: &whoCanCorrespondentsDetailsBeSharedWithForm{
-				Share: actor.CorrespondentShareAttorneys,
+				Share: donordata.CorrespondentShareAttorneys,
 			},
 			Options: donordata.CorrespondentShareValues,
 		}).
 		Return(nil)
 
 	err := WhoCanCorrespondentsDetailsBeSharedWith(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{Share: actor.CorrespondentShareAttorneys},
+		Correspondent: donordata.Correspondent{Share: donordata.CorrespondentShareAttorneys},
 	})
 	resp := w.Result()
 
@@ -77,7 +77,7 @@ func TestGetWhoCanCorrespondentsDetailsBeSharedWithWhenTemplateErrors(t *testing
 
 func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -88,8 +88,8 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
-				Share: actor.CorrespondentShareAttorneys,
+			Correspondent: donordata.Correspondent{
+				Share: donordata.CorrespondentShareAttorneys,
 			},
 			Tasks: actor.DonorTasks{
 				AddCorrespondent: actor.TaskCompleted,
@@ -107,7 +107,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWith(t *testing.T) {
 
 func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -149,7 +149,7 @@ func TestPostWhoCanCorrespondentsDetailsBeSharedWithWhenValidationErrors(t *test
 
 func TestReadWhoCanCorrespondentsDetailsBeSharedWithForm(t *testing.T) {
 	form := url.Values{
-		"share": {actor.CorrespondentShareAttorneys.String(), actor.CorrespondentShareCertificateProvider.String()},
+		"share": {donordata.CorrespondentShareAttorneys.String(), donordata.CorrespondentShareCertificateProvider.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -157,7 +157,7 @@ func TestReadWhoCanCorrespondentsDetailsBeSharedWithForm(t *testing.T) {
 
 	result := readWhoCanCorrespondentsDetailsBeSharedWithForm(r)
 
-	assert.Equal(t, actor.CorrespondentShareAttorneys|actor.CorrespondentShareCertificateProvider, result.Share)
+	assert.Equal(t, donordata.CorrespondentShareAttorneys|donordata.CorrespondentShareCertificateProvider, result.Share)
 	assert.Nil(t, result.Error)
 }
 

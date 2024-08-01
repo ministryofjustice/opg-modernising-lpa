@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -51,7 +52,7 @@ func TestGetEnterCorrespondentDetailsFromStore(t *testing.T) {
 		Return(nil)
 
 	err := EnterCorrespondentDetails(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 		},
 	})
@@ -94,7 +95,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
@@ -132,7 +133,7 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
