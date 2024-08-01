@@ -116,7 +116,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -146,7 +146,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type:           actor.LpaTypePersonalWelfare,
+				Type:           donordata.LpaTypePersonalWelfare,
 				CannotRegister: true,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
@@ -183,7 +183,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							UID:        uid,
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: actor.LpaTypePersonalWelfare,
+						Type: donordata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), &donordata.DonorProvidedDetails{
@@ -196,7 +196,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
 						CertificateProvider: donordata.CertificateProvider{},
-						Type:                actor.LpaTypePersonalWelfare,
+						Type:                donordata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 

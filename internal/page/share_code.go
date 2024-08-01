@@ -41,7 +41,7 @@ type CertificateProviderInvite struct {
 	LpaKey                      dynamo.LpaKeyType
 	LpaOwnerKey                 dynamo.LpaOwnerKeyType
 	LpaUID                      string
-	Type                        actor.LpaType
+	Type                        donordata.LpaType
 	DonorFirstNames             string
 	DonorFullName               string
 	CertificateProviderUID      actoruid.UID

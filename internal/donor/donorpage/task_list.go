@@ -124,7 +124,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 }
 
 func taskListTypeSpecificStep(donor *donordata.DonorProvidedDetails) taskListItem {
-	if donor.Type == actor.LpaTypePersonalWelfare {
+	if donor.Type == donordata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
 			Path:  page.Paths.LifeSustainingTreatment.Format(donor.LpaID),

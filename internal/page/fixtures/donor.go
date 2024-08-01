@@ -186,10 +186,10 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor(data.DonorEmail)
 
-		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		donorDetails.Type = donordata.LpaTypePropertyAndAffairs
 
 		if data.LpaType == "personal-welfare" {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.Type = donordata.LpaTypePersonalWelfare
 			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 		}
 
@@ -281,7 +281,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
-		if donorDetails.Type == actor.LpaTypePersonalWelfare {
+		if donorDetails.Type == donordata.LpaTypePersonalWelfare {
 			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 			donorDetails.Tasks.LifeSustainingTreatment = actor.TaskCompleted
 		} else {

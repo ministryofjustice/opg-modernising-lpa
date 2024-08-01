@@ -149,11 +149,11 @@ func Attorney(
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
+			donorDetails.Type = donordata.LpaTypePersonalWelfare
 			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.Type = actor.LpaTypePropertyAndAffairs
+			donorDetails.Type = donordata.LpaTypePropertyAndAffairs
 			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
 		}
 
