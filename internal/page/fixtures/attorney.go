@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -105,11 +106,11 @@ func Attorney(
 		}
 
 		createFn := donorStore.Create
-		createSession := &page.SessionData{SessionID: donorSessionID}
+		createSession := &appcontext.SessionData{SessionID: donorSessionID}
 		if isSupported {
 			createFn = organisationStore.CreateLPA
 
-			supporterCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, Email: testEmail})
+			supporterCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, Email: testEmail})
 
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
 			if err != nil {
@@ -138,9 +139,9 @@ func Attorney(
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			attorneyCtx            = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
 		donorDetails.SignedAt = time.Now()
@@ -266,7 +267,7 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,
@@ -297,7 +298,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,

@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -205,13 +206,13 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := page.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionDataFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
 				ctx = page.ContextWithSessionData(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			certificateProvider, err := certificateProviderStore.Get(ctx)

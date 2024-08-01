@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -141,8 +142,8 @@ func TestMakeHandleRequireSession(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil

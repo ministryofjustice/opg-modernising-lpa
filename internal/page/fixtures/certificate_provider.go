@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -100,7 +101,7 @@ func CertificateProvider(
 				return err
 			}
 		} else if isSupported {
-			supporterCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, Email: testEmail})
+			supporterCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, Email: testEmail})
 
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
 			if err != nil {
@@ -112,7 +113,7 @@ func CertificateProvider(
 				return err
 			}
 
-			orgSession := &page.SessionData{SessionID: donorSessionID, OrganisationID: org.ID}
+			orgSession := &appcontext.SessionData{SessionID: donorSessionID, OrganisationID: org.ID}
 			donorDetails, err = organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), orgSession))
 			if err != nil {
 				return err
@@ -125,15 +126,15 @@ func CertificateProvider(
 				return err
 			}
 		} else {
-			donorDetails, err = donorStore.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID}))
+			donorDetails, err = donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			donorCtx               = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
 		donorDetails.Donor = makeDonor(donorEmail)
