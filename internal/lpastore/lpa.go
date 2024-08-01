@@ -38,7 +38,7 @@ type lpaRequest struct {
 	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                           `json:"restrictionsAndConditions"`
-	WhenTheLpaCanBeUsed                         actor.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
+	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen          `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               actor.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                        `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
@@ -373,7 +373,7 @@ type lpaResponse struct {
 	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                           `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                           `json:"restrictionsAndConditions"`
-	WhenTheLpaCanBeUsed                         actor.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
+	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen          `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               actor.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                        `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                       `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
@@ -443,7 +443,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepIn        actor.ReplacementAttorneysStepIn
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
-	WhenCanTheLpaBeUsed                        actor.CanBeUsedWhen
+	WhenCanTheLpaBeUsed                        donordata.CanBeUsedWhen
 	LifeSustainingTreatmentOption              actor.LifeSustainingTreatment
 	// SignedAt is the date the Donor signed their LPA (and signifies it has been
 	// witnessed by their CertificateProvider)

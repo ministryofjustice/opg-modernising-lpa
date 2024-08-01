@@ -102,7 +102,7 @@ func TestPostLpaType(t *testing.T) {
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:                actor.LpaTypePersonalWelfare,
-			WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
 			Tasks:               actor.DonorTasks{YourDetails: actor.TaskCompleted},
 		},
 	}
