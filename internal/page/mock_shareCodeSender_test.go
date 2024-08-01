@@ -5,8 +5,7 @@ package page
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -16,11 +15,11 @@ type mockShareCodeSender struct {
 }
 
 // SendAttorneys provides a mock function with given fields: ctx, appData, donor
-func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *donordata.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, appData, donor)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, AppData, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, AppData, *donordata.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, appData, donor)
 	} else {
 		r0 = ret.Error(0)
@@ -30,11 +29,11 @@ func (_m *mockShareCodeSender) SendAttorneys(ctx context.Context, appData AppDat
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, appData, identity, donor
-func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, appData AppData, identity bool, donor *actor.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendCertificateProvider(ctx context.Context, appData AppData, identity bool, donor *donordata.DonorProvidedDetails) error {
 	ret := _m.Called(ctx, appData, identity, donor)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, AppData, bool, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, AppData, bool, *donordata.DonorProvidedDetails) error); ok {
 		r0 = rf(ctx, appData, identity, donor)
 	} else {
 		r0 = ret.Error(0)

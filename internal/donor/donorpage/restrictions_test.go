@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -22,11 +23,11 @@ func TestGetRestrictions(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &restrictionsData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{},
+			Donor: &donordata.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,11 +42,11 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &restrictionsData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{Restrictions: "blah"},
+			Donor: &donordata.DonorProvidedDetails{Restrictions: "blah"},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Restrictions: "blah"})
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Restrictions: "blah"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -60,11 +61,11 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &restrictionsData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{},
+			Donor: &donordata.DonorProvidedDetails{},
 		}).
 		Return(expectedError)
 
-	err := Restrictions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -82,16 +83,16 @@ func TestPostRestrictions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:        "lpa-id",
 			Restrictions: "blah",
-			Tasks:        actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskCompleted},
+			Tasks:        donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, Restrictions: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := Restrictions(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := Restrictions(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Tasks: actor.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.DonorTasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -111,10 +112,10 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{Restrictions: "blah", Tasks: actor.DonorTasks{Restrictions: actor.TaskCompleted}}).
+		Put(r.Context(), &donordata.DonorProvidedDetails{Restrictions: "blah", Tasks: donordata.DonorTasks{Restrictions: actor.TaskCompleted}}).
 		Return(expectedError)
 
-	err := Restrictions(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Restrictions(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -133,11 +134,11 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 		Execute(w, &restrictionsData{
 			App:    testAppData,
 			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
-			Donor:  &actor.DonorProvidedDetails{},
+			Donor:  &donordata.DonorProvidedDetails{},
 		}).
 		Return(nil)
 
-	err := Restrictions(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

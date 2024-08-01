@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -178,13 +179,13 @@ func TestOrganisationStorePut(t *testing.T) {
 
 func TestOrganisationStoreCreateLPA(t *testing.T) {
 	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
-	expectedDonor := &actor.DonorProvidedDetails{
+	expectedDonor := &donordata.DonorProvidedDetails{
 		PK:        dynamo.LpaKey("a-uuid"),
 		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("an-id")),
 		LpaID:     "a-uuid",
 		CreatedAt: testNow,
 		Version:   1,
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			UID: testUID,
 		},
 	}

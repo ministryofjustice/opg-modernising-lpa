@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		attorney, found := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
 		if found == false {
@@ -34,7 +34,7 @@ func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Ha
 				if data.Form.YesNo == form.Yes {
 					donor.ReplacementAttorneys.Delete(attorney)
 					if donor.ReplacementAttorneys.Len() == 1 {
-						donor.ReplacementAttorneyDecisions = actor.AttorneyDecisions{}
+						donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
 					}
 
 					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)

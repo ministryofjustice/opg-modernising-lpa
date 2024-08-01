@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -20,7 +21,7 @@ type SearchClient interface {
 type dashboardData struct {
 	App         page.AppData
 	Errors      validation.List
-	Donors      []actor.DonorProvidedDetails
+	Donors      []donordata.DonorProvidedDetails
 	CurrentPage int
 	Pagination  *search.Pagination
 }

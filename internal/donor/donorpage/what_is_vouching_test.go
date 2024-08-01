@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +30,7 @@ func TestGetWhatIsVouching(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{WantVoucher: form.Yes})
+	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{WantVoucher: form.Yes})
 
 	assert.Nil(t, err)
 }
@@ -44,7 +44,7 @@ func TestGetWhatIsVouchingWhenTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Error(t, err)
 }
@@ -67,13 +67,13 @@ func TestPostWhatIsVouching(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:       "lpa-id",
 					WantVoucher: yesNo,
 				}).
 				Return(nil)
 
-			err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -97,7 +97,7 @@ func TestPostWhatIsVouchingWhenDonorStoreError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Error(t, err)
