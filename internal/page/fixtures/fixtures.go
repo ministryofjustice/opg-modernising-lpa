@@ -180,8 +180,8 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
-func makeCorrespondent(name Name) actor.Correspondent {
-	return actor.Correspondent{
+func makeCorrespondent(name Name) donordata.Correspondent {
+	return donordata.Correspondent{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Address: place.Address{

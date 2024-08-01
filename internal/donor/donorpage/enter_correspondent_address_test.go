@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -33,7 +34,7 @@ func TestGetEnterCorrespondentAddress(t *testing.T) {
 		Return(nil)
 
 	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 			LastName:   "Smith",
 		},
@@ -66,7 +67,7 @@ func TestGetEnterCorrespondentAddressFromStore(t *testing.T) {
 		Return(nil)
 
 	err := EnterCorrespondentAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Correspondent: actor.Correspondent{
+		Correspondent: donordata.Correspondent{
 			Address: address,
 		},
 	})
@@ -142,7 +143,7 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				Address: testAddress,
 			},
 			Tasks: actor.DonorTasks{
@@ -203,7 +204,7 @@ func TestPostEnterCorrespondentAddressManualFromStore(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Correspondent: actor.Correspondent{
+			Correspondent: donordata.Correspondent{
 				FirstNames: "John",
 				Address:    testAddress,
 			},
@@ -215,7 +216,7 @@ func TestPostEnterCorrespondentAddressManualFromStore(t *testing.T) {
 
 	err := EnterCorrespondentAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Correspondent: actor.Correspondent{
+		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -600,7 +601,7 @@ func TestPostEnterCorrespondentAddressReuseSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	updatedCorrespondent := actor.Correspondent{
+	updatedCorrespondent := donordata.Correspondent{
 		Address: place.Address{
 			Line1:      "a",
 			Line2:      "b",
