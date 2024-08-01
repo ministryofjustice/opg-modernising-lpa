@@ -163,7 +163,7 @@
     "replacementAttorneys": "Replacement attorneys",
     "replacementAttorney": "Replacement attorney",
     "whenYourAttorneysCanUseYourLpa": "When your attorneys can use your LPA",
-    "whenYourAttorneysCanUseYourLpaContent": "<p class=\"govuk-body-l\">You can decide whether you want your attorneys to be able to use your LPA as soon as it’s registered, or only for any decisions you do not have the mental capacity to make for yourself.</p><h2 class=\"govuk-heading-m\">When you have mental capacity</h2><p class=\"govuk-body\">This option means that your attorneys can use your LPA at any time after it is registered, including when you still have mental capacity. For example, if you ask them to make a specific decision for you.</p><p class=\"govuk-body\">This option is useful in case there are times in the future when you’re able to make your own decisions but need help with certain things. For example, if you are not able to go to the bank or talk on the phone, your attorneys could do these things on your behalf. However, they should not do this without your consent.</p><p class=\"govuk-body\">Most people choose this option as it’s the most practical.</p><h2 class=\"govuk-heading-m\">If you do not have mental capacity</h2><p class=\"govuk-body\">This option means that your attorneys can only use your LPA if you do not have mental capacity to make a particular decision yourself.</p><p class=\"govuk-body\">Each time they use your LPA, they may be asked to provide proof that you do not have mental capacity to make that decision yourself. This can make it difficult for your attorneys to use your LPA.</p>",
+    "whenYourAttorneysCanUseYourLpaContent": "<p class=\"govuk-body-l\">You can decide whether you want your attorneys to be able to use your LPA as soon as it’s registered, or only for any decisions you do not have the mental capacity to make for yourself.</p><h2 class=\"govuk-heading-m\">Whether or not I have mental capacity to make a particular decision myself</h2><p class=\"govuk-body\">This option means that your attorneys can use your LPA at any time after it is registered, including when you still have mental capacity. For example, if you ask them to make a specific decision for you.</p><p class=\"govuk-body\">This option is useful in case there are times in the future when you’re able to make your own decisions but need help with certain things. For example, if you are not able to go to the bank or talk on the phone, your attorneys could do these things on your behalf. However, they should not do this without your consent.</p><p class=\"govuk-body\">Most people choose this option as it’s the most practical.</p><h2 class=\"govuk-heading-m\">If you do not have mental capacity</h2><p class=\"govuk-body\">This option means that your attorneys can only use your LPA if you do not have mental capacity to make a particular decision yourself.</p><p class=\"govuk-body\">Each time they use your LPA, they may be asked to provide proof that you do not have mental capacity to make that decision yourself. This can make it difficult for your attorneys to use your LPA.</p>",
     "whenDoYouWantAttorneysToUse": {
         "one": "When do you want your attorney to be able to use your LPA?",
         "other": "When do you want your attorneys to be able to use your LPA?"
@@ -332,8 +332,8 @@
     "jointlyAndSeverallyMixedHintReplacementAttorneys": "This means if one of your replacement attorneys can no longer act, any remaining replacement attorneys will not be able to make the joint decisions you specify, unless you state otherwise in your restrictions and conditions.",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExample:property-and-affairs": "For example, you could say your replacement attorneys must all agree if they want to sell your home, but they can make other decisions separately.",
     "jointlyAndSeverallyMixedHintReplacementAttorneysExample:personal-welfare": "As an example, you could say your replacement attorneys must all agree that you need to move into a care home, but they can make other decisions separately.",
-    "ifYouChooseThisOptionMustStateDecisionsAgreedTogether": "If you choose this option you must state which decisions need to be agreed together.",
-    "decisionDetailsHint": "Give details about any decisions your attorneys must make together. <a class=\"govuk-link\" href=\"#\">Read the guidance to see some examples</a>.",
+    "ifYouChooseThisOptionMustStateDecisionsAgreedTogether": "If you choose this option you must state which decisions need to be agreed jointly.",
+    "decisionDetailsHint": "Give details about any decisions your attorneys must make jointly. <a class=\"govuk-link\" href=\"#\">Read the guidance to see some examples</a>.",
     "replacementDecisionDetailsHint": "Give details about any decisions your replacement attorneys must make together. <a href=\"#\" class=\"govuk-link\">Read the guidance to see some examples.</a>",
     "details": "Details",
     "howAttorneysShouldMakeDecisions": "how the attorneys should make decisions",
@@ -373,7 +373,7 @@
     "replacement-jointly-and-severally": "Jointly and severally - replacement attorneys can make decisions both on their own or together",
     "replacement-jointly": "Jointly - replacement attorneys must all agree on every decision they make, however big or small",
     "replacement-jointly-for-some-severally-for-others": "Jointly for some decisions and jointly and severally for others - replacement attorneys must all agree certain decisions but can make others on their own",
-    "when-has-capacity": "When I have mental capacity",
+    "when-has-capacity": "Whether or not I have mental capacity to make a particular decision myself",
     "when-capacity-lost": "Only when I do not have mental capacity to make a particular decision",
     "when-has-capacity:3rd": "When the donor has mental capacity",
     "when-capacity-lost:3rd": "Only when the donor does not have mental capacity to make a particular decision",
@@ -1244,5 +1244,6 @@
     "whatIsYourName": "What is your name?",
     "canYouSignTheLpaYourselfOnline": "Can you sign the LPA yourself online?",
     "whatIsYourEmailOptional": "What is your email address? (optional)",
-    "someOfTheseDetailsCanNoLongerBeChanged": "Some of these details can no longer be changed because they have been successfully matched with your confirmed identity details."
+    "someOfTheseDetailsCanNoLongerBeChanged": "Some of these details can no longer be changed because they have been successfully matched with your confirmed identity details.",
+    "whichFeeTypeYouAreApplyingFor": "which fee type you are applying for"
 }
