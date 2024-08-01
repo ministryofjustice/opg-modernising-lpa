@@ -44,7 +44,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 
 				donor.Type = data.Form.LpaType
 				if donor.Type.IsPersonalWelfare() {
-					donor.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
+					donor.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 				}
 				donor.Tasks.YourDetails = actor.TaskCompleted
 				donor.HasSentApplicationUpdatedEvent = false

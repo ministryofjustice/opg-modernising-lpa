@@ -70,7 +70,7 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneys: donordata.Attorneys{},
-				WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
 				CertificateProvider: actor.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
@@ -432,7 +432,7 @@ func TestClientLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneys: Attorneys{},
-				WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
 				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
@@ -806,7 +806,7 @@ func TestClientLpas(t *testing.T) {
 						}},
 					},
 					ReplacementAttorneys: Attorneys{},
-					WhenCanTheLpaBeUsed:  actor.CanBeUsedWhenCapacityLost,
+					WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
 					CertificateProvider: CertificateProvider{
 						UID:        certificateProviderUID,
 						FirstNames: "Carol",
