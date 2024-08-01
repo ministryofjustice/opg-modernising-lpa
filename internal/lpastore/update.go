@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 )
 
 type updateRequest struct {
@@ -107,8 +108,8 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/email", New: certificateProvider.Email, Old: lpa.CertificateProvider.Email})
 	}
 
-	if lpa.CertificateProvider.Channel == actor.ChannelPaper {
-		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+	if lpa.CertificateProvider.Channel == donordata.ChannelPaper {
+		body.Changes = append(body.Changes, updateRequestChange{Key: "/certificateProvider/channel", New: donordata.ChannelOnline, Old: donordata.ChannelPaper})
 	}
 
 	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
@@ -148,8 +149,8 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *attorneyd
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaTrustCorp.Email})
 		}
 
-		if lpaTrustCorp.Channel == actor.ChannelPaper {
-			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+		if lpaTrustCorp.Channel == donordata.ChannelPaper {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: donordata.ChannelOnline, Old: donordata.ChannelPaper})
 		}
 
 		body.Changes = append(body.Changes,
@@ -172,8 +173,8 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *attorneyd
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaAttorney.Email})
 		}
 
-		if lpaAttorney.Channel == actor.ChannelPaper {
-			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: actor.ChannelOnline, Old: actor.ChannelPaper})
+		if lpaAttorney.Channel == donordata.ChannelPaper {
+			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/channel", New: donordata.ChannelOnline, Old: donordata.ChannelPaper})
 		}
 
 		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/signedAt", New: attorney.SignedAt})

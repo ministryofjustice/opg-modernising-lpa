@@ -227,7 +227,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.ChannelOnline,
+					CarryOutBy: donordata.ChannelOnline,
 				},
 				Restrictions: "hmm",
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -382,7 +382,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.ChannelOnline,
+					CarryOutBy: donordata.ChannelOnline,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
 					UID:        actoruid.New(),
@@ -553,7 +553,7 @@ func TestClientServiceContract(t *testing.T) {
 							UID:           uid,
 							Name:          "Trust us Corp.",
 							CompanyNumber: "66654321",
-							Channel:       actor.ChannelPaper,
+							Channel:       donordata.ChannelPaper,
 						},
 					},
 				},
@@ -634,7 +634,7 @@ func TestClientServiceContract(t *testing.T) {
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
-				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
+				}, &Lpa{CertificateProvider: CertificateProvider{Channel: donordata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -716,7 +716,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email: "a@example.com",
 				}, &Lpa{
 					CertificateProvider: CertificateProvider{
-						Channel: actor.ChannelPaper,
+						Channel: donordata.ChannelPaper,
 						Address: place.Address{
 							Line1:      "71 South Western Terrace",
 							TownOrCity: "Milton",
@@ -873,7 +873,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -885,7 +885,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: actor.ChannelPaper,
+						Channel: donordata.ChannelPaper,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -898,7 +898,7 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -1005,7 +1005,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -1017,7 +1017,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: actor.ChannelOnline,
+						Channel: donordata.ChannelOnline,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -1030,7 +1030,7 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),

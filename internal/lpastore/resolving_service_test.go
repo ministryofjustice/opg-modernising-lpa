@@ -57,7 +57,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: donordata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: donordata.ChannelOnline},
 			},
 		},
 		"online with no lpastore record": {
@@ -68,7 +68,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "John",
 					Relationship: donordata.Personally,
 				},
-				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Donor: actor.Donor{Channel: donordata.ChannelOnline},
 				Attorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
 					TrustCorporation: donordata.TrustCorporation{Name: "b"},
@@ -91,7 +91,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: donordata.Personally,
 				},
 				Donor: Donor{
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 						Type:      "one-login",
@@ -118,7 +118,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
-				Donor:       Donor{Channel: actor.ChannelOnline},
+				Donor:       Donor{Channel: donordata.ChannelOnline},
 			},
 		},
 		"paper": {
@@ -138,7 +138,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				CertificateProvider: CertificateProvider{
 					Relationship: donordata.Professionally,
 				},
-				Donor: Donor{Channel: actor.ChannelPaper},
+				Donor: Donor{Channel: donordata.ChannelPaper},
 			},
 		},
 	}
@@ -179,7 +179,7 @@ func TestResolvingServiceGetWhenNoUID(t *testing.T) {
 
 	assert.Equal(t, &Lpa{
 		LpaID: "1",
-		Donor: Donor{Channel: actor.ChannelOnline},
+		Donor: Donor{Channel: donordata.ChannelOnline},
 	}, lpa)
 	assert.Nil(t, err)
 }
@@ -203,7 +203,7 @@ func TestResolvingServiceGetWhenNotFound(t *testing.T) {
 	assert.Equal(t, &Lpa{
 		LpaID:  "1",
 		LpaUID: "M-1111",
-		Donor:  Donor{Channel: actor.ChannelOnline},
+		Donor:  Donor{Channel: donordata.ChannelOnline},
 	}, lpa)
 	assert.Nil(t, err)
 }
@@ -287,7 +287,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: donordata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: donordata.ChannelOnline},
 			}},
 		},
 		"online with no lpastore record": {
@@ -298,7 +298,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					FirstNames:   "John",
 					Relationship: donordata.Personally,
 				},
-				Donor: actor.Donor{Channel: actor.ChannelOnline},
+				Donor: actor.Donor{Channel: donordata.ChannelOnline},
 				Attorneys: donordata.Attorneys{
 					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
 					TrustCorporation: donordata.TrustCorporation{Name: "b"},
@@ -316,7 +316,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					FirstNames:   "John",
 					Relationship: donordata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: donordata.ChannelOnline},
 				Attorneys: Attorneys{
 					Attorneys:        []Attorney{{FirstNames: "a"}},
 					TrustCorporation: TrustCorporation{Name: "b"},
@@ -339,7 +339,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
-				Donor:       Donor{Channel: actor.ChannelOnline},
+				Donor:       Donor{Channel: donordata.ChannelOnline},
 			}},
 		},
 		"paper": {
@@ -360,7 +360,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				CertificateProvider: CertificateProvider{
 					Relationship: donordata.Professionally,
 				},
-				Donor: Donor{Channel: actor.ChannelPaper},
+				Donor: Donor{Channel: donordata.ChannelPaper},
 			}},
 		},
 	}

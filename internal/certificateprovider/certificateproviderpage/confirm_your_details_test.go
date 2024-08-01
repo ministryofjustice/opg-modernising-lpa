@@ -17,20 +17,20 @@ import (
 
 func TestGetConfirmYourDetails(t *testing.T) {
 	testcases := map[string]struct {
-		DonorChannel                    actor.Channel
+		DonorChannel                    donordata.Channel
 		PhoneNumberLabel                string
 		CertificateProviderRelationship donordata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
 	}{
 		"online donor": {
-			DonorChannel:            actor.ChannelOnline,
+			DonorChannel:            donordata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"paper donor": {
-			DonorChannel:            actor.ChannelPaper,
+			DonorChannel:            donordata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
