@@ -85,19 +85,19 @@ type CredentialBirthDate struct {
 }
 
 type credentialAddress struct {
-	UPRN                           string `json:"uprn"`
-	SubBuildingName                string `json:"subBuildingName"`
-	BuildingName                   string `json:"buildingName"`
-	BuildingNumber                 string `json:"buildingNumber"`
-	DependentStreetName            string `json:"dependentStreetName"`
-	StreetName                     string `json:"streetName"`
-	DoubleDependentAddressLocality string `json:"doubleDependentAddressLocality"`
-	DependentAddressLocality       string `json:"dependentAddressLocality"`
-	AddressLocality                string `json:"addressLocality"`
-	PostalCode                     string `json:"postalCode"`
-	AddressCountry                 string `json:"addressCountry"`
-	ValidFrom                      string `json:"validFrom"`
-	ValidUntil                     string `json:"validUntil"`
+	UPRN                           json.Number `json:"uprn"`
+	SubBuildingName                string      `json:"subBuildingName"`
+	BuildingName                   string      `json:"buildingName"`
+	BuildingNumber                 string      `json:"buildingNumber"`
+	DependentStreetName            string      `json:"dependentStreetName"`
+	StreetName                     string      `json:"streetName"`
+	DoubleDependentAddressLocality string      `json:"doubleDependentAddressLocality"`
+	DependentAddressLocality       string      `json:"dependentAddressLocality"`
+	AddressLocality                string      `json:"addressLocality"`
+	PostalCode                     string      `json:"postalCode"`
+	AddressCountry                 string      `json:"addressCountry"`
+	ValidFrom                      string      `json:"validFrom"`
+	ValidUntil                     string      `json:"validUntil"`
 }
 
 func (a credentialAddress) transformToAddress() place.Address {
