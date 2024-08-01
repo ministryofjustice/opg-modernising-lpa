@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type siriusEventHandler struct{}
@@ -110,7 +110,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 	}
 
 	if donor.FeeAmount() == 0 {
-		donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+		donor.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
@@ -122,7 +122,7 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 			}
 		}
 	} else {
-		donor.Tasks.PayForLpa = actor.PaymentTaskApproved
+		donor.Tasks.PayForLpa = task.PaymentStateApproved
 	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
@@ -147,7 +147,7 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 		return nil
 	}
 
-	donor.Tasks.PayForLpa = actor.PaymentTaskMoreEvidenceRequired
+	donor.Tasks.PayForLpa = task.PaymentStateMoreEvidenceRequired
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)
@@ -172,7 +172,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	}
 
 	donor.FeeType = pay.FullFee
-	donor.Tasks.PayForLpa = actor.PaymentTaskDenied
+	donor.Tasks.PayForLpa = task.PaymentStateDenied
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)

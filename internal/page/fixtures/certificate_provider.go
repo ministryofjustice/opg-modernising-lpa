@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -187,11 +188,11 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
+			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
-			donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {

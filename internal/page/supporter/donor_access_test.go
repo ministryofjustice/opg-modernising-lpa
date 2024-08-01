@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -439,7 +440,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &donordata.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskCompleted}}
+	donor := &donordata.DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

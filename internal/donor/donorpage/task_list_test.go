@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -51,11 +52,11 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"more evidence required": {
 			appData:          testAppData,
-			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired}},
+			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.UploadEvidence.Format("lpa-id"), PaymentState: actor.PaymentTaskMoreEvidenceRequired},
+					{Name: "payForTheLpa", Path: page.Paths.UploadEvidence.Format("lpa-id"), PaymentState: task.PaymentStateMoreEvidenceRequired},
 				}
 
 				return sections
@@ -63,11 +64,11 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"fee denied": {
 			appData:          testAppData,
-			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied}},
+			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateDenied}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.FeeDenied.Format("lpa-id"), PaymentState: actor.PaymentTaskDenied},
+					{Name: "payForTheLpa", Path: page.Paths.FeeDenied.Format("lpa-id"), PaymentState: task.PaymentStateDenied},
 				}
 
 				return sections
@@ -75,11 +76,11 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"fee approved": {
 			appData:          testAppData,
-			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskApproved}},
+			donor:            &donordata.DonorProvidedDetails{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStateApproved}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.FeeApproved.Format("lpa-id"), PaymentState: actor.PaymentTaskApproved},
+					{Name: "payForTheLpa", Path: page.Paths.FeeApproved.Format("lpa-id"), PaymentState: task.PaymentStateApproved},
 				}
 
 				return sections
@@ -296,7 +297,7 @@ func TestGetTaskList(t *testing.T) {
 					Restrictions:               actor.TaskCompleted,
 					CertificateProvider:        actor.TaskInProgress,
 					CheckYourLpa:               actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskInProgress,
+					PayForLpa:                  task.PaymentStateInProgress,
 				},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
@@ -314,7 +315,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: actor.PaymentTaskInProgress},
+					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateInProgress},
 				}
 
 				return sections
@@ -344,7 +345,7 @@ func TestGetTaskList(t *testing.T) {
 					CertificateProvider:        actor.TaskCompleted,
 					CheckYourLpa:               actor.TaskCompleted,
 					AddCorrespondent:           actor.TaskCompleted,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 				},
 			},
@@ -363,7 +364,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: actor.PaymentTaskCompleted},
+					{Name: "payForTheLpa", Path: page.Paths.AboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{

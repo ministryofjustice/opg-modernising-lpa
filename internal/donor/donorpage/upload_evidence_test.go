@@ -12,11 +12,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -53,7 +53,7 @@ func TestGetUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -141,7 +141,7 @@ func TestPostUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

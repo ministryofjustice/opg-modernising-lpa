@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -76,13 +77,13 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 					CertificateProvider: donordata.CertificateProvider{
 						Email: "certificateprovider@example.com",
 					},
-					PaymentDetails: []actor.Payment{{
+					PaymentDetails: []donordata.Payment{{
 						PaymentId:        "abc123",
 						PaymentReference: "123456789012",
 						Amount:           8200,
 					}},
 					Tasks: donordata.DonorTasks{
-						PayForLpa: actor.PaymentTaskCompleted,
+						PayForLpa: task.PaymentStateCompleted,
 					},
 				}).
 				Return(nil)
@@ -107,7 +108,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: donordata.DonorTasks{
-					PayForLpa: actor.PaymentTaskInProgress,
+					PayForLpa: task.PaymentStateInProgress,
 				},
 				Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
 				Type:  donordata.LpaTypePersonalWelfare,
@@ -156,13 +157,13 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			CertificateProvider: donordata.CertificateProvider{
 				Email: "certificateprovider@example.com",
 			},
-			PaymentDetails: []actor.Payment{{
+			PaymentDetails: []donordata.Payment{{
 				PaymentId:        "abc123",
 				PaymentReference: "123456789012",
 				Amount:           4100,
 			}},
 			Tasks: donordata.DonorTasks{
-				PayForLpa: actor.PaymentTaskPending,
+				PayForLpa: task.PaymentStatePending,
 			},
 		}).
 		Return(nil)
@@ -188,7 +189,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.DonorTasks{
-			PayForLpa: actor.PaymentTaskInProgress,
+			PayForLpa: task.PaymentStateInProgress,
 		},
 	})
 	resp := w.Result()
@@ -198,8 +199,8 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 }
 
 func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
-	for _, task := range []actor.PaymentTask{actor.PaymentTaskApproved, actor.PaymentTaskDenied} {
-		t.Run(task.String(), func(t *testing.T) {
+	for _, taskState := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
+		t.Run(taskState.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
@@ -235,13 +236,13 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 					CertificateProvider: donordata.CertificateProvider{
 						Email: "certificateprovider@example.com",
 					},
-					PaymentDetails: []actor.Payment{{
+					PaymentDetails: []donordata.Payment{{
 						PaymentId:        "abc123",
 						PaymentReference: "123456789012",
 						Amount:           8200,
 					}},
 					Tasks: donordata.DonorTasks{
-						PayForLpa: actor.PaymentTaskCompleted,
+						PayForLpa: task.PaymentStateCompleted,
 					},
 				}).
 				Return(nil)
@@ -267,7 +268,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: donordata.DonorTasks{
-					PayForLpa: task,
+					PayForLpa: taskState,
 				},
 			})
 			resp := w.Result()
@@ -279,8 +280,8 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 }
 
 func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
-	for _, task := range []actor.PaymentTask{actor.PaymentTaskApproved, actor.PaymentTaskDenied} {
-		t.Run(task.String(), func(t *testing.T) {
+	for _, taskState := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
+		t.Run(taskState.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
@@ -292,13 +293,13 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				CertificateProvider: donordata.CertificateProvider{
 					Email: "certificateprovider@example.com",
 				},
-				PaymentDetails: []actor.Payment{{
+				PaymentDetails: []donordata.Payment{{
 					PaymentId:        "abc123",
 					PaymentReference: "123456789012",
 					Amount:           8200,
 				}},
 				Tasks: donordata.DonorTasks{
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 				},
 			}
@@ -361,7 +362,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: donordata.DonorTasks{
-					PayForLpa:                  task,
+					PayForLpa:                  taskState,
 					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 				},
 			})
@@ -374,7 +375,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 }
 
 func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) {
-	for _, task := range []actor.PaymentTask{actor.PaymentTaskApproved, actor.PaymentTaskDenied} {
+	for _, task := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
 		t.Run(task.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
@@ -458,7 +459,7 @@ func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.DonorTasks{
-			PayForLpa: actor.PaymentTaskInProgress,
+			PayForLpa: task.PaymentStateInProgress,
 		},
 	})
 
@@ -708,7 +709,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.DonorTasks{
-			PayForLpa:                  actor.PaymentTaskApproved,
+			PayForLpa:                  task.PaymentStateApproved,
 			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	})
@@ -753,7 +754,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.DonorTasks{
-			PayForLpa:                  actor.PaymentTaskApproved,
+			PayForLpa:                  task.PaymentStateApproved,
 			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	})

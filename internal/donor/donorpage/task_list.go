@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -23,7 +24,7 @@ type taskListItem struct {
 	Name          string
 	Path          string
 	State         actor.TaskState
-	PaymentState  actor.PaymentTask
+	PaymentState  task.PaymentState
 	IdentityState actor.IdentityTask
 	Count         int
 	Hidden        bool
@@ -152,11 +153,11 @@ func taskListCheckLpaPath(donor *donordata.DonorProvidedDetails) page.LpaPath {
 func taskListPaymentSection(donor *donordata.DonorProvidedDetails) taskListSection {
 	var paymentPath string
 	switch donor.Tasks.PayForLpa {
-	case actor.PaymentTaskApproved:
+	case task.PaymentStateApproved:
 		paymentPath = page.Paths.FeeApproved.Format(donor.LpaID)
-	case actor.PaymentTaskDenied:
+	case task.PaymentStateDenied:
 		paymentPath = page.Paths.FeeDenied.Format(donor.LpaID)
-	case actor.PaymentTaskMoreEvidenceRequired:
+	case task.PaymentStateMoreEvidenceRequired:
 		paymentPath = page.Paths.UploadEvidence.Format(donor.LpaID)
 	default:
 		paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)

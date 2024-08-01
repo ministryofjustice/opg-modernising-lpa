@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -114,7 +115,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				WitnessedByCertificateProviderAt: now,
 				Tasks: donordata.DonorTasks{
 					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
-					PayForLpa:                  actor.PaymentTaskCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
 				},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
 			}
@@ -139,7 +140,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
-				Tasks:                            donordata.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+				Tasks:                            donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
 			})
 			resp := w.Result()
@@ -169,7 +170,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProviderCodes:         actor.WitnessCodes{{Code: "1234", Created: now}},
 		WitnessedByCertificateProviderAt: now,
 		Tasks: donordata.DonorTasks{
-			PayForLpa:                  actor.PaymentTaskPending,
+			PayForLpa:                  task.PaymentStatePending,
 			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
 		},
 	}
@@ -183,7 +184,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-		Tasks:                    donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 	})
 	resp := w.Result()
 
@@ -222,7 +223,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
-		Tasks:                    donordata.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 	})
 	assert.Equal(t, expectedError, err)
 }
@@ -250,7 +251,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &donordata.DonorProvidedDetails{
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-		Tasks:                    donordata.DonorTasks{PayForLpa: actor.PaymentTaskCompleted},
+		Tasks:                    donordata.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 	})
 
 	assert.Equal(t, expectedError, err)

@@ -6,11 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -96,7 +96,7 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
-					Tasks:            donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+					Tasks:            donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
@@ -131,7 +131,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
-					Tasks:            donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+					Tasks:            donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Post,
 				}).
 				Return(nil)
@@ -159,7 +159,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:            "lpa-id",
 			FeeType:          pay.HalfFee,
-			Tasks:            donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+			Tasks:            donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 			EvidenceDelivery: pay.Upload,
 		}).
 		Return(nil)
@@ -167,7 +167,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID:            "lpa-id",
 		FeeType:          pay.HalfFee,
-		Tasks:            donordata.DonorTasks{PayForLpa: actor.PaymentTaskMoreEvidenceRequired},
+		Tasks:            donordata.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
 		EvidenceDelivery: pay.Upload,
 	})
 	resp := w.Result()
@@ -186,7 +186,7 @@ func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
 		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID:   "lpa-id",
 			FeeType: pay.NoFee,
-			Tasks:   donordata.DonorTasks{PayForLpa: actor.PaymentTaskPending},
+			Tasks:   donordata.DonorTasks{PayForLpa: task.PaymentStatePending},
 		}).
 		Return(expectedError)
 
@@ -240,8 +240,8 @@ func TestPayWhenFeeDenied(t *testing.T) {
 		LpaUID:         "lpa-uid",
 		Donor:          donordata.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
-		Tasks:          donordata.DonorTasks{PayForLpa: actor.PaymentTaskDenied},
-		PaymentDetails: []actor.Payment{{Amount: 4100}},
+		Tasks:          donordata.DonorTasks{PayForLpa: task.PaymentStateDenied},
+		PaymentDetails: []donordata.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()
 
