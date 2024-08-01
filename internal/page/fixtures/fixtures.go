@@ -136,7 +136,7 @@ func makeDonor(email string) donordata.Donor {
 		},
 		Email:                     email,
 		DateOfBirth:               date.New("2000", "1", "2"),
-		ThinksCanSign:             actor.Yes,
+		ThinksCanSign:             donordata.Yes,
 		CanSign:                   form.Yes,
 		ContactLanguagePreference: localize.En,
 		LpaLanguagePreference:     localize.En,

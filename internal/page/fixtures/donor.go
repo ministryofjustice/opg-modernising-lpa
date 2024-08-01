@@ -211,7 +211,7 @@ func updateLPAProgress(
 		}
 
 		if data.Donor == "cannot-sign" {
-			donorDetails.Donor.ThinksCanSign = actor.No
+			donorDetails.Donor.ThinksCanSign = donordata.No
 			donorDetails.Donor.CanSign = form.No
 
 			donorDetails.AuthorisedSignatory = donordata.AuthorisedSignatory{
