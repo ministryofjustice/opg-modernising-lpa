@@ -21,7 +21,7 @@ type choosePeopleToNotifyData struct {
 }
 
 func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if len(donor.PeopleToNotify) > 4 {
 			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
 		}
@@ -116,7 +116,7 @@ func (f *choosePeopleToNotifyForm) Validate() validation.List {
 	return errors
 }
 
-func personToNotifyMatches(donor *donordata.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
+func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

@@ -10,13 +10,13 @@ import (
 )
 
 type chooseNewCertificateProviderData struct {
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 	Errors validation.List
 	App    page.AppData
 }
 
 func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &chooseNewCertificateProviderData{Donor: donor, App: appData}
 
 		if r.Method == http.MethodPost {

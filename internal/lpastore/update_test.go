@@ -375,7 +375,7 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendDonorConfirmIdentity(ctx, &donordata.DonorProvidedDetails{
+	err := client.SendDonorConfirmIdentity(ctx, &donordata.Provided{
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{UID: uid},
 		DonorIdentityUserData: identity.UserData{

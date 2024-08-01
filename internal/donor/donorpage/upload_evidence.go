@@ -61,7 +61,7 @@ type uploadEvidenceData struct {
 }
 
 func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, documentStore DocumentStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if donor.Tasks.PayForLpa.IsPending() {
 			return page.Paths.TaskList.Redirect(w, r, appData, donor)
 		}

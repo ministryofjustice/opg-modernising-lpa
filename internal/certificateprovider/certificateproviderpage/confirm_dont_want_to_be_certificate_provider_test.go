@@ -170,12 +170,12 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&donordata.DonorProvidedDetails{
+					Return(&donordata.Provided{
 						LpaUID: "lpa-uid",
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: donordata.DonorTasks{
+						Tasks: donordata.Tasks{
 							CertificateProvider: actor.TaskCompleted,
 							CheckYourLpa:        actor.TaskCompleted,
 						},
@@ -186,12 +186,12 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 						Type: donordata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
-					Put(r.Context(), &donordata.DonorProvidedDetails{
+					Put(r.Context(), &donordata.Provided{
 						LpaUID: "lpa-uid",
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: donordata.DonorTasks{
+						Tasks: donordata.Tasks{
 							CertificateProvider: actor.TaskNotStarted,
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
@@ -319,7 +319,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&donordata.DonorProvidedDetails{}, expectedError)
+					Return(&donordata.Provided{}, expectedError)
 
 				return donorStore
 			},
@@ -349,7 +349,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
-					Return(&donordata.DonorProvidedDetails{}, nil)
+					Return(&donordata.Provided{}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), mock.Anything).
 					Return(expectedError)

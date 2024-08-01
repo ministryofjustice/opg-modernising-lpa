@@ -10,13 +10,13 @@ import (
 )
 
 type feeDeniedData struct {
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 	Errors validation.List
 	App    page.AppData
 }
 
 func FeeDenied(tmpl template.Template, payer Handler) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			return payer(appData, w, r, donor)
 		}

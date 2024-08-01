@@ -20,7 +20,7 @@ type certificateProviderDetailsData struct {
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
@@ -126,7 +126,7 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	return errors
 }
 
-func certificateProviderMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

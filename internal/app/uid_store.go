@@ -50,7 +50,7 @@ func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, ui
 		return fmt.Errorf("uidStore update failed: %w", err)
 	}
 
-	var donor *donordata.DonorProvidedDetails
+	var donor *donordata.Provided
 	if err := attributevalue.UnmarshalMap(newAttrs, &donor); err != nil {
 		return fmt.Errorf("uidStore unmarshal failed: %w", err)
 	}

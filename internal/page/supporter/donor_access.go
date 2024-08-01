@@ -20,7 +20,7 @@ type donorAccessData struct {
 	App       page.AppData
 	Errors    validation.List
 	Form      *donorAccessForm
-	Donor     *donordata.DonorProvidedDetails
+	Donor     *donordata.Provided
 	ShareCode *actor.ShareCodeData
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if donor.DonorIdentityConfirmed() {
 			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
 		}

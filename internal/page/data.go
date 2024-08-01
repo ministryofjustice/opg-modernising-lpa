@@ -37,7 +37,7 @@ func ChooseAttorneysState(attorneys donordata.Attorneys, decisions donordata.Att
 	return actor.TaskCompleted
 }
 
-func ChooseReplacementAttorneysState(donor *donordata.DonorProvidedDetails) actor.TaskState {
+func ChooseReplacementAttorneysState(donor *donordata.Provided) actor.TaskState {
 	if donor.WantReplacementAttorneys == form.No {
 		return actor.TaskCompleted
 	}

@@ -28,7 +28,7 @@ func TestGetWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetWhichFeeTypeAreYouApplyingForWithLpaData(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{FeeType: pay.HalfFee})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.Provided{FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -95,10 +95,10 @@ func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: feeType}).
+				Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", FeeType: feeType}).
 				Return(nil)
 
-			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -119,10 +119,10 @@ func TestPostWhichFeeTypeAreYouApplyingForOnStoreError(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.HalfFee}).
+		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
-	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := WhichFeeTypeAreYouApplyingFor(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -147,7 +147,7 @@ func TestPostWhichFeeTypeAreYouApplyingForOnInvalidForm(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := WhichFeeTypeAreYouApplyingFor(template.Execute, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -13,7 +13,7 @@ import (
 )
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		personToNotify, found := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if found == false {

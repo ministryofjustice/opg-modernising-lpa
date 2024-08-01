@@ -33,12 +33,12 @@ func TestGetLpaProgress(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &lpaProgressData{
 			App:      testAppData,
-			Donor:    &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"},
+			Donor:    &donordata.Provided{LpaUID: "lpa-uid"},
 			Progress: page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}},
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -77,6 +77,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

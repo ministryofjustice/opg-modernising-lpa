@@ -86,23 +86,23 @@ func (_c *mockOrganisationStore_Create_Call) RunAndReturn(run func(context.Conte
 }
 
 // CreateLPA provides a mock function with given fields: ctx
-func (_m *mockOrganisationStore) CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error) {
+func (_m *mockOrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateLPA")
 	}
 
-	var r0 *donordata.DonorProvidedDetails
+	var r0 *donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.Provided, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *donordata.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.Provided); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*donordata.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.Provided)
 		}
 	}
 
@@ -133,12 +133,12 @@ func (_c *mockOrganisationStore_CreateLPA_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *mockOrganisationStore_CreateLPA_Call) Return(_a0 *donordata.DonorProvidedDetails, _a1 error) *mockOrganisationStore_CreateLPA_Call {
+func (_c *mockOrganisationStore_CreateLPA_Call) Return(_a0 *donordata.Provided, _a1 error) *mockOrganisationStore_CreateLPA_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockOrganisationStore_CreateLPA_Call) RunAndReturn(run func(context.Context) (*donordata.DonorProvidedDetails, error)) *mockOrganisationStore_CreateLPA_Call {
+func (_c *mockOrganisationStore_CreateLPA_Call) RunAndReturn(run func(context.Context) (*donordata.Provided, error)) *mockOrganisationStore_CreateLPA_Call {
 	_c.Call.Return(run)
 	return _c
 }

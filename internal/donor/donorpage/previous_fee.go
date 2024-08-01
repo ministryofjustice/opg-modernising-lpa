@@ -18,7 +18,7 @@ type previousFeeData struct {
 }
 
 func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &previousFeeData{
 			App: appData,
 			Form: &previousFeeForm{

@@ -33,7 +33,7 @@ type LpaStoreResolvingService interface {
 
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
-	CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	CreateLPA(ctx context.Context) (*donordata.Provided, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
@@ -56,9 +56,9 @@ type MemberStore interface {
 
 type DonorStore interface {
 	DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error
-	Get(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
+	Get(ctx context.Context) (*donordata.Provided, error)
+	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {

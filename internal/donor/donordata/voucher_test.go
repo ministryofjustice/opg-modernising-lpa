@@ -12,7 +12,7 @@ func TestVoucherFullName(t *testing.T) {
 }
 
 func TestVoucherMatches(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Donor: Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "c", LastName: "d"},
@@ -45,7 +45,7 @@ func TestVoucherMatches(t *testing.T) {
 }
 
 func TestVoucherMatchesMultiple(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Donor: Donor{FirstNames: "a", LastName: "b"},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "a", LastName: "b"},
@@ -70,7 +70,7 @@ func TestVoucherMatchesMultiple(t *testing.T) {
 }
 
 func TestVoucherMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Donor: Donor{FirstNames: "", LastName: ""},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "", LastName: ""},

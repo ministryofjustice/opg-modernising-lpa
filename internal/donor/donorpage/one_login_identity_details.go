@@ -14,14 +14,14 @@ import (
 type oneLoginIdentityDetailsData struct {
 	App            page.AppData
 	Errors         validation.List
-	DonorProvided  *donordata.DonorProvidedDetails
+	DonorProvided  *donordata.Provided
 	DetailsMatch   bool
 	DetailsUpdated bool
 	Form           *form.YesNoForm
 }
 
 func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &oneLoginIdentityDetailsData{
 			App:            appData,
 			Form:           form.NewYesNoForm(form.YesNoUnknown),

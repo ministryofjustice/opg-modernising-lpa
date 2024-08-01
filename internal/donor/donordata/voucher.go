@@ -17,7 +17,7 @@ func (v Voucher) FullName() string {
 	return v.FirstNames + " " + v.LastName
 }
 
-func (v Voucher) Matches(donor *DonorProvidedDetails) (match []temporary.ActorType) {
+func (v Voucher) Matches(donor *Provided) (match []temporary.ActorType) {
 	if v.FirstNames == "" && v.LastName == "" {
 		return nil
 	}

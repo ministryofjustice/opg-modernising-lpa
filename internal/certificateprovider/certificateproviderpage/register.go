@@ -96,8 +96,8 @@ type LpaStoreClient interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type DonorStore interface {
-	GetAny(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
+	GetAny(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 func Register(

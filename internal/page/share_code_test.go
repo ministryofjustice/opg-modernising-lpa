@@ -18,7 +18,7 @@ import (
 )
 
 func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -102,7 +102,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 		},
 	}
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -217,7 +217,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -278,7 +278,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -332,7 +332,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 	actorUID := actoruid.New()
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			UID:        actorUID,
 			FirstNames: "Joanna",
@@ -392,7 +392,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 		},
 	}
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -475,7 +475,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			CarryOutBy: donordata.ChannelPaper,
 		},
@@ -495,7 +495,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			CarryOutBy: donordata.ChannelPaper,
 		},
@@ -522,7 +522,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t
 func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
@@ -567,7 +567,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, &donordata.DonorProvidedDetails{})
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }

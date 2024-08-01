@@ -26,7 +26,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
 
-	updated := &donordata.DonorProvidedDetails{
+	updated := &donordata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		PerfectAt: testNow,
@@ -45,7 +45,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+			b, _ := json.Marshal(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -85,7 +85,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
 
-	updated := &donordata.DonorProvidedDetails{
+	updated := &donordata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		PerfectAt: testNow,
@@ -114,7 +114,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoPutErrors(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
 
-	updated := &donordata.DonorProvidedDetails{
+	updated := &donordata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		PerfectAt: testNow,
@@ -133,7 +133,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoPutErrors(t *testing.T) {
 	client.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+			b, _ := json.Marshal(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
 			json.Unmarshal(b, v)
 			return nil
 		})

@@ -25,12 +25,12 @@ func TestGetDoYouWantToNotifyPeople(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &doYouWantToNotifyPeopleData{
 			App:   testAppData,
-			Donor: &donordata.DonorProvidedDetails{},
+			Donor: &donordata.Provided{},
 			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,14 +45,14 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &doYouWantToNotifyPeopleData{
 			App: testAppData,
-			Donor: &donordata.DonorProvidedDetails{
+			Donor: &donordata.Provided{
 				DoYouWantToNotifyPeople: form.Yes,
 			},
 			Form: form.NewYesNoForm(form.Yes),
 		}).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		DoYouWantToNotifyPeople: form.Yes,
 	})
 	resp := w.Result()
@@ -89,7 +89,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 			template.EXPECT().
 				Execute(w, &doYouWantToNotifyPeopleData{
 					App: testAppData,
-					Donor: &donordata.DonorProvidedDetails{
+					Donor: &donordata.Provided{
 						DoYouWantToNotifyPeople: form.Yes,
 						AttorneyDecisions:       donordata.AttorneyDecisions{How: tc.howWorkTogether},
 					},
@@ -98,7 +98,7 @@ func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 				DoYouWantToNotifyPeople: form.Yes,
 				AttorneyDecisions:       donordata.AttorneyDecisions{How: tc.howWorkTogether},
 			})
@@ -116,7 +116,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{
 			{UID: actoruid.New()},
@@ -138,7 +138,7 @@ func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -178,10 +178,10 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:                   "lpa-id",
 					DoYouWantToNotifyPeople: tc.YesNo,
-					Tasks: donordata.DonorTasks{
+					Tasks: donordata.Tasks{
 						YourDetails:                actor.TaskCompleted,
 						ChooseAttorneys:            actor.TaskCompleted,
 						ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -193,10 +193,10 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:                   "lpa-id",
 				DoYouWantToNotifyPeople: tc.ExistingAnswer,
-				Tasks: donordata.DonorTasks{
+				Tasks: donordata.Tasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
 					ChooseReplacementAttorneys: actor.TaskCompleted,
@@ -225,13 +225,13 @@ func TestPostDoYouWantToNotifyPeopleWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			DoYouWantToNotifyPeople: form.Yes,
-			Tasks:                   donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
+			Tasks:                   donordata.Tasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(expectedError)
 
-	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := DoYouWantToNotifyPeople(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -248,7 +248,7 @@ func TestPostDoYouWantToNotifyPeopleWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := DoYouWantToNotifyPeople(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

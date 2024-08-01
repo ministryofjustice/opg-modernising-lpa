@@ -26,7 +26,7 @@ func TestGetEnterVoucher(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGetEnterVoucherWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -59,7 +59,7 @@ func TestPostEnterVoucher(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
@@ -72,7 +72,7 @@ func TestPostEnterVoucher(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
@@ -105,7 +105,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
@@ -117,7 +117,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				Donor:               donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "Barry", LastName: "Bloggs"},
@@ -148,7 +148,7 @@ func TestPostEnterVoucherWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := EnterVoucher(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -173,7 +173,7 @@ func TestPostEnterVoucherWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := EnterVoucher(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

@@ -19,7 +19,7 @@ type yourAuthorisedSignatoryData struct {
 }
 
 func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourAuthorisedSignatoryData{
 			App: appData,
 			Form: &yourAuthorisedSignatoryForm{
@@ -91,7 +91,7 @@ func (f *yourAuthorisedSignatoryForm) Validate() validation.List {
 	return errors
 }
 
-func signatoryMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func signatoryMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

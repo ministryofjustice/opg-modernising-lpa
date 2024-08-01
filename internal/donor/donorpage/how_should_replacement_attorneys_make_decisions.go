@@ -14,11 +14,11 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Options donordata.AttorneysActOptions
-	Donor   *donordata.DonorProvidedDetails
+	Donor   *donordata.Provided
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &howShouldReplacementAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{

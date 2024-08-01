@@ -19,7 +19,7 @@ type yourIndependentWitnessData struct {
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
 			Form: &yourIndependentWitnessForm{
@@ -91,7 +91,7 @@ func (f *yourIndependentWitnessForm) Validate() validation.List {
 	return errors
 }
 
-func independentWitnessMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func independentWitnessMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

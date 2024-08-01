@@ -24,7 +24,7 @@ import (
 
 type OrganisationStore interface {
 	Create(context.Context, *actor.Member, string) (*actor.Organisation, error)
-	CreateLPA(context.Context) (*donordata.DonorProvidedDetails, error)
+	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
 type MemberStore interface {

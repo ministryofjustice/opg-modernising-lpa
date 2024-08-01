@@ -14,7 +14,7 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{}
+	donor := &donordata.Provided{}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -34,10 +34,10 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Donor: &donordata.DonorProvidedDetails{}}).
+		Execute(w, &guidanceData{App: testAppData, Donor: &donordata.Provided{}}).
 		Return(expectedError)
 
-	err := Guidance(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := Guidance(template.Execute)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

@@ -24,16 +24,16 @@ func TestGetRemoveTrustCorporation(t *testing.T) {
 	testcases := map[string]struct {
 		isReplacement bool
 		titleLabel    string
-		donor         *donordata.DonorProvidedDetails
+		donor         *donordata.Provided
 	}{
 		"attorney": {
 			titleLabel: "removeTrustCorporation",
-			donor:      &donordata.DonorProvidedDetails{Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
+			donor:      &donordata.Provided{Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
 		},
 		"replacement": {
 			isReplacement: true,
 			titleLabel:    "removeReplacementTrustCorporation",
-			donor:         &donordata.DonorProvidedDetails{ReplacementAttorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
+			donor:         &donordata.Provided{ReplacementAttorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
 		},
 	}
 
@@ -68,69 +68,69 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 
 	testcases := map[string]struct {
 		isReplacement bool
-		donor         *donordata.DonorProvidedDetails
-		updatedDonor  *donordata.DonorProvidedDetails
+		donor         *donordata.Provided
+		updatedDonor  *donordata.Provided
 		redirect      page.LpaPath
 	}{
 		"many left": {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
-				Tasks:             donordata.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:             donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
 		"replacement many left": {
 			isReplacement: true,
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
-				Tasks:                        donordata.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
+				Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
 		},
 		"one left": {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-				Tasks:     donordata.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:     donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
 		"replacement one left": {
 			isReplacement: true,
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
-				Tasks:                donordata.DonorTasks{ChooseReplacementAttorneys: actor.TaskInProgress},
+				Tasks:                donordata.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
 		},
 		"none left": {
-			donor: &donordata.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
+			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
 				Attorneys: donordata.Attorneys{},
 			},
@@ -138,8 +138,8 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 		},
 		"replacement none left": {
 			isReplacement: true,
-			donor:         &donordata.DonorProvidedDetails{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
-			updatedDonor: &donordata.DonorProvidedDetails{
+			donor:         &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
+			updatedDonor: &donordata.Provided{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: donordata.Attorneys{},
 			},
@@ -199,7 +199,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 		Address: place.Address{},
 	}
 
-	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
 	resp := w.Result()
 
@@ -237,7 +237,7 @@ func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveTrustCorporation(template.Execute, donorStore, false)(testAppData, w, r, &donordata.DonorProvidedDetails{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveTrustCorporation(template.Execute, donorStore, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 
 	resp := w.Result()
 
@@ -269,7 +269,7 @@ func TestRemoveTrustCorporationFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.DonorProvidedDetails{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
+	err := RemoveTrustCorporation(template.Execute, nil, false)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

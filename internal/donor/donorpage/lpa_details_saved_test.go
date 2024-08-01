@@ -26,11 +26,11 @@ func TestGetLpaDetailsSaved(t *testing.T) {
 				Execute(w, LpaDetailsSavedData{
 					App:          testAppData,
 					IsFirstCheck: expectedIsFirstCheck,
-					Donor:        &donordata.DonorProvidedDetails{},
+					Donor:        &donordata.Provided{},
 				}).
 				Return(nil)
 
-			err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+			err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -48,7 +48,7 @@ func TestGetLpaDetailsSavedOnTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := LpaDetailsSaved(template.Execute)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

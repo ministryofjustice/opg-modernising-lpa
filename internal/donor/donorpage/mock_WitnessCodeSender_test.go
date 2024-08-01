@@ -25,7 +25,7 @@ func (_m *mockWitnessCodeSender) EXPECT() *mockWitnessCodeSender_Expecter {
 }
 
 // SendToCertificateProvider provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Localizer) error {
+func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, _a1 *donordata.Provided, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *mockWitnessCodeSender) SendToCertificateProvider(_a0 context.Context, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided, page.Localizer) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -55,9 +55,9 @@ func (_e *mockWitnessCodeSender_Expecter) SendToCertificateProvider(_a0 interfac
 	return &mockWitnessCodeSender_SendToCertificateProvider_Call{Call: _e.mock.On("SendToCertificateProvider", _a0, _a1, _a2)}
 }
 
-func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) Run(run func(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Localizer)) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) Run(run func(_a0 context.Context, _a1 *donordata.Provided, _a2 page.Localizer)) *mockWitnessCodeSender_SendToCertificateProvider_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails), args[2].(page.Localizer))
+		run(args[0].(context.Context), args[1].(*donordata.Provided), args[2].(page.Localizer))
 	})
 	return _c
 }
@@ -67,13 +67,13 @@ func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) Return(_a0 error
 	return _c
 }
 
-func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error) *mockWitnessCodeSender_SendToCertificateProvider_Call {
+func (_c *mockWitnessCodeSender_SendToCertificateProvider_Call) RunAndReturn(run func(context.Context, *donordata.Provided, page.Localizer) error) *mockWitnessCodeSender_SendToCertificateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendToIndependentWitness provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Localizer) error {
+func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _a1 *donordata.Provided, _a2 page.Localizer) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -81,7 +81,7 @@ func (_m *mockWitnessCodeSender) SendToIndependentWitness(_a0 context.Context, _
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided, page.Localizer) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -103,9 +103,9 @@ func (_e *mockWitnessCodeSender_Expecter) SendToIndependentWitness(_a0 interface
 	return &mockWitnessCodeSender_SendToIndependentWitness_Call{Call: _e.mock.On("SendToIndependentWitness", _a0, _a1, _a2)}
 }
 
-func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) Run(run func(_a0 context.Context, _a1 *donordata.DonorProvidedDetails, _a2 page.Localizer)) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) Run(run func(_a0 context.Context, _a1 *donordata.Provided, _a2 page.Localizer)) *mockWitnessCodeSender_SendToIndependentWitness_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.DonorProvidedDetails), args[2].(page.Localizer))
+		run(args[0].(context.Context), args[1].(*donordata.Provided), args[2].(page.Localizer))
 	})
 	return _c
 }
@@ -115,7 +115,7 @@ func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) Return(_a0 error)
 	return _c
 }
 
-func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) RunAndReturn(run func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error) *mockWitnessCodeSender_SendToIndependentWitness_Call {
+func (_c *mockWitnessCodeSender_SendToIndependentWitness_Call) RunAndReturn(run func(context.Context, *donordata.Provided, page.Localizer) error) *mockWitnessCodeSender_SendToIndependentWitness_Call {
 	_c.Call.Return(run)
 	return _c
 }
