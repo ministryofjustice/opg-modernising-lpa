@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -16,32 +17,32 @@ import (
 
 func TestGetConfirmYourDetails(t *testing.T) {
 	testcases := map[string]struct {
-		DonorChannel                    actor.Channel
+		DonorChannel                    donordata.Channel
 		PhoneNumberLabel                string
-		CertificateProviderRelationship actor.CertificateProviderRelationship
+		CertificateProviderRelationship donordata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
 	}{
 		"online donor": {
-			DonorChannel:            actor.ChannelOnline,
+			DonorChannel:            donordata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"paper donor": {
-			DonorChannel:            actor.ChannelPaper,
+			DonorChannel:            donordata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"lay CP": {
-			CertificateProviderRelationship: actor.Personally,
+			CertificateProviderRelationship: donordata.Personally,
 			AddressLabel:                    "address",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 		"professional CP": {
-			CertificateProviderRelationship: actor.Professionally,
+			CertificateProviderRelationship: donordata.Professionally,
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
 			PhoneNumberLabel:                "mobileNumber",

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -43,8 +44,8 @@ type OneLoginClient interface {
 }
 
 type DonorStore interface {
-	Create(context.Context) (*actor.DonorProvidedDetails, error)
-	Put(context.Context, *actor.DonorProvidedDetails) error
+	Create(context.Context) (*donordata.DonorProvidedDetails, error)
+	Put(context.Context, *donordata.DonorProvidedDetails) error
 }
 
 type Bundle interface {

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -45,12 +45,12 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(ctx, &actor.DonorProvidedDetails{
+				Put(ctx, &donordata.DonorProvidedDetails{
 					LpaUID:                   "lpa-uid",
-					Donor:                    actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-					CertificateProvider:      actor.CertificateProvider{Mobile: "0777"},
-					CertificateProviderCodes: actor.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
-					Type:                     actor.LpaTypePropertyAndAffairs,
+					Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+					CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
+					CertificateProviderCodes: donordata.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
+					Type:                     donordata.LpaTypePropertyAndAffairs,
 				}).
 				Return(nil)
 
@@ -68,11 +68,11 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				randomCode:   func(int) string { return tc.randomCode },
 				now:          func() time.Time { return now },
 			}
-			err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
+			err := sender.SendToCertificateProvider(ctx, &donordata.DonorProvidedDetails{
 				LpaUID:              "lpa-uid",
-				Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-				CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-				Type:                actor.LpaTypePropertyAndAffairs,
+				Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+				CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
+				Type:                donordata.LpaTypePropertyAndAffairs,
 			}, localizer)
 
 			assert.Nil(t, err)
@@ -85,8 +85,8 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 	ctx := context.Background()
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
-	err := sender.SendToCertificateProvider(ctx, &actor.DonorProvidedDetails{
-		CertificateProviderCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
+	err := sender.SendToCertificateProvider(ctx, &donordata.DonorProvidedDetails{
+		CertificateProviderCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -117,10 +117,10 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                actor.LpaTypePropertyAndAffairs,
+	err := sender.SendToCertificateProvider(context.Background(), &donordata.DonorProvidedDetails{
+		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
+		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:                donordata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -137,10 +137,10 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 		randomCode: func(int) string { return "1234" },
 		now:        time.Now,
 	}
-	err := sender.SendToCertificateProvider(context.Background(), &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{Mobile: "0777"},
-		Donor:               actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                actor.LpaTypePropertyAndAffairs,
+	err := sender.SendToCertificateProvider(context.Background(), &donordata.DonorProvidedDetails{
+		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
+		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:                donordata.LpaTypePropertyAndAffairs,
 	}, nil)
 
 	assert.Equal(t, expectedError, err)
@@ -161,12 +161,12 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(ctx, &actor.DonorProvidedDetails{
+		Put(ctx, &donordata.DonorProvidedDetails{
 			LpaUID:                  "lpa-uid",
-			Donor:                   actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-			IndependentWitness:      actor.IndependentWitness{Mobile: "0777"},
-			IndependentWitnessCodes: actor.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    actor.LpaTypePropertyAndAffairs,
+			Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+			IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
+			IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+			Type:                    donordata.LpaTypePropertyAndAffairs,
 		}).
 		Return(nil)
 
@@ -184,11 +184,11 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		randomCode:   func(int) string { return "1234" },
 		now:          func() time.Time { return now },
 	}
-	err := sender.SendToIndependentWitness(ctx, &actor.DonorProvidedDetails{
+	err := sender.SendToIndependentWitness(ctx, &donordata.DonorProvidedDetails{
 		LpaUID:             "lpa-uid",
-		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Type:               actor.LpaTypePropertyAndAffairs,
+		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
+		Type:               donordata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -199,8 +199,8 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 	ctx := context.Background()
 
 	sender := &WitnessCodeSender{now: func() time.Time { return now }}
-	err := sender.SendToIndependentWitness(ctx, &actor.DonorProvidedDetails{
-		IndependentWitnessCodes: actor.WitnessCodes{{Created: now.Add(-time.Minute)}},
+	err := sender.SendToIndependentWitness(ctx, &donordata.DonorProvidedDetails{
+		IndependentWitnessCodes: donordata.WitnessCodes{{Created: now.Add(-time.Minute)}},
 	}, nil)
 
 	assert.Equal(t, ErrTooManyWitnessCodeRequests, err)
@@ -231,10 +231,10 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 		randomCode:   func(int) string { return "1234" },
 		now:          time.Now,
 	}
-	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
-		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               actor.LpaTypePropertyAndAffairs,
+	err := sender.SendToIndependentWitness(context.Background(), &donordata.DonorProvidedDetails{
+		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
+		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:               donordata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -251,10 +251,10 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 		randomCode: func(int) string { return "1234" },
 		now:        time.Now,
 	}
-	err := sender.SendToIndependentWitness(context.Background(), &actor.DonorProvidedDetails{
-		IndependentWitness: actor.IndependentWitness{Mobile: "0777"},
-		Donor:              actor.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               actor.LpaTypePropertyAndAffairs,
+	err := sender.SendToIndependentWitness(context.Background(), &donordata.DonorProvidedDetails{
+		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
+		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		Type:               donordata.LpaTypePropertyAndAffairs,
 	}, nil)
 
 	assert.Equal(t, expectedError, err)

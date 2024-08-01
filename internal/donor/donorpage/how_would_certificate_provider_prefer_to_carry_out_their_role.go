@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -13,13 +12,13 @@ import (
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	App                 page.AppData
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 	Options             donordata.ChannelOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -51,7 +50,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy actor.Channel
+	CarryOutBy donordata.Channel
 	Email      string
 	Error      error
 }

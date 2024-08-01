@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestGetChoosePeopleToNotify(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,9 +41,9 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{
 				UID:        actoruid.New(),
 				Address:    testAddress,
@@ -70,7 +71,7 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,18 +79,18 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
-	personToNotify := actor.PersonToNotify{
+	personToNotify := donordata.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		UID:        actoruid.New(),
 	}
 
 	testcases := map[string]struct {
-		addedPeople actor.PeopleToNotify
+		addedPeople donordata.PeopleToNotify
 		expectedUrl page.LpaPath
 	}{
 		"5 people": {
-			addedPeople: actor.PeopleToNotify{
+			addedPeople: donordata.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -99,7 +100,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
-			addedPeople: actor.PeopleToNotify{
+			addedPeople: donordata.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -116,7 +117,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			err := ChoosePeopleToNotify(nil, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChoosePeopleToNotify(nil, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID:          "lpa-id",
 				PeopleToNotify: tc.addedPeople,
 			})
@@ -132,14 +133,14 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	testCases := map[string]struct {
 		form           url.Values
-		personToNotify actor.PersonToNotify
+		personToNotify donordata.PersonToNotify
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			personToNotify: actor.PersonToNotify{
+			personToNotify: donordata.PersonToNotify{
 				FirstNames: "John",
 				LastName:   "Doe",
 				UID:        testUID,
@@ -151,7 +152,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				"last-name":           {"Doe"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			personToNotify: actor.PersonToNotify{
+			personToNotify: donordata.PersonToNotify{
 				FirstNames: "Jane",
 				LastName:   "Doe",
 				UID:        testUID,
@@ -167,17 +168,17 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:          "lpa-id",
-					Donor:          actor.Donor{FirstNames: "Jane", LastName: "Doe"},
-					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
-					Tasks:          actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
+					Donor:          donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
+					PeopleToNotify: donordata.PeopleToNotify{tc.personToNotify},
+					Tasks:          donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
 
@@ -201,20 +202,20 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			PeopleToNotify: actor.PeopleToNotify{{
+			PeopleToNotify: donordata.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
 				UID:        uid,
 			}},
-			Tasks: actor.DonorTasks{PeopleToNotify: actor.TaskInProgress},
+			Tasks: donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 		}).
 		Return(nil)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{{
+		PeopleToNotify: donordata.PeopleToNotify{{
 			FirstNames: "John",
 			LastName:   "Doe",
 			UID:        uid,
@@ -277,8 +278,8 @@ func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
-				Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+			err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 			})
 			resp := w.Result()
 
@@ -303,7 +304,7 @@ func TestPostChoosePeopleToNotifyWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -368,18 +369,18 @@ func TestChoosePeopleToNotifyFormValidate(t *testing.T) {
 
 func TestPersonToNotifyMatches(t *testing.T) {
 	uid := actoruid.New()
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{UID: uid, FirstNames: "o", LastName: "p"},
 		},
@@ -398,16 +399,16 @@ func TestPersonToNotifyMatches(t *testing.T) {
 
 func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
 	uid := actoruid.New()
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "", LastName: ""},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 			{UID: uid, FirstNames: "", LastName: ""},
 		},

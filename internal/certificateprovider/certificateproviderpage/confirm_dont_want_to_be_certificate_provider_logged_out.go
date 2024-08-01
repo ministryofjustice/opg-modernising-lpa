@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -76,7 +77,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
 				}
 
-				donor.CertificateProvider = actor.CertificateProvider{}
+				donor.CertificateProvider = donordata.CertificateProvider{}
 				donor.Tasks.CertificateProvider = actor.TaskNotStarted
 				donor.Tasks.CheckYourLpa = actor.TaskNotStarted
 

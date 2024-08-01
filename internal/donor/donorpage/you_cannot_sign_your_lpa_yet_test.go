@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,9 +15,9 @@ func TestGetYouCannotSignYourLpaYetWithUnder18Actors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New(date.Today().YearString(), "1", "2")},
 		}},
 	}
@@ -38,9 +38,9 @@ func TestGetYouCannotSignYourLpaYetWithUnder18ActorsWhenTemplateError(t *testing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New(date.Today().YearString(), "1", "2")},
 		}},
 	}
@@ -61,9 +61,9 @@ func TestGetYouCannotSignYourLpaYetWithoutUnder18Actors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := YouCannotSignYourLpaYet(nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YouCannotSignYourLpaYet(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New("2000", "1", "2")},
 		}},
 	})

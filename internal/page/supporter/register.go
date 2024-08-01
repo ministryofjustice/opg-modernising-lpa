@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -32,7 +33,7 @@ type LpaStoreResolvingService interface {
 
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
-	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
@@ -55,9 +56,9 @@ type MemberStore interface {
 
 type DonorStore interface {
 	DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	Get(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)
+	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
 }
 
 type CertificateProviderStore interface {

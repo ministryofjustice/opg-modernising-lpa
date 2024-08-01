@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,7 +28,7 @@ func TestGetYourAuthorisedSignatory(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -48,8 +49,8 @@ func TestGetYourAuthorisedSignatoryFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		AuthorisedSignatory: actor.AuthorisedSignatory{
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		AuthorisedSignatory: donordata.AuthorisedSignatory{
 			FirstNames: "John",
 		},
 	})
@@ -68,7 +69,7 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -78,14 +79,14 @@ func TestGetYourAuthorisedSignatoryWhenTemplateErrors(t *testing.T) {
 func TestPostYourAuthorisedSignatory(t *testing.T) {
 	testCases := map[string]struct {
 		form   url.Values
-		person actor.AuthorisedSignatory
+		person donordata.AuthorisedSignatory
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			person: actor.AuthorisedSignatory{
+			person: donordata.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -96,7 +97,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 				"last-name":           {"Smith"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeAuthorisedSignatory, actor.TypeDonor, "John", "Smith").String()},
 			},
-			person: actor.AuthorisedSignatory{
+			person: donordata.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
@@ -112,17 +113,17 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:               "lpa-id",
-					Donor:               actor.Donor{FirstNames: "John", LastName: "Smith"},
+					Donor:               donordata.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
-					Tasks:               actor.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
+					Tasks:               donordata.DonorTasks{ChooseYourSignatory: actor.TaskInProgress},
 				}).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{FirstNames: "John", LastName: "Smith"},
+				Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			})
 			resp := w.Result()
 
@@ -146,22 +147,22 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			AuthorisedSignatory: actor.AuthorisedSignatory{
+			AuthorisedSignatory: donordata.AuthorisedSignatory{
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
-			Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
+			Tasks: donordata.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 		}).
 		Return(nil)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		AuthorisedSignatory: actor.AuthorisedSignatory{
+		AuthorisedSignatory: donordata.AuthorisedSignatory{
 			FirstNames: "John",
 		},
-		Tasks: actor.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
+		Tasks: donordata.DonorTasks{ChooseYourSignatory: actor.TaskCompleted},
 	})
 	resp := w.Result()
 
@@ -226,8 +227,8 @@ func TestPostYourAuthorisedSignatoryWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			err := YourAuthorisedSignatory(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -255,8 +256,8 @@ func TestPostYourAuthorisedSignatoryWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	err := YourAuthorisedSignatory(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},
 		},
@@ -326,23 +327,23 @@ func TestYourAuthorisedSignatoryFormValidate(t *testing.T) {
 }
 
 func TestSignatoryMatches(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.DonorProvidedDetails{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "x", "y"))
@@ -359,10 +360,10 @@ func TestSignatoryMatches(t *testing.T) {
 }
 
 func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Attorneys:            actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{{}}},
-		PeopleToNotify:       actor.PeopleToNotify{{}},
+	donor := &donordata.DonorProvidedDetails{
+		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		PeopleToNotify:       donordata.PeopleToNotify{{}},
 	}
 
 	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "", ""))
