@@ -351,7 +351,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		{UID: uid1},
 		{UID: uid2},
 	}
-	actorTrustCorporation := actor.TrustCorporation{Name: "a"}
+	actorTrustCorporation := donordata.TrustCorporation{Name: "a"}
 
 	testcases := map[string]struct {
 		attorneys    any

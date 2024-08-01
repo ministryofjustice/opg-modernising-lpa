@@ -104,8 +104,8 @@ func makeAttorney(name Name) donordata.Attorney {
 	}
 }
 
-func makeTrustCorporation(name string) actor.TrustCorporation {
-	return actor.TrustCorporation{
+func makeTrustCorporation(name string) donordata.TrustCorporation {
+	return donordata.TrustCorporation{
 		UID:           actoruid.New(),
 		Name:          name,
 		CompanyNumber: "555555555",

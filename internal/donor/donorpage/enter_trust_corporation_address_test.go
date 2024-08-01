@@ -33,7 +33,7 @@ func TestGetEnterTrustCorporationAddress(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 	})
 	resp := w.Result()
 
@@ -60,7 +60,7 @@ func TestGetEnterTrustCorporationAddressManual(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -83,7 +83,7 @@ func TestGetEnterTrustCorporationAddressWhenTemplateErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -110,7 +110,7 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
-			Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "a",
 				Address: testAddress,
 			}},
@@ -119,7 +119,7 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 			Name:    "a",
 			Address: place.Address{},
 		}},
@@ -151,7 +151,7 @@ func TestPostEnterTrustCorporationAddressManualWhenStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -176,7 +176,7 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
 			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskCompleted},
-			Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "John",
 				Address: testAddress,
 			}},
@@ -185,7 +185,7 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 			Name:    "John",
 			Address: place.Address{Line1: "abc"},
 		}},
@@ -232,7 +232,7 @@ func TestPostEnterTrustCorporationAddressManualWhenValidationError(t *testing.T)
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -267,7 +267,7 @@ func TestPostEnterTrustCorporationAddressPostcodeSelect(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -311,7 +311,7 @@ func TestPostEnterTrustCorporationAddressPostcodeSelectWhenValidationError(t *te
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -354,7 +354,7 @@ func TestPostEnterTrustCorporationPostcodeLookup(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -398,7 +398,7 @@ func TestPostEnterTrustCorporationPostcodeLookupError(t *testing.T) {
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -447,7 +447,7 @@ func TestPostEnterTrustCorporationAddressPostcodeLookupInvalidPostcodeError(t *t
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -488,7 +488,7 @@ func TestPostEnterTrustCorporationAddressPostcodeLookupValidPostcodeNoAddresses(
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -520,7 +520,7 @@ func TestPostEnterTrustCorporationAddressPostcodeLookupWhenValidationError(t *te
 		Return(nil)
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -553,7 +553,7 @@ func TestPostEnterTrustCorporationAddressReuse(t *testing.T) {
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -571,7 +571,7 @@ func TestPostEnterTrustCorporationAddressReuseSelect(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	updatedTrustCorporation := actor.TrustCorporation{
+	updatedTrustCorporation := donordata.TrustCorporation{
 		Name: "a",
 		Address: place.Address{
 			Line1:      "a",
@@ -594,7 +594,7 @@ func TestPostEnterTrustCorporationAddressReuseSelect(t *testing.T) {
 
 	err := EnterTrustCorporationAddress(nil, nil, nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 			Name: "a",
 		}},
 	})
@@ -631,7 +631,7 @@ func TestPostEnterTrustCorporationAddressReuseSelectWhenValidationError(t *testi
 
 	err := EnterTrustCorporationAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
 		Donor:     actor.Donor{Address: place.Address{Line1: "donor lane"}},
-		Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{}},
+		Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{}},
 	})
 	resp := w.Result()
 
@@ -673,7 +673,7 @@ func TestPostEnterTrustCorporationAddressManuallyFromAnotherPage(t *testing.T) {
 
 			donor := &actor.DonorProvidedDetails{
 				LpaID: "lpa-id",
-				Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+				Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 					Address: place.Address{
 						Line1:      "a",
 						TownOrCity: "b",

@@ -68,7 +68,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &actor.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
 				Email:         "name@example.com",

@@ -23,7 +23,7 @@ func TestGetChooseAttorneysSummary(t *testing.T) {
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 		},
 		"trust corporation": {
-			Attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{Name: "a"}},
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 		},
 	}
 

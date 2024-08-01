@@ -21,14 +21,14 @@ func TestChooseAttorneysState(t *testing.T) {
 			taskState: actor.TaskNotStarted,
 		},
 		"trust corporation": {
-			attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+			attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "a",
 				Address: place.Address{Line1: "a"},
 			}},
 			taskState: actor.TaskCompleted,
 		},
 		"trust corporation incomplete": {
-			attorneys: donordata.Attorneys{TrustCorporation: actor.TrustCorporation{
+			attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name: "a",
 			}},
 			taskState: actor.TaskInProgress,
