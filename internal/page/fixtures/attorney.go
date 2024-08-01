@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -22,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -29,17 +29,17 @@ import (
 
 type DonorStore interface {
 	Create(ctx context.Context) (*donordata.Provided, error)
-	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
+	Link(ctx context.Context, shareCode sharecode.Data, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
@@ -132,7 +132,7 @@ func Attorney(
 		}
 
 		if isSupported {
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), actor.ShareCodeData{
+			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {

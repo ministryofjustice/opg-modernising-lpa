@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -67,7 +68,7 @@ func TestPostEnterAccessCode(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCode := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
+	shareCode := sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
@@ -103,7 +104,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
+		Return(sharecode.Data{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterAccessCode(nil, nil, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -135,7 +136,7 @@ func TestPostEnterAccessCodeOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
+		Return(sharecode.Data{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterAccessCode(nil, template.Execute, shareCodeStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -156,7 +157,7 @@ func TestPostEnterAccessCodeOnDonorStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeDonor, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+		Return(sharecode.Data{LpaKey: "lpa-id", LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

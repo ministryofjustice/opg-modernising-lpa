@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -214,7 +215,7 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 
 func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
 		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:              actorUID,
@@ -238,7 +239,7 @@ func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorney
 
 func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStore, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:    actorUID,

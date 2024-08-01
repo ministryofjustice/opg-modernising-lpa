@@ -187,7 +187,7 @@ func (_c *mockDonorStore_Latest_Call) RunAndReturn(run func(context.Context) (*d
 }
 
 // Link provides a mock function with given fields: ctx, data, donorEmail
-func (_m *mockDonorStore) Link(ctx context.Context, data sharecode.ShareCodeData, donorEmail string) error {
+func (_m *mockDonorStore) Link(ctx context.Context, data sharecode.Data, donorEmail string) error {
 	ret := _m.Called(ctx, data, donorEmail)
 
 	if len(ret) == 0 {
@@ -195,7 +195,7 @@ func (_m *mockDonorStore) Link(ctx context.Context, data sharecode.ShareCodeData
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.Data, string) error); ok {
 		r0 = rf(ctx, data, donorEmail)
 	} else {
 		r0 = ret.Error(0)
@@ -211,15 +211,15 @@ type mockDonorStore_Link_Call struct {
 
 // Link is a helper method to define mock.On call
 //   - ctx context.Context
-//   - data sharecode.ShareCodeData
+//   - data sharecode.Data
 //   - donorEmail string
 func (_e *mockDonorStore_Expecter) Link(ctx interface{}, data interface{}, donorEmail interface{}) *mockDonorStore_Link_Call {
 	return &mockDonorStore_Link_Call{Call: _e.mock.On("Link", ctx, data, donorEmail)}
 }
 
-func (_c *mockDonorStore_Link_Call) Run(run func(ctx context.Context, data sharecode.ShareCodeData, donorEmail string)) *mockDonorStore_Link_Call {
+func (_c *mockDonorStore_Link_Call) Run(run func(ctx context.Context, data sharecode.Data, donorEmail string)) *mockDonorStore_Link_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(sharecode.ShareCodeData), args[2].(string))
+		run(args[0].(context.Context), args[1].(sharecode.Data), args[2].(string))
 	})
 	return _c
 }
@@ -229,7 +229,7 @@ func (_c *mockDonorStore_Link_Call) Return(_a0 error) *mockDonorStore_Link_Call 
 	return _c
 }
 
-func (_c *mockDonorStore_Link_Call) RunAndReturn(run func(context.Context, sharecode.ShareCodeData, string) error) *mockDonorStore_Link_Call {
+func (_c *mockDonorStore_Link_Call) RunAndReturn(run func(context.Context, sharecode.Data, string) error) *mockDonorStore_Link_Call {
 	_c.Call.Return(run)
 	return _c
 }

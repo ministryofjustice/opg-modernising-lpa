@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -44,7 +45,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data actor.ShareCodeData, donorEmail string) error
+	Link(ctx context.Context, data sharecode.Data, donorEmail string) error
 }
 
 type GetDonorStore interface {
@@ -146,7 +147,7 @@ type LpaStoreClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, code string) (actor.ShareCodeData, error)
+	Get(ctx context.Context, actorType actor.Type, code string) (sharecode.Data, error)
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)

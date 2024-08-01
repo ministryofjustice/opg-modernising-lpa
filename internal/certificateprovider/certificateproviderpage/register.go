@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
@@ -35,7 +36,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error)
 	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
@@ -49,9 +50,9 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData actor.ShareCodeData) error
-	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData sharecode.Data) error
+	Delete(ctx context.Context, shareCode sharecode.Data) error
 }
 
 type Template func(io.Writer, interface{}) error

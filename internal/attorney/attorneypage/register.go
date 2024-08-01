@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type Localizer interface {
@@ -53,13 +54,13 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
-	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	Delete(ctx context.Context, shareCode sharecode.Data) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error)
 	Get(ctx context.Context) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 	Delete(ctx context.Context) error

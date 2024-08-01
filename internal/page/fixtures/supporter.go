@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -36,8 +37,8 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
-	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	PutDonor(ctx context.Context, code string, data sharecode.Data) error
 }
 
 func Supporter(
@@ -124,7 +125,7 @@ func Supporter(
 					return err
 				}
 
-				shareCodeData := actor.ShareCodeData{
+				shareCodeData := sharecode.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,

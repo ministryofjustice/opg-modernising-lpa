@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
@@ -42,7 +43,7 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err

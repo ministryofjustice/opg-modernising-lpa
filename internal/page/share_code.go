@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type ShareCodeSender struct {
@@ -217,7 +218,7 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.Lpa
 		s.testCode = ""
 	}
 
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
 		ActorUID:              actorUID,

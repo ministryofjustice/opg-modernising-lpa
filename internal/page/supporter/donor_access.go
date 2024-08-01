@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -21,7 +22,7 @@ type donorAccessData struct {
 	Errors    validation.List
 	Form      *donorAccessForm
 	Donor     *donordata.Provided
-	ShareCode *actor.ShareCodeData
+	ShareCode *sharecode.Data
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
@@ -88,7 +89,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 
 				shareCode := randomString(12)
-				shareCodeData := actor.ShareCodeData{
+				shareCodeData := sharecode.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					ActorUID:     donor.Donor.UID,
