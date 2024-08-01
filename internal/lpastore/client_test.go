@@ -183,7 +183,7 @@ func TestClientServiceContract(t *testing.T) {
 			err := client.SendLpa(context.Background(), &donordata.DonorProvidedDetails{
 				LpaUID:                        "M-0000-1111-2222",
 				Type:                          actor.LpaTypePersonalWelfare,
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
 				Donor: donordata.Donor{
 					UID:                       actoruid.New(),
 					FirstNames:                "John Johnson",
@@ -900,7 +900,7 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: donordata.ChannelOnline,
 				},
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}, donor)
 			return nil
@@ -1032,7 +1032,7 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: donordata.ChannelOnline,
 				},
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}}, lpas)
 			return nil
