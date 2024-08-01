@@ -196,7 +196,7 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
 			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 			donorDetails.SignedAt = time.Now()
 		}
@@ -204,7 +204,7 @@ func CertificateProvider(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.ContactLanguagePreference = localize.En
-			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
 
 			if asProfessionalCertificateProvider {
 				certificateProvider.HomeAddress = place.Address{
@@ -225,7 +225,7 @@ func CertificateProvider(
 				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {

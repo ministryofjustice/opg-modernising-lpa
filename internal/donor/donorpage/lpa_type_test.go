@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -91,7 +91,7 @@ func TestPostLpaType(t *testing.T) {
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:  donordata.LpaTypePropertyAndAffairs,
-			Tasks: donordata.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks: donordata.Tasks{YourDetails: task.StateCompleted},
 		},
 		donordata.LpaTypePersonalWelfare: {
 			LpaID: "lpa-id",
@@ -103,7 +103,7 @@ func TestPostLpaType(t *testing.T) {
 			},
 			Type:                donordata.LpaTypePersonalWelfare,
 			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
-			Tasks:               donordata.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted},
 		},
 	}
 

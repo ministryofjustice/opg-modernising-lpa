@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -176,7 +177,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					Email:       "a@example.com",
 				},
 					Type:   donordata.LpaTypePropertyAndAffairs,
-					Tasks:  donordata.Tasks{YourDetails: actor.TaskCompleted},
+					Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 					LpaUID: "a-uid",
 				}, nil)
 
@@ -222,7 +223,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Address:     place.Address{Postcode: "ABC123"},
 		},
 			Type:   donordata.LpaTypePropertyAndAffairs,
-			Tasks:  donordata.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}, nil)
 	donorStore.EXPECT().
@@ -234,7 +235,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Email:       "a@example.com",
 		},
 			Type:   donordata.LpaTypePropertyAndAffairs,
-			Tasks:  donordata.Tasks{YourDetails: actor.TaskCompleted},
+			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}).
 		Return(nil)

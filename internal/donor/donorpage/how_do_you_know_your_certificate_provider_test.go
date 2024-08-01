@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -115,8 +115,8 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
 					Tasks: donordata.Tasks{
-						YourDetails:     actor.TaskCompleted,
-						ChooseAttorneys: actor.TaskCompleted,
+						YourDetails:     task.StateCompleted,
+						ChooseAttorneys: task.StateCompleted,
 					},
 				}).
 				Return(nil)
@@ -125,8 +125,8 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				LpaID:               "lpa-id",
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John"},
 				Tasks: donordata.Tasks{
-					YourDetails:     actor.TaskCompleted,
-					ChooseAttorneys: actor.TaskCompleted,
+					YourDetails:     task.StateCompleted,
+					ChooseAttorneys: task.StateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -144,7 +144,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 		existingCertificateProviderDetails donordata.CertificateProvider
 		updatedCertificateProviderDetails  donordata.CertificateProvider
 		redirect                           page.LpaPath
-		taskState                          actor.TaskState
+		taskState                          task.State
 	}{
 		"personally to professionally": {
 			form: url.Values{"how": {donordata.Professionally.String()}},
@@ -185,9 +185,9 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.updatedCertificateProviderDetails,
 					Tasks: donordata.Tasks{
-						YourDetails:         actor.TaskCompleted,
-						ChooseAttorneys:     actor.TaskCompleted,
-						CertificateProvider: actor.TaskInProgress,
+						YourDetails:         task.StateCompleted,
+						ChooseAttorneys:     task.StateCompleted,
+						CertificateProvider: task.StateInProgress,
 					},
 				}).
 				Return(nil)
@@ -196,9 +196,9 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				LpaID:               "lpa-id",
 				CertificateProvider: tc.existingCertificateProviderDetails,
 				Tasks: donordata.Tasks{
-					YourDetails:         actor.TaskCompleted,
-					ChooseAttorneys:     actor.TaskCompleted,
-					CertificateProvider: actor.TaskCompleted,
+					YourDetails:         task.StateCompleted,
+					ChooseAttorneys:     task.StateCompleted,
+					CertificateProvider: task.StateCompleted,
 				},
 			})
 			resp := w.Result()

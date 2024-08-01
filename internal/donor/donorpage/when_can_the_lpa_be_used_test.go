@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -89,13 +89,13 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
-			Tasks:               donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, WhenCanTheLpaBeUsed: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, WhenCanTheLpaBeUsed: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -115,7 +115,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity, Tasks: donordata.Tasks{WhenCanTheLpaBeUsed: actor.TaskCompleted}}).
+		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity, Tasks: donordata.Tasks{WhenCanTheLpaBeUsed: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.Provided{})

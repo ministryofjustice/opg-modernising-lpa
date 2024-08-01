@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -46,13 +46,13 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 
 			if data.Errors.None() {
 				donor.DoYouWantToNotifyPeople = data.Form.YesNo
-				donor.Tasks.PeopleToNotify = actor.TaskInProgress
+				donor.Tasks.PeopleToNotify = task.StateInProgress
 
 				redirectPath := page.Paths.ChoosePeopleToNotify
 
 				if donor.DoYouWantToNotifyPeople == form.No {
 					redirectPath = page.Paths.TaskList
-					donor.Tasks.PeopleToNotify = actor.TaskCompleted
+					donor.Tasks.PeopleToNotify = task.StateCompleted
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
@@ -39,7 +39,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			setAddress := func(address place.Address) error {
 				personToNotify.Address = *data.Form.Address
 				donor.PeopleToNotify.Put(personToNotify)
-				donor.Tasks.PeopleToNotify = actor.TaskCompleted
+				donor.Tasks.PeopleToNotify = task.StateCompleted
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

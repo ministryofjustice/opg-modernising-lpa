@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -85,14 +84,14 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	testcases := map[string]struct {
 		registeringWithCOP                bool
-		expectedIdentityAndSignTaskStatus actor.IdentityTask
+		expectedIdentityAndSignTaskStatus task.IdentityState
 	}{
 		"registering with COP": {
 			registeringWithCOP:                true,
-			expectedIdentityAndSignTaskStatus: actor.IdentityTaskPending,
+			expectedIdentityAndSignTaskStatus: task.IdentityStatePending,
 		},
 		"proved ID": {
-			expectedIdentityAndSignTaskStatus: actor.IdentityTaskCompleted,
+			expectedIdentityAndSignTaskStatus: task.IdentityStateCompleted,
 		},
 	}
 
@@ -171,7 +170,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		WitnessedByCertificateProviderAt: now,
 		Tasks: donordata.Tasks{
 			PayForLpa:                  task.PaymentStatePending,
-			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 		},
 	}
 	donorStore := newMockDonorStore(t)

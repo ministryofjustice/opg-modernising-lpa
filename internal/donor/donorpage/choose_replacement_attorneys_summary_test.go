@@ -7,12 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -55,7 +55,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 
 	err := ChooseReplacementAttorneysSummary(nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -151,8 +151,8 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 				},
 				Attorneys: tc.attorneys,
 				Tasks: donordata.Tasks{
-					YourDetails:     actor.TaskCompleted,
-					ChooseAttorneys: actor.TaskCompleted,
+					YourDetails:     task.StateCompleted,
+					ChooseAttorneys: task.StateCompleted,
 				},
 			})
 			resp := w.Result()

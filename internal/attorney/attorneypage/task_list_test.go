@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -49,15 +49,15 @@ func TestGetTaskList(t *testing.T) {
 			attorney: &attorneydata.Provided{
 				WouldLikeSecondSignatory: form.Yes,
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
-					ReadTheLpa:         actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
+					ReadTheLpa:         task.StateCompleted,
 				},
 			},
 			appData: testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
 				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
-				items[1].State = actor.TaskCompleted
+				items[1].State = task.StateCompleted
 				items[2].Name = "signTheLpaSignatory1"
 				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
@@ -74,14 +74,14 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
-					ReadTheLpa:         actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
+					ReadTheLpa:         task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
 
 				return items
 			},
@@ -94,14 +94,14 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
-					ReadTheLpa:         actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
+					ReadTheLpa:         task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
 				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items
@@ -115,16 +115,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
-					ReadTheLpa:         actor.TaskCompleted,
-					SignTheLpa:         actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
+					ReadTheLpa:         task.StateCompleted,
+					SignTheLpa:         task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
-				items[2].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
+				items[2].State = task.StateCompleted
 				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items
@@ -138,16 +138,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
-					ReadTheLpa:         actor.TaskCompleted,
-					SignTheLpa:         actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
+					ReadTheLpa:         task.StateCompleted,
+					SignTheLpa:         task.StateCompleted,
 				},
 			},
 			appData: testReplacementAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
-				items[2].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
+				items[2].State = task.StateCompleted
 				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
 
 				return items

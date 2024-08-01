@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -140,7 +140,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskInProgress,
+					ConfirmYourDetails: task.StateInProgress,
 				},
 			},
 		},
@@ -153,14 +153,14 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			retrieved: &certificateproviderdata.Provided{
 				LpaID: "lpa-id",
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 			updated: &certificateproviderdata.Provided{
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 		},
@@ -176,7 +176,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 				LpaID:       "lpa-id",
 				DateOfBirth: date.New("1900", "1", "2"),
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskInProgress,
+					ConfirmYourDetails: task.StateInProgress,
 				},
 			},
 		},
@@ -232,7 +232,7 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 			LpaID:       "lpa-id",
 			DateOfBirth: date.New("1980", "1", "2"),
 			Tasks: certificateproviderdata.Tasks{
-				ConfirmYourDetails: actor.TaskInProgress,
+				ConfirmYourDetails: task.StateInProgress,
 			},
 		}).
 		Return(nil)

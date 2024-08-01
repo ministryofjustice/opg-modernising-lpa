@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -48,11 +49,11 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				var redirect page.LpaPath
 				if donor.Correspondent.WantAddress.IsNo() {
 					donor.Correspondent.Address = place.Address{}
-					donor.Tasks.AddCorrespondent = actor.TaskCompleted
+					donor.Tasks.AddCorrespondent = task.StateCompleted
 					redirect = page.Paths.TaskList
 				} else {
 					if !donor.Tasks.AddCorrespondent.Completed() && donor.Correspondent.Address.Line1 == "" {
-						donor.Tasks.AddCorrespondent = actor.TaskInProgress
+						donor.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirect = page.Paths.EnterCorrespondentAddress
 				}

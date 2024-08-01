@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -172,7 +173,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 					LpaID:          "lpa-id",
 					Donor:          donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: donordata.PeopleToNotify{tc.personToNotify},
-					Tasks:          donordata.Tasks{PeopleToNotify: actor.TaskInProgress},
+					Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -209,7 +210,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 				LastName:   "Dear",
 				UID:        uid,
 			}},
-			Tasks: donordata.Tasks{PeopleToNotify: actor.TaskInProgress},
+			Tasks: donordata.Tasks{PeopleToNotify: task.StateInProgress},
 		}).
 		Return(nil)
 

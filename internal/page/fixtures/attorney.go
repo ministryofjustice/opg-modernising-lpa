@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -241,15 +242,15 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			attorney.Mobile = testMobile
 			attorney.ContactLanguagePreference = localize.En
-			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "readTheLPA") {
-			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+			attorney.Tasks.ReadTheLpa = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
-			attorney.Tasks.SignTheLpa = actor.TaskCompleted
+			attorney.Tasks.SignTheLpa = task.StateCompleted
 
 			if isTrustCorporation {
 				attorney.WouldLikeSecondSignatory = form.No
@@ -286,9 +287,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -317,9 +318,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.WouldLikeSecondSignatory = form.No
 					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 						FirstNames:        "A",

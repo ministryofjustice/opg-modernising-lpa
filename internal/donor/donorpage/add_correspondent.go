@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -36,11 +36,11 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 				var redirectUrl page.LpaPath
 				if donor.AddCorrespondent.IsNo() {
 					donor.Correspondent = donordata.Correspondent{}
-					donor.Tasks.AddCorrespondent = actor.TaskCompleted
+					donor.Tasks.AddCorrespondent = task.StateCompleted
 					redirectUrl = page.Paths.TaskList
 				} else {
 					if donor.Correspondent.FirstNames == "" {
-						donor.Tasks.AddCorrespondent = actor.TaskInProgress
+						donor.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirectUrl = page.Paths.EnterCorrespondentDetails
 				}

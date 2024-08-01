@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -130,7 +129,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
-		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -208,7 +207,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.HalfFee,
-		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -404,7 +403,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -447,7 +446,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted},
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil

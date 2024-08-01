@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -52,9 +52,9 @@ func WitnessingAsCertificateProvider(
 			}
 
 			if data.Errors.None() {
-				donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
+				donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
 				if donor.RegisteringWithCourtOfProtection {
-					donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskPending
+					donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStatePending
 				}
 
 				donor.WitnessCodeLimiter = nil

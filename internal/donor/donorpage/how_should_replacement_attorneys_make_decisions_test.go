@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -107,7 +107,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		existing  donordata.AttorneyDecisions
 		attorneys donordata.Attorneys
 		updated   donordata.AttorneyDecisions
-		taskState actor.TaskState
+		taskState task.State
 		redirect  page.LpaPath
 	}{
 		"existing details not set": {
@@ -118,7 +118,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
 			updated:   donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			taskState: actor.TaskCompleted,
+			taskState: task.StateCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
@@ -129,7 +129,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			existing:  donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
 			updated:   donordata.AttorneyDecisions{How: donordata.Jointly},
-			taskState: actor.TaskCompleted,
+			taskState: task.StateCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 	}

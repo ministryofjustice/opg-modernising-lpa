@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -28,7 +28,7 @@ func Restrictions(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				donor.Tasks.Restrictions = actor.TaskCompleted
+				donor.Tasks.Restrictions = task.StateCompleted
 				donor.Restrictions = form.Restrictions
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

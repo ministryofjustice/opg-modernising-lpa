@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
@@ -43,9 +43,9 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		donor.DonorIdentityUserData = userData
 
 		if userData.Status.IsFailed() {
-			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskProblem
+			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
 		} else {
-			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
+			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 		}
 
 		if err := donorStore.Put(r.Context(), donor); err != nil {

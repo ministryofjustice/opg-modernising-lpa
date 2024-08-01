@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -123,7 +123,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Tasks.CheckYourLpa = actor.TaskCompleted
+				donor.Tasks.CheckYourLpa = task.StateCompleted
 				donor.CheckedAt = now()
 				if err := donor.UpdateCheckedHash(); err != nil {
 					return err

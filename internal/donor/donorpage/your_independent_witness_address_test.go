@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -148,7 +148,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 				Address: testAddress,
 			},
 			Tasks: donordata.Tasks{
-				ChooseYourSignatory: actor.TaskCompleted,
+				ChooseYourSignatory: task.StateCompleted,
 			},
 		}).
 		Return(nil)
@@ -210,7 +210,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 				Address:    testAddress,
 			},
 			Tasks: donordata.Tasks{
-				ChooseYourSignatory: actor.TaskCompleted,
+				ChooseYourSignatory: task.StateCompleted,
 			},
 		}).
 		Return(nil)
@@ -577,7 +577,7 @@ func TestPostYourIndependentWitnessAddressReuseSelect(t *testing.T) {
 			IndependentWitness: donordata.IndependentWitness{
 				Address: testAddress,
 			},
-			Tasks: donordata.Tasks{ChooseYourSignatory: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 		}).
 		Return(nil)
 

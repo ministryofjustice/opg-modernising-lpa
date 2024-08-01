@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -147,7 +147,7 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 				Address: testAddress,
 			},
 			Tasks: donordata.Tasks{
-				AddCorrespondent: actor.TaskCompleted,
+				AddCorrespondent: task.StateCompleted,
 			},
 		}).
 		Return(nil)
@@ -209,7 +209,7 @@ func TestPostEnterCorrespondentAddressManualFromStore(t *testing.T) {
 				Address:    testAddress,
 			},
 			Tasks: donordata.Tasks{
-				AddCorrespondent: actor.TaskCompleted,
+				AddCorrespondent: task.StateCompleted,
 			},
 		}).
 		Return(nil)
@@ -617,7 +617,7 @@ func TestPostEnterCorrespondentAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:         "lpa-id",
 			Correspondent: updatedCorrespondent,
-			Tasks:         donordata.Tasks{AddCorrespondent: actor.TaskCompleted},
+			Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 		}).
 		Return(nil)
 

@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -32,7 +31,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: donordata.Personally,
 				},
 				Tasks: donordata.Tasks{
-					CheckYourLpa: actor.TaskCompleted,
+					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
@@ -261,7 +260,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					Relationship: donordata.Personally,
 				},
 				Tasks: donordata.Tasks{
-					CheckYourLpa: actor.TaskCompleted,
+					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{

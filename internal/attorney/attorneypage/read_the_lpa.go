@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -20,7 +20,7 @@ type readTheLpaData struct {
 func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore) Handler {
 	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if r.Method == http.MethodPost {
-			attorneyProvidedDetails.Tasks.ReadTheLpa = actor.TaskCompleted
+			attorneyProvidedDetails.Tasks.ReadTheLpa = task.StateCompleted
 
 			if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 				return err

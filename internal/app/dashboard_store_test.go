@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -50,7 +51,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		PK:    dynamo.LpaKey("456"),
 		SK:    dynamo.CertificateProviderKey(sessionID),
 		LpaID: "456",
-		Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: actor.TaskCompleted},
+		Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: task.StateCompleted},
 	}
 	lpa789 := &lpastore.Lpa{LpaID: "789", LpaUID: "M"}
 	lpa789Donor := &donordata.Provided{
@@ -63,7 +64,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		PK:    dynamo.LpaKey("789"),
 		SK:    dynamo.AttorneyKey(sessionID),
 		LpaID: "789",
-		Tasks: attorneydata.Tasks{ConfirmYourDetails: actor.TaskInProgress},
+		Tasks: attorneydata.Tasks{ConfirmYourDetails: task.StateInProgress},
 	}
 	lpaNoUIDDonor := &donordata.Provided{
 		PK:        dynamo.LpaKey("0"),

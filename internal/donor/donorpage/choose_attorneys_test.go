@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -230,7 +231,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 						LastName:   "Doe",
 					},
 					Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{tc.attorney}},
-					Tasks:     donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
+					Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -328,7 +329,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 					LpaID:     "lpa-id",
 					Donor:     donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{tc.attorney}},
-					Tasks:     donordata.Tasks{ChooseAttorneys: actor.TaskCompleted},
+					Tasks:     donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 				}).
 				Return(nil)
 
@@ -380,7 +381,7 @@ func TestPostChooseAttorneysNameWarningOnlyShownWhenAttorneyAndFormNamesAreDiffe
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 			}},
-			Tasks: donordata.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 

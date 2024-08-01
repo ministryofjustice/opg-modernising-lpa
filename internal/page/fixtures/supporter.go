@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type OrganisationStore interface {
@@ -115,9 +116,9 @@ func Supporter(
 				donor.Attorneys = donordata.Attorneys{
 					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 				}
-				donor.Tasks.YourDetails = actor.TaskCompleted
-				donor.Tasks.ChooseAttorneys = actor.TaskCompleted
-				donor.Tasks.CertificateProvider = actor.TaskCompleted
+				donor.Tasks.YourDetails = task.StateCompleted
+				donor.Tasks.ChooseAttorneys = task.StateCompleted
+				donor.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
 					return err

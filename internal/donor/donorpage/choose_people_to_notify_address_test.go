@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -157,14 +157,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:          "lpa-id",
 			PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
-			Tasks:          donordata.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
-		Tasks:          donordata.Tasks{PeopleToNotify: actor.TaskInProgress},
+		Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
 	})
 	resp := w.Result()
 
@@ -192,7 +192,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
-			Tasks:          donordata.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(expectedError)
 
@@ -226,7 +226,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}},
-			Tasks: donordata.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks: donordata.Tasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -237,7 +237,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "line1"},
 		}},
-		Tasks: donordata.Tasks{PeopleToNotify: actor.TaskInProgress},
+		Tasks: donordata.Tasks{PeopleToNotify: task.StateInProgress},
 	})
 
 	resp := w.Result()
@@ -617,7 +617,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			}},
-			Tasks: donordata.Tasks{PeopleToNotify: actor.TaskCompleted},
+			Tasks: donordata.Tasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 

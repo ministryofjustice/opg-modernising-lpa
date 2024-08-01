@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -76,7 +76,7 @@ func TestPostEnterReplacementTrustCorporation(t *testing.T) {
 				},
 			},
 			Tasks: donordata.Tasks{
-				ChooseReplacementAttorneys: actor.TaskInProgress,
+				ChooseReplacementAttorneys: task.StateInProgress,
 			},
 		}).
 		Return(nil)

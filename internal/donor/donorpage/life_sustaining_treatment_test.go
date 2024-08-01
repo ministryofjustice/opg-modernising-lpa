@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -87,13 +87,13 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                         "lpa-id",
 			LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
-			Tasks:                         donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, LifeSustainingTreatment: actor.TaskCompleted},
+			Tasks:                         donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, LifeSustainingTreatment: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -113,7 +113,7 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA, Tasks: donordata.Tasks{LifeSustainingTreatment: actor.TaskCompleted}}).
+		Put(r.Context(), &donordata.Provided{LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA, Tasks: donordata.Tasks{LifeSustainingTreatment: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &donordata.Provided{})

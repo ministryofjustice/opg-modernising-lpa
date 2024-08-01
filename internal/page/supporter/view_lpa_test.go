@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -26,14 +27,14 @@ func TestGetViewLPA(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(page.Progress{Paid: page.ProgressTask{State: actor.TaskInProgress}})
+		Return(page.Progress{Paid: page.ProgressTask{State: task.StateInProgress}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &viewLPAData{
 			App:      testAppData,
 			Lpa:      lpa,
-			Progress: page.Progress{Paid: page.ProgressTask{State: actor.TaskInProgress}},
+			Progress: page.Progress{Paid: page.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 

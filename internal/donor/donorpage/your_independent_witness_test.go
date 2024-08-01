@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -117,7 +118,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 					LpaID:              "lpa-id",
 					Donor:              donordata.Donor{FirstNames: "John", LastName: "Smith"},
 					IndependentWitness: tc.person,
-					Tasks:              donordata.Tasks{ChooseYourSignatory: actor.TaskInProgress},
+					Tasks:              donordata.Tasks{ChooseYourSignatory: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -153,7 +154,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
-			Tasks: donordata.Tasks{ChooseYourSignatory: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -162,7 +163,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		IndependentWitness: donordata.IndependentWitness{
 			FirstNames: "John",
 		},
-		Tasks: donordata.Tasks{ChooseYourSignatory: actor.TaskCompleted},
+		Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 	})
 	resp := w.Result()
 

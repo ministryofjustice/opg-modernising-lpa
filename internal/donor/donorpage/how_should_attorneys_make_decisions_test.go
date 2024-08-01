@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,7 +94,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 			LpaID:             "lpa-id",
 			Attorneys:         attorneys,
 			AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			Tasks:             donordata.Tasks{ChooseAttorneys: actor.TaskCompleted},
+			Tasks:             donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -155,7 +155,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 					LpaID:             "lpa-id",
 					Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
 					AttorneyDecisions: donordata.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             donordata.Tasks{ChooseAttorneys: actor.TaskCompleted},
+					Tasks:             donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 				}).
 				Return(nil)
 

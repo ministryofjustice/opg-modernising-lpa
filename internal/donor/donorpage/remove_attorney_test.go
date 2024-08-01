@@ -7,12 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -92,7 +92,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
-				Tasks:             donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
@@ -105,7 +105,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress}},
-				Tasks:     donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
+				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -73,7 +74,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 				}
 
 				if !donor.Tasks.PeopleToNotify.Completed() {
-					donor.Tasks.PeopleToNotify = actor.TaskInProgress
+					donor.Tasks.PeopleToNotify = task.StateInProgress
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

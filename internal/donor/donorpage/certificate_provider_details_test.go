@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -186,7 +187,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks:               donordata.Tasks{CertificateProvider: actor.TaskInProgress},
+					Tasks:               donordata.Tasks{CertificateProvider: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -231,7 +232,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 				LastName:   "Rey",
 				Mobile:     "07535111111",
 			},
-			Tasks: donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -241,7 +242,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 			FirstNames: "Jane",
 			LastName:   "Doe",
 		},
-		Tasks: donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+		Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 	})
 	resp := w.Result()
 

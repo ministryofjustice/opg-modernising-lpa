@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -76,40 +76,40 @@ func TestPostAddCorrespondent(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo                 form.YesNo
 		existingCorrespondent donordata.Correspondent
-		existingTaskState     actor.TaskState
+		existingTaskState     task.State
 		expectedCorrespondent donordata.Correspondent
-		expectedTaskState     actor.TaskState
+		expectedTaskState     task.State
 		redirect              page.LpaPath
 	}{
 		"yes was yes": {
 			yesNo:                 form.Yes,
 			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
-			existingTaskState:     actor.TaskCompleted,
+			existingTaskState:     task.StateCompleted,
 			expectedCorrespondent: donordata.Correspondent{FirstNames: "John"},
-			expectedTaskState:     actor.TaskCompleted,
+			expectedTaskState:     task.StateCompleted,
 			redirect:              page.Paths.EnterCorrespondentDetails,
 		},
 		"yes was no": {
 			yesNo:             form.Yes,
-			existingTaskState: actor.TaskCompleted,
-			expectedTaskState: actor.TaskInProgress,
+			existingTaskState: task.StateCompleted,
+			expectedTaskState: task.StateInProgress,
 			redirect:          page.Paths.EnterCorrespondentDetails,
 		},
 		"yes": {
 			yesNo:             form.Yes,
-			expectedTaskState: actor.TaskInProgress,
+			expectedTaskState: task.StateInProgress,
 			redirect:          page.Paths.EnterCorrespondentDetails,
 		},
 		"no was yes": {
 			yesNo:                 form.No,
 			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
-			existingTaskState:     actor.TaskCompleted,
-			expectedTaskState:     actor.TaskCompleted,
+			existingTaskState:     task.StateCompleted,
+			expectedTaskState:     task.StateCompleted,
 			redirect:              page.Paths.TaskList,
 		},
 		"no": {
 			yesNo:             form.No,
-			expectedTaskState: actor.TaskCompleted,
+			expectedTaskState: task.StateCompleted,
 			redirect:          page.Paths.TaskList,
 		},
 	}

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -224,10 +223,10 @@ func updateLPAProgress(
 				LastName:   "Irwin",
 			}
 
-			donorDetails.Tasks.ChooseYourSignatory = actor.TaskCompleted
+			donorDetails.Tasks.ChooseYourSignatory = task.StateCompleted
 		}
 
-		donorDetails.Tasks.YourDetails = actor.TaskCompleted
+		donorDetails.Tasks.YourDetails = task.StateCompleted
 	}
 
 	var withoutAddressUID actoruid.UID
@@ -256,7 +255,7 @@ func updateLPAProgress(
 			donorDetails.AttorneyDecisions.Details = "do this and that"
 		}
 
-		donorDetails.Tasks.ChooseAttorneys = actor.TaskCompleted
+		donorDetails.Tasks.ChooseAttorneys = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
@@ -277,22 +276,22 @@ func updateLPAProgress(
 			donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepIn(0)
 		}
 
-		donorDetails.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted
+		donorDetails.Tasks.ChooseReplacementAttorneys = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
 		if donorDetails.Type == donordata.LpaTypePersonalWelfare {
 			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
-			donorDetails.Tasks.LifeSustainingTreatment = actor.TaskCompleted
+			donorDetails.Tasks.LifeSustainingTreatment = task.StateCompleted
 		} else {
 			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
-			donorDetails.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+			donorDetails.Tasks.WhenCanTheLpaBeUsed = task.StateCompleted
 		}
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addRestrictionsToTheLpa") {
 		donorDetails.Restrictions = "My attorneys must not sell my home unless, in my doctor’s opinion, I can no longer live independently"
-		donorDetails.Tasks.Restrictions = actor.TaskCompleted
+		donorDetails.Tasks.Restrictions = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
@@ -309,7 +308,7 @@ func updateLPAProgress(
 			donorDetails.CertificateProvider.Mobile = data.CertificateProviderMobile
 		}
 
-		donorDetails.Tasks.CertificateProvider = actor.TaskCompleted
+		donorDetails.Tasks.CertificateProvider = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "peopleToNotifyAboutYourLpa") {
@@ -323,7 +322,7 @@ func updateLPAProgress(
 			donorDetails.PeopleToNotify = append(donorDetails.PeopleToNotify, makePersonToNotify(peopleToNotifyNames[2]), makePersonToNotify(peopleToNotifyNames[3]), makePersonToNotify(peopleToNotifyNames[4]))
 		}
 
-		donorDetails.Tasks.PeopleToNotify = actor.TaskCompleted
+		donorDetails.Tasks.PeopleToNotify = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "addCorrespondent") {
@@ -333,12 +332,12 @@ func updateLPAProgress(
 			Lastname:   "Ashfurlong",
 		})
 
-		donorDetails.Tasks.AddCorrespondent = actor.TaskCompleted
+		donorDetails.Tasks.AddCorrespondent = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 		donorDetails.CheckedAt = time.Now()
-		donorDetails.Tasks.CheckYourLpa = actor.TaskCompleted
+		donorDetails.Tasks.CheckYourLpa = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "payForTheLpa") {
@@ -435,7 +434,7 @@ func updateLPAProgress(
 		}
 
 		donorDetails.DonorIdentityUserData = userData
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
+		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
@@ -443,7 +442,7 @@ func updateLPAProgress(
 		donorDetails.WantToSignLpa = true
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
+		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
 	}
 
 	var certificateProviderUID actoruid.UID
@@ -491,9 +490,9 @@ func updateLPAProgress(
 
 				attorney.Mobile = testMobile
 				attorney.ContactLanguagePreference = localize.En
-				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-				attorney.Tasks.SignTheLpa = actor.TaskCompleted
+				attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+				attorney.Tasks.ReadTheLpa = task.StateCompleted
+				attorney.Tasks.SignTheLpa = task.StateCompleted
 				attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 				if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -523,9 +522,9 @@ func updateLPAProgress(
 				}
 
 				attorney.Mobile = testMobile
-				attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-				attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-				attorney.Tasks.SignTheLpa = actor.TaskCompleted
+				attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+				attorney.Tasks.ReadTheLpa = task.StateCompleted
+				attorney.Tasks.SignTheLpa = task.StateCompleted
 				attorney.WouldLikeSecondSignatory = form.No
 				attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "A",

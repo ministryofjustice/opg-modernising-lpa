@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,7 +94,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 			Attorneys:           donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   donordata.AttorneyDecisions{How: donordata.Jointly},
 			CertificateProvider: donordata.CertificateProvider{RelationshipLength: donordata.GreaterThanEqualToTwoYears},
-			Tasks:               donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -102,7 +102,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 		LpaID:             "lpa-id",
 		Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 		AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
-		Tasks:             donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+		Tasks:             donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 

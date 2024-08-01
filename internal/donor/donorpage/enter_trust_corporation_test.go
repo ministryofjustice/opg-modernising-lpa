@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -73,7 +73,7 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 				CompanyNumber: "453345",
 				Email:         "name@example.com",
 			}},
-			Tasks: donordata.Tasks{ChooseAttorneys: actor.TaskInProgress},
+			Tasks: donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 

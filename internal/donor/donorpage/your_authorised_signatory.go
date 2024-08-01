@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -48,7 +49,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 				donor.AuthorisedSignatory.LastName = data.Form.LastName
 
 				if !donor.Tasks.ChooseYourSignatory.Completed() {
-					donor.Tasks.ChooseYourSignatory = actor.TaskInProgress
+					donor.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

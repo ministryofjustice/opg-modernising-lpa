@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -300,7 +299,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				}},
 				Tasks: donordata.Tasks{
 					PayForLpa:                  task.PaymentStateCompleted,
-					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+					ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 				},
 			}
 
@@ -363,7 +362,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				},
 				Tasks: donordata.Tasks{
 					PayForLpa:                  taskState,
-					ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+					ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -710,7 +709,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		},
 		Tasks: donordata.Tasks{
 			PayForLpa:                  task.PaymentStateApproved,
-			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 		},
 	})
 
@@ -755,7 +754,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 		},
 		Tasks: donordata.Tasks{
 			PayForLpa:                  task.PaymentStateApproved,
-			ConfirmYourIdentityAndSign: actor.IdentityTaskCompleted,
+			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 		},
 	})
 

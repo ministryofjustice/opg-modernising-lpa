@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func CertificateProviderAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
@@ -44,7 +44,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 
 			setAddress := func(address place.Address) error {
 				donor.CertificateProvider.Address = *data.Form.Address
-				donor.Tasks.CertificateProvider = actor.TaskCompleted
+				donor.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -46,12 +46,12 @@ func TestGetChoosePeopleToNotifySummaryWhenNoPeopleToNotify(t *testing.T) {
 	err := ChoosePeopleToNotifySummary(nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Tasks: donordata.Tasks{
-			YourDetails:                actor.TaskCompleted,
-			ChooseAttorneys:            actor.TaskCompleted,
-			ChooseReplacementAttorneys: actor.TaskCompleted,
-			WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-			Restrictions:               actor.TaskCompleted,
-			CertificateProvider:        actor.TaskCompleted,
+			YourDetails:                task.StateCompleted,
+			ChooseAttorneys:            task.StateCompleted,
+			ChooseReplacementAttorneys: task.StateCompleted,
+			WhenCanTheLpaBeUsed:        task.StateCompleted,
+			Restrictions:               task.StateCompleted,
+			CertificateProvider:        task.StateCompleted,
 		},
 	})
 
@@ -92,13 +92,13 @@ func TestPostChoosePeopleToNotifySummaryNoFurtherPeopleToNotify(t *testing.T) {
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: actoruid.New()}},
 		Tasks: donordata.Tasks{
-			YourDetails:                actor.TaskCompleted,
-			ChooseAttorneys:            actor.TaskCompleted,
-			ChooseReplacementAttorneys: actor.TaskCompleted,
-			WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-			Restrictions:               actor.TaskCompleted,
-			CertificateProvider:        actor.TaskCompleted,
-			PeopleToNotify:             actor.TaskCompleted,
+			YourDetails:                task.StateCompleted,
+			ChooseAttorneys:            task.StateCompleted,
+			ChooseReplacementAttorneys: task.StateCompleted,
+			WhenCanTheLpaBeUsed:        task.StateCompleted,
+			Restrictions:               task.StateCompleted,
+			CertificateProvider:        task.StateCompleted,
+			PeopleToNotify:             task.StateCompleted,
 		},
 	})
 	resp := w.Result()

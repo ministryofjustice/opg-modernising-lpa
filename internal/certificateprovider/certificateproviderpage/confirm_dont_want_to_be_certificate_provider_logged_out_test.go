@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -210,8 +211,8 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 							FirstNames: "a b", LastName: "c",
 						},
 						Tasks: donordata.Tasks{
-							CertificateProvider: actor.TaskCompleted,
-							CheckYourLpa:        actor.TaskCompleted,
+							CertificateProvider: task.StateCompleted,
+							CheckYourLpa:        task.StateCompleted,
 						},
 						CertificateProvider: donordata.CertificateProvider{
 							UID:        actoruid.New(),
@@ -226,8 +227,8 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 							FirstNames: "a b", LastName: "c",
 						},
 						Tasks: donordata.Tasks{
-							CertificateProvider: actor.TaskNotStarted,
-							CheckYourLpa:        actor.TaskNotStarted,
+							CertificateProvider: task.StateNotStarted,
+							CheckYourLpa:        task.StateNotStarted,
 						},
 						CertificateProvider: donordata.CertificateProvider{},
 						Type:                donordata.LpaTypePersonalWelfare,

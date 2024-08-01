@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -182,7 +182,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
-			Tasks:               donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -212,7 +212,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
-			Tasks:               donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(expectedError)
 
@@ -243,7 +243,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -642,7 +642,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			},
-			Tasks: donordata.Tasks{CertificateProvider: actor.TaskCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 

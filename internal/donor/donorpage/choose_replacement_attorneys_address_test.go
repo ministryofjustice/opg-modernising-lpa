@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -169,7 +169,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -233,7 +233,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -661,7 +661,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                "lpa-id",
 			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{updatedAttorney}},
-			Tasks:                donordata.Tasks{ChooseReplacementAttorneys: actor.TaskInProgress},
+			Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 

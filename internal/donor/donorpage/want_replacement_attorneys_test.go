@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,14 +94,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 		yesNo                        form.YesNo
 		existingReplacementAttorneys donordata.Attorneys
 		expectedReplacementAttorneys donordata.Attorneys
-		taskState                    actor.TaskState
+		taskState                    task.State
 		redirect                     string
 	}{
 		"yes": {
 			yesNo:                        form.Yes,
 			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 			expectedReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
-			taskState:                    actor.TaskInProgress,
+			taskState:                    task.StateInProgress,
 			redirect:                     page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 		},
 		"no": {
@@ -111,7 +111,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 				{UID: actoruid.New()},
 			}},
 			expectedReplacementAttorneys: donordata.Attorneys{},
-			taskState:                    actor.TaskCompleted,
+			taskState:                    task.StateCompleted,
 			redirect:                     page.Paths.TaskList.Format("lpa-id"),
 		},
 	}
@@ -132,14 +132,14 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 					LpaID:                    "lpa-id",
 					WantReplacementAttorneys: tc.yesNo,
 					ReplacementAttorneys:     tc.expectedReplacementAttorneys,
-					Tasks:                    donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted, ChooseReplacementAttorneys: tc.taskState},
+					Tasks:                    donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, ChooseReplacementAttorneys: tc.taskState},
 				}).
 				Return(nil)
 
 			err := WantReplacementAttorneys(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: tc.existingReplacementAttorneys,
-				Tasks:                donordata.Tasks{YourDetails: actor.TaskCompleted, ChooseAttorneys: actor.TaskCompleted},
+				Tasks:                donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 			})
 			resp := w.Result()
 

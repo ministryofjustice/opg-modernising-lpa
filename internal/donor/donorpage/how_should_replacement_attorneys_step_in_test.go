@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -100,7 +100,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		HowReplacementAttorneysMakeDecisions donordata.AttorneysAct
 		HowShouldReplacementAttorneysStepIn  donordata.ReplacementAttorneysStepIn
 		ExpectedRedirectUrl                  page.LpaPath
-		TaskState                            actor.TaskState
+		TaskState                            task.State
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
@@ -114,7 +114,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
-			TaskState:                           actor.TaskInProgress,
+			TaskState:                           task.StateInProgress,
 		},
 		"multiple attorneys acting jointly": {
 			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
@@ -125,7 +125,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowShouldReplacementAttorneysStepIn:  donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: donordata.Jointly,
 			ExpectedRedirectUrl:                  page.Paths.TaskList,
-			TaskState:                            actor.TaskInProgress,
+			TaskState:                            task.StateInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
@@ -135,7 +135,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
-			TaskState:                           actor.TaskNotStarted,
+			TaskState:                           task.StateNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
@@ -149,7 +149,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
-			TaskState:                           actor.TaskInProgress,
+			TaskState:                           task.StateInProgress,
 		},
 	}
 

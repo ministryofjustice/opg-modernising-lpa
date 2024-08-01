@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +22,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 
 	donor := &donordata.Provided{
 		Tasks: donordata.Tasks{
-			CertificateProvider: actor.TaskCompleted,
+			CertificateProvider: task.StateCompleted,
 		},
 	}
 
@@ -67,7 +67,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 
 	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Tasks: donordata.Tasks{
-			CertificateProvider: actor.TaskCompleted,
+			CertificateProvider: task.StateCompleted,
 		},
 	})
 	resp := w.Result()
@@ -92,15 +92,15 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 			Donor:                          donordata.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
 			Tasks: donordata.Tasks{
-				YourDetails:                actor.TaskCompleted,
-				ChooseAttorneys:            actor.TaskCompleted,
-				ChooseReplacementAttorneys: actor.TaskCompleted,
-				WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-				Restrictions:               actor.TaskCompleted,
-				CertificateProvider:        actor.TaskCompleted,
-				PeopleToNotify:             actor.TaskCompleted,
-				AddCorrespondent:           actor.TaskCompleted,
-				CheckYourLpa:               actor.TaskInProgress,
+				YourDetails:                task.StateCompleted,
+				ChooseAttorneys:            task.StateCompleted,
+				ChooseReplacementAttorneys: task.StateCompleted,
+				WhenCanTheLpaBeUsed:        task.StateCompleted,
+				Restrictions:               task.StateCompleted,
+				CertificateProvider:        task.StateCompleted,
+				PeopleToNotify:             task.StateCompleted,
+				AddCorrespondent:           task.StateCompleted,
+				CheckYourLpa:               task.StateInProgress,
 			},
 			CertificateProviderNotRelatedConfirmedAt: testNow,
 		}).
@@ -111,14 +111,14 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		Donor:                          donordata.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
 		Tasks: donordata.Tasks{
-			YourDetails:                actor.TaskCompleted,
-			ChooseAttorneys:            actor.TaskCompleted,
-			ChooseReplacementAttorneys: actor.TaskCompleted,
-			WhenCanTheLpaBeUsed:        actor.TaskCompleted,
-			Restrictions:               actor.TaskCompleted,
-			CertificateProvider:        actor.TaskCompleted,
-			PeopleToNotify:             actor.TaskCompleted,
-			AddCorrespondent:           actor.TaskCompleted,
+			YourDetails:                task.StateCompleted,
+			ChooseAttorneys:            task.StateCompleted,
+			ChooseReplacementAttorneys: task.StateCompleted,
+			WhenCanTheLpaBeUsed:        task.StateCompleted,
+			Restrictions:               task.StateCompleted,
+			CertificateProvider:        task.StateCompleted,
+			PeopleToNotify:             task.StateCompleted,
+			AddCorrespondent:           task.StateCompleted,
 		},
 	})
 	resp := w.Result()
@@ -142,7 +142,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Tasks: donordata.Tasks{
-				CertificateProvider: actor.TaskNotStarted,
+				CertificateProvider: task.StateNotStarted,
 			},
 		}).
 		Return(nil)
@@ -153,7 +153,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 			FirstNames: "John",
 		},
 		Tasks: donordata.Tasks{
-			CertificateProvider: actor.TaskCompleted,
+			CertificateProvider: task.StateCompleted,
 		},
 	})
 	resp := w.Result()
@@ -186,7 +186,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 
 			err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{
 				Tasks: donordata.Tasks{
-					CertificateProvider: actor.TaskCompleted,
+					CertificateProvider: task.StateCompleted,
 				},
 			})
 
@@ -209,7 +209,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 
 	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		Tasks: donordata.Tasks{
-			CertificateProvider: actor.TaskCompleted,
+			CertificateProvider: task.StateCompleted,
 		},
 	})
 	resp := w.Result()

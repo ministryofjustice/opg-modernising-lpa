@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -23,9 +22,9 @@ type taskListData struct {
 type taskListItem struct {
 	Name          string
 	Path          string
-	State         actor.TaskState
+	State         task.State
 	PaymentState  task.PaymentState
-	IdentityState actor.IdentityTask
+	IdentityState task.IdentityState
 	Count         int
 	Hidden        bool
 }

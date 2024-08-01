@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -28,7 +28,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
-		Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: actor.IdentityTaskInProgress},
+		Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -202,7 +202,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
-			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: actor.IdentityTaskInProgress},
+			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 		}).
 		Return(nil)
 
@@ -244,7 +244,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
-			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: actor.IdentityTaskProblem},
+			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
 		}).
 		Return(nil)
 

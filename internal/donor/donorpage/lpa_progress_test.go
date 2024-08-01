@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -27,14 +27,14 @@ func TestGetLpaProgress(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}})
+		Return(page.Progress{DonorSigned: page.ProgressTask{State: task.StateInProgress}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &lpaProgressData{
 			App:      testAppData,
 			Donor:    &donordata.Provided{LpaUID: "lpa-uid"},
-			Progress: page.Progress{DonorSigned: page.ProgressTask{State: actor.TaskInProgress}},
+			Progress: page.Progress{DonorSigned: page.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 

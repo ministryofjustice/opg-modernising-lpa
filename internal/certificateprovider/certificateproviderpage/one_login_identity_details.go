@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -33,7 +33,7 @@ func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 				lpa.CertificateProvider.FirstNames,
 				lpa.CertificateProvider.LastName,
 			) {
-				certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+				certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 
 				if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err

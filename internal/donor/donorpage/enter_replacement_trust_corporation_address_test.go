@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -109,7 +109,7 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
 			ReplacementAttorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "a",
 				Address: testAddress,
@@ -175,7 +175,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
 			ReplacementAttorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "John",
 				Address: testAddress,
@@ -588,7 +588,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                "lpa-id",
 			ReplacementAttorneys: donordata.Attorneys{TrustCorporation: updatedTrustCorporation},
-			Tasks:                donordata.Tasks{ChooseReplacementAttorneys: actor.TaskCompleted},
+			Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
