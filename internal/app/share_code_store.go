@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type ShareCodeStoreDynamoClient interface {
@@ -75,7 +75,7 @@ func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data ac
 func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, error) {
 	var data actor.ShareCodeData
 
-	sessionData, err := page.SessionDataFromContext(ctx)
+	sessionData, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return data, err
 	}

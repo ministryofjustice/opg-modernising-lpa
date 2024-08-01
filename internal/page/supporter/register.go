@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -198,7 +199,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, Email: session.Email})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, Email: session.Email})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -249,13 +250,13 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				panic("non-supporter path registered")
 			}
 
-			sessionData, err := page.SessionDataFromContext(r.Context())
+			sessionData, err := appcontext.SessionDataFromContext(r.Context())
 
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.OrganisationID = loginSession.OrganisationID
 			} else {
-				sessionData = &page.SessionData{
+				sessionData = &appcontext.SessionData{
 					SessionID: appData.SessionID,
 					Email:     loginSession.Email,
 				}
@@ -271,7 +272,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				return
 			}
 
-			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+			ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{
 				SessionID:      appData.SessionID,
 				Email:          loginSession.Email,
 				OrganisationID: organisation.ID,

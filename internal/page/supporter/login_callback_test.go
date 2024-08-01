@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -211,12 +212,12 @@ func TestLoginCallbackHasMember(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+		GetAny(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
 		Return(&actor.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
 		Return(nil, dynamo.NotFoundError{})
 
 	logger := newMockLogger(t)
@@ -287,7 +288,7 @@ func TestLoginCallbackHasMemberWhenOrganisationGetErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=auth-code&state=my-state", nil)
 
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})
+	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
@@ -376,16 +377,16 @@ func TestLoginCallbackHasOrganisation(t *testing.T) {
 
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
-				GetAny(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+				GetAny(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
 				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
 
 			memberStore.EXPECT().
-				Put(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
+				Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
 				Return(nil)
 
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
-				Get(page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
+				Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
 				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 			logger := newMockLogger(t)

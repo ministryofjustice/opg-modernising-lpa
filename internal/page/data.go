@@ -17,9 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 )
 
-type SessionData = appcontext.SessionData
-type SessionMissingError = appcontext.SessionMissingError
-
 var SessionDataFromContext = appcontext.SessionDataFromContext
 var ContextWithSessionData = appcontext.ContextWithSessionData
 
