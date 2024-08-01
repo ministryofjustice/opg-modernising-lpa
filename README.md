@@ -45,16 +45,10 @@ asdf install
 
 ### Local development
 
-To run the app in dev mode on amd64/intel:
+To run the app in dev mode:
 
 ```shell
 make up-dev
-```
-
-or the following for arm64/apple silicon:
-
-```shell
-make up-dev-arm
 ```
 
 Dev mode adds hot reloading via [air](https://github.com/cosmtrek/air) which
@@ -73,7 +67,7 @@ localhost. Example VSCode debug config:
     "mode": "remote",
     "port": 2345,
     "host": "127.0.0.1",
-    "trace": "verbose",
+    "trace": "verbose"
 }
 ```
 
