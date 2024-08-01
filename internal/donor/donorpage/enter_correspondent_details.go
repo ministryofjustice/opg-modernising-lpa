@@ -48,7 +48,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				if donor.Correspondent.WantAddress.IsNo() {
 					donor.Correspondent.Address = place.Address{}
 					donor.Tasks.AddCorrespondent = actor.TaskCompleted
-					redirect = page.Paths.WhoCanCorrespondentsDetailsBeSharedWith
+					redirect = page.Paths.TaskList
 				} else {
 					if !donor.Tasks.AddCorrespondent.Completed() && donor.Correspondent.Address.Line1 == "" {
 						donor.Tasks.AddCorrespondent = actor.TaskInProgress
