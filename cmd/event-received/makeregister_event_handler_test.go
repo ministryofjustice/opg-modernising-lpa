@@ -8,7 +8,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -64,7 +63,7 @@ func TestHandleUidRequested(t *testing.T) {
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{
 				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
-				Type:      actor.LpaTypePersonalWelfare,
+				Type:      donordata.LpaTypePersonalWelfare,
 				CreatedAt: testNow,
 				LpaUID:    "M-1111-2222-3333",
 				PK:        dynamo.LpaKey("123"),
@@ -78,7 +77,7 @@ func TestHandleUidRequested(t *testing.T) {
 	eventClient.EXPECT().
 		SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       "M-1111-2222-3333",
-			Type:      actor.LpaTypePersonalWelfare.String(),
+			Type:      donordata.LpaTypePersonalWelfare.String(),
 			CreatedAt: testNow,
 			Donor: event.ApplicationUpdatedDonor{
 				FirstNames:  "a",

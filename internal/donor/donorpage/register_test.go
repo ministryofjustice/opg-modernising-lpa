@@ -145,7 +145,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				LpaID:     "123",
 				SupporterData: &page.SupporterData{
 					DonorFullName: "Jane Smith",
-					LpaType:       actor.LpaTypePropertyAndAffairs,
+					LpaType:       donordata.LpaTypePropertyAndAffairs,
 				},
 			},
 			loginSesh:           &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"},
@@ -175,7 +175,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					Address:     place.Address{Postcode: "ABC123"},
 					Email:       "a@example.com",
 				},
-					Type:   actor.LpaTypePropertyAndAffairs,
+					Type:   donordata.LpaTypePropertyAndAffairs,
 					Tasks:  donordata.DonorTasks{YourDetails: actor.TaskCompleted},
 					LpaUID: "a-uid",
 				}, nil)
@@ -221,7 +221,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:   actor.LpaTypePropertyAndAffairs,
+			Type:   donordata.LpaTypePropertyAndAffairs,
 			Tasks:  donordata.DonorTasks{YourDetails: actor.TaskCompleted},
 			LpaUID: "a-uid",
 		}, nil)
@@ -233,7 +233,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Address:     place.Address{Postcode: "ABC123"},
 			Email:       "a@example.com",
 		},
-			Type:   actor.LpaTypePropertyAndAffairs,
+			Type:   donordata.LpaTypePropertyAndAffairs,
 			Tasks:  donordata.DonorTasks{YourDetails: actor.TaskCompleted},
 			LpaUID: "a-uid",
 		}).

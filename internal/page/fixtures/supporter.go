@@ -110,7 +110,7 @@ func Supporter(
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor(testEmail)
-				donor.Type = actor.LpaTypePropertyAndAffairs
+				donor.Type = donordata.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
 				donor.Attorneys = donordata.Attorneys{
 					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
@@ -163,7 +163,7 @@ func Supporter(
 
 					donor.LpaUID = makeUID()
 					donor.Donor = makeDonor(testEmail)
-					donor.Type = actor.LpaTypePropertyAndAffairs
+					donor.Type = donordata.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
 					donor.Attorneys = donordata.Attorneys{
 						Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},

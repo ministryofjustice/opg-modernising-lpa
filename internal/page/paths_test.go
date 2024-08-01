@@ -71,7 +71,7 @@ func TestLpaPathRedirect(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -261,7 +261,7 @@ func TestDonorCanGoTo(t *testing.T) {
 		},
 		"check your lpa when unsure if can sign": {
 			donor: &donordata.DonorProvidedDetails{
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -279,7 +279,7 @@ func TestDonorCanGoTo(t *testing.T) {
 		"check your lpa when can sign": {
 			donor: &donordata.DonorProvidedDetails{
 				Donor: donordata.Donor{CanSign: form.Yes},
-				Type:  actor.LpaTypePersonalWelfare,
+				Type:  donordata.LpaTypePersonalWelfare,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -304,7 +304,7 @@ func TestDonorCanGoTo(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePropertyAndAffairs,
+				Type: donordata.LpaTypePropertyAndAffairs,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -329,7 +329,7 @@ func TestDonorCanGoTo(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,
@@ -356,7 +356,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					CanSign: form.Yes,
 				},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Type:                  actor.LpaTypePersonalWelfare,
+				Type:                  donordata.LpaTypePersonalWelfare,
 				Tasks: donordata.DonorTasks{
 					YourDetails:                actor.TaskCompleted,
 					ChooseAttorneys:            actor.TaskCompleted,

@@ -24,7 +24,7 @@ type abstractError struct {
 }
 
 type lpaRequest struct {
-	LpaType                                     actor.LpaType                     `json:"lpaType"`
+	LpaType                                     donordata.LpaType                 `json:"lpaType"`
 	Channel                                     donordata.Channel                 `json:"channel"`
 	Donor                                       lpaRequestDonor                   `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney              `json:"attorneys"`
@@ -138,9 +138,9 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.DonorProvidedDeta
 	}
 
 	switch donor.Type {
-	case actor.LpaTypePropertyAndAffairs:
+	case donordata.LpaTypePropertyAndAffairs:
 		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed
-	case actor.LpaTypePersonalWelfare:
+	case donordata.LpaTypePersonalWelfare:
 		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption
 	}
 
@@ -359,7 +359,7 @@ type IdentityCheck struct {
 }
 
 type lpaResponse struct {
-	LpaType                                     actor.LpaType                     `json:"lpaType"`
+	LpaType                                     donordata.LpaType                 `json:"lpaType"`
 	Donor                                       lpaRequestDonor                   `json:"donor"`
 	Channel                                     donordata.Channel                 `json:"channel"`
 	Attorneys                                   []lpaResponseAttorney             `json:"attorneys"`
@@ -432,7 +432,7 @@ type Lpa struct {
 	WithdrawnAt                                time.Time
 	PerfectAt                                  time.Time
 	UpdatedAt                                  time.Time
-	Type                                       actor.LpaType
+	Type                                       donordata.LpaType
 	Donor                                      Donor
 	Attorneys                                  Attorneys
 	ReplacementAttorneys                       Attorneys

@@ -150,7 +150,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
-				Type: actor.LpaTypePersonalWelfare,
+				Type: donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -179,7 +179,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 					FirstNames: "d e", LastName: "f",
 				},
 				CannotRegister: true,
-				Type:           actor.LpaTypePersonalWelfare,
+				Type:           donordata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
@@ -217,7 +217,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 							UID:        actoruid.New(),
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: actor.LpaTypePersonalWelfare,
+						Type: donordata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
 					Put(ctx, &donordata.DonorProvidedDetails{
@@ -230,7 +230,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 							CheckYourLpa:        actor.TaskNotStarted,
 						},
 						CertificateProvider: donordata.CertificateProvider{},
-						Type:                actor.LpaTypePersonalWelfare,
+						Type:                donordata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 

@@ -118,12 +118,12 @@ func TestPostDonorAccess(t *testing.T) {
 	donorStore.EXPECT().
 		Get(r.Context()).
 		Return(&donordata.DonorProvidedDetails{
-			Type:  actor.LpaTypePropertyAndAffairs,
+			Type:  donordata.LpaTypePropertyAndAffairs,
 			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
 		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.DonorProvidedDetails{
-			Type:  actor.LpaTypePropertyAndAffairs,
+			Type:  donordata.LpaTypePropertyAndAffairs,
 			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
 		}).
 		Return(nil)
@@ -155,7 +155,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T(actor.LpaTypePropertyAndAffairs.String()).
+		T(donordata.LpaTypePropertyAndAffairs.String()).
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 

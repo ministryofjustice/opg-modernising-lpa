@@ -22,35 +22,35 @@ import (
 
 func TestGetChooseReplacementAttorneys(t *testing.T) {
 	testcases := map[string]struct {
-		lpaType                   actor.LpaType
+		lpaType                   donordata.LpaType
 		attorneys                 donordata.Attorneys
 		expectedShowTrustCorpLink bool
 	}{
 		"property and affairs": {
-			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			lpaType:                   donordata.LpaTypePropertyAndAffairs,
 			expectedShowTrustCorpLink: true,
 		},
 		"personal welfare": {
-			lpaType:                   actor.LpaTypePersonalWelfare,
+			lpaType:                   donordata.LpaTypePersonalWelfare,
 			expectedShowTrustCorpLink: false,
 		},
 		"property and affairs with lay attorney": {
-			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			lpaType:                   donordata.LpaTypePropertyAndAffairs,
 			attorneys:                 donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 			expectedShowTrustCorpLink: true,
 		},
 		"personal welfare with lay attorney": {
-			lpaType:                   actor.LpaTypePersonalWelfare,
+			lpaType:                   donordata.LpaTypePersonalWelfare,
 			attorneys:                 donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 			expectedShowTrustCorpLink: false,
 		},
 		"property and affairs with trust corporation": {
-			lpaType:                   actor.LpaTypePropertyAndAffairs,
+			lpaType:                   donordata.LpaTypePropertyAndAffairs,
 			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},
 		"personal welfare with trust corporation": {
-			lpaType:                   actor.LpaTypePersonalWelfare,
+			lpaType:                   donordata.LpaTypePersonalWelfare,
 			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},

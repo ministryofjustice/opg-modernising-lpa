@@ -76,7 +76,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 }
 
 type lpaTypeForm struct {
-	LpaType actor.LpaType
+	LpaType donordata.LpaType
 	Error   error
 }
 

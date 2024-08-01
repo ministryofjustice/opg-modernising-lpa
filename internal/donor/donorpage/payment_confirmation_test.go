@@ -68,7 +68,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.DonorProvidedDetails{
-					Type:             actor.LpaTypePersonalWelfare,
+					Type:             donordata.LpaTypePersonalWelfare,
 					Donor:            donordata.Donor{FirstNames: "a", LastName: "b"},
 					LpaUID:           "lpa-uid",
 					FeeType:          pay.FullFee,
@@ -110,7 +110,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 					PayForLpa: actor.PaymentTaskInProgress,
 				},
 				Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
-				Type:  actor.LpaTypePersonalWelfare,
+				Type:  donordata.LpaTypePersonalWelfare,
 			})
 			resp := w.Result()
 
@@ -149,7 +149,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.DonorProvidedDetails{
-			Type:    actor.LpaTypePersonalWelfare,
+			Type:    donordata.LpaTypePersonalWelfare,
 			Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 			LpaUID:  "lpa-uid",
 			FeeType: pay.HalfFee,
@@ -180,7 +180,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 		withEmailPersonalizations(r.Context(), "£41")
 
 	err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		Type:    actor.LpaTypePersonalWelfare,
+		Type:    donordata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		LpaUID:  "lpa-uid",
 		FeeType: pay.HalfFee,
@@ -228,7 +228,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.DonorProvidedDetails{
-					Type:    actor.LpaTypePersonalWelfare,
+					Type:    donordata.LpaTypePersonalWelfare,
 					Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 					LpaUID:  "lpa-uid",
 					FeeType: pay.FullFee,
@@ -259,7 +259,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
-				Type:    actor.LpaTypePersonalWelfare,
+				Type:    donordata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -285,7 +285,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 			updatedDonor := &donordata.DonorProvidedDetails{
-				Type:    actor.LpaTypePersonalWelfare,
+				Type:    donordata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -353,7 +353,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
-				Type:    actor.LpaTypePersonalWelfare,
+				Type:    donordata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -415,7 +415,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				withEmailPersonalizations(r.Context(), "£82")
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
-				Type:    actor.LpaTypePersonalWelfare,
+				Type:    donordata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
 				FeeType: pay.FullFee,
@@ -548,7 +548,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		CertificateProvider: donordata.CertificateProvider{
 			Email: "certificateprovider@example.com",
 		},
-		Type:   actor.LpaTypePersonalWelfare,
+		Type:   donordata.LpaTypePersonalWelfare,
 		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
 		LpaUID: "lpa-uid"})
 	resp := w.Result()
@@ -610,7 +610,7 @@ func TestGetPaymentConfirmationWhenNotifyClientError(t *testing.T) {
 	testAppData.Localizer = localizer
 
 	err := PaymentConfirmation(nil, nil, payClient, nil, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
-		Type:    actor.LpaTypePersonalWelfare,
+		Type:    donordata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.HalfFee,
 		CertificateProvider: donordata.CertificateProvider{
@@ -653,7 +653,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 
 	err := PaymentConfirmation(nil, nil, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
-		Type:    actor.LpaTypePersonalWelfare,
+		Type:    donordata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.HalfFee,
 		CertificateProvider: donordata.CertificateProvider{
@@ -701,7 +701,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
-		Type:    actor.LpaTypePersonalWelfare,
+		Type:    donordata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.FullFee,
 		CertificateProvider: donordata.CertificateProvider{
@@ -746,7 +746,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaUID:  "lpa-uid",
-		Type:    actor.LpaTypePersonalWelfare,
+		Type:    donordata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 		FeeType: pay.FullFee,
 		CertificateProvider: donordata.CertificateProvider{
