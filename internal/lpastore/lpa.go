@@ -23,24 +23,24 @@ type abstractError struct {
 }
 
 type lpaRequest struct {
-	LpaType                                     donordata.LpaType                 `json:"lpaType"`
-	Channel                                     donordata.Channel                 `json:"channel"`
-	Donor                                       lpaRequestDonor                   `json:"donor"`
-	Attorneys                                   []lpaRequestAttorney              `json:"attorneys"`
-	TrustCorporations                           []lpaRequestTrustCorporation      `json:"trustCorporations,omitempty"`
-	CertificateProvider                         lpaRequestCertificateProvider     `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify        `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   donordata.AttorneysAct            `json:"howAttorneysMakeDecisions,omitempty"`
-	HowAttorneysMakeDecisionsDetails            string                            `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct            `json:"howReplacementAttorneysMakeDecisions,omitempty"`
-	HowReplacementAttorneysMakeDecisionsDetails string                            `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn  `json:"howReplacementAttorneysStepIn,omitempty"`
-	HowReplacementAttorneysStepInDetails        string                            `json:"howReplacementAttorneysStepInDetails,omitempty"`
-	Restrictions                                string                            `json:"restrictionsAndConditions"`
-	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen           `json:"whenTheLpaCanBeUsed,omitempty"`
-	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment `json:"lifeSustainingTreatmentOption,omitempty"`
-	SignedAt                                    time.Time                         `json:"signedAt"`
-	CertificateProviderNotRelatedConfirmedAt    *time.Time                        `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
+	LpaType                                     donordata.LpaType                    `json:"lpaType"`
+	Channel                                     donordata.Channel                    `json:"channel"`
+	Donor                                       lpaRequestDonor                      `json:"donor"`
+	Attorneys                                   []lpaRequestAttorney                 `json:"attorneys"`
+	TrustCorporations                           []lpaRequestTrustCorporation         `json:"trustCorporations,omitempty"`
+	CertificateProvider                         lpaRequestCertificateProvider        `json:"certificateProvider"`
+	PeopleToNotify                              []lpaRequestPersonToNotify           `json:"peopleToNotify,omitempty"`
+	HowAttorneysMakeDecisions                   donordata.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisionsDetails            string                               `json:"howAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisionsDetails string                               `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysStepIn               donordata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
+	HowReplacementAttorneysStepInDetails        string                               `json:"howReplacementAttorneysStepInDetails,omitempty"`
+	Restrictions                                string                               `json:"restrictionsAndConditions"`
+	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
+	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
+	SignedAt                                    time.Time                            `json:"signedAt"`
+	CertificateProviderNotRelatedConfirmedAt    *time.Time                           `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
 type lpaRequestIdentityCheck struct {
@@ -358,28 +358,28 @@ type IdentityCheck struct {
 }
 
 type lpaResponse struct {
-	LpaType                                     donordata.LpaType                 `json:"lpaType"`
-	Donor                                       lpaRequestDonor                   `json:"donor"`
-	Channel                                     donordata.Channel                 `json:"channel"`
-	Attorneys                                   []lpaResponseAttorney             `json:"attorneys"`
-	TrustCorporations                           []lpaResponseTrustCorporation     `json:"trustCorporations,omitempty"`
-	CertificateProvider                         CertificateProvider               `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify        `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   donordata.AttorneysAct            `json:"howAttorneysMakeDecisions,omitempty"`
-	HowAttorneysMakeDecisionsDetails            string                            `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct            `json:"howReplacementAttorneysMakeDecisions,omitempty"`
-	HowReplacementAttorneysMakeDecisionsDetails string                            `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysStepIn               actor.ReplacementAttorneysStepIn  `json:"howReplacementAttorneysStepIn,omitempty"`
-	HowReplacementAttorneysStepInDetails        string                            `json:"howReplacementAttorneysStepInDetails,omitempty"`
-	Restrictions                                string                            `json:"restrictionsAndConditions"`
-	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen           `json:"whenTheLpaCanBeUsed,omitempty"`
-	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment `json:"lifeSustainingTreatmentOption,omitempty"`
-	SignedAt                                    time.Time                         `json:"signedAt"`
-	CertificateProviderNotRelatedConfirmedAt    *time.Time                        `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
-	UID                                         string                            `json:"uid"`
-	Status                                      string                            `json:"status"`
-	RegistrationDate                            time.Time                         `json:"registrationDate"`
-	UpdatedAt                                   time.Time                         `json:"updatedAt"`
+	LpaType                                     donordata.LpaType                    `json:"lpaType"`
+	Donor                                       lpaRequestDonor                      `json:"donor"`
+	Channel                                     donordata.Channel                    `json:"channel"`
+	Attorneys                                   []lpaResponseAttorney                `json:"attorneys"`
+	TrustCorporations                           []lpaResponseTrustCorporation        `json:"trustCorporations,omitempty"`
+	CertificateProvider                         CertificateProvider                  `json:"certificateProvider"`
+	PeopleToNotify                              []lpaRequestPersonToNotify           `json:"peopleToNotify,omitempty"`
+	HowAttorneysMakeDecisions                   donordata.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisionsDetails            string                               `json:"howAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisionsDetails string                               `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysStepIn               donordata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
+	HowReplacementAttorneysStepInDetails        string                               `json:"howReplacementAttorneysStepInDetails,omitempty"`
+	Restrictions                                string                               `json:"restrictionsAndConditions"`
+	WhenTheLpaCanBeUsed                         donordata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
+	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
+	SignedAt                                    time.Time                            `json:"signedAt"`
+	CertificateProviderNotRelatedConfirmedAt    *time.Time                           `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
+	UID                                         string                               `json:"uid"`
+	Status                                      string                               `json:"status"`
+	RegistrationDate                            time.Time                            `json:"registrationDate"`
+	UpdatedAt                                   time.Time                            `json:"updatedAt"`
 }
 
 type Attorneys struct {
@@ -439,7 +439,7 @@ type Lpa struct {
 	PeopleToNotify                             donordata.PeopleToNotify
 	AttorneyDecisions                          donordata.AttorneyDecisions
 	ReplacementAttorneyDecisions               donordata.AttorneyDecisions
-	HowShouldReplacementAttorneysStepIn        actor.ReplacementAttorneysStepIn
+	HowShouldReplacementAttorneysStepIn        donordata.ReplacementAttorneysStepIn
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
 	WhenCanTheLpaBeUsed                        donordata.CanBeUsedWhen

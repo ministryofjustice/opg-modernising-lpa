@@ -99,7 +99,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		want                         form.YesNo
 		replacementAttorneys         donordata.Attorneys
 		attorneyDecisions            donordata.AttorneyDecisions
-		howReplacementsStepIn        actor.ReplacementAttorneysStepIn
+		howReplacementsStepIn        donordata.ReplacementAttorneysStepIn
 		replacementAttorneyDecisions donordata.AttorneyDecisions
 		taskState                    actor.TaskState
 	}{
@@ -200,7 +200,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Address:    testAddress,
 			}}},
 			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly attorneys single": {
@@ -255,7 +255,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Address:    testAddress,
 			}}},
 			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             actor.TaskCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
@@ -268,7 +268,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Address:    testAddress,
 			}}},
 			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             actor.TaskInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
@@ -281,7 +281,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Address:    testAddress,
 			}}},
 			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
 			taskState:                    actor.TaskCompleted,
 		},
@@ -295,7 +295,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				Address:    testAddress,
 			}}},
 			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn:        actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			howReplacementsStepIn:        donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
 			taskState:                    actor.TaskCompleted,
 		},
