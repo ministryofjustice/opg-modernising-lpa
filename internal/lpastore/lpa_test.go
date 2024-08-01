@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -211,7 +210,7 @@ func TestClientSendLpa(t *testing.T) {
 					How:     donordata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: donordata.CertificateProvider{
@@ -581,7 +580,7 @@ func TestClientLpa(t *testing.T) {
 					How:     donordata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: CertificateProvider{
@@ -952,7 +951,7 @@ func TestClientLpas(t *testing.T) {
 						How:     donordata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
-					HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+					HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 					LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 					Restrictions:                        "do not do this",
 					CertificateProvider: CertificateProvider{

@@ -261,7 +261,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
 		donorDetails.ReplacementAttorneys.Attorneys = []donordata.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
-		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenOneCanNoLongerAct
+		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 		switch data.ReplacementAttorneys {
 		case "without-address":
@@ -274,7 +274,7 @@ func updateLPAProgress(
 			donorDetails.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 		case "single":
 			donorDetails.ReplacementAttorneys.Attorneys = donorDetails.ReplacementAttorneys.Attorneys[:1]
-			donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepIn(0)
+			donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepIn(0)
 		}
 
 		donorDetails.Tasks.ChooseReplacementAttorneys = actor.TaskCompleted

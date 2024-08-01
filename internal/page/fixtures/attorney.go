@@ -210,7 +210,7 @@ func Attorney(
 
 		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
 		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
-		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
