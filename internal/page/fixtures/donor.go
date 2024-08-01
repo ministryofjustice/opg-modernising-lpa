@@ -314,7 +314,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "peopleToNotifyAboutYourLpa") {
 		donorDetails.DoYouWantToNotifyPeople = form.Yes
-		donorDetails.PeopleToNotify = []actor.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
+		donorDetails.PeopleToNotify = []donordata.PersonToNotify{makePersonToNotify(peopleToNotifyNames[0]), makePersonToNotify(peopleToNotifyNames[1])}
 		switch data.PeopleToNotify {
 		case "without-address":
 			donorDetails.PeopleToNotify[0].UID = withoutAddressUID

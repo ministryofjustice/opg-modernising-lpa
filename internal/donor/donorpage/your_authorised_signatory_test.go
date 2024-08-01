@@ -338,7 +338,7 @@ func TestSignatoryMatches(t *testing.T) {
 			{FirstNames: "i", LastName: "j"},
 		}},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
@@ -363,7 +363,7 @@ func TestSignatoryMatchesEmptyNamesIgnored(t *testing.T) {
 	donor := &donordata.DonorProvidedDetails{
 		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
-		PeopleToNotify:       actor.PeopleToNotify{{}},
+		PeopleToNotify:       donordata.PeopleToNotify{{}},
 	}
 
 	assert.Equal(t, actor.TypeNone, signatoryMatches(donor, "", ""))

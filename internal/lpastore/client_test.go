@@ -14,7 +14,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -384,7 +383,7 @@ func TestClientServiceContract(t *testing.T) {
 					Address:    address,
 					CarryOutBy: donordata.ChannelOnline,
 				},
-				PeopleToNotify: actor.PeopleToNotify{{
+				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        actoruid.New(),
 					FirstNames: "Peter",
 					LastName:   "Person",

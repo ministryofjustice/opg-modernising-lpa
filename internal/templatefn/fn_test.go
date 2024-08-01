@@ -438,7 +438,7 @@ func TestListAttorneysWithIncorrectType(t *testing.T) {
 func TestListPeopleToNotify(t *testing.T) {
 	app := page.AppData{SessionID: "abc"}
 	headingLevel := 3
-	peopleToNotify := actor.PeopleToNotify{{}}
+	peopleToNotify := donordata.PeopleToNotify{{}}
 
 	want := map[string]interface{}{
 		"App":            app,

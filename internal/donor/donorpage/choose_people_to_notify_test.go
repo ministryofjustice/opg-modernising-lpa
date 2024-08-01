@@ -43,7 +43,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	err := ChoosePeopleToNotify(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{
 				UID:        actoruid.New(),
 				Address:    testAddress,
@@ -79,18 +79,18 @@ func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
-	personToNotify := actor.PersonToNotify{
+	personToNotify := donordata.PersonToNotify{
 		FirstNames: "John",
 		LastName:   "Doe",
 		UID:        actoruid.New(),
 	}
 
 	testcases := map[string]struct {
-		addedPeople actor.PeopleToNotify
+		addedPeople donordata.PeopleToNotify
 		expectedUrl page.LpaPath
 	}{
 		"5 people": {
-			addedPeople: actor.PeopleToNotify{
+			addedPeople: donordata.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -100,7 +100,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
 		},
 		"6 people": {
-			addedPeople: actor.PeopleToNotify{
+			addedPeople: donordata.PeopleToNotify{
 				personToNotify,
 				personToNotify,
 				personToNotify,
@@ -133,14 +133,14 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 	testCases := map[string]struct {
 		form           url.Values
-		personToNotify actor.PersonToNotify
+		personToNotify donordata.PersonToNotify
 	}{
 		"valid": {
 			form: url.Values{
 				"first-names": {"John"},
 				"last-name":   {"Doe"},
 			},
-			personToNotify: actor.PersonToNotify{
+			personToNotify: donordata.PersonToNotify{
 				FirstNames: "John",
 				LastName:   "Doe",
 				UID:        testUID,
@@ -152,7 +152,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				"last-name":           {"Doe"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypePersonToNotify, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			personToNotify: actor.PersonToNotify{
+			personToNotify: donordata.PersonToNotify{
 				FirstNames: "Jane",
 				LastName:   "Doe",
 				UID:        testUID,
@@ -171,7 +171,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 				Put(r.Context(), &donordata.DonorProvidedDetails{
 					LpaID:          "lpa-id",
 					Donor:          donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
-					PeopleToNotify: actor.PeopleToNotify{tc.personToNotify},
+					PeopleToNotify: donordata.PeopleToNotify{tc.personToNotify},
 					Tasks:          donordata.DonorTasks{PeopleToNotify: actor.TaskInProgress},
 				}).
 				Return(nil)
@@ -204,7 +204,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.DonorProvidedDetails{
 			LpaID: "lpa-id",
-			PeopleToNotify: actor.PeopleToNotify{{
+			PeopleToNotify: donordata.PeopleToNotify{{
 				FirstNames: "Johnny",
 				LastName:   "Dear",
 				UID:        uid,
@@ -215,7 +215,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	err := ChoosePeopleToNotify(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{
 		LpaID: "lpa-id",
-		PeopleToNotify: actor.PeopleToNotify{{
+		PeopleToNotify: donordata.PeopleToNotify{{
 			FirstNames: "John",
 			LastName:   "Doe",
 			UID:        uid,
@@ -380,7 +380,7 @@ func TestPersonToNotifyMatches(t *testing.T) {
 			{FirstNames: "i", LastName: "j"},
 		}},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{UID: uid, FirstNames: "o", LastName: "p"},
 		},
@@ -408,7 +408,7 @@ func TestPersonToNotifyMatchesEmptyNamesIgnored(t *testing.T) {
 			{FirstNames: "", LastName: ""},
 		}},
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: actor.PeopleToNotify{
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 			{UID: uid, FirstNames: "", LastName: ""},
 		},

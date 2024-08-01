@@ -164,8 +164,8 @@ func makeCertificateProvider() donordata.CertificateProvider {
 	}
 }
 
-func makePersonToNotify(name Name) actor.PersonToNotify {
-	return actor.PersonToNotify{
+func makePersonToNotify(name Name) donordata.PersonToNotify {
+	return donordata.PersonToNotify{
 		UID:        actoruid.New(),
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,

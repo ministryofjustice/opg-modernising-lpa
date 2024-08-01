@@ -8,7 +8,7 @@
 //   - [donordata.Attorney] - details about an attorney or replacement attorney, provided by the applicant
 //   - [donordata.AttorneyDecisions] - details about how an attorney or replacement attorney should act, provided by the applicant
 //   - [attorneydata.Provided] - details about an attorney or replacement attorney, provided by the attorney or replacement attorney
-//   - [actor.PersonToNotify] - details about a person to notify, provided by the applicant
+//   - [donordata.PersonToNotify] - details about a person to notify, provided by the applicant
 package page
 
 import (

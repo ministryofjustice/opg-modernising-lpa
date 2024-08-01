@@ -15,7 +15,7 @@ import (
 
 type removePersonToNotifyData struct {
 	App            page.AppData
-	PersonToNotify actor.PersonToNotify
+	PersonToNotify donordata.PersonToNotify
 	Errors         validation.List
 	Form           *form.YesNoForm
 }
