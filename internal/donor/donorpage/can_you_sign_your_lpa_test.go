@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -60,29 +59,29 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 	}{
 		"can sign": {
 			form: url.Values{
-				"can-sign": {actor.Yes.String()},
+				"can-sign": {donordata.Yes.String()},
 			},
 			person: donordata.Donor{
-				ThinksCanSign: actor.Yes,
+				ThinksCanSign: donordata.Yes,
 				CanSign:       form.Yes,
 			},
 			redirect: page.Paths.YourPreferredLanguage,
 		},
 		"cannot sign": {
 			form: url.Values{
-				"can-sign": {actor.No.String()},
+				"can-sign": {donordata.No.String()},
 			},
 			person: donordata.Donor{
-				ThinksCanSign: actor.No,
+				ThinksCanSign: donordata.No,
 			},
 			redirect: page.Paths.CheckYouCanSign,
 		},
 		"maybe can sign": {
 			form: url.Values{
-				"can-sign": {actor.Maybe.String()},
+				"can-sign": {donordata.Maybe.String()},
 			},
 			person: donordata.Donor{
-				ThinksCanSign: actor.Maybe,
+				ThinksCanSign: donordata.Maybe,
 			},
 			redirect: page.Paths.CheckYouCanSign,
 		},
@@ -140,7 +139,7 @@ func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
 
 func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"can-sign": {actor.Yes.String()},
+		"can-sign": {donordata.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -158,7 +157,7 @@ func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 
 func TestReadCanYouSignYourLpaForm(t *testing.T) {
 	f := url.Values{
-		"can-sign": {actor.Yes.String()},
+		"can-sign": {donordata.Yes.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
@@ -166,7 +165,7 @@ func TestReadCanYouSignYourLpaForm(t *testing.T) {
 
 	result := readCanYouSignYourLpaForm(r)
 
-	assert.Equal(t, actor.Yes, result.CanSign)
+	assert.Equal(t, donordata.Yes, result.CanSign)
 	assert.Nil(t, result.CanSignError)
 }
 
