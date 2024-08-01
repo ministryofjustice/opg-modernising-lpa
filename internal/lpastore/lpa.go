@@ -25,7 +25,7 @@ type abstractError struct {
 
 type lpaRequest struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
-	Channel                                     actor.Channel                    `json:"channel"`
+	Channel                                     donordata.Channel                `json:"channel"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney             `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation     `json:"trustCorporations,omitempty"`
@@ -62,34 +62,34 @@ type lpaRequestDonor struct {
 }
 
 type lpaRequestAttorney struct {
-	UID         actoruid.UID  `json:"uid"`
-	FirstNames  string        `json:"firstNames"`
-	LastName    string        `json:"lastName"`
-	DateOfBirth date.Date     `json:"dateOfBirth"`
-	Email       string        `json:"email,omitempty"`
-	Address     place.Address `json:"address"`
-	Status      string        `json:"status"`
-	Channel     actor.Channel `json:"channel"`
+	UID         actoruid.UID      `json:"uid"`
+	FirstNames  string            `json:"firstNames"`
+	LastName    string            `json:"lastName"`
+	DateOfBirth date.Date         `json:"dateOfBirth"`
+	Email       string            `json:"email,omitempty"`
+	Address     place.Address     `json:"address"`
+	Status      string            `json:"status"`
+	Channel     donordata.Channel `json:"channel"`
 }
 
 type lpaRequestTrustCorporation struct {
-	UID           actoruid.UID  `json:"uid"`
-	Name          string        `json:"name"`
-	CompanyNumber string        `json:"companyNumber"`
-	Email         string        `json:"email,omitempty"`
-	Address       place.Address `json:"address"`
-	Status        string        `json:"status"`
-	Channel       actor.Channel `json:"channel"`
+	UID           actoruid.UID      `json:"uid"`
+	Name          string            `json:"name"`
+	CompanyNumber string            `json:"companyNumber"`
+	Email         string            `json:"email,omitempty"`
+	Address       place.Address     `json:"address"`
+	Status        string            `json:"status"`
+	Channel       donordata.Channel `json:"channel"`
 }
 
 type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID  `json:"uid"`
-	FirstNames string        `json:"firstNames"`
-	LastName   string        `json:"lastName"`
-	Email      string        `json:"email,omitempty"`
-	Phone      string        `json:"phone,omitempty"`
-	Address    place.Address `json:"address"`
-	Channel    actor.Channel `json:"channel"`
+	UID        actoruid.UID      `json:"uid"`
+	FirstNames string            `json:"firstNames"`
+	LastName   string            `json:"lastName"`
+	Email      string            `json:"email,omitempty"`
+	Phone      string            `json:"phone,omitempty"`
+	Address    place.Address     `json:"address"`
+	Channel    donordata.Channel `json:"channel"`
 }
 
 type lpaRequestPersonToNotify struct {
@@ -102,7 +102,7 @@ type lpaRequestPersonToNotify struct {
 func (c *Client) SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
-		Channel: actor.ChannelOnline,
+		Channel: donordata.ChannelOnline,
 		Donor: lpaRequestDonor{
 			UID:                       donor.Donor.UID,
 			FirstNames:                donor.Donor.FirstNames,
@@ -287,7 +287,7 @@ type Donor struct {
 	OtherNames                string
 	DateOfBirth               date.Date
 	Address                   place.Address
-	Channel                   actor.Channel
+	Channel                   donordata.Channel
 	ContactLanguagePreference localize.Lang
 	IdentityCheck             IdentityCheck
 }
@@ -306,7 +306,7 @@ type Attorney struct {
 	Mobile                    string
 	SignedAt                  time.Time
 	ContactLanguagePreference localize.Lang
-	Channel                   actor.Channel
+	Channel                   donordata.Channel
 }
 
 func (a Attorney) FullName() string {
@@ -322,7 +322,7 @@ type TrustCorporation struct {
 	Mobile                    string
 	Signatories               []TrustCorporationSignatory
 	ContactLanguagePreference localize.Lang
-	Channel                   actor.Channel
+	Channel                   donordata.Channel
 }
 
 type TrustCorporationSignatory struct {
@@ -333,16 +333,16 @@ type TrustCorporationSignatory struct {
 }
 
 type CertificateProvider struct {
-	UID                       actoruid.UID  `json:"uid"`
-	FirstNames                string        `json:"firstNames"`
-	LastName                  string        `json:"lastName"`
-	Email                     string        `json:"email,omitempty"`
-	Phone                     string        `json:"phone,omitempty"`
-	Address                   place.Address `json:"address"`
-	Channel                   actor.Channel `json:"channel"`
-	SignedAt                  time.Time     `json:"signedAt"`
-	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
-	IdentityCheck             IdentityCheck `json:"identityCheck"`
+	UID                       actoruid.UID      `json:"uid"`
+	FirstNames                string            `json:"firstNames"`
+	LastName                  string            `json:"lastName"`
+	Email                     string            `json:"email,omitempty"`
+	Phone                     string            `json:"phone,omitempty"`
+	Address                   place.Address     `json:"address"`
+	Channel                   donordata.Channel `json:"channel"`
+	SignedAt                  time.Time         `json:"signedAt"`
+	ContactLanguagePreference localize.Lang     `json:"contactLanguagePreference"`
+	IdentityCheck             IdentityCheck     `json:"identityCheck"`
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
@@ -361,7 +361,7 @@ type IdentityCheck struct {
 type lpaResponse struct {
 	LpaType                                     actor.LpaType                    `json:"lpaType"`
 	Donor                                       lpaRequestDonor                  `json:"donor"`
-	Channel                                     actor.Channel                    `json:"channel"`
+	Channel                                     donordata.Channel                `json:"channel"`
 	Attorneys                                   []lpaResponseAttorney            `json:"attorneys"`
 	TrustCorporations                           []lpaResponseTrustCorporation    `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider              `json:"certificateProvider"`

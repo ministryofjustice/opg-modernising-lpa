@@ -283,7 +283,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: actor.ChannelOnline,
+			CarryOutBy: donordata.ChannelOnline,
 		},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
@@ -338,7 +338,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: actor.ChannelPaper,
+			CarryOutBy: donordata.ChannelPaper,
 		},
 		Donor: actor.Donor{
 			FirstNames: "Jan",
@@ -477,7 +477,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+			CarryOutBy: donordata.ChannelPaper,
 		},
 	}
 
@@ -497,7 +497,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
 	donor := &actor.DonorProvidedDetails{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+			CarryOutBy: donordata.ChannelPaper,
 		},
 	}
 

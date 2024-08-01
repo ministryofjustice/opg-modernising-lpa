@@ -51,7 +51,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy actor.Channel
+	CarryOutBy donordata.Channel
 	Email      string
 	Error      error
 }

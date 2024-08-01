@@ -80,7 +80,7 @@ func TestClientSendLpa(t *testing.T) {
 						TownOrCity: "c-town",
 						Country:    "GB",
 					},
-					CarryOutBy: actor.ChannelPaper,
+					CarryOutBy: donordata.ChannelPaper,
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
@@ -228,7 +228,7 @@ func TestClientSendLpa(t *testing.T) {
 						Postcode:   "C1 1FF",
 						Country:    "GB",
 					},
-					CarryOutBy: actor.ChannelOnline,
+					CarryOutBy: donordata.ChannelOnline,
 				},
 				PeopleToNotify: actor.PeopleToNotify{{
 					UID:        personToNotifyUID,
@@ -415,7 +415,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
-					Channel:    actor.ChannelOnline,
+					Channel:    donordata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -442,7 +442,7 @@ func TestClientLpa(t *testing.T) {
 						TownOrCity: "c-town",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelPaper,
+					Channel: donordata.ChannelPaper,
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
@@ -477,7 +477,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
-					Channel:    actor.ChannelOnline,
+					Channel:    donordata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 2, 12, 13, 14, 1, time.UTC),
 						Type:      "one-login",
@@ -497,7 +497,7 @@ func TestClientLpa(t *testing.T) {
 							Postcode:   "A1 1FF",
 							Country:    "GB",
 						},
-						Channel: actor.ChannelOnline,
+						Channel: donordata.ChannelOnline,
 					},
 					Attorneys: []Attorney{{
 						UID:         attorneyUID,
@@ -545,7 +545,7 @@ func TestClientLpa(t *testing.T) {
 							Postcode:   "A1 1FF",
 							Country:    "GB",
 						},
-						Channel: actor.ChannelPaper,
+						Channel: donordata.ChannelPaper,
 					},
 					Attorneys: []Attorney{{
 						UID:         replacementAttorneyUID,
@@ -598,7 +598,7 @@ func TestClientLpa(t *testing.T) {
 						Postcode:   "C1 1FF",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: donordata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 1, 13, 14, 15, 16, time.UTC),
 						Type:      "one-login",
@@ -789,7 +789,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
-						Channel:    actor.ChannelOnline,
+						Channel:    donordata.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						Attorneys: []Attorney{{
@@ -816,7 +816,7 @@ func TestClientLpas(t *testing.T) {
 							TownOrCity: "c-town",
 							Country:    "GB",
 						},
-						Channel: actor.ChannelPaper,
+						Channel: donordata.ChannelPaper,
 					},
 					SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
@@ -853,7 +853,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
-						Channel:    actor.ChannelOnline,
+						Channel:    donordata.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						TrustCorporation: TrustCorporation{
@@ -969,7 +969,7 @@ func TestClientLpas(t *testing.T) {
 							Postcode:   "C1 1FF",
 							Country:    "GB",
 						},
-						Channel: actor.ChannelOnline,
+						Channel: donordata.ChannelOnline,
 					},
 					PeopleToNotify: actor.PeopleToNotify{{
 						UID:        personToNotifyUID,

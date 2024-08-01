@@ -298,7 +298,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if data.CertificateProvider == "paper" {
-			donorDetails.CertificateProvider.CarryOutBy = actor.ChannelPaper
+			donorDetails.CertificateProvider.CarryOutBy = donordata.ChannelPaper
 		}
 
 		if data.CertificateProviderEmail != "" {

@@ -90,13 +90,13 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = donordata.Professionally
-		lpa.Donor.Channel = actor.ChannelPaper
+		lpa.Donor.Channel = donordata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
-		lpa.Donor.Channel = actor.ChannelOnline
+		lpa.Donor.Channel = donordata.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
