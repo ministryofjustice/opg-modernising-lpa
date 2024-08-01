@@ -47,7 +47,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 }
 
 type lifeSustainingTreatmentForm struct {
-	Option actor.LifeSustainingTreatment
+	Option donordata.LifeSustainingTreatment
 	Error  error
 }
 

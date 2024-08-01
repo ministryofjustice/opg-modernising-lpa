@@ -212,7 +212,7 @@ func TestClientSendLpa(t *testing.T) {
 					Details: "umm",
 				},
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-				LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: donordata.CertificateProvider{
 					UID:        certificateProviderUID,
@@ -582,7 +582,7 @@ func TestClientLpa(t *testing.T) {
 					Details: "umm",
 				},
 				HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-				LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
@@ -953,7 +953,7 @@ func TestClientLpas(t *testing.T) {
 						Details: "umm",
 					},
 					HowShouldReplacementAttorneysStepIn: actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-					LifeSustainingTreatmentOption:       actor.LifeSustainingTreatmentOptionA,
+					LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 					Restrictions:                        "do not do this",
 					CertificateProvider: CertificateProvider{
 						UID:        certificateProviderUID,
