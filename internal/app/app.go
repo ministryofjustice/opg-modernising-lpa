@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -270,7 +271,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {

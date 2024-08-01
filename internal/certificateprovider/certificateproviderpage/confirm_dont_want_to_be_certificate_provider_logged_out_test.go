@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -30,7 +31,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})).
+		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})).
 		Return(&lpa, nil)
 
 	template := newMockTemplate(t)
@@ -130,7 +131,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
+	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
 
 	testcases := map[string]struct {
 		lpa            lpastore.Lpa
@@ -294,7 +295,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
-	ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: "lpa-id"})
+	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
 
 	shareCodeData := actor.ShareCodeData{
 		LpaKey: dynamo.LpaKey("lpa-id"),

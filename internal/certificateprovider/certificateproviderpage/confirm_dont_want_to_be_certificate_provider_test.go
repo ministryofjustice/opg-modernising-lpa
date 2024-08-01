@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -94,7 +95,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
