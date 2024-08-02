@@ -1,3 +1,5 @@
+// Package certificateproviderpage provides the pages that a certificate
+// provider interacts with.
 package certificateproviderpage
 
 import (

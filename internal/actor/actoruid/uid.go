@@ -1,3 +1,4 @@
+// Package actoruid provides an identifier for the various actors on an LPA.
 package actoruid
 
 import (

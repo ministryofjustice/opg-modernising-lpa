@@ -1,3 +1,4 @@
+// Package pay provides a client for GOV.UK's Pay service.
 package pay
 
 import (
