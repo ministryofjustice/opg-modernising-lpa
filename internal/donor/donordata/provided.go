@@ -65,7 +65,7 @@ type Provided struct {
 	// The certificate provider named in the LPA
 	CertificateProvider CertificateProvider
 	// Type of LPA being drafted
-	Type LpaType
+	Type lpadata.LpaType
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used

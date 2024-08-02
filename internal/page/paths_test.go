@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
@@ -72,7 +73,7 @@ func TestLpaPathRedirect(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: donordata.LpaTypePersonalWelfare,
+				Type: lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -262,7 +263,7 @@ func TestDonorCanGoTo(t *testing.T) {
 		},
 		"check your lpa when unsure if can sign": {
 			donor: &donordata.Provided{
-				Type: donordata.LpaTypePersonalWelfare,
+				Type: lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -280,7 +281,7 @@ func TestDonorCanGoTo(t *testing.T) {
 		"check your lpa when can sign": {
 			donor: &donordata.Provided{
 				Donor: donordata.Donor{CanSign: form.Yes},
-				Type:  donordata.LpaTypePersonalWelfare,
+				Type:  lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -305,7 +306,7 @@ func TestDonorCanGoTo(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: donordata.LpaTypePropertyAndAffairs,
+				Type: lpadata.LpaTypePropertyAndAffairs,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -330,7 +331,7 @@ func TestDonorCanGoTo(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				Type: donordata.LpaTypePersonalWelfare,
+				Type: lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -357,7 +358,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					CanSign: form.Yes,
 				},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Type:                  donordata.LpaTypePersonalWelfare,
+				Type:                  lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,

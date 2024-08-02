@@ -40,7 +40,7 @@ func TestClientSendLpa(t *testing.T) {
 		"minimal": {
 			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePropertyAndAffairs,
+				Type:   lpadata.LpaTypePropertyAndAffairs,
 				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -98,7 +98,7 @@ func TestClientSendLpa(t *testing.T) {
 		"everything": {
 			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -402,7 +402,7 @@ func TestClientLpa(t *testing.T) {
 		"minimal": {
 			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePropertyAndAffairs,
+				Type:   lpadata.LpaTypePropertyAndAffairs,
 				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -461,7 +461,7 @@ func TestClientLpa(t *testing.T) {
 		"everything": {
 			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -776,7 +776,7 @@ func TestClientLpas(t *testing.T) {
 			lpas: []*Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
-					Type:   donordata.LpaTypePropertyAndAffairs,
+					Type:   lpadata.LpaTypePropertyAndAffairs,
 					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -837,7 +837,7 @@ func TestClientLpas(t *testing.T) {
 			lpas: []*Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
-					Type:   donordata.LpaTypePersonalWelfare,
+					Type:   lpadata.LpaTypePersonalWelfare,
 					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
