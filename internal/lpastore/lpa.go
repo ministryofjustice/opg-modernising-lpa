@@ -138,9 +138,9 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	switch donor.Type {
-	case donordata.LpaTypePropertyAndAffairs:
+	case lpadata.LpaTypePropertyAndAffairs:
 		body.WhenTheLpaCanBeUsed = donor.WhenCanTheLpaBeUsed
-	case donordata.LpaTypePersonalWelfare:
+	case lpadata.LpaTypePersonalWelfare:
 		body.LifeSustainingTreatmentOption = donor.LifeSustainingTreatmentOption
 	}
 
@@ -346,7 +346,7 @@ type CertificateProvider struct {
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
-	Relationship donordata.CertificateProviderRelationship
+	Relationship lpadata.CertificateProviderRelationship
 }
 
 func (c CertificateProvider) FullName() string {
@@ -423,6 +423,22 @@ func (a Attorneys) FullNames() []string {
 	return names
 }
 
+type AttorneyDecisions struct {
+	How     lpadata.AttorneysAct
+	Details string
+}
+
+type PersonToNotify struct {
+	UID        actoruid.UID
+	FirstNames string
+	LastName   string
+	Address    place.Address
+}
+
+func (p PersonToNotify) FullName() string {
+	return p.FirstNames + " " + p.LastName
+}
+
 type Lpa struct {
 	LpaKey                                     dynamo.LpaKeyType
 	LpaOwnerKey                                dynamo.LpaOwnerKeyType
@@ -432,14 +448,14 @@ type Lpa struct {
 	WithdrawnAt                                time.Time
 	PerfectAt                                  time.Time
 	UpdatedAt                                  time.Time
-	Type                                       donordata.LpaType
+	Type                                       lpadata.LpaType
 	Donor                                      Donor
 	Attorneys                                  Attorneys
 	ReplacementAttorneys                       Attorneys
 	CertificateProvider                        CertificateProvider
-	PeopleToNotify                             donordata.PeopleToNotify
-	AttorneyDecisions                          donordata.AttorneyDecisions
-	ReplacementAttorneyDecisions               donordata.AttorneyDecisions
+	PeopleToNotify                             []PersonToNotify
+	AttorneyDecisions                          AttorneyDecisions
+	ReplacementAttorneyDecisions               AttorneyDecisions
 	HowShouldReplacementAttorneysStepIn        lpadata.ReplacementAttorneysStepIn
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
@@ -528,9 +544,9 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		}
 	}
 
-	var peopleToNotify []donordata.PersonToNotify
+	var peopleToNotify []PersonToNotify
 	for _, p := range l.PeopleToNotify {
-		peopleToNotify = append(peopleToNotify, donordata.PersonToNotify{
+		peopleToNotify = append(peopleToNotify, PersonToNotify{
 			UID:        p.UID,
 			FirstNames: p.FirstNames,
 			LastName:   p.LastName,
@@ -576,11 +592,11 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 		},
 		CertificateProvider: l.CertificateProvider,
 		PeopleToNotify:      peopleToNotify,
-		AttorneyDecisions: donordata.AttorneyDecisions{
+		AttorneyDecisions: AttorneyDecisions{
 			How:     l.HowAttorneysMakeDecisions,
 			Details: l.HowAttorneysMakeDecisionsDetails,
 		},
-		ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
+		ReplacementAttorneyDecisions: AttorneyDecisions{
 			How:     l.HowReplacementAttorneysMakeDecisions,
 			Details: l.HowReplacementAttorneysMakeDecisionsDetails,
 		},
@@ -646,6 +662,16 @@ func FromDonorProvidedDetails(l *donordata.Provided) *Lpa {
 		identityCheck.Type = "one-login"
 	}
 
+	var peopleToNotify []PersonToNotify
+	for _, p := range l.PeopleToNotify {
+		peopleToNotify = append(peopleToNotify, PersonToNotify{
+			UID:        p.UID,
+			FirstNames: p.FirstNames,
+			LastName:   p.LastName,
+			Address:    p.Address,
+		})
+	}
+
 	return &Lpa{
 		LpaID:     l.LpaID,
 		LpaUID:    l.LpaUID,
@@ -674,16 +700,22 @@ func FromDonorProvidedDetails(l *donordata.Provided) *Lpa {
 			Address:    l.CertificateProvider.Address,
 			Channel:    l.CertificateProvider.CarryOutBy,
 		},
-		PeopleToNotify:                             l.PeopleToNotify,
-		AttorneyDecisions:                          l.AttorneyDecisions,
-		ReplacementAttorneyDecisions:               l.ReplacementAttorneyDecisions,
+		PeopleToNotify: peopleToNotify,
+		AttorneyDecisions: AttorneyDecisions{
+			How:     l.AttorneyDecisions.How,
+			Details: l.AttorneyDecisions.Details,
+		},
+		ReplacementAttorneyDecisions: AttorneyDecisions{
+			How:     l.ReplacementAttorneyDecisions.How,
+			Details: l.ReplacementAttorneyDecisions.Details,
+		},
 		HowShouldReplacementAttorneysStepIn:        l.HowShouldReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowShouldReplacementAttorneysStepInDetails,
-		Restrictions:                               l.Restrictions,
-		WhenCanTheLpaBeUsed:                        l.WhenCanTheLpaBeUsed,
-		LifeSustainingTreatmentOption:              l.LifeSustainingTreatmentOption,
-		SignedAt:                                   l.SignedAt,
-		CertificateProviderNotRelatedConfirmedAt:   l.CertificateProviderNotRelatedConfirmedAt,
+		Restrictions:                             l.Restrictions,
+		WhenCanTheLpaBeUsed:                      l.WhenCanTheLpaBeUsed,
+		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
+		SignedAt:                                 l.SignedAt,
+		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
 	}
 }
 

@@ -29,7 +29,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				SubmittedAt: time.Now(),
 				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Tasks: donordata.Tasks{
 					CheckYourLpa: task.StateCompleted,
@@ -56,7 +56,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: Donor{Channel: lpadata.ChannelOnline},
 			},
@@ -67,7 +67,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID: "M-1111",
 				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: donordata.Donor{Channel: lpadata.ChannelOnline},
 				Attorneys: donordata.Attorneys{
@@ -89,7 +89,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: Donor{
 					Channel: lpadata.ChannelOnline,
@@ -137,7 +137,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Drafted:     true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: donordata.Professionally,
+					Relationship: lpadata.Professionally,
 				},
 				Donor: Donor{Channel: lpadata.ChannelPaper},
 			},
@@ -258,7 +258,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				SubmittedAt: time.Now(),
 				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Tasks: donordata.Tasks{
 					CheckYourLpa: task.StateCompleted,
@@ -286,7 +286,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: Donor{Channel: lpadata.ChannelOnline},
 			}},
@@ -297,7 +297,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaUID: "M-1111",
 				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: donordata.Donor{Channel: lpadata.ChannelOnline},
 				Attorneys: donordata.Attorneys{
@@ -315,7 +315,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: donordata.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: Donor{Channel: lpadata.ChannelOnline},
 				Attorneys: Attorneys{
@@ -359,7 +359,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				Submitted:   true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: donordata.Professionally,
+					Relationship: lpadata.Professionally,
 				},
 				Donor: Donor{Channel: lpadata.ChannelPaper},
 			}},
