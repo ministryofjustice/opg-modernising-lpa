@@ -1,3 +1,4 @@
+// Event received is an AWS Lambda function to handle incoming events.
 package main
 
 import (

@@ -1,3 +1,4 @@
+// Package search provides a client for AWS OpenSearch.
 package search
 
 import (

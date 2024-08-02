@@ -11,9 +11,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -31,7 +31,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -51,7 +51,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -70,7 +70,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -91,7 +91,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -111,7 +111,7 @@ func TestGetSign(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
 					Name: "Corp",
 				}},
@@ -203,7 +203,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		"certified but not submitted": {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
-				WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},

@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -23,35 +24,35 @@ import (
 
 func TestGetChooseReplacementAttorneys(t *testing.T) {
 	testcases := map[string]struct {
-		lpaType                   donordata.LpaType
+		lpaType                   lpadata.LpaType
 		attorneys                 donordata.Attorneys
 		expectedShowTrustCorpLink bool
 	}{
 		"property and affairs": {
-			lpaType:                   donordata.LpaTypePropertyAndAffairs,
+			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
 			expectedShowTrustCorpLink: true,
 		},
 		"personal welfare": {
-			lpaType:                   donordata.LpaTypePersonalWelfare,
+			lpaType:                   lpadata.LpaTypePersonalWelfare,
 			expectedShowTrustCorpLink: false,
 		},
 		"property and affairs with lay attorney": {
-			lpaType:                   donordata.LpaTypePropertyAndAffairs,
+			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
 			attorneys:                 donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 			expectedShowTrustCorpLink: true,
 		},
 		"personal welfare with lay attorney": {
-			lpaType:                   donordata.LpaTypePersonalWelfare,
+			lpaType:                   lpadata.LpaTypePersonalWelfare,
 			attorneys:                 donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 			expectedShowTrustCorpLink: false,
 		},
 		"property and affairs with trust corporation": {
-			lpaType:                   donordata.LpaTypePropertyAndAffairs,
+			lpaType:                   lpadata.LpaTypePropertyAndAffairs,
 			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},
 		"personal welfare with trust corporation": {
-			lpaType:                   donordata.LpaTypePersonalWelfare,
+			lpaType:                   lpadata.LpaTypePersonalWelfare,
 			attorneys:                 donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{Name: "a"}},
 			expectedShowTrustCorpLink: false,
 		},

@@ -1,3 +1,4 @@
+// Package sesh provides functionality for setting and reading session data as cookies.
 package sesh
 
 import (

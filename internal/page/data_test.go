@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -71,7 +72,7 @@ func TestChooseAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			decisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			decisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState: task.StateCompleted,
 		},
 		"multiple incomplete with decisions": {
@@ -81,7 +82,7 @@ func TestChooseAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			decisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			decisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState: task.StateInProgress,
 		},
 	}
@@ -98,7 +99,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		want                         form.YesNo
 		replacementAttorneys         donordata.Attorneys
 		attorneyDecisions            donordata.AttorneyDecisions
-		howReplacementsStepIn        donordata.ReplacementAttorneysStepIn
+		howReplacementsStepIn        lpadata.ReplacementAttorneysStepIn
 		replacementAttorneyDecisions donordata.AttorneyDecisions
 		taskState                    task.State
 	}{
@@ -156,7 +157,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:                    task.StateCompleted,
 		},
 		"multiple jointly": {
@@ -168,7 +169,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"multiple jointly for some severally for others": {
@@ -180,7 +181,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly and severally attorneys single": {
@@ -189,7 +190,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:         task.StateInProgress,
 		},
 		"jointly and severally attorneys single with step in": {
@@ -198,8 +199,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             task.StateCompleted,
 		},
 		"jointly attorneys single": {
@@ -208,7 +209,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState:         task.StateCompleted,
 		},
 		"jointly for some severally for others attorneys single": {
@@ -217,7 +218,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:         task.StateCompleted,
 		},
 		"jointly for some severally for others attorneys multiple": {
@@ -229,7 +230,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:         task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple": {
@@ -241,7 +242,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:         task.StateInProgress,
 		},
 		"jointly and severally attorneys multiple with step in": {
@@ -253,8 +254,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
@@ -266,8 +267,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             task.StateInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
@@ -279,9 +280,9 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn:        donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			howReplacementsStepIn:        lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly for some severally for others": {
@@ -293,9 +294,9 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
-			howReplacementsStepIn:        donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			howReplacementsStepIn:        lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple without decisions": {
@@ -307,7 +308,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState:         task.StateInProgress,
 		},
 		"jointly attorneys multiple jointly and severally": {
@@ -319,8 +320,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple with jointly": {
@@ -332,8 +333,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple jointly for some severally for others": {
@@ -345,8 +346,8 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: donordata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -104,7 +105,7 @@ func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
 		Version:   1,
 		Donor: Donor{
 			UID:     donorUID,
-			Channel: ChannelOnline,
+			Channel: lpadata.ChannelOnline,
 		},
 	}
 
