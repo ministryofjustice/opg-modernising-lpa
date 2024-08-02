@@ -12,11 +12,11 @@ import (
 type checkYourDetailsData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func CheckYourDetails(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !donor.Tasks.PayForLpa.IsCompleted() {
 				return page.Paths.WeHaveReceivedVoucherDetails.Redirect(w, r, appData, donor)

@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -74,7 +75,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -107,7 +108,7 @@ func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {
 				shareCodeStore := newMockShareCodeStore(t)
 				shareCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(actor.ShareCodeData{}, expectedError)
+					Return(sharecode.Data{}, expectedError)
 
 				return shareCodeStore
 			},
@@ -118,7 +119,7 @@ func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {
 				shareCodeStore := newMockShareCodeStore(t)
 				shareCodeStore.EXPECT().
 					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
+					Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id")}, nil)
 
 				return shareCodeStore
 			},
@@ -168,7 +169,7 @@ func TestPostEnterReferenceNumberOptOutOnShareCodeStoreNotFoundError(t *testing.
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumberOptOut(template.Execute, shareCodeStore, nil)(testAppData, w, r)
 

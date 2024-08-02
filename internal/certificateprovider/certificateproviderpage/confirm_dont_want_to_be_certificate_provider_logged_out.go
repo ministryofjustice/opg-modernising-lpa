@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -78,8 +79,8 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				}
 
 				donor.CertificateProvider = donordata.CertificateProvider{}
-				donor.Tasks.CertificateProvider = actor.TaskNotStarted
-				donor.Tasks.CheckYourLpa = actor.TaskNotStarted
+				donor.Tasks.CertificateProvider = task.StateNotStarted
+				donor.Tasks.CheckYourLpa = task.StateNotStarted
 
 				if err = donorStore.Put(ctx, donor); err != nil {
 					return err

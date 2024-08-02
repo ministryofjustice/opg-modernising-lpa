@@ -134,7 +134,7 @@ func TestPostDashboard(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				Create(r.Context()).
-				Return(&donordata.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+				Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
 			err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 			resp := w.Result()
@@ -153,7 +153,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Create(r.Context()).
-		Return(&donordata.DonorProvidedDetails{LpaID: "123"}, expectedError)
+		Return(&donordata.Provided{LpaID: "123"}, expectedError)
 
 	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
 	resp := w.Result()

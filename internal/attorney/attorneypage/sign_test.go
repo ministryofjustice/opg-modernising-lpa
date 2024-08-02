@@ -8,13 +8,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -352,7 +352,7 @@ func TestPostSign(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: now,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -366,7 +366,7 @@ func TestPostSign(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: now,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -391,7 +391,7 @@ func TestPostSign(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 		"second replacment trust corporation": {
@@ -416,7 +416,7 @@ func TestPostSign(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 	}
@@ -476,7 +476,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: attorneySignedAt,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -490,7 +490,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: attorneySignedAt,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -515,7 +515,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          attorneySignedAt,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 		"second replacment trust corporation": {
@@ -540,7 +540,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          attorneySignedAt,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 	}
@@ -604,7 +604,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement trust corporation": {
@@ -628,7 +628,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 	}

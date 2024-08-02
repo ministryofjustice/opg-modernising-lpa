@@ -21,7 +21,7 @@ type changeMobileNumberData struct {
 }
 
 func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
-	var send func(context.Context, *donordata.DonorProvidedDetails, page.Localizer) error
+	var send func(context.Context, *donordata.Provided, page.Localizer) error
 	var redirect page.LpaPath
 	switch actorType {
 	case actor.TypeIndependentWitness:
@@ -34,7 +34,7 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 		panic("ChangeMobileNumber only supports IndependentWitness or CertificateProvider actors")
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &changeMobileNumberData{
 			App:        appData,
 			Form:       &changeMobileNumberForm{},

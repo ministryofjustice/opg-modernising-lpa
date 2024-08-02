@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type ShareCodeStoreDynamoClient interface {
@@ -28,8 +29,8 @@ func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore 
 	return &shareCodeStore{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error) {
-	var data actor.ShareCodeData
+func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error) {
+	var data sharecode.Data
 
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
@@ -37,17 +38,17 @@ func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCod
 	}
 
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
-		return actor.ShareCodeData{}, err
+		return sharecode.Data{}, err
 	}
 
 	if !data.LpaLinkedAt.IsZero() {
-		return actor.ShareCodeData{}, dynamo.NotFoundError{}
+		return sharecode.Data{}, dynamo.NotFoundError{}
 	}
 
 	return data, err
 }
 
-func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error {
+func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error {
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
@@ -59,7 +60,7 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error {
+func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data sharecode.Data) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
@@ -72,8 +73,8 @@ func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data ac
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, error) {
-	var data actor.ShareCodeData
+func (s *shareCodeStore) GetDonor(ctx context.Context) (sharecode.Data, error) {
+	var data sharecode.Data
 
 	sessionData, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
@@ -86,7 +87,7 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (actor.ShareCodeData, err
 	return data, err
 }
 
-func (s *shareCodeStore) Delete(ctx context.Context, shareCode actor.ShareCodeData) error {
+func (s *shareCodeStore) Delete(ctx context.Context, shareCode sharecode.Data) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 

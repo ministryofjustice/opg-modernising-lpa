@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -35,7 +36,7 @@ func TestShareCodeStoreGet(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
-			data := actor.ShareCodeData{LpaKey: "lpa-id"}
+			data := sharecode.Data{LpaKey: "lpa-id"}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
@@ -57,13 +58,13 @@ func TestShareCodeStoreGetWhenLinked(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		ExpectOneByPK(ctx, dynamo.ShareKey(dynamo.DonorShareKey("123")),
-			actor.ShareCodeData{LpaLinkedAt: time.Now()}, nil)
+			sharecode.Data{LpaLinkedAt: time.Now()}, nil)
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
 	result, err := shareCodeStore.Get(ctx, actor.TypeDonor, "123")
 	assert.Equal(t, dynamo.NotFoundError{}, err)
-	assert.Equal(t, actor.ShareCodeData{}, result)
+	assert.Equal(t, sharecode.Data{}, result)
 }
 
 func TestShareCodeStoreGetForBadActorType(t *testing.T) {
@@ -76,7 +77,7 @@ func TestShareCodeStoreGetForBadActorType(t *testing.T) {
 
 func TestShareCodeStoreGetOnError(t *testing.T) {
 	ctx := context.Background()
-	data := actor.ShareCodeData{LpaKey: "lpa-id"}
+	data := sharecode.Data{LpaKey: "lpa-id"}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -111,7 +112,7 @@ func TestShareCodeStorePut(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
-			data := actor.ShareCodeData{PK: tc.pk, SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")), LpaKey: "lpa-id"}
+			data := sharecode.Data{PK: tc.pk, SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")), LpaKey: "lpa-id"}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -130,7 +131,7 @@ func TestShareCodeStorePutForBadActorType(t *testing.T) {
 	ctx := context.Background()
 	shareCodeStore := &shareCodeStore{}
 
-	err := shareCodeStore.Put(ctx, actor.TypePersonToNotify, "123", actor.ShareCodeData{})
+	err := shareCodeStore.Put(ctx, actor.TypePersonToNotify, "123", sharecode.Data{})
 	assert.NotNil(t, err)
 }
 
@@ -144,7 +145,7 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
-	err := shareCodeStore.Put(ctx, actor.TypeAttorney, "123", actor.ShareCodeData{LpaKey: "123"})
+	err := shareCodeStore.Put(ctx, actor.TypeAttorney, "123", sharecode.Data{LpaKey: "123"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -161,7 +162,7 @@ func TestShareCodeStoreGetDonor(t *testing.T) {
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})
-	data := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id")}
+	data := sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id")}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -188,7 +189,7 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, actor.ShareCodeData{
+		Put(ctx, sharecode.Data{
 			PK:          dynamo.ShareKey(dynamo.DonorShareKey("123")),
 			SK:          dynamo.ShareSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
@@ -199,7 +200,7 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := shareCodeStore.PutDonor(ctx, "123", actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := shareCodeStore.PutDonor(ctx, "123", sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Nil(t, err)
 }
 
@@ -208,7 +209,7 @@ func TestShareCodeStorePutDonorWhenDonor(t *testing.T) {
 
 	shareCodeStore := &shareCodeStore{}
 
-	err := shareCodeStore.PutDonor(ctx, "123", actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := shareCodeStore.PutDonor(ctx, "123", sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -224,7 +225,7 @@ func TestShareCodeStoreDelete(t *testing.T) {
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
-	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{LpaKey: "123", PK: pk, SK: sk})
+	err := shareCodeStore.Delete(ctx, sharecode.Data{LpaKey: "123", PK: pk, SK: sk})
 	assert.Nil(t, err)
 }
 
@@ -238,7 +239,7 @@ func TestShareCodeStoreDeleteOnError(t *testing.T) {
 
 	shareCodeStore := &shareCodeStore{dynamoClient: dynamoClient}
 
-	err := shareCodeStore.Delete(ctx, actor.ShareCodeData{})
+	err := shareCodeStore.Delete(ctx, sharecode.Data{})
 	assert.Equal(t, expectedError, err)
 }
 

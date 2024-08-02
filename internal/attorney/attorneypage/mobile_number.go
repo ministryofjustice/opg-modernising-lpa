@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -37,8 +37,8 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 
 			if data.Errors.None() {
 				attorneyProvidedDetails.Mobile = data.Form.Mobile
-				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == actor.TaskNotStarted {
-					attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskInProgress
+				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == task.StateNotStarted {
+					attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {

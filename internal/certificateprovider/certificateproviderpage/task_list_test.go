@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,12 +40,12 @@ func TestGetTaskList(t *testing.T) {
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
 				items[1].Disabled = true
 				items[2].Disabled = true
 
@@ -59,12 +59,12 @@ func TestGetTaskList(t *testing.T) {
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
 				items[1].Disabled = true
 				items[2].Disabled = true
 
@@ -80,17 +80,17 @@ func TestGetTaskList(t *testing.T) {
 			certificateProvider: &certificateproviderdata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails:    actor.TaskCompleted,
-					ConfirmYourIdentity:   actor.TaskCompleted,
-					ProvideTheCertificate: actor.TaskCompleted,
+					ConfirmYourDetails:    task.StateCompleted,
+					ConfirmYourIdentity:   task.StateCompleted,
+					ProvideTheCertificate: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
 				items[1].Path = page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")
-				items[2].State = actor.TaskCompleted
+				items[2].State = task.StateCompleted
 
 				return items
 			},
@@ -103,17 +103,17 @@ func TestGetTaskList(t *testing.T) {
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails:    actor.TaskCompleted,
-					ConfirmYourIdentity:   actor.TaskCompleted,
-					ProvideTheCertificate: actor.TaskCompleted,
+					ConfirmYourDetails:    task.StateCompleted,
+					ConfirmYourIdentity:   task.StateCompleted,
+					ProvideTheCertificate: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = actor.TaskCompleted
-				items[1].State = actor.TaskCompleted
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
 				items[1].Path = page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id")
-				items[2].State = actor.TaskCompleted
+				items[2].State = task.StateCompleted
 
 				return items
 			},

@@ -194,7 +194,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	lpaID := uuidString()
 
-	if err := client.Put(ctx, &donordata.DonorProvidedDetails{
+	if err := client.Put(ctx, &donordata.Provided{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 		LpaID:     lpaID,

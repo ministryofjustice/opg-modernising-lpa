@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +29,7 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -54,7 +54,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: certificateProvider,
 	})
 	resp := w.Result()
@@ -72,7 +72,7 @@ func TestGetHowDoYouKnowYourCertificateProviderWhenTemplateErrors(t *testing.T) 
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -111,22 +111,22 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks: donordata.DonorTasks{
-						YourDetails:     actor.TaskCompleted,
-						ChooseAttorneys: actor.TaskCompleted,
+					Tasks: donordata.Tasks{
+						YourDetails:     task.StateCompleted,
+						ChooseAttorneys: task.StateCompleted,
 					},
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John"},
-				Tasks: donordata.DonorTasks{
-					YourDetails:     actor.TaskCompleted,
-					ChooseAttorneys: actor.TaskCompleted,
+				Tasks: donordata.Tasks{
+					YourDetails:     task.StateCompleted,
+					ChooseAttorneys: task.StateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -144,7 +144,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 		existingCertificateProviderDetails donordata.CertificateProvider
 		updatedCertificateProviderDetails  donordata.CertificateProvider
 		redirect                           page.LpaPath
-		taskState                          actor.TaskState
+		taskState                          task.State
 	}{
 		"personally to professionally": {
 			form: url.Values{"how": {donordata.Professionally.String()}},
@@ -181,24 +181,24 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &donordata.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.updatedCertificateProviderDetails,
-					Tasks: donordata.DonorTasks{
-						YourDetails:         actor.TaskCompleted,
-						ChooseAttorneys:     actor.TaskCompleted,
-						CertificateProvider: actor.TaskInProgress,
+					Tasks: donordata.Tasks{
+						YourDetails:         task.StateCompleted,
+						ChooseAttorneys:     task.StateCompleted,
+						CertificateProvider: task.StateInProgress,
 					},
 				}).
 				Return(nil)
 
-			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: tc.existingCertificateProviderDetails,
-				Tasks: donordata.DonorTasks{
-					YourDetails:         actor.TaskCompleted,
-					ChooseAttorneys:     actor.TaskCompleted,
-					CertificateProvider: actor.TaskCompleted,
+				Tasks: donordata.Tasks{
+					YourDetails:         task.StateCompleted,
+					ChooseAttorneys:     task.StateCompleted,
+					CertificateProvider: task.StateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -224,7 +224,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -241,7 +241,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 		})).
 		Return(nil)
 
-	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := HowDoYouKnowYourCertificateProvider(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

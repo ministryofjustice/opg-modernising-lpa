@@ -5,11 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -122,7 +122,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 		Put(r.Context(), &attorneydata.Provided{
 			UID:   uid,
 			LpaID: "lpa-id",
-			Tasks: attorneydata.Tasks{ConfirmYourDetails: actor.TaskCompleted},
+			Tasks: attorneydata.Tasks{ConfirmYourDetails: task.StateCompleted},
 		}).
 		Return(nil)
 

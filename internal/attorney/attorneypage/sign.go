@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -57,7 +57,7 @@ func Sign(
 			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
+				attorneyProvidedDetails.Tasks.SignTheLpa = task.StateCompleted
 				attorneyProvidedDetails.SignedAt = now()
 
 				if attorney.SignedAt.IsZero() {
@@ -112,9 +112,9 @@ func Sign(
 
 			if data.Errors.None() {
 				if signatoryIndex == 1 {
-					attorneyProvidedDetails.Tasks.SignTheLpaSecond = actor.TaskCompleted
+					attorneyProvidedDetails.Tasks.SignTheLpaSecond = task.StateCompleted
 				} else {
-					attorneyProvidedDetails.Tasks.SignTheLpa = actor.TaskCompleted
+					attorneyProvidedDetails.Tasks.SignTheLpa = task.StateCompleted
 				}
 
 				attorneyProvidedDetails.AuthorisedSignatories[signatoryIndex] = attorneydata.TrustCorporationSignatory{

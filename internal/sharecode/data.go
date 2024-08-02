@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
-type ShareCodeData struct {
+type Data struct {
 	PK                    dynamo.ShareKeyType
 	SK                    dynamo.ShareSortKeyType
 	UpdatedAt             time.Time

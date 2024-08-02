@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -20,7 +20,7 @@ type howDoYouKnowYourCertificateProviderData struct {
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -40,7 +40,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 				}
 
 				if !donor.CertificateProvider.Relationship.Empty() && data.Form.How != donor.CertificateProvider.Relationship {
-					donor.Tasks.CertificateProvider = actor.TaskInProgress
+					donor.Tasks.CertificateProvider = task.StateInProgress
 					donor.CertificateProvider.Address = place.Address{}
 				}
 

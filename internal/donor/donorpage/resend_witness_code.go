@@ -25,7 +25,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 		redirect = page.Paths.WitnessingAsIndependentWitness
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &resendWitnessCodeData{
 			App: appData,
 		}

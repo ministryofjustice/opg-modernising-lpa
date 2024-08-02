@@ -25,22 +25,22 @@ func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
 }
 
 // Get provides a mock function with given fields: ctx, actorType, code
-func (_m *mockShareCodeStore) Get(ctx context.Context, actorType temporary.ActorType, code string) (sharecode.ShareCodeData, error) {
+func (_m *mockShareCodeStore) Get(ctx context.Context, actorType temporary.ActorType, code string) (sharecode.Data, error) {
 	ret := _m.Called(ctx, actorType, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 sharecode.ShareCodeData
+	var r0 sharecode.Data
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, temporary.ActorType, string) (sharecode.ShareCodeData, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, temporary.ActorType, string) (sharecode.Data, error)); ok {
 		return rf(ctx, actorType, code)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, temporary.ActorType, string) sharecode.ShareCodeData); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, temporary.ActorType, string) sharecode.Data); ok {
 		r0 = rf(ctx, actorType, code)
 	} else {
-		r0 = ret.Get(0).(sharecode.ShareCodeData)
+		r0 = ret.Get(0).(sharecode.Data)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, temporary.ActorType, string) error); ok {
@@ -72,12 +72,12 @@ func (_c *mockShareCodeStore_Get_Call) Run(run func(ctx context.Context, actorTy
 	return _c
 }
 
-func (_c *mockShareCodeStore_Get_Call) Return(_a0 sharecode.ShareCodeData, _a1 error) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) Return(_a0 sharecode.Data, _a1 error) *mockShareCodeStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, temporary.ActorType, string) (sharecode.ShareCodeData, error)) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, temporary.ActorType, string) (sharecode.Data, error)) *mockShareCodeStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

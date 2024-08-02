@@ -42,7 +42,7 @@ func TestGetUploadEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{FeeType: pay.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +53,7 @@ func TestGetUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -75,7 +75,7 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -106,7 +106,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				GetAll(r.Context()).
 				Return(page.Documents{}, nil)
 			documentStore.EXPECT().
-				Create(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, filename, mock.Anything).
+				Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, filename, mock.Anything).
 				Return(page.Document{
 					PK:       dynamo.LpaKey("lpa-id"),
 					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -131,7 +131,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+			err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 			assert.Nil(t, err)
 		})
 	}
@@ -141,7 +141,7 @@ func TestPostUploadEvidenceWhenTaskPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
+	err := UploadEvidence(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", FeeType: pay.FullFee, Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -161,7 +161,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		GetAll(r.Context()).
 		Return(page.Documents{}, nil)
 	documentStore.EXPECT().
-		Create(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.pdf", mock.Anything).
+		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.pdf", mock.Anything).
 		Return(page.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -170,7 +170,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		}, nil).
 		Once()
 	documentStore.EXPECT().
-		Create(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.png", mock.Anything).
+		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.png", mock.Anything).
 		Return(page.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -204,7 +204,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -234,7 +234,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 		GetAll(r.Context()).
 		Return(page.Documents{}, nil)
 	documentStore.EXPECT().
-		Create(r.Context(), &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic", mock.Anything).
+		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic", mock.Anything).
 		Return(page.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -261,7 +261,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -272,7 +272,7 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", contentType)
 
-	donor := &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 
 	documents := page.Documents{{
 		PK:       dynamo.LpaKey("lpa-id"),
@@ -324,10 +324,10 @@ func TestPostUploadEvidenceWithPayActionWhenPayerError(t *testing.T) {
 
 	payer := newMockHandler(t)
 	payer.EXPECT().
-		Execute(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}).
+		Execute(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, payer.Execute, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, payer.Execute, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -339,7 +339,7 @@ func TestPostUploadEvidenceWithPayActionWhenDocumentStoreSubmitErrors(t *testing
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", contentType)
 
-	donor := &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
@@ -366,7 +366,7 @@ func TestPostUploadEvidenceWithPayActionWhenUnscannedDocument(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", &buf)
 	r.Header.Set("Content-Type", contentType)
 
-	donor := &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
@@ -440,7 +440,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -469,7 +469,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithoutInfectedFiles(t *testing.
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Nil(t, err)
 }
 
@@ -490,7 +490,7 @@ func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenDocumentStoreGetAll
 			{Filename: "d", VirusDetected: true},
 		}, expectedError)
 
-	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -519,7 +519,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 		}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -555,7 +555,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 		}, expectedError).
 		Once()
 
-	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -603,7 +603,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 		}).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -638,7 +638,7 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -678,7 +678,7 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", FeeType: pay.FullFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -726,7 +726,7 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.FullFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.FullFee})
 	assert.Nil(t, err)
 }
 
@@ -811,7 +811,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", FeeType: pay.FullFee})
+			err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", FeeType: pay.FullFee})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -864,7 +864,7 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Nil(t, err)
 }
@@ -909,7 +909,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Nil(t, err)
 }
@@ -944,7 +944,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenDocumentStoreDeleteError(t *testing.
 		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -992,7 +992,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -1037,7 +1037,7 @@ func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 
 	resp := w.Result()
 
@@ -1072,7 +1072,7 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenDocumentStoreDeleteError
 		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
 		Return(expectedError)
 
-	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -1120,7 +1120,7 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing
 		}).
 		Return(expectedError)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -1167,7 +1167,7 @@ func TestPostUploadEvidenceWithCancelUploadAction(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
+	err := UploadEvidence(template.Execute, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
 	resp := w.Result()
 
 	assert.Nil(t, err)
