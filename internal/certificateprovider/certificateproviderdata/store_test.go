@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -31,11 +31,11 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	expectedTransaction := &dynamo.Transaction{
 		Creates: []any{
 			details,
-			temporary.LpaLink{
+			actor.LpaLink{
 				PK:        dynamo.LpaKey("lpa-id"),
 				SK:        dynamo.SubKey("session-id"),
 				DonorKey:  shareCode.LpaOwnerKey,
-				ActorType: temporary.ActorTypeCertificateProvider,
+				ActorType: actor.TypeCertificateProvider,
 				UpdatedAt: testNow,
 			},
 		},

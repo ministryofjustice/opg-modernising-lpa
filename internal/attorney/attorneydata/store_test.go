@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -56,11 +56,11 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			expectedTransaction := &dynamo.Transaction{
 				Creates: []any{
 					details,
-					temporary.LpaLink{
+					actor.LpaLink{
 						PK:        dynamo.LpaKey("123"),
 						SK:        dynamo.SubKey("456"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-						ActorType: temporary.ActorTypeAttorney,
+						ActorType: actor.TypeAttorney,
 						UpdatedAt: now,
 					},
 				},

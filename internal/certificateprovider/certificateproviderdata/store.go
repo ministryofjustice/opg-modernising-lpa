@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type DynamoClient interface {
@@ -64,7 +63,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 
 	transaction := dynamo.NewTransaction().
 		Create(certificateProvider).
-		Create(temporary.LpaLink{
+		Create(actor.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,

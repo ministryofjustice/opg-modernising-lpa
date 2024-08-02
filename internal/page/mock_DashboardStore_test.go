@@ -5,7 +5,7 @@ package page
 import (
 	context "context"
 
-	temporary "github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -99,7 +99,7 @@ func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context)
 }
 
 // SubExistsForActorType provides a mock function with given fields: ctx, sub, actorType
-func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType temporary.ActorType) (bool, error) {
+func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	ret := _m.Called(ctx, sub, actorType)
 
 	if len(ret) == 0 {
@@ -108,16 +108,16 @@ func (_m *mockDashboardStore) SubExistsForActorType(ctx context.Context, sub str
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, temporary.ActorType) (bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actor.Type) (bool, error)); ok {
 		return rf(ctx, sub, actorType)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, temporary.ActorType) bool); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, actor.Type) bool); ok {
 		r0 = rf(ctx, sub, actorType)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, temporary.ActorType) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, actor.Type) error); ok {
 		r1 = rf(ctx, sub, actorType)
 	} else {
 		r1 = ret.Error(1)
@@ -134,14 +134,14 @@ type mockDashboardStore_SubExistsForActorType_Call struct {
 // SubExistsForActorType is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sub string
-//   - actorType temporary.ActorType
+//   - actorType actor.Type
 func (_e *mockDashboardStore_Expecter) SubExistsForActorType(ctx interface{}, sub interface{}, actorType interface{}) *mockDashboardStore_SubExistsForActorType_Call {
 	return &mockDashboardStore_SubExistsForActorType_Call{Call: _e.mock.On("SubExistsForActorType", ctx, sub, actorType)}
 }
 
-func (_c *mockDashboardStore_SubExistsForActorType_Call) Run(run func(ctx context.Context, sub string, actorType temporary.ActorType)) *mockDashboardStore_SubExistsForActorType_Call {
+func (_c *mockDashboardStore_SubExistsForActorType_Call) Run(run func(ctx context.Context, sub string, actorType actor.Type)) *mockDashboardStore_SubExistsForActorType_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(temporary.ActorType))
+		run(args[0].(context.Context), args[1].(string), args[2].(actor.Type))
 	})
 	return _c
 }
@@ -151,7 +151,7 @@ func (_c *mockDashboardStore_SubExistsForActorType_Call) Return(_a0 bool, _a1 er
 	return _c
 }
 
-func (_c *mockDashboardStore_SubExistsForActorType_Call) RunAndReturn(run func(context.Context, string, temporary.ActorType) (bool, error)) *mockDashboardStore_SubExistsForActorType_Call {
+func (_c *mockDashboardStore_SubExistsForActorType_Call) RunAndReturn(run func(context.Context, string, actor.Type) (bool, error)) *mockDashboardStore_SubExistsForActorType_Call {
 	_c.Call.Return(run)
 	return _c
 }

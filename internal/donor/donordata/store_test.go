@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -17,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -418,7 +418,7 @@ func TestDonorStoreCreate(t *testing.T) {
 				Create(ctx, donor).
 				Return(nil)
 			dynamoClient.EXPECT().
-				Create(ctx, temporary.LpaLink{PK: dynamo.LpaKey("10100000"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: temporary.ActorTypeDonor, UpdatedAt: testNow}).
+				Create(ctx, actor.LpaLink{PK: dynamo.LpaKey("10100000"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor, UpdatedAt: testNow}).
 				Return(nil)
 
 			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn, newUID: testUIDFn}
@@ -494,16 +494,16 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 func TestDonorStoreLink(t *testing.T) {
 	testcases := map[string]struct {
 		oneByPartialSKError error
-		link                temporary.LpaLink
+		link                actor.LpaLink
 	}{
 		"no link": {
 			oneByPartialSKError: dynamo.NotFoundError{},
 		},
 		"not a donor link": {
-			link: temporary.LpaLink{
+			link: actor.LpaLink{
 				PK:        dynamo.LpaKey(""),
 				SK:        dynamo.SubKey("a-sub"),
-				ActorType: temporary.ActorTypeCertificateProvider,
+				ActorType: actor.TypeCertificateProvider,
 			},
 		},
 	}
@@ -523,11 +523,11 @@ func TestDonorStoreLink(t *testing.T) {
 						SK:           dynamo.DonorKey("session-id"),
 						ReferencedSK: dynamo.OrganisationKey("org-id"),
 					},
-					temporary.LpaLink{
+					actor.LpaLink{
 						PK:        dynamo.LpaKey("lpa-id"),
 						SK:        dynamo.SubKey("session-id"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
-						ActorType: temporary.ActorTypeDonor,
+						ActorType: actor.TypeDonor,
 						UpdatedAt: testNowFn(),
 					},
 				},
@@ -583,7 +583,7 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
-		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: temporary.ActorTypeDonor}, nil)
+		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeDonor}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
@@ -600,11 +600,11 @@ func TestDonorStoreLinkWhenError(t *testing.T) {
 	testcases := map[string]func(*mockDynamoClient){
 		"OneByPartialSK errors": func(dynamoClient *mockDynamoClient) {
 			dynamoClient.
-				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: temporary.ActorTypeAttorney}, expectedError)
+				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeAttorney}, expectedError)
 		},
 		"WriteTransaction errors": func(dynamoClient *mockDynamoClient) {
 			dynamoClient.
-				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: temporary.ActorTypeAttorney}, nil)
+				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeAttorney}, nil)
 			dynamoClient.EXPECT().
 				WriteTransaction(mock.Anything, mock.Anything).
 				Return(expectedError)
@@ -724,7 +724,7 @@ func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
 func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
-	link := temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}
+	link := actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}
 	shareCodeData := sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
 
 	dynamoClient := newMockDynamoClient(t)
@@ -781,7 +781,7 @@ func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, expectedError)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
@@ -793,7 +793,7 @@ func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), actor.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
 	dynamoClient.EXPECT().
 		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)

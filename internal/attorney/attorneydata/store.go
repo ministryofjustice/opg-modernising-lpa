@@ -7,10 +7,10 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type DynamoClient interface {
@@ -65,11 +65,11 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 
 	transaction := dynamo.NewTransaction().
 		Create(attorney).
-		Create(temporary.LpaLink{
+		Create(actor.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
-			ActorType: temporary.ActorTypeAttorney,
+			ActorType: actor.TypeAttorney,
 			UpdatedAt: s.now(),
 		}).
 		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})

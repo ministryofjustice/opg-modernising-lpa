@@ -1,4 +1,4 @@
-package temporary
+package actor
 
 import (
 	"strings"
@@ -16,7 +16,7 @@ type LpaLink struct {
 	// DonorKey is the donorKey for the donor
 	DonorKey dynamo.LpaOwnerKeyType
 	// ActorType is the type for the current user
-	ActorType ActorType
+	ActorType Type
 	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex
 	UpdatedAt time.Time
 }

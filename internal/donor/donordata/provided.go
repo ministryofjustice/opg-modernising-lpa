@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -14,7 +15,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/mitchellh/hashstructure/v2"
 )
 
@@ -256,7 +256,7 @@ type Under18ActorDetails struct {
 	FullName    string
 	DateOfBirth date.Date
 	UID         actoruid.UID
-	Type        temporary.ActorType
+	Type        actor.Type
 }
 
 func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
@@ -269,7 +269,7 @@ func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 				FullName:    a.FullName(),
 				DateOfBirth: a.DateOfBirth,
 				UID:         a.UID,
-				Type:        temporary.ActorTypeAttorney,
+				Type:        actor.TypeAttorney,
 			})
 		}
 	}
@@ -280,7 +280,7 @@ func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 				FullName:    ra.FullName(),
 				DateOfBirth: ra.DateOfBirth,
 				UID:         ra.UID,
-				Type:        temporary.ActorTypeReplacementAttorney,
+				Type:        actor.TypeReplacementAttorney,
 			})
 		}
 	}
