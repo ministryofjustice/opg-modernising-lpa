@@ -71,7 +71,7 @@ type Provided struct {
 	// When the LPA can be used
 	WhenCanTheLpaBeUsed lpadata.CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
-	LifeSustainingTreatmentOption LifeSustainingTreatment
+	LifeSustainingTreatmentOption lpadata.LifeSustainingTreatment
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
