@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,13 +13,13 @@ import (
 )
 
 type wouldLikeSecondSignatoryData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
 }
 
 func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if attorneyProvidedDetails.Signed() {
 			return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}

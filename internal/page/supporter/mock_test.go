@@ -4,19 +4,19 @@ import (
 	"errors"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 var (
 	expectedError        = errors.New("err")
-	testAppData          = page.AppData{}
-	testLpaAppData       = page.AppData{LpaID: "lpa-id"}
-	testOrgMemberAppData = page.AppData{
+	testAppData          = appcontext.Data{}
+	testLpaAppData       = appcontext.Data{LpaID: "lpa-id"}
+	testOrgMemberAppData = appcontext.Data{
 		SessionID:         "session-id",
 		Lang:              localize.En,
 		LoginSessionEmail: "supporter@example.com",
-		SupporterData: &page.SupporterData{
+		SupporterData: &appcontext.SupporterData{
 			OrganisationName:    "My organisation",
 			Permission:          actor.PermissionNone,
 			LoggedInSupporterID: "supporter-id",

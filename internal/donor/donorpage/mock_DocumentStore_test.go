@@ -59,7 +59,7 @@ type mockDocumentStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *donordata.DonorProvidedDetails
+//   - _a1 *donordata.Provided
 //   - _a2 string
 //   - _a3 []byte
 func (_e *mockDocumentStore_Expecter) Create(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockDocumentStore_Create_Call {
@@ -307,7 +307,7 @@ type mockDocumentStore_Submit_Call struct {
 
 // Submit is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *donordata.DonorProvidedDetails
+//   - _a1 *donordata.Provided
 //   - _a2 page.Documents
 func (_e *mockDocumentStore_Expecter) Submit(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockDocumentStore_Submit_Call {
 	return &mockDocumentStore_Submit_Call{Call: _e.mock.On("Submit", _a0, _a1, _a2)}

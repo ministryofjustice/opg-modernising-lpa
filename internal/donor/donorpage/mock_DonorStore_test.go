@@ -259,7 +259,7 @@ type mockDonorStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *donordata.DonorProvidedDetails
+//   - donor *donordata.Provided
 func (_e *mockDonorStore_Expecter) Put(ctx interface{}, donor interface{}) *mockDonorStore_Put_Call {
 	return &mockDonorStore_Put_Call{Call: _e.mock.On("Put", ctx, donor)}
 }

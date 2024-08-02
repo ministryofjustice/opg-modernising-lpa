@@ -108,8 +108,8 @@ func TestMakeHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page: "/path",
 		}, appData)
 		assert.Equal(t, w, hw)
@@ -135,8 +135,8 @@ func TestMakeHandleRequireSession(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			SessionID: "cmFuZG9t",
 		}, appData)
@@ -166,7 +166,7 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error { return nil })
+	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -185,7 +185,7 @@ func TestMakeHandleWhenError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, errorHandler.Execute, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -242,14 +242,14 @@ func TestWithAppData(t *testing.T) {
 			}
 
 			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {
-				assert.Equal(t, page.AppData{
+				assert.Equal(t, appcontext.Data{
 					Path:             "/path",
 					Query:            query,
 					Localizer:        localizer,
 					Lang:             localize.En,
 					CookieConsentSet: tc.cookieConsentSet,
 					CanToggleWelsh:   true,
-				}, page.AppDataFromContext(hr.Context()))
+				}, appcontext.DataFromContext(hr.Context()))
 				assert.Equal(t, w, hw)
 			})
 

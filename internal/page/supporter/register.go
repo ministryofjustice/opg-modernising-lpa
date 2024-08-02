@@ -96,7 +96,7 @@ type ShareCodeStore interface {
 
 type Template func(w io.Writer, data interface{}) error
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
@@ -187,10 +187,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanToggleWelsh = false
-			appData.SupporterData = &page.SupporterData{}
+			appData.SupporterData = &appcontext.SupporterData{}
 
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
@@ -204,7 +204,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, Email: session.Email})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -212,7 +212,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 }
 
 type suspendedData struct {
-	App              page.AppData
+	App              appcontext.Data
 	Errors           validation.List
 	OrganisationName string
 }
@@ -231,12 +231,12 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				return
 			}
 
-			appData := page.AppDataFromContext(r.Context())
+			appData := appcontext.DataFromContext(r.Context())
 			appData.SessionID = loginSession.SessionID()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.CanToggleWelsh = false
 
-			appData.SupporterData = &page.SupporterData{
+			appData.SupporterData = &appcontext.SupporterData{
 				IsManageOrganisation: path.IsManageOrganisation(),
 			}
 
@@ -307,7 +307,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			appData.SupporterData.Permission = member.Permission
 			appData.SupporterData.LoggedInSupporterID = member.ID
 
-			ctx = page.ContextWithAppData(ctx, appData)
+			ctx = appcontext.ContextWithData(ctx, appData)
 
 			if err := h(appData, w, r.WithContext(ctx), organisation, member); err != nil {
 				errorHandler(w, r, err)

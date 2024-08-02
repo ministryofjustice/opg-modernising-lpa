@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -26,7 +27,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		SetOneLogin(r, w, &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback.Format("lpa-id")}).
 		Return(nil)
 
-	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(page.AppData{LpaID: "lpa-id", Lang: localize.Cy}, w, r, nil)
+	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(appcontext.Data{LpaID: "lpa-id", Lang: localize.Cy}, w, r, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)

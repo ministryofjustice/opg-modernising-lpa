@@ -13,13 +13,13 @@ import (
 )
 
 type enterReferenceNumberData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *enterReferenceNumberForm
 }
 
 func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, attorneyStore AttorneyStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
 			Form: &enterReferenceNumberForm{},

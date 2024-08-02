@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,13 +13,13 @@ import (
 )
 
 type unableToConfirmIdentityData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Donor  lpastore.Donor
 	Errors validation.List
 }
 
 func UnableToConfirmIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		if r.Method == http.MethodPost {
 			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 

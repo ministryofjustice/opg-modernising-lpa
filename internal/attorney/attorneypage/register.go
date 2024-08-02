@@ -28,7 +28,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -159,7 +159,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&CanGoBack != 0
 
@@ -174,7 +174,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -186,7 +186,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
 
@@ -230,7 +230,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 				appData.ActorType = actor.TypeAttorney
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), attorney); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), attorney); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

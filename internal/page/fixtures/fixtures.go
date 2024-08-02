@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -24,8 +25,8 @@ import (
 )
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context context.Context, appData page.AppData, donorProvided page.CertificateProviderInvite) error
-	SendAttorneys(context context.Context, appData page.AppData, donorProvided *lpastore.Lpa) error
+	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, donorProvided page.CertificateProviderInvite) error
+	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpastore.Lpa) error
 	UseTestCode(shareCode string)
 }
 
@@ -35,7 +36,7 @@ const (
 )
 
 type fixturesData struct {
-	App        page.AppData
+	App        appcontext.Data
 	Sub        string
 	DonorEmail string
 	Errors     validation.List

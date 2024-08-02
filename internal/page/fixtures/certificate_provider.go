@@ -44,7 +44,7 @@ func CertificateProvider(
 		"confirmYourIdentity",
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -248,7 +248,7 @@ func CertificateProvider(
 		}
 
 		if email != "" {
-			shareCodeSender.SendCertificateProviderInvite(donorCtx, page.AppData{
+			shareCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

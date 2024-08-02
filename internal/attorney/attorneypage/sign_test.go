@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -22,7 +23,7 @@ import (
 
 func TestGetSign(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 		data    *signData
 	}{
@@ -186,7 +187,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 	}{
 		"submitted but not certified": {
@@ -238,7 +239,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 	}{
 		"attorney": {
@@ -336,7 +337,7 @@ func TestPostSign(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided
@@ -460,7 +461,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided
@@ -578,7 +579,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided

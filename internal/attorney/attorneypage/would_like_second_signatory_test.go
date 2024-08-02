@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -139,7 +140,7 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 
 func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 	}{
 		"trust corporation": {

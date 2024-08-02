@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +34,7 @@ func TestGetDashboard(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dashboardData{
-			App:                     AppData{},
+			App:                     appcontext.Data{},
 			UseTabs:                 true,
 			DonorLpas:               donorLpas,
 			AttorneyLpas:            attorneyLpas,
@@ -41,7 +42,7 @@ func TestGetDashboard(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(AppData{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,12 +66,12 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dashboardData{
-			App:       AppData{},
+			App:       appcontext.Data{},
 			DonorLpas: donorLpas,
 		}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(AppData{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -86,7 +87,7 @@ func TestGetDashboardWhenDashboardStoreErrors(t *testing.T) {
 		GetAll(r.Context()).
 		Return(nil, nil, nil, expectedError)
 
-	err := Dashboard(nil, nil, dashboardStore)(AppData{}, w, r)
+	err := Dashboard(nil, nil, dashboardStore)(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -107,7 +108,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(AppData{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -136,7 +137,7 @@ func TestPostDashboard(t *testing.T) {
 				Create(r.Context()).
 				Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
-			err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
+			err := Dashboard(nil, donorStore, nil)(appcontext.Data{}, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -155,7 +156,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 		Create(r.Context()).
 		Return(&donordata.Provided{LpaID: "123"}, expectedError)
 
-	err := Dashboard(nil, donorStore, nil)(AppData{}, w, r)
+	err := Dashboard(nil, donorStore, nil)(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

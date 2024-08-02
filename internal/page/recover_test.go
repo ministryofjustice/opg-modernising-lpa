@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,7 +30,7 @@ func TestRecover(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &errorData{App: AppData{
+				Execute(w, &errorData{App: appcontext.Data{
 					CookieConsentSet: true,
 					Lang:             lang,
 					Localizer:        (*localize.Localizer)(nil),

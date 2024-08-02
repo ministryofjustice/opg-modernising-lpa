@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -94,7 +95,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, appData page.AppData, now func() time.Time) error {
+func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, appData appcontext.Data, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -181,7 +182,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	return nil
 }
 
-func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData page.AppData, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData appcontext.Data, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)

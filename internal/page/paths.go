@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -20,12 +21,12 @@ func (p Path) Format() string {
 	return string(p)
 }
 
-func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
+func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil
 }
 
-func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, query url.Values) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
@@ -40,7 +41,7 @@ func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
-func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.Provided) error {
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided) error {
 	rurl := p.Format(donor.LpaID)
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -50,7 +51,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	return nil
 }
 
-func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.Provided, query url.Values) error {
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided, query url.Values) error {
 	rurl := p.Format(donor.LpaID) + "?" + query.Encode()
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -133,12 +134,12 @@ func (p AttorneyPath) Format(id string) string {
 	return "/attorney/" + id + string(p)
 }
 
-func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
 }
 
-func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
+func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
@@ -169,7 +170,7 @@ func (p CertificateProviderPath) Format(id string) string {
 	return "/certificate-provider/" + id + string(p)
 }
 
-func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
 }
@@ -202,12 +203,12 @@ func (p SupporterPath) Format() string {
 	return "/supporter" + string(p)
 }
 
-func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData) error {
+func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
 	return nil
 }
 
-func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, query url.Values) error {
+func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, query url.Values) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
@@ -229,12 +230,12 @@ func (p SupporterLpaPath) Format(lpaID string) string {
 	return "/supporter" + string(p) + "/" + lpaID
 }
 
-func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string) error {
+func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
 	return nil
 }
 
-func (p SupporterLpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, lpaID string, query url.Values) error {
+func (p SupporterLpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
 	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
 	return nil
 }

@@ -6,35 +6,35 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 var (
 	testUID       = actoruid.New()
 	expectedError = errors.New("err")
-	testAppData   = page.AppData{
+	testAppData   = appcontext.Data{
 		SessionID:   "session-id",
 		LpaID:       "lpa-id",
 		AttorneyUID: testUID,
 		Lang:        localize.En,
 		ActorType:   actor.TypeAttorney,
 	}
-	testReplacementAppData = page.AppData{
+	testReplacementAppData = appcontext.Data{
 		SessionID:   "session-id",
 		LpaID:       "lpa-id",
 		AttorneyUID: testUID,
 		Lang:        localize.En,
 		ActorType:   actor.TypeReplacementAttorney,
 	}
-	testTrustCorporationAppData = page.AppData{
+	testTrustCorporationAppData = appcontext.Data{
 		SessionID:   "session-id",
 		LpaID:       "lpa-id",
 		AttorneyUID: testUID,
 		Lang:        localize.En,
 		ActorType:   actor.TypeTrustCorporation,
 	}
-	testReplacementTrustCorporationAppData = page.AppData{
+	testReplacementTrustCorporationAppData = appcontext.Data{
 		SessionID:   "session-id",
 		LpaID:       "lpa-id",
 		AttorneyUID: testUID,

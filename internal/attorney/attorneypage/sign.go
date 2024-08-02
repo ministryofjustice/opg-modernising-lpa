@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -13,7 +14,7 @@ import (
 )
 
 type signData struct {
-	App                         page.AppData
+	App                         appcontext.Data
 	Errors                      validation.List
 	LpaID                       string
 	Attorney                    lpastore.Attorney
@@ -31,7 +32,7 @@ func Sign(
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
 ) Handler {
-	signAttorney := func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
+	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
 		data := &signData{
 			App:                         appData,
 			LpaID:                       lpa.LpaID,
@@ -79,7 +80,7 @@ func Sign(
 		return tmpl(w, data)
 	}
 
-	signTrustCorporation := func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
+	signTrustCorporation := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
 		signatoryIndex := 0
 		if r.URL.Query().Has("second") {
 			signatoryIndex = 1
@@ -149,7 +150,7 @@ func Sign(
 		return tmpl(w, data)
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if attorneyProvidedDetails.Signed() {
 			return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}

@@ -4,13 +4,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
 	CertificateProvider donordata.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
@@ -18,7 +19,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,

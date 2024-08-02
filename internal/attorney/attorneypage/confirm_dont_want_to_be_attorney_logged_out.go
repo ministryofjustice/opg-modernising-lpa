@@ -16,13 +16,13 @@ import (
 )
 
 type confirmDontWantToBeAttorneyDataLoggedOut struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Lpa    *lpastore.Lpa
 }
 
 func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
 			return err

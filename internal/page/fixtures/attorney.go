@@ -67,7 +67,7 @@ func Attorney(
 		"registered",
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -402,7 +402,7 @@ func Attorney(
 			lpa.LpaKey = donorDetails.PK
 			lpa.LpaOwnerKey = donorDetails.SK
 
-			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
+			shareCodeSender.SendAttorneys(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

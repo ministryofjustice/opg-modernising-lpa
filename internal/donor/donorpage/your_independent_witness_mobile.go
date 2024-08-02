@@ -4,20 +4,21 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourIndependentWitnessMobileData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
 	AuthorisedSignatory donordata.AuthorisedSignatory
 	Form                *yourIndependentWitnessMobileForm
 }
 
 func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourIndependentWitnessMobileData{
 			App:                 appData,
 			AuthorisedSignatory: donor.AuthorisedSignatory,

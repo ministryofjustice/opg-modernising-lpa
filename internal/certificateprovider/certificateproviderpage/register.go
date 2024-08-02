@@ -23,7 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
@@ -72,7 +72,7 @@ type NotifyClient interface {
 }
 
 type ShareCodeSender interface {
-	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
+	SendAttorneys(context.Context, appcontext.Data, *lpastore.Lpa) error
 }
 
 type AddressClient interface {
@@ -179,11 +179,11 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.Page = path.Format()
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -195,7 +195,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
@@ -230,7 +230,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			appData.Page = path.Format(appData.LpaID)
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), certificateProvider); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), certificateProvider); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

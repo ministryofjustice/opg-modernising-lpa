@@ -5,7 +5,8 @@ package main
 import (
 	context "context"
 
-	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	appcontext "github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+
 	mock "github.com/stretchr/testify/mock"
 
 	time "time"
@@ -25,22 +26,22 @@ func (_m *mockFactory) EXPECT() *mockFactory_Expecter {
 }
 
 // AppData provides a mock function with given fields:
-func (_m *mockFactory) AppData() (page.AppData, error) {
+func (_m *mockFactory) AppData() (appcontext.Data, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for AppData")
 	}
 
-	var r0 page.AppData
+	var r0 appcontext.Data
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (page.AppData, error)); ok {
+	if rf, ok := ret.Get(0).(func() (appcontext.Data, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() page.AppData); ok {
+	if rf, ok := ret.Get(0).(func() appcontext.Data); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(page.AppData)
+		r0 = ret.Get(0).(appcontext.Data)
 	}
 
 	if rf, ok := ret.Get(1).(func() error); ok {
@@ -69,12 +70,12 @@ func (_c *mockFactory_AppData_Call) Run(run func()) *mockFactory_AppData_Call {
 	return _c
 }
 
-func (_c *mockFactory_AppData_Call) Return(_a0 page.AppData, _a1 error) *mockFactory_AppData_Call {
+func (_c *mockFactory_AppData_Call) Return(_a0 appcontext.Data, _a1 error) *mockFactory_AppData_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockFactory_AppData_Call) RunAndReturn(run func() (page.AppData, error)) *mockFactory_AppData_Call {
+func (_c *mockFactory_AppData_Call) RunAndReturn(run func() (appcontext.Data, error)) *mockFactory_AppData_Call {
 	_c.Call.Return(run)
 	return _c
 }

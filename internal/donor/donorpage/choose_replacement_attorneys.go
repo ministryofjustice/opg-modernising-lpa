@@ -8,13 +8,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysData struct {
-	App                      page.AppData
+	App                      appcontext.Data
 	Errors                   validation.List
 	Donor                    *donordata.Provided
 	Form                     *chooseAttorneysForm
@@ -24,7 +25,7 @@ type chooseReplacementAttorneysData struct {
 }
 
 func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		uid := actoruid.FromRequest(r)
 
 		if uid.IsZero() {

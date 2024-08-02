@@ -93,7 +93,7 @@ func Donor(
 	lpaStoreClient *lpastore.Client,
 	shareCodeStore ShareCodeStore,
 ) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		data := setFixtureData(r)

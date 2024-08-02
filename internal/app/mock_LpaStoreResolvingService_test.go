@@ -61,7 +61,7 @@ type mockLpaStoreResolvingService_ResolveList_Call struct {
 
 // ResolveList is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donors []*donordata.DonorProvidedDetails
+//   - donors []*donordata.Provided
 func (_e *mockLpaStoreResolvingService_Expecter) ResolveList(ctx interface{}, donors interface{}) *mockLpaStoreResolvingService_ResolveList_Call {
 	return &mockLpaStoreResolvingService_ResolveList_Call{Call: _e.mock.On("ResolveList", ctx, donors)}
 }
