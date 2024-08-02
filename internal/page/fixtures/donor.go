@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -185,11 +186,11 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor(data.DonorEmail)
 
-		donorDetails.Type = donordata.LpaTypePropertyAndAffairs
+		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 
 		if data.LpaType == "personal-welfare" {
-			donorDetails.Type = donordata.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
+			donorDetails.Type = lpadata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 		}
 
 		if data.UseRealID {
@@ -234,7 +235,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourAttorneys") {
 		donorDetails.Attorneys.Attorneys = []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])}
-		donorDetails.AttorneyDecisions.How = donordata.JointlyAndSeverally
+		donorDetails.AttorneyDecisions.How = lpadata.JointlyAndSeverally
 
 		switch data.Attorneys {
 		case "without-address":
@@ -249,9 +250,9 @@ func updateLPAProgress(
 			donorDetails.Attorneys.Attorneys = donorDetails.Attorneys.Attorneys[:1]
 			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{}
 		case "jointly":
-			donorDetails.AttorneyDecisions.How = donordata.Jointly
+			donorDetails.AttorneyDecisions.How = lpadata.Jointly
 		case "jointly-for-some-severally-for-others":
-			donorDetails.AttorneyDecisions.How = donordata.JointlyForSomeSeverallyForOthers
+			donorDetails.AttorneyDecisions.How = lpadata.JointlyForSomeSeverallyForOthers
 			donorDetails.AttorneyDecisions.Details = "do this and that"
 		}
 
@@ -260,7 +261,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseYourReplacementAttorneys") {
 		donorDetails.ReplacementAttorneys.Attorneys = []donordata.Attorney{makeAttorney(replacementAttorneyNames[0]), makeAttorney(replacementAttorneyNames[1])}
-		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct
+		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct
 
 		switch data.ReplacementAttorneys {
 		case "without-address":
@@ -273,18 +274,18 @@ func updateLPAProgress(
 			donorDetails.ReplacementAttorneys.TrustCorporation = makeTrustCorporation("First Choice Trust Corporation Ltd.")
 		case "single":
 			donorDetails.ReplacementAttorneys.Attorneys = donorDetails.ReplacementAttorneys.Attorneys[:1]
-			donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepIn(0)
+			donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepIn(0)
 		}
 
 		donorDetails.Tasks.ChooseReplacementAttorneys = task.StateCompleted
 	}
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
-		if donorDetails.Type == donordata.LpaTypePersonalWelfare {
-			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
+		if donorDetails.Type == lpadata.LpaTypePersonalWelfare {
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 			donorDetails.Tasks.LifeSustainingTreatment = task.StateCompleted
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 			donorDetails.Tasks.WhenCanTheLpaBeUsed = task.StateCompleted
 		}
 	}
@@ -297,7 +298,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if data.CertificateProvider == "paper" {
-			donorDetails.CertificateProvider.CarryOutBy = donordata.ChannelPaper
+			donorDetails.CertificateProvider.CarryOutBy = lpadata.ChannelPaper
 		}
 
 		if data.CertificateProviderEmail != "" {

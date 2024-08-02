@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -83,12 +84,12 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
 			updatedDonor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 				Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseReplacementAttorneysSummary,
@@ -97,7 +98,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:                        "lpa-id",
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
 			updatedDonor: &donordata.Provided{
 				LpaID:                "lpa-id",

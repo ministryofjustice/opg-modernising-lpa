@@ -1,3 +1,4 @@
+// Package random provides common generators of random data.
 package random
 
 import (

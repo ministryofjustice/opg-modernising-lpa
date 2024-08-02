@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -33,11 +34,11 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 		}
 
 		switch donor.AttorneyDecisions.How {
-		case donordata.Jointly:
+		case lpadata.Jointly:
 			data.HowWorkTogether = "jointlyDescription"
-		case donordata.JointlyAndSeverally:
+		case lpadata.JointlyAndSeverally:
 			data.HowWorkTogether = "jointlyAndSeverallyDescription"
-		case donordata.JointlyForSomeSeverallyForOthers:
+		case lpadata.JointlyForSomeSeverallyForOthers:
 			data.HowWorkTogether = "jointlyForSomeSeverallyForOthersDescription"
 		}
 

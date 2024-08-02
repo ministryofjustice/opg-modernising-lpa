@@ -1,3 +1,4 @@
+// Package templatefn provides functions for use in templates.
 package templatefn
 
 import (

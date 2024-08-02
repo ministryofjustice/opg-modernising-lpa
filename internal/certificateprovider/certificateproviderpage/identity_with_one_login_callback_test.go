@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -96,7 +96,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 			LpaUID:              "lpa-uid",
 			CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"},
 			Donor:               lpastore.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                donordata.LpaTypePersonalWelfare,
+			Type:                lpadata.LpaTypePersonalWelfare,
 			SignedAt:            time.Now(),
 		}, nil)
 
@@ -165,7 +165,7 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 			LpaUID:              "lpa-uid",
 			CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"},
 			Donor:               lpastore.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                donordata.LpaTypePersonalWelfare,
+			Type:                lpadata.LpaTypePersonalWelfare,
 			SignedAt:            time.Now(),
 		}, nil)
 

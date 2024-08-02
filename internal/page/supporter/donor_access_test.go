@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -120,12 +121,12 @@ func TestPostDonorAccess(t *testing.T) {
 	donorStore.EXPECT().
 		Get(r.Context()).
 		Return(&donordata.Provided{
-			Type:  donordata.LpaTypePropertyAndAffairs,
+			Type:  lpadata.LpaTypePropertyAndAffairs,
 			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
 		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			Type:  donordata.LpaTypePropertyAndAffairs,
+			Type:  lpadata.LpaTypePropertyAndAffairs,
 			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
 		}).
 		Return(nil)
@@ -157,7 +158,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
-		T(donordata.LpaTypePropertyAndAffairs.String()).
+		T(lpadata.LpaTypePropertyAndAffairs.String()).
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 

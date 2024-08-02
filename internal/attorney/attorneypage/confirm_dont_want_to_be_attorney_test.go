@@ -10,8 +10,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +100,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 					{FirstNames: "d e", LastName: "f", UID: uid},
 				},
 			},
-			Type: donordata.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	certificateProviderStore := newMockAttorneyStore(t)
@@ -151,7 +151,7 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 			Donor: lpastore.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Type: donordata.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com")(testAppData, w, r, &attorneydata.Provided{

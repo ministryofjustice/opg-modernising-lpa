@@ -3,39 +3,40 @@ package donordata
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMakeAttorneyDecisions(t *testing.T) {
 	testcases := map[string]struct {
 		existing AttorneyDecisions
-		how      AttorneysAct
+		how      lpadata.AttorneysAct
 		details  string
 		expected AttorneyDecisions
 	}{
 		"without details": {
 			existing: AttorneyDecisions{},
-			how:      Jointly,
+			how:      lpadata.Jointly,
 			details:  "hey",
-			expected: AttorneyDecisions{How: Jointly},
+			expected: AttorneyDecisions{How: lpadata.Jointly},
 		},
 		"with details": {
 			existing: AttorneyDecisions{},
-			how:      JointlyForSomeSeverallyForOthers,
+			how:      lpadata.JointlyForSomeSeverallyForOthers,
 			details:  "hey",
-			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey"},
+			expected: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "hey"},
 		},
 		"same how without details": {
-			existing: AttorneyDecisions{How: Jointly},
-			how:      Jointly,
+			existing: AttorneyDecisions{How: lpadata.Jointly},
+			how:      lpadata.Jointly,
 			details:  "hey",
-			expected: AttorneyDecisions{How: Jointly},
+			expected: AttorneyDecisions{How: lpadata.Jointly},
 		},
 		"same how with details": {
-			existing: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "what"},
-			how:      JointlyForSomeSeverallyForOthers,
+			existing: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "what"},
+			how:      lpadata.JointlyForSomeSeverallyForOthers,
 			details:  "hey",
-			expected: AttorneyDecisions{How: JointlyForSomeSeverallyForOthers, Details: "hey"},
+			expected: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "hey"},
 		},
 	}
 
@@ -52,7 +53,7 @@ func TestAttorneyDecisionsIsComplete(t *testing.T) {
 		expected  bool
 	}{
 		"how set": {
-			decisions: AttorneyDecisions{How: Jointly},
+			decisions: AttorneyDecisions{How: lpadata.Jointly},
 			expected:  true,
 		},
 		"missing how": {

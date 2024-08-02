@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -152,9 +153,9 @@ func makeCertificateProvider() donordata.CertificateProvider {
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       donordata.Personally,
+		Relationship:       lpadata.Personally,
 		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
-		CarryOutBy:         donordata.ChannelOnline,
+		CarryOutBy:         lpadata.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",

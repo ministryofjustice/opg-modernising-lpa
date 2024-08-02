@@ -1,3 +1,5 @@
+// Package localize provides functionality for English and Welsh language
+// content.
 package localize
 
 import (

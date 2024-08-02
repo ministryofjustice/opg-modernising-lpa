@@ -1,3 +1,4 @@
+// Package s3 provides a client for AWS S3.
 package s3
 
 import (

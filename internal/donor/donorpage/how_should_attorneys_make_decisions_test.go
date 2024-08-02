@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,7 +26,7 @@ func TestGetHowShouldAttorneysMakeDecisions(t *testing.T) {
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
 			Donor:   &donordata.Provided{},
-			Options: donordata.AttorneysActValues,
+			Options: lpadata.AttorneysActValues,
 		}).
 		Return(nil)
 
@@ -45,15 +46,15 @@ func TestGetHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		Execute(w, &howShouldAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    donordata.Jointly,
+				DecisionsType:    lpadata.Jointly,
 				DecisionsDetails: "some decisions",
 			},
-			Donor:   &donordata.Provided{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}},
-			Options: donordata.AttorneysActValues,
+			Donor:   &donordata.Provided{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: lpadata.Jointly}},
+			Options: lpadata.AttorneysActValues,
 		}).
 		Return(nil)
 
-	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}})
+	err := HowShouldAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{AttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: lpadata.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -78,7 +79,7 @@ func TestGetHowShouldAttorneysMakeDecisionsWhenTemplateErrors(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {donordata.JointlyAndSeverally.String()},
+		"decision-type": {lpadata.JointlyAndSeverally.String()},
 		"mixed-details": {""},
 	}
 
@@ -93,7 +94,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:             "lpa-id",
 			Attorneys:         attorneys,
-			AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			Tasks:             donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
@@ -110,29 +111,29 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingType    donordata.AttorneysAct
+		existingType    lpadata.AttorneysAct
 		existingDetails string
-		updatedType     donordata.AttorneysAct
+		updatedType     lpadata.AttorneysAct
 		updatedDetails  string
 		formType        string
 		formDetails     string
 		redirect        page.LpaPath
 	}{
 		"existing details not set": {
-			existingType:    donordata.JointlyAndSeverally,
+			existingType:    lpadata.JointlyAndSeverally,
 			existingDetails: "",
-			updatedType:     donordata.JointlyForSomeSeverallyForOthers,
+			updatedType:     lpadata.JointlyForSomeSeverallyForOthers,
 			updatedDetails:  "some details",
-			formType:        donordata.JointlyForSomeSeverallyForOthers.String(),
+			formType:        lpadata.JointlyForSomeSeverallyForOthers.String(),
 			formDetails:     "some details",
 			redirect:        page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers,
 		},
 		"existing details set": {
-			existingType:    donordata.JointlyForSomeSeverallyForOthers,
+			existingType:    lpadata.JointlyForSomeSeverallyForOthers,
 			existingDetails: "some details",
-			updatedType:     donordata.Jointly,
+			updatedType:     lpadata.Jointly,
 			updatedDetails:  "",
-			formType:        donordata.Jointly.String(),
+			formType:        lpadata.Jointly.String(),
 			formDetails:     "some details",
 			redirect:        page.Paths.BecauseYouHaveChosenJointly,
 		},
@@ -200,7 +201,7 @@ func TestPostHowShouldAttorneysMakeDecisionsWhenValidationErrors(t *testing.T) {
 
 func TestPostHowShouldAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {donordata.JointlyAndSeverally.String()},
+		"decision-type": {lpadata.JointlyAndSeverally.String()},
 		"mixed-details": {""},
 	}
 
@@ -234,7 +235,7 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 		},
 		"valid with detail": {
 			form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    donordata.JointlyForSomeSeverallyForOthers,
+				DecisionsType:    lpadata.JointlyForSomeSeverallyForOthers,
 				DecisionsDetails: "some details",
 				errorLabel:       "xyz",
 			},
@@ -248,7 +249,7 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 		},
 		"missing decision detail when jointly for some severally for others": {
 			form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:     donordata.JointlyForSomeSeverallyForOthers,
+				DecisionsType:     lpadata.JointlyForSomeSeverallyForOthers,
 				detailsErrorLabel: "xyz",
 			},
 			errors: validation.With("mixed-details", validation.EnterError{Label: "xyz"}),
