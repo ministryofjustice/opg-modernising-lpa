@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
@@ -14,21 +15,21 @@ import (
 )
 
 type lpaTypeData struct {
-	App         page.AppData
+	App         appcontext.Data
 	Errors      validation.List
 	Form        *lpaTypeForm
-	Options     donordata.LpaTypeOptions
+	Options     lpadata.LpaTypeOptions
 	CanTaskList bool
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{
 				LpaType: donor.Type,
 			},
-			Options:     donordata.LpaTypeValues,
+			Options:     lpadata.LpaTypeValues,
 			CanTaskList: !donor.Type.Empty(),
 		}
 
@@ -37,7 +38,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			data.Errors = data.Form.Validate(donor.Attorneys.TrustCorporation.Name != "" || donor.ReplacementAttorneys.TrustCorporation.Name != "")
 
 			if data.Errors.None() {
-				session, err := appcontext.SessionDataFromContext(r.Context())
+				session, err := appcontext.SessionFromContext(r.Context())
 				if err != nil {
 					return err
 				}
@@ -81,7 +82,7 @@ type lpaTypeForm struct {
 }
 
 func readLpaTypeForm(r *http.Request) *lpaTypeForm {
-	lpaType, err := donordata.ParseLpaType(page.PostFormString(r, "lpa-type"))
+	lpaType, err := lpadata.ParseLpaType(page.PostFormString(r, "lpa-type"))
 
 	return &lpaTypeForm{
 		LpaType: lpaType,

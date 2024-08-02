@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type signYourLpaData struct {
-	App                  page.AppData
+	App                  appcontext.Data
 	Errors               validation.List
 	Donor                *donordata.Provided
 	Form                 *signYourLpaForm
@@ -25,7 +26,7 @@ const (
 )
 
 func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if !donor.SignedAt.IsZero() {
 			return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, donor)
 		}

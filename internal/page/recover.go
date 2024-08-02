@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -17,7 +18,7 @@ func Recover(tmpl template.Template, logger Logger, bundle Bundle, next http.Han
 				logger.ErrorContext(r.Context(), "recover error", slog.Any("req", r), slog.Any("err", err), slog.String("stack", string(debug.Stack())))
 				w.WriteHeader(http.StatusInternalServerError)
 
-				appData := AppData{CookieConsentSet: true}
+				appData := appcontext.Data{CookieConsentSet: true}
 				if strings.HasPrefix(r.URL.Path, "/cy/") {
 					appData.Lang = localize.Cy
 				} else {

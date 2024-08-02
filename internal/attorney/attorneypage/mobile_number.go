@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,7 +13,7 @@ import (
 )
 
 type mobileNumberData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Donor  *lpastore.Lpa
 	Form   *mobileNumberForm
 	Errors validation.List
@@ -23,7 +24,7 @@ type mobileNumberForm struct {
 }
 
 func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		data := &mobileNumberData{
 			App: appData,
 			Form: &mobileNumberForm{

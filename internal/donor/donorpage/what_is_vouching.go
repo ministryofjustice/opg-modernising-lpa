@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -11,13 +12,13 @@ import (
 )
 
 type whatIsVouchingData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
 }
 
 func WhatIsVouching(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &whatIsVouchingData{
 			App:  appData,
 			Form: form.NewYesNoForm(donor.WantVoucher),

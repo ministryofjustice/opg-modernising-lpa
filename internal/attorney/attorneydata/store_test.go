@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -29,7 +29,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 			now := time.Now()
 			uid := actoruid.New()
 			details := &Provided{
@@ -56,11 +56,11 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			expectedTransaction := &dynamo.Transaction{
 				Creates: []any{
 					details,
-					temporary.LpaLink{
+					actor.LpaLink{
 						PK:        dynamo.LpaKey("123"),
 						SK:        dynamo.SubKey("456"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
-						ActorType: temporary.ActorTypeAttorney,
+						ActorType: actor.TypeAttorney,
 						UpdatedAt: now,
 					},
 				},
@@ -95,15 +95,15 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
-func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
-	testcases := map[string]*appcontext.SessionData{
+func TestAttorneyStoreCreateWhenSessionMissingRequiredData(t *testing.T) {
+	testcases := map[string]*appcontext.Session{
 		"LpaID":     {SessionID: "456"},
 		"SessionID": {LpaID: "123"},
 	}
 
 	for name, sessionData := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(context.Background(), sessionData)
+			ctx := appcontext.ContextWithSession(context.Background(), sessionData)
 
 			attorneyStore := &Store{}
 
@@ -114,7 +114,7 @@ func TestAttorneyStoreCreateWhenSessionDataMissing(t *testing.T) {
 }
 
 func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 	now := time.Now()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -132,7 +132,7 @@ func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 }
 
 func TestAttorneyStoreGet(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -155,8 +155,8 @@ func TestAttorneyStoreGetWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
-func TestAttorneyStoreGetMissingLpaIDInSessionData(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "456"})
+func TestAttorneyStoreGetMissingLpaIDInSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "456"})
 
 	attorneyStore := &Store{}
 
@@ -164,8 +164,8 @@ func TestAttorneyStoreGetMissingLpaIDInSessionData(t *testing.T) {
 	assert.Equal(t, errors.New("attorneyStore.Get requires LpaID and SessionID"), err)
 }
 
-func TestAttorneyStoreGetMissingSessionIDInSessionData(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
+func TestAttorneyStoreGetMissingSessionIDInSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
 
 	attorneyStore := &Store{}
 
@@ -174,7 +174,7 @@ func TestAttorneyStoreGetMissingSessionIDInSessionData(t *testing.T) {
 }
 
 func TestAttorneyStoreGetOnError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -224,7 +224,7 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 }
 
 func TestAttorneyStoreDelete(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -237,7 +237,7 @@ func TestAttorneyStoreDelete(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestAttorneyStoreDeleteWhenSessionDataErrors(t *testing.T) {
+func TestAttorneyStoreDeleteWhenSessionErrors(t *testing.T) {
 	attorneyStore := &Store{}
 
 	err := attorneyStore.Delete(ctx)
@@ -259,7 +259,7 @@ func TestAttorneyStoreDeleteWhenMissingSessionValues(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: tc.lpaID, SessionID: tc.sessionID})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: tc.lpaID, SessionID: tc.sessionID})
 
 			attorneyStore := &Store{}
 
@@ -270,7 +270,7 @@ func TestAttorneyStoreDeleteWhenMissingSessionValues(t *testing.T) {
 }
 
 func TestAttorneyStoreDeleteWhenDynamoClientError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().

@@ -17,19 +17,19 @@ import (
 )
 
 type confirmDontWantToBeCertificateProviderDataLoggedOut struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Lpa    *lpastore.Lpa
 }
 
 func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
 			return err
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: session.LpaID})
+		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: session.LpaID})
 
 		lpa, err := lpaStoreResolvingService.Get(ctx)
 		if err != nil {

@@ -1,19 +1,10 @@
 package donordata
 
-//go:generate enumerator -type LpaType -linecomment -trimprefix -empty
-type LpaType uint8
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
+type LpaType = lpadata.LpaType
 
 const (
-	LpaTypePersonalWelfare    LpaType = iota + 1 // personal-welfare
-	LpaTypePropertyAndAffairs                    // property-and-affairs
+	LpaTypePersonalWelfare    = lpadata.LpaTypePersonalWelfare
+	LpaTypePropertyAndAffairs = lpadata.LpaTypePropertyAndAffairs
 )
-
-func (e LpaType) WhatLPACoversTransKey() string {
-	switch e {
-	case LpaTypePropertyAndAffairs:
-		return "whatPropertyAndAffairsCovers"
-	case LpaTypePersonalWelfare:
-		return "whatPersonalWelfareCovers"
-	}
-	return ""
-}

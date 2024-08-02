@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -65,7 +66,7 @@ func TestLoginCallback(t *testing.T) {
 			logger.EXPECT().
 				InfoContext(r.Context(), "login", slog.String("session_id", session.SessionID()))
 
-			err := LoginCallback(logger, client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney)(AppData{}, w, r)
+			err := LoginCallback(logger, client, sessionStore, Paths.Attorney.EnterReferenceNumber, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
 			assert.Nil(t, err)
 			resp := w.Result()
 
@@ -83,7 +84,7 @@ func TestLoginCallbackWhenErrorReturned(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "login error", slog.String("error", "hey"), slog.String("error_description", "this is why"))
 
-	err := LoginCallback(logger, nil, nil, Paths.Attorney.EnterReferenceNumber, nil, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(logger, nil, nil, Paths.Attorney.EnterReferenceNumber, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, errors.New("access denied"), err)
 }
 
@@ -96,7 +97,7 @@ func TestLoginCallbackSessionError(t *testing.T) {
 		OneLogin(r).
 		Return(nil, expectedError)
 
-	err := LoginCallback(nil, nil, sessionStore, Paths.Attorney.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(nil, nil, sessionStore, Paths.Attorney.LoginCallback, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -114,7 +115,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 		OneLogin(r).
 		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback.Format()}, nil)
 
-	err := LoginCallback(nil, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(nil, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -135,7 +136,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 		OneLogin(r).
 		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: Paths.LoginCallback.Format()}, nil)
 
-	err := LoginCallback(nil, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(nil, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -168,7 +169,7 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(mock.Anything, mock.Anything, mock.Anything)
 
-	err := LoginCallback(logger, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(logger, client, sessionStore, Paths.LoginCallback, nil, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -206,6 +207,6 @@ func TestLoginCallbackWhenDashboardStoreError(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(mock.Anything, mock.Anything, mock.Anything)
 
-	err := LoginCallback(logger, client, sessionStore, Paths.LoginCallback, dashboardStore, actor.TypeAttorney)(AppData{}, w, r)
+	err := LoginCallback(logger, client, sessionStore, Paths.LoginCallback, dashboardStore, actor.TypeAttorney)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }

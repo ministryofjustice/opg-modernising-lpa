@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -18,7 +19,7 @@ import (
 )
 
 type donorAccessData struct {
-	App       page.AppData
+	App       appcontext.Data
 	Errors    validation.List
 	Form      *donorAccessForm
 	Donor     *donordata.Provided
@@ -26,7 +27,7 @@ type donorAccessData struct {
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err

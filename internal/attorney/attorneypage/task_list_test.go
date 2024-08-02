@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -19,7 +20,7 @@ func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
 		lpa      *lpastore.Lpa
 		attorney *attorneydata.Provided
-		appData  page.AppData
+		appData  appcontext.Data
 		expected func([]taskListItem) []taskListItem
 	}{
 		"empty": {

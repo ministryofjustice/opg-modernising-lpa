@@ -89,9 +89,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Create(mock.MatchedBy(func(ctx context.Context) bool {
-			session, _ := appcontext.SessionDataFromContext(ctx)
+			session, _ := appcontext.SessionFromContext(ctx)
 
-			return assert.Equal(t, &appcontext.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+			return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 		}), shareCodeData, "a@b.com").
 		Return(&certificateproviderdata.Provided{}, nil)
 

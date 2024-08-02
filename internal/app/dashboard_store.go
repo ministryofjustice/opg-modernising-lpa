@@ -15,7 +15,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type LpaStoreResolvingService interface {
@@ -23,7 +22,7 @@ type LpaStoreResolvingService interface {
 }
 
 // An lpaLink is used to join an actor to an LPA.
-type lpaLink = temporary.LpaLink
+type lpaLink = actor.LpaLink
 
 type dashboardStore struct {
 	dynamoClient             DynamoClient
@@ -63,7 +62,7 @@ func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, 
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
 	}

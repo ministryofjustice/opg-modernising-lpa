@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -17,7 +18,7 @@ import (
 
 func TestGetMobileNumber(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 	}{
 		"attorney": {
 			appData: testAppData,
@@ -51,7 +52,7 @@ func TestGetMobileNumber(t *testing.T) {
 
 func TestGetMobileNumberFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData  page.AppData
+		appData  appcontext.Data
 		attorney *attorneydata.Provided
 	}{
 		"attorney": {
@@ -107,7 +108,7 @@ func TestPostMobileNumber(t *testing.T) {
 		form            url.Values
 		attorney        *attorneydata.Provided
 		updatedAttorney *attorneydata.Provided
-		appData         page.AppData
+		appData         appcontext.Data
 	}{
 		"attorney": {
 			form: url.Values{

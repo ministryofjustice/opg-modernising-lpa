@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -20,7 +21,7 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		appData          page.AppData
+		appData          appcontext.Data
 		donor            *donordata.Provided
 		evidenceReceived bool
 		expected         func([]taskListSection) []taskListSection
@@ -374,11 +375,11 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"supporter": {
-			appData: page.AppData{
+			appData: appcontext.Data{
 				SessionID:     "session-id",
 				LpaID:         "lpa-id",
 				Lang:          localize.En,
-				SupporterData: &page.SupporterData{},
+				SupporterData: &appcontext.SupporterData{},
 			},
 			donor: &donordata.Provided{
 				LpaID:               "lpa-id",

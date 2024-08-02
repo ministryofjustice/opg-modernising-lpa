@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -11,7 +12,7 @@ import (
 )
 
 type canYouSignYourLpaData struct {
-	App               page.AppData
+	App               appcontext.Data
 	Errors            validation.List
 	Form              *canYouSignYourLpaForm
 	YesNoMaybeOptions donordata.YesNoMaybeOptions
@@ -19,7 +20,7 @@ type canYouSignYourLpaData struct {
 }
 
 func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &canYouSignYourLpaData{
 			App: appData,
 			Form: &canYouSignYourLpaForm{

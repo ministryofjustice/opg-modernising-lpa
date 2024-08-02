@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
@@ -25,7 +26,7 @@ func AuthRedirect(logger Logger, sessionStore SessionStore) http.HandlerFunc {
 			lang = localize.Cy
 		}
 
-		appData := AppData{Lang: lang, LpaID: oneLoginSession.LpaID}
+		appData := appcontext.Data{Lang: lang, LpaID: oneLoginSession.LpaID}
 
 		appData.Redirect(w, r, oneLoginSession.Redirect+"?"+r.URL.RawQuery)
 	}

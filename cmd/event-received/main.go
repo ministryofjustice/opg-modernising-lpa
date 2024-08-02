@@ -17,9 +17,9 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 )
@@ -32,7 +32,7 @@ type factory interface {
 	Now() func() time.Time
 	DynamoClient() dynamodbClient
 	UuidString() func() string
-	AppData() (page.AppData, error)
+	AppData() (appcontext.Data, error)
 	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
 	LpaStoreClient() (LpaStoreClient, error)
 	UidStore() (UidStore, error)

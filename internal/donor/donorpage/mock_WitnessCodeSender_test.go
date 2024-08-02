@@ -49,7 +49,7 @@ type mockWitnessCodeSender_SendToCertificateProvider_Call struct {
 
 // SendToCertificateProvider is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *donordata.DonorProvidedDetails
+//   - _a1 *donordata.Provided
 //   - _a2 page.Localizer
 func (_e *mockWitnessCodeSender_Expecter) SendToCertificateProvider(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockWitnessCodeSender_SendToCertificateProvider_Call {
 	return &mockWitnessCodeSender_SendToCertificateProvider_Call{Call: _e.mock.On("SendToCertificateProvider", _a0, _a1, _a2)}
@@ -97,7 +97,7 @@ type mockWitnessCodeSender_SendToIndependentWitness_Call struct {
 
 // SendToIndependentWitness is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *donordata.DonorProvidedDetails
+//   - _a1 *donordata.Provided
 //   - _a2 page.Localizer
 func (_e *mockWitnessCodeSender_Expecter) SendToIndependentWitness(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockWitnessCodeSender_SendToIndependentWitness_Call {
 	return &mockWitnessCodeSender_SendToIndependentWitness_Call{Call: _e.mock.On("SendToIndependentWitness", _a0, _a1, _a2)}

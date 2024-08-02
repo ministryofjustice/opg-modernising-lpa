@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -22,7 +23,7 @@ type LoginCallbackSessionStore interface {
 }
 
 func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, sessionStore LoginCallbackSessionStore, redirect Path, dashboardStore DashboardStore, actorType actor.Type) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if error := r.FormValue("error"); error != "" {
 			logger.InfoContext(r.Context(), "login error",
 				slog.String("error", error),

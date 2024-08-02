@@ -36,8 +36,8 @@ func TestMakeHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			CanGoBack: false,
 			SessionID: "cmFuZG9t",
@@ -54,8 +54,8 @@ func TestMakeHandle(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+func TestMakeHandleRequireSessionExistingSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
@@ -66,17 +66,17 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession|CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", RequireSession|CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			CanGoBack: true,
 			SessionID: "cmFuZG9t",
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -97,7 +97,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, errorHandler.Execute)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -115,7 +115,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error { return nil })
+	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -130,12 +130,12 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page: "/path",
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(page.ContextWithAppData(r.Context(), page.AppData{Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(appcontext.ContextWithData(r.Context(), appcontext.Data{Page: "/path"})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -146,8 +146,8 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+func TestMakeAttorneyHandleExistingSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
@@ -165,10 +165,10 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
-	handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
+	handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
 		assert.Equal(t, expectedDetails, details)
 
-		assert.Equal(t, page.AppData{
+		assert.Equal(t, appcontext.Data{
 			Page:        "/attorney/lpa-id/path",
 			CanGoBack:   true,
 			SessionID:   "cmFuZG9t",
@@ -178,9 +178,9 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -233,9 +233,9 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 
 			mux := http.NewServeMux()
 			handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
-			handle("/path", CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
+			handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
 				assert.Equal(t, tc.details, details)
-				assert.Equal(t, page.AppData{
+				assert.Equal(t, appcontext.Data{
 					Page:        "/attorney/lpa-id/path",
 					CanGoBack:   true,
 					LpaID:       "lpa-id",
@@ -245,9 +245,9 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 				}, appData)
 				assert.Equal(t, w, hw)
 
-				sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+				sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-				assert.Equal(t, &appcontext.SessionData{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
+				assert.Equal(t, &appcontext.Session{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
 			})
@@ -260,10 +260,10 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 	}
 }
 
-func TestMakeAttorneyHandleExistingSessionDataWhenCannotGoToURL(t *testing.T) {
+func TestMakeAttorneyHandleExistingSessionWhenCannotGoToURL(t *testing.T) {
 	path := page.Paths.Attorney.Sign
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)
@@ -281,7 +281,7 @@ func TestMakeAttorneyHandleExistingSessionDataWhenCannotGoToURL(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, nil, attorneyStore)
-	handle(path, CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
+	handle(path, CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, details *attorneydata.Provided) error {
 		return nil
 	})
 
@@ -312,7 +312,7 @@ func TestMakeAttorneyHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
-	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
+	handle("/path", None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
 		return expectedError
 	})
 
@@ -339,7 +339,7 @@ func TestMakeAttorneyHandleAttorneyStoreErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, errorHandler.Execute, attorneyStore)
-	handle("/path", None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
+	handle("/path", None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
 		return nil
 	})
 
@@ -357,7 +357,7 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeAttorneyHandle(mux, sessionStore, nil, nil)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
+	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *attorneydata.Provided) error {
 		return nil
 	})
 

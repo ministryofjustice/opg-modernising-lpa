@@ -3,7 +3,7 @@ package donordata
 import (
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,16 +32,16 @@ func TestVoucherMatches(t *testing.T) {
 	}
 
 	assert.Nil(t, Voucher{FirstNames: "x", LastName: "y"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeDonor}, Voucher{FirstNames: "a", LastName: "b"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeAttorney}, Voucher{FirstNames: "C", LastName: "D"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeAttorney}, Voucher{FirstNames: "e", LastName: "f"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeReplacementAttorney}, Voucher{FirstNames: "G", LastName: "H"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeReplacementAttorney}, Voucher{FirstNames: "i", LastName: "j"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeCertificateProvider}, Voucher{FirstNames: "k", LastName: "l"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypePersonToNotify}, Voucher{FirstNames: "m", LastName: "n"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypePersonToNotify}, Voucher{FirstNames: "O", LastName: "P"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeAuthorisedSignatory}, Voucher{FirstNames: "a", LastName: "s"}.Matches(donor))
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeIndependentWitness}, Voucher{FirstNames: "i", LastName: "w"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeDonor}, Voucher{FirstNames: "a", LastName: "b"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeAttorney}, Voucher{FirstNames: "C", LastName: "D"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeAttorney}, Voucher{FirstNames: "e", LastName: "f"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeReplacementAttorney}, Voucher{FirstNames: "G", LastName: "H"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeReplacementAttorney}, Voucher{FirstNames: "i", LastName: "j"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeCertificateProvider}, Voucher{FirstNames: "k", LastName: "l"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypePersonToNotify}, Voucher{FirstNames: "m", LastName: "n"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypePersonToNotify}, Voucher{FirstNames: "O", LastName: "P"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeAuthorisedSignatory}, Voucher{FirstNames: "a", LastName: "s"}.Matches(donor))
+	assert.Equal(t, []actor.Type{actor.TypeIndependentWitness}, Voucher{FirstNames: "i", LastName: "w"}.Matches(donor))
 }
 
 func TestVoucherMatchesMultiple(t *testing.T) {
@@ -64,8 +64,8 @@ func TestVoucherMatchesMultiple(t *testing.T) {
 		IndependentWitness:  IndependentWitness{FirstNames: "a", LastName: "b"},
 	}
 
-	assert.Equal(t, []temporary.ActorType{temporary.ActorTypeDonor, temporary.ActorTypeAttorney, temporary.ActorTypeAttorney, temporary.ActorTypeReplacementAttorney, temporary.ActorTypeReplacementAttorney,
-		temporary.ActorTypeCertificateProvider, temporary.ActorTypePersonToNotify, temporary.ActorTypePersonToNotify, temporary.ActorTypeAuthorisedSignatory, temporary.ActorTypeIndependentWitness},
+	assert.Equal(t, []actor.Type{actor.TypeDonor, actor.TypeAttorney, actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeReplacementAttorney,
+		actor.TypeCertificateProvider, actor.TypePersonToNotify, actor.TypePersonToNotify, actor.TypeAuthorisedSignatory, actor.TypeIndependentWitness},
 		Voucher{FirstNames: "a", LastName: "b"}.Matches(donor))
 }
 

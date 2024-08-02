@@ -6,13 +6,13 @@ import (
 	"log/slog"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID actoruid.UID) *chooseAddressData {
+func newChooseAddressData(appData appcontext.Data, actorLabel, fullName string, UID actoruid.UID) *chooseAddressData {
 	return &chooseAddressData{
 		App:        appData,
 		ActorLabel: actorLabel,
@@ -30,7 +30,7 @@ func newChooseAddressData(appData page.AppData, actorLabel, fullName string, UID
 }
 
 type chooseAddressData struct {
-	App              page.AppData
+	App              appcontext.Data
 	Errors           validation.List
 	ActorLabel       string
 	FullName         string

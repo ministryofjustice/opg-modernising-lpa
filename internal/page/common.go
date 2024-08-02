@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -75,7 +76,7 @@ func PostFormReferenceNumber(r *http.Request, name string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(r.PostFormValue(name), " ", ""), "-", "")
 }
 
-type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request) error
 
 type EventClient interface {
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error

@@ -1,4 +1,4 @@
-package page
+package appcontext
 
 import (
 	"context"
@@ -24,7 +24,7 @@ func TestAppDataRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			AppData{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, "/dashboard")
+			Data{Lang: lang, LpaID: "lpa-id"}.Redirect(w, r, "/dashboard")
 			resp := w.Result()
 
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -34,15 +34,15 @@ func TestAppDataRedirect(t *testing.T) {
 }
 
 func TestAppDataContext(t *testing.T) {
-	appData := AppData{LpaID: "me"}
+	appData := Data{LpaID: "me"}
 	ctx := context.Background()
 
-	assert.Equal(t, AppData{}, AppDataFromContext(ctx))
-	assert.Equal(t, appData, AppDataFromContext(ContextWithAppData(ctx, appData)))
+	assert.Equal(t, Data{}, DataFromContext(ctx))
+	assert.Equal(t, appData, DataFromContext(ContextWithData(ctx, appData)))
 }
 
 func TestIsDonor(t *testing.T) {
-	appData := AppData{ActorType: actor.TypeDonor}
+	appData := Data{ActorType: actor.TypeDonor}
 	assert.True(t, appData.IsDonor())
 
 	appData.ActorType = actor.TypeAttorney
@@ -50,7 +50,7 @@ func TestIsDonor(t *testing.T) {
 }
 
 func TestIsCertificateProvider(t *testing.T) {
-	appData := AppData{ActorType: actor.TypeCertificateProvider}
+	appData := Data{ActorType: actor.TypeCertificateProvider}
 	assert.True(t, appData.IsCertificateProvider())
 
 	appData.ActorType = actor.TypeAttorney
@@ -58,7 +58,7 @@ func TestIsCertificateProvider(t *testing.T) {
 }
 
 func TestIsAttorneyType(t *testing.T) {
-	appData := AppData{ActorType: actor.TypeReplacementAttorney}
+	appData := Data{ActorType: actor.TypeReplacementAttorney}
 	assert.True(t, appData.IsAttorneyType())
 
 	appData.ActorType = actor.TypeAttorney
@@ -75,7 +75,7 @@ func TestIsAttorneyType(t *testing.T) {
 }
 
 func TestIsReplacementAttorney(t *testing.T) {
-	appData := AppData{ActorType: actor.TypeReplacementAttorney}
+	appData := Data{ActorType: actor.TypeReplacementAttorney}
 	assert.True(t, appData.IsReplacementAttorney())
 
 	appData.ActorType = actor.TypeAttorney
@@ -83,16 +83,16 @@ func TestIsReplacementAttorney(t *testing.T) {
 }
 
 func TestIsTrustCorporation(t *testing.T) {
-	assert.True(t, AppData{ActorType: actor.TypeTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
-	assert.True(t, AppData{ActorType: actor.TypeReplacementTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.True(t, Data{ActorType: actor.TypeTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.True(t, Data{ActorType: actor.TypeReplacementTrustCorporation, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 
-	assert.False(t, AppData{ActorType: actor.TypeAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
-	assert.False(t, AppData{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.False(t, Data{ActorType: actor.TypeAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
+	assert.False(t, Data{ActorType: actor.TypeReplacementAttorney, AttorneyUID: actoruid.New()}.IsTrustCorporation())
 }
 
 func TestAppDataIsAdmin(t *testing.T) {
-	assert.True(t, AppData{SupporterData: &SupporterData{Permission: actor.PermissionAdmin}}.IsAdmin())
-	assert.False(t, AppData{}.IsAdmin())
+	assert.True(t, Data{SupporterData: &SupporterData{Permission: actor.PermissionAdmin}}.IsAdmin())
+	assert.False(t, Data{}.IsAdmin())
 }
 
 func TestAppDataEncodeQuery(t *testing.T) {
@@ -111,7 +111,7 @@ func TestAppDataEncodeQuery(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expectedQueryString, AppData{Query: tc.query}.EncodeQuery())
+			assert.Equal(t, tc.expectedQueryString, Data{Query: tc.query}.EncodeQuery())
 		})
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 	attorneyProvidedDetails := &attorneydata.Provided{UID: uid}
 
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		donor   *lpastore.Lpa
 		data    *confirmYourDetailsData
 	}{
