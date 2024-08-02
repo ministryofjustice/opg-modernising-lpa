@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,7 +25,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App:     testAppData,
 			Form:    &howShouldAttorneysMakeDecisionsForm{},
-			Options: donordata.AttorneysActValues,
+			Options: lpadata.AttorneysActValues,
 			Donor:   &donordata.Provided{},
 		}).
 		Return(nil)
@@ -45,15 +46,15 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysMakeDecisionsData{
 			App: testAppData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    donordata.Jointly,
+				DecisionsType:    lpadata.Jointly,
 				DecisionsDetails: "some decisions",
 			},
-			Options: donordata.AttorneysActValues,
-			Donor:   &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}},
+			Options: lpadata.AttorneysActValues,
+			Donor:   &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: lpadata.Jointly}},
 		}).
 		Return(nil)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: donordata.Jointly}})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "some decisions", How: lpadata.Jointly}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -78,7 +79,7 @@ func TestGetHowShouldReplacementAttorneysMakeDecisionsWhenTemplateErrors(t *test
 
 func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 	form := url.Values{
-		"decision-type": {donordata.Jointly.String()},
+		"decision-type": {lpadata.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -88,7 +89,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly}}).
+		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly}}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -112,23 +113,23 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 	}{
 		"existing details not set": {
 			form: url.Values{
-				"decision-type": {donordata.JointlyForSomeSeverallyForOthers.String()},
+				"decision-type": {lpadata.JointlyForSomeSeverallyForOthers.String()},
 				"mixed-details": {"some details"},
 			},
-			existing:  donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally},
+			existing:  donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
-			updated:   donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			updated:   donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			taskState: task.StateCompleted,
 			redirect:  page.Paths.TaskList,
 		},
 		"existing details set": {
 			form: url.Values{
-				"decision-type": {donordata.Jointly.String()},
+				"decision-type": {lpadata.Jointly.String()},
 				"mixed-details": {"some details"},
 			},
-			existing:  donordata.AttorneyDecisions{How: donordata.JointlyForSomeSeverallyForOthers, Details: "some details"},
+			existing:  donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
-			updated:   donordata.AttorneyDecisions{How: donordata.Jointly},
+			updated:   donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState: task.StateCompleted,
 			redirect:  page.Paths.TaskList,
 		},
@@ -168,7 +169,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"decision-type": {donordata.Jointly.String()},
+		"decision-type": {lpadata.Jointly.String()},
 		"mixed-details": {"some decisions"},
 	}
 
@@ -213,7 +214,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsWhenValidationErrors(t *t
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testing.T) {
 	form := url.Values{
-		"decision-type": {donordata.Jointly.String()},
+		"decision-type": {lpadata.Jointly.String()},
 		"mixed-details": {""},
 	}
 
@@ -223,7 +224,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "", How: donordata.Jointly}}).
+		Put(r.Context(), &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "", How: lpadata.Jointly}}).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

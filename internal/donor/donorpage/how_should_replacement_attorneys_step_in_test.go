@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -96,8 +97,8 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 	testCases := map[string]struct {
 		Attorneys                            donordata.Attorneys
 		ReplacementAttorneys                 donordata.Attorneys
-		HowAttorneysMakeDecisions            donordata.AttorneysAct
-		HowReplacementAttorneysMakeDecisions donordata.AttorneysAct
+		HowAttorneysMakeDecisions            lpadata.AttorneysAct
+		HowReplacementAttorneysMakeDecisions lpadata.AttorneysAct
 		HowShouldReplacementAttorneysStepIn  donordata.ReplacementAttorneysStepIn
 		ExpectedRedirectUrl                  page.LpaPath
 		TaskState                            task.State
@@ -111,7 +112,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           task.StateInProgress,
@@ -121,9 +122,9 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:            donordata.Jointly,
+			HowAttorneysMakeDecisions:            lpadata.Jointly,
 			HowShouldReplacementAttorneysStepIn:  donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
-			HowReplacementAttorneysMakeDecisions: donordata.Jointly,
+			HowReplacementAttorneysMakeDecisions: lpadata.Jointly,
 			ExpectedRedirectUrl:                  page.Paths.TaskList,
 			TaskState:                            task.StateInProgress,
 		},
@@ -132,7 +133,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           task.StateNotStarted,
@@ -146,7 +147,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 				{UID: actoruid.New()},
 			}},
-			HowAttorneysMakeDecisions:           donordata.JointlyAndSeverally,
+			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           task.StateInProgress,

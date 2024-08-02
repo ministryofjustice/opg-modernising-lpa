@@ -24,16 +24,16 @@ type abstractError struct {
 }
 
 type lpaRequest struct {
-	LpaType                                     donordata.LpaType                    `json:"lpaType"`
+	LpaType                                     lpadata.LpaType                      `json:"lpaType"`
 	Channel                                     lpadata.Channel                      `json:"channel"`
 	Donor                                       lpaRequestDonor                      `json:"donor"`
 	Attorneys                                   []lpaRequestAttorney                 `json:"attorneys"`
 	TrustCorporations                           []lpaRequestTrustCorporation         `json:"trustCorporations,omitempty"`
 	CertificateProvider                         lpaRequestCertificateProvider        `json:"certificateProvider"`
 	PeopleToNotify                              []lpaRequestPersonToNotify           `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   donordata.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisions                   lpadata.AttorneysAct                 `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                               `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisions        lpadata.AttorneysAct                 `json:"howReplacementAttorneysMakeDecisions,omitempty"`
 	HowReplacementAttorneysMakeDecisionsDetails string                               `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysStepIn               donordata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                               `json:"howReplacementAttorneysStepInDetails,omitempty"`
@@ -366,9 +366,9 @@ type lpaResponse struct {
 	TrustCorporations                           []lpaResponseTrustCorporation        `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider                  `json:"certificateProvider"`
 	PeopleToNotify                              []lpaRequestPersonToNotify           `json:"peopleToNotify,omitempty"`
-	HowAttorneysMakeDecisions                   donordata.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisions                   lpadata.AttorneysAct                 `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                               `json:"howAttorneysMakeDecisionsDetails,omitempty"`
-	HowReplacementAttorneysMakeDecisions        donordata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisions        lpadata.AttorneysAct                 `json:"howReplacementAttorneysMakeDecisions,omitempty"`
 	HowReplacementAttorneysMakeDecisionsDetails string                               `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysStepIn               donordata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn,omitempty"`
 	HowReplacementAttorneysStepInDetails        string                               `json:"howReplacementAttorneysStepInDetails,omitempty"`

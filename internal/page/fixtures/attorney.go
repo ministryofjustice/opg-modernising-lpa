@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -209,8 +210,8 @@ func Attorney(
 			attorneyUID = donorDetails.Attorneys.Attorneys[0].UID
 		}
 
-		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
-		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
 		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
