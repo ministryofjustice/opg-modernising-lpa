@@ -152,11 +152,11 @@ func Attorney(
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = donordata.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 		} else {
 			donorDetails.Type = donordata.LpaTypePropertyAndAffairs
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {

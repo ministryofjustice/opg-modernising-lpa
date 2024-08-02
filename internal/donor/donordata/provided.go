@@ -69,7 +69,7 @@ type Provided struct {
 	// Whether the applicant wants to add replacement attorneys
 	WantReplacementAttorneys form.YesNo
 	// When the LPA can be used
-	WhenCanTheLpaBeUsed CanBeUsedWhen
+	WhenCanTheLpaBeUsed lpadata.CanBeUsedWhen
 	// Preferences on life sustaining treatment (applicable to personal welfare LPAs only)
 	LifeSustainingTreatmentOption LifeSustainingTreatment
 	// Restrictions on attorneys actions

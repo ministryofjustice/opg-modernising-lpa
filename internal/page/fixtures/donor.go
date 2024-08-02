@@ -190,7 +190,7 @@ func updateLPAProgress(
 
 		if data.LpaType == "personal-welfare" {
 			donorDetails.Type = donordata.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 		}
 
 		if data.UseRealID {
@@ -285,7 +285,7 @@ func updateLPAProgress(
 			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
 			donorDetails.Tasks.LifeSustainingTreatment = task.StateCompleted
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 			donorDetails.Tasks.WhenCanTheLpaBeUsed = task.StateCompleted
 		}
 	}
