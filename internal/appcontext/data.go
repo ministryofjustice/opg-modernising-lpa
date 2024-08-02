@@ -1,3 +1,5 @@
+// Package appcontext provides functionality to pass data in contexts through
+// the lifetime of a web request.
 package appcontext
 
 import (

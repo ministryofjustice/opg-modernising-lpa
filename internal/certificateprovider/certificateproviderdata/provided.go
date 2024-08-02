@@ -1,3 +1,5 @@
+// Package certificateproviderdata provides types that describe the data entered
+// by a certificate provider.
 package certificateproviderdata
 
 import (

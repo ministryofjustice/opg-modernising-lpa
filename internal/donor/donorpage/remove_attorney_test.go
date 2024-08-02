@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -86,12 +87,12 @@ func TestPostRemoveAttorney(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
 			updatedDonor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
@@ -100,7 +101,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
 			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",

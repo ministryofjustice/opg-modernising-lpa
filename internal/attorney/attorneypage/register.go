@@ -1,3 +1,5 @@
+// Package attorneypage provides the pages that an attorney or trust corporation
+// interacts with.
 package attorneypage
 
 import (

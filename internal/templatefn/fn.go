@@ -1,3 +1,4 @@
+// Package templatefn provides functions for use in templates.
 package templatefn
 
 import (
@@ -396,8 +397,8 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 	return data
 }
 
-func listPeopleToNotify(app appcontext.Data, peopleToNotify donordata.PeopleToNotify, headingLevel int, canChange bool) map[string]interface{} {
-	return map[string]interface{}{
+func listPeopleToNotify(app appcontext.Data, peopleToNotify any, headingLevel int, canChange bool) map[string]interface{} {
+	return map[string]any{
 		"App":            app,
 		"HeadingLevel":   headingLevel,
 		"PeopleToNotify": peopleToNotify,

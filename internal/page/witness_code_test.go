@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -50,7 +51,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 					Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 					CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
 					CertificateProviderCodes: donordata.WitnessCodes{{Code: tc.expectedWitnessCode, Created: now}},
-					Type:                     donordata.LpaTypePropertyAndAffairs,
+					Type:                     lpadata.LpaTypePropertyAndAffairs,
 				}).
 				Return(nil)
 
@@ -72,7 +73,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 				LpaUID:              "lpa-uid",
 				Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 				CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
-				Type:                donordata.LpaTypePropertyAndAffairs,
+				Type:                lpadata.LpaTypePropertyAndAffairs,
 			}, localizer)
 
 			assert.Nil(t, err)
@@ -120,7 +121,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *tes
 	err := sender.SendToCertificateProvider(context.Background(), &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                donordata.LpaTypePropertyAndAffairs,
+		Type:                lpadata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -140,7 +141,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenDonorStoreErrors(t *testi
 	err := sender.SendToCertificateProvider(context.Background(), &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{Mobile: "0777"},
 		Donor:               donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:                donordata.LpaTypePropertyAndAffairs,
+		Type:                lpadata.LpaTypePropertyAndAffairs,
 	}, nil)
 
 	assert.Equal(t, expectedError, err)
@@ -166,7 +167,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 			Donor:                   donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 			IndependentWitness:      donordata.IndependentWitness{Mobile: "0777"},
 			IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                    donordata.LpaTypePropertyAndAffairs,
+			Type:                    lpadata.LpaTypePropertyAndAffairs,
 		}).
 		Return(nil)
 
@@ -188,7 +189,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 		LpaUID:             "lpa-uid",
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
-		Type:               donordata.LpaTypePropertyAndAffairs,
+		Type:               lpadata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Nil(t, err)
@@ -234,7 +235,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *test
 	err := sender.SendToIndependentWitness(context.Background(), &donordata.Provided{
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               donordata.LpaTypePropertyAndAffairs,
+		Type:               lpadata.LpaTypePropertyAndAffairs,
 	}, localizer)
 
 	assert.Equal(t, expectedError, err)
@@ -254,7 +255,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenDonorStoreErrors(t *testin
 	err := sender.SendToIndependentWitness(context.Background(), &donordata.Provided{
 		IndependentWitness: donordata.IndependentWitness{Mobile: "0777"},
 		Donor:              donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-		Type:               donordata.LpaTypePropertyAndAffairs,
+		Type:               lpadata.LpaTypePropertyAndAffairs,
 	}, nil)
 
 	assert.Equal(t, expectedError, err)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -92,7 +93,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			Attorneys:           donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
-			AttorneyDecisions:   donordata.AttorneyDecisions{How: donordata.Jointly},
+			AttorneyDecisions:   donordata.AttorneyDecisions{How: lpadata.Jointly},
 			CertificateProvider: donordata.CertificateProvider{RelationshipLength: donordata.GreaterThanEqualToTwoYears},
 			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 		}).
@@ -101,7 +102,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 	err := HowLongHaveYouKnownCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:             "lpa-id",
 		Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
-		AttorneyDecisions: donordata.AttorneyDecisions{How: donordata.Jointly},
+		AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 		Tasks:             donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
