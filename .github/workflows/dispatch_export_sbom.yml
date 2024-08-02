@@ -55,4 +55,5 @@ jobs:
       - name: SBOM upload
         uses: advanced-security/spdx-dependency-submission-action@v0.1.1
         with:
-          filePath: "${{ github.workspace }}/scripts/sbom_exporter/exports"
+          filePath: "${{ github.workspace }}/scripts/sbom_exporter/exports/modernsing-lpa/${{ inputs.image_tag }}/"
+          filePaterns: "*SPDX_2_3.json"
