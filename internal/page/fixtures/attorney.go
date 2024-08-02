@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -150,12 +151,12 @@ func Attorney(
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donorDetails.Type = donordata.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
+			donorDetails.Type = lpadata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.Type = donordata.LpaTypePropertyAndAffairs
-			donorDetails.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenHasCapacity
+			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -209,9 +210,9 @@ func Attorney(
 			attorneyUID = donorDetails.Attorneys.Attorneys[0].UID
 		}
 
-		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
-		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: donordata.JointlyAndSeverally}
-		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {

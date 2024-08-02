@@ -1,4 +1,4 @@
-package donordata
+package lpadata
 
 //go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix
 type CanBeUsedWhen uint8

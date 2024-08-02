@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -116,7 +117,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type: donordata.LpaTypePersonalWelfare,
+				Type: lpadata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -146,7 +147,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type:           donordata.LpaTypePersonalWelfare,
+				Type:           lpadata.LpaTypePersonalWelfare,
 				CannotRegister: true,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
@@ -183,7 +184,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							UID:        uid,
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: donordata.LpaTypePersonalWelfare,
+						Type: lpadata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), &donordata.Provided{
@@ -196,7 +197,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CheckYourLpa:        task.StateNotStarted,
 						},
 						CertificateProvider: donordata.CertificateProvider{},
-						Type:                donordata.LpaTypePersonalWelfare,
+						Type:                lpadata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 
