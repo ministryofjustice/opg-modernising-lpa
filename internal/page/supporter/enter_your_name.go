@@ -4,18 +4,19 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type enterYourNameData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *enterYourNameForm
 }
 
 func EnterYourName(tmpl template.Template, memberStore MemberStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := &enterYourNameData{
 			App:  appData,
 			Form: &enterYourNameForm{},

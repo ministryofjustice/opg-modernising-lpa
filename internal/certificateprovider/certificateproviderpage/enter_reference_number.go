@@ -13,13 +13,13 @@ import (
 )
 
 type enterReferenceNumberData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *enterReferenceNumberForm
 }
 
 func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore, sessionStore SessionStore, certificateProviderStore CertificateProviderStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		data := enterReferenceNumberData{
 			App:  appData,
 			Form: &enterReferenceNumberForm{},
@@ -47,7 +47,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{
+				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
 					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaKey.ID(),
 				})

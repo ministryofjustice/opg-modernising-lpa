@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -239,8 +239,8 @@ func TestUnder18ActorDetails(t *testing.T) {
 	actors := donor.Under18ActorDetails()
 
 	assert.Equal(t, []Under18ActorDetails{
-		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: temporary.ActorTypeAttorney},
-		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: temporary.ActorTypeReplacementAttorney},
+		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: actor.TypeAttorney},
+		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: actor.TypeReplacementAttorney},
 	}, actors)
 }
 

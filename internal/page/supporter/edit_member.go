@@ -7,12 +7,13 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type editMemberData struct {
-	App        page.AppData
+	App        appcontext.Data
 	Errors     validation.List
 	Form       *editMemberForm
 	Member     *actor.Member
@@ -20,7 +21,7 @@ type editMemberData struct {
 }
 
 func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		memberID := r.FormValue("id")
 		isLoggedInMember := member.ID == memberID
 		if !isLoggedInMember {

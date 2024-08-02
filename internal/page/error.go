@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type errorData struct {
-	App    AppData
+	App    appcontext.Data
 	Errors validation.List
 	Err    error
 }
@@ -25,7 +26,7 @@ func Error(tmpl template.Template, logger Logger, showError bool) ErrorHandler {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 
-		data := &errorData{App: AppDataFromContext(r.Context())}
+		data := &errorData{App: appcontext.DataFromContext(r.Context())}
 		if showError {
 			data.Err = err
 		}

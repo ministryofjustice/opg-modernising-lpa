@@ -234,7 +234,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 			localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
 		}
 
-		appData := page.AppDataFromContext(ctx)
+		appData := appcontext.DataFromContext(ctx)
 		appData.Path = r.URL.Path
 		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
@@ -244,7 +244,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
 
-		next.ServeHTTP(w, r.WithContext(page.ContextWithAppData(ctx, appData)))
+		next.ServeHTTP(w, r.WithContext(appcontext.ContextWithData(ctx, appData)))
 	}
 }
 
@@ -260,7 +260,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 
 			if opt&RequireSession != 0 {
@@ -271,10 +271,10 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

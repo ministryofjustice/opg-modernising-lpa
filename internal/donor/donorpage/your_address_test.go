@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -136,7 +137,7 @@ func TestGetYourAddressWhenTemplateErrors(t *testing.T) {
 func TestPostYourAddressManual(t *testing.T) {
 	testCases := map[string]struct {
 		url              string
-		appData          page.AppData
+		appData          appcontext.Data
 		expectedRedirect string
 	}{
 		"making first LPA": {

@@ -108,7 +108,7 @@ type mockLpaStoreClient_SendDonorConfirmIdentity_Call struct {
 
 // SendDonorConfirmIdentity is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *donordata.DonorProvidedDetails
+//   - donor *donordata.Provided
 func (_e *mockLpaStoreClient_Expecter) SendDonorConfirmIdentity(ctx interface{}, donor interface{}) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
 	return &mockLpaStoreClient_SendDonorConfirmIdentity_Call{Call: _e.mock.On("SendDonorConfirmIdentity", ctx, donor)}
 }
@@ -155,7 +155,7 @@ type mockLpaStoreClient_SendLpa_Call struct {
 
 // SendLpa is a helper method to define mock.On call
 //   - ctx context.Context
-//   - details *donordata.DonorProvidedDetails
+//   - details *donordata.Provided
 func (_e *mockLpaStoreClient_Expecter) SendLpa(ctx interface{}, details interface{}) *mockLpaStoreClient_SendLpa_Call {
 	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", ctx, details)}
 }

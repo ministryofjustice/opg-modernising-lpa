@@ -3,10 +3,12 @@ package page
 import (
 	"log/slog"
 	"net/http"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 )
 
 func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginClient, appPublicURL string) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		redirectURL := appPublicURL + Paths.Start.Format()
 
 		var idToken string

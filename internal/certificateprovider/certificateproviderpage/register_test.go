@@ -34,14 +34,14 @@ func TestMakeHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			ActorType: actor.TypeCertificateProvider,
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
 		assert.Nil(t, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
@@ -64,7 +64,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, errorHandler.Execute)
-	handle("/path", func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -72,7 +72,7 @@ func TestMakeHandleErrors(t *testing.T) {
 }
 
 func TestMakeCertificateProviderHandle(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/certificate-provider/123/path?a=b", nil)
 
@@ -88,8 +88,8 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle("/path", page.None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", page.None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/certificate-provider/123/path",
 			SessionID: "cmFuZG9t",
 			LpaID:     "123",
@@ -99,8 +99,8 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 
 		assert.Equal(t, &certificateproviderdata.Provided{LpaID: "123"}, certificateProvider)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -115,7 +115,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 	path := page.Paths.CertificateProvider.ProvideCertificate
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)
 
@@ -131,7 +131,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, certificateProviderStore)
-	handle(path, page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
+	handle(path, page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 
@@ -153,7 +153,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, nil, nil)
-	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
+	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 
@@ -165,7 +165,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 }
 
 func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/certificate-provider/id/path", nil)
 
@@ -185,7 +185,7 @@ func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeCertificateProviderHandle(mux, sessionStore, errorHandler.Execute, certificateProviderStore)
-	handle("/path", page.None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
+	handle("/path", page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *certificateproviderdata.Provided) error {
 		return nil
 	})
 

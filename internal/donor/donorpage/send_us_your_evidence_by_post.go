@@ -4,21 +4,21 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type sendUsYourEvidenceByPostData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Errors  validation.List
 	FeeType pay.FeeType
 }
 
 func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &sendUsYourEvidenceByPostData{
 			App:     appData,
 			FeeType: donor.FeeType,

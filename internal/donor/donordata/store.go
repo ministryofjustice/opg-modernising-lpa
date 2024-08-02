@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -16,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -84,7 +84,7 @@ func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger,
 }
 
 func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +129,11 @@ func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, temporary.LpaLink{
+	if err := s.dynamoClient.Create(ctx, actor.LpaLink{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.SubKey(data.SessionID),
 		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
-		ActorType: temporary.ActorTypeDonor,
+		ActorType: actor.TypeDonor,
 		UpdatedAt: s.now(),
 	}); err != nil {
 		return nil, err
@@ -164,7 +164,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 		return errors.New("donorStore.Link can only be used with organisations")
 	}
 
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -173,10 +173,10 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 		return errors.New("donorStore.Link requires SessionID")
 	}
 
-	var link temporary.LpaLink
+	var link actor.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
-	} else if link.ActorType == temporary.ActorTypeDonor {
+	} else if link.ActorType == actor.TypeDonor {
 		return errors.New("a donor link already exists for " + shareCode.LpaKey.ID())
 	}
 
@@ -189,11 +189,11 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 			SK:           dynamo.DonorKey(data.SessionID),
 			ReferencedSK: organisationKey,
 		}).
-		Create(temporary.LpaLink{
+		Create(actor.LpaLink{
 			PK:        shareCode.LpaKey,
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
-			ActorType: temporary.ActorTypeDonor,
+			ActorType: actor.TypeDonor,
 			UpdatedAt: s.now(),
 		}).
 		Put(shareCode)
@@ -202,7 +202,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
 }
 
 func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
 }
 
 func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -358,7 +358,7 @@ func (s *donorStore) Put(ctx context.Context, donor *Provided) error {
 }
 
 func (s *donorStore) Delete(ctx context.Context) error {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharec
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
 	}
 
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -406,7 +406,7 @@ func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharec
 		return errors.New("cannot remove access to another organisations LPA")
 	}
 
-	var link temporary.LpaLink
+	var link actor.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
 		return err
 	}

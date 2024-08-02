@@ -31,7 +31,7 @@ type organisationLink struct {
 }
 
 func (s *organisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (s *organisationStore) Create(ctx context.Context, member *actor.Member, na
 }
 
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 }
 
 func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

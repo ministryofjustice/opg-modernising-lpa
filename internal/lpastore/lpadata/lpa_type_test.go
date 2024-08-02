@@ -1,4 +1,4 @@
-package donordata
+package lpadata
 
 import (
 	"fmt"

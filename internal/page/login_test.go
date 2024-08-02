@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +31,7 @@ func TestLogin(t *testing.T) {
 		}).
 		Return(nil)
 
-	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{Lang: localize.Cy}, w, r)
+	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(appcontext.Data{Lang: localize.Cy}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -56,7 +57,7 @@ func TestLoginDefaultLocale(t *testing.T) {
 		}).
 		Return(nil)
 
-	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
@@ -72,7 +73,7 @@ func TestLoginWhenAuthCodeURLError(t *testing.T) {
 		AuthCodeURL("i am random", "i am random", "en", false).
 		Return("http://auth?locale=en", expectedError)
 
-	err := Login(client, nil, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	err := Login(client, nil, func(int) string { return "i am random" }, "/redirect")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -93,7 +94,7 @@ func TestLoginWhenStoreSaveError(t *testing.T) {
 		SetOneLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(AppData{}, w, r)
+	err := Login(client, sessionStore, func(int) string { return "i am random" }, "/redirect")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
