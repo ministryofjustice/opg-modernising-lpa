@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -84,7 +85,7 @@ type Provided struct {
 	// Information on how the applicant wishes their replacement attorneys to act
 	ReplacementAttorneyDecisions AttorneyDecisions
 	// How to bring in replacement attorneys, if set
-	HowShouldReplacementAttorneysStepIn ReplacementAttorneysStepIn
+	HowShouldReplacementAttorneysStepIn lpadata.ReplacementAttorneysStepIn
 	// Details on how replacement attorneys must step in if HowShouldReplacementAttorneysStepIn is set to "other"
 	HowShouldReplacementAttorneysStepInDetails string
 	// Whether the applicant wants to add a correspondent

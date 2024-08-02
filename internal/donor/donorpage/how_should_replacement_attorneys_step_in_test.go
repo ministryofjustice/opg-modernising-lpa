@@ -26,7 +26,7 @@ func TestGetHowShouldReplacementAttorneysStepIn(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App:     testAppData,
 			Form:    &howShouldReplacementAttorneysStepInForm{},
-			Options: donordata.ReplacementAttorneysStepInValues,
+			Options: lpadata.ReplacementAttorneysStepInValues,
 		}).
 		Return(nil)
 
@@ -48,15 +48,15 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 		Execute(w, &howShouldReplacementAttorneysStepInData{
 			App: testAppData,
 			Form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
+				WhenToStepIn: lpadata.ReplacementAttorneysStepInAnotherWay,
 				OtherDetails: "some details",
 			},
-			Options: donordata.ReplacementAttorneysStepInValues,
+			Options: lpadata.ReplacementAttorneysStepInValues,
 		}).
 		Return(nil)
 
 	err := HowShouldReplacementAttorneysStepIn(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-		HowShouldReplacementAttorneysStepIn:        donordata.ReplacementAttorneysStepInAnotherWay,
+		HowShouldReplacementAttorneysStepIn:        lpadata.ReplacementAttorneysStepInAnotherWay,
 		HowShouldReplacementAttorneysStepInDetails: "some details",
 	})
 	resp := w.Result()
@@ -67,7 +67,7 @@ func TestGetHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	form := url.Values{
-		"when-to-step-in": {donordata.ReplacementAttorneysStepInAnotherWay.String()},
+		"when-to-step-in": {lpadata.ReplacementAttorneysStepInAnotherWay.String()},
 		"other-details":   {"some details"},
 	}
 
@@ -79,7 +79,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                               "lpa-id",
-			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(nil)
 
@@ -99,7 +99,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		ReplacementAttorneys                 donordata.Attorneys
 		HowAttorneysMakeDecisions            lpadata.AttorneysAct
 		HowReplacementAttorneysMakeDecisions lpadata.AttorneysAct
-		HowShouldReplacementAttorneysStepIn  donordata.ReplacementAttorneysStepIn
+		HowShouldReplacementAttorneysStepIn  lpadata.ReplacementAttorneysStepIn
 		ExpectedRedirectUrl                  page.LpaPath
 		TaskState                            task.State
 	}{
@@ -113,7 +113,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           task.StateInProgress,
 		},
@@ -123,7 +123,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:            lpadata.Jointly,
-			HowShouldReplacementAttorneysStepIn:  donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowShouldReplacementAttorneysStepIn:  lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: lpadata.Jointly,
 			ExpectedRedirectUrl:                  page.Paths.TaskList,
 			TaskState:                            task.StateInProgress,
@@ -134,7 +134,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           task.StateNotStarted,
 		},
@@ -148,7 +148,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 				{UID: actoruid.New()},
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
-			HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			ExpectedRedirectUrl:                 page.Paths.TaskList,
 			TaskState:                           task.StateInProgress,
 		},
@@ -197,23 +197,23 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 	testCases := map[string]struct {
-		existingWhenStepIn   donordata.ReplacementAttorneysStepIn
+		existingWhenStepIn   lpadata.ReplacementAttorneysStepIn
 		existingOtherDetails string
-		updatedWhenStepIn    donordata.ReplacementAttorneysStepIn
+		updatedWhenStepIn    lpadata.ReplacementAttorneysStepIn
 		updatedOtherDetails  string
-		formWhenStepIn       donordata.ReplacementAttorneysStepIn
+		formWhenStepIn       lpadata.ReplacementAttorneysStepIn
 		formOtherDetails     string
 	}{
 		"existing otherDetails not set": {
-			existingWhenStepIn:   donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			existingWhenStepIn:   lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			existingOtherDetails: "",
-			updatedWhenStepIn:    donordata.ReplacementAttorneysStepInAnotherWay,
+			updatedWhenStepIn:    lpadata.ReplacementAttorneysStepInAnotherWay,
 			updatedOtherDetails:  "some details",
 		},
 		"existing otherDetails set": {
-			existingWhenStepIn:   donordata.ReplacementAttorneysStepInAnotherWay,
+			existingWhenStepIn:   lpadata.ReplacementAttorneysStepInAnotherWay,
 			existingOtherDetails: "some details",
-			updatedWhenStepIn:    donordata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+			updatedWhenStepIn:    lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			updatedOtherDetails:  "",
 		},
 	}
@@ -279,7 +279,7 @@ func TestPostHowShouldReplacementAttorneysStepInFormValidation(t *testing.T) {
 
 func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) {
 	form := url.Values{
-		"when-to-step-in": {donordata.ReplacementAttorneysStepInAnotherWay.String()},
+		"when-to-step-in": {lpadata.ReplacementAttorneysStepInAnotherWay.String()},
 		"other-details":   {"some details"},
 	}
 
@@ -290,7 +290,7 @@ func TestPostHowShouldReplacementAttorneysStepInWhenPutStoreError(t *testing.T) 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			HowShouldReplacementAttorneysStepIn:        donordata.ReplacementAttorneysStepInAnotherWay,
+			HowShouldReplacementAttorneysStepIn:        lpadata.ReplacementAttorneysStepInAnotherWay,
 			HowShouldReplacementAttorneysStepInDetails: "some details"}).
 		Return(expectedError)
 
@@ -319,7 +319,7 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 		},
 		"missing other details": {
 			form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: donordata.ReplacementAttorneysStepInAnotherWay,
+				WhenToStepIn: lpadata.ReplacementAttorneysStepInAnotherWay,
 			},
 			expectedErrors: validation.With("other-details", validation.EnterError{Label: "detailsOfWhenToStepIn"}),
 		},

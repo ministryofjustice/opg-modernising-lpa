@@ -212,7 +212,7 @@ func Attorney(
 
 		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
 		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
-		donorDetails.HowShouldReplacementAttorneysStepIn = donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
