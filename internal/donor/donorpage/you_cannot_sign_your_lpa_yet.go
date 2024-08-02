@@ -9,7 +9,7 @@ import (
 )
 
 func YouCannotSignYourLpaYet(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if len(donor.Under18ActorDetails()) == 0 {
 			return appData.Redirect(w, r, page.Paths.TaskList.Format(donor.LpaID))
 		}

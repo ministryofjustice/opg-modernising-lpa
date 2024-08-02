@@ -22,13 +22,13 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 	dob := date.New("1", "2", "3")
 
 	testcases := map[string]struct {
-		donorProvided          *donordata.DonorProvidedDetails
+		donorProvided          *donordata.Provided
 		expectedDetailsMatch   bool
 		expectedDetailsUpdated bool
 		url                    string
 	}{
 		"details match": {
-			donorProvided: &donordata.DonorProvidedDetails{
+			donorProvided: &donordata.Provided{
 				Donor:                 donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: dob, CurrentAddress: testAddress},
 			},
@@ -36,14 +36,14 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 			url:                  "/",
 		},
 		"details do not match": {
-			donorProvided: &donordata.DonorProvidedDetails{
+			donorProvided: &donordata.Provided{
 				Donor:                 donordata.Donor{FirstNames: "a"},
 				DonorIdentityUserData: identity.UserData{FirstNames: "b"},
 			},
 			url: "/",
 		},
 		"details updated": {
-			donorProvided: &donordata.DonorProvidedDetails{
+			donorProvided: &donordata.Provided{
 				Donor:                 donordata.Donor{FirstNames: "a"},
 				DonorIdentityUserData: identity.UserData{FirstNames: "b"},
 			},
@@ -87,7 +87,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
-	updated := &donordata.DonorProvidedDetails{
+	updated := &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
 		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -99,7 +99,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 		Put(r.Context(), updated).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "a", LastName: "a", DateOfBirth: existingDob, Address: testAddress},
 		DonorIdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -118,7 +118,7 @@ func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -131,7 +131,7 @@ func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *tes
 	r := httptest.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -151,7 +151,7 @@ func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -174,7 +174,7 @@ func TestPostOneLoginIdentityDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{Donor: donordata.Donor{FirstNames: "a"}})
+	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

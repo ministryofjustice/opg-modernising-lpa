@@ -15,7 +15,7 @@ func TestGetYouCannotSignYourLpaYetWithUnder18Actors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New(date.Today().YearString(), "1", "2")},
@@ -38,7 +38,7 @@ func TestGetYouCannotSignYourLpaYetWithUnder18ActorsWhenTemplateError(t *testing
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New(date.Today().YearString(), "1", "2")},
@@ -61,7 +61,7 @@ func TestGetYouCannotSignYourLpaYetWithoutUnder18Actors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := YouCannotSignYourLpaYet(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := YouCannotSignYourLpaYet(nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{DateOfBirth: date.New("2000", "1", "2")},

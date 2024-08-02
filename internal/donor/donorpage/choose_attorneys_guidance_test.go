@@ -19,11 +19,11 @@ func TestGetChooseAttorneysGuidance(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &chooseAttorneysGuidanceData{
 			App:   testAppData,
-			Donor: &donordata.DonorProvidedDetails{},
+			Donor: &donordata.Provided{},
 		}).
 		Return(nil)
 
-	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -39,7 +39,7 @@ func TestGetChooseAttorneysGuidanceWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := ChooseAttorneysGuidance(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -51,7 +51,7 @@ func TestPostChooseAttorneysGuidance(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ChooseAttorneysGuidance(nil, testUIDFn)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := ChooseAttorneysGuidance(nil, testUIDFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

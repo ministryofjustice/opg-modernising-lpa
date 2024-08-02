@@ -286,7 +286,7 @@ func TestDocumentStoreSubmit(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{
 		{PK: "a-pk", SK: "a-sk", Key: "a-key", Filename: "a-filename.pdf"},
 		{PK: "b-pk", SK: "b-sk", Key: "b-key", Filename: "b-filename.png"},
@@ -335,7 +335,7 @@ func TestDocumentStoreSubmit(t *testing.T) {
 func TestDocumentStoreSubmitWhenNoUnsentDocuments(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key", Sent: time.Now()}}
 
 	documentStore := &documentStore{}
@@ -348,7 +348,7 @@ func TestDocumentStoreSubmitWhenS3ClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -369,7 +369,7 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -396,7 +396,7 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 	documents := page.Documents{{PK: "a-pk", SK: "a-sk", Key: "a-key"}}
 
 	s3Client := newMockS3Client(t)
@@ -429,7 +429,7 @@ func TestDocumentCreate(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
 
 	data := []byte("some-data")
 
@@ -468,7 +468,7 @@ func TestDocumentCreateWhenS3Error(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
 
 	s3Client := newMockS3Client(t)
 	s3Client.EXPECT().
@@ -490,7 +490,7 @@ func TestDocumentCreateWhenDynamoError(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
 
-	donor := &donordata.DonorProvidedDetails{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
+	donor := &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload, LpaID: "lpa-id"}
 
 	data := []byte("some-data")
 

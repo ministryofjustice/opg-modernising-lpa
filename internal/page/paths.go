@@ -40,7 +40,7 @@ func (p LpaPath) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
-func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.DonorProvidedDetails) error {
+func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.Provided) error {
 	rurl := p.Format(donor.LpaID)
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -50,7 +50,7 @@ func (p LpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData AppDat
 	return nil
 }
 
-func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.DonorProvidedDetails, query url.Values) error {
+func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData AppData, donor *donordata.Provided, query url.Values) error {
 	rurl := p.Format(donor.LpaID) + "?" + query.Encode()
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
@@ -60,7 +60,7 @@ func (p LpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData A
 	return nil
 }
 
-func (p LpaPath) canVisit(donor *donordata.DonorProvidedDetails) bool {
+func (p LpaPath) canVisit(donor *donordata.Provided) bool {
 	section1Completed := donor.Tasks.YourDetails.Completed() &&
 		donor.Tasks.ChooseAttorneys.Completed() &&
 		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
@@ -678,7 +678,7 @@ var Paths = AppPaths{
 	YourPreferredLanguage:                                "/your-preferred-language",
 }
 
-func DonorCanGoTo(donor *donordata.DonorProvidedDetails, url string) bool {
+func DonorCanGoTo(donor *donordata.Provided, url string) bool {
 	path, _, _ := strings.Cut(url, "?")
 	if path == "" {
 		return false

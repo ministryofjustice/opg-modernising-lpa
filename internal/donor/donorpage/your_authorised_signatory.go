@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -19,7 +20,7 @@ type yourAuthorisedSignatoryData struct {
 }
 
 func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourAuthorisedSignatoryData{
 			App: appData,
 			Form: &yourAuthorisedSignatoryForm{
@@ -48,7 +49,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 				donor.AuthorisedSignatory.LastName = data.Form.LastName
 
 				if !donor.Tasks.ChooseYourSignatory.Completed() {
-					donor.Tasks.ChooseYourSignatory = actor.TaskInProgress
+					donor.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
@@ -91,7 +92,7 @@ func (f *yourAuthorisedSignatoryForm) Validate() validation.List {
 	return errors
 }
 
-func signatoryMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func signatoryMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

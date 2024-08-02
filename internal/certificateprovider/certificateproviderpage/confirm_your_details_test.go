@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -143,7 +143,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 				Put(r.Context(), &certificateproviderdata.Provided{
 					LpaID: "lpa-id",
 					Tasks: certificateproviderdata.Tasks{
-						ConfirmYourDetails: actor.TaskCompleted,
+						ConfirmYourDetails: task.StateCompleted,
 					},
 				}).
 				Return(nil)

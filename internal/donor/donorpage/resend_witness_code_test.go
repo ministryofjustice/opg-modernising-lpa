@@ -29,7 +29,7 @@ func TestGetResendWitnessCode(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -75,7 +75,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donor := &donordata.DonorProvidedDetails{
+			donor := &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			}
@@ -100,7 +100,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &donordata.DonorProvidedDetails{Donor: donordata.Donor{FirstNames: "john"}}
+	donor := &donordata.Provided{Donor: donordata.Donor{FirstNames: "john"}}
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
@@ -114,18 +114,18 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 	testcases := map[actor.Type]struct {
-		donor *donordata.DonorProvidedDetails
+		donor *donordata.Provided
 		send  string
 	}{
 		actor.TypeIndependentWitness: {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				Donor:                   donordata.Donor{FirstNames: "john"},
 				IndependentWitnessCodes: donordata.WitnessCodes{{Created: time.Now()}},
 			},
 			send: "SendToIndependentWitness",
 		},
 		actor.TypeCertificateProvider: {
-			donor: &donordata.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				Donor:                    donordata.Donor{FirstNames: "john"},
 				CertificateProviderCodes: donordata.WitnessCodes{{Created: time.Now()}},
 			},

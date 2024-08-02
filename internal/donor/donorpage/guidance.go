@@ -12,11 +12,11 @@ import (
 type guidanceData struct {
 	App    page.AppData
 	Errors validation.List
-	Donor  *donordata.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func Guidance(tmpl template.Template) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &guidanceData{
 			App:   appData,
 			Donor: donor,

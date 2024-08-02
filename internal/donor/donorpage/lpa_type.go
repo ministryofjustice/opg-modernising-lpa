@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -22,7 +22,7 @@ type lpaTypeData struct {
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{
@@ -46,7 +46,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 				if donor.Type.IsPersonalWelfare() {
 					donor.WhenCanTheLpaBeUsed = donordata.CanBeUsedWhenCapacityLost
 				}
-				donor.Tasks.YourDetails = actor.TaskCompleted
+				donor.Tasks.YourDetails = task.StateCompleted
 				donor.HasSentApplicationUpdatedEvent = false
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

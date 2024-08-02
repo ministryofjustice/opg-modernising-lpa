@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -15,7 +14,7 @@ import (
 type taskListData struct {
 	App              page.AppData
 	Errors           validation.List
-	Donor            *donordata.DonorProvidedDetails
+	Donor            *donordata.Provided
 	Sections         []taskListSection
 	EvidenceReceived bool
 }
@@ -23,9 +22,9 @@ type taskListData struct {
 type taskListItem struct {
 	Name          string
 	Path          string
-	State         actor.TaskState
+	State         task.State
 	PaymentState  task.PaymentState
-	IdentityState actor.IdentityTask
+	IdentityState task.IdentityState
 	Count         int
 	Hidden        bool
 }
@@ -36,7 +35,7 @@ type taskListSection struct {
 }
 
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		evidenceReceived, err := evidenceReceivedStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -124,7 +123,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 	}
 }
 
-func taskListTypeSpecificStep(donor *donordata.DonorProvidedDetails) taskListItem {
+func taskListTypeSpecificStep(donor *donordata.Provided) taskListItem {
 	if donor.Type == donordata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
@@ -140,7 +139,7 @@ func taskListTypeSpecificStep(donor *donordata.DonorProvidedDetails) taskListIte
 	}
 }
 
-func taskListCheckLpaPath(donor *donordata.DonorProvidedDetails) page.LpaPath {
+func taskListCheckLpaPath(donor *donordata.Provided) page.LpaPath {
 	if len(donor.Under18ActorDetails()) > 0 {
 		return page.Paths.YouCannotSignYourLpaYet
 	} else if donor.CertificateProviderSharesDetails() {
@@ -150,7 +149,7 @@ func taskListCheckLpaPath(donor *donordata.DonorProvidedDetails) page.LpaPath {
 	}
 }
 
-func taskListPaymentSection(donor *donordata.DonorProvidedDetails) taskListSection {
+func taskListPaymentSection(donor *donordata.Provided) taskListSection {
 	var paymentPath string
 	switch donor.Tasks.PayForLpa {
 	case task.PaymentStateApproved:
@@ -175,7 +174,7 @@ func taskListPaymentSection(donor *donordata.DonorProvidedDetails) taskListSecti
 	}
 }
 
-func taskListSignSection(donor *donordata.DonorProvidedDetails) taskListSection {
+func taskListSignSection(donor *donordata.Provided) taskListSection {
 	var signPath page.LpaPath
 
 	switch donor.DonorIdentityUserData.Status {

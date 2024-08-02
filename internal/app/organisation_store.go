@@ -87,7 +87,7 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error) {
+func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.DonorProv
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &donordata.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey(data.OrganisationID)),
 		LpaID:     lpaID,

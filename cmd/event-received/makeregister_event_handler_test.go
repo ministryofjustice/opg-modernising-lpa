@@ -61,7 +61,7 @@ func TestHandleUidRequested(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{
+			b, _ := attributevalue.Marshal(&donordata.Provided{
 				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
 				Type:      donordata.LpaTypePersonalWelfare,
 				CreatedAt: testNow,
@@ -170,7 +170,7 @@ func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&donordata.DonorProvidedDetails{})
+			b, _ := attributevalue.Marshal(&donordata.Provided{})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})

@@ -49,7 +49,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			dynamoClient.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-					b, _ := json.Marshal(donordata.DonorProvidedDetails{LpaID: "123", Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
+					b, _ := json.Marshal(donordata.Provided{LpaID: "123", Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}})
 					json.Unmarshal(b, v)
 					return nil
 				})
@@ -135,7 +135,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(donordata.DonorProvidedDetails{LpaID: "123", Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
+			b, _ := json.Marshal(donordata.Provided{LpaID: "123", Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}})
 			json.Unmarshal(b, v)
 			return expectedError
 		})
@@ -169,7 +169,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(donordata.DonorProvidedDetails{LpaID: "123", Tasks: donordata.DonorTasks{PayForLpa: task.PaymentStatePending}})
+			b, _ := json.Marshal(donordata.Provided{LpaID: "123", Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}})
 			json.Unmarshal(b, v)
 			return nil
 		})
@@ -184,7 +184,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 }
 
 func TestGetLpaByUID(t *testing.T) {
-	expectedDonor := &donordata.DonorProvidedDetails{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))}
+	expectedDonor := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))}
 
 	client := newMockDynamodbClient(t)
 	client.

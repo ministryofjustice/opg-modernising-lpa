@@ -21,7 +21,7 @@ func TestGetSendUsYourEvidenceByPost(t *testing.T) {
 		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(nil)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -37,7 +37,7 @@ func TestGetSendUsYourEvidenceByPostWhenTemplateErrors(t *testing.T) {
 		Execute(w, &sendUsYourEvidenceByPostData{App: testAppData}).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := SendUsYourEvidenceByPost(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -48,7 +48,7 @@ func TestPostSendUsYourEvidenceByPost(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/about-payment", nil)
 
-	donor := &donordata.DonorProvidedDetails{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
+	donor := &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Post}
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
@@ -77,7 +77,7 @@ func TestPostSendUsYourEvidenceByPostWhenEventClientErrors(t *testing.T) {
 		SendReducedFeeRequested(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := SendUsYourEvidenceByPost(nil, nil, eventClient)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -95,6 +95,6 @@ func TestPostSendUsYourEvidenceByPostWhenPayerErrors(t *testing.T) {
 		Execute(testAppData, w, r, mock.Anything).
 		Return(expectedError)
 
-	err := SendUsYourEvidenceByPost(nil, payer.Execute, eventClient)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := SendUsYourEvidenceByPost(nil, payer.Execute, eventClient)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }

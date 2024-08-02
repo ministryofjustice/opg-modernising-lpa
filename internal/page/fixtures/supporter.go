@@ -20,11 +20,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type OrganisationStore interface {
 	Create(context.Context, *actor.Member, string) (*actor.Organisation, error)
-	CreateLPA(context.Context) (*donordata.DonorProvidedDetails, error)
+	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
 type MemberStore interface {
@@ -35,8 +37,8 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
-	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	PutDonor(ctx context.Context, code string, data sharecode.Data) error
 }
 
 func Supporter(
@@ -115,15 +117,15 @@ func Supporter(
 				donor.Attorneys = donordata.Attorneys{
 					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 				}
-				donor.Tasks.YourDetails = actor.TaskCompleted
-				donor.Tasks.ChooseAttorneys = actor.TaskCompleted
-				donor.Tasks.CertificateProvider = actor.TaskCompleted
+				donor.Tasks.YourDetails = task.StateCompleted
+				donor.Tasks.ChooseAttorneys = task.StateCompleted
+				donor.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
 					return err
 				}
 
-				shareCodeData := actor.ShareCodeData{
+				shareCodeData := sharecode.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,

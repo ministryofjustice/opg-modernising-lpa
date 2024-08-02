@@ -12,65 +12,65 @@
 package page
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 var SessionDataFromContext = appcontext.SessionDataFromContext
 var ContextWithSessionData = appcontext.ContextWithSessionData
 
-func ChooseAttorneysState(attorneys donordata.Attorneys, decisions donordata.AttorneyDecisions) actor.TaskState {
+func ChooseAttorneysState(attorneys donordata.Attorneys, decisions donordata.AttorneyDecisions) task.State {
 	if attorneys.Len() == 0 {
-		return actor.TaskNotStarted
+		return task.StateNotStarted
 	}
 
 	if !attorneys.Complete() {
-		return actor.TaskInProgress
+		return task.StateInProgress
 	}
 
 	if attorneys.Len() > 1 && !decisions.IsComplete() {
-		return actor.TaskInProgress
+		return task.StateInProgress
 	}
 
-	return actor.TaskCompleted
+	return task.StateCompleted
 }
 
-func ChooseReplacementAttorneysState(donor *donordata.DonorProvidedDetails) actor.TaskState {
+func ChooseReplacementAttorneysState(donor *donordata.Provided) task.State {
 	if donor.WantReplacementAttorneys == form.No {
-		return actor.TaskCompleted
+		return task.StateCompleted
 	}
 
 	if donor.ReplacementAttorneys.Len() == 0 {
 		if donor.WantReplacementAttorneys.IsUnknown() {
-			return actor.TaskNotStarted
+			return task.StateNotStarted
 		}
 
-		return actor.TaskInProgress
+		return task.StateInProgress
 	}
 
 	if !donor.ReplacementAttorneys.Complete() {
-		return actor.TaskInProgress
+		return task.StateInProgress
 	}
 
 	if donor.ReplacementAttorneys.Len() > 1 &&
 		(donor.Attorneys.Len() == 1 || donor.AttorneyDecisions.How.IsJointly()) &&
 		!donor.ReplacementAttorneyDecisions.IsComplete() {
-		return actor.TaskInProgress
+		return task.StateInProgress
 	}
 
 	if donor.AttorneyDecisions.How.IsJointlyAndSeverally() {
 		if donor.HowShouldReplacementAttorneysStepIn.Empty() {
-			return actor.TaskInProgress
+			return task.StateInProgress
 		}
 
 		if donor.ReplacementAttorneys.Len() > 1 &&
 			donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() &&
 			!donor.ReplacementAttorneyDecisions.IsComplete() {
-			return actor.TaskInProgress
+			return task.StateInProgress
 		}
 	}
 
-	return actor.TaskCompleted
+	return task.StateCompleted
 }

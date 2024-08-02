@@ -27,26 +27,26 @@ func TestDonorStoreGetAny(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""), &DonorProvidedDetails{LpaID: "an-id"}, nil)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""), &Provided{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &DonorProvidedDetails{LpaID: "an-id"}, lpa)
+	assert.Equal(t, &Provided{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetAnyWhenOrganisation(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id", OrganisationID: "x"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey(""), &DonorProvidedDetails{LpaID: "an-id"}, nil)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey(""), &Provided{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &DonorProvidedDetails{LpaID: "an-id"}, lpa)
+	assert.Equal(t, &Provided{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetAnyWhenReference(t *testing.T) {
@@ -60,13 +60,13 @@ func TestDonorStoreGetAnyWhenReference(t *testing.T) {
 			ReferencedSK: dynamo.OrganisationKey("org"),
 		}, nil)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey("org"),
-		&DonorProvidedDetails{LpaID: "an-id"}, nil)
+		&Provided{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.GetAny(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &DonorProvidedDetails{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaID: "an-id"}, lpa)
+	assert.Equal(t, &Provided{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetAnyWithSessionMissing(t *testing.T) {
@@ -80,7 +80,7 @@ func TestDonorStoreGetAnyWhenDataStoreError(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""), &DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey(""), &Provided{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -127,13 +127,13 @@ func TestDonorStoreGet(t *testing.T) {
 			ctx := appcontext.ContextWithSessionData(context.Background(), tc.sessionData)
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), tc.expectedSK, &DonorProvidedDetails{LpaID: "an-id"}, nil)
+			dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), tc.expectedSK, &Provided{LpaID: "an-id"}, nil)
 
 			donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 			lpa, err := donorStore.Get(ctx)
 			assert.Nil(t, err)
-			assert.Equal(t, &DonorProvidedDetails{LpaID: "an-id"}, lpa)
+			assert.Equal(t, &Provided{LpaID: "an-id"}, lpa)
 		})
 	}
 }
@@ -143,13 +143,13 @@ func TestDonorStoreGetWhenReferenced(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.DonorKey("456"), lpaReference{ReferencedSK: dynamo.OrganisationKey("789")}, nil)
-	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey("789"), &DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.OrganisationKey("789"), &Provided{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Get(ctx)
 	assert.Equal(t, expectedError, err)
-	assert.Equal(t, &DonorProvidedDetails{LpaID: "an-id"}, lpa)
+	assert.Equal(t, &Provided{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreGetWithSessionMissing(t *testing.T) {
@@ -175,13 +175,13 @@ func TestDonorStoreLatest(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectLatestForActor(ctx, dynamo.DonorKey("456"), &DonorProvidedDetails{LpaID: "an-id"}, nil)
+	dynamoClient.ExpectLatestForActor(ctx, dynamo.DonorKey("456"), &Provided{LpaID: "an-id"}, nil)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
 	lpa, err := donorStore.Latest(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &DonorProvidedDetails{LpaID: "an-id"}, lpa)
+	assert.Equal(t, &Provided{LpaID: "an-id"}, lpa)
 }
 
 func TestDonorStoreLatestWithSessionMissing(t *testing.T) {
@@ -195,7 +195,7 @@ func TestDonorStoreLatestWhenDataStoreError(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectLatestForActor(ctx, dynamo.DonorKey("456"), &DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectLatestForActor(ctx, dynamo.DonorKey("456"), &Provided{LpaID: "an-id"}, expectedError)
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }}
 
@@ -209,7 +209,7 @@ func TestDonorStoreGetByKeys(t *testing.T) {
 		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b"))},
 		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c"))},
 	}
-	donors := []DonorProvidedDetails{
+	donors := []Provided{
 		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a")), LpaID: "1"},
 		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b")), LpaID: "2"},
 		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c")), LpaID: "3"},
@@ -253,7 +253,7 @@ func TestDonorStoreGetByKeysWhenDynamoErrors(t *testing.T) {
 }
 
 func TestDonorStorePut(t *testing.T) {
-	saved := &DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "x", LastName: "y"}}
+	saved := &Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "x", LastName: "y"}}
 	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -263,12 +263,12 @@ func TestDonorStorePut(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenUIDSet(t *testing.T) {
-	saved := &DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: Donor{FirstNames: "x", LastName: "y"}}
+	saved := &Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: Donor{FirstNames: "x", LastName: "y"}}
 	saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -283,7 +283,7 @@ func TestDonorStorePutWhenUIDSet(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: Donor{FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
@@ -304,14 +304,14 @@ func TestDonorStorePutWhenUIDSetIndexErrors(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, searchClient: searchClient, logger: logger, now: testNowFn}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: Donor{FirstNames: "x", LastName: "y"}})
+	err := donorStore.Put(ctx, &Provided{PK: dynamo.LpaKey("5"), Hash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", Donor: Donor{FirstNames: "x", LastName: "y"}})
 	assert.Nil(t, err)
 }
 
 func TestDonorStorePutWhenNoChange(t *testing.T) {
 	donorStore := &donorStore{}
 
-	donor := &DonorProvidedDetails{LpaID: "an-id"}
+	donor := &Provided{LpaID: "an-id"}
 	donor.Hash, _ = hashstructure.Hash(donor, hashstructure.FormatV2, nil)
 
 	err := donorStore.Put(ctx, donor)
@@ -319,7 +319,7 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 }
 
 func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
-	saved := &DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "a", LastName: "b"}, Tasks: DonorTasks{CheckYourLpa: task.StateInProgress}}
+	saved := &Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "a", LastName: "b"}, Tasks: Tasks{CheckYourLpa: task.StateInProgress}}
 	_ = saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -329,7 +329,7 @@ func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "a", LastName: "b"}, Tasks: DonorTasks{CheckYourLpa: task.StateCompleted}})
+	err := donorStore.Put(ctx, &Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: Donor{FirstNames: "a", LastName: "b"}, Tasks: Tasks{CheckYourLpa: task.StateCompleted}})
 	assert.Nil(t, err)
 }
 
@@ -339,7 +339,7 @@ func TestDonorStorePutWhenError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient, now: time.Now}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5"})
+	err := donorStore.Put(ctx, &Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -356,7 +356,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 
 	donorStore := &donorStore{eventClient: eventClient, searchClient: searchClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &DonorProvidedDetails{
+	err := donorStore.Put(ctx, &Provided{
 		PK:     dynamo.LpaKey("5"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
 		LpaID:  "5",
@@ -376,7 +376,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 }
 
 func TestDonorStoreCreate(t *testing.T) {
-	testCases := map[string]DonorProvidedDetails{
+	testCases := map[string]Provided{
 		"with previous details": {
 			Donor: Donor{
 				UID:         actoruid.New(),
@@ -393,7 +393,7 @@ func TestDonorStoreCreate(t *testing.T) {
 	for name, previousDetails := range testCases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
-			donor := &DonorProvidedDetails{
+			donor := &Provided{
 				PK:        dynamo.LpaKey("10100000"),
 				SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
 				LpaID:     "10100000",
@@ -444,14 +444,14 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		"latest": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), DonorProvidedDetails{}, expectedError)
+				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), Provided{}, expectedError)
 
 			return dynamoClient
 		},
 		"donor record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), DonorProvidedDetails{}, nil)
+				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), Provided{}, nil)
 			dynamoClient.EXPECT().
 				Create(ctx, mock.Anything).
 				Return(expectedError)
@@ -461,7 +461,7 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 		"link record": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
-				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), DonorProvidedDetails{}, nil)
+				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), Provided{}, nil)
 			dynamoClient.EXPECT().
 				Create(ctx, mock.Anything).
 				Return(nil).
@@ -511,7 +511,7 @@ func TestDonorStoreLink(t *testing.T) {
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
-			shareCode := sharecode.ShareCodeData{
+			shareCode := sharecode.Data{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
@@ -532,7 +532,7 @@ func TestDonorStoreLink(t *testing.T) {
 					},
 				},
 				Puts: []any{
-					sharecode.ShareCodeData{
+					sharecode.Data{
 						LpaKey:      dynamo.LpaKey("lpa-id"),
 						LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 						LpaLinkedTo: "a@example.com",
@@ -559,14 +559,14 @@ func TestDonorStoreLink(t *testing.T) {
 func TestDonorStoreLinkWithDonor(t *testing.T) {
 	donorStore := &donorStore{}
 
-	err := donorStore.Link(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))}, "a@example.com")
+	err := donorStore.Link(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))}, "a@example.com")
 	assert.Error(t, err)
 }
 
 func TestDonorStoreLinkWithSessionMissing(t *testing.T) {
 	donorStore := &donorStore{}
 
-	err := donorStore.Link(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
+	err := donorStore.Link(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -574,7 +574,7 @@ func TestDonorStoreLinkWithSessionIDMissing(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{})
 	donorStore := &donorStore{}
 
-	err := donorStore.Link(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
+	err := donorStore.Link(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))}, "a@example.com")
 	assert.Error(t, err)
 }
 
@@ -589,7 +589,7 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 
 	err := donorStore.Link(
 		ctx,
-		sharecode.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))},
+		sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))},
 		"a@example.com",
 	)
 
@@ -614,7 +614,7 @@ func TestDonorStoreLinkWhenError(t *testing.T) {
 	for name, setupDynamoClient := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
-			shareCode := sharecode.ShareCodeData{
+			shareCode := sharecode.Data{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			}
@@ -725,7 +725,7 @@ func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", OrganisationID: "org-id"})
 
 	link := temporary.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}
-	shareCodeData := sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
+	shareCodeData := sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), link, nil)
@@ -748,7 +748,7 @@ func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 func TestDonorStoreDeleteDonorAccessWhenDonor(t *testing.T) {
 	donorStore := &donorStore{}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
+	err := donorStore.DeleteDonorAccess(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor"))})
 	assert.Error(t, err)
 }
 
@@ -762,7 +762,7 @@ func TestDonorStoreDeleteDonorAccessWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			donorStore := &donorStore{}
 
-			err := donorStore.DeleteDonorAccess(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
+			err := donorStore.DeleteDonorAccess(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org"))})
 			assert.Error(t, err)
 		})
 	}
@@ -773,7 +773,7 @@ func TestDonorStoreDeleteDonorAccessWhenDeleterInDifferentOrganisation(t *testin
 
 	donorStore := &donorStore{}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -785,7 +785,7 @@ func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
 
@@ -800,6 +800,6 @@ func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 
 	donorStore := &donorStore{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecode.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }

@@ -42,7 +42,7 @@ func NewStore(dynamoClient DynamoClient, now func() time.Time) *Store {
 	return &Store{dynamoClient: dynamoClient, now: now}
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecode.ShareCodeData, email string) (*Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
 	data, err := appcontext.SessionDataFromContext(ctx)
 	if err != nil {
 		return nil, err

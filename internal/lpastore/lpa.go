@@ -98,7 +98,7 @@ type lpaRequestPersonToNotify struct {
 	Address    place.Address `json:"address"`
 }
 
-func (c *Client) SendLpa(ctx context.Context, donor *donordata.DonorProvidedDetails) error {
+func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	body := lpaRequest{
 		LpaType: donor.Type,
 		Channel: donordata.ChannelOnline,
@@ -594,7 +594,7 @@ func lpaResponseToLpa(l lpaResponse) *Lpa {
 	}
 }
 
-func FromDonorProvidedDetails(l *donordata.DonorProvidedDetails) *Lpa {
+func FromDonorProvidedDetails(l *donordata.Provided) *Lpa {
 	attorneys := Attorneys{}
 	for _, a := range l.Attorneys.Attorneys {
 		attorneys.Attorneys = append(attorneys.Attorneys, Attorney{

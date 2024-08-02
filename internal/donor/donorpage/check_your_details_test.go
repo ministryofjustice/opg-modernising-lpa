@@ -15,7 +15,7 @@ func TestGetCheckYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &donordata.DonorProvidedDetails{}
+	donor := &donordata.Provided{}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -35,10 +35,10 @@ func TestGetCheckYourDetailsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &checkYourDetailsData{App: testAppData, Donor: &donordata.DonorProvidedDetails{}}).
+		Execute(w, &checkYourDetailsData{App: testAppData, Donor: &donordata.Provided{}}).
 		Return(expectedError)
 
-	err := CheckYourDetails(template.Execute)(testAppData, w, r, &donordata.DonorProvidedDetails{})
+	err := CheckYourDetails(template.Execute)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -47,9 +47,9 @@ func TestPostCheckYourDetails(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{
+	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.DonorTasks{
+		Tasks: donordata.Tasks{
 			PayForLpa: task.PaymentStateCompleted,
 		},
 	})
@@ -64,7 +64,7 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.DonorProvidedDetails{LpaID: "lpa-id"})
+	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)

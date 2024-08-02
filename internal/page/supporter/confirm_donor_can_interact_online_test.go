@@ -45,7 +45,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenYes(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		CreateLPA(r.Context()).
-		Return(&donordata.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+		Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
 	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
@@ -101,7 +101,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenOrganisationStoreError(t *testing.
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		CreateLPA(r.Context()).
-		Return(&donordata.DonorProvidedDetails{}, expectedError)
+		Return(&donordata.Provided{}, expectedError)
 
 	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()

@@ -123,7 +123,7 @@ func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) RunAndReturn(r
 }
 
 // SendCertificateProviderPrompt provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context, _a1 page.AppData, _a2 *donordata.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context, _a1 page.AppData, _a2 *donordata.Provided) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -131,7 +131,7 @@ func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *donordata.Provided) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -153,9 +153,9 @@ func (_e *mockShareCodeSender_Expecter) SendCertificateProviderPrompt(_a0 interf
 	return &mockShareCodeSender_SendCertificateProviderPrompt_Call{Call: _e.mock.On("SendCertificateProviderPrompt", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *donordata.DonorProvidedDetails)) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *donordata.Provided)) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*donordata.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*donordata.Provided))
 	})
 	return _c
 }
@@ -165,7 +165,7 @@ func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Return(_a0 err
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(run func(context.Context, page.AppData, *donordata.DonorProvidedDetails) error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(run func(context.Context, page.AppData, *donordata.Provided) error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
 	_c.Call.Return(run)
 	return _c
 }

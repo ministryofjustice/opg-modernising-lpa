@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -22,23 +21,25 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type DonorStore interface {
-	Create(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
-	Put(ctx context.Context, donorProvidedDetails *donordata.DonorProvidedDetails) error
+	Create(ctx context.Context) (*donordata.Provided, error)
+	Link(ctx context.Context, shareCode sharecode.Data, donorEmail string) error
+	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
@@ -131,7 +132,7 @@ func Attorney(
 		}
 
 		if isSupported {
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), actor.ShareCodeData{
+			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
@@ -241,15 +242,15 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			attorney.Mobile = testMobile
 			attorney.ContactLanguagePreference = localize.En
-			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "readTheLPA") {
-			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+			attorney.Tasks.ReadTheLpa = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
-			attorney.Tasks.SignTheLpa = actor.TaskCompleted
+			attorney.Tasks.SignTheLpa = task.StateCompleted
 
 			if isTrustCorporation {
 				attorney.WouldLikeSecondSignatory = form.No
@@ -286,9 +287,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -317,9 +318,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.WouldLikeSecondSignatory = form.No
 					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 						FirstNames:        "A",

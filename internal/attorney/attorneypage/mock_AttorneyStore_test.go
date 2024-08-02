@@ -26,7 +26,7 @@ func (_m *mockAttorneyStore) EXPECT() *mockAttorneyStore_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, shareCode, email
-func (_m *mockAttorneyStore) Create(ctx context.Context, shareCode sharecode.ShareCodeData, email string) (*attorneydata.Provided, error) {
+func (_m *mockAttorneyStore) Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error) {
 	ret := _m.Called(ctx, shareCode, email)
 
 	if len(ret) == 0 {
@@ -35,10 +35,10 @@ func (_m *mockAttorneyStore) Create(ctx context.Context, shareCode sharecode.Sha
 
 	var r0 *attorneydata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) (*attorneydata.Provided, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.Data, string) (*attorneydata.Provided, error)); ok {
 		return rf(ctx, shareCode, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, sharecode.ShareCodeData, string) *attorneydata.Provided); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecode.Data, string) *attorneydata.Provided); ok {
 		r0 = rf(ctx, shareCode, email)
 	} else {
 		if ret.Get(0) != nil {
@@ -46,7 +46,7 @@ func (_m *mockAttorneyStore) Create(ctx context.Context, shareCode sharecode.Sha
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, sharecode.ShareCodeData, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, sharecode.Data, string) error); ok {
 		r1 = rf(ctx, shareCode, email)
 	} else {
 		r1 = ret.Error(1)
@@ -62,15 +62,15 @@ type mockAttorneyStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - shareCode sharecode.ShareCodeData
+//   - shareCode sharecode.Data
 //   - email string
 func (_e *mockAttorneyStore_Expecter) Create(ctx interface{}, shareCode interface{}, email interface{}) *mockAttorneyStore_Create_Call {
 	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", ctx, shareCode, email)}
 }
 
-func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, shareCode sharecode.ShareCodeData, email string)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) Run(run func(ctx context.Context, shareCode sharecode.Data, email string)) *mockAttorneyStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(sharecode.ShareCodeData), args[2].(string))
+		run(args[0].(context.Context), args[1].(sharecode.Data), args[2].(string))
 	})
 	return _c
 }
@@ -80,7 +80,7 @@ func (_c *mockAttorneyStore_Create_Call) Return(_a0 *attorneydata.Provided, _a1 
 	return _c
 }
 
-func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, sharecode.ShareCodeData, string) (*attorneydata.Provided, error)) *mockAttorneyStore_Create_Call {
+func (_c *mockAttorneyStore_Create_Call) RunAndReturn(run func(context.Context, sharecode.Data, string) (*attorneydata.Provided, error)) *mockAttorneyStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

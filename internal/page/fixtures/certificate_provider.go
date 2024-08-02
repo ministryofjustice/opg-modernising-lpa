@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -20,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -84,11 +84,11 @@ func CertificateProvider(
 			return err
 		}
 
-		var donorDetails *donordata.DonorProvidedDetails
+		var donorDetails *donordata.Provided
 
 		if donorChannel == "paper" {
 			lpaID := random.UuidString()
-			donorDetails = &donordata.DonorProvidedDetails{
+			donorDetails = &donordata.Provided{
 				PK:                             dynamo.LpaKey(lpaID),
 				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                          lpaID,
@@ -121,7 +121,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), orgSession), actor.ShareCodeData{
+			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), orgSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
@@ -196,7 +196,7 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
 			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 			donorDetails.SignedAt = time.Now()
 		}
@@ -204,7 +204,7 @@ func CertificateProvider(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.ContactLanguagePreference = localize.En
-			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
 
 			if asProfessionalCertificateProvider {
 				certificateProvider.HomeAddress = place.Address{
@@ -225,7 +225,7 @@ func CertificateProvider(
 				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {

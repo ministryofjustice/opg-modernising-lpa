@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -33,7 +34,7 @@ type LpaStoreResolvingService interface {
 
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
-	CreateLPA(ctx context.Context) (*donordata.DonorProvidedDetails, error)
+	CreateLPA(ctx context.Context) (*donordata.Provided, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
@@ -55,10 +56,10 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error
-	Get(ctx context.Context) (*donordata.DonorProvidedDetails, error)
-	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *donordata.DonorProvidedDetails) error
+	DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error
+	Get(ctx context.Context) (*donordata.Provided, error)
+	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
@@ -88,9 +89,9 @@ type NotifyClient interface {
 }
 
 type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error
-	GetDonor(ctx context.Context) (actor.ShareCodeData, error)
-	Delete(ctx context.Context, data actor.ShareCodeData) error
+	PutDonor(ctx context.Context, shareCode string, data sharecode.Data) error
+	GetDonor(ctx context.Context) (sharecode.Data, error)
+	Delete(ctx context.Context, data sharecode.Data) error
 }
 
 type Template func(w io.Writer, data interface{}) error

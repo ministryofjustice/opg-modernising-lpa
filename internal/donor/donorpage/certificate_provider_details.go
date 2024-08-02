@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -20,7 +21,7 @@ type certificateProviderDetailsData struct {
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.DonorProvidedDetails) error {
+	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
@@ -67,7 +68,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 				}
 
 				if !donor.Tasks.CertificateProvider.Completed() {
-					donor.Tasks.CertificateProvider = actor.TaskInProgress
+					donor.Tasks.CertificateProvider = task.StateInProgress
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
@@ -126,7 +127,7 @@ func (d *certificateProviderDetailsForm) Validate() validation.List {
 	return errors
 }
 
-func certificateProviderMatches(donor *donordata.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func certificateProviderMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
