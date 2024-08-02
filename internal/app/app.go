@@ -1,3 +1,4 @@
+// Package app provides the web server for modernising-lpa.
 package app
 
 import (

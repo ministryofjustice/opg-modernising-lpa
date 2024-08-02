@@ -1,3 +1,4 @@
+// Package onelogin provides a client for GOV.UK's One Login service.
 package onelogin
 
 import (

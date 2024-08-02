@@ -1,3 +1,4 @@
+// Package donordata provides types that describe the data entered by a donor.
 package donordata
 
 import (

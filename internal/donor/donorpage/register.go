@@ -1,3 +1,4 @@
+// Package donorpage provides the pages that a donor interacts with.
 package donorpage
 
 import (
