@@ -171,7 +171,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				}
 
 				appData.SessionID = session.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -198,13 +198,13 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			attorney, err := attorneyStore.Get(ctx)

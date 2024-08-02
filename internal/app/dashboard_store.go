@@ -62,7 +62,7 @@ func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, 
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
 	}

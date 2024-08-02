@@ -43,7 +43,7 @@ type Store struct {
 }
 
 func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 }
 
 func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
 }
 
 func (s *Store) Get(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (s *Store) Put(ctx context.Context, certificateProvider *Provided) error {
 }
 
 func (s *Store) Delete(ctx context.Context) error {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}

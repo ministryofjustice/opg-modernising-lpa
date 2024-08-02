@@ -37,7 +37,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			data.Errors = data.Form.Validate(donor.Attorneys.TrustCorporation.Name != "" || donor.ReplacementAttorneys.TrustCorporation.Name != "")
 
 			if data.Errors.None() {
-				session, err := appcontext.SessionDataFromContext(r.Context())
+				session, err := appcontext.SessionFromContext(r.Context())
 				if err != nil {
 					return err
 				}

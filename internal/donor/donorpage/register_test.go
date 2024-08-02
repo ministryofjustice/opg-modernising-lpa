@@ -126,7 +126,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 	testCases := map[string]struct {
 		expectedAppData     page.AppData
 		loginSesh           *sesh.LoginSession
-		expectedSessionData *appcontext.SessionData
+		expectedSession *appcontext.Session
 	}{
 		"donor": {
 			expectedAppData: page.AppData{
@@ -136,7 +136,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				LpaID:     "123",
 			},
 			loginSesh:           &sesh.LoginSession{Sub: "random"},
-			expectedSessionData: &appcontext.SessionData{SessionID: "cmFuZG9t", LpaID: "123"},
+			expectedSession: &appcontext.Session{SessionID: "cmFuZG9t", LpaID: "123"},
 		},
 		"organisation": {
 			expectedAppData: page.AppData{
@@ -150,7 +150,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				},
 			},
 			loginSesh:           &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"},
-			expectedSessionData: &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", LpaID: "123"},
+			expectedSession: &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", LpaID: "123"},
 		},
 	}
 
@@ -187,8 +187,8 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 
 				assert.Equal(t, w, hw)
 
-				sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-				assert.Equal(t, tc.expectedSessionData, sessionData)
+				sessionData, _ := appcontext.SessionFromContext(hr.Context())
+				assert.Equal(t, tc.expectedSession, sessionData)
 
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
@@ -355,8 +355,8 @@ func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
 	assert.Equal(t, page.Paths.TaskList.Format("123"), resp.Header.Get("Location"))
 }
 
-func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored"})
+func TestMakeLpaHandleSessionExistingSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/lpa/123/path?a=b", nil)
 
@@ -382,9 +382,9 @@ func TestMakeLpaHandleSessionExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-		assert.Equal(t, &appcontext.SessionData{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &appcontext.Session{LpaID: "123", SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})

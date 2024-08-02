@@ -201,7 +201,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, Email: session.Email})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, Email: session.Email})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -252,13 +252,13 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				panic("non-supporter path registered")
 			}
 
-			sessionData, err := appcontext.SessionDataFromContext(r.Context())
+			sessionData, err := appcontext.SessionFromContext(r.Context())
 
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.OrganisationID = loginSession.OrganisationID
 			} else {
-				sessionData = &appcontext.SessionData{
+				sessionData = &appcontext.Session{
 					SessionID: appData.SessionID,
 					Email:     loginSession.Email,
 				}
@@ -268,13 +268,13 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				}
 			}
 
-			organisation, err := organisationStore.Get(page.ContextWithSessionData(r.Context(), sessionData))
+			organisation, err := organisationStore.Get(appcontext.ContextWithSession(r.Context(), sessionData))
 			if err != nil {
 				errorHandler(w, r, err)
 				return
 			}
 
-			ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
 				SessionID:      appData.SessionID,
 				Email:          loginSession.Email,
 				OrganisationID: organisation.ID,

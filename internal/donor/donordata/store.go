@@ -84,7 +84,7 @@ func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger,
 }
 
 func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 		return errors.New("donorStore.Link can only be used with organisations")
 	}
 
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -202,7 +202,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 }
 
 func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
 }
 
 func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +262,7 @@ func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
 }
 
 func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -358,7 +358,7 @@ func (s *donorStore) Put(ctx context.Context, donor *Provided) error {
 }
 
 func (s *donorStore) Delete(ctx context.Context) error {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -393,7 +393,7 @@ func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharec
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
 	}
 
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}

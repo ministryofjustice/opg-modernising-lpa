@@ -54,8 +54,8 @@ func TestMakeHandle(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+func TestMakeHandleRequireSessionExistingSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
@@ -74,9 +74,9 @@ func TestMakeHandleRequireSessionExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -146,8 +146,8 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	assert.Equal(t, http.StatusTeapot, resp.StatusCode)
 }
 
-func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+func TestMakeAttorneyHandleExistingSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/attorney/lpa-id/path?a=b", nil)
@@ -178,9 +178,9 @@ func TestMakeAttorneyHandleExistingSessionData(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", LpaID: "lpa-id"}, sessionData)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -245,9 +245,9 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 				}, appData)
 				assert.Equal(t, w, hw)
 
-				sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
+				sessionData, _ := appcontext.SessionFromContext(hr.Context())
 
-				assert.Equal(t, &appcontext.SessionData{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
+				assert.Equal(t, &appcontext.Session{LpaID: "lpa-id", SessionID: "cmFuZG9t"}, sessionData)
 				hw.WriteHeader(http.StatusTeapot)
 				return nil
 			})
@@ -260,10 +260,10 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 	}
 }
 
-func TestMakeAttorneyHandleExistingSessionDataWhenCannotGoToURL(t *testing.T) {
+func TestMakeAttorneyHandleExistingSessionWhenCannotGoToURL(t *testing.T) {
 	path := page.Paths.Attorney.Sign
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "ignored-session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, path.Format("123"), nil)

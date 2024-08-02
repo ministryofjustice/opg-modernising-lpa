@@ -28,7 +28,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 			return err
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: session.LpaID})
+		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: session.LpaID})
 
 		lpa, err := lpaStoreResolvingService.Get(ctx)
 		if err != nil {

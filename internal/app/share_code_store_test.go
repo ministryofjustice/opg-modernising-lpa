@@ -8,7 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -158,7 +157,7 @@ func TestNewShareCodeStore(t *testing.T) {
 }
 
 func TestShareCodeStoreGetDonor(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{
 		OrganisationID: "org-id",
 		LpaID:          "lpa-id",
 	})

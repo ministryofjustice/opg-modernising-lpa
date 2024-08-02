@@ -8,13 +8,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 )
 
 func TestOrganisationStoreCreate(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -42,7 +41,7 @@ func TestOrganisationStoreCreate(t *testing.T) {
 
 func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no session id":   page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a@example.org"}),
+		"no session id":   appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"}),
 		"no session data": context.Background(),
 	}
 
@@ -58,7 +57,7 @@ func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id", Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -73,7 +72,7 @@ func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
 }
 
 func TestOrganisationStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	organisation := &actor.Organisation{Name: "A name"}
 
 	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
@@ -91,7 +90,7 @@ func TestOrganisationStoreGet(t *testing.T) {
 }
 
 func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	organisation := &actor.Organisation{Name: "A name", DeletedAt: testNow}
 
 	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
@@ -112,7 +111,7 @@ func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
 func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
 	testcases := map[string]context.Context{
 		"missing":           context.Background(),
-		"missing SessionID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing SessionID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	for name, ctx := range testcases {
@@ -138,7 +137,7 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 		},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 	member := actor.Member{PK: dynamo.OrganisationKey("a-uuid")}
 
 	for name, tc := range testcases {
@@ -178,7 +177,7 @@ func TestOrganisationStorePut(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateLPA(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 	expectedDonor := &donordata.Provided{
 		PK:        dynamo.LpaKey("a-uuid"),
 		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("an-id")),
@@ -212,7 +211,7 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":         context.Background(),
-		"missing organisation ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing organisation ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	for name, ctx := range testCases {
@@ -226,7 +225,7 @@ func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
 }
 
 func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -246,7 +245,7 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 }
 
 func TestOrganisationStoreSoftDelete(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -260,7 +259,7 @@ func TestOrganisationStoreSoftDelete(t *testing.T) {
 }
 
 func TestOrganisationStoreSoftDeleteWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id", SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().

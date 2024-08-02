@@ -142,8 +142,8 @@ func TestMakeHandleRequireSession(t *testing.T) {
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil

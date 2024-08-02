@@ -126,7 +126,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 	for name, attributeValues := range testCases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: sessionID})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: sessionID})
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -206,7 +206,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		IsReplacement: true,
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: sessionID})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: sessionID})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -252,7 +252,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 
 	donor := &donordata.Provided{LpaID: "0", LpaUID: "M", UpdatedAt: aTime, SK: dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)), PK: dynamo.LpaKey("0")}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: sessionID})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: sessionID})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -275,7 +275,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 }
 
 func TestDashboardStoreGetAllWhenNone(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -291,7 +291,7 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 }
 
 func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -304,7 +304,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 }
 
 func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
@@ -320,7 +320,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 }
 
 func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),

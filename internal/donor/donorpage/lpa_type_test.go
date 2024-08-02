@@ -113,7 +113,7 @@ func TestPostLpaType(t *testing.T) {
 				"lpa-type": {lpaType.String()},
 			}
 
-			ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -162,7 +162,7 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePersonalWelfare.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -213,7 +213,7 @@ func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -241,7 +241,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))

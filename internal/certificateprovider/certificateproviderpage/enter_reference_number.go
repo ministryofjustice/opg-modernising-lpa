@@ -47,7 +47,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					return err
 				}
 
-				ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{
+				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
 					SessionID: session.SessionID(),
 					LpaID:     shareCode.LpaKey.ID(),
 				})

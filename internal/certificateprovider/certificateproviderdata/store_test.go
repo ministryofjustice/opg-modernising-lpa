@@ -16,7 +16,7 @@ import (
 )
 
 func TestCertificateProviderStoreCreate(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "lpa-id", SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "lpa-id", SessionID: "session-id"})
 	uid := actoruid.New()
 	details := &Provided{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
 
@@ -61,15 +61,15 @@ func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
-func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
-	testcases := map[string]*appcontext.SessionData{
+func TestCertificateProviderStoreCreateWhenSessionMissingRequiredData(t *testing.T) {
+	testcases := map[string]*appcontext.Session{
 		"LpaID":     {SessionID: "456"},
 		"SessionID": {LpaID: "123"},
 	}
 
 	for name, sessionData := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(ctx, sessionData)
+			ctx := appcontext.ContextWithSession(ctx, sessionData)
 
 			certificateProviderStore := &Store{}
 
@@ -80,7 +80,7 @@ func TestCertificateProviderStoreCreateWhenSessionDataMissing(t *testing.T) {
 }
 
 func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -97,7 +97,7 @@ func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
 }
 
 func TestCertificateProviderStoreGetAny(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -117,8 +117,8 @@ func TestCertificateProviderStoreGetAnyWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
-func TestCertificateProviderStoreGetAnyMissingLpaIDInSessionData(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{})
+func TestCertificateProviderStoreGetAnyMissingLpaIDInSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
 
 	certificateProviderStore := &Store{}
 
@@ -127,7 +127,7 @@ func TestCertificateProviderStoreGetAnyMissingLpaIDInSessionData(t *testing.T) {
 }
 
 func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -140,7 +140,7 @@ func TestCertificateProviderStoreGetAnyOnError(t *testing.T) {
 }
 
 func TestCertificateProviderStoreGet(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -160,8 +160,8 @@ func TestCertificateProviderStoreGetWhenSessionMissing(t *testing.T) {
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
-func TestCertificateProviderStoreGetMissingLpaIDInSessionData(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "456"})
+func TestCertificateProviderStoreGetMissingLpaIDInSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "456"})
 
 	certificateProviderStore := &Store{}
 
@@ -169,8 +169,8 @@ func TestCertificateProviderStoreGetMissingLpaIDInSessionData(t *testing.T) {
 	assert.Equal(t, errors.New("certificateProviderStore.Get requires LpaID and SessionID"), err)
 }
 
-func TestCertificateProviderStoreGetMissingSessionIDInSessionData(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123"})
+func TestCertificateProviderStoreGetMissingSessionIDInSession(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
 
 	certificateProviderStore := &Store{}
 
@@ -179,7 +179,7 @@ func TestCertificateProviderStoreGetMissingSessionIDInSessionData(t *testing.T) 
 }
 
 func TestCertificateProviderStoreGetOnError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -222,7 +222,7 @@ func TestCertificateProviderStorePutOnError(t *testing.T) {
 }
 
 func TestCertificateProviderStoreDelete(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -250,7 +250,7 @@ func TestCertificateProviderStoreDeleteWhenMissingSessionValues(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: tc.lpaID, SessionID: tc.sessionID})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: tc.lpaID, SessionID: tc.sessionID})
 
 			certificateProviderStore := &Store{}
 
@@ -261,7 +261,7 @@ func TestCertificateProviderStoreDeleteWhenMissingSessionValues(t *testing.T) {
 }
 
 func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().

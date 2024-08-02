@@ -51,8 +51,8 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 
 		logger.InfoContext(r.Context(), "login", slog.String("session_id", loginSession.SessionID()))
 
-		sessionData := &appcontext.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
-		ctx := page.ContextWithSessionData(r.Context(), sessionData)
+		sessionData := &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email}
+		ctx := appcontext.ContextWithSession(r.Context(), sessionData)
 
 		member, err := memberStore.GetAny(ctx)
 		if errors.Is(err, dynamo.NotFoundError{}) {
@@ -92,7 +92,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 		}
 
 		sessionData.OrganisationID = organisation.ID
-		ctx = page.ContextWithSessionData(r.Context(), sessionData)
+		ctx = appcontext.ContextWithSession(r.Context(), sessionData)
 
 		member.LastLoggedInAt = now()
 		member.Email = loginSession.Email

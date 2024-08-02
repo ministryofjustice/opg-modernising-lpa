@@ -108,11 +108,11 @@ func Attorney(
 		}
 
 		createFn := donorStore.Create
-		createSession := &appcontext.SessionData{SessionID: donorSessionID}
+		createSession := &appcontext.Session{SessionID: donorSessionID}
 		if isSupported {
 			createFn = organisationStore.CreateLPA
 
-			supporterCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, Email: testEmail})
+			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
 			if err != nil {
@@ -126,13 +126,13 @@ func Attorney(
 
 			createSession.OrganisationID = org.ID
 		}
-		donorDetails, err := createFn(page.ContextWithSessionData(r.Context(), createSession))
+		donorDetails, err := createFn(appcontext.ContextWithSession(r.Context(), createSession))
 		if err != nil {
 			return err
 		}
 
 		if isSupported {
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), sharecode.Data{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
@@ -141,9 +141,9 @@ func Attorney(
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
+			donorCtx               = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			attorneyCtx            = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
 		donorDetails.SignedAt = time.Now()
@@ -269,7 +269,7 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
 			for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,
@@ -300,7 +300,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,

@@ -208,13 +208,13 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			certificateProvider, err := certificateProviderStore.Get(ctx)

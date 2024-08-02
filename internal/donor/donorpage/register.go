@@ -447,7 +447,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 				appData.LoginSessionEmail = session.Email
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
 			}
 
 			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
@@ -475,14 +475,14 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			appData.SessionID = loginSession.SessionID()
 			appData.LoginSessionEmail = loginSession.Email
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				sessionData = &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				sessionData = &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID}
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			}
 
 			if loginSession.OrganisationID != "" {

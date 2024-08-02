@@ -61,7 +61,7 @@ func (s *documentStore) Create(ctx context.Context, donor *donordata.Provided, f
 }
 
 func (s *documentStore) GetAll(ctx context.Context) (page.Documents, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
