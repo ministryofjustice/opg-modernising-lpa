@@ -211,7 +211,7 @@ func TestClientSendLpa(t *testing.T) {
 					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: donordata.CertificateProvider{
@@ -581,7 +581,7 @@ func TestClientLpa(t *testing.T) {
 					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: CertificateProvider{
@@ -952,7 +952,7 @@ func TestClientLpas(t *testing.T) {
 						How:     lpadata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
-					HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+					HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 					LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
 					Restrictions:                        "do not do this",
 					CertificateProvider: CertificateProvider{
