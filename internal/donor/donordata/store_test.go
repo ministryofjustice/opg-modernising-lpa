@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -406,7 +407,7 @@ func TestDonorStoreCreate(t *testing.T) {
 					OtherNames:  previousDetails.Donor.OtherNames,
 					DateOfBirth: previousDetails.Donor.DateOfBirth,
 					Address:     previousDetails.Donor.Address,
-					Channel:     ChannelOnline,
+					Channel:     lpadata.ChannelOnline,
 				},
 			}
 			donor.UpdateHash()

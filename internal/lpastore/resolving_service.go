@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 type DonorStore interface {
@@ -89,13 +90,13 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *donordata.Provided) *Lpa {
 		// set to Professionally so we always show the certificate provider home
 		// address question
 		lpa.CertificateProvider.Relationship = donordata.Professionally
-		lpa.Donor.Channel = donordata.ChannelPaper
+		lpa.Donor.Channel = lpadata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
-		lpa.Donor.Channel = donordata.ChannelOnline
+		lpa.Donor.Channel = lpadata.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship

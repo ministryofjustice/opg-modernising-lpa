@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -41,7 +42,7 @@ type CertificateProvider struct {
 	// Email of the certificate provider
 	Email string
 	// How the certificate provider wants to perform their role (paper or online)
-	CarryOutBy Channel
+	CarryOutBy lpadata.Channel
 	// The certificate provider's relationship to the applicant
 	Relationship CertificateProviderRelationship
 	// Amount of time Relationship has been in place if Personally

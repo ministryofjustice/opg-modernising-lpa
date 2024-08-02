@@ -21,6 +21,7 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/pact-foundation/pact-go/v2/consumer"
 	"github.com/pact-foundation/pact-go/v2/matchers"
@@ -226,7 +227,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: donordata.ChannelOnline,
+					CarryOutBy: lpadata.ChannelOnline,
 				},
 				Restrictions: "hmm",
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -381,7 +382,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: donordata.ChannelOnline,
+					CarryOutBy: lpadata.ChannelOnline,
 				},
 				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        actoruid.New(),
@@ -552,7 +553,7 @@ func TestClientServiceContract(t *testing.T) {
 							UID:           uid,
 							Name:          "Trust us Corp.",
 							CompanyNumber: "66654321",
-							Channel:       donordata.ChannelPaper,
+							Channel:       lpadata.ChannelPaper,
 						},
 					},
 				},
@@ -633,7 +634,7 @@ func TestClientServiceContract(t *testing.T) {
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
-				}, &Lpa{CertificateProvider: CertificateProvider{Channel: donordata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
+				}, &Lpa{CertificateProvider: CertificateProvider{Channel: lpadata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -715,7 +716,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email: "a@example.com",
 				}, &Lpa{
 					CertificateProvider: CertificateProvider{
-						Channel: donordata.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 						Address: place.Address{
 							Line1:      "71 South Western Terrace",
 							TownOrCity: "Milton",
@@ -872,7 +873,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: donordata.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -884,7 +885,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: donordata.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -897,7 +898,7 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: donordata.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -1004,7 +1005,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: donordata.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -1016,7 +1017,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: donordata.ChannelOnline,
+						Channel: lpadata.ChannelOnline,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -1029,7 +1030,7 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: donordata.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				LifeSustainingTreatmentOption: donordata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),

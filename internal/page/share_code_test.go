@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
@@ -284,7 +285,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: donordata.ChannelOnline,
+			CarryOutBy: lpadata.ChannelOnline,
 		},
 		Donor: donordata.Donor{
 			FirstNames: "Jan",
@@ -339,7 +340,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 		Donor: donordata.Donor{
 			FirstNames: "Jan",
@@ -478,7 +479,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
 	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
@@ -498,7 +499,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
 	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
