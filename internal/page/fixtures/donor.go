@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -297,7 +298,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "chooseYourCertificateProvider") {
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if data.CertificateProvider == "paper" {
-			donorDetails.CertificateProvider.CarryOutBy = donordata.ChannelPaper
+			donorDetails.CertificateProvider.CarryOutBy = lpadata.ChannelPaper
 		}
 
 		if data.CertificateProviderEmail != "" {

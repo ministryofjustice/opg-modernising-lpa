@@ -1,4 +1,4 @@
-package donordata
+package lpadata
 
 //go:generate enumerator -type Channel -linecomment -empty -trimprefix
 type Channel uint8

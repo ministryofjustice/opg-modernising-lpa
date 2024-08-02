@@ -15,6 +15,7 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -686,7 +687,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	lpa := &lpastore.Lpa{
 		Donor: lpastore.Donor{FirstNames: "Dave", LastName: "Smith"},
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel:    donordata.ChannelOnline,
+			Channel:    lpadata.ChannelOnline,
 			UID:        uid,
 			FirstNames: "John",
 			LastName:   "Smith",
@@ -756,7 +757,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: donordata.ChannelPaper,
+			Channel: lpadata.ChannelPaper,
 		},
 	}
 
@@ -821,7 +822,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: donordata.ChannelOnline,
+			Channel: lpadata.ChannelOnline,
 		},
 	}
 
@@ -847,7 +848,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: donordata.ChannelOnline,
+			Channel: lpadata.ChannelOnline,
 		},
 	}
 
@@ -883,7 +884,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: donordata.ChannelPaper,
+			Channel: lpadata.ChannelPaper,
 		},
 	}
 
@@ -917,7 +918,7 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
-			Channel: donordata.ChannelOnline,
+			Channel: lpadata.ChannelOnline,
 		},
 	}
 
@@ -969,7 +970,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: donordata.ChannelPaper,
+				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
 
@@ -1000,7 +1001,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: donordata.ChannelPaper,
+				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
 
@@ -1023,7 +1024,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(&lpastore.Lpa{
 			CertificateProvider: lpastore.CertificateProvider{
-				Channel: donordata.ChannelPaper,
+				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
 

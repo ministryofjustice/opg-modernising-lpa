@@ -2,6 +2,7 @@ package donordata
 
 import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -19,10 +20,10 @@ type TrustCorporation struct {
 	Address place.Address
 }
 
-func (tc TrustCorporation) Channel() Channel {
+func (tc TrustCorporation) Channel() lpadata.Channel {
 	if tc.Email != "" {
-		return ChannelOnline
+		return lpadata.ChannelOnline
 	}
 
-	return ChannelPaper
+	return lpadata.ChannelPaper
 }

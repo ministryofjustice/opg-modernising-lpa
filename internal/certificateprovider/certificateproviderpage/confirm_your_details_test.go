@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -17,20 +18,20 @@ import (
 
 func TestGetConfirmYourDetails(t *testing.T) {
 	testcases := map[string]struct {
-		DonorChannel                    donordata.Channel
+		DonorChannel                    lpadata.Channel
 		PhoneNumberLabel                string
 		CertificateProviderRelationship donordata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
 	}{
 		"online donor": {
-			DonorChannel:            donordata.ChannelOnline,
+			DonorChannel:            lpadata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"paper donor": {
-			DonorChannel:            donordata.ChannelPaper,
+			DonorChannel:            lpadata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
