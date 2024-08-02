@@ -1,4 +1,4 @@
-package app
+package sharecode
 
 import (
 	"context"
@@ -9,10 +9,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
-type ShareCodeStoreDynamoClient interface {
+type DynamoClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
@@ -21,16 +20,16 @@ type ShareCodeStoreDynamoClient interface {
 }
 
 type shareCodeStore struct {
-	dynamoClient ShareCodeStoreDynamoClient
+	dynamoClient DynamoClient
 	now          func() time.Time
 }
 
-func NewShareCodeStore(dynamoClient ShareCodeStoreDynamoClient) *shareCodeStore {
+func NewShareCodeStore(dynamoClient DynamoClient) *shareCodeStore {
 	return &shareCodeStore{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error) {
-	var data sharecode.Data
+func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (Data, error) {
+	var data Data
 
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
@@ -38,17 +37,17 @@ func (s *shareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCod
 	}
 
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
-		return sharecode.Data{}, err
+		return Data{}, err
 	}
 
 	if !data.LpaLinkedAt.IsZero() {
-		return sharecode.Data{}, dynamo.NotFoundError{}
+		return Data{}, dynamo.NotFoundError{}
 	}
 
 	return data, err
 }
 
-func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error {
+func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data Data) error {
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
@@ -60,7 +59,7 @@ func (s *shareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCod
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data sharecode.Data) error {
+func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data Data) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
@@ -73,8 +72,8 @@ func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data sh
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *shareCodeStore) GetDonor(ctx context.Context) (sharecode.Data, error) {
-	var data sharecode.Data
+func (s *shareCodeStore) GetDonor(ctx context.Context) (Data, error) {
+	var data Data
 
 	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
@@ -87,7 +86,7 @@ func (s *shareCodeStore) GetDonor(ctx context.Context) (sharecode.Data, error) {
 	return data, err
 }
 
-func (s *shareCodeStore) Delete(ctx context.Context, shareCode sharecode.Data) error {
+func (s *shareCodeStore) Delete(ctx context.Context, shareCode Data) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 
