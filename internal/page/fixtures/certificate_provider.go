@@ -146,7 +146,7 @@ func CertificateProvider(
 		if lpaType == "personal-welfare" {
 			donorDetails.Type = donordata.LpaTypePersonalWelfare
 			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 		} else {
 			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}

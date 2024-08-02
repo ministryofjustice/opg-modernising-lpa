@@ -39,7 +39,7 @@ type lpaRequest struct {
 	HowReplacementAttorneysStepInDetails        string                             `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                             `json:"restrictionsAndConditions"`
 	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
-	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment  `json:"lifeSustainingTreatmentOption,omitempty"`
+	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                          `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
@@ -374,7 +374,7 @@ type lpaResponse struct {
 	HowReplacementAttorneysStepInDetails        string                             `json:"howReplacementAttorneysStepInDetails,omitempty"`
 	Restrictions                                string                             `json:"restrictionsAndConditions"`
 	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
-	LifeSustainingTreatmentOption               donordata.LifeSustainingTreatment  `json:"lifeSustainingTreatmentOption,omitempty"`
+	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                          `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 	UID                                         string                             `json:"uid"`
@@ -444,7 +444,7 @@ type Lpa struct {
 	HowShouldReplacementAttorneysStepInDetails string
 	Restrictions                               string
 	WhenCanTheLpaBeUsed                        lpadata.CanBeUsedWhen
-	LifeSustainingTreatmentOption              donordata.LifeSustainingTreatment
+	LifeSustainingTreatmentOption              lpadata.LifeSustainingTreatment
 	// SignedAt is the date the Donor signed their LPA (and signifies it has been
 	// witnessed by their CertificateProvider)
 	SignedAt                                 time.Time

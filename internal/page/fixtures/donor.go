@@ -282,7 +282,7 @@ func updateLPAProgress(
 
 	if data.Progress >= slices.Index(progressValues, "chooseWhenTheLpaCanBeUsed") {
 		if donorDetails.Type == donordata.LpaTypePersonalWelfare {
-			donorDetails.LifeSustainingTreatmentOption = donordata.LifeSustainingTreatmentOptionA
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 			donorDetails.Tasks.LifeSustainingTreatment = task.StateCompleted
 		} else {
 			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
