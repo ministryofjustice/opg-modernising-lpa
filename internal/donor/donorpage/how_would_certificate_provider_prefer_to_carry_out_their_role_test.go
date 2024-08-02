@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: donordata.ChannelValues,
+			Options: lpadata.ChannelValues,
 		}).
 		Return(nil)
 
@@ -42,14 +43,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleFromStore(t *tes
 	template.EXPECT().
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 testAppData,
-			CertificateProvider: donordata.CertificateProvider{CarryOutBy: donordata.ChannelPaper},
-			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: donordata.ChannelPaper},
-			Options:             donordata.ChannelValues,
+			CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
+			Form:                &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{CarryOutBy: lpadata.ChannelPaper},
+			Options:             lpadata.ChannelValues,
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-		CertificateProvider: donordata.CertificateProvider{CarryOutBy: donordata.ChannelPaper},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper},
 	})
 	resp := w.Result()
 
@@ -66,7 +67,7 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 		Execute(w, &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:     testAppData,
 			Form:    &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
-			Options: donordata.ChannelValues,
+			Options: lpadata.ChannelValues,
 		}).
 		Return(expectedError)
 
@@ -79,14 +80,14 @@ func TestGetHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenTemplateErro
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) {
 	testCases := []struct {
-		carryOutBy donordata.Channel
+		carryOutBy lpadata.Channel
 		email      string
 	}{
 		{
-			carryOutBy: donordata.ChannelPaper,
+			carryOutBy: lpadata.ChannelPaper,
 		},
 		{
-			carryOutBy: donordata.ChannelOnline,
+			carryOutBy: lpadata.ChannelOnline,
 			email:      "someone@example.com",
 		},
 	}
@@ -122,7 +123,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRole(t *testing.T) 
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnlineToPaper(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {donordata.ChannelPaper.String()},
+		"carry-out-by": {lpadata.ChannelPaper.String()},
 		"email":        {"a@b.com"},
 	}
 
@@ -134,13 +135,13 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
-			CertificateProvider: donordata.CertificateProvider{CarryOutBy: donordata.ChannelPaper, Email: ""},
+			CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Email: ""},
 		}).
 		Return(nil)
 
 	err := HowWouldCertificateProviderPreferToCarryOutTheirRole(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
-		CertificateProvider: donordata.CertificateProvider{CarryOutBy: donordata.ChannelOnline, Email: "a@b.com"},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Email: "a@b.com"},
 	})
 	resp := w.Result()
 
@@ -151,7 +152,7 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleChangingFromOnl
 
 func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"carry-out-by": {donordata.ChannelPaper.String()},
+		"carry-out-by": {lpadata.ChannelPaper.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -189,36 +190,36 @@ func TestPostHowWouldCertificateProviderPreferToCarryOutTheirRoleWhenValidationE
 
 func TestReadHowWouldCertificateProviderPreferToCarryOutTheirRoleForm(t *testing.T) {
 	testcases := map[string]struct {
-		carryOutBy   donordata.Channel
+		carryOutBy   lpadata.Channel
 		email        string
 		formValues   url.Values
 		expectedForm *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
 	}{
 		"online with email": {
 			formValues: url.Values{
-				"carry-out-by": {donordata.ChannelOnline.String()},
+				"carry-out-by": {lpadata.ChannelOnline.String()},
 				"email":        {"a@b.com"},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelOnline,
+				CarryOutBy: lpadata.ChannelOnline,
 				Email:      "a@b.com",
 			},
 		},
 		"paper": {
 			formValues: url.Values{
-				"carry-out-by": {donordata.ChannelPaper.String()},
+				"carry-out-by": {lpadata.ChannelPaper.String()},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelPaper,
+				CarryOutBy: lpadata.ChannelPaper,
 			},
 		},
 		"paper with email": {
 			formValues: url.Values{
-				"carry-out-by": {donordata.ChannelPaper.String()},
+				"carry-out-by": {lpadata.ChannelPaper.String()},
 				"email":        {"a@b.com"},
 			},
 			expectedForm: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelPaper,
+				CarryOutBy: lpadata.ChannelPaper,
 			},
 		},
 	}
@@ -242,38 +243,38 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 	}{
 		"paper": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelPaper,
+				CarryOutBy: lpadata.ChannelPaper,
 			},
 		},
 		"online": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelOnline,
+				CarryOutBy: lpadata.ChannelOnline,
 				Email:      "someone@example.com",
 			},
 		},
 		"online email invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelOnline,
+				CarryOutBy: lpadata.ChannelOnline,
 				Email:      "what",
 			},
 			errors: validation.With("email", validation.EmailError{Label: "certificateProvidersEmail"}),
 		},
 		"online email missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.ChannelOnline,
+				CarryOutBy: lpadata.ChannelOnline,
 			},
 			errors: validation.With("email", validation.EnterError{Label: "certificateProvidersEmail"}),
 		},
 		"missing": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.Channel(0),
+				CarryOutBy: lpadata.Channel(0),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 		"invalid": {
 			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donordata.Channel(99),
+				CarryOutBy: lpadata.Channel(99),
 				Error:      expectedError,
 			},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),

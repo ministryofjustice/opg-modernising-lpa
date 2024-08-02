@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   donordata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 	}
 
@@ -113,7 +114,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   donordata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 	}
 
@@ -228,7 +229,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: donordata.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -284,13 +285,13 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: donordata.ChannelOnline,
+			CarryOutBy: lpadata.ChannelOnline,
 		},
 		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   donordata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -339,13 +340,13 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   donordata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -403,7 +404,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   donordata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -478,7 +479,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
 	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
@@ -498,7 +499,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
 	donor := &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{
-			CarryOutBy: donordata.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
@@ -533,7 +534,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: donordata.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -633,7 +634,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        donordata.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -781,7 +782,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        donordata.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -858,7 +859,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        donordata.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -942,7 +943,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: donordata.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)

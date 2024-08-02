@@ -1,3 +1,4 @@
+// Package notify provides a client for GOV.UK's Notify service.
 package notify
 
 import (
