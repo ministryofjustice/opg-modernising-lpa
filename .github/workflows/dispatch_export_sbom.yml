@@ -52,3 +52,7 @@ jobs:
           name: modernising-lpa-sbom-${{ inputs.image_tag }}
           path: '${{ github.workspace }}/scripts/sbom_exporter/exports/**/*.json'
           retention-days: 20
+      - name: SBOM upload
+        uses: advanced-security/spdx-dependency-submission-action@v0.1.1
+        with:
+          filePath: "${{ github.workspace }}/scripts/sbom_exporter/exports"
