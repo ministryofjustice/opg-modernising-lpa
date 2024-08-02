@@ -370,7 +370,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 				Postcode: "F1 1FF",
 			},
 		},
-		Type: LpaTypePersonalWelfare,
+		Type: lpadata.LpaTypePersonalWelfare,
 	})
 
 	assert.Equal(t, expectedError, err)

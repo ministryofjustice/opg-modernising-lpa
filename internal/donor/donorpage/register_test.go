@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -146,7 +147,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 				LpaID:     "123",
 				SupporterData: &appcontext.SupporterData{
 					DonorFullName: "Jane Smith",
-					LpaType:       donordata.LpaTypePropertyAndAffairs,
+					LpaType:       lpadata.LpaTypePropertyAndAffairs,
 				},
 			},
 			loginSesh:       &sesh.LoginSession{Sub: "random", OrganisationID: "org-id"},
@@ -176,7 +177,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					Address:     place.Address{Postcode: "ABC123"},
 					Email:       "a@example.com",
 				},
-					Type:   donordata.LpaTypePropertyAndAffairs,
+					Type:   lpadata.LpaTypePropertyAndAffairs,
 					Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 					LpaUID: "a-uid",
 				}, nil)
@@ -222,7 +223,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			DateOfBirth: date.New("2000", "1", "2"),
 			Address:     place.Address{Postcode: "ABC123"},
 		},
-			Type:   donordata.LpaTypePropertyAndAffairs,
+			Type:   lpadata.LpaTypePropertyAndAffairs,
 			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}, nil)
@@ -234,7 +235,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Address:     place.Address{Postcode: "ABC123"},
 			Email:       "a@example.com",
 		},
-			Type:   donordata.LpaTypePropertyAndAffairs,
+			Type:   lpadata.LpaTypePropertyAndAffairs,
 			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}).

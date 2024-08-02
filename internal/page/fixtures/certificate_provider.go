@@ -142,9 +142,9 @@ func CertificateProvider(
 
 		donorDetails.Donor = makeDonor(donorEmail)
 
-		donorDetails.Type = donordata.LpaTypePropertyAndAffairs
+		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
-			donorDetails.Type = donordata.LpaTypePersonalWelfare
+			donorDetails.Type = lpadata.LpaTypePersonalWelfare
 			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 		} else {

@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -125,7 +126,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 }
 
 func taskListTypeSpecificStep(donor *donordata.Provided) taskListItem {
-	if donor.Type == donordata.LpaTypePersonalWelfare {
+	if donor.Type == lpadata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
 			Path:  page.Paths.LifeSustainingTreatment.Format(donor.LpaID),

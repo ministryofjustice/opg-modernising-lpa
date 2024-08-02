@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -112,7 +113,7 @@ func Supporter(
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor(testEmail)
-				donor.Type = donordata.LpaTypePropertyAndAffairs
+				donor.Type = lpadata.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
 				donor.Attorneys = donordata.Attorneys{
 					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
@@ -165,7 +166,7 @@ func Supporter(
 
 					donor.LpaUID = makeUID()
 					donor.Donor = makeDonor(testEmail)
-					donor.Type = donordata.LpaTypePropertyAndAffairs
+					donor.Type = lpadata.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
 					donor.Attorneys = donordata.Attorneys{
 						Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},

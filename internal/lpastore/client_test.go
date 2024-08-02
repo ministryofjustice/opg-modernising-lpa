@@ -182,7 +182,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			err := client.SendLpa(context.Background(), &donordata.Provided{
 				LpaUID:                        "M-0000-1111-2222",
-				Type:                          donordata.LpaTypePersonalWelfare,
+				Type:                          lpadata.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
 				Donor: donordata.Donor{
 					UID:                       actoruid.New(),
@@ -344,7 +344,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			err := client.SendLpa(context.Background(), &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: donordata.Donor{
 					UID:                       actoruid.New(),
 					FirstNames:                "John Johnson",
@@ -862,7 +862,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			assert.Equal(t, &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
@@ -994,7 +994,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			assert.Equal(t, []*Lpa{{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
