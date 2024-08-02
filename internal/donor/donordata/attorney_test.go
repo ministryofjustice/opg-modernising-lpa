@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,8 +14,8 @@ func TestAttorneyFullName(t *testing.T) {
 }
 
 func TestAttorneyChannel(t *testing.T) {
-	assert.Equal(t, ChannelOnline, Attorney{Email: "a@example.com"}.Channel())
-	assert.Equal(t, ChannelPaper, Attorney{}.Channel())
+	assert.Equal(t, lpadata.ChannelOnline, Attorney{Email: "a@example.com"}.Channel())
+	assert.Equal(t, lpadata.ChannelPaper, Attorney{}.Channel())
 }
 
 func TestAttorneysLen(t *testing.T) {
@@ -245,6 +246,6 @@ func TestAttorneysNames(t *testing.T) {
 }
 
 func TestTrustCorporationChannel(t *testing.T) {
-	assert.Equal(t, ChannelOnline, TrustCorporation{Email: "a@example.com"}.Channel())
-	assert.Equal(t, ChannelPaper, TrustCorporation{}.Channel())
+	assert.Equal(t, lpadata.ChannelOnline, TrustCorporation{Email: "a@example.com"}.Channel())
+	assert.Equal(t, lpadata.ChannelPaper, TrustCorporation{}.Channel())
 }

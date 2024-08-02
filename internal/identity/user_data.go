@@ -1,3 +1,5 @@
+// Package identity provides types for capturing and validating an identity
+// check.
 package identity
 
 import (

@@ -1,3 +1,5 @@
+// Package validation provides functionality to validate form data and present
+// translatable errors.
 package validation
 
 type Localizer interface {

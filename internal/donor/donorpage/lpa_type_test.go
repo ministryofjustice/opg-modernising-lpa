@@ -51,14 +51,14 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 		Execute(w, &lpaTypeData{
 			App: testAppData,
 			Form: &lpaTypeForm{
-				LpaType: donordata.LpaTypePropertyAndAffairs,
+				LpaType: lpadata.LpaTypePropertyAndAffairs,
 			},
 			Options:     lpadata.LpaTypeValues,
 			CanTaskList: true,
 		}).
 		Return(nil)
 
-	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Type: donordata.LpaTypePropertyAndAffairs})
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Type: lpadata.LpaTypePropertyAndAffairs})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -82,8 +82,8 @@ func TestGetLpaTypeWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostLpaType(t *testing.T) {
-	testcases := map[donordata.LpaType]*donordata.Provided{
-		donordata.LpaTypePropertyAndAffairs: {
+	testcases := map[lpadata.LpaType]*donordata.Provided{
+		lpadata.LpaTypePropertyAndAffairs: {
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
 				FirstNames:  "John",
@@ -91,10 +91,10 @@ func TestPostLpaType(t *testing.T) {
 				DateOfBirth: date.New("2000", "01", "01"),
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
-			Type:  donordata.LpaTypePropertyAndAffairs,
+			Type:  lpadata.LpaTypePropertyAndAffairs,
 			Tasks: donordata.Tasks{YourDetails: task.StateCompleted},
 		},
-		donordata.LpaTypePersonalWelfare: {
+		lpadata.LpaTypePersonalWelfare: {
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
 				FirstNames:  "John",
@@ -102,8 +102,8 @@ func TestPostLpaType(t *testing.T) {
 				DateOfBirth: date.New("2000", "01", "01"),
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
-			Type:                donordata.LpaTypePersonalWelfare,
-			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenCapacityLost,
+			Type:                lpadata.LpaTypePersonalWelfare,
+			WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted},
 		},
 	}
@@ -160,7 +160,7 @@ func TestPostLpaType(t *testing.T) {
 
 func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {donordata.LpaTypePersonalWelfare.String()},
+		"lpa-type": {lpadata.LpaTypePersonalWelfare.String()},
 	}
 
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
@@ -195,7 +195,7 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 
 func TestPostLpaTypeWhenSessionErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
+		"lpa-type": {lpadata.LpaTypePropertyAndAffairs.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -211,7 +211,7 @@ func TestPostLpaTypeWhenSessionErrors(t *testing.T) {
 
 func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
+		"lpa-type": {lpadata.LpaTypePropertyAndAffairs.String()},
 	}
 
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
@@ -239,7 +239,7 @@ func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 
 func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
+		"lpa-type": {lpadata.LpaTypePropertyAndAffairs.String()},
 	}
 
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
@@ -279,7 +279,7 @@ func TestPostLpaTypeWhenValidationErrors(t *testing.T) {
 
 func TestReadLpaTypeForm(t *testing.T) {
 	form := url.Values{
-		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
+		"lpa-type": {lpadata.LpaTypePropertyAndAffairs.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -287,7 +287,7 @@ func TestReadLpaTypeForm(t *testing.T) {
 
 	result := readLpaTypeForm(r)
 
-	assert.Equal(t, donordata.LpaTypePropertyAndAffairs, result.LpaType)
+	assert.Equal(t, lpadata.LpaTypePropertyAndAffairs, result.LpaType)
 }
 
 func TestLpaTypeFormValidate(t *testing.T) {
@@ -307,12 +307,12 @@ func TestLpaTypeFormValidate(t *testing.T) {
 		},
 		"to personal welfare": {
 			form: &lpaTypeForm{
-				LpaType: donordata.LpaTypePersonalWelfare,
+				LpaType: lpadata.LpaTypePersonalWelfare,
 			},
 		},
 		"to personal welfare when trust corporation": {
 			form: &lpaTypeForm{
-				LpaType: donordata.LpaTypePersonalWelfare,
+				LpaType: lpadata.LpaTypePersonalWelfare,
 			},
 			hasTrustCorporation: true,
 			errors:              validation.With("lpa-type", validation.CustomError{Label: "youMustDeleteTrustCorporationToChangeLpaType"}),

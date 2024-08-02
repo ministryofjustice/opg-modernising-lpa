@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -54,7 +55,7 @@ func TestGetCertificateProviderAddressWhenProfessionalCertificateProvider(t *tes
 		FirstNames:   "John",
 		LastName:     "Smith",
 		Address:      place.Address{},
-		Relationship: donordata.Professionally,
+		Relationship: lpadata.Professionally,
 	}
 
 	template := newMockTemplate(t)

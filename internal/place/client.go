@@ -1,3 +1,4 @@
+// Package place provides a client for Ordnance Survey's Places API.
 package place
 
 import (

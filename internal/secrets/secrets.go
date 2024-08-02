@@ -1,3 +1,4 @@
+// Package secrets provides a client for AWS Secrets Manager.
 package secrets
 
 import (

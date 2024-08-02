@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
@@ -43,7 +44,7 @@ type CertificateProviderInvite struct {
 	LpaKey                      dynamo.LpaKeyType
 	LpaOwnerKey                 dynamo.LpaOwnerKeyType
 	LpaUID                      string
-	Type                        donordata.LpaType
+	Type                        lpadata.LpaType
 	DonorFirstNames             string
 	DonorFullName               string
 	CertificateProviderUID      actoruid.UID

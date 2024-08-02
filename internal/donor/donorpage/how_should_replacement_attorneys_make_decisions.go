@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -14,7 +15,7 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 	App     appcontext.Data
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
-	Options donordata.AttorneysActOptions
+	Options lpadata.AttorneysActOptions
 	Donor   *donordata.Provided
 }
 
@@ -26,7 +27,7 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 				DecisionsType:    donor.ReplacementAttorneyDecisions.How,
 				DecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
 			},
-			Options: donordata.AttorneysActValues,
+			Options: lpadata.AttorneysActValues,
 			Donor:   donor,
 		}
 

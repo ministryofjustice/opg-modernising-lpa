@@ -1,4 +1,4 @@
-package donordata
+package lpadata
 
 //go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
 type LifeSustainingTreatment uint8

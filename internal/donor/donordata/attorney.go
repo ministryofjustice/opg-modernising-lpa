@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -28,10 +29,10 @@ func (a Attorney) FullName() string {
 	return fmt.Sprintf("%s %s", a.FirstNames, a.LastName)
 }
 
-func (a Attorney) Channel() Channel {
+func (a Attorney) Channel() lpadata.Channel {
 	if a.Email != "" {
-		return ChannelOnline
+		return lpadata.ChannelOnline
 	}
 
-	return ChannelPaper
+	return lpadata.ChannelPaper
 }

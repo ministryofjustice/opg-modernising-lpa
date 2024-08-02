@@ -1,3 +1,4 @@
+// Mock notify is a mock for GOV.UK's Notify service.
 package main
 
 import (

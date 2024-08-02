@@ -1,3 +1,5 @@
+// Package task provides types to describe the different states a tasklist task
+// can be in.
 package task
 
 type State uint8
