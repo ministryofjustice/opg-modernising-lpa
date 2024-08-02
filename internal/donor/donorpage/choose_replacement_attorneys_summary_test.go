@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -89,46 +90,46 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 		redirectUrl          page.LpaPath
 		attorneys            donordata.Attorneys
 		replacementAttorneys donordata.Attorneys
-		howAttorneysAct      donordata.AttorneysAct
+		howAttorneysAct      lpadata.AttorneysAct
 		decisionDetails      string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
-			howAttorneysAct:      donordata.JointlyAndSeverally,
+			howAttorneysAct:      lpadata.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
-			howAttorneysAct:      donordata.JointlyAndSeverally,
+			howAttorneysAct:      lpadata.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
 			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
-			howAttorneysAct:      donordata.Jointly,
+			howAttorneysAct:      lpadata.Jointly,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
 			redirectUrl:          page.Paths.TaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
-			howAttorneysAct:      donordata.JointlyForSomeSeverallyForOthers,
+			howAttorneysAct:      lpadata.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
 			redirectUrl:          page.Paths.TaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
-			howAttorneysAct:      donordata.JointlyForSomeSeverallyForOthers,
+			howAttorneysAct:      lpadata.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
 			redirectUrl:          page.Paths.TaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
-			howAttorneysAct:      donordata.Jointly,
+			howAttorneysAct:      lpadata.Jointly,
 		},
 	}
 

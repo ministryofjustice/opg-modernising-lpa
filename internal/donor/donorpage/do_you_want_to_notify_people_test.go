@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -63,19 +64,19 @@ func TestGetDoYouWantToNotifyPeopleFromStore(t *testing.T) {
 
 func TestGetDoYouWantToNotifyPeopleHowAttorneysWorkTogether(t *testing.T) {
 	testCases := map[string]struct {
-		howWorkTogether  donordata.AttorneysAct
+		howWorkTogether  lpadata.AttorneysAct
 		expectedTransKey string
 	}{
 		"jointly": {
-			howWorkTogether:  donordata.Jointly,
+			howWorkTogether:  lpadata.Jointly,
 			expectedTransKey: "jointlyDescription",
 		},
 		"jointly and severally": {
-			howWorkTogether:  donordata.JointlyAndSeverally,
+			howWorkTogether:  lpadata.JointlyAndSeverally,
 			expectedTransKey: "jointlyAndSeverallyDescription",
 		},
 		"jointly for some severally for others": {
-			howWorkTogether:  donordata.JointlyForSomeSeverallyForOthers,
+			howWorkTogether:  lpadata.JointlyForSomeSeverallyForOthers,
 			expectedTransKey: "jointlyForSomeSeverallyForOthersDescription",
 		},
 	}
