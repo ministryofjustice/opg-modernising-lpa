@@ -7,13 +7,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestMemberStoreCreateMemberInvite(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -40,7 +39,7 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
 		"missing session":        context.Background(),
-		"missing OrganisationID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing OrganisationID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	memberStore := &memberStore{now: testNowFn}
@@ -56,7 +55,7 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMember(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOneBySK(ctx, dynamo.MemberInviteKey("a@example.org"), &actor.MemberInvite{OrganisationID: "an-id"}, nil)
@@ -70,7 +69,7 @@ func TestMemberStoreInvitedMember(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMemberWhenDynamoError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOneBySK(ctx, mock.Anything, mock.Anything, expectedError)
@@ -84,7 +83,7 @@ func TestMemberStoreInvitedMemberWhenDynamoError(t *testing.T) {
 
 func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no email":        page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"no email":        appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 		"no session data": context.Background(),
 	}
 
@@ -100,7 +99,7 @@ func TestMemberStoreInvitedMemberWhenSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
@@ -114,7 +113,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMembers(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
@@ -130,7 +129,7 @@ func TestMemberStoreInvitedMembers(t *testing.T) {
 
 func TestMemberStoreInvitedMembersWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no organisation id": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"no organisation id": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 		"no session data":    context.Background(),
 	}
 
@@ -146,7 +145,7 @@ func TestMemberStoreInvitedMembersWhenSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
@@ -160,7 +159,7 @@ func TestMemberStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.MemberInviteKey("a@example.org"), []*actor.MemberInvite{
@@ -180,7 +179,7 @@ func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
 }
 
 func TestMemberStoreInvitedMembersByEmailWhenDynamoError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a@example.org"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, mock.Anything, mock.Anything, expectedError)
@@ -194,7 +193,7 @@ func TestMemberStoreInvitedMembersByEmailWhenDynamoError(t *testing.T) {
 
 func TestMemberStoreInvitedMembersByEmailWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no email":        page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"no email":        appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 		"no session data": context.Background(),
 	}
 
@@ -244,7 +243,7 @@ func TestPutWhenDynamoError(t *testing.T) {
 }
 
 func TestMemberStoreGetAll(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
@@ -260,7 +259,7 @@ func TestMemberStoreGetAll(t *testing.T) {
 
 func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no organisation ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"no organisation ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 		"no session data":    context.Background(),
 	}
 
@@ -276,7 +275,7 @@ func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreGetAllWhenDynamoClientError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
@@ -290,7 +289,7 @@ func TestMemberStoreGetAllWhenDynamoClientError(t *testing.T) {
 }
 
 func TestMemberStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{
 		OrganisationID: "a-uuid",
 		SessionID:      "session-id",
 	})
@@ -310,8 +309,8 @@ func TestMemberStoreGet(t *testing.T) {
 
 func TestMemberStoreGetWithSessionMissing(t *testing.T) {
 	testcases := map[string]context.Context{
-		"no session id":      page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "id"}),
-		"no organisation id": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"no session id":      appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "id"}),
+		"no organisation id": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 		"no session data":    context.Background(),
 	}
 
@@ -326,7 +325,7 @@ func TestMemberStoreGetWithSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreGetWhenErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "a-uuid", SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "a-uuid", SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -339,7 +338,7 @@ func TestMemberStoreGetWhenErrors(t *testing.T) {
 }
 
 func TestMemberStoreCreate(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id", Email: "email@example.com"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", Email: "email@example.com"})
 	expectedMember := &actor.Member{
 		PK:             dynamo.OrganisationKey("a-uuid"),
 		SK:             dynamo.MemberKey("session-id"),
@@ -379,8 +378,8 @@ func TestMemberStoreCreate(t *testing.T) {
 func TestMemberStoreCreateWhenSessionMissing(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":    context.Background(),
-		"missing email":      page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "a"}),
-		"missing session ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{Email: "a"}),
+		"missing email":      appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "a"}),
+		"missing session ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a"}),
 	}
 
 	for name, ctx := range testCases {
@@ -394,7 +393,7 @@ func TestMemberStoreCreateWhenSessionMissing(t *testing.T) {
 }
 
 func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id", Email: "a"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", Email: "a"})
 
 	testcases := map[string]struct {
 		dynamoClientSetup func(*mockDynamoClient)
@@ -435,7 +434,7 @@ func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 }
 
 func TestMemberStoreCreateFromInvite(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
 	invite := &actor.MemberInvite{
 		PK:             "pk",
@@ -486,7 +485,7 @@ func TestMemberStoreCreateFromInvite(t *testing.T) {
 func TestMemberStoreCreateFromInviteWhenSessionMissing(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":    context.Background(),
-		"missing session ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing session ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	for name, ctx := range testCases {
@@ -518,7 +517,7 @@ func TestMemberStoreCreateFromInviteWhenDynamoErrors(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
@@ -547,7 +546,7 @@ func TestMemberStoreCreateFromInviteWhenDynamoErrors(t *testing.T) {
 }
 
 func TestMemberStoreGetByID(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "org-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -579,7 +578,7 @@ func TestMemberStoreGetByID(t *testing.T) {
 func TestMemberStoreGetByIDWhenMissingSession(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":         context.Background(),
-		"missing organisation ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing organisation ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	for name, ctx := range testCases {
@@ -608,7 +607,7 @@ func TestMemberStoreGetByIDWhenDynamoClientErrors(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{OrganisationID: "org-id"})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{OrganisationID: "org-id"})
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
@@ -631,7 +630,7 @@ func TestMemberStoreGetByIDWhenDynamoClientErrors(t *testing.T) {
 }
 
 func TestMemberStoreGetAny(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
 	expectedMember := &actor.Member{ID: "a"}
 
@@ -650,7 +649,7 @@ func TestMemberStoreGetAny(t *testing.T) {
 func TestMemberStoreGetAnyWhenMissingSession(t *testing.T) {
 	testCases := map[string]context.Context{
 		"missing session":    context.Background(),
-		"missing session ID": page.ContextWithSessionData(context.Background(), &appcontext.SessionData{}),
+		"missing session ID": appcontext.ContextWithSession(context.Background(), &appcontext.Session{}),
 	}
 
 	for name, ctx := range testCases {
@@ -665,7 +664,7 @@ func TestMemberStoreGetAnyWhenMissingSession(t *testing.T) {
 }
 
 func TestMemberStoreGetAnyWhenDynamoClientErrors(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "session-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.

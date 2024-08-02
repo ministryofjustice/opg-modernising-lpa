@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -29,7 +30,7 @@ func TestPathRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := Path("/something")
 
-	err := p.Redirect(w, r, AppData{Lang: localize.En})
+	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +43,7 @@ func TestPathRedirectQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := Path("/something")
 
-	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, url.Values{"q": {"1"}})
+	err := p.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -98,7 +99,7 @@ func TestLpaPathRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			err := Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, AppData{Lang: localize.En}, tc.donor)
+			err := Paths.HowToConfirmYourIdentityAndSign.Redirect(w, r, appcontext.Data{Lang: localize.En}, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -112,7 +113,7 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
-	err := Paths.TaskList.RedirectQuery(w, r, AppData{Lang: localize.En}, &donordata.Provided{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
+	err := Paths.TaskList.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, &donordata.Provided{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -133,7 +134,7 @@ func TestAttorneyPathRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := AttorneyPath("/something")
 
-	err := p.Redirect(w, r, AppData{Lang: localize.En}, "lpa-id")
+	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -146,7 +147,7 @@ func TestAttorneyPathRedirectQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := AttorneyPath("/something")
 
-	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, "lpa-id", url.Values{"q": {"1"}})
+	err := p.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, "lpa-id", url.Values{"q": {"1"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -167,7 +168,7 @@ func TestCertificateProviderPathRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := CertificateProviderPath("/something")
 
-	err := p.Redirect(w, r, AppData{Lang: localize.En}, "lpa-id")
+	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -188,7 +189,7 @@ func TestSupporterPathRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := SupporterPath("/something")
 
-	err := p.Redirect(w, r, AppData{Lang: localize.En})
+	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -218,7 +219,7 @@ func TestSupporterLpaPathRedirect(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := SupporterLpaPath("/something")
 
-	err := p.Redirect(w, r, AppData{Lang: localize.En}, "abc")
+	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En}, "abc")
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -231,7 +232,7 @@ func TestSupporterLpaPathRedirectQuery(t *testing.T) {
 	w := httptest.NewRecorder()
 	p := SupporterLpaPath("/something")
 
-	err := p.RedirectQuery(w, r, AppData{Lang: localize.En}, "abc", url.Values{"x": {"y"}})
+	err := p.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, "abc", url.Values{"x": {"y"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

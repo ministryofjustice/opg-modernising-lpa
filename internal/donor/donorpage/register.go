@@ -30,7 +30,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -76,8 +76,8 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *donordata.Provided) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
+	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 }
 
 type OneLoginClient interface {
@@ -434,7 +434,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.ActorType = actor.TypeDonor
 
@@ -447,10 +447,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 				appData.LoginSessionEmail = session.Email
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -468,21 +468,21 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 				return
 			}
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 			appData.LpaID = r.PathValue("id")
 			appData.SessionID = loginSession.SessionID()
 			appData.LoginSessionEmail = loginSession.Email
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				sessionData = &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				sessionData = &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID}
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			}
 
 			if loginSession.OrganisationID != "" {
@@ -513,14 +513,14 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if loginSession.OrganisationID != "" {
-				appData.SupporterData = &page.SupporterData{
+				appData.SupporterData = &appcontext.SupporterData{
 					LpaType:          lpa.Type,
 					DonorFullName:    lpa.Donor.FullName(),
 					OrganisationName: loginSession.OrganisationName,
 				}
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), lpa); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

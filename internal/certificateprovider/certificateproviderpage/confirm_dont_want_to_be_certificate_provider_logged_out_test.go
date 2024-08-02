@@ -34,7 +34,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})).
 		Return(&lpa, nil)
 
 	template := newMockTemplate(t)
@@ -134,7 +134,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
-	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
+	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 	testcases := map[string]struct {
 		lpa            lpastore.Lpa
@@ -298,7 +298,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
-	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
+	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 	shareCodeData := sharecode.Data{
 		LpaKey: dynamo.LpaKey("lpa-id"),

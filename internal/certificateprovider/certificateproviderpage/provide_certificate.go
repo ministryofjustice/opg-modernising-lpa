@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -16,7 +17,7 @@ import (
 )
 
 type provideCertificateData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
 	CertificateProvider *certificateproviderdata.Provided
 	Lpa                 *lpastore.Lpa
@@ -32,7 +33,7 @@ func ProvideCertificate(
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
 ) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err

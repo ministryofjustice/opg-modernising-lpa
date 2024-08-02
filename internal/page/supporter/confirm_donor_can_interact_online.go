@@ -5,19 +5,20 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmDonorCanInteractOnlineData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
 }
 
 func ConfirmDonorCanInteractOnline(tmpl template.Template, organisationStore OrganisationStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &confirmDonorCanInteractOnlineData{
 			App:  appData,
 			Form: form.NewYesNoForm(form.YesNoUnknown),

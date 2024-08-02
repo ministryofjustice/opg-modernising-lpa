@@ -12,14 +12,10 @@
 package page
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
-
-var SessionDataFromContext = appcontext.SessionDataFromContext
-var ContextWithSessionData = appcontext.ContextWithSessionData
 
 func ChooseAttorneysState(attorneys donordata.Attorneys, decisions donordata.AttorneyDecisions) task.State {
 	if attorneys.Len() == 0 {

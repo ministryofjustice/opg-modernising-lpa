@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -153,9 +154,9 @@ func TestPostEditMember(t *testing.T) {
 				Put(r.Context(), tc.expectedMember).
 				Return(nil)
 
-			err := EditMember(nil, nil, memberStore)(page.AppData{
+			err := EditMember(nil, nil, memberStore)(appcontext.Data{
 				LoginSessionEmail: "self@example.org",
-				SupporterData: &page.SupporterData{
+				SupporterData: &appcontext.SupporterData{
 					Permission: tc.userPermission,
 				},
 			}, w, r, &actor.Organisation{}, tc.member)
@@ -208,9 +209,9 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "member permission changed", slog.String("member_id", "member-id"), slog.String("permission_old", "none"), slog.String("permission_new", "admin"))
 
-	err := EditMember(logger, nil, memberStore)(page.AppData{
+	err := EditMember(logger, nil, memberStore)(appcontext.Data{
 		LoginSessionEmail: "self@example.org",
-		SupporterData: &page.SupporterData{
+		SupporterData: &appcontext.SupporterData{
 			Permission: actor.PermissionAdmin,
 		},
 	}, w, r, &actor.Organisation{}, &actor.Member{})
@@ -252,9 +253,9 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := EditMember(nil, nil, nil)(page.AppData{
+			err := EditMember(nil, nil, nil)(appcontext.Data{
 				LoginSessionEmail: "self@example.org",
-				SupporterData: &page.SupporterData{
+				SupporterData: &appcontext.SupporterData{
 					Permission: tc.userPermission,
 				},
 			}, w, r, &actor.Organisation{}, &actor.Member{
@@ -297,9 +298,9 @@ func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
 			Permission: actor.PermissionAdmin,
 		}, nil)
 
-	err := EditMember(nil, nil, memberStore)(page.AppData{
+	err := EditMember(nil, nil, memberStore)(appcontext.Data{
 		LoginSessionEmail: "self@example.org",
-		SupporterData: &page.SupporterData{
+		SupporterData: &appcontext.SupporterData{
 			Permission: actor.PermissionAdmin,
 		},
 	}, w, r, &actor.Organisation{}, &actor.Member{})

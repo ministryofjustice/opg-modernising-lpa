@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -18,7 +19,7 @@ import (
 )
 
 type paymentConfirmationData struct {
-	App              page.AppData
+	App              appcontext.Data
 	Errors           validation.List
 	PaymentReference string
 	FeeType          pay.FeeType
@@ -28,7 +29,7 @@ type paymentConfirmationData struct {
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
 			return err

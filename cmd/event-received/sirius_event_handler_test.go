@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -142,7 +143,7 @@ func TestHandleFeeApproved(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, &completedDonorProvided).
+		SendCertificateProviderPrompt(ctx, appcontext.Data{}, &completedDonorProvided).
 		Return(nil)
 
 	client := newMockDynamodbClient(t)
@@ -177,7 +178,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		AppData().
-		Return(page.AppData{}, nil)
+		Return(appcontext.Data{}, nil)
 	factory.EXPECT().
 		ShareCodeSender(ctx).
 		Return(shareCodeSender, nil)
@@ -245,7 +246,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		AppData().
-		Return(page.AppData{}, nil)
+		Return(appcontext.Data{}, nil)
 	factory.EXPECT().
 		ShareCodeSender(ctx).
 		Return(nil, nil)
@@ -305,7 +306,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, func() time.Time { return now })
 	assert.Nil(t, err)
 }
 
@@ -343,7 +344,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 					return nil
 				})
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, nil)
+			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, nil)
 			assert.Nil(t, err)
 		})
 	}
@@ -376,7 +377,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -416,10 +417,10 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendCertificateProviderPrompt(ctx, page.AppData{}, mock.Anything).
+		SendCertificateProviderPrompt(ctx, appcontext.Data{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, appcontext.Data{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -457,7 +458,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 		SendLpa(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, page.AppData{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, appcontext.Data{}, func() time.Time { return now })
 	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
@@ -679,7 +680,7 @@ var donorSubmissionCompletedEvent = events.CloudWatchEvent{
 }
 
 func TestHandleDonorSubmissionCompleted(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 	uid := actoruid.New()
 
 	lpa := &lpastore.Lpa{
@@ -751,7 +752,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 }
 
 func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
@@ -777,7 +778,7 @@ func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T
 }
 
 func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
@@ -789,7 +790,7 @@ func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
 }
 
 func TestHandleDonorSubmissionCompletedWhenDynamoOneByUIDError(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
@@ -801,7 +802,7 @@ func TestHandleDonorSubmissionCompletedWhenDynamoOneByUIDError(t *testing.T) {
 }
 
 func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
@@ -816,7 +817,7 @@ func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
 }
 
 func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
@@ -842,7 +843,7 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 }
 
 func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
@@ -878,7 +879,7 @@ var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
 }
 
 func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
-	appData := page.AppData{}
+	appData := appcontext.Data{}
 
 	lpa := &lpastore.Lpa{
 		CertificateProvider: lpastore.CertificateProvider{
@@ -986,7 +987,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 		Return(shareCodeSender, nil)
 	factory.EXPECT().
 		AppData().
-		Return(page.AppData{}, nil)
+		Return(appcontext.Data{}, nil)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
@@ -1035,7 +1036,7 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 		Return(nil, nil)
 	factory.EXPECT().
 		AppData().
-		Return(page.AppData{}, expectedError)
+		Return(appcontext.Data{}, expectedError)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)

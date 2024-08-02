@@ -5,16 +5,17 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type rootData struct {
-	App    AppData
+	App    appcontext.Data
 	Errors validation.List
 }
 
 func Root(tmpl template.Template, logger Logger) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.URL.Path == "/" {
 			http.Redirect(w, r, Paths.Start.Format(), http.StatusFound)
 			return nil

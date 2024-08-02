@@ -117,9 +117,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Create(mock.MatchedBy(func(ctx context.Context) bool {
-					session, _ := appcontext.SessionDataFromContext(ctx)
+					session, _ := appcontext.SessionFromContext(ctx)
 
-					return assert.Equal(t, &appcontext.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+					return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 				}), tc.shareCode, "a@example.com").
 				Return(&attorneydata.Provided{}, nil)
 

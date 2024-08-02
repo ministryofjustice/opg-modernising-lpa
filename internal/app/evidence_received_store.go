@@ -13,7 +13,7 @@ type evidenceReceivedStore struct {
 }
 
 func (s *evidenceReceivedStore) Get(ctx context.Context) (bool, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return false, err
 	}

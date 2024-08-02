@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -11,14 +12,14 @@ import (
 )
 
 type previousFeeData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Errors  validation.List
 	Form    *previousFeeForm
 	Options pay.PreviousFeeOptions
 }
 
 func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &previousFeeData{
 			App: appData,
 			Form: &previousFeeForm{

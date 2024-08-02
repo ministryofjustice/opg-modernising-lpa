@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -15,14 +16,14 @@ import (
 )
 
 type whatIsYourHomeAddressData struct {
-	App       page.AppData
+	App       appcontext.Data
 	Addresses []place.Address
 	Form      *form.AddressForm
 	Errors    validation.List
 }
 
 func WhatIsYourHomeAddress(logger Logger, tmpl template.Template, addressClient AddressClient, certificateProviderStore CertificateProviderStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		f := form.NewAddressForm()
 		f.Action = "postcode"
 

@@ -76,7 +76,7 @@ func (s *shareCodeStore) PutDonor(ctx context.Context, shareCode string, data sh
 func (s *shareCodeStore) GetDonor(ctx context.Context) (sharecode.Data, error) {
 	var data sharecode.Data
 
-	sessionData, err := appcontext.SessionDataFromContext(ctx)
+	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return data, err
 	}

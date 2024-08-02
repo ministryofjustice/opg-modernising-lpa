@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,7 +22,7 @@ func TestError(t *testing.T) {
 	for showErrors, data := range testcases {
 		t.Run(fmt.Sprint(showErrors), func(t *testing.T) {
 			w := httptest.NewRecorder()
-			r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+			r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
@@ -42,7 +43,7 @@ func TestError(t *testing.T) {
 
 func TestErrorWithErrCsrfInvalid(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -61,7 +62,7 @@ func TestErrorWithErrCsrfInvalid(t *testing.T) {
 
 func TestErrorWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequestWithContext(ContextWithAppData(context.Background(), TestAppData), http.MethodGet, "/", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithData(context.Background(), TestAppData), http.MethodGet, "/", nil)
 
 	templateError := errors.New("template error")
 

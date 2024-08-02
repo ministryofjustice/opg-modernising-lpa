@@ -27,16 +27,16 @@ func TestRegister(t *testing.T) {
 }
 
 func TestMakeHandle(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:          "/path",
-			SupporterData: &page.SupporterData{},
+			SupporterData: &appcontext.SupporterData{},
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -60,7 +60,7 @@ func TestMakeHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, errorHandler.Execute)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -78,11 +78,11 @@ func TestMakeHandleWhenRequireSession(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:          "/path",
 			SessionID:     "cmFuZG9t",
-			SupporterData: &page.SupporterData{},
+			SupporterData: &appcontext.SupporterData{},
 		}, appData)
 		assert.Equal(t, w, hw)
 
@@ -117,7 +117,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 }
 
 func TestMakeSupporterHandle(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -130,20 +130,20 @@ func TestMakeSupporterHandle(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		assert.Equal(t, page.AppData{
+	handle(page.SupporterPath("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
-			SupporterData: &page.SupporterData{
+			SupporterData: &appcontext.SupporterData{
 				Permission:          actor.PermissionAdmin,
 				LoggedInSupporterID: "member-id",
 			},
@@ -153,8 +153,8 @@ func TestMakeSupporterHandle(t *testing.T) {
 
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -167,7 +167,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path/xyz", nil)
 
@@ -180,20 +180,20 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org", LpaID: "xyz"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org", LpaID: "xyz"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		assert.Equal(t, page.AppData{
+	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path/xyz",
 			SessionID: "cmFuZG9t",
-			SupporterData: &page.SupporterData{
+			SupporterData: &appcontext.SupporterData{
 				Permission:          actor.PermissionAdmin,
 				LoggedInSupporterID: "member-id",
 			},
@@ -204,8 +204,8 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id", LpaID: "xyz"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id", LpaID: "xyz"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -218,7 +218,7 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -231,20 +231,20 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), RequireAdmin, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		assert.Equal(t, page.AppData{
+	handle(page.SupporterPath("/path"), RequireAdmin, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
-			SupporterData: &page.SupporterData{
+			SupporterData: &appcontext.SupporterData{
 				Permission:          actor.PermissionAdmin,
 				LoggedInSupporterID: "member-id",
 			},
@@ -253,8 +253,8 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -267,7 +267,7 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -280,12 +280,12 @@ func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionNone, ID: "member-id"}, nil)
 
 	errorHandler := newMockErrorHandler(t)
@@ -299,7 +299,7 @@ func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -312,21 +312,21 @@ func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id", Name: "My Org"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id", Status: actor.StatusSuspended}, nil)
 
 	suspendedTmpl := newMockTemplate(t)
 	suspendedTmpl.EXPECT().
 		Execute(w, &suspendedData{
-			App: page.AppData{
+			App: appcontext.Data{
 				Page:              "/supporter/path",
 				SessionID:         "cmFuZG9t",
-				SupporterData:     &page.SupporterData{},
+				SupporterData:     &appcontext.SupporterData{},
 				LoginSessionEmail: "a@example.org",
 			},
 			OrganisationName: "My Org",
@@ -343,7 +343,7 @@ func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
-	ctx := page.ContextWithAppData(context.Background(), page.AppData{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -356,21 +356,21 @@ func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Organisation{ID: "org-id", Name: "My Org"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id", Status: actor.StatusSuspended}, nil)
 
 	suspendedTmpl := newMockTemplate(t)
 	suspendedTmpl.EXPECT().
 		Execute(w, &suspendedData{
-			App: page.AppData{
+			App: appcontext.Data{
 				Page:              "/supporter/path",
 				SessionID:         "cmFuZG9t",
-				SupporterData:     &page.SupporterData{},
+				SupporterData:     &appcontext.SupporterData{},
 				LoginSessionEmail: "a@example.org",
 			},
 			OrganisationName: "My Org",
@@ -390,11 +390,11 @@ func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestMakeSupporterHandleWithSessionData(t *testing.T) {
+func TestMakeSupporterHandleWithSession(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(
-		page.ContextWithSessionData(context.Background(),
-			&appcontext.SessionData{SessionID: "existing-sub", OrganisationID: "an-org-id"}),
+		appcontext.ContextWithSession(context.Background(),
+			&appcontext.Session{SessionID: "existing-sub", OrganisationID: "an-org-id"}),
 		http.MethodGet,
 		"/supporter/path",
 		nil,
@@ -409,20 +409,20 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id"})).
 		Return(&actor.Organisation{ID: "org-id"}, nil)
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: "cmFuZG9t", OrganisationID: "org-id", Email: "a@example.org"})).
 		Return(&actor.Member{Permission: actor.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
-		assert.Equal(t, page.AppData{
+	handle(page.SupporterPath("/path"), None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
-			SupporterData: &page.SupporterData{
+			SupporterData: &appcontext.SupporterData{
 				Permission:          actor.PermissionAdmin,
 				LoggedInSupporterID: "member-id",
 			},
@@ -431,8 +431,8 @@ func TestMakeSupporterHandleWithSessionData(t *testing.T) {
 
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := appcontext.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &appcontext.SessionData{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t", Email: "a@example.org", OrganisationID: "org-id"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -547,7 +547,7 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation, _ *actor.Member) error {
+	handle(page.SupporterPath("/path"), None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *actor.Organisation, _ *actor.Member) error {
 		return expectedError
 	})
 

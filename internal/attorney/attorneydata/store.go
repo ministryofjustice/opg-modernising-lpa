@@ -7,10 +7,10 @@ import (
 	"time"
 
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type DynamoClient interface {
@@ -43,7 +43,7 @@ func NewStore(dynamoClient DynamoClient, now func() time.Time) *Store {
 }
 
 func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -65,11 +65,11 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 
 	transaction := dynamo.NewTransaction().
 		Create(attorney).
-		Create(temporary.LpaLink{
+		Create(actor.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
-			ActorType: temporary.ActorTypeAttorney,
+			ActorType: actor.TypeAttorney,
 			UpdatedAt: s.now(),
 		}).
 		Delete(dynamo.Keys{PK: shareCode.PK, SK: shareCode.SK})
@@ -82,7 +82,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 }
 
 func (s *Store) Get(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (s *Store) Put(ctx context.Context, attorney *Provided) error {
 }
 
 func (s *Store) Delete(ctx context.Context) error {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}

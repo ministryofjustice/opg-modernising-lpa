@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -30,7 +31,7 @@ func TestGetLpaType(t *testing.T) {
 		Execute(w, &lpaTypeData{
 			App:     testAppData,
 			Form:    &lpaTypeForm{},
-			Options: donordata.LpaTypeValues,
+			Options: lpadata.LpaTypeValues,
 		}).
 		Return(nil)
 
@@ -52,7 +53,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 			Form: &lpaTypeForm{
 				LpaType: donordata.LpaTypePropertyAndAffairs,
 			},
-			Options:     donordata.LpaTypeValues,
+			Options:     lpadata.LpaTypeValues,
 			CanTaskList: true,
 		}).
 		Return(nil)
@@ -113,7 +114,7 @@ func TestPostLpaType(t *testing.T) {
 				"lpa-type": {lpaType.String()},
 			}
 
-			ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -162,7 +163,7 @@ func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePersonalWelfare.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -213,7 +214,7 @@ func TestPostLpaTypeWhenEventErrors(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -241,7 +242,7 @@ func TestPostLpaTypeWhenStoreErrors(t *testing.T) {
 		"lpa-type": {donordata.LpaTypePropertyAndAffairs.String()},
 	}
 
-	ctx := page.ContextWithSessionData(context.Background(), &appcontext.SessionData{SessionID: "an-id"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))

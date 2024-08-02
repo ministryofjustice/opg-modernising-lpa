@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -11,13 +12,13 @@ import (
 )
 
 type previousApplicationNumberData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *previousApplicationNumberForm
 }
 
 func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &previousApplicationNumberData{
 			App: appData,
 			Form: &previousApplicationNumberForm{

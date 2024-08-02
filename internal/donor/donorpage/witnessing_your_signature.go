@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type witnessingYourSignatureData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Donor  *donordata.Provided
 }
 
 func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), donor, appData.Localizer); err != nil {
 				return err
