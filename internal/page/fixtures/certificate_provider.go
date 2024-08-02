@@ -180,7 +180,7 @@ func CertificateProvider(
 		}
 
 		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = donordata.Professionally
+			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
 		}
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)

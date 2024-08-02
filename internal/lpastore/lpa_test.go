@@ -529,7 +529,7 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				AttorneyDecisions: donordata.AttorneyDecisions{
+				AttorneyDecisions: AttorneyDecisions{
 					How: lpadata.Jointly,
 				},
 				ReplacementAttorneys: Attorneys{
@@ -577,7 +577,7 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
+				ReplacementAttorneyDecisions: AttorneyDecisions{
 					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
@@ -604,7 +604,7 @@ func TestClientLpa(t *testing.T) {
 						Type:      "one-login",
 					},
 				},
-				PeopleToNotify: donordata.PeopleToNotify{{
+				PeopleToNotify: []PersonToNotify{{
 					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
@@ -900,7 +900,7 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					AttorneyDecisions: donordata.AttorneyDecisions{
+					AttorneyDecisions: AttorneyDecisions{
 						How: lpadata.Jointly,
 					},
 					ReplacementAttorneys: Attorneys{
@@ -948,7 +948,7 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
+					ReplacementAttorneyDecisions: AttorneyDecisions{
 						How:     lpadata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
@@ -971,7 +971,7 @@ func TestClientLpas(t *testing.T) {
 						},
 						Channel: lpadata.ChannelOnline,
 					},
-					PeopleToNotify: donordata.PeopleToNotify{{
+					PeopleToNotify: []PersonToNotify{{
 						UID:        personToNotifyUID,
 						FirstNames: "Peter",
 						LastName:   "Notify",

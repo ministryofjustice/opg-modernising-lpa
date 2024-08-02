@@ -8,14 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-//go:generate enumerator -type CertificateProviderRelationship -linecomment -empty
-type CertificateProviderRelationship uint8
-
-const (
-	Personally     CertificateProviderRelationship = iota + 1 // personally
-	Professionally                                            // professionally
-)
-
 //go:generate enumerator -type CertificateProviderRelationshipLength -linecomment
 type CertificateProviderRelationshipLength uint8
 
@@ -44,7 +36,7 @@ type CertificateProvider struct {
 	// How the certificate provider wants to perform their role (paper or online)
 	CarryOutBy lpadata.Channel
 	// The certificate provider's relationship to the applicant
-	Relationship CertificateProviderRelationship
+	Relationship lpadata.CertificateProviderRelationship
 	// Amount of time Relationship has been in place if Personally
 	RelationshipLength CertificateProviderRelationshipLength
 }

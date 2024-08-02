@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -17,7 +18,7 @@ type howDoYouKnowYourCertificateProviderData struct {
 	Errors              validation.List
 	CertificateProvider donordata.CertificateProvider
 	Form                *howDoYouKnowYourCertificateProviderForm
-	Options             donordata.CertificateProviderRelationshipOptions
+	Options             lpadata.CertificateProviderRelationshipOptions
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
@@ -28,7 +29,7 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 			Form: &howDoYouKnowYourCertificateProviderForm{
 				How: donor.CertificateProvider.Relationship,
 			},
-			Options: donordata.CertificateProviderRelationshipValues,
+			Options: lpadata.CertificateProviderRelationshipValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -64,12 +65,12 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 }
 
 type howDoYouKnowYourCertificateProviderForm struct {
-	How   donordata.CertificateProviderRelationship
+	How   lpadata.CertificateProviderRelationship
 	Error error
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
-	how, err := donordata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
+	how, err := lpadata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
 
 	return &howDoYouKnowYourCertificateProviderForm{
 		How:   how,

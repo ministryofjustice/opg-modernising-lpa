@@ -153,7 +153,7 @@ func makeCertificateProvider() donordata.CertificateProvider {
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       donordata.Personally,
+		Relationship:       lpadata.Personally,
 		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
 		CarryOutBy:         lpadata.ChannelOnline,
 		Address: place.Address{
