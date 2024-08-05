@@ -25,9 +25,9 @@ require (
 	github.com/ministryofjustice/opg-go-common v1.8.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/opensearch-project/opensearch-go/v4 v4.1.0
-	github.com/pact-foundation/pact-go/v2 v2.0.6
+	github.com/pact-foundation/pact-go/v2 v2.0.7
 	github.com/stretchr/testify v1.9.0
-	github.com/vektra/mockery/v2 v2.43.2
+	github.com/vektra/mockery/v2 v2.44.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.28.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.53.0
@@ -37,8 +37,8 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.28.0
 	go.opentelemetry.io/otel/sdk v1.28.0
 	go.opentelemetry.io/otel/trace v1.28.0
-	golang.org/x/mod v0.19.0
-	golang.org/x/time v0.5.0
+	golang.org/x/mod v0.20.0
+	golang.org/x/time v0.6.0
 	golang.org/x/tools v0.23.0
 )
 
