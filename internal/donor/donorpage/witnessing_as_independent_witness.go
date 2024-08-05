@@ -5,20 +5,21 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type witnessingAsIndependentWitnessData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *witnessingAsIndependentWitnessForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &witnessingAsIndependentWitnessData{
 			App:   appData,
 			Donor: donor,
@@ -30,7 +31,7 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			data.Errors = data.Form.Validate()
 
 			if donor.WitnessCodeLimiter == nil {
-				donor.WitnessCodeLimiter = actor.NewLimiter(time.Minute, 5, 10)
+				donor.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
 			}
 
 			if !donor.WitnessCodeLimiter.Allow(now()) {

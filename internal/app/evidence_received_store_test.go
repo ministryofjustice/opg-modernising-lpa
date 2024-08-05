@@ -4,14 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEvidenceReceivedStoreGet(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), nil, nil)
@@ -24,7 +24,7 @@ func TestEvidenceReceivedStoreGet(t *testing.T) {
 }
 
 func TestEvidenceReceivedStoreGetWhenFalse(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), nil, dynamo.NotFoundError{})
@@ -42,14 +42,14 @@ func TestEvidenceReceivedStoreGetWithSessionMissing(t *testing.T) {
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: nil}
 
 	_, err := evidenceReceivedStore.Get(ctx)
-	assert.Equal(t, page.SessionMissingError{}, err)
+	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
 func TestEvidenceReceivedStoreGetWhenDataStoreError(t *testing.T) {
-	ctx := page.ContextWithSessionData(context.Background(), &page.SessionData{LpaID: "an-id", SessionID: "456"})
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "an-id", SessionID: "456"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &actor.DonorProvidedDetails{LpaID: "an-id"}, expectedError)
+	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("an-id"), dynamo.EvidenceReceivedKey(), &donordata.Provided{LpaID: "an-id"}, expectedError)
 
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: dynamoClient}
 

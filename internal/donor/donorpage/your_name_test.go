@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,7 +28,7 @@ func TestGetYourName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,8 +51,8 @@ func TestGetYourNameFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{
+	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 			LastName:   "Doe",
 			OtherNames: "Fawn",
@@ -72,7 +73,7 @@ func TestGetYourNameWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "John"}})
+	err := YourName(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "John"}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -83,7 +84,7 @@ func TestPostYourName(t *testing.T) {
 	testCases := map[string]struct {
 		url      string
 		form     url.Values
-		person   actor.Donor
+		person   donordata.Donor
 		redirect string
 	}{
 		"valid": {
@@ -93,7 +94,7 @@ func TestPostYourName(t *testing.T) {
 				"last-name":   {"Doe"},
 				"other-names": {"Fawn"},
 			},
-			person: actor.Donor{
+			person: donordata.Donor{
 				FirstNames: "John",
 				LastName:   "Doe",
 				OtherNames: "Fawn",
@@ -108,7 +109,7 @@ func TestPostYourName(t *testing.T) {
 				"last-name":           {"Bloggs"},
 				"ignore-name-warning": {"1|4|Jane|Bloggs"},
 			},
-			person: actor.Donor{
+			person: donordata.Donor{
 				FirstNames: "Jane",
 				LastName:   "Bloggs",
 				Email:      "what",
@@ -122,7 +123,7 @@ func TestPostYourName(t *testing.T) {
 				"last-name":   {"Doe"},
 				"other-names": {"Fawn"},
 			},
-			person: actor.Donor{
+			person: donordata.Donor{
 				FirstNames: "John",
 				LastName:   "Doe",
 				OtherNames: "Fawn",
@@ -146,17 +147,17 @@ func TestPostYourName(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					Donor:               tc.person,
-					CertificateProvider: actor.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
+					CertificateProvider: donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
 				}).
 				Return(nil)
 
-			err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:                          "lpa-id",
-				Donor:                          actor.Donor{FirstNames: "John"},
-				CertificateProvider:            actor.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
+				Donor:                          donordata.Donor{FirstNames: "John"},
+				CertificateProvider:            donordata.CertificateProvider{FirstNames: "Jane", LastName: "Bloggs"},
 				HasSentApplicationUpdatedEvent: true,
 			})
 			resp := w.Result()
@@ -196,9 +197,9 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, tc.url, strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := YourName(nil, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := YourName(nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 					OtherNames: "Fawn",
@@ -242,7 +243,7 @@ func TestPostYourNameWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourName(template.Execute, nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := YourName(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -266,7 +267,7 @@ func TestPostYourNameWhenSessionStoreErrors(t *testing.T) {
 		Login(r).
 		Return(nil, expectedError)
 
-	err := YourName(nil, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(nil, nil, sessionStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -285,7 +286,7 @@ func TestPostYourNameWhenSessionMissingEmail(t *testing.T) {
 		Login(r).
 		Return(&sesh.LoginSession{}, nil)
 
-	err := YourName(nil, nil, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(nil, nil, sessionStore)(testAppData, w, r, &donordata.Provided{})
 	assert.EqualError(t, err, "no email in login session")
 }
 
@@ -309,28 +310,28 @@ func TestPostYourNameWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourName(nil, donorStore, sessionStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorMatches(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, donorMatches(donor, "x", "y"))
@@ -347,16 +348,16 @@ func TestDonorMatches(t *testing.T) {
 }
 
 func TestDonorMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "", LastName: ""},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},
 	}

@@ -7,11 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +24,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id="+uid.String(), nil)
 
-	attorney := actor.Attorney{
+	attorney := donordata.Attorney{
 		UID:        uid,
 		FirstNames: "John",
 		LastName:   "Smith",
@@ -41,7 +43,7 @@ func TestGetRemoveAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
+	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -55,14 +57,14 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 
 	template := newMockTemplate(t)
 
-	attorney := actor.Attorney{
+	attorney := donordata.Attorney{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorney}}})
+	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}}})
 
 	resp := w.Result()
 
@@ -72,47 +74,47 @@ func TestGetRemoveAttorneyAttorneyDoesNotExist(t *testing.T) {
 }
 
 func TestPostRemoveAttorney(t *testing.T) {
-	attorneyWithEmail := actor.Attorney{UID: actoruid.New(), Email: "a"}
-	attorneyWithAddress := actor.Attorney{UID: actoruid.New(), Address: place.Address{Line1: "1 Road way"}}
-	attorneyWithoutAddress := actor.Attorney{UID: actoruid.New()}
+	attorneyWithEmail := donordata.Attorney{UID: actoruid.New(), Email: "a"}
+	attorneyWithAddress := donordata.Attorney{UID: actoruid.New(), Address: place.Address{Line1: "1 Road way"}}
+	attorneyWithoutAddress := donordata.Attorney{UID: actoruid.New()}
 
 	testcases := map[string]struct {
-		donor        *actor.DonorProvidedDetails
-		updatedDonor *actor.DonorProvidedDetails
+		donor        *donordata.Provided
+		updatedDonor *donordata.Provided
 		redirect     page.LpaPath
 	}{
 		"many left": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
-				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress, attorneyWithoutAddress}},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
-			updatedDonor: &actor.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:             "lpa-id",
-				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithEmail, attorneyWithAddress}},
-				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-				Tasks:             actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
 		"one left": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				LpaID:             "lpa-id",
-				Attorneys:         actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
-				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
+				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress, attorneyWithoutAddress}},
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
-			updatedDonor: &actor.DonorProvidedDetails{
+			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithAddress}},
-				Tasks:     actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress}},
+				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
 		"none left": {
-			donor: &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress}}},
-			updatedDonor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}},
+			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
-				Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{}},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{}},
 			},
 			redirect: page.Paths.ChooseAttorneysSummary,
 		},
@@ -148,14 +150,14 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 		form.FieldNames.YesNo: {form.No.String()},
 	}
 
-	attorneyWithAddress := actor.Attorney{
+	attorneyWithAddress := donordata.Attorney{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := actor.Attorney{
+	attorneyWithoutAddress := donordata.Attorney{
 		UID:     actoruid.New(),
 		Address: place.Address{},
 	}
@@ -164,7 +166,7 @@ func TestPostRemoveAttorneyWithFormValueNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id="+attorneyWithoutAddress.UID.String(), strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := RemoveAttorney(nil, nil)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveAttorney(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -177,14 +179,14 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	attorneyWithAddress := actor.Attorney{
+	attorneyWithAddress := donordata.Attorney{
 		UID: actoruid.New(),
 		Address: place.Address{
 			Line1: "1 Road way",
 		},
 	}
 
-	attorneyWithoutAddress := actor.Attorney{
+	attorneyWithoutAddress := donordata.Attorney{
 		UID:     actoruid.New(),
 		Address: place.Address{},
 	}
@@ -200,7 +202,7 @@ func TestPostRemoveAttorneyErrorOnPutStore(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RemoveAttorney(template.Execute, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
+	err := RemoveAttorney(template.Execute, donorStore)(testAppData, w, r, &donordata.Provided{Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress, attorneyWithAddress}}})
 	resp := w.Result()
 
 	assert.ErrorIs(t, err, expectedError)
@@ -226,9 +228,9 @@ func TestRemoveAttorneyFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Attorneys: actor.Attorneys{
-			Attorneys: []actor.Attorney{{
+	err := RemoveAttorney(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+		Attorneys: donordata.Attorneys{
+			Attorneys: []donordata.Attorney{{
 				UID:     uid,
 				Address: place.Address{},
 			}},

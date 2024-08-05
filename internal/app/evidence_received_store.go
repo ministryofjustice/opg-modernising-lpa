@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type evidenceReceivedStore struct {
@@ -13,7 +13,7 @@ type evidenceReceivedStore struct {
 }
 
 func (s *evidenceReceivedStore) Get(ctx context.Context) (bool, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return false, err
 	}

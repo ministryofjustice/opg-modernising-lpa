@@ -5,8 +5,7 @@ package page
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,23 +23,23 @@ func (_m *mockDonorStore) EXPECT() *mockDonorStore_Expecter {
 }
 
 // Create provides a mock function with given fields: _a0
-func (_m *mockDonorStore) Create(_a0 context.Context) (*actor.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) Create(_a0 context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *actor.DonorProvidedDetails
+	var r0 *donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.Provided, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.Provided); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.Provided)
 		}
 	}
 
@@ -71,18 +70,18 @@ func (_c *mockDonorStore_Create_Call) Run(run func(_a0 context.Context)) *mockDo
 	return _c
 }
 
-func (_c *mockDonorStore_Create_Call) Return(_a0 *actor.DonorProvidedDetails, _a1 error) *mockDonorStore_Create_Call {
+func (_c *mockDonorStore_Create_Call) Return(_a0 *donordata.Provided, _a1 error) *mockDonorStore_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_Create_Call) RunAndReturn(run func(context.Context) (*actor.DonorProvidedDetails, error)) *mockDonorStore_Create_Call {
+func (_c *mockDonorStore_Create_Call) RunAndReturn(run func(context.Context) (*donordata.Provided, error)) *mockDonorStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: _a0, _a1
-func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.DonorProvidedDetails) error {
+func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *donordata.Provided) error {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -90,7 +89,7 @@ func (_m *mockDonorStore) Put(_a0 context.Context, _a1 *actor.DonorProvidedDetai
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -106,14 +105,14 @@ type mockDonorStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 *actor.DonorProvidedDetails
+//   - _a1 *donordata.Provided
 func (_e *mockDonorStore_Expecter) Put(_a0 interface{}, _a1 interface{}) *mockDonorStore_Put_Call {
 	return &mockDonorStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1)}
 }
 
-func (_c *mockDonorStore_Put_Call) Run(run func(_a0 context.Context, _a1 *actor.DonorProvidedDetails)) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) Run(run func(_a0 context.Context, _a1 *donordata.Provided)) *mockDonorStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
 	})
 	return _c
 }
@@ -123,7 +122,7 @@ func (_c *mockDonorStore_Put_Call) Return(_a0 error) *mockDonorStore_Put_Call {
 	return _c
 }
 
-func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *actor.DonorProvidedDetails) error) *mockDonorStore_Put_Call {
+func (_c *mockDonorStore_Put_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockDonorStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

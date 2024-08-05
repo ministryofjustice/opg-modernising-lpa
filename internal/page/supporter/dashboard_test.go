@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestGetDashboard(t *testing.T) {
 
 			keys := []dynamo.Keys{{PK: dynamo.LpaKey("a"), SK: dynamo.OrganisationKey("b")}}
 			pagination := &search.Pagination{Total: 10}
-			donors := []actor.DonorProvidedDetails{{LpaID: "abc"}}
+			donors := []donordata.Provided{{LpaID: "abc"}}
 
 			searchClient := newMockSearchClient(t)
 			searchClient.EXPECT().

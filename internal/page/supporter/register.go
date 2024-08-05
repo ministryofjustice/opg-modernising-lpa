@@ -9,7 +9,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -18,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -31,7 +34,7 @@ type LpaStoreResolvingService interface {
 
 type OrganisationStore interface {
 	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
-	CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	CreateLPA(ctx context.Context) (*donordata.Provided, error)
 	Get(ctx context.Context) (*actor.Organisation, error)
 	Put(ctx context.Context, organisation *actor.Organisation) error
 	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
@@ -53,10 +56,10 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, shareCodeData actor.ShareCodeData) error
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error
+	Get(ctx context.Context) (*donordata.Provided, error)
+	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
@@ -86,14 +89,14 @@ type NotifyClient interface {
 }
 
 type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode string, data actor.ShareCodeData) error
-	GetDonor(ctx context.Context) (actor.ShareCodeData, error)
-	Delete(ctx context.Context, data actor.ShareCodeData) error
+	PutDonor(ctx context.Context, shareCode string, data sharecode.Data) error
+	GetDonor(ctx context.Context) (sharecode.Data, error)
+	Delete(ctx context.Context, data sharecode.Data) error
 }
 
 type Template func(w io.Writer, data interface{}) error
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
@@ -184,10 +187,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanToggleWelsh = false
-			appData.SupporterData = &page.SupporterData{}
+			appData.SupporterData = &appcontext.SupporterData{}
 
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
@@ -198,10 +201,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, Email: session.Email})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, Email: session.Email})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -209,7 +212,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 }
 
 type suspendedData struct {
-	App              page.AppData
+	App              appcontext.Data
 	Errors           validation.List
 	OrganisationName string
 }
@@ -228,12 +231,12 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				return
 			}
 
-			appData := page.AppDataFromContext(r.Context())
+			appData := appcontext.DataFromContext(r.Context())
 			appData.SessionID = loginSession.SessionID()
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.CanToggleWelsh = false
 
-			appData.SupporterData = &page.SupporterData{
+			appData.SupporterData = &appcontext.SupporterData{
 				IsManageOrganisation: path.IsManageOrganisation(),
 			}
 
@@ -249,13 +252,13 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				panic("non-supporter path registered")
 			}
 
-			sessionData, err := page.SessionDataFromContext(r.Context())
+			sessionData, err := appcontext.SessionFromContext(r.Context())
 
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.OrganisationID = loginSession.OrganisationID
 			} else {
-				sessionData = &page.SessionData{
+				sessionData = &appcontext.Session{
 					SessionID: appData.SessionID,
 					Email:     loginSession.Email,
 				}
@@ -265,13 +268,13 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 				}
 			}
 
-			organisation, err := organisationStore.Get(page.ContextWithSessionData(r.Context(), sessionData))
+			organisation, err := organisationStore.Get(appcontext.ContextWithSession(r.Context(), sessionData))
 			if err != nil {
 				errorHandler(w, r, err)
 				return
 			}
 
-			ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
 				SessionID:      appData.SessionID,
 				Email:          loginSession.Email,
 				OrganisationID: organisation.ID,
@@ -304,7 +307,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			appData.SupporterData.Permission = member.Permission
 			appData.SupporterData.LoggedInSupporterID = member.ID
 
-			ctx = page.ContextWithAppData(ctx, appData)
+			ctx = appcontext.ContextWithData(ctx, appData)
 
 			if err := h(appData, w, r.WithContext(ctx), organisation, member); err != nil {
 				errorHandler(w, r, err)

@@ -1,3 +1,5 @@
+// Package attorneydata provides types that describe the data entered by an
+// attorney or trust corporation.
 package attorneydata
 
 import (

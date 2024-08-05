@@ -1,3 +1,4 @@
+// Package lambda provides a client for AWS Lambda.
 package lambda
 
 import (

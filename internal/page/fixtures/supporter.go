@@ -11,18 +11,23 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type OrganisationStore interface {
 	Create(context.Context, *actor.Member, string) (*actor.Organisation, error)
-	CreateLPA(context.Context) (*actor.DonorProvidedDetails, error)
+	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
 type MemberStore interface {
@@ -33,8 +38,8 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
-	PutDonor(ctx context.Context, code string, data actor.ShareCodeData) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	PutDonor(ctx context.Context, code string, data sharecode.Data) error
 }
 
 func Supporter(
@@ -51,7 +56,7 @@ func Supporter(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 ) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -70,7 +75,7 @@ func Supporter(
 
 			supporterSub       = random.String(16)
 			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
-			supporterCtx       = page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: supporterSessionID, Email: testEmail})
+			supporterCtx       = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: testEmail})
 		)
 
 		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
@@ -89,7 +94,7 @@ func Supporter(
 			loginSession.OrganisationID = org.ID
 			loginSession.OrganisationName = org.Name
 
-			organisationCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID})
+			organisationCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID})
 
 			if suspended {
 				member.Status = actor.StatusSuspended
@@ -104,24 +109,24 @@ func Supporter(
 				if err != nil {
 					return err
 				}
-				donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
+				donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
 				donor.Donor = makeDonor(testEmail)
-				donor.Type = actor.LpaTypePropertyAndAffairs
+				donor.Type = lpadata.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
-				donor.Attorneys = actor.Attorneys{
-					Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+				donor.Attorneys = donordata.Attorneys{
+					Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 				}
-				donor.Tasks.YourDetails = actor.TaskCompleted
-				donor.Tasks.ChooseAttorneys = actor.TaskCompleted
-				donor.Tasks.CertificateProvider = actor.TaskCompleted
+				donor.Tasks.YourDetails = task.StateCompleted
+				donor.Tasks.ChooseAttorneys = task.StateCompleted
+				donor.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(donorCtx, donor); err != nil {
 					return err
 				}
 
-				shareCodeData := actor.ShareCodeData{
+				shareCodeData := sharecode.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,
@@ -157,14 +162,14 @@ func Supporter(
 					if err != nil {
 						return err
 					}
-					donorCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID, LpaID: donor.LpaID})
+					donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID})
 
 					donor.LpaUID = makeUID()
 					donor.Donor = makeDonor(testEmail)
-					donor.Type = actor.LpaTypePropertyAndAffairs
+					donor.Type = lpadata.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
-					donor.Attorneys = actor.Attorneys{
-						Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+					donor.Attorneys = donordata.Attorneys{
+						Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 					}
 
 					var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
@@ -230,7 +235,7 @@ func Supporter(
 						ReferenceNumber:  random.String(12),
 					}
 
-					if err := dynamoClient.Create(page.ContextWithSessionData(r.Context(), &page.SessionData{OrganisationID: org.ID}), invite); err != nil {
+					if err := dynamoClient.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID}), invite); err != nil {
 						return fmt.Errorf("error creating member invite: %w", err)
 					}
 				}
@@ -256,7 +261,7 @@ func Supporter(
 
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
 					sub := []byte(random.String(16))
-					memberCtx := page.ContextWithSessionData(r.Context(), &page.SessionData{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
+					memberCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,

@@ -5,7 +5,9 @@ package main
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	appcontext "github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 
@@ -28,7 +30,7 @@ func (_m *mockShareCodeSender) EXPECT() *mockShareCodeSender_Expecter {
 }
 
 // SendAttorneys provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.Lpa) error {
+func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 appcontext.Data, _a2 *lpastore.Lpa) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -36,7 +38,7 @@ func (_m *mockShareCodeSender) SendAttorneys(_a0 context.Context, _a1 page.AppDa
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *lpastore.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.Data, *lpastore.Lpa) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -52,15 +54,15 @@ type mockShareCodeSender_SendAttorneys_Call struct {
 
 // SendAttorneys is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 page.AppData
+//   - _a1 appcontext.Data
 //   - _a2 *lpastore.Lpa
 func (_e *mockShareCodeSender_Expecter) SendAttorneys(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendAttorneys_Call {
 	return &mockShareCodeSender_SendAttorneys_Call{Call: _e.mock.On("SendAttorneys", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *lpastore.Lpa)) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) Run(run func(_a0 context.Context, _a1 appcontext.Data, _a2 *lpastore.Lpa)) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*lpastore.Lpa))
+		run(args[0].(context.Context), args[1].(appcontext.Data), args[2].(*lpastore.Lpa))
 	})
 	return _c
 }
@@ -70,13 +72,13 @@ func (_c *mockShareCodeSender_SendAttorneys_Call) Return(_a0 error) *mockShareCo
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, page.AppData, *lpastore.Lpa) error) *mockShareCodeSender_SendAttorneys_Call {
+func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.Context, appcontext.Data, *lpastore.Lpa) error) *mockShareCodeSender_SendAttorneys_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendCertificateProviderInvite provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context, _a1 page.AppData, _a2 page.CertificateProviderInvite) error {
+func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context, _a1 appcontext.Data, _a2 page.CertificateProviderInvite) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -84,7 +86,7 @@ func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, page.CertificateProviderInvite) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.Data, page.CertificateProviderInvite) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -100,15 +102,15 @@ type mockShareCodeSender_SendCertificateProviderInvite_Call struct {
 
 // SendCertificateProviderInvite is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 page.AppData
+//   - _a1 appcontext.Data
 //   - _a2 page.CertificateProviderInvite
 func (_e *mockShareCodeSender_Expecter) SendCertificateProviderInvite(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendCertificateProviderInvite_Call {
 	return &mockShareCodeSender_SendCertificateProviderInvite_Call{Call: _e.mock.On("SendCertificateProviderInvite", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 page.CertificateProviderInvite)) *mockShareCodeSender_SendCertificateProviderInvite_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Run(run func(_a0 context.Context, _a1 appcontext.Data, _a2 page.CertificateProviderInvite)) *mockShareCodeSender_SendCertificateProviderInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(page.CertificateProviderInvite))
+		run(args[0].(context.Context), args[1].(appcontext.Data), args[2].(page.CertificateProviderInvite))
 	})
 	return _c
 }
@@ -118,13 +120,13 @@ func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Return(_a0 err
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) RunAndReturn(run func(context.Context, page.AppData, page.CertificateProviderInvite) error) *mockShareCodeSender_SendCertificateProviderInvite_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) RunAndReturn(run func(context.Context, appcontext.Data, page.CertificateProviderInvite) error) *mockShareCodeSender_SendCertificateProviderInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendCertificateProviderPrompt provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails) error {
+func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context, _a1 appcontext.Data, _a2 *donordata.Provided) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -132,7 +134,7 @@ func (_m *mockShareCodeSender) SendCertificateProviderPrompt(_a0 context.Context
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.AppData, *actor.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.Data, *donordata.Provided) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -148,15 +150,15 @@ type mockShareCodeSender_SendCertificateProviderPrompt_Call struct {
 
 // SendCertificateProviderPrompt is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 page.AppData
-//   - _a2 *actor.DonorProvidedDetails
+//   - _a1 appcontext.Data
+//   - _a2 *donordata.Provided
 func (_e *mockShareCodeSender_Expecter) SendCertificateProviderPrompt(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
 	return &mockShareCodeSender_SendCertificateProviderPrompt_Call{Call: _e.mock.On("SendCertificateProviderPrompt", _a0, _a1, _a2)}
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Run(run func(_a0 context.Context, _a1 page.AppData, _a2 *actor.DonorProvidedDetails)) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Run(run func(_a0 context.Context, _a1 appcontext.Data, _a2 *donordata.Provided)) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.AppData), args[2].(*actor.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].(appcontext.Data), args[2].(*donordata.Provided))
 	})
 	return _c
 }
@@ -166,7 +168,7 @@ func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) Return(_a0 err
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(run func(context.Context, page.AppData, *actor.DonorProvidedDetails) error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(run func(context.Context, appcontext.Data, *donordata.Provided) error) *mockShareCodeSender_SendCertificateProviderPrompt_Call {
 	_c.Call.Return(run)
 	return _c
 }

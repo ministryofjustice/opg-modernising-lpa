@@ -4,22 +4,23 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
-	Options             donordata.ChannelOptions
+	Options             lpadata.ChannelOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -27,7 +28,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				CarryOutBy: donor.CertificateProvider.CarryOutBy,
 				Email:      donor.CertificateProvider.Email,
 			},
-			Options: donordata.ChannelValues,
+			Options: lpadata.ChannelValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -51,13 +52,13 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy actor.Channel
+	CarryOutBy lpadata.Channel
 	Email      string
 	Error      error
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	channel, err := donordata.ParseChannel(page.PostFormString(r, "carry-out-by"))
+	channel, err := lpadata.ParseChannel(page.PostFormString(r, "carry-out-by"))
 
 	email := page.PostFormString(r, "email")
 	if channel.IsPaper() {

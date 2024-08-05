@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -52,7 +52,7 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	return nil
 }
 
-func putDonor(ctx context.Context, donor *actor.DonorProvidedDetails, now func() time.Time, client dynamodbClient) error {
+func putDonor(ctx context.Context, donor *donordata.Provided, now func() time.Time, client dynamodbClient) error {
 	donor.UpdatedAt = now()
 	if err := donor.UpdateHash(); err != nil {
 		return err
@@ -61,7 +61,7 @@ func putDonor(ctx context.Context, donor *actor.DonorProvidedDetails, now func()
 	return client.Put(ctx, donor)
 }
 
-func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*actor.DonorProvidedDetails, error) {
+func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*donordata.Provided, error) {
 	var key dynamo.Keys
 	if err := client.OneByUID(ctx, uid, &key); err != nil {
 		return nil, fmt.Errorf("failed to resolve uid: %w", err)
@@ -71,7 +71,7 @@ func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*
 		return nil, fmt.Errorf("PK missing from LPA in response")
 	}
 
-	var donor actor.DonorProvidedDetails
+	var donor donordata.Provided
 	if err := client.One(ctx, key.PK, key.SK, &donor); err != nil {
 		return nil, fmt.Errorf("failed to get LPA: %w", err)
 	}

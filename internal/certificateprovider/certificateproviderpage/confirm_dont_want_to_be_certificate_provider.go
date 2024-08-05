@@ -5,22 +5,24 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmDontWantToBeCertificateProviderData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Lpa    *lpastore.Lpa
 }
 
 func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, appPublicURL string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
@@ -63,9 +65,9 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
 				}
 
-				donor.CertificateProvider = actor.CertificateProvider{}
-				donor.Tasks.CertificateProvider = actor.TaskNotStarted
-				donor.Tasks.CheckYourLpa = actor.TaskNotStarted
+				donor.CertificateProvider = donordata.CertificateProvider{}
+				donor.Tasks.CertificateProvider = task.StateNotStarted
+				donor.Tasks.CheckYourLpa = task.StateNotStarted
 
 				if err = donorStore.Put(r.Context(), donor); err != nil {
 					return err

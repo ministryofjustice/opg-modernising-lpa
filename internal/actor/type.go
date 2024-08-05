@@ -1,23 +1,72 @@
 package actor
 
-import "github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
-
-type Type = temporary.ActorType
+type Type uint8
 
 const (
-	TypeNone                        = temporary.ActorTypeNone
-	TypeDonor                       = temporary.ActorTypeDonor
-	TypeAttorney                    = temporary.ActorTypeAttorney
-	TypeReplacementAttorney         = temporary.ActorTypeReplacementAttorney
-	TypeCertificateProvider         = temporary.ActorTypeCertificateProvider
-	TypePersonToNotify              = temporary.ActorTypePersonToNotify
-	TypeAuthorisedSignatory         = temporary.ActorTypeAuthorisedSignatory
-	TypeIndependentWitness          = temporary.ActorTypeIndependentWitness
-	TypeTrustCorporation            = temporary.ActorTypeTrustCorporation
-	TypeReplacementTrustCorporation = temporary.ActorTypeReplacementTrustCorporation
-	TypeVoucher                     = temporary.ActorTypeVoucher
+	TypeNone Type = iota
+	TypeDonor
+	TypeAttorney
+	TypeReplacementAttorney
+	TypeCertificateProvider
+	TypePersonToNotify
+	TypeAuthorisedSignatory
+	TypeIndependentWitness
+	TypeTrustCorporation
+	TypeReplacementTrustCorporation
+	TypeVoucher
 )
 
-type Types = temporary.Types
+func (t Type) String() string {
+	switch t {
+	case TypeDonor:
+		return "donor"
+	case TypeAttorney:
+		return "attorney"
+	case TypeReplacementAttorney:
+		return "replacementAttorney"
+	case TypeCertificateProvider:
+		return "certificateProvider"
+	case TypePersonToNotify:
+		return "personToNotify"
+	case TypeAuthorisedSignatory:
+		return "signatory"
+	case TypeIndependentWitness:
+		return "independentWitness"
+	case TypeTrustCorporation:
+		return "trustCorporation"
+	case TypeReplacementTrustCorporation:
+		return "replacementTrustCorporation"
+	case TypeVoucher:
+		return "voucher"
+	default:
+		return ""
+	}
+}
 
-var ActorTypes = temporary.ActorTypes
+type Types struct {
+	None                        Type
+	Donor                       Type
+	Attorney                    Type
+	ReplacementAttorney         Type
+	TrustCorporation            Type
+	ReplacementTrustCorporation Type
+	CertificateProvider         Type
+	PersonToNotify              Type
+	AuthorisedSignatory         Type
+	IndependentWitness          Type
+	Voucher                     Type
+}
+
+var ActorTypes = Types{
+	None:                        TypeNone,
+	Donor:                       TypeDonor,
+	Attorney:                    TypeAttorney,
+	ReplacementAttorney:         TypeReplacementAttorney,
+	TrustCorporation:            TypeTrustCorporation,
+	ReplacementTrustCorporation: TypeReplacementTrustCorporation,
+	CertificateProvider:         TypeCertificateProvider,
+	PersonToNotify:              TypePersonToNotify,
+	AuthorisedSignatory:         TypeAuthorisedSignatory,
+	IndependentWitness:          TypeIndependentWitness,
+	Voucher:                     TypeVoucher,
+}

@@ -4,13 +4,15 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if donor.DonorIdentityConfirmed() {
 			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
 		}
@@ -42,9 +44,9 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		donor.DonorIdentityUserData = userData
 
 		if userData.Status.IsFailed() {
-			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskProblem
+			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
 		} else {
-			donor.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskInProgress
+			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 		}
 
 		if err := donorStore.Put(r.Context(), donor); err != nil {

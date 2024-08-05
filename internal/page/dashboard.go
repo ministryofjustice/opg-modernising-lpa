@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -28,7 +29,7 @@ type dashboardForm struct {
 }
 
 type dashboardData struct {
-	App                     AppData
+	App                     appcontext.Data
 	Errors                  validation.List
 	UseTabs                 bool
 	DonorLpas               []LpaAndActorTasks
@@ -37,7 +38,7 @@ type dashboardData struct {
 }
 
 func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			form := readDashboardForm(r)
 

@@ -4,21 +4,23 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type addCorrespondentData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &addCorrespondentData{
 			App:   appData,
 			Donor: donor,
@@ -34,12 +36,12 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 
 				var redirectUrl page.LpaPath
 				if donor.AddCorrespondent.IsNo() {
-					donor.Correspondent = actor.Correspondent{}
-					donor.Tasks.AddCorrespondent = actor.TaskCompleted
+					donor.Correspondent = donordata.Correspondent{}
+					donor.Tasks.AddCorrespondent = task.StateCompleted
 					redirectUrl = page.Paths.TaskList
 				} else {
 					if donor.Correspondent.FirstNames == "" {
-						donor.Tasks.AddCorrespondent = actor.TaskInProgress
+						donor.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirectUrl = page.Paths.EnterCorrespondentDetails
 				}

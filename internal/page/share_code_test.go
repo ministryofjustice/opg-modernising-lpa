@@ -8,26 +8,29 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   actor.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 	}
 
@@ -49,7 +52,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
+		Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecode.Data{
 			LpaKey:      dynamo.LpaKey("lpa"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		}).
@@ -101,17 +104,17 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 		},
 	}
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   actor.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 	}
 
@@ -134,14 +137,14 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, sharecode.Data{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				}).
 				Once().
 				Return(nil)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecode.Data{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				}).
@@ -216,17 +219,17 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 func TestShareCodeSenderSendCertificateProviderInviteWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -277,18 +280,18 @@ func TestShareCodeSenderSendCertificateProviderInviteWhenShareCodeStoreErrors(t 
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: actor.ChannelOnline,
+			CarryOutBy: lpadata.ChannelOnline,
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   actor.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -316,7 +319,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
+		Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecode.Data{
 			LpaKey:      dynamo.LpaKey("lpa"),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		}).
@@ -331,19 +334,19 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 	actorUID := actoruid.New()
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			UID:        actorUID,
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
-			CarryOutBy: actor.ChannelPaper,
+			CarryOutBy: lpadata.ChannelPaper,
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   actor.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -353,7 +356,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
+		Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecode.Data{
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:      dynamo.LpaKey("lpa"),
 			ActorUID:    actorUID,
@@ -391,17 +394,17 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 		},
 	}
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   actor.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePropertyAndAffairs,
 		LpaUID: "lpa-uid",
 		PK:     dynamo.LpaKey("lpa"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -421,7 +424,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, tc.expectedTestCode, sharecode.Data{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				}).
@@ -429,7 +432,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 				Return(nil)
 
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeCertificateProvider, testRandomString, actor.ShareCodeData{
+				Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecode.Data{
 					LpaKey:      dynamo.LpaKey("lpa"),
 					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				}).
@@ -474,9 +477,9 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreError(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
@@ -494,9 +497,9 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenShareCodeStoreErro
 }
 
 func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
-			CarryOutBy: actor.ChannelPaper,
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
+			CarryOutBy: lpadata.ChannelPaper,
 		},
 	}
 
@@ -521,17 +524,17 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t
 func TestShareCodeSenderSendCertificateProviderPromptWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &actor.DonorProvidedDetails{
-		CertificateProvider: actor.CertificateProvider{
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "Joanna",
 			LastName:   "Jones",
 			Email:      "name@example.org",
 		},
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)
@@ -566,7 +569,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWhenShareCodeStoreErrors(t 
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, &actor.DonorProvidedDetails{})
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
 }
@@ -631,7 +634,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        actor.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -651,25 +654,25 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: trustCorporationUID, IsTrustCorporation: true}).
+		Put(ctx, actor.TypeTrustCorporation, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: trustCorporationUID, IsTrustCorporation: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacementTrustCorporationUID, IsTrustCorporation: true, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney1UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney1UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney2UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney2UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney3UID}).
+		Put(ctx, actor.TypeAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: attorney3UID}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement1UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement1UID, IsReplacementAttorney: true}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement2UID, IsReplacementAttorney: true}).
+		Put(ctx, actor.TypeReplacementAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"), ActorUID: replacement2UID, IsReplacementAttorney: true}).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -779,7 +782,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        actor.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -788,7 +791,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 	ctx := context.Background()
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeTrustCorporation, testRandomString, actor.ShareCodeData{
+		Put(ctx, actor.TypeTrustCorporation, testRandomString, sharecode.Data{
 			LpaOwnerKey:        dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:             dynamo.LpaKey("lpa"),
 			ActorUID:           uid1,
@@ -796,7 +799,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		}).
 		Return(nil)
 	shareCodeStore.EXPECT().
-		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, actor.ShareCodeData{
+		Put(ctx, actor.TypeReplacementTrustCorporation, testRandomString, sharecode.Data{
 			LpaOwnerKey:           dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			LpaKey:                dynamo.LpaKey("lpa"),
 			ActorUID:              uid2,
@@ -856,7 +859,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:        actor.LpaTypePropertyAndAffairs,
+		Type:        lpadata.LpaTypePropertyAndAffairs,
 		LpaUID:      "lpa-uid",
 		LpaKey:      dynamo.LpaKey("lpa"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
@@ -878,10 +881,10 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
+				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
 				Return(nil)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, testRandomString, actor.ShareCodeData{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
+				Put(ctx, actor.TypeAttorney, testRandomString, sharecode.Data{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -940,7 +943,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type: actor.LpaTypePropertyAndAffairs,
+		Type: lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	localizer := newMockLocalizer(t)

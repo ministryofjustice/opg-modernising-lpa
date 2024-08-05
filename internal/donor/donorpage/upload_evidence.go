@@ -12,7 +12,9 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -50,18 +52,18 @@ func acceptedMimeTypes() []string {
 }
 
 type uploadEvidenceData struct {
-	App                  page.AppData
+	App                  appcontext.Data
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              pay.FeeType
-	Documents            page.Documents
+	Documents            document.Documents
 	MimeTypes            []string
 	Deleted              string
 	StartScan            string
 }
 
 func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, documentStore DocumentStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		if donor.Tasks.PayForLpa.IsPending() {
 			return page.Paths.TaskList.Redirect(w, r, appData, donor)
 		}
@@ -87,7 +89,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 			if data.Errors.None() {
 				switch form.Action {
 				case "upload":
-					var uploadedDocuments []page.Document
+					var uploadedDocuments []document.Document
 
 					for _, file := range form.Files {
 						document, err := documentStore.Create(r.Context(), donor, file.Filename, file.Data)

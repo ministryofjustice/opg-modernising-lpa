@@ -4,29 +4,31 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type whenCanTheLpaBeUsedData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Errors  validation.List
-	Donor   *actor.DonorProvidedDetails
+	Donor   *donordata.Provided
 	Form    *whenCanTheLpaBeUsedForm
-	Options donordata.CanBeUsedWhenOptions
+	Options lpadata.CanBeUsedWhenOptions
 }
 
 func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &whenCanTheLpaBeUsedData{
 			App:   appData,
 			Donor: donor,
 			Form: &whenCanTheLpaBeUsedForm{
 				When: donor.WhenCanTheLpaBeUsed,
 			},
-			Options: donordata.CanBeUsedWhenValues,
+			Options: lpadata.CanBeUsedWhenValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,7 +37,7 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 
 			if data.Errors.None() {
 				donor.WhenCanTheLpaBeUsed = data.Form.When
-				donor.Tasks.WhenCanTheLpaBeUsed = actor.TaskCompleted
+				donor.Tasks.WhenCanTheLpaBeUsed = task.StateCompleted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
@@ -49,12 +51,12 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 }
 
 type whenCanTheLpaBeUsedForm struct {
-	When  actor.CanBeUsedWhen
+	When  lpadata.CanBeUsedWhen
 	Error error
 }
 
 func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
-	when, err := donordata.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
+	when, err := lpadata.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
 
 	return &whenCanTheLpaBeUsedForm{
 		When:  when,

@@ -7,11 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,12 +28,12 @@ func TestGetCheckYourLpa(t *testing.T) {
 		Execute(w, &checkYourLpaData{
 			App:         testAppData,
 			Form:        &checkYourLpaForm{},
-			Donor:       &actor.DonorProvidedDetails{},
+			Donor:       &donordata.Provided{},
 			CanContinue: true,
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +44,7 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		CheckedAt: testNow,
 	}
 	donor.UpdateCheckedHash()
@@ -75,11 +77,11 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID:               "lpa-id",
 		CheckedAt:           testNow,
-		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline},
+		Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline},
 	}
 	donor.UpdateCheckedHash()
 
@@ -103,9 +105,9 @@ func TestPostCheckYourLpaWhenNotChanged(t *testing.T) {
 }
 
 func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
-	testCases := []actor.TaskState{
-		actor.TaskNotStarted,
-		actor.TaskInProgress,
+	testCases := []task.State{
+		task.StateNotStarted,
+		task.StateInProgress,
 	}
 
 	for _, existingTaskState := range testCases {
@@ -119,19 +121,19 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			uid := actoruid.New()
-			donor := &actor.DonorProvidedDetails{
+			donor := &donordata.Provided{
 				LpaID:               "lpa-id",
 				Hash:                5,
-				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
-				CertificateProvider: actor.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
+				Tasks:               donordata.Tasks{CheckYourLpa: existingTaskState},
+				CertificateProvider: donordata.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: lpadata.ChannelOnline},
 			}
 
-			updatedDonor := &actor.DonorProvidedDetails{
+			updatedDonor := &donordata.Provided{
 				LpaID:               "lpa-id",
 				Hash:                5,
 				CheckedAt:           testNow,
-				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-				CertificateProvider: actor.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: actor.ChannelOnline},
+				Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+				CertificateProvider: donordata.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: lpadata.ChannelOnline},
 			}
 			updatedDonor.UpdateCheckedHash()
 
@@ -161,18 +163,18 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing.T) {
 	testCases := map[string]struct {
-		certificateProviderDetailsTaskState actor.TaskState
+		certificateProviderDetailsTaskState task.State
 		expectedSms                         notify.SMS
 	}{
 		"cp not started": {
-			certificateProviderDetailsTaskState: actor.TaskNotStarted,
+			certificateProviderDetailsTaskState: task.StateNotStarted,
 			expectedSms: notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 				DonorFullName: "Teneil Throssell",
 				LpaType:       "property and affairs",
 			},
 		},
 		"cp in progress": {
-			certificateProviderDetailsTaskState: actor.TaskInProgress,
+			certificateProviderDetailsTaskState: task.StateInProgress,
 			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 				DonorFullNamePossessive: "Teneil Throssell’s",
 				LpaType:                 "property and affairs",
@@ -180,7 +182,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			},
 		},
 		"cp completed": {
-			certificateProviderDetailsTaskState: actor.TaskCompleted,
+			certificateProviderDetailsTaskState: task.StateCompleted,
 			expectedSms: notify.CertificateProviderActingDigitallyHasConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 				DonorFullNamePossessive: "Teneil Throssell’s",
 				LpaType:                 "property and affairs",
@@ -210,15 +212,15 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			testAppData.Localizer = localizer
 
-			donor := &actor.DonorProvidedDetails{
+			donor := &donordata.Provided{
 				LpaID:               "lpa-id",
 				LpaUID:              "lpa-uid",
 				Hash:                5,
-				Type:                actor.LpaTypePropertyAndAffairs,
-				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+				Type:                lpadata.LpaTypePropertyAndAffairs,
+				Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
-				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline, Mobile: "07700900000"},
+				Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+				CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Mobile: "07700900000"},
 			}
 
 			notifyClient := newMockNotifyClient(t)
@@ -262,20 +264,20 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecksCertificate
 		GetAny(r.Context()).
 		Return(nil, expectedError)
 
-	err := CheckYourLpa(nil, nil, nil, nil, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := CheckYourLpa(nil, nil, nil, nil, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{
 		LpaID:               "lpa-id",
 		Hash:                5,
-		Type:                actor.LpaTypePropertyAndAffairs,
-		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+		Type:                lpadata.LpaTypePropertyAndAffairs,
+		Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
-		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelOnline, Mobile: "07700900000"},
+		Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelOnline, Mobile: "07700900000"},
 	})
 	assert.Equal(t, expectedError, err)
 }
 
 func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
-	for _, existingTaskState := range []actor.TaskState{actor.TaskNotStarted, actor.TaskInProgress} {
+	for _, existingTaskState := range []task.State{task.StateNotStarted, task.StateInProgress} {
 		t.Run(existingTaskState.String(), func(t *testing.T) {
 			form := url.Values{
 				"checked-and-happy": {"1"},
@@ -292,25 +294,25 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			donor := &actor.DonorProvidedDetails{
+			donor := &donordata.Provided{
 				LpaID:               "lpa-id",
 				LpaUID:              "lpa-uid",
 				Hash:                5,
-				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
-				Tasks:               actor.DonorTasks{CheckYourLpa: existingTaskState},
-				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Mobile: "07700900000"},
-				Type:                actor.LpaTypePropertyAndAffairs,
+				Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+				Tasks:               donordata.Tasks{CheckYourLpa: existingTaskState},
+				CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Mobile: "07700900000"},
+				Type:                lpadata.LpaTypePropertyAndAffairs,
 			}
 
-			updatedDonor := &actor.DonorProvidedDetails{
+			updatedDonor := &donordata.Provided{
 				LpaID:               "lpa-id",
 				LpaUID:              "lpa-uid",
 				Hash:                5,
-				Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+				Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 				CheckedAt:           testNow,
-				Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-				CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Mobile: "07700900000"},
-				Type:                actor.LpaTypePropertyAndAffairs,
+				Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+				CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Mobile: "07700900000"},
+				Type:                lpadata.LpaTypePropertyAndAffairs,
 			}
 			updatedDonor.UpdateCheckedHash()
 
@@ -348,15 +350,15 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID:               "lpa-id",
 		LpaUID:              "lpa-uid",
 		Hash:                5,
-		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+		Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
-		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Mobile: "07700900000"},
-		Type:                actor.LpaTypePropertyAndAffairs,
+		Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Mobile: "07700900000"},
+		Type:                lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -390,15 +392,15 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID:               "lpa-id",
 		LpaUID:              "lpa-uid",
 		Hash:                5,
-		Donor:               actor.Donor{FirstNames: "Teneil", LastName: "Throssell"},
+		Donor:               donordata.Donor{FirstNames: "Teneil", LastName: "Throssell"},
 		CheckedAt:           testNow,
-		Tasks:               actor.DonorTasks{CheckYourLpa: actor.TaskCompleted},
-		CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper, Mobile: "07700900000"},
-		Type:                actor.LpaTypePropertyAndAffairs,
+		Tasks:               donordata.Tasks{CheckYourLpa: task.StateCompleted},
+		CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper, Mobile: "07700900000"},
+		Type:                lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	notifyClient := newMockNotifyClient(t)
@@ -427,10 +429,10 @@ func TestPostCheckYourLpaWhenShareCodeSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		LpaID: "lpa-id",
 		Hash:  5,
-		Tasks: actor.DonorTasks{CheckYourLpa: actor.TaskInProgress},
+		Tasks: donordata.Tasks{CheckYourLpa: task.StateInProgress},
 	}
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -466,7 +468,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := CheckYourLpa(nil, nil, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5, CertificateProvider: actor.CertificateProvider{CarryOutBy: actor.ChannelPaper}})
+	err := CheckYourLpa(nil, nil, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{Hash: 5, CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -489,7 +491,7 @@ func TestPostCheckYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil, "http://example.org")(testAppData, w, r, &actor.DonorProvidedDetails{Hash: 5})
+	err := CheckYourLpa(template.Execute, nil, nil, nil, nil, nil, "http://example.org")(testAppData, w, r, &donordata.Provided{Hash: 5})
 	resp := w.Result()
 
 	assert.Nil(t, err)

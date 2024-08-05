@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,7 +38,7 @@ func TestProgressToSlice(t *testing.T) {
 			}
 		},
 		"donor notices sent": func(p Progress) (Progress, []ProgressTask) {
-			p.NoticesOfIntentSent.State = actor.TaskCompleted
+			p.NoticesOfIntentSent.State = task.StateCompleted
 
 			return p, []ProgressTask{
 				p.DonorSigned,
@@ -52,7 +52,7 @@ func TestProgressToSlice(t *testing.T) {
 		},
 		"organisation notices sent": func(p Progress) (Progress, []ProgressTask) {
 			p.isOrganisation = true
-			p.NoticesOfIntentSent.State = actor.TaskCompleted
+			p.NoticesOfIntentSent.State = task.StateCompleted
 
 			return p, []ProgressTask{
 				p.Paid,
@@ -71,15 +71,15 @@ func TestProgressToSlice(t *testing.T) {
 	for name, fn := range testcases {
 		t.Run(name, func(t *testing.T) {
 			progress, slice := fn(Progress{
-				Paid:                      ProgressTask{State: actor.TaskNotStarted, Label: "Paid translation"},
-				ConfirmedID:               ProgressTask{State: actor.TaskNotStarted, Label: "ConfirmedID translation"},
-				DonorSigned:               ProgressTask{State: actor.TaskInProgress, Label: "DonorSigned translation"},
-				CertificateProviderSigned: ProgressTask{State: actor.TaskNotStarted, Label: "CertificateProviderSigned translation"},
-				AttorneysSigned:           ProgressTask{State: actor.TaskNotStarted, Label: "AttorneysSigned translation"},
-				LpaSubmitted:              ProgressTask{State: actor.TaskNotStarted, Label: "LpaSubmitted translation"},
-				NoticesOfIntentSent:       ProgressTask{State: actor.TaskNotStarted, Label: "NoticesOfIntentSent translation"},
-				StatutoryWaitingPeriod:    ProgressTask{State: actor.TaskNotStarted, Label: "StatutoryWaitingPeriod translation"},
-				LpaRegistered:             ProgressTask{State: actor.TaskNotStarted, Label: "LpaRegistered translation"},
+				Paid:                      ProgressTask{State: task.StateNotStarted, Label: "Paid translation"},
+				ConfirmedID:               ProgressTask{State: task.StateNotStarted, Label: "ConfirmedID translation"},
+				DonorSigned:               ProgressTask{State: task.StateInProgress, Label: "DonorSigned translation"},
+				CertificateProviderSigned: ProgressTask{State: task.StateNotStarted, Label: "CertificateProviderSigned translation"},
+				AttorneysSigned:           ProgressTask{State: task.StateNotStarted, Label: "AttorneysSigned translation"},
+				LpaSubmitted:              ProgressTask{State: task.StateNotStarted, Label: "LpaSubmitted translation"},
+				NoticesOfIntentSent:       ProgressTask{State: task.StateNotStarted, Label: "NoticesOfIntentSent translation"},
+				StatutoryWaitingPeriod:    ProgressTask{State: task.StateNotStarted, Label: "StatutoryWaitingPeriod translation"},
+				LpaRegistered:             ProgressTask{State: task.StateNotStarted, Label: "LpaRegistered translation"},
 			})
 
 			assert.Equal(t, slice, progress.ToSlice())
@@ -92,14 +92,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
 	initialProgress := Progress{
-		Paid:                      ProgressTask{State: actor.TaskNotStarted, Label: ""},
-		ConfirmedID:               ProgressTask{State: actor.TaskNotStarted, Label: ""},
-		DonorSigned:               ProgressTask{State: actor.TaskInProgress, Label: "DonorSigned translation"},
-		CertificateProviderSigned: ProgressTask{State: actor.TaskNotStarted, Label: "CertificateProviderSigned translation"},
-		AttorneysSigned:           ProgressTask{State: actor.TaskNotStarted, Label: "AttorneysSigned translation"},
-		LpaSubmitted:              ProgressTask{State: actor.TaskNotStarted, Label: "LpaSubmitted translation"},
-		StatutoryWaitingPeriod:    ProgressTask{State: actor.TaskNotStarted, Label: "StatutoryWaitingPeriod translation"},
-		LpaRegistered:             ProgressTask{State: actor.TaskNotStarted, Label: "LpaRegistered translation"},
+		Paid:                      ProgressTask{State: task.StateNotStarted, Label: ""},
+		ConfirmedID:               ProgressTask{State: task.StateNotStarted, Label: ""},
+		DonorSigned:               ProgressTask{State: task.StateInProgress, Label: "DonorSigned translation"},
+		CertificateProviderSigned: ProgressTask{State: task.StateNotStarted, Label: "CertificateProviderSigned translation"},
+		AttorneysSigned:           ProgressTask{State: task.StateNotStarted, Label: "AttorneysSigned translation"},
+		LpaSubmitted:              ProgressTask{State: task.StateNotStarted, Label: "LpaSubmitted translation"},
+		StatutoryWaitingPeriod:    ProgressTask{State: task.StateNotStarted, Label: "StatutoryWaitingPeriod translation"},
+		LpaRegistered:             ProgressTask{State: task.StateNotStarted, Label: "LpaRegistered translation"},
 	}
 
 	testCases := map[string]struct {
@@ -150,8 +150,8 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskInProgress
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateInProgress
 
 				return progress
 			},
@@ -174,9 +174,9 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskInProgress
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateInProgress
 
 				return progress
 			},
@@ -199,10 +199,10 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskInProgress
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateInProgress
 
 				return progress
 			},
@@ -226,10 +226,10 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
 
 				return progress
 			},
@@ -254,13 +254,13 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
-				progress.NoticesOfIntentSent.State = actor.TaskCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
+				progress.NoticesOfIntentSent.State = task.StateCompleted
 				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
-				progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
+				progress.StatutoryWaitingPeriod.State = task.StateInProgress
 
 				return progress
 			},
@@ -292,14 +292,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
-				progress.NoticesOfIntentSent.State = actor.TaskCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
+				progress.NoticesOfIntentSent.State = task.StateCompleted
 				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
-				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
-				progress.LpaRegistered.State = actor.TaskCompleted
+				progress.StatutoryWaitingPeriod.State = task.StateCompleted
+				progress.LpaRegistered.State = task.StateCompleted
 
 				return progress
 			},
@@ -353,15 +353,15 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	uid := actoruid.New()
 	initialProgress := Progress{
 		isOrganisation:            true,
-		Paid:                      ProgressTask{State: actor.TaskInProgress, Label: "Paid translation"},
-		ConfirmedID:               ProgressTask{State: actor.TaskNotStarted, Label: "ConfirmedID translation"},
-		DonorSigned:               ProgressTask{State: actor.TaskNotStarted, Label: "DonorSigned translation"},
-		CertificateProviderSigned: ProgressTask{State: actor.TaskNotStarted, Label: "CertificateProviderSigned translation"},
-		AttorneysSigned:           ProgressTask{State: actor.TaskNotStarted, Label: "AttorneysSigned translation"},
-		LpaSubmitted:              ProgressTask{State: actor.TaskNotStarted, Label: "LpaSubmitted translation"},
-		NoticesOfIntentSent:       ProgressTask{State: actor.TaskNotStarted},
-		StatutoryWaitingPeriod:    ProgressTask{State: actor.TaskNotStarted, Label: "StatutoryWaitingPeriod translation"},
-		LpaRegistered:             ProgressTask{State: actor.TaskNotStarted, Label: "LpaRegistered translation"},
+		Paid:                      ProgressTask{State: task.StateInProgress, Label: "Paid translation"},
+		ConfirmedID:               ProgressTask{State: task.StateNotStarted, Label: "ConfirmedID translation"},
+		DonorSigned:               ProgressTask{State: task.StateNotStarted, Label: "DonorSigned translation"},
+		CertificateProviderSigned: ProgressTask{State: task.StateNotStarted, Label: "CertificateProviderSigned translation"},
+		AttorneysSigned:           ProgressTask{State: task.StateNotStarted, Label: "AttorneysSigned translation"},
+		LpaSubmitted:              ProgressTask{State: task.StateNotStarted, Label: "LpaSubmitted translation"},
+		NoticesOfIntentSent:       ProgressTask{State: task.StateNotStarted},
+		StatutoryWaitingPeriod:    ProgressTask{State: task.StateNotStarted, Label: "StatutoryWaitingPeriod translation"},
+		LpaRegistered:             ProgressTask{State: task.StateNotStarted, Label: "LpaRegistered translation"},
 	}
 
 	testCases := map[string]struct {
@@ -388,8 +388,8 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskInProgress
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateInProgress
 
 				return progress
 			},
@@ -408,9 +408,9 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskInProgress
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateInProgress
 
 				return progress
 			},
@@ -430,10 +430,10 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskInProgress
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateInProgress
 
 				return progress
 			},
@@ -454,11 +454,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskInProgress
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateInProgress
 
 				return progress
 			},
@@ -479,12 +479,12 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskInProgress
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateInProgress
 
 				return progress
 			},
@@ -506,12 +506,12 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
 
 				return progress
 			},
@@ -534,15 +534,15 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
 				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
-				progress.NoticesOfIntentSent.State = actor.TaskCompleted
-				progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
+				progress.NoticesOfIntentSent.State = task.StateCompleted
+				progress.StatutoryWaitingPeriod.State = task.StateInProgress
 
 				return progress
 			},
@@ -574,16 +574,16 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
-				progress.Paid.State = actor.TaskCompleted
-				progress.ConfirmedID.State = actor.TaskCompleted
-				progress.DonorSigned.State = actor.TaskCompleted
-				progress.CertificateProviderSigned.State = actor.TaskCompleted
-				progress.AttorneysSigned.State = actor.TaskCompleted
-				progress.LpaSubmitted.State = actor.TaskCompleted
+				progress.Paid.State = task.StateCompleted
+				progress.ConfirmedID.State = task.StateCompleted
+				progress.DonorSigned.State = task.StateCompleted
+				progress.CertificateProviderSigned.State = task.StateCompleted
+				progress.AttorneysSigned.State = task.StateCompleted
+				progress.LpaSubmitted.State = task.StateCompleted
 				progress.NoticesOfIntentSent.Label = "NoticesOfIntentSent translation"
-				progress.NoticesOfIntentSent.State = actor.TaskCompleted
-				progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
-				progress.LpaRegistered.State = actor.TaskCompleted
+				progress.NoticesOfIntentSent.State = task.StateCompleted
+				progress.StatutoryWaitingPeriod.State = task.StateCompleted
+				progress.LpaRegistered.State = task.StateCompleted
 
 				return progress
 			},

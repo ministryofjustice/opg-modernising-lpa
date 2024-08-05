@@ -5,21 +5,23 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmYourCertificateProviderIsNotRelatedData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
-	Donor  *actor.DonorProvidedDetails
+	Donor  *donordata.Provided
 }
 
 func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &confirmYourCertificateProviderIsNotRelatedData{
 			App:   appData,
 			Form:  form.NewYesNoForm(form.YesNoUnknown),
@@ -34,8 +36,8 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 
 		if r.Method == http.MethodPost {
 			if r.PostFormValue("action") == "choose-new" {
-				donor.CertificateProvider = actor.CertificateProvider{}
-				donor.Tasks.CertificateProvider = actor.TaskNotStarted
+				donor.CertificateProvider = donordata.CertificateProvider{}
+				donor.Tasks.CertificateProvider = task.StateNotStarted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
@@ -48,7 +50,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 
 			if data.Errors.None() && data.Form.YesNo.IsYes() {
 				donor.CertificateProviderNotRelatedConfirmedAt = now()
-				donor.Tasks.CheckYourLpa = actor.TaskInProgress
+				donor.Tasks.CheckYourLpa = task.StateInProgress
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err

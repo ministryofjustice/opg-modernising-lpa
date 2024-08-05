@@ -1,14 +1,22 @@
 package app
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -18,7 +26,75 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 )
+
+var (
+	ctx           = context.Background()
+	expectedError = errors.New("err")
+	testNow       = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
+	testNowFn     = func() time.Time { return testNow }
+	testUID       = actoruid.New()
+	testUIDFn     = func() actoruid.UID { return testUID }
+)
+
+func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
+	m.
+		On("One", ctx, pk, sk, mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, partialSk dynamo.SK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		}).
+		Once()
+}
+
+func (m *mockDynamoClient) ExpectAllBySK(ctx, sk, data interface{}, err error) {
+	m.
+		On("AllBySK", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk dynamo.SK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Keys, data []map[string]types.AttributeValue, err error) {
+	m.EXPECT().
+		AllByKeys(ctx, keys).
+		Return(data, err)
+}
+
+func (m *mockDynamoClient) ExpectOneBySK(ctx, sk, data interface{}, err error) {
+	m.
+		On("OneBySK", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk dynamo.SK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDynamoClient) ExpectAllByPartialSK(ctx, pk, partialSk, data interface{}, err error) {
+	m.
+		On("AllByPartialSK", ctx, pk, partialSk, mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, partialSk dynamo.SK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDynamoClient) ExpectOneByPK(ctx, pk, data interface{}, err error) {
+	m.
+		On("OneByPK", ctx, pk, mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		}).
+		Once()
+}
 
 func TestApp(t *testing.T) {
 	app := App(true, &slog.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{})
@@ -32,8 +108,8 @@ func TestMakeHandle(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page: "/path",
 		}, appData)
 		assert.Equal(t, w, hw)
@@ -59,15 +135,15 @@ func TestMakeHandleRequireSession(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
-	handle("/path", RequireSession, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
-		assert.Equal(t, page.AppData{
+	handle("/path", RequireSession, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			SessionID: "cmFuZG9t",
 		}, appData)
 		assert.Equal(t, w, hw)
 
-		sessionData, _ := page.SessionDataFromContext(hr.Context())
-		assert.Equal(t, &page.SessionData{SessionID: "cmFuZG9t"}, sessionData)
+		sessionData, _ := appcontext.SessionFromContext(hr.Context())
+		assert.Equal(t, &appcontext.Session{SessionID: "cmFuZG9t"}, sessionData)
 
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
@@ -90,7 +166,7 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, nil, sessionStore)
-	handle("/path", RequireSession, func(_ page.AppData, _ http.ResponseWriter, _ *http.Request) error { return nil })
+	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request) error { return nil })
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -109,7 +185,7 @@ func TestMakeHandleWhenError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeHandle(mux, errorHandler.Execute, nil)
-	handle("/path", None, func(appData page.AppData, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		return expectedError
 	})
 
@@ -166,14 +242,14 @@ func TestWithAppData(t *testing.T) {
 			}
 
 			handler := http.HandlerFunc(func(hw http.ResponseWriter, hr *http.Request) {
-				assert.Equal(t, page.AppData{
+				assert.Equal(t, appcontext.Data{
 					Path:             "/path",
 					Query:            query,
 					Localizer:        localizer,
 					Lang:             localize.En,
 					CookieConsentSet: tc.cookieConsentSet,
 					CanToggleWelsh:   true,
-				}, page.AppDataFromContext(hr.Context()))
+				}, appcontext.DataFromContext(hr.Context()))
 				assert.Equal(t, w, hw)
 			})
 

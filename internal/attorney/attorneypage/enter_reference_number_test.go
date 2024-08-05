@@ -9,10 +9,12 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -70,27 +72,27 @@ func TestGetEnterReferenceNumberOnTemplateError(t *testing.T) {
 
 func TestPostEnterReferenceNumber(t *testing.T) {
 	testcases := map[string]struct {
-		shareCode          actor.ShareCodeData
+		shareCode          sharecode.Data
 		session            *sesh.LoginSession
 		isReplacement      bool
 		isTrustCorporation bool
 	}{
 		"attorney": {
-			shareCode: actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID},
+			shareCode: sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID},
 			session:   &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 		},
 		"replacement": {
-			shareCode:     actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true},
+			shareCode:     sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true},
 			session:       &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement: true,
 		},
 		"trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true},
+			shareCode:          sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isTrustCorporation: true,
 		},
 		"replacement trust corporation": {
-			shareCode:          actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
+			shareCode:          sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID, IsReplacementAttorney: true, IsTrustCorporation: true},
 			session:            &sesh.LoginSession{Sub: "hey", Email: "a@example.com"},
 			isReplacement:      true,
 			isTrustCorporation: true,
@@ -115,9 +117,9 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Create(mock.MatchedBy(func(ctx context.Context) bool {
-					session, _ := page.SessionDataFromContext(ctx)
+					session, _ := appcontext.SessionFromContext(ctx)
 
-					return assert.Equal(t, &page.SessionData{SessionID: "aGV5", LpaID: "lpa-id"}, session)
+					return assert.Equal(t, &appcontext.Session{SessionID: "aGV5", LpaID: "lpa-id"}, session)
 				}), tc.shareCode, "a@example.com").
 				Return(&attorneydata.Provided{}, nil)
 
@@ -138,7 +140,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 }
 
 func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
-	shareCode := actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
+	shareCode := sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
 
 	form := url.Values{
 		"reference-number": {"abcdef123456"},
@@ -184,7 +186,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -217,7 +219,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
 
@@ -239,7 +241,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -263,7 +265,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
-		Return(actor.ShareCodeData{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
+		Return(sharecode.Data{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().

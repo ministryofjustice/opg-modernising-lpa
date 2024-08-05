@@ -8,16 +8,18 @@ import (
 	"slices"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type paymentConfirmationData struct {
-	App              page.AppData
+	App              appcontext.Data
 	Errors           validation.List
 	PaymentReference string
 	FeeType          pay.FeeType
@@ -27,7 +29,7 @@ type paymentConfirmationData struct {
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
 			return err
@@ -42,7 +44,7 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return errors.New("TODO: we need to give some options")
 		}
 
-		paymentDetail := actor.Payment{
+		paymentDetail := donordata.Payment{
 			PaymentReference: payment.Reference,
 			PaymentId:        payment.PaymentID,
 			Amount:           payment.AmountPence.Pence(),
@@ -79,15 +81,15 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		switch donor.Tasks.PayForLpa {
-		case actor.PaymentTaskInProgress:
+		case task.PaymentStateInProgress:
 			if donor.FeeType.IsFullFee() && donor.FeeAmount() == 0 {
-				donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+				donor.Tasks.PayForLpa = task.PaymentStateCompleted
 			} else {
-				donor.Tasks.PayForLpa = actor.PaymentTaskPending
+				donor.Tasks.PayForLpa = task.PaymentStatePending
 			}
-		case actor.PaymentTaskApproved, actor.PaymentTaskDenied:
+		case task.PaymentStateApproved, task.PaymentStateDenied:
 			if donor.FeeAmount() == 0 {
-				donor.Tasks.PayForLpa = actor.PaymentTaskCompleted
+				donor.Tasks.PayForLpa = task.PaymentStateCompleted
 				nextPage = page.Paths.TaskList
 
 				if donor.Voucher.Allowed {

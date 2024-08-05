@@ -8,12 +8,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,7 +23,7 @@ import (
 
 func TestGetSign(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 		data    *signData
 	}{
@@ -29,7 +31,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -49,7 +51,7 @@ func TestGetSign(t *testing.T) {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -68,7 +70,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -89,7 +91,7 @@ func TestGetSign(t *testing.T) {
 			appData: testReplacementAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				ReplacementAttorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: testUID, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -109,7 +111,7 @@ func TestGetSign(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			lpa: &lpastore.Lpa{
 				SignedAt:            time.Now(),
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenHasCapacity,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
 					Name: "Corp",
 				}},
@@ -185,7 +187,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 	}{
 		"submitted but not certified": {
@@ -201,7 +203,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 		"certified but not submitted": {
 			appData: testAppData,
 			lpa: &lpastore.Lpa{
-				WhenCanTheLpaBeUsed: actor.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
 				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
@@ -237,7 +239,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 		lpa     *lpastore.Lpa
 	}{
 		"attorney": {
@@ -335,7 +337,7 @@ func TestPostSign(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided
@@ -351,7 +353,7 @@ func TestPostSign(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: now,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -365,7 +367,7 @@ func TestPostSign(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: now,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -390,7 +392,7 @@ func TestPostSign(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 		"second replacment trust corporation": {
@@ -415,7 +417,7 @@ func TestPostSign(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 	}
@@ -459,7 +461,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided
@@ -475,7 +477,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: attorneySignedAt,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement attorney": {
@@ -489,7 +491,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
 				SignedAt: attorneySignedAt,
-				Tasks:    attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"second trust corporation": {
@@ -514,7 +516,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          attorneySignedAt,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 		"second replacment trust corporation": {
@@ -539,7 +541,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          attorneySignedAt,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpaSecond: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpaSecond: task.StateCompleted},
 			},
 		},
 	}
@@ -577,7 +579,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 
 	testcases := map[string]struct {
 		url             string
-		appData         page.AppData
+		appData         appcontext.Data
 		form            url.Values
 		lpa             *lpastore.Lpa
 		updatedAttorney *attorneydata.Provided
@@ -603,7 +605,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 		"replacement trust corporation": {
@@ -627,7 +629,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 					ProfessionalTitle: "c",
 					SignedAt:          now,
 				}},
-				Tasks: attorneydata.Tasks{SignTheLpa: actor.TaskCompleted},
+				Tasks: attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
 	}

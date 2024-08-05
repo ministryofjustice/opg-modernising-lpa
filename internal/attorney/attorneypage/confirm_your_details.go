@@ -4,15 +4,16 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type confirmYourDetailsData struct {
-	App                     page.AppData
+	App                     appcontext.Data
 	Errors                  validation.List
 	Lpa                     *lpastore.Lpa
 	Attorney                lpastore.Attorney
@@ -21,9 +22,9 @@ type confirmYourDetailsData struct {
 }
 
 func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if r.Method == http.MethodPost {
-			attorneyProvidedDetails.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateCompleted
 
 			if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 				return err

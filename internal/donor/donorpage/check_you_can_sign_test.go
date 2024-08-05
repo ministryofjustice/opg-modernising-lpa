@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -28,8 +28,8 @@ func TestGetCheckYouCanSign(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{CanSign: form.No},
+	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+		Donor: donordata.Donor{CanSign: form.No},
 	})
 
 	resp := w.Result()
@@ -57,10 +57,10 @@ func TestPostCheckYouCanSign(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{LpaID: "lpa-id", Donor: actor.Donor{CanSign: yesNo}}).
+				Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{CanSign: yesNo}}).
 				Return(nil)
 
-			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id"})
+			err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 
 			resp := w.Result()
 
@@ -85,7 +85,7 @@ func TestPostCheckYouCanSignErrorOnPutStore(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CheckYouCanSign(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	resp := w.Result()
 
@@ -111,7 +111,7 @@ func TestCheckYouCanSignFormValidation(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CheckYouCanSign(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

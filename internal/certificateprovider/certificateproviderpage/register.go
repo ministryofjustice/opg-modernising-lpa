@@ -1,3 +1,5 @@
+// Package certificateproviderpage provides the pages that a certificate
+// provider interacts with.
 package certificateproviderpage
 
 import (
@@ -9,7 +11,9 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -18,9 +22,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
@@ -33,7 +38,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error)
 	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
@@ -47,9 +52,9 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData actor.ShareCodeData) error
-	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData sharecode.Data) error
+	Delete(ctx context.Context, shareCode sharecode.Data) error
 }
 
 type Template func(io.Writer, interface{}) error
@@ -69,7 +74,7 @@ type NotifyClient interface {
 }
 
 type ShareCodeSender interface {
-	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
+	SendAttorneys(context.Context, appcontext.Data, *lpastore.Lpa) error
 }
 
 type AddressClient interface {
@@ -94,8 +99,8 @@ type LpaStoreClient interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type DonorStore interface {
-	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	GetAny(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 func Register(
@@ -176,11 +181,11 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler) func(page.Pa
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.Page = path.Format()
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -192,7 +197,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.ActorType = actor.TypeCertificateProvider
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
@@ -205,13 +210,13 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := page.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			certificateProvider, err := certificateProviderStore.Get(ctx)
@@ -227,7 +232,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			appData.Page = path.Format(appData.LpaID)
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), certificateProvider); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), certificateProvider); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

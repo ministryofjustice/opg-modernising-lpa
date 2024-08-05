@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type DynamoClient interface {
@@ -33,8 +33,8 @@ type DynamoClient interface {
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
-func NewStore(dynamoClient DynamoClient, now func() time.Time) *Store {
-	return &Store{dynamoClient: dynamoClient, now: now}
+func NewStore(dynamoClient DynamoClient) *Store {
+	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
 type Store struct {
@@ -42,8 +42,8 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (s *Store) Create(ctx context.Context, shareCode actor.ShareCodeData, email
 
 	transaction := dynamo.NewTransaction().
 		Create(certificateProvider).
-		Create(temporary.LpaLink{
+		Create(actor.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
@@ -80,7 +80,7 @@ func (s *Store) Create(ctx context.Context, shareCode actor.ShareCodeData, email
 }
 
 func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
 }
 
 func (s *Store) Get(ctx context.Context) (*Provided, error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (s *Store) Put(ctx context.Context, certificateProvider *Provided) error {
 }
 
 func (s *Store) Delete(ctx context.Context) error {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}

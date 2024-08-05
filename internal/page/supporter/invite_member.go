@@ -6,20 +6,21 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type inviteMemberData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Errors  validation.List
 	Form    *inviteMemberForm
 	Options actor.PermissionOptions
 }
 
 func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		data := &inviteMemberData{
 			App:     appData,
 			Form:    &inviteMemberForm{},

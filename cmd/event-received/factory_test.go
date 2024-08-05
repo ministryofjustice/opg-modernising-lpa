@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,11 +33,11 @@ func TestAppData(t *testing.T) {
 
 	appData, err := factory.AppData()
 	assert.Error(t, err)
-	assert.Equal(t, page.AppData{}, appData)
+	assert.Equal(t, appcontext.Data{}, appData)
 }
 
 func TestAppDataWhenSet(t *testing.T) {
-	expected := page.AppData{Page: "hi"}
+	expected := appcontext.Data{Page: "hi"}
 	factory := &Factory{appData: &expected}
 
 	appData, err := factory.AppData()

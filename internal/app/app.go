@@ -1,3 +1,4 @@
+// Package app provides the web server for modernising-lpa.
 package app
 
 import (
@@ -11,10 +12,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -30,6 +34,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -89,20 +94,12 @@ func App(
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
 ) http.Handler {
-	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
+	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
-	donorStore := &donorStore{
-		dynamoClient: lpaDynamoClient,
-		eventClient:  eventClient,
-		logger:       logger,
-		uuidString:   uuid.NewString,
-		newUID:       actoruid.New,
-		now:          time.Now,
-		searchClient: searchClient,
-	}
-	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient, time.Now)
-	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
-	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	donorStore := donordata.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
+	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient)
+	attorneyStore := attorneydata.NewStore(lpaDynamoClient)
+	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}
@@ -240,7 +237,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 			localizer.SetShowTranslationKeys(r.FormValue("showTranslationKeys") == "1")
 		}
 
-		appData := page.AppDataFromContext(ctx)
+		appData := appcontext.DataFromContext(ctx)
 		appData.Path = r.URL.Path
 		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
@@ -250,7 +247,7 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
 
-		next.ServeHTTP(w, r.WithContext(page.ContextWithAppData(ctx, appData)))
+		next.ServeHTTP(w, r.WithContext(appcontext.ContextWithData(ctx, appData)))
 	}
 }
 
@@ -266,7 +263,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 
 			if opt&RequireSession != 0 {
@@ -277,10 +274,10 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 				}
 
 				appData.SessionID = loginSession.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &page.SessionData{SessionID: appData.SessionID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

@@ -8,23 +8,26 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type donorAccessData struct {
-	App       page.AppData
+	App       appcontext.Data
 	Errors    validation.List
 	Form      *donorAccessForm
-	Donor     *actor.DonorProvidedDetails
-	ShareCode *actor.ShareCodeData
+	Donor     *donordata.Provided
+	ShareCode *sharecode.Data
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
 			return err
@@ -87,7 +90,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 
 				shareCode := randomString(12)
-				shareCodeData := actor.ShareCodeData{
+				shareCodeData := sharecode.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					ActorUID:     donor.Donor.UID,

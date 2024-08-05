@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
@@ -32,7 +33,7 @@ type Donor struct {
 	// CanSign is Yes if the donor has said they will sign online
 	CanSign form.YesNo
 	// Channel is how the Donor is applying for their LPA (paper or online)
-	Channel Channel
+	Channel lpadata.Channel
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
 	ContactLanguagePreference localize.Lang
 	// LpaLanguagePreference is the language the donor prefers to receive the registered LPA in

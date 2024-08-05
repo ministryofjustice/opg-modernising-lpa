@@ -1,8 +1,8 @@
 package page
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type ProgressTracker struct {
@@ -10,7 +10,7 @@ type ProgressTracker struct {
 }
 
 type ProgressTask struct {
-	State actor.TaskState
+	State task.State
 	Label string
 }
 
@@ -91,90 +91,90 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	progress := Progress{
 		isOrganisation: lpa.IsOrganisationDonor,
 		Paid: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["paid"],
 		},
 		ConfirmedID: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["confirmedID"],
 		},
 		DonorSigned: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["donorSigned"],
 		},
 		CertificateProviderSigned: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["certificateProviderSigned"],
 		},
 		AttorneysSigned: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["attorneysSigned"],
 		},
 		LpaSubmitted: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["lpaSubmitted"],
 		},
 		NoticesOfIntentSent: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 		},
 		StatutoryWaitingPeriod: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["statutoryWaitingPeriod"],
 		},
 		LpaRegistered: ProgressTask{
-			State: actor.TaskNotStarted,
+			State: task.StateNotStarted,
 			Label: labels["lpaRegistered"],
 		},
 	}
 
 	if lpa.IsOrganisationDonor {
-		progress.Paid.State = actor.TaskInProgress
+		progress.Paid.State = task.StateInProgress
 		if !lpa.Paid {
 			return progress
 		}
 
-		progress.Paid.State = actor.TaskCompleted
-		progress.ConfirmedID.State = actor.TaskInProgress
+		progress.Paid.State = task.StateCompleted
+		progress.ConfirmedID.State = task.StateInProgress
 
 		if lpa.Donor.IdentityCheck.CheckedAt.IsZero() {
 			return progress
 		}
 
-		progress.ConfirmedID.State = actor.TaskCompleted
-		progress.DonorSigned.State = actor.TaskInProgress
+		progress.ConfirmedID.State = task.StateCompleted
+		progress.DonorSigned.State = task.StateInProgress
 
 		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	} else {
-		progress.DonorSigned.State = actor.TaskInProgress
+		progress.DonorSigned.State = task.StateInProgress
 		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	}
 
-	progress.DonorSigned.State = actor.TaskCompleted
-	progress.CertificateProviderSigned.State = actor.TaskInProgress
+	progress.DonorSigned.State = task.StateCompleted
+	progress.CertificateProviderSigned.State = task.StateInProgress
 
 	if lpa.CertificateProvider.SignedAt.IsZero() {
 		return progress
 	}
 
-	progress.CertificateProviderSigned.State = actor.TaskCompleted
-	progress.AttorneysSigned.State = actor.TaskInProgress
+	progress.CertificateProviderSigned.State = task.StateCompleted
+	progress.AttorneysSigned.State = task.StateInProgress
 
 	if !lpa.AllAttorneysSigned() {
 		return progress
 	}
 
-	progress.AttorneysSigned.State = actor.TaskCompleted
-	progress.LpaSubmitted.State = actor.TaskInProgress
+	progress.AttorneysSigned.State = task.StateCompleted
+	progress.LpaSubmitted.State = task.StateInProgress
 
 	if !lpa.Submitted {
 		return progress
 	}
 
-	progress.LpaSubmitted.State = actor.TaskCompleted
+	progress.LpaSubmitted.State = task.StateCompleted
 
 	if lpa.PerfectAt.IsZero() {
 		return progress
@@ -183,15 +183,15 @@ func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
 	progress.NoticesOfIntentSent.Label = pt.Localizer.Format(labels["noticesOfIntentSent"], map[string]any{
 		"SentOn": pt.Localizer.FormatDate(lpa.PerfectAt),
 	})
-	progress.NoticesOfIntentSent.State = actor.TaskCompleted
-	progress.StatutoryWaitingPeriod.State = actor.TaskInProgress
+	progress.NoticesOfIntentSent.State = task.StateCompleted
+	progress.StatutoryWaitingPeriod.State = task.StateInProgress
 
 	if lpa.RegisteredAt.IsZero() {
 		return progress
 	}
 
-	progress.StatutoryWaitingPeriod.State = actor.TaskCompleted
-	progress.LpaRegistered.State = actor.TaskCompleted
+	progress.StatutoryWaitingPeriod.State = task.StateCompleted
+	progress.LpaRegistered.State = task.StateCompleted
 
 	return progress
 }

@@ -8,8 +8,9 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type organisationStore struct {
@@ -30,7 +31,7 @@ type organisationLink struct {
 }
 
 func (s *organisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (s *organisationStore) Create(ctx context.Context, member *actor.Member, na
 }
 
 func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +87,8 @@ func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organis
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvidedDetails, error) {
-	data, err := page.SessionDataFromContext(ctx)
+func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -99,13 +100,13 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*actor.DonorProvided
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey(data.OrganisationID)),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			UID: donorUID,
 		},
 	}

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ type LoginCallbackOneLoginClient interface {
 }
 
 func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, sessionStore SessionStore, organisationStore OrganisationStore, now func() time.Time, memberStore MemberStore) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if error := r.FormValue("error"); error != "" {
 			logger.InfoContext(r.Context(), "login error",
 				slog.String("error", error),
@@ -50,8 +51,8 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 
 		logger.InfoContext(r.Context(), "login", slog.String("session_id", loginSession.SessionID()))
 
-		sessionData := &page.SessionData{SessionID: loginSession.SessionID(), Email: loginSession.Email}
-		ctx := page.ContextWithSessionData(r.Context(), sessionData)
+		sessionData := &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email}
+		ctx := appcontext.ContextWithSession(r.Context(), sessionData)
 
 		member, err := memberStore.GetAny(ctx)
 		if errors.Is(err, dynamo.NotFoundError{}) {
@@ -91,7 +92,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 		}
 
 		sessionData.OrganisationID = organisation.ID
-		ctx = page.ContextWithSessionData(r.Context(), sessionData)
+		ctx = appcontext.ContextWithSession(r.Context(), sessionData)
 
 		member.LastLoggedInAt = now()
 		member.Email = loginSession.Email

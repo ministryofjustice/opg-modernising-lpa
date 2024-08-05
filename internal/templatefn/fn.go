@@ -1,3 +1,4 @@
+// Package templatefn provides functions for use in templates.
 package templatefn
 
 import (
@@ -10,7 +11,9 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -111,7 +114,7 @@ func input(top interface{}, name, label string, value interface{}, attrs ...inte
 	return field
 }
 
-func button(app page.AppData, label string, attrs ...any) map[string]any {
+func button(app appcontext.Data, label string, attrs ...any) map[string]any {
 	field := map[string]any{
 		"app":   app,
 		"label": label,
@@ -182,17 +185,17 @@ func inc(i int) int {
 	return i + 1
 }
 
-func link(app page.AppData, path string) string {
+func link(app appcontext.Data, path string) string {
 	return app.Lang.URL(path)
 }
 
 type lpaIDPath interface{ Format(string) string }
 
-func fromLink(app page.AppData, path lpaIDPath, field string) string {
+func fromLink(app appcontext.Data, path lpaIDPath, field string) string {
 	return app.Lang.URL(path.Format(app.LpaID)) + "?from=" + app.Page + field
 }
 
-func fromLinkActor(app page.AppData, path lpaIDPath, uid actoruid.UID, field string) string {
+func fromLinkActor(app appcontext.Data, path lpaIDPath, uid actoruid.UID, field string) string {
 	return app.Lang.URL(path.Format(app.LpaID)) + "?from=" + app.Page + "&id=" + uid.String() + field
 }
 
@@ -214,7 +217,7 @@ func checkboxEq(needle string, in any) bool {
 	return false
 }
 
-func tr(app page.AppData, messageID string) string {
+func tr(app appcontext.Data, messageID string) string {
 	if messageID == "" {
 		return ""
 	}
@@ -222,7 +225,7 @@ func tr(app page.AppData, messageID string) string {
 	return app.Localizer.T(messageID)
 }
 
-func trFormat(app page.AppData, messageID string, args ...interface{}) string {
+func trFormat(app appcontext.Data, messageID string, args ...interface{}) string {
 	if messageID == "" {
 		return ""
 	}
@@ -239,7 +242,7 @@ func trFormat(app page.AppData, messageID string, args ...interface{}) string {
 	return app.Localizer.Format(messageID, data)
 }
 
-func trFormatHtml(app page.AppData, messageID string, args ...interface{}) template.HTML {
+func trFormatHtml(app appcontext.Data, messageID string, args ...interface{}) template.HTML {
 	if messageID == "" {
 		return ""
 	}
@@ -256,7 +259,7 @@ func trFormatHtml(app page.AppData, messageID string, args ...interface{}) templ
 	return template.HTML(app.Localizer.Format(messageID, data))
 }
 
-func trHtml(app page.AppData, messageID string) template.HTML {
+func trHtml(app appcontext.Data, messageID string) template.HTML {
 	if messageID == "" {
 		return ""
 	}
@@ -264,7 +267,7 @@ func trHtml(app page.AppData, messageID string) template.HTML {
 	return template.HTML(app.Localizer.T(messageID))
 }
 
-func trCount(app page.AppData, messageID string, count int) string {
+func trCount(app appcontext.Data, messageID string, count int) string {
 	if messageID == "" {
 		return ""
 	}
@@ -272,7 +275,7 @@ func trCount(app page.AppData, messageID string, count int) string {
 	return app.Localizer.Count(messageID, count)
 }
 
-func trFormatCount(app page.AppData, messageID string, count int, args ...interface{}) string {
+func trFormatCount(app appcontext.Data, messageID string, count int, args ...interface{}) string {
 	if messageID == "" {
 		return ""
 	}
@@ -297,15 +300,15 @@ func addDays(days int, t time.Time) time.Time {
 	return t.AddDate(0, 0, days)
 }
 
-func formatDate(app page.AppData, t date.TimeOrDate) string {
+func formatDate(app appcontext.Data, t date.TimeOrDate) string {
 	return app.Localizer.FormatDate(t)
 }
 
-func formatTime(app page.AppData, t time.Time) string {
+func formatTime(app appcontext.Data, t time.Time) string {
 	return app.Localizer.FormatTime(t)
 }
 
-func formatDateTime(app page.AppData, t time.Time) string {
+func formatDateTime(app appcontext.Data, t time.Time) string {
 	return app.Localizer.FormatDateTime(t)
 }
 
@@ -326,7 +329,7 @@ func formatPhone(s string) string {
 }
 
 type attorneySummaryData struct {
-	App              page.AppData
+	App              appcontext.Data
 	CanChange        bool
 	TrustCorporation lpastore.TrustCorporation
 	Attorneys        []lpastore.Attorney
@@ -339,7 +342,7 @@ type attorneySummaryDataLinks struct {
 	Attorney, AttorneyAddress, RemoveAttorney                         string
 }
 
-func listAttorneys(app page.AppData, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
+func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, headingLevel int, canChange bool) attorneySummaryData {
 	data := attorneySummaryData{
 		App:          app,
 		CanChange:    canChange,
@@ -350,7 +353,7 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 	case lpastore.Attorneys:
 		data.Attorneys = v.Attorneys
 		data.TrustCorporation = v.TrustCorporation
-	case actor.Attorneys:
+	case donordata.Attorneys:
 		for _, a := range v.Attorneys {
 			data.Attorneys = append(data.Attorneys, lpastore.Attorney{
 				UID:         a.UID,
@@ -394,8 +397,8 @@ func listAttorneys(app page.AppData, attorneys any, attorneyType string, heading
 	return data
 }
 
-func listPeopleToNotify(app page.AppData, peopleToNotify actor.PeopleToNotify, headingLevel int, canChange bool) map[string]interface{} {
-	return map[string]interface{}{
+func listPeopleToNotify(app appcontext.Data, peopleToNotify any, headingLevel int, canChange bool) map[string]interface{} {
+	return map[string]any{
 		"App":            app,
 		"HeadingLevel":   headingLevel,
 		"PeopleToNotify": peopleToNotify,
@@ -403,7 +406,7 @@ func listPeopleToNotify(app page.AppData, peopleToNotify actor.PeopleToNotify, h
 	}
 }
 
-func card(app page.AppData, item any) map[string]any {
+func card(app appcontext.Data, item any) map[string]any {
 	return map[string]interface{}{
 		"App":  app,
 		"Item": item,
@@ -430,15 +433,15 @@ func printStruct(s interface{}) string {
 	return output
 }
 
-func possessive(app page.AppData, s string) string {
+func possessive(app appcontext.Data, s string) string {
 	return app.Localizer.Possessive(s)
 }
 
-func concatAnd(app page.AppData, list []string) string {
+func concatAnd(app appcontext.Data, list []string) string {
 	return app.Localizer.Concat(list, "and")
 }
 
-func concatOr(app page.AppData, list []string) string {
+func concatOr(app appcontext.Data, list []string) string {
 	return app.Localizer.Concat(list, "or")
 }
 
@@ -446,7 +449,7 @@ func concatComma(list []string) string {
 	return strings.Join(list, ", ")
 }
 
-func content(app page.AppData, content string) map[string]interface{} {
+func content(app appcontext.Data, content string) map[string]interface{} {
 	return map[string]interface{}{
 		"App":     app,
 		"Content": content,
@@ -454,14 +457,14 @@ func content(app page.AppData, content string) map[string]interface{} {
 }
 
 type notificationBannerData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Title   string
 	Content template.HTML
 	Heading bool
 	Success bool
 }
 
-func notificationBanner(app page.AppData, title string, content template.HTML, options ...string) notificationBannerData {
+func notificationBanner(app appcontext.Data, title string, content template.HTML, options ...string) notificationBannerData {
 	return notificationBannerData{
 		App:     app,
 		Title:   title,
@@ -472,12 +475,12 @@ func notificationBanner(app page.AppData, title string, content template.HTML, o
 }
 
 type lpaDecisionsData struct {
-	App       page.AppData
+	App       appcontext.Data
 	Lpa       *lpastore.Lpa
 	CanChange bool
 }
 
-func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
+func lpaDecisions(app appcontext.Data, lpa any, canChange bool) lpaDecisionsData {
 	data := lpaDecisionsData{
 		App:       app,
 		CanChange: canChange,
@@ -486,14 +489,14 @@ func lpaDecisions(app page.AppData, lpa any, canChange bool) lpaDecisionsData {
 	switch v := lpa.(type) {
 	case *lpastore.Lpa:
 		data.Lpa = v
-	case *actor.DonorProvidedDetails:
+	case *donordata.Provided:
 		data.Lpa = lpastore.FromDonorProvidedDetails(v)
 	}
 
 	return data
 }
 
-func summaryRow(app page.AppData, label string, value any, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
+func summaryRow(app appcontext.Data, label string, value any, changeLink, fullName string, canChange, summarisingSelf bool) map[string]any {
 	return map[string]any{
 		"App":             app,
 		"Label":           label,

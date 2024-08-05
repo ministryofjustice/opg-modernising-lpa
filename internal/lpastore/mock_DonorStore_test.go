@@ -5,8 +5,7 @@ package lpastore
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,23 +23,23 @@ func (_m *mockDonorStore) EXPECT() *mockDonorStore_Expecter {
 }
 
 // GetAny provides a mock function with given fields: ctx
-func (_m *mockDonorStore) GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error) {
+func (_m *mockDonorStore) GetAny(ctx context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAny")
 	}
 
-	var r0 *actor.DonorProvidedDetails
+	var r0 *donordata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.DonorProvidedDetails, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*donordata.Provided, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.DonorProvidedDetails); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *donordata.Provided); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.DonorProvidedDetails)
+			r0 = ret.Get(0).(*donordata.Provided)
 		}
 	}
 
@@ -71,12 +70,12 @@ func (_c *mockDonorStore_GetAny_Call) Run(run func(ctx context.Context)) *mockDo
 	return _c
 }
 
-func (_c *mockDonorStore_GetAny_Call) Return(_a0 *actor.DonorProvidedDetails, _a1 error) *mockDonorStore_GetAny_Call {
+func (_c *mockDonorStore_GetAny_Call) Return(_a0 *donordata.Provided, _a1 error) *mockDonorStore_GetAny_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDonorStore_GetAny_Call) RunAndReturn(run func(context.Context) (*actor.DonorProvidedDetails, error)) *mockDonorStore_GetAny_Call {
+func (_c *mockDonorStore_GetAny_Call) RunAndReturn(run func(context.Context) (*donordata.Provided, error)) *mockDonorStore_GetAny_Call {
 	_c.Call.Return(run)
 	return _c
 }

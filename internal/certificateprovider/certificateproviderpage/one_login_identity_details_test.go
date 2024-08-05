@@ -5,12 +5,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -63,7 +63,7 @@ func TestPostOneLoginIdentityDetails(t *testing.T) {
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
 		LpaID:            "lpa-id",
 		DateOfBirth:      date.New("2000", "1", "1"),
-		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: actor.TaskCompleted},
+		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)

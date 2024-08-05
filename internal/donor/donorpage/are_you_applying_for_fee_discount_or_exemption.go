@@ -4,21 +4,23 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type areYouApplyingForFeeDiscountOrExemptionData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *form.YesNoForm
 }
 
 func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &areYouApplyingForFeeDiscountOrExemptionData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
@@ -30,7 +32,7 @@ func AreYouApplyingForFeeDiscountOrExemption(tmpl template.Template, payer Handl
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Tasks.PayForLpa = actor.PaymentTaskInProgress
+				donor.Tasks.PayForLpa = task.PaymentStateInProgress
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,13 +25,13 @@ func TestGetSignYourLpa(t *testing.T) {
 		Execute(w, &signYourLpaData{
 			App:                  testAppData,
 			Form:                 &signYourLpaForm{},
-			Donor:                &actor.DonorProvidedDetails{},
+			Donor:                &donordata.Provided{},
 			WantToSignFormValue:  WantToSignLpa,
 			WantToApplyFormValue: WantToApplyForLpa,
 		}).
 		Return(nil)
 
-	err := SignYourLpa(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := SignYourLpa(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGetSignYourLpaWhenSigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := SignYourLpa(nil, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := SignYourLpa(nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                 "lpa-id",
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		SignedAt:              time.Now(),
@@ -58,7 +58,7 @@ func TestGetSignYourLpaFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &actor.DonorProvidedDetails{
+	donor := &donordata.Provided{
 		WantToSignLpa:     true,
 		WantToApplyForLpa: false,
 	}
@@ -95,7 +95,7 @@ func TestPostSignYourLpa(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			WantToSignLpa:         true,
@@ -104,7 +104,7 @@ func TestPostSignYourLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -126,7 +126,7 @@ func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -147,7 +147,7 @@ func TestPostSignYourLpaWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := SignYourLpa(template.Execute, nil, testNowFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := SignYourLpa(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

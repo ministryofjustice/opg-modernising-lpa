@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -25,16 +25,16 @@ var (
 		Country:    "GB",
 	}
 	expectedError = errors.New("err")
-	testAppData   = page.AppData{
+	testAppData   = appcontext.Data{
 		SessionID:         "session-id",
 		LpaID:             "lpa-id",
 		Lang:              localize.En,
 		LoginSessionEmail: "logged-in@example.com",
 	}
-	testSupporterAppData = page.AppData{
+	testSupporterAppData = appcontext.Data{
 		SessionID:     "session-id",
 		LpaID:         "lpa-id",
-		SupporterData: &page.SupporterData{},
+		SupporterData: &appcontext.SupporterData{},
 		Lang:          localize.En,
 	}
 	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)

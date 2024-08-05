@@ -5,33 +5,35 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestResolvingServiceGet(t *testing.T) {
 	testcases := map[string]struct {
-		donor    *actor.DonorProvidedDetails
+		donor    *donordata.Provided
 		resolved *Lpa
 		error    error
 		expected *Lpa
 	}{
 		"online with all true": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				SK:          dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
 				SubmittedAt: time.Now(),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Tasks: actor.DonorTasks{
-					CheckYourLpa: actor.TaskCompleted,
-					PayForLpa:    actor.PaymentTaskCompleted,
+				Tasks: donordata.Tasks{
+					CheckYourLpa: task.StateCompleted,
+					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
@@ -54,27 +56,27 @@ func TestResolvingServiceGet(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: lpadata.ChannelOnline},
 			},
 		},
 		"online with no lpastore record": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Donor: actor.Donor{Channel: actor.ChannelOnline},
-				Attorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
-					TrustCorporation: actor.TrustCorporation{Name: "b"},
+				Donor: donordata.Donor{Channel: lpadata.ChannelOnline},
+				Attorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
+					TrustCorporation: donordata.TrustCorporation{Name: "b"},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
-					TrustCorporation: actor.TrustCorporation{Name: "d"},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
+					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
@@ -87,10 +89,10 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
 				Donor: Donor{
-					Channel: actor.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 						Type:      "one-login",
@@ -107,7 +109,7 @@ func TestResolvingServiceGet(t *testing.T) {
 			},
 		},
 		"online with all false": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
@@ -117,11 +119,11 @@ func TestResolvingServiceGet(t *testing.T) {
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
-				Donor:       Donor{Channel: actor.ChannelOnline},
+				Donor:       Donor{Channel: lpadata.ChannelOnline},
 			},
 		},
 		"paper": {
-			donor: &actor.DonorProvidedDetails{
+			donor: &donordata.Provided{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
@@ -135,9 +137,9 @@ func TestResolvingServiceGet(t *testing.T) {
 				Drafted:     true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: actor.Professionally,
+					Relationship: lpadata.Professionally,
 				},
-				Donor: Donor{Channel: actor.ChannelPaper},
+				Donor: Donor{Channel: lpadata.ChannelPaper},
 			},
 		},
 	}
@@ -171,14 +173,14 @@ func TestResolvingServiceGetWhenNoUID(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(ctx).
-		Return(&actor.DonorProvidedDetails{LpaID: "1"}, nil)
+		Return(&donordata.Provided{LpaID: "1"}, nil)
 
 	service := NewResolvingService(donorStore, nil)
 	lpa, err := service.Get(ctx)
 
 	assert.Equal(t, &Lpa{
 		LpaID: "1",
-		Donor: Donor{Channel: actor.ChannelOnline},
+		Donor: Donor{Channel: lpadata.ChannelOnline},
 	}, lpa)
 	assert.Nil(t, err)
 }
@@ -189,7 +191,7 @@ func TestResolvingServiceGetWhenNotFound(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(ctx).
-		Return(&actor.DonorProvidedDetails{LpaID: "1", LpaUID: "M-1111"}, nil)
+		Return(&donordata.Provided{LpaID: "1", LpaUID: "M-1111"}, nil)
 
 	lpaClient := newMockLpaClient(t)
 	lpaClient.EXPECT().
@@ -202,7 +204,7 @@ func TestResolvingServiceGetWhenNotFound(t *testing.T) {
 	assert.Equal(t, &Lpa{
 		LpaID:  "1",
 		LpaUID: "M-1111",
-		Donor:  Donor{Channel: actor.ChannelOnline},
+		Donor:  Donor{Channel: lpadata.ChannelOnline},
 	}, lpa)
 	assert.Nil(t, err)
 }
@@ -227,7 +229,7 @@ func TestResolvingServiceGetWhenLpaClientErrors(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(ctx).
-		Return(&actor.DonorProvidedDetails{LpaUID: "M-1111"}, nil)
+		Return(&donordata.Provided{LpaUID: "M-1111"}, nil)
 
 	lpaClient := newMockLpaClient(t)
 	lpaClient.EXPECT().
@@ -242,25 +244,25 @@ func TestResolvingServiceGetWhenLpaClientErrors(t *testing.T) {
 
 func TestResolvingServiceResolveList(t *testing.T) {
 	testcases := map[string]struct {
-		donors   []*actor.DonorProvidedDetails
+		donors   []*donordata.Provided
 		uids     []string
 		resolved []*Lpa
 		error    error
 		expected []*Lpa
 	}{
 		"online with all true": {
-			donors: []*actor.DonorProvidedDetails{{
+			donors: []*donordata.Provided{{
 				SK:          dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
 				SubmittedAt: time.Now(),
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "Barry",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Tasks: actor.DonorTasks{
-					CheckYourLpa: actor.TaskCompleted,
-					PayForLpa:    actor.PaymentTaskCompleted,
+				Tasks: donordata.Tasks{
+					CheckYourLpa: task.StateCompleted,
+					PayForLpa:    task.PaymentStateCompleted,
 				},
 				DonorIdentityUserData: identity.UserData{
 					Status: identity.StatusConfirmed,
@@ -284,27 +286,27 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				IsOrganisationDonor: true,
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "Paul",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: lpadata.ChannelOnline},
 			}},
 		},
 		"online with no lpastore record": {
-			donors: []*actor.DonorProvidedDetails{{
+			donors: []*donordata.Provided{{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaUID: "M-1111",
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Donor: actor.Donor{Channel: actor.ChannelOnline},
-				Attorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "a"}},
-					TrustCorporation: actor.TrustCorporation{Name: "b"},
+				Donor: donordata.Donor{Channel: lpadata.ChannelOnline},
+				Attorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "a"}},
+					TrustCorporation: donordata.TrustCorporation{Name: "b"},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys:        []actor.Attorney{{FirstNames: "c"}},
-					TrustCorporation: actor.TrustCorporation{Name: "d"},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
+					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
 			}},
 			uids: []string{"M-1111"},
@@ -313,9 +315,9 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaUID:      "M-1111",
 				CertificateProvider: CertificateProvider{
 					FirstNames:   "John",
-					Relationship: actor.Personally,
+					Relationship: lpadata.Personally,
 				},
-				Donor: Donor{Channel: actor.ChannelOnline},
+				Donor: Donor{Channel: lpadata.ChannelOnline},
 				Attorneys: Attorneys{
 					Attorneys:        []Attorney{{FirstNames: "a"}},
 					TrustCorporation: TrustCorporation{Name: "b"},
@@ -327,7 +329,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 			}},
 		},
 		"online with all false": {
-			donors: []*actor.DonorProvidedDetails{{
+			donors: []*donordata.Provided{{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
@@ -338,11 +340,11 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("S")),
 				LpaID:       "1",
 				LpaUID:      "M-1111",
-				Donor:       Donor{Channel: actor.ChannelOnline},
+				Donor:       Donor{Channel: lpadata.ChannelOnline},
 			}},
 		},
 		"paper": {
-			donors: []*actor.DonorProvidedDetails{{
+			donors: []*donordata.Provided{{
 				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:  "1",
 				LpaUID: "M-1111",
@@ -357,9 +359,9 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				Submitted:   true,
 				Paid:        true,
 				CertificateProvider: CertificateProvider{
-					Relationship: actor.Professionally,
+					Relationship: lpadata.Professionally,
 				},
-				Donor: Donor{Channel: actor.ChannelPaper},
+				Donor: Donor{Channel: lpadata.ChannelPaper},
 			}},
 		},
 	}

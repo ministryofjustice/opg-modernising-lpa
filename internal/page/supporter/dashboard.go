@@ -7,7 +7,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,9 +19,9 @@ type SearchClient interface {
 }
 
 type dashboardData struct {
-	App         page.AppData
+	App         appcontext.Data
 	Errors      validation.List
-	Donors      []actor.DonorProvidedDetails
+	Donors      []donordata.Provided
 	CurrentPage int
 	Pagination  *search.Pagination
 }
@@ -28,7 +29,7 @@ type dashboardData struct {
 func Dashboard(tmpl template.Template, donorStore DonorStore, searchClient SearchClient) Handler {
 	const pageSize = 10
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
 		page, err := strconv.Atoi(r.FormValue("page"))
 		if err != nil {
 			page = 1

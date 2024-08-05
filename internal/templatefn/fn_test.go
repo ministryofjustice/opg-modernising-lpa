@@ -8,7 +8,9 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -67,13 +69,13 @@ func TestInputWithUnevenAttrs(t *testing.T) {
 }
 
 func TestButton(t *testing.T) {
-	appData := page.AppData{Path: "1"}
+	appData := appcontext.Data{Path: "1"}
 
 	assert.Equal(t, map[string]any{"app": appData, "label": "label", "link": "a"}, button(appData, "label", "link", "a"))
 }
 
 func TestButtonWithUnevenAttrs(t *testing.T) {
-	appData := page.AppData{Path: "1"}
+	appData := appcontext.Data{Path: "1"}
 
 	assert.Panics(t, func() { button(appData, "label", "a") })
 }
@@ -155,23 +157,23 @@ func TestInc(t *testing.T) {
 }
 
 func TestLink(t *testing.T) {
-	assert.Equal(t, "/dashboard", link(page.AppData{}, "/dashboard"))
-	assert.Equal(t, "/cy/dashboard", link(page.AppData{Lang: localize.Cy}, "/dashboard"))
+	assert.Equal(t, "/dashboard", link(appcontext.Data{}, "/dashboard"))
+	assert.Equal(t, "/cy/dashboard", link(appcontext.Data{Lang: localize.Cy}, "/dashboard"))
 }
 
 func TestFromLink(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id/your-details?from=/previous#f-first-names",
-		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
+		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
-		fromLink(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
+		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
 }
 
 func TestFromLinkActor(t *testing.T) {
 	uid := actoruid.New()
 	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id/your-details?from=/previous&id=%s#f-first-names", uid.String()),
-		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
+		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous&id="+uid.String(),
-		fromLinkActor(page.AppData{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, uid, ""))
+		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, uid, ""))
 }
 
 func TestCheckboxEq(t *testing.T) {
@@ -186,7 +188,7 @@ func TestCheckboxEq(t *testing.T) {
 
 func TestTr(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -196,7 +198,7 @@ func TestTr(t *testing.T) {
 
 func TestTrFormat(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -206,7 +208,7 @@ func TestTrFormat(t *testing.T) {
 
 func TestTrHtml(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -216,7 +218,7 @@ func TestTrHtml(t *testing.T) {
 
 func TestTrFormatHtml(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -229,12 +231,12 @@ func TestTrFormatHtml(t *testing.T) {
 func TestTrCount(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
 
-	enApp := page.AppData{Localizer: bundle.For(localize.En)}
+	enApp := appcontext.Data{Localizer: bundle.For(localize.En)}
 	assert.Equal(t, "hi one", trCount(enApp, "with-count", 1))
 	assert.Equal(t, "hi other", trCount(enApp, "with-count", 2))
 	assert.Equal(t, "", trCount(enApp, "", 2))
 
-	cyApp := page.AppData{Localizer: bundle.For(localize.Cy)}
+	cyApp := appcontext.Data{Localizer: bundle.For(localize.Cy)}
 	assert.Equal(t, "cy one", trCount(cyApp, "with-count", 1))
 	assert.Equal(t, "cy two", trCount(cyApp, "with-count", 2))
 	assert.Equal(t, "cy few", trCount(cyApp, "with-count", 3))
@@ -247,7 +249,7 @@ func TestTrCount(t *testing.T) {
 
 func TestTrFormatCount(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	enApp := page.AppData{
+	enApp := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -256,7 +258,7 @@ func TestTrFormatCount(t *testing.T) {
 	assert.Equal(t, "", trFormatCount(enApp, "", 2, "name", "Person"))
 
 	bundle, _ = localize.NewBundle("testdata/cy.json")
-	cyApp := page.AppData{
+	cyApp := appcontext.Data{
 		Localizer: bundle.For(localize.Cy),
 	}
 
@@ -280,8 +282,8 @@ func TestAddDays(t *testing.T) {
 
 func TestFormatDate(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
-	appEn := page.AppData{Localizer: bundle.For(localize.En)}
-	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
+	appEn := appcontext.Data{Localizer: bundle.For(localize.En)}
+	appCy := appcontext.Data{Localizer: bundle.For(localize.Cy)}
 
 	assert.Equal(t, "7 March 2020", formatDate(appEn, time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 March 2020", formatDate(appEn, date.New("2020", "3", "7")))
@@ -292,8 +294,8 @@ func TestFormatDate(t *testing.T) {
 
 func TestFormatTime(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
-	appEn := page.AppData{Localizer: bundle.For(localize.En)}
-	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
+	appEn := appcontext.Data{Localizer: bundle.For(localize.En)}
+	appCy := appcontext.Data{Localizer: bundle.For(localize.Cy)}
 
 	assert.Equal(t, "3:04am", formatTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 
@@ -302,8 +304,8 @@ func TestFormatTime(t *testing.T) {
 
 func TestFormatDateTime(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json", "testdata/cy.json")
-	appEn := page.AppData{Localizer: bundle.For(localize.En)}
-	appCy := page.AppData{Localizer: bundle.For(localize.Cy)}
+	appEn := appcontext.Data{Localizer: bundle.For(localize.En)}
+	appCy := appcontext.Data{Localizer: bundle.For(localize.Cy)}
 
 	assert.Equal(t, "7 March 2020 at 3:04am", formatDateTime(appEn, time.Date(2020, time.March, 7, 3, 4, 0, 0, time.UTC)))
 
@@ -317,7 +319,7 @@ func TestFormatPhone(t *testing.T) {
 }
 
 func TestListAttorneysWithAttorneys(t *testing.T) {
-	app := page.AppData{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor, LpaID: "lpa-id"}
+	app := appcontext.Data{SessionID: "abc", Page: "/here", ActorType: actor.TypeDonor, LpaID: "lpa-id"}
 	headingLevel := 3
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
@@ -346,11 +348,11 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	}
 	lpaStoreTrustCorporation := lpastore.TrustCorporation{Name: "a"}
 
-	actorAttorneys := []actor.Attorney{
+	actorAttorneys := []donordata.Attorney{
 		{UID: uid1},
 		{UID: uid2},
 	}
-	actorTrustCorporation := actor.TrustCorporation{Name: "a"}
+	actorTrustCorporation := donordata.TrustCorporation{Name: "a"}
 
 	testcases := map[string]struct {
 		attorneys    any
@@ -373,7 +375,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 			},
 		},
 		"dynamo": {
-			attorneys: actor.Attorneys{
+			attorneys: donordata.Attorneys{
 				Attorneys:        actorAttorneys,
 				TrustCorporation: actorTrustCorporation,
 			},
@@ -403,7 +405,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 			},
 		},
 		"dynamo replacement": {
-			attorneys: actor.Attorneys{
+			attorneys: donordata.Attorneys{
 				Attorneys:        actorAttorneys,
 				TrustCorporation: actorTrustCorporation,
 			},
@@ -430,14 +432,14 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 
 func TestListAttorneysWithIncorrectType(t *testing.T) {
 	assert.Panics(t, func() {
-		listAttorneys(page.AppData{}, 5, "attorney", 3, true)
+		listAttorneys(appcontext.Data{}, 5, "attorney", 3, true)
 	})
 }
 
 func TestListPeopleToNotify(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 	headingLevel := 3
-	peopleToNotify := actor.PeopleToNotify{{}}
+	peopleToNotify := donordata.PeopleToNotify{{}}
 
 	want := map[string]interface{}{
 		"App":            app,
@@ -452,7 +454,7 @@ func TestListPeopleToNotify(t *testing.T) {
 }
 
 func TestCard(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 
 	want := map[string]interface{}{
 		"App":  app,
@@ -478,7 +480,7 @@ func TestPrintStruct(t *testing.T) {
 
 func TestPossessive(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -487,7 +489,7 @@ func TestPossessive(t *testing.T) {
 
 func TestConcatAnd(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -499,7 +501,7 @@ func TestConcatAnd(t *testing.T) {
 
 func TestConcatOr(t *testing.T) {
 	bundle, _ := localize.NewBundle("testdata/en.json")
-	app := page.AppData{
+	app := appcontext.Data{
 		Localizer: bundle.For(localize.En),
 	}
 
@@ -517,7 +519,7 @@ func TestConcatComma(t *testing.T) {
 }
 
 func TestContent(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 	componentContent := "content"
 
 	v := content(app, componentContent)
@@ -527,7 +529,7 @@ func TestContent(t *testing.T) {
 }
 
 func TestNotificationBanner(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 
 	assert.Equal(t, notificationBannerData{
 		App:     app,
@@ -545,7 +547,7 @@ func TestNotificationBanner(t *testing.T) {
 }
 
 func TestLpaDecisions(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
@@ -555,17 +557,17 @@ func TestLpaDecisions(t *testing.T) {
 }
 
 func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
 		Lpa:       &lpastore.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, &actor.DonorProvidedDetails{}, true))
+	}, lpaDecisions(app, &donordata.Provided{}, true))
 }
 
 func TestSummaryRow(t *testing.T) {
-	app := page.AppData{SessionID: "abc"}
+	app := appcontext.Data{SessionID: "abc"}
 	label := "a-label"
 	value := "aValue"
 	changeLink := "a-link.com"

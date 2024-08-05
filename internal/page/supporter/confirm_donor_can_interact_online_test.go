@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -44,7 +45,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenYes(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		CreateLPA(r.Context()).
-		Return(&actor.DonorProvidedDetails{LpaID: "lpa-id"}, nil)
+		Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
 	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
@@ -100,7 +101,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenOrganisationStoreError(t *testing.
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		CreateLPA(r.Context()).
-		Return(&actor.DonorProvidedDetails{}, expectedError)
+		Return(&donordata.Provided{}, expectedError)
 
 	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()

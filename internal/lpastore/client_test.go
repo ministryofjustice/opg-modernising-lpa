@@ -14,13 +14,14 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/pact-foundation/pact-go/v2/consumer"
 	"github.com/pact-foundation/pact-go/v2/matchers"
@@ -179,11 +180,11 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
+			err := client.SendLpa(context.Background(), &donordata.Provided{
 				LpaUID:                        "M-0000-1111-2222",
-				Type:                          actor.LpaTypePersonalWelfare,
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
-				Donor: actor.Donor{
+				Type:                          lpadata.LpaTypePersonalWelfare,
+				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
+				Donor: donordata.Donor{
 					UID:                       actoruid.New(),
 					FirstNames:                "John Johnson",
 					LastName:                  "Smith",
@@ -192,8 +193,8 @@ func TestClientServiceContract(t *testing.T) {
 					Address:                   address,
 					ContactLanguagePreference: localize.En,
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
@@ -201,16 +202,16 @@ func TestClientServiceContract(t *testing.T) {
 						Email:       "alice@example.com",
 						Address:     address,
 					}},
-					TrustCorporation: actor.TrustCorporation{
+					TrustCorporation: donordata.TrustCorporation{
 						UID:           actoruid.New(),
 						Name:          "Trust us Corp.",
 						CompanyNumber: "66654321",
 						Address:       address,
 					},
 				},
-				AttorneyDecisions: actor.AttorneyDecisions{How: actor.Jointly},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -219,14 +220,14 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.ChannelOnline,
+					CarryOutBy: lpadata.ChannelOnline,
 				},
 				Restrictions: "hmm",
 				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
@@ -341,10 +342,10 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendLpa(context.Background(), &actor.DonorProvidedDetails{
+			err := client.SendLpa(context.Background(), &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
-				Donor: actor.Donor{
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Donor: donordata.Donor{
 					UID:                       actoruid.New(),
 					FirstNames:                "John Johnson",
 					LastName:                  "Smith",
@@ -354,8 +355,8 @@ func TestClientServiceContract(t *testing.T) {
 					OtherNames:                "JJ",
 					ContactLanguagePreference: localize.Cy,
 				},
-				Attorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				Attorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Alice",
 						LastName:    "Attorney",
@@ -364,8 +365,8 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				ReplacementAttorneys: actor.Attorneys{
-					Attorneys: []actor.Attorney{{
+				ReplacementAttorneys: donordata.Attorneys{
+					Attorneys: []donordata.Attorney{{
 						UID:         actoruid.New(),
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -374,16 +375,16 @@ func TestClientServiceContract(t *testing.T) {
 						Address:     address,
 					}},
 				},
-				CertificateProvider: actor.CertificateProvider{
+				CertificateProvider: donordata.CertificateProvider{
 					UID:        actoruid.New(),
 					FirstNames: "Charles",
 					LastName:   "Certificate",
 					Email:      "charles@example.com",
 					Mobile:     "0700009000",
 					Address:    address,
-					CarryOutBy: actor.ChannelOnline,
+					CarryOutBy: lpadata.ChannelOnline,
 				},
-				PeopleToNotify: actor.PeopleToNotify{{
+				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        actoruid.New(),
 					FirstNames: "Peter",
 					LastName:   "Person",
@@ -552,7 +553,7 @@ func TestClientServiceContract(t *testing.T) {
 							UID:           uid,
 							Name:          "Trust us Corp.",
 							CompanyNumber: "66654321",
-							Channel:       actor.ChannelPaper,
+							Channel:       lpadata.ChannelPaper,
 						},
 					},
 				},
@@ -633,7 +634,7 @@ func TestClientServiceContract(t *testing.T) {
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
-				}, &Lpa{CertificateProvider: CertificateProvider{Channel: actor.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
+				}, &Lpa{CertificateProvider: CertificateProvider{Channel: lpadata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -715,7 +716,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email: "a@example.com",
 				}, &Lpa{
 					CertificateProvider: CertificateProvider{
-						Channel: actor.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 						Address: place.Address{
 							Line1:      "71 South Western Terrace",
 							TownOrCity: "Milton",
@@ -861,7 +862,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			assert.Equal(t, &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
@@ -872,7 +873,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -884,7 +885,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: actor.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -897,9 +898,9 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}, donor)
 			return nil
@@ -993,7 +994,7 @@ func TestClientServiceContract(t *testing.T) {
 
 			assert.Equal(t, []*Lpa{{
 				LpaUID: "M-0000-1111-2222",
-				Type:   actor.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
@@ -1004,7 +1005,7 @@ func TestClientServiceContract(t *testing.T) {
 						Postcode:   "WR9 2PF",
 						Country:    "GB",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -1016,7 +1017,7 @@ func TestClientServiceContract(t *testing.T) {
 							TownOrCity: "Milton",
 							Country:    "AU",
 						},
-						Channel: actor.ChannelOnline,
+						Channel: lpadata.ChannelOnline,
 					}},
 				},
 				CertificateProvider: CertificateProvider{
@@ -1029,9 +1030,9 @@ func TestClientServiceContract(t *testing.T) {
 						TownOrCity: "Milton",
 						Country:    "AU",
 					},
-					Channel: actor.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 				},
-				LifeSustainingTreatmentOption: actor.LifeSustainingTreatmentOptionA,
+				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}}, lpas)
 			return nil

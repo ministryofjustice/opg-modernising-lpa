@@ -4,27 +4,29 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type lifeSustainingTreatmentData struct {
-	App     page.AppData
+	App     appcontext.Data
 	Errors  validation.List
 	Form    *lifeSustainingTreatmentForm
-	Options donordata.LifeSustainingTreatmentOptions
+	Options lpadata.LifeSustainingTreatmentOptions
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &lifeSustainingTreatmentData{
 			App: appData,
 			Form: &lifeSustainingTreatmentForm{
 				Option: donor.LifeSustainingTreatmentOption,
 			},
-			Options: donordata.LifeSustainingTreatmentValues,
+			Options: lpadata.LifeSustainingTreatmentValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -33,7 +35,7 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 
 			if data.Errors.None() {
 				donor.LifeSustainingTreatmentOption = data.Form.Option
-				donor.Tasks.LifeSustainingTreatment = actor.TaskCompleted
+				donor.Tasks.LifeSustainingTreatment = task.StateCompleted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
@@ -47,12 +49,12 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 }
 
 type lifeSustainingTreatmentForm struct {
-	Option actor.LifeSustainingTreatment
+	Option lpadata.LifeSustainingTreatment
 	Error  error
 }
 
 func readLifeSustainingTreatmentForm(r *http.Request) *lifeSustainingTreatmentForm {
-	option, err := donordata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
+	option, err := lpadata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
 
 	return &lifeSustainingTreatmentForm{
 		Option: option,

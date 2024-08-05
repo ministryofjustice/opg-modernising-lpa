@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 type memberStore struct {
@@ -20,7 +20,7 @@ type memberStore struct {
 }
 
 func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, referenceNumber string, permission actor.Permission) error {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, em
 }
 
 func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (
 }
 
 func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 }
 
 func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 }
 
 func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 }
 
 func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.Membe
 }
 
 func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +227,7 @@ func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 }
 
 func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 }
 
 func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
 }
 
 func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
-	data, err := page.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}

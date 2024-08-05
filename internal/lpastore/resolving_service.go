@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 type DonorStore interface {
-	GetAny(ctx context.Context) (*actor.DonorProvidedDetails, error)
+	GetAny(ctx context.Context) (*donordata.Provided, error)
 }
 
 type LpaClient interface {
@@ -48,7 +49,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	return s.merge(lpa, donor), nil
 }
 
-func (s *ResolvingService) ResolveList(ctx context.Context, donors []*actor.DonorProvidedDetails) ([]*Lpa, error) {
+func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*Lpa, error) {
 	lpaUIDs := make([]string, len(donors))
 	for i, donor := range donors {
 		lpaUIDs[i] = donor.LpaUID
@@ -76,7 +77,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*actor.Dono
 	return result, nil
 }
 
-func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *Lpa {
+func (s *ResolvingService) merge(lpa *Lpa, donor *donordata.Provided) *Lpa {
 	lpa.LpaKey = donor.PK
 	lpa.LpaOwnerKey = donor.SK
 	lpa.LpaID = donor.LpaID
@@ -88,14 +89,14 @@ func (s *ResolvingService) merge(lpa *Lpa, donor *actor.DonorProvidedDetails) *L
 		lpa.Paid = true
 		// set to Professionally so we always show the certificate provider home
 		// address question
-		lpa.CertificateProvider.Relationship = actor.Professionally
-		lpa.Donor.Channel = actor.ChannelPaper
+		lpa.CertificateProvider.Relationship = lpadata.Professionally
+		lpa.Donor.Channel = lpadata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.Completed()
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
-		lpa.Donor.Channel = actor.ChannelOnline
+		lpa.Donor.Channel = lpadata.ChannelOnline
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship

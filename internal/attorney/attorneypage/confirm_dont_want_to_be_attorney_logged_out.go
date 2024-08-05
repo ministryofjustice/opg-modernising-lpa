@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -15,19 +16,19 @@ import (
 )
 
 type confirmDontWantToBeAttorneyDataLoggedOut struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Lpa    *lpastore.Lpa
 }
 
 func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
 			return err
 		}
 
-		ctx := page.ContextWithSessionData(r.Context(), &page.SessionData{LpaID: session.LpaID})
+		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: session.LpaID})
 
 		lpa, err := lpaStoreResolvingService.Get(ctx)
 		if err != nil {

@@ -7,9 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,7 +18,7 @@ import (
 
 func TestGetMobileNumber(t *testing.T) {
 	testcases := map[string]struct {
-		appData page.AppData
+		appData appcontext.Data
 	}{
 		"attorney": {
 			appData: testAppData,
@@ -51,7 +52,7 @@ func TestGetMobileNumber(t *testing.T) {
 
 func TestGetMobileNumberFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		appData  page.AppData
+		appData  appcontext.Data
 		attorney *attorneydata.Provided
 	}{
 		"attorney": {
@@ -107,7 +108,7 @@ func TestPostMobileNumber(t *testing.T) {
 		form            url.Values
 		attorney        *attorneydata.Provided
 		updatedAttorney *attorneydata.Provided
-		appData         page.AppData
+		appData         appcontext.Data
 	}{
 		"attorney": {
 			form: url.Values{
@@ -118,7 +119,7 @@ func TestPostMobileNumber(t *testing.T) {
 				LpaID:  "lpa-id",
 				Mobile: "07535111222",
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskInProgress,
+					ConfirmYourDetails: task.StateInProgress,
 				},
 			},
 			appData: testAppData,
@@ -128,13 +129,13 @@ func TestPostMobileNumber(t *testing.T) {
 			attorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskCompleted,
+					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
 		},
@@ -147,7 +148,7 @@ func TestPostMobileNumber(t *testing.T) {
 				LpaID:  "lpa-id",
 				Mobile: "07535111222",
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskInProgress,
+					ConfirmYourDetails: task.StateInProgress,
 				},
 			},
 			appData: testReplacementAppData,
@@ -158,7 +159,7 @@ func TestPostMobileNumber(t *testing.T) {
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
 				Tasks: attorneydata.Tasks{
-					ConfirmYourDetails: actor.TaskInProgress,
+					ConfirmYourDetails: task.StateInProgress,
 				},
 			},
 		},

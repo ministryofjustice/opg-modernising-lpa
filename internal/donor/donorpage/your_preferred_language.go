@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,7 +13,7 @@ import (
 )
 
 type yourPreferredLanguageData struct {
-	App         page.AppData
+	App         appcontext.Data
 	Errors      validation.List
 	Form        *yourPreferredLanguageForm
 	Options     localize.LangOptions
@@ -20,7 +21,7 @@ type yourPreferredLanguageData struct {
 }
 
 func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourPreferredLanguageData{
 			App: appData,
 			Form: &yourPreferredLanguageForm{

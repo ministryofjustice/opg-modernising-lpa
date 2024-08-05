@@ -1,3 +1,4 @@
+// Package uid provides a client for calling the UID service.
 package uid
 
 import (

@@ -3,6 +3,7 @@ package page
 import (
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
@@ -16,7 +17,7 @@ type LoginSessionStore interface {
 }
 
 func Login(oneLoginClient LoginOneLoginClient, sessionStore LoginSessionStore, randomString func(int) string, redirect Path) Handler {
-	return func(appData AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		locale := "en"
 		if appData.Lang == localize.Cy {
 			locale = "cy"
