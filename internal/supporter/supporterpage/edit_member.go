@@ -6,9 +6,9 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -16,12 +16,12 @@ type editMemberData struct {
 	App        appcontext.Data
 	Errors     validation.List
 	Form       *editMemberForm
-	Member     *actor.Member
+	Member     *supporterdata.Member
 	CanEditAll bool
 }
 
 func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error {
 		memberID := r.FormValue("id")
 		isLoggedInMember := member.ID == memberID
 		if !isLoggedInMember {
@@ -41,9 +41,9 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 				FirstNames:        member.FirstNames,
 				LastName:          member.LastName,
 				Permission:        member.Permission,
-				PermissionOptions: actor.PermissionValues,
+				PermissionOptions: supporterdata.PermissionValues,
 				Status:            member.Status,
-				StatusOptions:     actor.StatusValues,
+				StatusOptions:     supporterdata.StatusValues,
 			},
 			Member:     member,
 			CanEditAll: canEditAll,
@@ -107,11 +107,11 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 type editMemberForm struct {
 	FirstNames        string
 	LastName          string
-	Permission        actor.Permission
-	PermissionOptions actor.PermissionOptions
+	Permission        supporterdata.Permission
+	PermissionOptions supporterdata.PermissionOptions
 	PermissionError   error
-	Status            actor.Status
-	StatusOptions     actor.StatusOptions
+	Status            supporterdata.Status
+	StatusOptions     supporterdata.StatusOptions
 	StatusError       error
 	canEditAll        bool
 }
@@ -124,8 +124,8 @@ func readEditMemberForm(r *http.Request, canEditAll bool) *editMemberForm {
 	}
 
 	if canEditAll {
-		f.Permission, f.PermissionError = actor.ParsePermission(page.PostFormString(r, "permission"))
-		f.Status, f.StatusError = actor.ParseStatus(page.PostFormString(r, "status"))
+		f.Permission, f.PermissionError = supporterdata.ParsePermission(page.PostFormString(r, "permission"))
+		f.Status, f.StatusError = supporterdata.ParseStatus(page.PostFormString(r, "status"))
 	}
 
 	return f
@@ -144,7 +144,7 @@ func (f *editMemberForm) Validate() validation.List {
 
 	if f.canEditAll {
 		errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()},
-			validation.Select(actor.PermissionNone.String(), actor.PermissionAdmin.String()))
+			validation.Select(supporterdata.PermissionNone.String(), supporterdata.PermissionAdmin.String()))
 
 		errors.Error("status", "status", f.StatusError,
 			validation.Selected())

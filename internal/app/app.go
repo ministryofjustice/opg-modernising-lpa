@@ -31,7 +31,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
 )
 
@@ -100,8 +100,8 @@ func App(
 	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
-	organisationStore := supporterdata.NewOrganisationStore(lpaDynamoClient)
-	memberStore := supporterdata.NewMemberStore(lpaDynamoClient)
+	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
+	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	progressTracker := page.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)

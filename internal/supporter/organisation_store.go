@@ -1,4 +1,4 @@
-package supporterdata
+package supporter
 
 import (
 	"context"
@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
 type OrganisationStore struct {
@@ -41,7 +41,7 @@ type organisationLink struct {
 	MemberSK dynamo.MemberKeyType
 }
 
-func (s *OrganisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
+func (s *OrganisationStore) Create(ctx context.Context, member *supporterdata.Member, name string) (*supporterdata.Organisation, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *OrganisationStore) Create(ctx context.Context, member *actor.Member, na
 		return nil, errors.New("organisationStore.Create requires SessionID")
 	}
 
-	organisation := &actor.Organisation{
+	organisation := &supporterdata.Organisation{
 		PK:        dynamo.OrganisationKey(member.OrganisationID),
 		SK:        dynamo.OrganisationKey(member.OrganisationID),
 		ID:        member.OrganisationID,
@@ -66,7 +66,7 @@ func (s *OrganisationStore) Create(ctx context.Context, member *actor.Member, na
 	return organisation, nil
 }
 
-func (s *OrganisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
+func (s *OrganisationStore) Get(ctx context.Context) (*supporterdata.Organisation, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -76,12 +76,12 @@ func (s *OrganisationStore) Get(ctx context.Context) (*actor.Organisation, error
 		return nil, errors.New("organisationStore.Get requires SessionID")
 	}
 
-	var member actor.Member
+	var member supporterdata.Member
 	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
 
-	var organisation actor.Organisation
+	var organisation supporterdata.Organisation
 	if err := s.dynamoClient.One(ctx, member.PK, member.PK, &organisation); err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *OrganisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, err
 }
 
-func (s *OrganisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
+func (s *OrganisationStore) Put(ctx context.Context, organisation *supporterdata.Organisation) error {
 	organisation.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, organisation)
 }
@@ -133,7 +133,7 @@ func (s *OrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided,
 	return donor, err
 }
 
-func (s *OrganisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {
+func (s *OrganisationStore) SoftDelete(ctx context.Context, organisation *supporterdata.Organisation) error {
 	organisation.DeletedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, organisation)

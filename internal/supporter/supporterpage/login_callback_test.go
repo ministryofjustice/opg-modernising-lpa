@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,14 +25,14 @@ var (
 
 func TestLoginCallback(t *testing.T) {
 	testcases := map[string]struct {
-		invites  []*actor.MemberInvite
+		invites  []*supporterdata.MemberInvite
 		redirect page.Path
 	}{
 		"no invite": {
 			redirect: page.Paths.Supporter.EnterYourName,
 		},
 		"has invite": {
-			invites:  []*actor.MemberInvite{{}},
+			invites:  []*supporterdata.MemberInvite{{}},
 			redirect: page.Paths.Supporter.EnterReferenceNumber,
 		},
 	}
@@ -166,7 +166,7 @@ func TestLoginCallbackWhenInvitedMembersByEmailErrors(t *testing.T) {
 		Return(nil, dynamo.NotFoundError{})
 	memberStore.EXPECT().
 		InvitedMembersByEmail(mock.Anything).
-		Return([]*actor.MemberInvite{{}}, expectedError)
+		Return([]*supporterdata.MemberInvite{{}}, expectedError)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -213,7 +213,7 @@ func TestLoginCallbackHasMember(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -260,12 +260,12 @@ func TestLoginCallbackHasMemberWhenSessionErrors(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(mock.Anything).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
+		Return(&supporterdata.Organisation{ID: "org-id", Name: "org name"}, dynamo.NotFoundError{})
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -311,7 +311,7 @@ func TestLoginCallbackHasMemberWhenOrganisationGetErrors(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(ctx).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
@@ -378,16 +378,16 @@ func TestLoginCallbackHasOrganisation(t *testing.T) {
 			memberStore := newMockMemberStore(t)
 			memberStore.EXPECT().
 				GetAny(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-				Return(&actor.Member{Email: tc.existingMemberEmail}, nil)
+				Return(&supporterdata.Member{Email: tc.existingMemberEmail}, nil)
 
 			memberStore.EXPECT().
-				Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &actor.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
+				Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email, OrganisationID: "org-id"}), &supporterdata.Member{Email: tc.loginSessionEmail, LastLoggedInAt: testNow}).
 				Return(nil)
 
 			organisationStore := newMockOrganisationStore(t)
 			organisationStore.EXPECT().
 				Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: loginSession.SessionID(), Email: loginSession.Email})).
-				Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
+				Return(&supporterdata.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 			logger := newMockLogger(t)
 			logger.EXPECT().
@@ -431,7 +431,7 @@ func TestLoginCallbackHasOrganisationWhenMemberPutErrors(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(mock.Anything).
-		Return(&actor.Member{Email: "email@example.com"}, nil)
+		Return(&supporterdata.Member{Email: "email@example.com"}, nil)
 	memberStore.EXPECT().
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
@@ -439,7 +439,7 @@ func TestLoginCallbackHasOrganisationWhenMemberPutErrors(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
+		Return(&supporterdata.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -477,12 +477,12 @@ func TestLoginCallbackHasOrganisationWhenSessionErrors(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(mock.Anything).
-		Return(&actor.Member{Email: "email@example.com"}, nil)
+		Return(&supporterdata.Member{Email: "email@example.com"}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.Organisation{ID: "org-id", Name: "org name"}, nil)
+		Return(&supporterdata.Organisation{ID: "org-id", Name: "org name"}, nil)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -572,12 +572,12 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(mock.Anything).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Get(mock.Anything).
-		Return(&actor.Organisation{}, nil)
+		Return(&supporterdata.Organisation{}, nil)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().

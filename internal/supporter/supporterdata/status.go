@@ -1,4 +1,4 @@
-package actor
+package supporterdata
 
 //go:generate enumerator -type Status -linecomment -trimprefix
 type Status uint8

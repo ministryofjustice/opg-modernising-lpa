@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -21,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -33,26 +33,26 @@ type LpaStoreResolvingService interface {
 }
 
 type OrganisationStore interface {
-	Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error)
+	Create(ctx context.Context, member *supporterdata.Member, name string) (*supporterdata.Organisation, error)
 	CreateLPA(ctx context.Context) (*donordata.Provided, error)
-	Get(ctx context.Context) (*actor.Organisation, error)
-	Put(ctx context.Context, organisation *actor.Organisation) error
-	SoftDelete(ctx context.Context, organisation *actor.Organisation) error
+	Get(ctx context.Context) (*supporterdata.Organisation, error)
+	Put(ctx context.Context, organisation *supporterdata.Organisation) error
+	SoftDelete(ctx context.Context, organisation *supporterdata.Organisation) error
 }
 
 type MemberStore interface {
-	Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error)
-	CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error
-	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
+	Create(ctx context.Context, firstNames, lastName string) (*supporterdata.Member, error)
+	CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error
+	CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, code string, permission supporterdata.Permission) error
 	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
-	Get(ctx context.Context) (*actor.Member, error)
-	GetAny(ctx context.Context) (*actor.Member, error)
-	GetAll(ctx context.Context) ([]*actor.Member, error)
-	GetByID(ctx context.Context, memberID string) (*actor.Member, error)
-	InvitedMember(ctx context.Context) (*actor.MemberInvite, error)
-	InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error)
-	InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error)
-	Put(ctx context.Context, member *actor.Member) error
+	Get(ctx context.Context) (*supporterdata.Member, error)
+	GetAny(ctx context.Context) (*supporterdata.Member, error)
+	GetAll(ctx context.Context) ([]*supporterdata.Member, error)
+	GetByID(ctx context.Context, memberID string) (*supporterdata.Member, error)
+	InvitedMember(ctx context.Context) (*supporterdata.MemberInvite, error)
+	InvitedMembers(ctx context.Context) ([]*supporterdata.MemberInvite, error)
+	InvitedMembersByEmail(ctx context.Context) ([]*supporterdata.MemberInvite, error)
+	Put(ctx context.Context, member *supporterdata.Member) error
 }
 
 type DonorStore interface {
@@ -96,7 +96,7 @@ type ShareCodeStore interface {
 
 type Template func(w io.Writer, data interface{}) error
 
-type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, member *actor.Member) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 

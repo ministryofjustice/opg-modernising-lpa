@@ -1,4 +1,4 @@
-package actor
+package supporterdata
 
 //go:generate enumerator -type Permission -linecomment -trimprefix
 type Permission uint8

@@ -3,9 +3,9 @@ package supporterpage
 import (
 	"errors"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
 		LoginSessionEmail: "supporter@example.com",
 		SupporterData: &appcontext.SupporterData{
 			OrganisationName:    "My organisation",
-			Permission:          actor.PermissionNone,
+			Permission:          supporterdata.PermissionNone,
 			LoggedInSupporterID: "supporter-id",
 		},
 	}

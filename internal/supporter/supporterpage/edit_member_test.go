@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,12 +20,12 @@ func TestGetEditMember(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?id=an-id", nil)
 
-	member := &actor.Member{
+	member := &supporterdata.Member{
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
-		Status:     actor.StatusActive,
-		Permission: actor.PermissionAdmin,
+		Status:     supporterdata.StatusActive,
+		Permission: supporterdata.PermissionAdmin,
 	}
 
 	memberStore := newMockMemberStore(t)
@@ -40,16 +40,16 @@ func TestGetEditMember(t *testing.T) {
 			Form: &editMemberForm{
 				FirstNames:        "a",
 				LastName:          "b",
-				Permission:        actor.PermissionAdmin,
-				PermissionOptions: actor.PermissionValues,
-				Status:            actor.StatusActive,
-				StatusOptions:     actor.StatusValues,
+				Permission:        supporterdata.PermissionAdmin,
+				PermissionOptions: supporterdata.PermissionValues,
+				Status:            supporterdata.StatusActive,
+				StatusOptions:     supporterdata.StatusValues,
 			},
 			Member: member,
 		}).
 		Return(nil)
 
-	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +65,7 @@ func TestGetEditMemberWhenMemberStoreError(t *testing.T) {
 		GetByID(r.Context(), mock.Anything).
 		Return(nil, expectedError)
 
-	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,7 +81,7 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, &actor.Member{ID: "an-id"})
+	err := EditMember(nil, template.Execute, nil)(testAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{ID: "an-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -90,48 +90,48 @@ func TestGetEditMemberWhenTemplateError(t *testing.T) {
 
 func TestPostEditMember(t *testing.T) {
 	testcases := map[string]struct {
-		member           *actor.Member
+		member           *supporterdata.Member
 		expectedRedirect string
-		expectedMember   *actor.Member
-		userPermission   actor.Permission
+		expectedMember   *supporterdata.Member
+		userPermission   supporterdata.Permission
 		memberEmail      string
 	}{
 		"self": {
-			member: &actor.Member{
+			member: &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "a",
 				LastName:   "b",
 				Email:      "self@example.org",
-				Status:     actor.StatusActive,
-				Permission: actor.PermissionAdmin,
+				Status:     supporterdata.StatusActive,
+				Permission: supporterdata.PermissionAdmin,
 			},
-			userPermission:   actor.PermissionAdmin,
+			userPermission:   supporterdata.PermissionAdmin,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
-			expectedMember: &actor.Member{
+			expectedMember: &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.StatusActive,
-				Permission: actor.PermissionAdmin,
+				Status:     supporterdata.StatusActive,
+				Permission: supporterdata.PermissionAdmin,
 			},
 		},
 		"non-admin": {
-			member: &actor.Member{
+			member: &supporterdata.Member{
 				ID:    "an-id",
 				Email: "self@example.org",
 			},
-			userPermission:   actor.PermissionNone,
+			userPermission:   supporterdata.PermissionNone,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
-			expectedMember: &actor.Member{
+			expectedMember: &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "c",
 				LastName:   "d",
 				Email:      "self@example.org",
-				Status:     actor.StatusActive,
-				Permission: actor.PermissionNone,
+				Status:     supporterdata.StatusActive,
+				Permission: supporterdata.PermissionNone,
 			},
 		},
 	}
@@ -159,7 +159,7 @@ func TestPostEditMember(t *testing.T) {
 				SupporterData: &appcontext.SupporterData{
 					Permission: tc.userPermission,
 				},
-			}, w, r, &actor.Organisation{}, tc.member)
+			}, w, r, &supporterdata.Organisation{}, tc.member)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -184,22 +184,22 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetByID(r.Context(), "an-id").
-		Return(&actor.Member{
+		Return(&supporterdata.Member{
 			ID:         "member-id",
 			FirstNames: "a",
 			LastName:   "b",
 			Email:      "team-member@example.org",
-			Status:     actor.StatusActive,
-			Permission: actor.PermissionNone,
+			Status:     supporterdata.StatusActive,
+			Permission: supporterdata.PermissionNone,
 		}, nil)
 	memberStore.EXPECT().
-		Put(r.Context(), &actor.Member{
+		Put(r.Context(), &supporterdata.Member{
 			ID:         "member-id",
 			FirstNames: "c",
 			LastName:   "d",
 			Email:      "team-member@example.org",
-			Status:     actor.StatusSuspended,
-			Permission: actor.PermissionAdmin,
+			Status:     supporterdata.StatusSuspended,
+			Permission: supporterdata.PermissionAdmin,
 		}).
 		Return(nil)
 
@@ -212,9 +212,9 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 	err := EditMember(logger, nil, memberStore)(appcontext.Data{
 		LoginSessionEmail: "self@example.org",
 		SupporterData: &appcontext.SupporterData{
-			Permission: actor.PermissionAdmin,
+			Permission: supporterdata.PermissionAdmin,
 		},
-	}, w, r, &actor.Organisation{}, &actor.Member{})
+	}, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -225,16 +225,16 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 func TestPostEditMemberNoUpdate(t *testing.T) {
 	testcases := map[string]struct {
 		expectedRedirect string
-		userPermission   actor.Permission
+		userPermission   supporterdata.Permission
 		memberEmail      string
 	}{
 		"self": {
-			userPermission:   actor.PermissionAdmin,
+			userPermission:   supporterdata.PermissionAdmin,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
 		},
 		"non-admin": {
-			userPermission:   actor.PermissionNone,
+			userPermission:   supporterdata.PermissionNone,
 			memberEmail:      "self@example.org",
 			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
 		},
@@ -258,12 +258,12 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 				SupporterData: &appcontext.SupporterData{
 					Permission: tc.userPermission,
 				},
-			}, w, r, &actor.Organisation{}, &actor.Member{
+			}, w, r, &supporterdata.Organisation{}, &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "a",
 				LastName:   "b",
 				Email:      tc.memberEmail,
-				Status:     actor.StatusActive,
+				Status:     supporterdata.StatusActive,
 				Permission: tc.userPermission,
 			})
 			resp := w.Result()
@@ -290,20 +290,20 @@ func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetByID(r.Context(), "an-id").
-		Return(&actor.Member{
+		Return(&supporterdata.Member{
 			FirstNames: "a",
 			LastName:   "b",
 			Email:      "team-member@example.org",
-			Status:     actor.StatusActive,
-			Permission: actor.PermissionAdmin,
+			Status:     supporterdata.StatusActive,
+			Permission: supporterdata.PermissionAdmin,
 		}, nil)
 
 	err := EditMember(nil, nil, memberStore)(appcontext.Data{
 		LoginSessionEmail: "self@example.org",
 		SupporterData: &appcontext.SupporterData{
-			Permission: actor.PermissionAdmin,
+			Permission: supporterdata.PermissionAdmin,
 		},
-	}, w, r, &actor.Organisation{}, &actor.Member{})
+	}, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -324,13 +324,13 @@ func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetByID(mock.Anything, mock.Anything).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	memberStore.EXPECT().
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &actor.Organisation{}, &actor.Member{})
+	err := EditMember(nil, nil, memberStore)(testAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -347,7 +347,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?id=an-id", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	member := &actor.Member{
+	member := &supporterdata.Member{
 		ID:         "an-id",
 		FirstNames: "a",
 		LastName:   "b",
@@ -371,7 +371,7 @@ func TestPostEditMemberWhenValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, nil, &actor.Member{})
+	err := EditMember(nil, template.Execute, memberStore)(testAppData, w, r, nil, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -412,7 +412,7 @@ func TestReadEditMemberForm(t *testing.T) {
 			assert.Equal(t, "b", result.LastName)
 
 			if tc.isAdmin && !tc.isEditingSelf {
-				assert.Equal(t, actor.StatusSuspended, result.Status)
+				assert.Equal(t, supporterdata.StatusSuspended, result.Status)
 			}
 		})
 	}
@@ -433,7 +433,7 @@ func TestEditMemberFormValidate(t *testing.T) {
 			form: &editMemberForm{
 				FirstNames: "a",
 				LastName:   "b",
-				Status:     actor.StatusSuspended,
+				Status:     supporterdata.StatusSuspended,
 				canEditAll: true,
 			},
 		},

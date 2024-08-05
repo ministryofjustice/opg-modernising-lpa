@@ -6,24 +6,24 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type manageTeamMembersData struct {
 	App            appcontext.Data
 	Errors         validation.List
-	Organisation   *actor.Organisation
-	InvitedMembers []*actor.MemberInvite
-	Members        []*actor.Member
+	Organisation   *supporterdata.Organisation
+	InvitedMembers []*supporterdata.MemberInvite
+	Members        []*supporterdata.Member
 	Form           *inviteMemberForm
 }
 
 func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, randomString func(int) string, notifyClient NotifyClient, appPublicURL string) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &manageTeamMembersData{
 			App:          appData,
 			Organisation: organisation,

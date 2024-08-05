@@ -1,4 +1,4 @@
-package supporterdata
+package supporter
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
 type DynamoClient interface {
@@ -38,7 +38,7 @@ func NewMemberStore(dynamoClient DynamoClient) *MemberStore {
 	}
 }
 
-func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, referenceNumber string, permission actor.Permission) error {
+func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, referenceNumber string, permission supporterdata.Permission) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 		return errors.New("memberStore.Get requires OrganisationID")
 	}
 
-	invite := &actor.MemberInvite{
+	invite := &supporterdata.MemberInvite{
 		PK:               dynamo.OrganisationKey(data.OrganisationID),
 		SK:               dynamo.MemberInviteKey(email),
 		CreatedAt:        s.now(),
@@ -76,7 +76,7 @@ func (s *MemberStore) DeleteMemberInvite(ctx context.Context, organisationID, em
 	return nil
 }
 
-func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error) {
+func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (*supporterdata.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (
 
 	organisationID := s.uuidString()
 
-	member := &actor.Member{
+	member := &supporterdata.Member{
 		PK:             dynamo.OrganisationKey(organisationID),
 		SK:             dynamo.MemberKey(data.SessionID),
 		ID:             s.uuidString(),
@@ -102,8 +102,8 @@ func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (
 		LastName:       lastName,
 		CreatedAt:      s.now(),
 		UpdatedAt:      s.now(),
-		Permission:     actor.PermissionAdmin,
-		Status:         actor.StatusActive,
+		Permission:     supporterdata.PermissionAdmin,
+		Status:         supporterdata.StatusActive,
 		LastLoggedInAt: s.now(),
 	}
 
@@ -124,7 +124,7 @@ func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (
 	return member, nil
 }
 
-func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
+func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 		return errors.New("memberStore.CreateFromInvite requires SessionID")
 	}
 
-	member := &actor.Member{
+	member := &supporterdata.Member{
 		PK:             dynamo.OrganisationKey(invite.OrganisationID),
 		SK:             dynamo.MemberKey(data.SessionID),
 		CreatedAt:      s.now(),
@@ -169,7 +169,7 @@ func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 	return nil
 }
 
-func (s *MemberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMember(ctx context.Context) (*supporterdata.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (s *MemberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 		return nil, errors.New("memberStore.InvitedMember requires Email")
 	}
 
-	var invitedMember *actor.MemberInvite
+	var invitedMember *supporterdata.MemberInvite
 	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberInviteKey(data.Email), &invitedMember); err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (s *MemberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 	return invitedMember, nil
 }
 
-func (s *MemberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMembers(ctx context.Context) ([]*supporterdata.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -197,7 +197,7 @@ func (s *MemberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 		return nil, errors.New("memberStore.InvitedMembers requires OrganisationID")
 	}
 
-	var invitedMembers []*actor.MemberInvite
+	var invitedMembers []*supporterdata.MemberInvite
 	if err := s.dynamoClient.AllByPartialSK(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberInviteKey(""), &invitedMembers); err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (s *MemberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 	return invitedMembers, nil
 }
 
-func (s *MemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMembersByEmail(ctx context.Context) ([]*supporterdata.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ func (s *MemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.Membe
 		return nil, errors.New("memberStore.InvitedMembersByEmail requires Email")
 	}
 
-	var invitedMembers []*actor.MemberInvite
+	var invitedMembers []*supporterdata.MemberInvite
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.MemberInviteKey(data.Email), &invitedMembers); err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (s *MemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.Membe
 	return invitedMembers, nil
 }
 
-func (s *MemberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
+func (s *MemberStore) GetAll(ctx context.Context) ([]*supporterdata.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -233,19 +233,19 @@ func (s *MemberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 		return nil, errors.New("memberStore.GetAll requires OrganisationID")
 	}
 
-	var members []*actor.Member
+	var members []*supporterdata.Member
 	if err := s.dynamoClient.AllByPartialSK(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberKey(""), &members); err != nil {
 		return nil, err
 	}
 
-	slices.SortFunc(members, func(a, b *actor.Member) int {
+	slices.SortFunc(members, func(a, b *supporterdata.Member) int {
 		return strings.Compare(a.FirstNames, b.FirstNames)
 	})
 
 	return members, nil
 }
 
-func (s *MemberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
+func (s *MemberStore) GetByID(ctx context.Context, memberID string) (*supporterdata.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -260,7 +260,7 @@ func (s *MemberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 		return nil, err
 	}
 
-	var member *actor.Member
+	var member *supporterdata.Member
 	if err := s.dynamoClient.One(ctx, link.PK, link.MemberSK, &member); err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func (s *MemberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 	return member, nil
 }
 
-func (s *MemberStore) Get(ctx context.Context) (*actor.Member, error) {
+func (s *MemberStore) Get(ctx context.Context) (*supporterdata.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -282,7 +282,7 @@ func (s *MemberStore) Get(ctx context.Context) (*actor.Member, error) {
 		return nil, errors.New("memberStore.Get requires OrganisationID")
 	}
 
-	var member *actor.Member
+	var member *supporterdata.Member
 	if err := s.dynamoClient.One(ctx, dynamo.OrganisationKey(data.OrganisationID), dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
@@ -290,7 +290,7 @@ func (s *MemberStore) Get(ctx context.Context) (*actor.Member, error) {
 	return member, nil
 }
 
-func (s *MemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
+func (s *MemberStore) GetAny(ctx context.Context) (*supporterdata.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -300,7 +300,7 @@ func (s *MemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 		return nil, errors.New("memberStore.Get requires SessionID")
 	}
 
-	var member *actor.Member
+	var member *supporterdata.Member
 	if err := s.dynamoClient.OneBySK(ctx, dynamo.MemberKey(data.SessionID), &member); err != nil {
 		return nil, err
 	}
@@ -308,7 +308,7 @@ func (s *MemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 	return member, nil
 }
 
-func (s *MemberStore) Put(ctx context.Context, member *actor.Member) error {
+func (s *MemberStore) Put(ctx context.Context, member *supporterdata.Member) error {
 	member.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, member)
 }

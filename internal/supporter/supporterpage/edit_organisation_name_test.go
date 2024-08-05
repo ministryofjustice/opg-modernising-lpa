@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,7 +18,7 @@ func TestGetEditOrganisationName(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	organisation := &actor.Organisation{Name: "what"}
+	organisation := &supporterdata.Organisation{Name: "what"}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -44,7 +44,7 @@ func TestGetEditOrganisationNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -60,10 +60,10 @@ func TestPostEditOrganisationName(t *testing.T) {
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
-		Put(r.Context(), &actor.Organisation{PK: "ORG", Name: "My organisation"}).
+		Put(r.Context(), &supporterdata.Organisation{PK: "ORG", Name: "My organisation"}).
 		Return(nil)
 
-	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{PK: "ORG"}, nil)
+	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &supporterdata.Organisation{PK: "ORG"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -89,7 +89,7 @@ func TestPostEditOrganisationNameWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditOrganisationName(template.Execute, nil)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -111,7 +111,7 @@ func TestPostEditOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := EditOrganisationName(nil, organisationStore)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

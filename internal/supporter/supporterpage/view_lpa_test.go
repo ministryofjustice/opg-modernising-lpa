@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -38,7 +38,7 @@ func TestGetViewLPA(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Nil(t, err)
 }
@@ -52,7 +52,7 @@ func TestGetViewLPAWhenLpaStoreClientError(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -76,7 +76,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &actor.Organisation{}, nil)
+	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Error(t, err)
 }

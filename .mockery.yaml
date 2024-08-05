@@ -29,6 +29,7 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/secrets:
   github.com/ministryofjustice/opg-modernising-lpa/internal/sesh:
   github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/supporter:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/uid:

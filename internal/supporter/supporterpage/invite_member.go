@@ -5,10 +5,10 @@ import (
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -16,15 +16,15 @@ type inviteMemberData struct {
 	App     appcontext.Data
 	Errors  validation.List
 	Form    *inviteMemberForm
-	Options actor.PermissionOptions
+	Options supporterdata.PermissionOptions
 }
 
 func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *actor.Organisation, _ *actor.Member) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &inviteMemberData{
 			App:     appData,
 			Form:    &inviteMemberForm{},
-			Options: actor.PermissionValues,
+			Options: supporterdata.PermissionValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -66,7 +66,7 @@ type inviteMemberForm struct {
 	FirstNames string
 	LastName   string
 	Email      string
-	Permission actor.Permission
+	Permission supporterdata.Permission
 }
 
 func readInviteMemberForm(r *http.Request) *inviteMemberForm {
@@ -76,7 +76,7 @@ func readInviteMemberForm(r *http.Request) *inviteMemberForm {
 		LastName:   page.PostFormString(r, "last-name"),
 	}
 
-	form.Permission, _ = actor.ParsePermission(page.PostFormString(r, "permission"))
+	form.Permission, _ = supporterdata.ParsePermission(page.PostFormString(r, "permission"))
 
 	return form
 }
@@ -96,7 +96,7 @@ func (f *inviteMemberForm) Validate() validation.List {
 		validation.Empty(),
 		validation.Email())
 
-	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(actor.PermissionNone.String(), actor.PermissionAdmin.String()))
+	errors.Options("permission", "makeThisPersonAnAdmin", []string{f.Permission.String()}, validation.Select(supporterdata.PermissionNone.String(), supporterdata.PermissionAdmin.String()))
 
 	return errors
 }

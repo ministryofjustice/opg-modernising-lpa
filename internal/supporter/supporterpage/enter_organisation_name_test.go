@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -58,7 +58,7 @@ func TestPostEnterOrganisationName(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	member := &actor.Member{ID: "a"}
+	member := &supporterdata.Member{ID: "a"}
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
@@ -68,7 +68,7 @@ func TestPostEnterOrganisationName(t *testing.T) {
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), member, "My organisation").
-		Return(&actor.Organisation{ID: "org-id", Name: "My organisation"}, nil)
+		Return(&supporterdata.Organisation{ID: "org-id", Name: "My organisation"}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -110,12 +110,12 @@ func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(r.Context()).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), mock.Anything, mock.Anything).
-		Return(&actor.Organisation{}, nil)
+		Return(&supporterdata.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -148,12 +148,12 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(r.Context()).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().
 		Create(r.Context(), mock.Anything, mock.Anything).
-		Return(&actor.Organisation{}, nil)
+		Return(&supporterdata.Organisation{}, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -232,7 +232,7 @@ func TestPostEnterOrganisationNameWhenOrganisationStoreErrors(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		GetAny(r.Context()).
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	organisationStore := newMockOrganisationStore(t)
 	organisationStore.EXPECT().

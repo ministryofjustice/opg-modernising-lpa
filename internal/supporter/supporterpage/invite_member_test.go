@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,7 +24,7 @@ func TestGetInviteMember(t *testing.T) {
 		Execute(w, &inviteMemberData{
 			App:     testAppData,
 			Form:    &inviteMemberForm{},
-			Options: actor.PermissionValues,
+			Options: supporterdata.PermissionValues,
 		}).
 		Return(nil)
 
@@ -63,11 +63,11 @@ func TestPostInviteMember(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	organisation := &actor.Organisation{Name: "My organisation"}
+	organisation := &supporterdata.Organisation{Name: "My organisation"}
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", actor.PermissionAdmin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", supporterdata.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -109,9 +109,9 @@ func TestPostInviteMemberWhenValidationError(t *testing.T) {
 				FirstNames: "a",
 				LastName:   "b",
 				Email:      "what",
-				Permission: actor.PermissionAdmin,
+				Permission: supporterdata.PermissionAdmin,
 			},
-			Options: actor.PermissionValues,
+			Options: supporterdata.PermissionValues,
 		}).
 		Return(nil)
 
@@ -139,7 +139,7 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, memberStore, nil, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &actor.Organisation{}, nil)
+	err := InviteMember(nil, memberStore, nil, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -165,7 +165,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &actor.Organisation{}, nil)
+	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -185,7 +185,7 @@ func TestReadInviteMemberForm(t *testing.T) {
 	assert.Equal(t, "email@example.com", result.Email)
 	assert.Equal(t, "a", result.FirstNames)
 	assert.Equal(t, "b", result.LastName)
-	assert.Equal(t, actor.PermissionAdmin, result.Permission)
+	assert.Equal(t, supporterdata.PermissionAdmin, result.Permission)
 }
 
 func TestInviteMemberFormValidate(t *testing.T) {
@@ -198,7 +198,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "email@example.com",
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.PermissionNone,
+				Permission: supporterdata.PermissionNone,
 			},
 		},
 		"missing": {
@@ -213,7 +213,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "what",
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.PermissionNone,
+				Permission: supporterdata.PermissionNone,
 			},
 			errors: validation.With("email", validation.EmailError{Label: "email"}),
 		},
@@ -222,7 +222,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "email@example.com",
 				FirstNames: strings.Repeat("x", 54),
 				LastName:   strings.Repeat("x", 62),
-				Permission: actor.PermissionNone,
+				Permission: supporterdata.PermissionNone,
 			},
 			errors: validation.
 				With("first-names", validation.StringTooLongError{Label: "firstNames", Length: 53}).
@@ -233,7 +233,7 @@ func TestInviteMemberFormValidate(t *testing.T) {
 				Email:      "email@example.com",
 				FirstNames: "a",
 				LastName:   "b",
-				Permission: actor.Permission(99),
+				Permission: supporterdata.Permission(99),
 			},
 			errors: validation.
 				With("permission", validation.SelectError{Label: "makeThisPersonAnAdmin"}),

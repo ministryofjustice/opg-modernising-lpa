@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -66,7 +66,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	invite := &actor.MemberInvite{
+	invite := &supporterdata.MemberInvite{
 		ReferenceNumber:  "abcd12345678",
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
@@ -113,7 +113,7 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}, nil)
+		Return(&supporterdata.MemberInvite{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -145,7 +145,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&actor.MemberInvite{
+		Return(&supporterdata.MemberInvite{
 			ReferenceNumber: "match1234789",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now().Add(-49 * time.Hour),
@@ -169,7 +169,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T)
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{}, expectedError)
+		Return(&supporterdata.MemberInvite{}, expectedError)
 
 	err := EnterReferenceNumber(nil, nil, memberStore, nil)(testAppData, w, r)
 	resp := w.Result()
@@ -188,7 +188,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{
+		Return(&supporterdata.MemberInvite{
 			ReferenceNumber: "abcd12345678",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
@@ -215,7 +215,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{
+		Return(&supporterdata.MemberInvite{
 			ReferenceNumber: "abcd12345678",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
@@ -248,7 +248,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
-		Return(&actor.MemberInvite{
+		Return(&supporterdata.MemberInvite{
 			ReferenceNumber: "abcd12345678",
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),

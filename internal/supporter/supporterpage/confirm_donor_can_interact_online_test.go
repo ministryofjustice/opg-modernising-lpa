@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,7 +47,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenYes(t *testing.T) {
 		CreateLPA(r.Context()).
 		Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
-	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
+	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -62,7 +62,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := ConfirmDonorCanInteractOnline(nil, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
+	err := ConfirmDonorCanInteractOnline(nil, nil)(testAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -84,7 +84,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
+	err := ConfirmDonorCanInteractOnline(template.Execute, nil)(testAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -103,7 +103,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenOrganisationStoreError(t *testing.
 		CreateLPA(r.Context()).
 		Return(&donordata.Provided{}, expectedError)
 
-	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &actor.Organisation{ID: "org-id"}, nil)
+	err := ConfirmDonorCanInteractOnline(nil, organisationStore)(testAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

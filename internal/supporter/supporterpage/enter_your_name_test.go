@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -59,7 +59,7 @@ func TestPostEnterYourName(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		Create(r.Context(), "John", "Smith").
-		Return(&actor.Member{}, nil)
+		Return(&supporterdata.Member{}, nil)
 
 	err := EnterYourName(nil, memberStore)(testAppData, w, r)
 	resp := w.Result()

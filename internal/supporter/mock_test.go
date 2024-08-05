@@ -1,4 +1,4 @@
-package supporterdata
+package supporter
 
 import (
 	"context"

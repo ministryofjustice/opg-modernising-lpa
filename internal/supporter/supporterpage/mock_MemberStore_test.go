@@ -5,8 +5,7 @@ package supporterpage
 import (
 	context "context"
 
-	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-
+	supporterdata "github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,23 +23,23 @@ func (_m *mockMemberStore) EXPECT() *mockMemberStore_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, firstNames, lastName
-func (_m *mockMemberStore) Create(ctx context.Context, firstNames string, lastName string) (*actor.Member, error) {
+func (_m *mockMemberStore) Create(ctx context.Context, firstNames string, lastName string) (*supporterdata.Member, error) {
 	ret := _m.Called(ctx, firstNames, lastName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *actor.Member
+	var r0 *supporterdata.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*actor.Member, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*supporterdata.Member, error)); ok {
 		return rf(ctx, firstNames, lastName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) *actor.Member); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *supporterdata.Member); ok {
 		r0 = rf(ctx, firstNames, lastName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Member)
+			r0 = ret.Get(0).(*supporterdata.Member)
 		}
 	}
 
@@ -73,18 +72,18 @@ func (_c *mockMemberStore_Create_Call) Run(run func(ctx context.Context, firstNa
 	return _c
 }
 
-func (_c *mockMemberStore_Create_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_Create_Call {
+func (_c *mockMemberStore_Create_Call) Return(_a0 *supporterdata.Member, _a1 error) *mockMemberStore_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_Create_Call) RunAndReturn(run func(context.Context, string, string) (*actor.Member, error)) *mockMemberStore_Create_Call {
+func (_c *mockMemberStore_Create_Call) RunAndReturn(run func(context.Context, string, string) (*supporterdata.Member, error)) *mockMemberStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // CreateFromInvite provides a mock function with given fields: ctx, invite
-func (_m *mockMemberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
+func (_m *mockMemberStore) CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error {
 	ret := _m.Called(ctx, invite)
 
 	if len(ret) == 0 {
@@ -92,7 +91,7 @@ func (_m *mockMemberStore) CreateFromInvite(ctx context.Context, invite *actor.M
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.MemberInvite) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *supporterdata.MemberInvite) error); ok {
 		r0 = rf(ctx, invite)
 	} else {
 		r0 = ret.Error(0)
@@ -108,14 +107,14 @@ type mockMemberStore_CreateFromInvite_Call struct {
 
 // CreateFromInvite is a helper method to define mock.On call
 //   - ctx context.Context
-//   - invite *actor.MemberInvite
+//   - invite *supporterdata.MemberInvite
 func (_e *mockMemberStore_Expecter) CreateFromInvite(ctx interface{}, invite interface{}) *mockMemberStore_CreateFromInvite_Call {
 	return &mockMemberStore_CreateFromInvite_Call{Call: _e.mock.On("CreateFromInvite", ctx, invite)}
 }
 
-func (_c *mockMemberStore_CreateFromInvite_Call) Run(run func(ctx context.Context, invite *actor.MemberInvite)) *mockMemberStore_CreateFromInvite_Call {
+func (_c *mockMemberStore_CreateFromInvite_Call) Run(run func(ctx context.Context, invite *supporterdata.MemberInvite)) *mockMemberStore_CreateFromInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.MemberInvite))
+		run(args[0].(context.Context), args[1].(*supporterdata.MemberInvite))
 	})
 	return _c
 }
@@ -125,13 +124,13 @@ func (_c *mockMemberStore_CreateFromInvite_Call) Return(_a0 error) *mockMemberSt
 	return _c
 }
 
-func (_c *mockMemberStore_CreateFromInvite_Call) RunAndReturn(run func(context.Context, *actor.MemberInvite) error) *mockMemberStore_CreateFromInvite_Call {
+func (_c *mockMemberStore_CreateFromInvite_Call) RunAndReturn(run func(context.Context, *supporterdata.MemberInvite) error) *mockMemberStore_CreateFromInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // CreateMemberInvite provides a mock function with given fields: ctx, organisation, firstNames, lastname, email, code, permission
-func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames string, lastname string, email string, code string, permission actor.Permission) error {
+func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code string, permission supporterdata.Permission) error {
 	ret := _m.Called(ctx, organisation, firstNames, lastname, email, code, permission)
 
 	if len(ret) == 0 {
@@ -139,7 +138,7 @@ func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.Organisation, string, string, string, string, actor.Permission) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *supporterdata.Organisation, string, string, string, string, supporterdata.Permission) error); ok {
 		r0 = rf(ctx, organisation, firstNames, lastname, email, code, permission)
 	} else {
 		r0 = ret.Error(0)
@@ -155,19 +154,19 @@ type mockMemberStore_CreateMemberInvite_Call struct {
 
 // CreateMemberInvite is a helper method to define mock.On call
 //   - ctx context.Context
-//   - organisation *actor.Organisation
+//   - organisation *supporterdata.Organisation
 //   - firstNames string
 //   - lastname string
 //   - email string
 //   - code string
-//   - permission actor.Permission
+//   - permission supporterdata.Permission
 func (_e *mockMemberStore_Expecter) CreateMemberInvite(ctx interface{}, organisation interface{}, firstNames interface{}, lastname interface{}, email interface{}, code interface{}, permission interface{}) *mockMemberStore_CreateMemberInvite_Call {
 	return &mockMemberStore_CreateMemberInvite_Call{Call: _e.mock.On("CreateMemberInvite", ctx, organisation, firstNames, lastname, email, code, permission)}
 }
 
-func (_c *mockMemberStore_CreateMemberInvite_Call) Run(run func(ctx context.Context, organisation *actor.Organisation, firstNames string, lastname string, email string, code string, permission actor.Permission)) *mockMemberStore_CreateMemberInvite_Call {
+func (_c *mockMemberStore_CreateMemberInvite_Call) Run(run func(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code string, permission supporterdata.Permission)) *mockMemberStore_CreateMemberInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.Organisation), args[2].(string), args[3].(string), args[4].(string), args[5].(string), args[6].(actor.Permission))
+		run(args[0].(context.Context), args[1].(*supporterdata.Organisation), args[2].(string), args[3].(string), args[4].(string), args[5].(string), args[6].(supporterdata.Permission))
 	})
 	return _c
 }
@@ -177,7 +176,7 @@ func (_c *mockMemberStore_CreateMemberInvite_Call) Return(_a0 error) *mockMember
 	return _c
 }
 
-func (_c *mockMemberStore_CreateMemberInvite_Call) RunAndReturn(run func(context.Context, *actor.Organisation, string, string, string, string, actor.Permission) error) *mockMemberStore_CreateMemberInvite_Call {
+func (_c *mockMemberStore_CreateMemberInvite_Call) RunAndReturn(run func(context.Context, *supporterdata.Organisation, string, string, string, string, supporterdata.Permission) error) *mockMemberStore_CreateMemberInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -231,23 +230,23 @@ func (_c *mockMemberStore_DeleteMemberInvite_Call) RunAndReturn(run func(context
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *mockMemberStore) Get(ctx context.Context) (*actor.Member, error) {
+func (_m *mockMemberStore) Get(ctx context.Context) (*supporterdata.Member, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *actor.Member
+	var r0 *supporterdata.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*supporterdata.Member, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *supporterdata.Member); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Member)
+			r0 = ret.Get(0).(*supporterdata.Member)
 		}
 	}
 
@@ -278,34 +277,34 @@ func (_c *mockMemberStore_Get_Call) Run(run func(ctx context.Context)) *mockMemb
 	return _c
 }
 
-func (_c *mockMemberStore_Get_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_Get_Call {
+func (_c *mockMemberStore_Get_Call) Return(_a0 *supporterdata.Member, _a1 error) *mockMemberStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_Get_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockMemberStore_Get_Call {
+func (_c *mockMemberStore_Get_Call) RunAndReturn(run func(context.Context) (*supporterdata.Member, error)) *mockMemberStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetAll provides a mock function with given fields: ctx
-func (_m *mockMemberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
+func (_m *mockMemberStore) GetAll(ctx context.Context) ([]*supporterdata.Member, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAll")
 	}
 
-	var r0 []*actor.Member
+	var r0 []*supporterdata.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.Member, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*supporterdata.Member, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*actor.Member); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []*supporterdata.Member); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*actor.Member)
+			r0 = ret.Get(0).([]*supporterdata.Member)
 		}
 	}
 
@@ -336,34 +335,34 @@ func (_c *mockMemberStore_GetAll_Call) Run(run func(ctx context.Context)) *mockM
 	return _c
 }
 
-func (_c *mockMemberStore_GetAll_Call) Return(_a0 []*actor.Member, _a1 error) *mockMemberStore_GetAll_Call {
+func (_c *mockMemberStore_GetAll_Call) Return(_a0 []*supporterdata.Member, _a1 error) *mockMemberStore_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]*actor.Member, error)) *mockMemberStore_GetAll_Call {
+func (_c *mockMemberStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]*supporterdata.Member, error)) *mockMemberStore_GetAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetAny provides a mock function with given fields: ctx
-func (_m *mockMemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
+func (_m *mockMemberStore) GetAny(ctx context.Context) (*supporterdata.Member, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAny")
 	}
 
-	var r0 *actor.Member
+	var r0 *supporterdata.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.Member, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*supporterdata.Member, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.Member); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *supporterdata.Member); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Member)
+			r0 = ret.Get(0).(*supporterdata.Member)
 		}
 	}
 
@@ -394,34 +393,34 @@ func (_c *mockMemberStore_GetAny_Call) Run(run func(ctx context.Context)) *mockM
 	return _c
 }
 
-func (_c *mockMemberStore_GetAny_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_GetAny_Call {
+func (_c *mockMemberStore_GetAny_Call) Return(_a0 *supporterdata.Member, _a1 error) *mockMemberStore_GetAny_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_GetAny_Call) RunAndReturn(run func(context.Context) (*actor.Member, error)) *mockMemberStore_GetAny_Call {
+func (_c *mockMemberStore_GetAny_Call) RunAndReturn(run func(context.Context) (*supporterdata.Member, error)) *mockMemberStore_GetAny_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, memberID
-func (_m *mockMemberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
+func (_m *mockMemberStore) GetByID(ctx context.Context, memberID string) (*supporterdata.Member, error) {
 	ret := _m.Called(ctx, memberID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *actor.Member
+	var r0 *supporterdata.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*actor.Member, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*supporterdata.Member, error)); ok {
 		return rf(ctx, memberID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *actor.Member); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *supporterdata.Member); ok {
 		r0 = rf(ctx, memberID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.Member)
+			r0 = ret.Get(0).(*supporterdata.Member)
 		}
 	}
 
@@ -453,34 +452,34 @@ func (_c *mockMemberStore_GetByID_Call) Run(run func(ctx context.Context, member
 	return _c
 }
 
-func (_c *mockMemberStore_GetByID_Call) Return(_a0 *actor.Member, _a1 error) *mockMemberStore_GetByID_Call {
+func (_c *mockMemberStore_GetByID_Call) Return(_a0 *supporterdata.Member, _a1 error) *mockMemberStore_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_GetByID_Call) RunAndReturn(run func(context.Context, string) (*actor.Member, error)) *mockMemberStore_GetByID_Call {
+func (_c *mockMemberStore_GetByID_Call) RunAndReturn(run func(context.Context, string) (*supporterdata.Member, error)) *mockMemberStore_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // InvitedMember provides a mock function with given fields: ctx
-func (_m *mockMemberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
+func (_m *mockMemberStore) InvitedMember(ctx context.Context) (*supporterdata.MemberInvite, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InvitedMember")
 	}
 
-	var r0 *actor.MemberInvite
+	var r0 *supporterdata.MemberInvite
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*actor.MemberInvite, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*supporterdata.MemberInvite, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *actor.MemberInvite); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *supporterdata.MemberInvite); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*actor.MemberInvite)
+			r0 = ret.Get(0).(*supporterdata.MemberInvite)
 		}
 	}
 
@@ -511,34 +510,34 @@ func (_c *mockMemberStore_InvitedMember_Call) Run(run func(ctx context.Context))
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMember_Call) Return(_a0 *actor.MemberInvite, _a1 error) *mockMemberStore_InvitedMember_Call {
+func (_c *mockMemberStore_InvitedMember_Call) Return(_a0 *supporterdata.MemberInvite, _a1 error) *mockMemberStore_InvitedMember_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMember_Call) RunAndReturn(run func(context.Context) (*actor.MemberInvite, error)) *mockMemberStore_InvitedMember_Call {
+func (_c *mockMemberStore_InvitedMember_Call) RunAndReturn(run func(context.Context) (*supporterdata.MemberInvite, error)) *mockMemberStore_InvitedMember_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // InvitedMembers provides a mock function with given fields: ctx
-func (_m *mockMemberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (_m *mockMemberStore) InvitedMembers(ctx context.Context) ([]*supporterdata.MemberInvite, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InvitedMembers")
 	}
 
-	var r0 []*actor.MemberInvite
+	var r0 []*supporterdata.MemberInvite
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.MemberInvite, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*supporterdata.MemberInvite, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*actor.MemberInvite); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []*supporterdata.MemberInvite); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*actor.MemberInvite)
+			r0 = ret.Get(0).([]*supporterdata.MemberInvite)
 		}
 	}
 
@@ -569,34 +568,34 @@ func (_c *mockMemberStore_InvitedMembers_Call) Run(run func(ctx context.Context)
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMembers_Call) Return(_a0 []*actor.MemberInvite, _a1 error) *mockMemberStore_InvitedMembers_Call {
+func (_c *mockMemberStore_InvitedMembers_Call) Return(_a0 []*supporterdata.MemberInvite, _a1 error) *mockMemberStore_InvitedMembers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMembers_Call) RunAndReturn(run func(context.Context) ([]*actor.MemberInvite, error)) *mockMemberStore_InvitedMembers_Call {
+func (_c *mockMemberStore_InvitedMembers_Call) RunAndReturn(run func(context.Context) ([]*supporterdata.MemberInvite, error)) *mockMemberStore_InvitedMembers_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // InvitedMembersByEmail provides a mock function with given fields: ctx
-func (_m *mockMemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (_m *mockMemberStore) InvitedMembersByEmail(ctx context.Context) ([]*supporterdata.MemberInvite, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InvitedMembersByEmail")
 	}
 
-	var r0 []*actor.MemberInvite
+	var r0 []*supporterdata.MemberInvite
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]*actor.MemberInvite, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*supporterdata.MemberInvite, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []*actor.MemberInvite); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []*supporterdata.MemberInvite); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*actor.MemberInvite)
+			r0 = ret.Get(0).([]*supporterdata.MemberInvite)
 		}
 	}
 
@@ -627,18 +626,18 @@ func (_c *mockMemberStore_InvitedMembersByEmail_Call) Run(run func(ctx context.C
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMembersByEmail_Call) Return(_a0 []*actor.MemberInvite, _a1 error) *mockMemberStore_InvitedMembersByEmail_Call {
+func (_c *mockMemberStore_InvitedMembersByEmail_Call) Return(_a0 []*supporterdata.MemberInvite, _a1 error) *mockMemberStore_InvitedMembersByEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockMemberStore_InvitedMembersByEmail_Call) RunAndReturn(run func(context.Context) ([]*actor.MemberInvite, error)) *mockMemberStore_InvitedMembersByEmail_Call {
+func (_c *mockMemberStore_InvitedMembersByEmail_Call) RunAndReturn(run func(context.Context) ([]*supporterdata.MemberInvite, error)) *mockMemberStore_InvitedMembersByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, member
-func (_m *mockMemberStore) Put(ctx context.Context, member *actor.Member) error {
+func (_m *mockMemberStore) Put(ctx context.Context, member *supporterdata.Member) error {
 	ret := _m.Called(ctx, member)
 
 	if len(ret) == 0 {
@@ -646,7 +645,7 @@ func (_m *mockMemberStore) Put(ctx context.Context, member *actor.Member) error 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *actor.Member) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *supporterdata.Member) error); ok {
 		r0 = rf(ctx, member)
 	} else {
 		r0 = ret.Error(0)
@@ -662,14 +661,14 @@ type mockMemberStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
-//   - member *actor.Member
+//   - member *supporterdata.Member
 func (_e *mockMemberStore_Expecter) Put(ctx interface{}, member interface{}) *mockMemberStore_Put_Call {
 	return &mockMemberStore_Put_Call{Call: _e.mock.On("Put", ctx, member)}
 }
 
-func (_c *mockMemberStore_Put_Call) Run(run func(ctx context.Context, member *actor.Member)) *mockMemberStore_Put_Call {
+func (_c *mockMemberStore_Put_Call) Run(run func(ctx context.Context, member *supporterdata.Member)) *mockMemberStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*actor.Member))
+		run(args[0].(context.Context), args[1].(*supporterdata.Member))
 	})
 	return _c
 }
@@ -679,7 +678,7 @@ func (_c *mockMemberStore_Put_Call) Return(_a0 error) *mockMemberStore_Put_Call 
 	return _c
 }
 
-func (_c *mockMemberStore_Put_Call) RunAndReturn(run func(context.Context, *actor.Member) error) *mockMemberStore_Put_Call {
+func (_c *mockMemberStore_Put_Call) RunAndReturn(run func(context.Context, *supporterdata.Member) error) *mockMemberStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

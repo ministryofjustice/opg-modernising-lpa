@@ -1,12 +1,12 @@
-package supporterdata
+package supporter
 
 import (
 	"context"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -16,7 +16,7 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, &actor.MemberInvite{
+		Create(ctx, &supporterdata.MemberInvite{
 			PK:               dynamo.OrganisationKey("an-id"),
 			SK:               dynamo.MemberInviteKey("email@example.com"),
 			CreatedAt:        testNow,
@@ -25,14 +25,14 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 			Email:            "email@example.com",
 			FirstNames:       "a",
 			LastName:         "b",
-			Permission:       actor.PermissionNone,
+			Permission:       supporterdata.PermissionNone,
 			ReferenceNumber:  "abcde",
 		}).
 		Return(nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
+	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
 	assert.Nil(t, err)
 }
 
@@ -47,7 +47,7 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
 
-			err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
+			err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
 
 			assert.Error(t, err)
 		})
@@ -58,14 +58,14 @@ func TestMemberStoreInvitedMember(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneBySK(ctx, dynamo.MemberInviteKey("a@example.org"), &actor.MemberInvite{OrganisationID: "an-id"}, nil)
+	dynamoClient.ExpectOneBySK(ctx, dynamo.MemberInviteKey("a@example.org"), &supporterdata.MemberInvite{OrganisationID: "an-id"}, nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	invitedMember, err := memberStore.InvitedMember(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, &actor.MemberInvite{OrganisationID: "an-id"}, invitedMember)
+	assert.Equal(t, &supporterdata.MemberInvite{OrganisationID: "an-id"}, invitedMember)
 }
 
 func TestMemberStoreInvitedMemberWhenDynamoError(t *testing.T) {
@@ -108,7 +108,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &actor.Organisation{}, "a", "b", "email@example.com", "abcde", actor.PermissionNone)
+	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -117,14 +117,14 @@ func TestMemberStoreInvitedMembers(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
-		dynamo.MemberInviteKey(""), []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
+		dynamo.MemberInviteKey(""), []*supporterdata.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	invitedMembers, err := memberStore.InvitedMembers(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []*actor.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, invitedMembers)
+	assert.Equal(t, []*supporterdata.MemberInvite{{OrganisationID: "an-id"}, {OrganisationID: "an-id"}}, invitedMembers)
 }
 
 func TestMemberStoreInvitedMembersWhenSessionMissing(t *testing.T) {
@@ -149,7 +149,7 @@ func TestMemberStoreInvitedMembersWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
-		dynamo.MemberInviteKey(""), []*actor.MemberInvite{}, expectedError)
+		dynamo.MemberInviteKey(""), []*supporterdata.MemberInvite{}, expectedError)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -162,7 +162,7 @@ func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{Email: "a@example.org"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectAllBySK(ctx, dynamo.MemberInviteKey("a@example.org"), []*actor.MemberInvite{
+	dynamoClient.ExpectAllBySK(ctx, dynamo.MemberInviteKey("a@example.org"), []*supporterdata.MemberInvite{
 		{OrganisationID: "an-id", Email: "a@example.org"},
 		{OrganisationID: "another-id", Email: "a@example.org"},
 	}, nil)
@@ -172,7 +172,7 @@ func TestMemberStoreInvitedMembersByEmail(t *testing.T) {
 	invitedMembers, err := memberStore.InvitedMembersByEmail(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []*actor.MemberInvite{
+	assert.Equal(t, []*supporterdata.MemberInvite{
 		{OrganisationID: "an-id", Email: "a@example.org"},
 		{OrganisationID: "another-id", Email: "a@example.org"},
 	}, invitedMembers)
@@ -213,7 +213,7 @@ func TestPut(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456"), UpdatedAt: testNow}).
+		Put(ctx, &supporterdata.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456"), UpdatedAt: testNow}).
 		Return(nil)
 
 	store := &MemberStore{
@@ -221,7 +221,7 @@ func TestPut(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
+	err := store.Put(ctx, &supporterdata.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Nil(t, err)
 }
 
@@ -238,7 +238,7 @@ func TestPutWhenDynamoError(t *testing.T) {
 		now:          testNowFn,
 	}
 
-	err := store.Put(ctx, &actor.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
+	err := store.Put(ctx, &supporterdata.Member{PK: dynamo.OrganisationKey("123"), SK: dynamo.MemberKey("456")})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -247,14 +247,14 @@ func TestMemberStoreGetAll(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
-		dynamo.MemberKey(""), []*actor.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
+		dynamo.MemberKey(""), []*supporterdata.Member{{FirstNames: "a"}, {FirstNames: "c"}, {FirstNames: "b"}}, nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	members, err := memberStore.GetAll(ctx)
 
 	assert.Nil(t, err)
-	assert.Equal(t, []*actor.Member{{FirstNames: "a"}, {FirstNames: "b"}, {FirstNames: "c"}}, members)
+	assert.Equal(t, []*supporterdata.Member{{FirstNames: "a"}, {FirstNames: "b"}, {FirstNames: "c"}}, members)
 }
 
 func TestMemberStoreGetAllWhenSessionMissing(t *testing.T) {
@@ -279,7 +279,7 @@ func TestMemberStoreGetAllWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByPartialSK(ctx, dynamo.OrganisationKey("an-id"),
-		dynamo.MemberKey(""), []*actor.MemberInvite{}, expectedError)
+		dynamo.MemberKey(""), []*supporterdata.MemberInvite{}, expectedError)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
@@ -293,7 +293,7 @@ func TestMemberStoreGet(t *testing.T) {
 		OrganisationID: "a-uuid",
 		SessionID:      "session-id",
 	})
-	member := &actor.Member{FirstNames: "a"}
+	member := &supporterdata.Member{FirstNames: "a"}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
@@ -339,7 +339,7 @@ func TestMemberStoreGetWhenErrors(t *testing.T) {
 
 func TestMemberStoreCreate(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id", Email: "email@example.com"})
-	expectedMember := &actor.Member{
+	expectedMember := &supporterdata.Member{
 		PK:             dynamo.OrganisationKey("a-uuid"),
 		SK:             dynamo.MemberKey("session-id"),
 		CreatedAt:      testNow,
@@ -349,8 +349,8 @@ func TestMemberStoreCreate(t *testing.T) {
 		Email:          "email@example.com",
 		FirstNames:     "a",
 		LastName:       "b",
-		Permission:     actor.PermissionAdmin,
-		Status:         actor.StatusActive,
+		Permission:     supporterdata.PermissionAdmin,
+		Status:         supporterdata.StatusActive,
 		LastLoggedInAt: testNow,
 	}
 
@@ -436,19 +436,19 @@ func TestMemberStoreCreateWhenDynamoErrors(t *testing.T) {
 func TestMemberStoreCreateFromInvite(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
-	invite := &actor.MemberInvite{
+	invite := &supporterdata.MemberInvite{
 		PK:             "pk",
 		SK:             "sk",
 		Email:          "ab@example.org",
 		FirstNames:     "a",
 		LastName:       "b",
-		Permission:     actor.PermissionAdmin,
+		Permission:     supporterdata.PermissionAdmin,
 		OrganisationID: "org-id",
 	}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, &actor.Member{
+		Create(ctx, &supporterdata.Member{
 			PK:             dynamo.OrganisationKey("org-id"),
 			SK:             dynamo.MemberKey("session-id"),
 			CreatedAt:      testNow,
@@ -459,7 +459,7 @@ func TestMemberStoreCreateFromInvite(t *testing.T) {
 			FirstNames:     invite.FirstNames,
 			LastName:       invite.LastName,
 			Permission:     invite.Permission,
-			Status:         actor.StatusActive,
+			Status:         supporterdata.StatusActive,
 			LastLoggedInAt: testNow,
 		}).
 		Return(nil)
@@ -492,7 +492,7 @@ func TestMemberStoreCreateFromInviteWhenSessionMissing(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			memberStore := &MemberStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			err := memberStore.CreateFromInvite(ctx, &actor.MemberInvite{})
+			err := memberStore.CreateFromInvite(ctx, &supporterdata.MemberInvite{})
 			assert.Error(t, err)
 		})
 	}
@@ -539,7 +539,7 @@ func TestMemberStoreCreateFromInviteWhenDynamoErrors(t *testing.T) {
 			}
 			memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
-			err := memberStore.CreateFromInvite(ctx, &actor.MemberInvite{})
+			err := memberStore.CreateFromInvite(ctx, &supporterdata.MemberInvite{})
 			assert.Error(t, err)
 		})
 	}
@@ -557,7 +557,7 @@ func TestMemberStoreGetByID(t *testing.T) {
 				MemberSK: dynamo.MemberKey("a-uuid"),
 			}, nil)
 
-	expectedMember := &actor.Member{
+	expectedMember := &supporterdata.Member{
 		PK: dynamo.OrganisationKey("org-id"),
 		SK: dynamo.MemberKey("a-uuid"),
 		ID: "1",
@@ -617,7 +617,7 @@ func TestMemberStoreGetByIDWhenDynamoClientErrors(t *testing.T) {
 			if tc.oneMemberError != nil {
 				dynamoClient.
 					ExpectOne(mock.Anything, mock.Anything, mock.Anything,
-						&actor.Member{}, tc.oneMemberError)
+						&supporterdata.Member{}, tc.oneMemberError)
 			}
 
 			memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
@@ -632,7 +632,7 @@ func TestMemberStoreGetByIDWhenDynamoClientErrors(t *testing.T) {
 func TestMemberStoreGetAny(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 
-	expectedMember := &actor.Member{ID: "a"}
+	expectedMember := &supporterdata.Member{ID: "a"}
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
