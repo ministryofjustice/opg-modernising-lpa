@@ -53,9 +53,9 @@
     {{ end }}
 
     {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-      {{ $title := "decisionsAttorneysMustMakeTogether" }}
+      {{ $title := "decisionsAttorneysMustMakeJointly" }}
       {{ if .App.IsDonor }}
-        {{ $title = "decisionsYourAttorneysMustMakeTogether" }}
+        {{ $title = "decisionsYourAttorneysMustMakeJointly" }}
       {{ end }}
 
       <div class="govuk-summary-list__row">
@@ -126,9 +126,9 @@
     {{ end }}
 
     {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-      {{ $title := "decisionsReplacementAttorneysMustMakeTogether" }}
+      {{ $title := "decisionsReplacementAttorneysMustMakeJointly" }}
       {{ if .App.IsDonor }}
-        {{ $title = "decisionsYourReplacementAttorneysMustMakeTogether" }}
+        {{ $title = "decisionsYourReplacementAttorneysMustMakeJointly" }}
       {{ end }}
 
       <div class="govuk-summary-list__row">
