@@ -110,7 +110,7 @@
   resolved "https://registry.npmjs.org/@colors/colors/-/colors-1.6.0.tgz"
   integrity sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==
 
-"@cypress/request@^3.0.0":
+"@cypress/request@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@cypress/request/-/request-3.0.1.tgz#72d7d5425236a2413bd3d8bb66d02d9dc3168960"
   integrity sha512-TWivJlJi8ZDx2wGOw1dbLuHJKUYX7bWySw377nlnGOW3hP9/MUKIsEdXT/YngWxVdgNCHRBmFlBipE+5/2ZZlQ==
@@ -262,10 +262,10 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.23.0.tgz#db44a6a08520b5f25bbe409f34a59f2d4bcc7ced"
   integrity sha512-Arm+WgUFLUATuoxCJcahGuk6Yj9Pzxd6l11Zb/2aAuv5kWWvvfhLFo2fni4uSK5vzlUdCGZ/BdV5tH8klj8p8g==
 
-"@ministryofjustice/frontend@2.1.3":
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/@ministryofjustice/frontend/-/frontend-2.1.3.tgz#5aa4187096d4d0f7db46e762547b711472c073f0"
-  integrity sha512-kFStfY6Ckbx9OGUEf2xXAjG8oUGXpARpbogk569MTH5LnI1txVT0NieskA4Vthic+2yQ++bePtKX46U1f30rLA==
+"@ministryofjustice/frontend@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@ministryofjustice/frontend/-/frontend-2.2.0.tgz#1b41e088adc67a486529fad526e0fe6651c853f0"
+  integrity sha512-d6ZPTnsJC7vofU1+nPmDXzmZeYP5oYJXWTthHHf2kABQnEBMeJvTZJdxttH2qw9NjFbV5mWiPNWZsx0wgG4qvg==
   dependencies:
     govuk-frontend "^5.0.0"
     moment "^2.27.0"
@@ -532,9 +532,9 @@ aws4@^1.8.0:
   integrity sha512-3AungXC4I8kKsS9PuS4JH2nc+0bVY/mjgrephHTIi8fpEeGsTHBUJeosp0Wc1myYMElmD0B3Oc4XL/HVJ4PV2g==
 
 axe-core@^4.6:
-  version "4.9.1"
-  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.9.1.tgz#fcd0f4496dad09e0c899b44f6c4bb7848da912ae"
-  integrity sha512-QbUdXJVTpvUTHU7871ppZkdOLBeGUKBQWHkHrvN2V9IQWGMt61zf3B45BtzjxEJzYuj0JBjBZP/hmYS/R9pmAw==
+  version "4.10.0"
+  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.10.0.tgz#d9e56ab0147278272739a000880196cdfe113b59"
+  integrity sha512-Mr2ZakwQ7XUAjp7pAwQWRhhK8mQQ6JAaNWSjmjxil0R8BPioMtQsTLOolGYkji1rcL++3dCqZA3zWqpT+9Ew6g==
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -838,12 +838,12 @@ cypress-real-events@^1.8.1:
   resolved "https://registry.yarnpkg.com/cypress-real-events/-/cypress-real-events-1.13.0.tgz#6b7cd32dcac172db1493608f97a2576c7d0bd5af"
   integrity sha512-LoejtK+dyZ1jaT8wGT5oASTPfsNV8/ClRp99ruN60oPj8cBJYod80iJDyNwfPAu4GCxTXOhhAv9FO65Hpwt6Hg==
 
-cypress@13.13.1:
-  version "13.13.1"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.13.1.tgz#860c1142a6e58ea412a764f0ce6ad07567721129"
-  integrity sha512-8F9UjL5MDUdgC/S5hr8CGLHbS5gGht5UOV184qc2pFny43fnkoaKxlzH/U6//zmGu/xRTaKimNfjknLT8+UDFg==
+cypress@13.13.2:
+  version "13.13.2"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-13.13.2.tgz#c71f8d92056c430b1b879e5313f6de25ccce0eda"
+  integrity sha512-PvJQU33933NvS1StfzEb8/mu2kMy4dABwCF+yd5Bi7Qly1HOVf+Bufrygee/tlmty/6j5lX+KIi8j9Q3JUMbhA==
   dependencies:
-    "@cypress/request" "^3.0.0"
+    "@cypress/request" "^3.0.1"
     "@cypress/xvfb" "^1.2.4"
     "@types/sinonjs__fake-timers" "8.1.1"
     "@types/sizzle" "^2.3.2"
@@ -905,10 +905,10 @@ debug@4.3.3:
   dependencies:
     ms "2.1.2"
 
-debug@4.3.5, debug@^4.1.1, debug@^4.3.4:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.5.tgz#e83444eceb9fedd4a1da56d671ae2446a01a6e1e"
-  integrity sha512-pt0bNEmneDIvdL1Xsd9oDQ/wrQRkXDT4AUWlNZNPKvW5x/jyO9VFXkJUP07vQ2upmw5PlaITaPKc31jK13V+jg==
+debug@4.3.6:
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.6.tgz#2ab2c38fbaffebf8aa95fdfe6d88438c7a13c52b"
+  integrity sha512-O/09Bd4Z1fBrU4VzkhFqVgpPzaGbw6Sm9FEkBT1A/YBXQFGuuSxa1dN2nxgxS34JmKXqYx8CZAwEVoJFImUXIg==
   dependencies:
     ms "2.1.2"
 
@@ -918,6 +918,13 @@ debug@^3.1.0:
   integrity sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==
   dependencies:
     ms "^2.1.1"
+
+debug@^4.1.1, debug@^4.3.4:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.5.tgz#e83444eceb9fedd4a1da56d671ae2446a01a6e1e"
+  integrity sha512-pt0bNEmneDIvdL1Xsd9oDQ/wrQRkXDT4AUWlNZNPKvW5x/jyO9VFXkJUP07vQ2upmw5PlaITaPKc31jK13V+jg==
+  dependencies:
+    ms "2.1.2"
 
 decamelize@^1.2.0:
   version "1.2.0"
@@ -2044,11 +2051,11 @@ sshpk@^1.14.1:
     tweetnacl "~0.14.0"
 
 stop-only@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/stop-only/-/stop-only-3.3.2.tgz#cea846c42bd8c1a19f07209d724aacc549116859"
-  integrity sha512-5LnzJyC0XIJA/7IPUxk3O2l6onc0ui0pp3dVbuQVgcr2iGgsh2uZmtrYCUJkYbLdILSY3NxdLYV0h90lIbALdg==
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/stop-only/-/stop-only-3.3.3.tgz#c259b8746f2058ce7bce9282ec47e49ba4a9afe8"
+  integrity sha512-DVvoYzfqucHGkJ8pEK8p7RRD41gJDPBkPIsiIrS8Ex7ncXhfwO3ddWfmUhbEG4CYE766tZKPvV5d5AkTB6DHEQ==
   dependencies:
-    debug "4.3.5"
+    debug "4.3.6"
     execa "0.11.0"
     minimist "1.2.8"
 
