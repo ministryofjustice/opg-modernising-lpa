@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -89,7 +89,7 @@ func TestPostReadTheLpa(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), &certificateproviderdata.Provided{
 			Tasks: certificateproviderdata.Tasks{
-				ReadTheLpa: actor.TaskCompleted,
+				ReadTheLpa: task.StateCompleted,
 			},
 		}).
 		Return(nil)

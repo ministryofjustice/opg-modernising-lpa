@@ -7,8 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,7 +27,7 @@ func TestGetEnterTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +46,7 @@ func TestGetEnterTrustCorporationWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -65,18 +66,18 @@ func TestPostEnterTrustCorporation(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Attorneys: actor.Attorneys{TrustCorporation: actor.TrustCorporation{
+			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:          "Co co.",
 				CompanyNumber: "453345",
 				Email:         "name@example.com",
 			}},
-			Tasks: actor.DonorTasks{ChooseAttorneys: actor.TaskInProgress},
+			Tasks: donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -103,8 +104,8 @@ func TestPostEnterTrustCorporationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "Jane", LastName: "Doe"},
+	err := EnterTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
 
@@ -128,7 +129,7 @@ func TestPostEnterTrustCorporationWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := EnterTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

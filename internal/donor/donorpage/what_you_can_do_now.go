@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,17 +13,17 @@ import (
 )
 
 type whatYouCanDoNowData struct {
-	App    page.AppData
+	App    appcontext.Data
 	Errors validation.List
 	Form   *whatYouCanDoNowForm
 }
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &whatYouCanDoNowData{
 			App: appData,
 			Form: &whatYouCanDoNowForm{
-				Options: actor.NoVoucherDecisionValues,
+				Options: donordata.NoVoucherDecisionValues,
 			},
 		}
 
@@ -34,15 +35,15 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 				var next page.LpaPath
 
 				switch data.Form.DoNext {
-				case actor.ProveOwnID:
+				case donordata.ProveOwnID:
 					donor.DonorIdentityUserData = identity.UserData{}
 					next = page.Paths.TaskList
-				case actor.SelectNewVoucher:
+				case donordata.SelectNewVoucher:
 					donor.WantVoucher = form.Yes
 					next = page.Paths.EnterVoucher
-				case actor.WithdrawLPA:
+				case donordata.WithdrawLPA:
 					next = page.Paths.WithdrawThisLpa
-				case actor.ApplyToCOP:
+				case donordata.ApplyToCOP:
 					donor.RegisteringWithCourtOfProtection = true
 					next = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
 				}
@@ -60,18 +61,18 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type whatYouCanDoNowForm struct {
-	DoNext  actor.NoVoucherDecision
+	DoNext  donordata.NoVoucherDecision
 	Error   error
-	Options actor.NoVoucherDecisionOptions
+	Options donordata.NoVoucherDecisionOptions
 }
 
 func readWhatYouCanDoNowForm(r *http.Request) *whatYouCanDoNowForm {
-	doNext, err := actor.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
+	doNext, err := donordata.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
 
 	return &whatYouCanDoNowForm{
 		DoNext:  doNext,
 		Error:   err,
-		Options: actor.NoVoucherDecisionValues,
+		Options: donordata.NoVoucherDecisionValues,
 	}
 }
 

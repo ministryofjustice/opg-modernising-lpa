@@ -1,3 +1,4 @@
+// Package donorpage provides the pages that a donor interacts with.
 package donorpage
 
 import (
@@ -11,6 +12,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -21,6 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -28,7 +32,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -39,15 +43,15 @@ type Logger interface {
 }
 
 type DonorStore interface {
-	Get(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Latest(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Put(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	Get(ctx context.Context) (*donordata.Provided, error)
+	Latest(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data actor.ShareCodeData, donorEmail string) error
+	Link(ctx context.Context, data sharecode.Data, donorEmail string) error
 }
 
 type GetDonorStore interface {
-	Get(context.Context) (*actor.DonorProvidedDetails, error)
+	Get(context.Context) (*donordata.Provided, error)
 }
 
 type CertificateProviderStore interface {
@@ -74,8 +78,8 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
+	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 }
 
 type OneLoginClient interface {
@@ -101,8 +105,8 @@ type SessionStore interface {
 }
 
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
-	SendToIndependentWitness(context.Context, *actor.DonorProvidedDetails, page.Localizer) error
+	SendToCertificateProvider(context.Context, *donordata.Provided, page.Localizer) error
+	SendToIndependentWitness(context.Context, *donordata.Provided, page.Localizer) error
 }
 
 type UidClient interface {
@@ -118,12 +122,12 @@ type Localizer interface {
 }
 
 type DocumentStore interface {
-	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document) error
-	Delete(context.Context, page.Document) error
-	DeleteInfectedDocuments(context.Context, page.Documents) error
-	Create(context.Context, *actor.DonorProvidedDetails, string, []byte) (page.Document, error)
-	Submit(context.Context, *actor.DonorProvidedDetails, page.Documents) error
+	GetAll(context.Context) (document.Documents, error)
+	Put(context.Context, document.Document) error
+	Delete(context.Context, document.Document) error
+	DeleteInfectedDocuments(context.Context, document.Documents) error
+	Create(context.Context, *donordata.Provided, string, []byte) (document.Document, error)
+	Submit(context.Context, *donordata.Provided, document.Documents) error
 }
 
 type EventClient interface {
@@ -140,12 +144,12 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
-	SendDonorConfirmIdentity(ctx context.Context, donor *actor.DonorProvidedDetails) error
-	SendLpa(ctx context.Context, details *actor.DonorProvidedDetails) error
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
+	SendLpa(ctx context.Context, details *donordata.Provided) error
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, code string) (actor.ShareCodeData, error)
+	Get(ctx context.Context, actorType actor.Type, code string) (sharecode.Data, error)
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -432,7 +436,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.ActorType = actor.TypeDonor
 
@@ -445,10 +449,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 
 				appData.SessionID = session.SessionID()
 				appData.LoginSessionEmail = session.Email
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID, Email: appData.LoginSessionEmail})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -466,21 +470,21 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 				return
 			}
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.CanGoBack = opt&page.CanGoBack != 0
 			appData.ActorType = actor.TypeDonor
 			appData.LpaID = r.PathValue("id")
 			appData.SessionID = loginSession.SessionID()
 			appData.LoginSessionEmail = loginSession.Email
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				sessionData = &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID}
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				sessionData = &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID}
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			}
 
 			if loginSession.OrganisationID != "" {
@@ -511,14 +515,14 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if loginSession.OrganisationID != "" {
-				appData.SupporterData = &page.SupporterData{
+				appData.SupporterData = &appcontext.SupporterData{
 					LpaType:          lpa.Type,
 					DonorFullName:    lpa.Donor.FullName(),
 					OrganisationName: loginSession.OrganisationName,
 				}
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), lpa); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), lpa); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

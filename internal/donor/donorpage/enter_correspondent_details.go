@@ -5,21 +5,24 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type enterCorrespondentDetailsData struct {
-	App         page.AppData
+	App         appcontext.Data
 	Errors      validation.List
 	Form        *enterCorrespondentDetailsForm
 	NameWarning *actor.SameNameWarning
 }
 
 func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
 			Form: &enterCorrespondentDetailsForm{
@@ -47,11 +50,11 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				var redirect page.LpaPath
 				if donor.Correspondent.WantAddress.IsNo() {
 					donor.Correspondent.Address = place.Address{}
-					donor.Tasks.AddCorrespondent = actor.TaskCompleted
+					donor.Tasks.AddCorrespondent = task.StateCompleted
 					redirect = page.Paths.TaskList
 				} else {
 					if !donor.Tasks.AddCorrespondent.Completed() && donor.Correspondent.Address.Line1 == "" {
-						donor.Tasks.AddCorrespondent = actor.TaskInProgress
+						donor.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirect = page.Paths.EnterCorrespondentAddress
 				}
@@ -79,7 +82,7 @@ type enterCorrespondentDetailsForm struct {
 	DonorFullName   string
 }
 
-func readEnterCorrespondentDetailsForm(r *http.Request, donor actor.Donor) *enterCorrespondentDetailsForm {
+func readEnterCorrespondentDetailsForm(r *http.Request, donor donordata.Donor) *enterCorrespondentDetailsForm {
 	email := page.PostFormString(r, "email")
 
 	return &enterCorrespondentDetailsForm{

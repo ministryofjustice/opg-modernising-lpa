@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -39,10 +40,10 @@ func ValidateCsrf(next http.Handler, store SessionStore, randomString func(int) 
 			_ = store.SetCsrf(r, w, csrfSession)
 		}
 
-		appData := AppDataFromContext(ctx)
+		appData := appcontext.DataFromContext(ctx)
 		appData.CsrfToken = csrfSession.Token
 
-		next.ServeHTTP(w, r.WithContext(ContextWithAppData(ctx, appData)))
+		next.ServeHTTP(w, r.WithContext(appcontext.ContextWithData(ctx, appData)))
 	}
 }
 

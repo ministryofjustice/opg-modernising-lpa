@@ -5,11 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	attorneydata "github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,7 +114,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		Put(r.Context(), &attorneydata.Provided{
 			LpaID: "lpa-id",
 			Tasks: attorneydata.Tasks{
-				ReadTheLpa: actor.TaskCompleted,
+				ReadTheLpa: task.StateCompleted,
 			},
 		}).
 		Return(nil)

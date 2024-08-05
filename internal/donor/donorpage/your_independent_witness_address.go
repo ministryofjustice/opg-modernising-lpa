@@ -4,15 +4,17 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := newChooseAddressData(
 			appData,
 			"independentWitness",
@@ -30,7 +32,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				donor.Tasks.ChooseYourSignatory = actor.TaskCompleted
+				donor.Tasks.ChooseYourSignatory = task.StateCompleted
 				donor.IndependentWitness.Address = *data.Form.Address
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {

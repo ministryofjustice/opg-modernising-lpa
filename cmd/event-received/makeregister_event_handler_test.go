@@ -8,10 +8,11 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/stretchr/testify/assert"
@@ -61,9 +62,9 @@ func TestHandleUidRequested(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{
-				Donor:     actor.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
-				Type:      actor.LpaTypePersonalWelfare,
+			b, _ := attributevalue.Marshal(&donordata.Provided{
+				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
+				Type:      lpadata.LpaTypePersonalWelfare,
 				CreatedAt: testNow,
 				LpaUID:    "M-1111-2222-3333",
 				PK:        dynamo.LpaKey("123"),
@@ -77,7 +78,7 @@ func TestHandleUidRequested(t *testing.T) {
 	eventClient.EXPECT().
 		SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       "M-1111-2222-3333",
-			Type:      actor.LpaTypePersonalWelfare.String(),
+			Type:      lpadata.LpaTypePersonalWelfare.String(),
 			CreatedAt: testNow,
 			Donor: event.ApplicationUpdatedDonor{
 				FirstNames:  "a",
@@ -170,7 +171,7 @@ func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
 	dynamoClient.
 		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&actor.DonorProvidedDetails{})
+			b, _ := attributevalue.Marshal(&donordata.Provided{})
 			attributevalue.Unmarshal(b, v)
 			return nil
 		})

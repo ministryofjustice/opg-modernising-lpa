@@ -8,22 +8,26 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context context.Context, appData page.AppData, donorProvided page.CertificateProviderInvite) error
-	SendAttorneys(context context.Context, appData page.AppData, donorProvided *lpastore.Lpa) error
+	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, donorProvided page.CertificateProviderInvite) error
+	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpastore.Lpa) error
 	UseTestCode(shareCode string)
 }
 
@@ -33,7 +37,7 @@ const (
 )
 
 type fixturesData struct {
-	App        page.AppData
+	App        appcontext.Data
 	Sub        string
 	DonorEmail string
 	Errors     validation.List
@@ -85,8 +89,8 @@ var (
 	}
 )
 
-func makeAttorney(name Name) actor.Attorney {
-	return actor.Attorney{
+func makeAttorney(name Name) donordata.Attorney {
+	return donordata.Attorney{
 		UID:         actoruid.New(),
 		FirstNames:  name.Firstnames,
 		LastName:    name.Lastname,
@@ -103,8 +107,8 @@ func makeAttorney(name Name) actor.Attorney {
 	}
 }
 
-func makeTrustCorporation(name string) actor.TrustCorporation {
-	return actor.TrustCorporation{
+func makeTrustCorporation(name string) donordata.TrustCorporation {
+	return donordata.TrustCorporation{
 		UID:           actoruid.New(),
 		Name:          name,
 		CompanyNumber: "555555555",
@@ -120,8 +124,8 @@ func makeTrustCorporation(name string) actor.TrustCorporation {
 	}
 }
 
-func makeDonor(email string) actor.Donor {
-	return actor.Donor{
+func makeDonor(email string) donordata.Donor {
+	return donordata.Donor{
 		UID:        actoruid.New(),
 		FirstNames: "Sam",
 		LastName:   "Smith",
@@ -135,23 +139,23 @@ func makeDonor(email string) actor.Donor {
 		},
 		Email:                     email,
 		DateOfBirth:               date.New("2000", "1", "2"),
-		ThinksCanSign:             actor.Yes,
+		ThinksCanSign:             donordata.Yes,
 		CanSign:                   form.Yes,
 		ContactLanguagePreference: localize.En,
 		LpaLanguagePreference:     localize.En,
 	}
 }
 
-func makeCertificateProvider() actor.CertificateProvider {
-	return actor.CertificateProvider{
+func makeCertificateProvider() donordata.CertificateProvider {
+	return donordata.CertificateProvider{
 		UID:                actoruid.New(),
 		FirstNames:         "Charlie",
 		LastName:           "Cooper",
 		Email:              testEmail,
 		Mobile:             testMobile,
-		Relationship:       actor.Personally,
-		RelationshipLength: actor.GreaterThanEqualToTwoYears,
-		CarryOutBy:         actor.ChannelOnline,
+		Relationship:       lpadata.Personally,
+		RelationshipLength: donordata.GreaterThanEqualToTwoYears,
+		CarryOutBy:         lpadata.ChannelOnline,
 		Address: place.Address{
 			Line1:      "5 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
@@ -163,8 +167,8 @@ func makeCertificateProvider() actor.CertificateProvider {
 	}
 }
 
-func makePersonToNotify(name Name) actor.PersonToNotify {
-	return actor.PersonToNotify{
+func makePersonToNotify(name Name) donordata.PersonToNotify {
+	return donordata.PersonToNotify{
 		UID:        actoruid.New(),
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
@@ -179,8 +183,8 @@ func makePersonToNotify(name Name) actor.PersonToNotify {
 	}
 }
 
-func makeCorrespondent(name Name) actor.Correspondent {
-	return actor.Correspondent{
+func makeCorrespondent(name Name) donordata.Correspondent {
+	return donordata.Correspondent{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Address: place.Address{
@@ -213,7 +217,7 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 
 func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
 		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:              actorUID,
@@ -237,7 +241,7 @@ func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorney
 
 func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStore, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:    actorUID,
@@ -252,8 +256,8 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
 
-func makeVoucher(name Name) actor.Voucher {
-	return actor.Voucher{
+func makeVoucher(name Name) donordata.Voucher {
+	return donordata.Voucher{
 		FirstNames: name.Firstnames,
 		LastName:   name.Lastname,
 		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),

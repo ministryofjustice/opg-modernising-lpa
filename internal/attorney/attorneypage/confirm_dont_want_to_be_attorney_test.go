@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +82,7 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
@@ -100,7 +100,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 					{FirstNames: "d e", LastName: "f", UID: uid},
 				},
 			},
-			Type: actor.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	certificateProviderStore := newMockAttorneyStore(t)
@@ -138,7 +138,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 }
 
 func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
-	r, _ := http.NewRequestWithContext(page.ContextWithSessionData(context.Background(), &appcontext.SessionData{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequestWithContext(appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
@@ -151,7 +151,7 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 			Donor: lpastore.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Type: actor.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com")(testAppData, w, r, &attorneydata.Provided{

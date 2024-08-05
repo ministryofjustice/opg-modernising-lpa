@@ -8,15 +8,17 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseAttorneysData struct {
-	App                      page.AppData
+	App                      appcontext.Data
 	Errors                   validation.List
-	Donor                    *actor.DonorProvidedDetails
+	Donor                    *donordata.Provided
 	Form                     *chooseAttorneysForm
 	ShowDetails              bool
 	DobWarning               string
@@ -25,7 +27,7 @@ type chooseAttorneysData struct {
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		uid := actoruid.FromRequest(r)
 
 		if uid.IsZero() {
@@ -70,7 +72,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{UID: uid}
+					attorney = donordata.Attorney{UID: uid}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
@@ -165,7 +167,7 @@ func (f *chooseAttorneysForm) DobWarning() string {
 	return ""
 }
 
-func attorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
+func attorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}
@@ -207,6 +209,6 @@ func attorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstN
 	return actor.TypeNone
 }
 
-func (f *chooseAttorneysForm) NameHasChanged(attorney actor.Attorney) bool {
+func (f *chooseAttorneysForm) NameHasChanged(attorney donordata.Attorney) bool {
 	return attorney.FirstNames != f.FirstNames || attorney.LastName != f.LastName
 }

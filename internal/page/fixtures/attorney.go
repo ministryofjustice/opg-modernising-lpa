@@ -9,35 +9,38 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type DonorStore interface {
-	Create(ctx context.Context) (*actor.DonorProvidedDetails, error)
-	Link(ctx context.Context, shareCode actor.ShareCodeData, donorEmail string) error
-	Put(ctx context.Context, donorProvidedDetails *actor.DonorProvidedDetails) error
+	Create(ctx context.Context) (*donordata.Provided, error)
+	Link(ctx context.Context, shareCode sharecode.Data, donorEmail string) error
+	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
@@ -65,7 +68,7 @@ func Attorney(
 		"registered",
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -106,11 +109,11 @@ func Attorney(
 		}
 
 		createFn := donorStore.Create
-		createSession := &appcontext.SessionData{SessionID: donorSessionID}
+		createSession := &appcontext.Session{SessionID: donorSessionID}
 		if isSupported {
 			createFn = organisationStore.CreateLPA
 
-			supporterCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, Email: testEmail})
+			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
 			if err != nil {
@@ -124,13 +127,13 @@ func Attorney(
 
 			createSession.OrganisationID = org.ID
 		}
-		donorDetails, err := createFn(page.ContextWithSessionData(r.Context(), createSession))
+		donorDetails, err := createFn(appcontext.ContextWithSession(r.Context(), createSession))
 		if err != nil {
 			return err
 		}
 
 		if isSupported {
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), createSession), actor.ShareCodeData{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
@@ -139,21 +142,21 @@ func Attorney(
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
-			attorneyCtx            = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
+			donorCtx               = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			attorneyCtx            = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
 		donorDetails.SignedAt = time.Now()
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+			donorDetails.Type = lpadata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.Type = actor.LpaTypePropertyAndAffairs
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -175,12 +178,12 @@ func Attorney(
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys:        []actor.Attorney{makeAttorney(attorneyNames[0])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys:        []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("First Choice Trust Corporation Ltd."),
 		}
-		donorDetails.ReplacementAttorneys = actor.Attorneys{
-			Attorneys:        []actor.Attorney{makeAttorney(replacementAttorneyNames[0])},
+		donorDetails.ReplacementAttorneys = donordata.Attorneys{
+			Attorneys:        []donordata.Attorney{makeAttorney(replacementAttorneyNames[0])},
 			TrustCorporation: makeTrustCorporation("Second Choice Trust Corporation Ltd."),
 		}
 
@@ -207,9 +210,9 @@ func Attorney(
 			attorneyUID = donorDetails.Attorneys.Attorneys[0].UID
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
-		donorDetails.ReplacementAttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
-		donorDetails.HowShouldReplacementAttorneysStepIn = actor.ReplacementAttorneysStepInWhenAllCanNoLongerAct
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+		donorDetails.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+		donorDetails.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
 		if err != nil {
@@ -240,15 +243,15 @@ func Attorney(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			attorney.Mobile = testMobile
 			attorney.ContactLanguagePreference = localize.En
-			attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "readTheLPA") {
-			attorney.Tasks.ReadTheLpa = actor.TaskCompleted
+			attorney.Tasks.ReadTheLpa = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
-			attorney.Tasks.SignTheLpa = actor.TaskCompleted
+			attorney.Tasks.SignTheLpa = task.StateCompleted
 
 			if isTrustCorporation {
 				attorney.WouldLikeSecondSignatory = form.No
@@ -265,9 +268,9 @@ func Attorney(
 
 		var signings []*attorneydata.Provided
 		if progress >= slices.Index(progressValues, "signedByAllAttorneys") {
-			for isReplacement, list := range map[bool]actor.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
+			for isReplacement, list := range map[bool]donordata.Attorneys{false: donorDetails.Attorneys, true: donorDetails.ReplacementAttorneys} {
 				for _, a := range list.Attorneys {
-					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,
@@ -285,9 +288,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
@@ -298,7 +301,7 @@ func Attorney(
 				}
 
 				if list.TrustCorporation.Name != "" {
-					ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+					ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
 					attorney, err := createAttorney(
 						ctx,
@@ -316,9 +319,9 @@ func Attorney(
 
 					attorney.Mobile = testMobile
 					attorney.ContactLanguagePreference = localize.En
-					attorney.Tasks.ConfirmYourDetails = actor.TaskCompleted
-					attorney.Tasks.ReadTheLpa = actor.TaskCompleted
-					attorney.Tasks.SignTheLpa = actor.TaskCompleted
+					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
+					attorney.Tasks.ReadTheLpa = task.StateCompleted
+					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.WouldLikeSecondSignatory = form.No
 					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 						FirstNames:        "A",
@@ -400,7 +403,7 @@ func Attorney(
 			lpa.LpaKey = donorDetails.PK
 			lpa.LpaOwnerKey = donorDetails.SK
 
-			shareCodeSender.SendAttorneys(donorCtx, page.AppData{
+			shareCodeSender.SendAttorneys(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

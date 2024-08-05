@@ -25,7 +25,7 @@ func (_m *mockLpaStoreResolvingService) EXPECT() *mockLpaStoreResolvingService_E
 }
 
 // ResolveList provides a mock function with given fields: ctx, donors
-func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors []*donordata.DonorProvidedDetails) ([]*lpastore.Lpa, error) {
+func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error) {
 	ret := _m.Called(ctx, donors)
 
 	if len(ret) == 0 {
@@ -34,10 +34,10 @@ func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors 
 
 	var r0 []*lpastore.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.DonorProvidedDetails) ([]*lpastore.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) ([]*lpastore.Lpa, error)); ok {
 		return rf(ctx, donors)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.DonorProvidedDetails) []*lpastore.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) []*lpastore.Lpa); ok {
 		r0 = rf(ctx, donors)
 	} else {
 		if ret.Get(0) != nil {
@@ -45,7 +45,7 @@ func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors 
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, []*donordata.DonorProvidedDetails) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, []*donordata.Provided) error); ok {
 		r1 = rf(ctx, donors)
 	} else {
 		r1 = ret.Error(1)
@@ -61,14 +61,14 @@ type mockLpaStoreResolvingService_ResolveList_Call struct {
 
 // ResolveList is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donors []*donordata.DonorProvidedDetails
+//   - donors []*donordata.Provided
 func (_e *mockLpaStoreResolvingService_Expecter) ResolveList(ctx interface{}, donors interface{}) *mockLpaStoreResolvingService_ResolveList_Call {
 	return &mockLpaStoreResolvingService_ResolveList_Call{Call: _e.mock.On("ResolveList", ctx, donors)}
 }
 
-func (_c *mockLpaStoreResolvingService_ResolveList_Call) Run(run func(ctx context.Context, donors []*donordata.DonorProvidedDetails)) *mockLpaStoreResolvingService_ResolveList_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) Run(run func(ctx context.Context, donors []*donordata.Provided)) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]*donordata.DonorProvidedDetails))
+		run(args[0].(context.Context), args[1].([]*donordata.Provided))
 	})
 	return _c
 }
@@ -78,7 +78,7 @@ func (_c *mockLpaStoreResolvingService_ResolveList_Call) Return(_a0 []*lpastore.
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_ResolveList_Call) RunAndReturn(run func(context.Context, []*donordata.DonorProvidedDetails) ([]*lpastore.Lpa, error)) *mockLpaStoreResolvingService_ResolveList_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) RunAndReturn(run func(context.Context, []*donordata.Provided) ([]*lpastore.Lpa, error)) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Return(run)
 	return _c
 }

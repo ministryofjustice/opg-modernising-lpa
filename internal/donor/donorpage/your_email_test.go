@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestGetYourEmail(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,7 +42,7 @@ func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -61,18 +61,18 @@ func TestPostYourEmail(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.
-		On("Put", r.Context(), &actor.DonorProvidedDetails{
+		On("Put", r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Donor: actor.Donor{
+			Donor: donordata.Donor{
 				FirstNames: "John",
 				Email:      "john@example.com",
 			},
 		}).
 		Return(nil)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "John",
 		},
 	})
@@ -99,7 +99,7 @@ func TestPostYourEmailWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -120,7 +120,7 @@ func TestPostYourEmailWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 

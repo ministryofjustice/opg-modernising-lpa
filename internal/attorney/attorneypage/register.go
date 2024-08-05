@@ -1,3 +1,5 @@
+// Package attorneypage provides the pages that an attorney or trust corporation
+// interacts with.
 package attorneypage
 
 import (
@@ -17,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type Localizer interface {
@@ -27,7 +30,7 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpastore.Lpa, error)
 }
 
-type Handler func(data page.AppData, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
@@ -53,13 +56,13 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
-	Delete(ctx context.Context, shareCode actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	Delete(ctx context.Context, shareCode sharecode.Data) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode actor.ShareCodeData, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error)
 	Get(ctx context.Context) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 	Delete(ctx context.Context) error
@@ -158,7 +161,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&CanGoBack != 0
 
@@ -170,10 +173,10 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 				}
 
 				appData.SessionID = session.SessionID()
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
@@ -185,7 +188,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
-			appData := page.AppDataFromContext(ctx)
+			appData := appcontext.DataFromContext(ctx)
 			appData.CanGoBack = opt&CanGoBack != 0
 			appData.LpaID = r.PathValue("id")
 
@@ -197,13 +200,13 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 
 			appData.SessionID = session.SessionID()
 
-			sessionData, err := appcontext.SessionDataFromContext(ctx)
+			sessionData, err := appcontext.SessionFromContext(ctx)
 			if err == nil {
 				sessionData.SessionID = appData.SessionID
 				sessionData.LpaID = appData.LpaID
-				ctx = page.ContextWithSessionData(ctx, sessionData)
+				ctx = appcontext.ContextWithSession(ctx, sessionData)
 			} else {
-				ctx = page.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: appData.SessionID, LpaID: appData.LpaID})
+				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
 			attorney, err := attorneyStore.Get(ctx)
@@ -229,7 +232,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 				appData.ActorType = actor.TypeAttorney
 			}
 
-			if err := h(appData, w, r.WithContext(page.ContextWithAppData(ctx, appData)), attorney); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), attorney); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

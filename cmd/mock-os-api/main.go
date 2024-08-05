@@ -1,3 +1,4 @@
+// Mock OS API is a mock for Ordnance Survey's Places API
 package main
 
 import (

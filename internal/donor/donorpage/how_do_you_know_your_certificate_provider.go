@@ -4,30 +4,32 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type howDoYouKnowYourCertificateProviderData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
-	CertificateProvider actor.CertificateProvider
+	CertificateProvider donordata.CertificateProvider
 	Form                *howDoYouKnowYourCertificateProviderForm
-	Options             donordata.CertificateProviderRelationshipOptions
+	Options             lpadata.CertificateProviderRelationshipOptions
 }
 
 func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &howDoYouKnowYourCertificateProviderData{
 			App:                 appData,
 			CertificateProvider: donor.CertificateProvider,
 			Form: &howDoYouKnowYourCertificateProviderForm{
 				How: donor.CertificateProvider.Relationship,
 			},
-			Options: donordata.CertificateProviderRelationshipValues,
+			Options: lpadata.CertificateProviderRelationshipValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -36,11 +38,11 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 
 			if data.Errors.None() {
 				if data.Form.How.IsProfessionally() && donor.CertificateProvider.Relationship.IsPersonally() {
-					donor.CertificateProvider.RelationshipLength = actor.RelationshipLengthUnknown
+					donor.CertificateProvider.RelationshipLength = donordata.RelationshipLengthUnknown
 				}
 
 				if !donor.CertificateProvider.Relationship.Empty() && data.Form.How != donor.CertificateProvider.Relationship {
-					donor.Tasks.CertificateProvider = actor.TaskInProgress
+					donor.Tasks.CertificateProvider = task.StateInProgress
 					donor.CertificateProvider.Address = place.Address{}
 				}
 
@@ -63,12 +65,12 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 }
 
 type howDoYouKnowYourCertificateProviderForm struct {
-	How   actor.CertificateProviderRelationship
+	How   lpadata.CertificateProviderRelationship
 	Error error
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
-	how, err := donordata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
+	how, err := lpadata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
 
 	return &howDoYouKnowYourCertificateProviderForm{
 		How:   how,

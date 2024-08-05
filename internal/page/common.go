@@ -8,12 +8,15 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
@@ -26,8 +29,8 @@ type Logger interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (actor.ShareCodeData, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data actor.ShareCodeData) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
 }
 
 type NotifyClient interface {
@@ -43,8 +46,8 @@ type OneLoginClient interface {
 }
 
 type DonorStore interface {
-	Create(context.Context) (*actor.DonorProvidedDetails, error)
-	Put(context.Context, *actor.DonorProvidedDetails) error
+	Create(context.Context) (*donordata.Provided, error)
+	Put(context.Context, *donordata.Provided) error
 }
 
 type Bundle interface {
@@ -73,7 +76,7 @@ func PostFormReferenceNumber(r *http.Request, name string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(r.PostFormValue(name), " ", ""), "-", "")
 }
 
-type Handler func(data AppData, w http.ResponseWriter, r *http.Request) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request) error
 
 type EventClient interface {
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error

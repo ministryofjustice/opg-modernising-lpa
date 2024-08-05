@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,11 +20,11 @@ func TestGetDeleteLpa(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &deleteLpaData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{},
+			Donor: &donordata.Provided{},
 		}).
 		Return(nil)
 
-	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -40,7 +40,7 @@ func TestGetDeleteLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := DeleteLpa(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -57,7 +57,7 @@ func TestPostDeleteLpa(t *testing.T) {
 		Delete(r.Context()).
 		Return(nil)
 
-	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{LpaUID: "lpa-uid"})
+	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -75,7 +75,7 @@ func TestPostDeleteLpaWhenStoreErrors(t *testing.T) {
 		Delete(r.Context()).
 		Return(expectedError)
 
-	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := DeleteLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

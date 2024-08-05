@@ -6,19 +6,22 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type yourIndependentWitnessData struct {
-	App         page.AppData
+	App         appcontext.Data
 	Errors      validation.List
 	Form        *yourIndependentWitnessForm
 	NameWarning *actor.SameNameWarning
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
 			Form: &yourIndependentWitnessForm{
@@ -47,7 +50,7 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 				donor.IndependentWitness.LastName = data.Form.LastName
 
 				if !donor.Tasks.ChooseYourSignatory.Completed() {
-					donor.Tasks.ChooseYourSignatory = actor.TaskInProgress
+					donor.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
 				if err := donorStore.Put(r.Context(), donor); err != nil {
@@ -90,7 +93,7 @@ func (f *yourIndependentWitnessForm) Validate() validation.List {
 	return errors
 }
 
-func independentWitnessMatches(donor *actor.DonorProvidedDetails, firstNames, lastName string) actor.Type {
+func independentWitnessMatches(donor *donordata.Provided, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

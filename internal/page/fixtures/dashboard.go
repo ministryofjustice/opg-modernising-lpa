@@ -5,8 +5,9 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -20,7 +21,7 @@ func Dashboard(
 	attorneyStore AttorneyStore,
 	shareCodeStore ShareCodeStore,
 ) page.Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -45,19 +46,19 @@ func Dashboard(
 		}
 
 		if asDonor {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID}))
+			donor, err := donorStore.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID}))
 			if err != nil {
 				return err
 			}
 
-			donorCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			donor.LpaUID = makeUID()
 			donor.Donor = makeDonor(testEmail)
-			donor.Type = actor.LpaTypePropertyAndAffairs
+			donor.Type = lpadata.LpaTypePropertyAndAffairs
 
-			donor.Attorneys = actor.Attorneys{
-				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+			donor.Attorneys = donordata.Attorneys{
+				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			}
 
 			if err := donorStore.Put(donorCtx, donor); err != nil {
@@ -66,18 +67,18 @@ func Dashboard(
 		}
 
 		if asCertificateProvider {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
 			donor.Donor = makeDonor(testEmail)
 			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
+			if err := donorStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			certificateProviderCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			certificateProviderCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			_, err = createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donor.CertificateProvider.UID, donor.SK, testEmail)
 			if err != nil {
@@ -86,21 +87,21 @@ func Dashboard(
 		}
 
 		if asAttorney {
-			donor, err := donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
+			donor, err := donorStore.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
 			donor.Donor = makeDonor(testEmail)
-			donor.Attorneys = actor.Attorneys{
-				Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0])},
+			donor.Attorneys = donordata.Attorneys{
+				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			}
 			donor.LpaUID = makeUID()
 
-			if err := donorStore.Put(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
+			if err := donorStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
 				return err
 			}
 
-			attorneyCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: meSessionID, LpaID: donor.LpaID})
+			attorneyCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			attorney, err := createAttorney(
 				attorneyCtx,

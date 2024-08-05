@@ -8,14 +8,16 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type chooseReplacementAttorneysData struct {
-	App                      page.AppData
+	App                      appcontext.Data
 	Errors                   validation.List
-	Donor                    *actor.DonorProvidedDetails
+	Donor                    *donordata.Provided
 	Form                     *chooseAttorneysForm
 	DobWarning               string
 	NameWarning              *actor.SameNameWarning
@@ -23,7 +25,7 @@ type chooseReplacementAttorneysData struct {
 }
 
 func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, donor *actor.DonorProvidedDetails) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		uid := actoruid.FromRequest(r)
 
 		if uid.IsZero() {
@@ -66,7 +68,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) H
 
 			if data.Errors.None() && data.DobWarning == "" && data.NameWarning == nil {
 				if attorneyFound == false {
-					attorney = actor.Attorney{UID: uid}
+					attorney = donordata.Attorney{UID: uid}
 				}
 
 				attorney.FirstNames = data.Form.FirstNames
@@ -94,7 +96,7 @@ func ChooseReplacementAttorneys(tmpl template.Template, donorStore DonorStore) H
 	}
 }
 
-func replacementAttorneyMatches(donor *actor.DonorProvidedDetails, uid actoruid.UID, firstNames, lastName string) actor.Type {
+func replacementAttorneyMatches(donor *donordata.Provided, uid actoruid.UID, firstNames, lastName string) actor.Type {
 	if firstNames == "" && lastName == "" {
 		return actor.TypeNone
 	}

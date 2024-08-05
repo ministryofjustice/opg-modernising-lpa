@@ -7,9 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,12 +24,12 @@ func TestGetAddCorrespondent(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &addCorrespondentData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{},
+			Donor: &donordata.Provided{},
 			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,12 +44,12 @@ func TestGetAddCorrespondentFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &addCorrespondentData{
 			App:   testAppData,
-			Donor: &actor.DonorProvidedDetails{AddCorrespondent: form.Yes},
+			Donor: &donordata.Provided{AddCorrespondent: form.Yes},
 			Form:  form.NewYesNoForm(form.Yes),
 		}).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{AddCorrespondent: form.Yes})
+	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{AddCorrespondent: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -64,7 +65,7 @@ func TestGetAddCorrespondentWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -74,41 +75,41 @@ func TestGetAddCorrespondentWhenTemplateErrors(t *testing.T) {
 func TestPostAddCorrespondent(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo                 form.YesNo
-		existingCorrespondent actor.Correspondent
-		existingTaskState     actor.TaskState
-		expectedCorrespondent actor.Correspondent
-		expectedTaskState     actor.TaskState
+		existingCorrespondent donordata.Correspondent
+		existingTaskState     task.State
+		expectedCorrespondent donordata.Correspondent
+		expectedTaskState     task.State
 		redirect              page.LpaPath
 	}{
 		"yes was yes": {
 			yesNo:                 form.Yes,
-			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
-			existingTaskState:     actor.TaskCompleted,
-			expectedCorrespondent: actor.Correspondent{FirstNames: "John"},
-			expectedTaskState:     actor.TaskCompleted,
+			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
+			existingTaskState:     task.StateCompleted,
+			expectedCorrespondent: donordata.Correspondent{FirstNames: "John"},
+			expectedTaskState:     task.StateCompleted,
 			redirect:              page.Paths.EnterCorrespondentDetails,
 		},
 		"yes was no": {
 			yesNo:             form.Yes,
-			existingTaskState: actor.TaskCompleted,
-			expectedTaskState: actor.TaskInProgress,
+			existingTaskState: task.StateCompleted,
+			expectedTaskState: task.StateInProgress,
 			redirect:          page.Paths.EnterCorrespondentDetails,
 		},
 		"yes": {
 			yesNo:             form.Yes,
-			expectedTaskState: actor.TaskInProgress,
+			expectedTaskState: task.StateInProgress,
 			redirect:          page.Paths.EnterCorrespondentDetails,
 		},
 		"no was yes": {
 			yesNo:                 form.No,
-			existingCorrespondent: actor.Correspondent{FirstNames: "John"},
-			existingTaskState:     actor.TaskCompleted,
-			expectedTaskState:     actor.TaskCompleted,
+			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
+			existingTaskState:     task.StateCompleted,
+			expectedTaskState:     task.StateCompleted,
 			redirect:              page.Paths.TaskList,
 		},
 		"no": {
 			yesNo:             form.No,
-			expectedTaskState: actor.TaskCompleted,
+			expectedTaskState: task.StateCompleted,
 			redirect:          page.Paths.TaskList,
 		},
 	}
@@ -125,18 +126,18 @@ func TestPostAddCorrespondent(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
 					AddCorrespondent: tc.yesNo,
 					Correspondent:    tc.expectedCorrespondent,
-					Tasks:            actor.DonorTasks{AddCorrespondent: tc.expectedTaskState},
+					Tasks:            donordata.Tasks{AddCorrespondent: tc.expectedTaskState},
 				}).
 				Return(nil)
 
-			err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:         "lpa-id",
 				Correspondent: tc.existingCorrespondent,
-				Tasks:         actor.DonorTasks{AddCorrespondent: tc.existingTaskState},
+				Tasks:         donordata.Tasks{AddCorrespondent: tc.existingTaskState},
 			})
 			resp := w.Result()
 
@@ -161,7 +162,7 @@ func TestPostAddCorrespondentWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -178,7 +179,7 @@ func TestPostAddCorrespondentWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

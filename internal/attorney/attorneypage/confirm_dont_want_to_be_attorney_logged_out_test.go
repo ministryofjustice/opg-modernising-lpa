@@ -11,9 +11,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -31,7 +33,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})).
+		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})).
 		Return(&lpa, nil)
 
 	template := newMockTemplate(t)
@@ -144,14 +146,14 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 			w := httptest.NewRecorder()
-			ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
 				LpaData(r).
 				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-			shareCodeData := actor.ShareCodeData{
+			shareCodeData := sharecode.Data{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				ActorUID:    tc.uid,
@@ -186,7 +188,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 							{UID: replacementAttorneyUID, FirstNames: "x y", LastName: "z"},
 						},
 					},
-					Type: actor.LpaTypePersonalWelfare,
+					Type: lpadata.LpaTypePersonalWelfare,
 				}, nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -221,14 +223,14 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
-	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
+	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		LpaData(r).
 		Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		LpaKey:      dynamo.LpaKey("lpa-id"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		ActorUID:    actoruid.New(),
@@ -248,7 +250,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 			Donor: lpastore.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Type: actor.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
@@ -257,9 +259,9 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 
 func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
-	ctx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{LpaID: "lpa-id"})
+	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 

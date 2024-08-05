@@ -8,12 +8,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -109,7 +110,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 	lpa := &Lpa{
 		LpaUID: "lpa-uid",
 		CertificateProvider: CertificateProvider{
-			Channel: actor.ChannelOnline,
+			Channel: lpadata.ChannelOnline,
 			Email:   "a@example.com",
 		},
 	}
@@ -168,7 +169,7 @@ func TestClientSendAttorney(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{
-						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: actor.ChannelPaper},
+						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: lpadata.ChannelPaper},
 					},
 				},
 			},
@@ -192,7 +193,7 @@ func TestClientSendAttorney(t *testing.T) {
 				},
 				ReplacementAttorneys: Attorneys{
 					Attorneys: []Attorney{
-						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: actor.ChannelPaper},
+						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: lpadata.ChannelPaper},
 					},
 				},
 			},
@@ -220,7 +221,7 @@ func TestClientSendAttorney(t *testing.T) {
 			donor: &Lpa{
 				LpaUID: "lpa-uid",
 				Attorneys: Attorneys{
-					TrustCorporation: TrustCorporation{Channel: actor.ChannelPaper},
+					TrustCorporation: TrustCorporation{Channel: lpadata.ChannelPaper},
 				},
 			},
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/email","old":"","new":"a@example.com"},{"key":"/trustCorporations/0/channel","old":"paper","new":"online"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/trustCorporations/0/signatories/1/firstNames","old":null,"new":"Dave"},{"key":"/trustCorporations/0/signatories/1/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/1/professionalTitle","old":null,"new":"Assistant to the Director"},{"key":"/trustCorporations/0/signatories/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000007Z"}]}`,
@@ -245,7 +246,7 @@ func TestClientSendAttorney(t *testing.T) {
 					TrustCorporation: TrustCorporation{Name: "a"},
 				},
 				ReplacementAttorneys: Attorneys{
-					TrustCorporation: TrustCorporation{Channel: actor.ChannelPaper},
+					TrustCorporation: TrustCorporation{Channel: lpadata.ChannelPaper},
 				},
 			},
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/1/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/1/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/1/channel","old":"paper","new":"online"},{"key":"/trustCorporations/1/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/1/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/1/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/1/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
@@ -375,9 +376,9 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 
 	client := New("http://base", secretsClient, doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendDonorConfirmIdentity(ctx, &actor.DonorProvidedDetails{
+	err := client.SendDonorConfirmIdentity(ctx, &donordata.Provided{
 		LpaUID: "lpa-uid",
-		Donor:  actor.Donor{UID: uid},
+		Donor:  donordata.Donor{UID: uid},
 		DonorIdentityUserData: identity.UserData{
 			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
 		},

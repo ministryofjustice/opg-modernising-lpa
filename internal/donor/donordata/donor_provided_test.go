@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,8 +22,8 @@ var address = place.Address{
 }
 
 func TestGenerateHash(t *testing.T) {
-	makeDonor := func(version uint8, hash uint64) *DonorProvidedDetails {
-		return &DonorProvidedDetails{
+	makeDonor := func(version uint8, hash uint64) *Provided {
+		return &Provided{
 			HashVersion: version,
 			Hash:        hash,
 			Attorneys: Attorneys{
@@ -35,14 +35,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x1cefa62ee4bb85e5
+	const modified uint64 = 0xfe1ed2aef88cbd75
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*DonorProvidedDetails).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x7dce1f9e651e6c8f,
+		0: 0x72bdc7895854e6c9,
 	}
 
 	for version, initial := range testcases {
@@ -65,7 +65,7 @@ func TestGenerateHash(t *testing.T) {
 }
 
 func TestGenerateHashVersionTooHigh(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		HashVersion: currentHashVersion + 1,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
@@ -79,8 +79,8 @@ func TestGenerateHashVersionTooHigh(t *testing.T) {
 }
 
 func TestGenerateCheckedHash(t *testing.T) {
-	makeDonor := func(version uint8, hash uint64) *DonorProvidedDetails {
-		return &DonorProvidedDetails{
+	makeDonor := func(version uint8, hash uint64) *Provided {
+		return &Provided{
 			CheckedHashVersion: version,
 			CheckedHash:        hash,
 			Attorneys: Attorneys{
@@ -121,7 +121,7 @@ func TestGenerateCheckedHash(t *testing.T) {
 }
 
 func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		CheckedHashVersion: currentCheckedHashVersion + 1,
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
@@ -136,11 +136,11 @@ func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
 
 func TestIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *DonorProvidedDetails
+		lpa      *Provided
 		expected bool
 	}{
 		"confirmed": {
-			lpa: &DonorProvidedDetails{
+			lpa: &Provided{
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -151,7 +151,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: true,
 		},
 		"failed": {
-			lpa: &DonorProvidedDetails{
+			lpa: &Provided{
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -162,7 +162,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"name does not match": {
-			lpa: &DonorProvidedDetails{
+			lpa: &Provided{
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -173,7 +173,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"dob does not match": {
-			lpa: &DonorProvidedDetails{
+			lpa: &Provided{
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -184,7 +184,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"insufficient evidence": {
-			lpa: &DonorProvidedDetails{
+			lpa: &Provided{
 				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -195,7 +195,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"none": {
-			lpa:      &DonorProvidedDetails{},
+			lpa:      &Provided{},
 			expected: false,
 		},
 	}
@@ -208,7 +208,7 @@ func TestIdentityConfirmed(t *testing.T) {
 }
 
 func TestAttorneysSigningDeadline(t *testing.T) {
-	donor := DonorProvidedDetails{
+	donor := Provided{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
@@ -224,7 +224,7 @@ func TestUnder18ActorDetails(t *testing.T) {
 	uid3 := actoruid.New()
 	uid4 := actoruid.New()
 
-	donor := DonorProvidedDetails{
+	donor := Provided{
 		LpaID: "lpa-id",
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "a", LastName: "b", DateOfBirth: under18, UID: uid1},
@@ -239,13 +239,13 @@ func TestUnder18ActorDetails(t *testing.T) {
 	actors := donor.Under18ActorDetails()
 
 	assert.Equal(t, []Under18ActorDetails{
-		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: temporary.ActorTypeAttorney},
-		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: temporary.ActorTypeReplacementAttorney},
+		{FullName: "a b", DateOfBirth: under18, UID: uid1, Type: actor.TypeAttorney},
+		{FullName: "e f", DateOfBirth: under18, UID: uid3, Type: actor.TypeReplacementAttorney},
 	}, actors)
 }
 
 func TestActorAddresses(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Donor: Donor{Address: place.Address{Line1: "1"}},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{Address: place.Address{Line1: "2"}},
@@ -271,7 +271,7 @@ func TestActorAddresses(t *testing.T) {
 }
 
 func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Donor: Donor{FirstNames: "Donor", LastName: "Actor", Address: address},
 		Attorneys: Attorneys{Attorneys: []Attorney{
 			{FirstNames: "Attorney One", LastName: "Actor", Address: address},
@@ -290,7 +290,7 @@ func TestActorAddressesActorWithNoAddressIgnored(t *testing.T) {
 }
 
 func TestAllLayAttorneysFirstNames(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -309,7 +309,7 @@ func TestAllLayAttorneysFirstNames(t *testing.T) {
 }
 
 func TestAllLayAttorneysFullNames(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Attorneys: Attorneys{
 			Attorneys: []Attorney{
 				{FirstNames: "John", LastName: "Smith"},
@@ -328,7 +328,7 @@ func TestAllLayAttorneysFullNames(t *testing.T) {
 }
 
 func TestTrustCorporationOriginal(t *testing.T) {
-	donor := &DonorProvidedDetails{
+	donor := &Provided{
 		Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "Corp"}},
 		ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Trust"}},
 	}
@@ -343,7 +343,7 @@ func TestNamesChanged(t *testing.T) {
 		"OtherNames": {FirstNames: "a", LastName: "b", OtherNames: "d"},
 	}
 
-	donor := &DonorProvidedDetails{Donor: Donor{FirstNames: "a", LastName: "b", OtherNames: "c"}}
+	donor := &Provided{Donor: Donor{FirstNames: "a", LastName: "b", OtherNames: "c"}}
 
 	for name, updatedDonor := range testCases {
 		t.Run(name, func(t *testing.T) {

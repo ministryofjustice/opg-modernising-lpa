@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -28,7 +29,7 @@ func TestGetResendWitnessCode(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &actor.DonorProvidedDetails{})
+			err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actorType)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -46,7 +47,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := ResendWitnessCode(template.Execute, &mockWitnessCodeSender{}, actor.TypeCertificateProvider)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -74,7 +75,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			donor := &actor.DonorProvidedDetails{
+			donor := &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			}
@@ -99,7 +100,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &actor.DonorProvidedDetails{Donor: actor.Donor{FirstNames: "john"}}
+	donor := &donordata.Provided{Donor: donordata.Donor{FirstNames: "john"}}
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
@@ -113,20 +114,20 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 	testcases := map[actor.Type]struct {
-		donor *actor.DonorProvidedDetails
+		donor *donordata.Provided
 		send  string
 	}{
 		actor.TypeIndependentWitness: {
-			donor: &actor.DonorProvidedDetails{
-				Donor:                   actor.Donor{FirstNames: "john"},
-				IndependentWitnessCodes: actor.WitnessCodes{{Created: time.Now()}},
+			donor: &donordata.Provided{
+				Donor:                   donordata.Donor{FirstNames: "john"},
+				IndependentWitnessCodes: donordata.WitnessCodes{{Created: time.Now()}},
 			},
 			send: "SendToIndependentWitness",
 		},
 		actor.TypeCertificateProvider: {
-			donor: &actor.DonorProvidedDetails{
-				Donor:                    actor.Donor{FirstNames: "john"},
-				CertificateProviderCodes: actor.WitnessCodes{{Created: time.Now()}},
+			donor: &donordata.Provided{
+				Donor:                    donordata.Donor{FirstNames: "john"},
+				CertificateProviderCodes: donordata.WitnessCodes{{Created: time.Now()}},
 			},
 			send: "SendToCertificateProvider",
 		},

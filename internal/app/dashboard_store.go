@@ -11,18 +11,18 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/temporary"
 )
 
 type LpaStoreResolvingService interface {
-	ResolveList(ctx context.Context, donors []*actor.DonorProvidedDetails) ([]*lpastore.Lpa, error)
+	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error)
 }
 
 // An lpaLink is used to join an actor to an LPA.
-type lpaLink = temporary.LpaLink
+type lpaLink = actor.LpaLink
 
 type dashboardStore struct {
 	dynamoClient             DynamoClient
@@ -62,7 +62,7 @@ func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, 
 }
 
 func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
-	data, err := appcontext.SessionDataFromContext(ctx)
+	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -104,7 +104,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 	var (
 		referencedKeys []dynamo.Keys
-		donorsDetails  []*actor.DonorProvidedDetails
+		donorsDetails  []*donordata.Provided
 	)
 	for _, item := range lpasOrProvidedDetails {
 		var ks dynamo.Keys
@@ -114,7 +114,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 
 		if isLpaKey(ks) {
 			var donorDetails struct {
-				actor.DonorProvidedDetails
+				donordata.Provided
 				ReferencedSK dynamo.OrganisationKeyType
 			}
 			if err := attributevalue.UnmarshalMap(item, &donorDetails); err != nil {
@@ -124,7 +124,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 			if donorDetails.ReferencedSK != "" {
 				referencedKeys = append(referencedKeys, dynamo.Keys{PK: ks.PK, SK: donorDetails.ReferencedSK})
 			} else if donorDetails.LpaUID != "" {
-				donorsDetails = append(donorsDetails, &donorDetails.DonorProvidedDetails)
+				donorsDetails = append(donorsDetails, &donorDetails.Provided)
 			}
 		}
 	}
@@ -136,7 +136,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		}
 
 		for _, item := range referencedLpas {
-			donorDetails := &actor.DonorProvidedDetails{}
+			donorDetails := &donordata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
 				return nil, nil, nil, err
 			}

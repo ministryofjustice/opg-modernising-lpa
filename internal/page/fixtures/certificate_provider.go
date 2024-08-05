@@ -7,18 +7,21 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -42,7 +45,7 @@ func CertificateProvider(
 		"confirmYourIdentity",
 	}
 
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
 		var (
@@ -82,11 +85,11 @@ func CertificateProvider(
 			return err
 		}
 
-		var donorDetails *actor.DonorProvidedDetails
+		var donorDetails *donordata.Provided
 
 		if donorChannel == "paper" {
 			lpaID := random.UuidString()
-			donorDetails = &actor.DonorProvidedDetails{
+			donorDetails = &donordata.Provided{
 				PK:                             dynamo.LpaKey(lpaID),
 				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                          lpaID,
@@ -101,7 +104,7 @@ func CertificateProvider(
 				return err
 			}
 		} else if isSupported {
-			supporterCtx := page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, Email: testEmail})
+			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
 			if err != nil {
@@ -113,39 +116,39 @@ func CertificateProvider(
 				return err
 			}
 
-			orgSession := &appcontext.SessionData{SessionID: donorSessionID, OrganisationID: org.ID}
-			donorDetails, err = organisationStore.CreateLPA(page.ContextWithSessionData(r.Context(), orgSession))
+			orgSession := &appcontext.Session{SessionID: donorSessionID, OrganisationID: org.ID}
+			donorDetails, err = organisationStore.CreateLPA(appcontext.ContextWithSession(r.Context(), orgSession))
 			if err != nil {
 				return err
 			}
 
-			if err := donorStore.Link(page.ContextWithSessionData(r.Context(), orgSession), actor.ShareCodeData{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecode.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
 				return err
 			}
 		} else {
-			donorDetails, err = donorStore.Create(page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID}))
+			donorDetails, err = donorStore.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID}))
 			if err != nil {
 				return err
 			}
 		}
 
 		var (
-			donorCtx               = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
-			certificateProviderCtx = page.ContextWithSessionData(r.Context(), &appcontext.SessionData{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
+			donorCtx               = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID})
+			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
 		donorDetails.Donor = makeDonor(donorEmail)
 
-		donorDetails.Type = actor.LpaTypePropertyAndAffairs
+		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {
-			donorDetails.Type = actor.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = actor.LifeSustainingTreatmentOptionA
+			donorDetails.Type = lpadata.LpaTypePersonalWelfare
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
 		} else {
-			donorDetails.WhenCanTheLpaBeUsed = actor.CanBeUsedWhenHasCapacity
+			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
 		}
 
 		if useRealUID {
@@ -165,11 +168,11 @@ func CertificateProvider(
 			donorDetails.LpaUID = makeUID()
 		}
 
-		donorDetails.Attorneys = actor.Attorneys{
-			Attorneys: []actor.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
+		donorDetails.Attorneys = donordata.Attorneys{
+			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
 		}
 
-		donorDetails.AttorneyDecisions = actor.AttorneyDecisions{How: actor.JointlyAndSeverally}
+		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
 
 		donorDetails.CertificateProvider = makeCertificateProvider()
 		if email != "" {
@@ -177,7 +180,7 @@ func CertificateProvider(
 		}
 
 		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = actor.Professionally
+			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
 		}
 
 		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
@@ -186,15 +189,15 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "paid") {
-			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, actor.Payment{
+			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
 				PaymentId:        random.String(12),
 			})
-			donorDetails.Tasks.PayForLpa = actor.PaymentTaskCompleted
+			donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentityAndSign = actor.IdentityTaskCompleted
+			donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
 			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 			donorDetails.SignedAt = time.Now()
 		}
@@ -202,7 +205,7 @@ func CertificateProvider(
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.ContactLanguagePreference = localize.En
-			certificateProvider.Tasks.ConfirmYourDetails = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
 
 			if asProfessionalCertificateProvider {
 				certificateProvider.HomeAddress = place.Address{
@@ -223,7 +226,7 @@ func CertificateProvider(
 				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
@@ -246,7 +249,7 @@ func CertificateProvider(
 		}
 
 		if email != "" {
-			shareCodeSender.SendCertificateProviderInvite(donorCtx, page.AppData{
+			shareCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,

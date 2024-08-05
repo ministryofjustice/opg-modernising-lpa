@@ -1,3 +1,4 @@
+// Package search provides a client for AWS OpenSearch.
 package search
 
 import (
@@ -230,7 +231,7 @@ func baseQuery(sk string) map[string]map[string]any {
 }
 
 func getSKFromContext(ctx context.Context) (string, error) {
-	session, err := appcontext.SessionDataFromContext(ctx)
+	session, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return "", err
 	}

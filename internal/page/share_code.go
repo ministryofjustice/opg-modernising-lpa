@@ -6,11 +6,15 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type ShareCodeSender struct {
@@ -40,7 +44,7 @@ type CertificateProviderInvite struct {
 	LpaKey                      dynamo.LpaKeyType
 	LpaOwnerKey                 dynamo.LpaOwnerKeyType
 	LpaUID                      string
-	Type                        actor.LpaType
+	Type                        lpadata.LpaType
 	DonorFirstNames             string
 	DonorFullName               string
 	CertificateProviderUID      actoruid.UID
@@ -48,7 +52,7 @@ type CertificateProviderInvite struct {
 	CertificateProviderEmail    string
 }
 
-func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData AppData, invite CertificateProviderInvite) error {
+func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite CertificateProviderInvite) error {
 	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
@@ -67,7 +71,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData AppData, donor *actor.DonorProvidedDetails) error {
+func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
 	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
@@ -86,7 +90,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, donor *lpastore.Lpa) error {
+func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpastore.Lpa) error {
 	if err := s.sendTrustCorporation(ctx, appData, donor, donor.Attorneys.TrustCorporation); err != nil {
 		return err
 	}
@@ -109,7 +113,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData AppData, do
 	return nil
 }
 
-func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppData, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
@@ -132,7 +136,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData AppD
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData AppData, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
@@ -155,7 +159,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData A
 		})
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppData, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -182,7 +186,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData AppD
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData AppData, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -216,7 +220,7 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.Lpa
 		s.testCode = ""
 	}
 
-	shareCodeData := actor.ShareCodeData{
+	shareCodeData := sharecode.Data{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
 		ActorUID:              actorUID,

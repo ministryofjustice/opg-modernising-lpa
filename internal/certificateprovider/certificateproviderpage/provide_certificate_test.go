@@ -9,11 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -122,14 +123,14 @@ func TestPostProvideCertificate(t *testing.T) {
 			LastName:   "b",
 		},
 		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
-		Type:  actor.LpaTypePropertyAndAffairs,
+		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	certificateProvider := &certificateproviderdata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: now,
 		Tasks: certificateproviderdata.Tasks{
-			ProvideTheCertificate: actor.TaskCompleted,
+			ProvideTheCertificate: task.StateCompleted,
 		},
 		Email: "a@example.com",
 	}
@@ -212,14 +213,14 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 			SignedAt:   signedAt,
 		},
 		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
-		Type:  actor.LpaTypePropertyAndAffairs,
+		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	certificateProvider := &certificateproviderdata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: signedAt,
 		Tasks: certificateproviderdata.Tasks{
-			ProvideTheCertificate: actor.TaskCompleted,
+			ProvideTheCertificate: task.StateCompleted,
 		},
 		Email: "a@example.com",
 	}
@@ -295,7 +296,7 @@ func TestPostProvideCertificateWhenCannotSubmit(t *testing.T) {
 			LastName:   "b",
 		},
 		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
-		Type:  actor.LpaTypePropertyAndAffairs,
+		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -392,7 +393,7 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 			LastName:   "b",
 		},
 		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
-		Type:  actor.LpaTypePropertyAndAffairs,
+		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -432,7 +433,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 				LastName:   "b",
 			},
 			Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
-			Type:  actor.LpaTypePropertyAndAffairs,
+			Type:  lpadata.LpaTypePropertyAndAffairs,
 		}, nil)
 
 	localizer := newMockLocalizer(t)
@@ -486,7 +487,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 		Return(&lpastore.Lpa{
 			SignedAt: now,
 			Donor:    lpastore.Donor{FirstNames: "c", LastName: "d"},
-			Type:     actor.LpaTypePropertyAndAffairs,
+			Type:     lpadata.LpaTypePropertyAndAffairs,
 		}, nil)
 
 	localizer := newMockLocalizer(t)

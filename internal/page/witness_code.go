@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -33,7 +33,7 @@ func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient) *Wit
 	}
 }
 
-func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor *actor.DonorProvidedDetails, localizer Localizer) error {
+func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor *donordata.Provided, localizer Localizer) error {
 	if !donor.CertificateProviderCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}
@@ -43,7 +43,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 		code = testWitnessCode
 	}
 
-	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, actor.WitnessCode{Code: code, Created: s.now()})
+	donor.CertificateProviderCodes = append(donor.CertificateProviderCodes, donordata.WitnessCode{Code: code, Created: s.now()})
 
 	if err := s.donorStore.Put(ctx, donor); err != nil {
 		return err
@@ -56,7 +56,7 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 	})
 }
 
-func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *actor.DonorProvidedDetails, localizer Localizer) error {
+func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor *donordata.Provided, localizer Localizer) error {
 	if !donor.IndependentWitnessCodes.CanRequest(s.now()) {
 		return ErrTooManyWitnessCodeRequests
 	}
@@ -66,7 +66,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 		code = testWitnessCode
 	}
 
-	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, actor.WitnessCode{Code: code, Created: s.now()})
+	donor.IndependentWitnessCodes = append(donor.IndependentWitnessCodes, donordata.WitnessCode{Code: code, Created: s.now()})
 
 	if err := s.donorStore.Put(ctx, donor); err != nil {
 		return err

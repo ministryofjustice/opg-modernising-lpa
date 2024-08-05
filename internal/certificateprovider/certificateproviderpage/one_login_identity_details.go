@@ -4,20 +4,21 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type oneLoginIdentityDetailsData struct {
-	App                 page.AppData
+	App                 appcontext.Data
 	Errors              validation.List
 	CertificateProvider *certificateproviderdata.Provided
 }
 
 func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData page.AppData, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		data := &oneLoginIdentityDetailsData{
 			App:                 appData,
 			CertificateProvider: certificateProvider,
@@ -33,7 +34,7 @@ func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 				lpa.CertificateProvider.FirstNames,
 				lpa.CertificateProvider.LastName,
 			) {
-				certificateProvider.Tasks.ConfirmYourIdentity = actor.TaskCompleted
+				certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 
 				if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err

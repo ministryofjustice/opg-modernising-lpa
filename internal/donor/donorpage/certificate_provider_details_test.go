@@ -8,7 +8,9 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,7 +28,7 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -35,12 +37,12 @@ func TestGetCertificateProviderDetails(t *testing.T) {
 
 func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 	testcases := map[string]struct {
-		donor *actor.DonorProvidedDetails
+		donor *donordata.Provided
 		form  *certificateProviderDetailsForm
 	}{
 		"uk mobile": {
-			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+			donor: &donordata.Provided{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames: "John",
 					Mobile:     "07777",
 				},
@@ -51,8 +53,8 @@ func TestGetCertificateProviderDetailsFromStore(t *testing.T) {
 			},
 		},
 		"non-uk mobile": {
-			donor: &actor.DonorProvidedDetails{
-				CertificateProvider: actor.CertificateProvider{
+			donor: &donordata.Provided{
+				CertificateProvider: donordata.CertificateProvider{
 					FirstNames:     "John",
 					Mobile:         "07777",
 					HasNonUKMobile: true,
@@ -100,7 +102,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -110,7 +112,7 @@ func TestGetCertificateProviderDetailsWhenTemplateErrors(t *testing.T) {
 func TestPostCertificateProviderDetails(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
-		certificateProviderDetails actor.CertificateProvider
+		certificateProviderDetails donordata.CertificateProvider
 	}{
 		"valid": {
 			form: url.Values{
@@ -118,7 +120,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"last-name":   {"Rey"},
 				"mobile":      {"07535111111"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
@@ -132,7 +134,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"has-non-uk-mobile": {"1"},
 				"non-uk-mobile":     {"+337575757"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:            testUID,
 				FirstNames:     "John",
 				LastName:       "Rey",
@@ -147,7 +149,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":              {"07535111111"},
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeCertificateProvider, actor.TypeDonor, "Jane", "Doe").String()},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "Jane",
 				LastName:   "Doe",
@@ -161,7 +163,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 				"mobile":                      {"07535111111"},
 				"ignore-similar-name-warning": {"yes"},
 			},
-			certificateProviderDetails: actor.CertificateProvider{
+			certificateProviderDetails: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "Joyce",
 				LastName:   "Doe",
@@ -178,20 +180,20 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), &actor.DonorProvidedDetails{
+				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
-					Donor: actor.Donor{
+					Donor: donordata.Donor{
 						FirstNames: "Jane",
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks:               actor.DonorTasks{CertificateProvider: actor.TaskInProgress},
+					Tasks:               donordata.Tasks{CertificateProvider: task.StateInProgress},
 				}).
 				Return(nil)
 
-			err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+			err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
-				Donor: actor.Donor{
+				Donor: donordata.Donor{
 					FirstNames: "Jane",
 					LastName:   "Doe",
 				},
@@ -218,29 +220,29 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &actor.DonorProvidedDetails{
+		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Donor: actor.Donor{
+			Donor: donordata.Donor{
 				FirstNames: "Jane",
 				LastName:   "Doe",
 			},
-			CertificateProvider: actor.CertificateProvider{
+			CertificateProvider: donordata.CertificateProvider{
 				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Rey",
 				Mobile:     "07535111111",
 			},
-			Tasks: actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
-	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{
+	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Donor: actor.Donor{
+		Donor: donordata.Donor{
 			FirstNames: "Jane",
 			LastName:   "Doe",
 		},
-		Tasks: actor.DonorTasks{CertificateProvider: actor.TaskCompleted},
+		Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -252,7 +254,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 	testCases := map[string]struct {
 		form          url.Values
-		existingDonor *actor.DonorProvidedDetails
+		existingDonor *donordata.Provided
 		dataMatcher   func(t *testing.T, data *certificateProviderDetailsData) bool
 	}{
 		"validation error": {
@@ -260,7 +262,7 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name": {"Doe"},
 				"mobile":    {"07535111111"},
 			},
-			existingDonor: &actor.DonorProvidedDetails{},
+			existingDonor: &donordata.Provided{},
 			dataMatcher: func(t *testing.T, data *certificateProviderDetailsData) bool {
 				return assert.Equal(t, validation.With("first-names", validation.EnterError{Label: "firstNames"}), data.Errors)
 			},
@@ -271,8 +273,8 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name":   {"Doe"},
 				"mobile":      {"07535111111"},
 			},
-			existingDonor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			existingDonor: &donordata.Provided{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -287,8 +289,8 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"last-name":           {"Doe"},
 				"ignore-name-warning": {"errorDonorMatchesActor|theCertificateProvider|John|Doe"},
 			},
-			existingDonor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			existingDonor: &donordata.Provided{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -304,8 +306,8 @@ func TestPostCertificateProviderDetailsWhenInputRequired(t *testing.T) {
 				"mobile":              {"07535111111"},
 				"ignore-name-warning": {"errorAttorneyMatchesActor|theCertificateProvider|John|Doe"},
 			},
-			existingDonor: &actor.DonorProvidedDetails{
-				Donor: actor.Donor{
+			existingDonor: &donordata.Provided{
+				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
 				},
@@ -354,7 +356,7 @@ func TestPostCertificateProviderDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &actor.DonorProvidedDetails{})
+	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -435,23 +437,23 @@ func TestCertificateProviderDetailsFormValidate(t *testing.T) {
 }
 
 func TestCertificateProviderMatches(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "a", LastName: "b"},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "c", LastName: "d"},
 			{FirstNames: "e", LastName: "f"},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "g", LastName: "h"},
 			{FirstNames: "i", LastName: "j"},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "k", LastName: "l"},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "k", LastName: "l"},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "m", LastName: "n"},
 			{FirstNames: "o", LastName: "p"},
 		},
-		AuthorisedSignatory: actor.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
-		IndependentWitness:  actor.IndependentWitness{FirstNames: "i", LastName: "w"},
+		AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "a", LastName: "s"},
+		IndependentWitness:  donordata.IndependentWitness{FirstNames: "i", LastName: "w"},
 	}
 
 	assert.Equal(t, actor.TypeNone, certificateProviderMatches(donor, "x", "y"))
@@ -468,16 +470,16 @@ func TestCertificateProviderMatches(t *testing.T) {
 }
 
 func TestCertificateProviderMatchesEmptyNamesIgnored(t *testing.T) {
-	donor := &actor.DonorProvidedDetails{
-		Donor: actor.Donor{FirstNames: "", LastName: ""},
-		Attorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+	donor := &donordata.Provided{
+		Donor: donordata.Donor{FirstNames: "", LastName: ""},
+		Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		ReplacementAttorneys: actor.Attorneys{Attorneys: []actor.Attorney{
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 			{FirstNames: "", LastName: ""},
 		}},
-		CertificateProvider: actor.CertificateProvider{FirstNames: "", LastName: ""},
-		PeopleToNotify: actor.PeopleToNotify{
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "", LastName: ""},
+		PeopleToNotify: donordata.PeopleToNotify{
 			{FirstNames: "", LastName: ""},
 		},
 	}

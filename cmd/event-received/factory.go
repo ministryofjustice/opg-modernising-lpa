@@ -9,8 +9,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -20,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -28,7 +30,7 @@ type LambdaClient interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, donor *actor.DonorProvidedDetails) error
+	SendLpa(ctx context.Context, donor *donordata.Provided) error
 	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
 }
 
@@ -37,9 +39,9 @@ type SecretsClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, page.AppData, page.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, page.AppData, *actor.DonorProvidedDetails) error
-	SendAttorneys(context.Context, page.AppData, *lpastore.Lpa) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
+	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
+	SendAttorneys(context.Context, appcontext.Data, *lpastore.Lpa) error
 }
 
 type UidStore interface {
@@ -68,7 +70,7 @@ type Factory struct {
 	eventClient           EventClient
 
 	// previously constructed values
-	appData         *page.AppData
+	appData         *appcontext.Data
 	lambdaClient    LambdaClient
 	secretsClient   SecretsClient
 	shareCodeSender ShareCodeSender
@@ -89,15 +91,15 @@ func (f *Factory) UuidString() func() string {
 	return f.uuidString
 }
 
-func (f *Factory) AppData() (page.AppData, error) {
+func (f *Factory) AppData() (appcontext.Data, error) {
 	if f.appData == nil {
 		bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 		if err != nil {
-			return page.AppData{}, err
+			return appcontext.Data{}, err
 		}
 
 		//TODO do this in handleFeeApproved when/if we save lang preference in LPA
-		f.appData = &page.AppData{Localizer: bundle.For(localize.En)}
+		f.appData = &appcontext.Data{Localizer: bundle.For(localize.En)}
 	}
 
 	return *f.appData, nil
@@ -141,7 +143,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = page.NewShareCodeSender(app.NewShareCodeStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
+		f.shareCodeSender = page.NewShareCodeSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
 	}
 
 	return f.shareCodeSender, nil

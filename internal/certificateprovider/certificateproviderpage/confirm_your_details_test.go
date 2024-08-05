@@ -6,42 +6,43 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestGetConfirmYourDetails(t *testing.T) {
 	testcases := map[string]struct {
-		DonorChannel                    actor.Channel
+		DonorChannel                    lpadata.Channel
 		PhoneNumberLabel                string
-		CertificateProviderRelationship actor.CertificateProviderRelationship
+		CertificateProviderRelationship lpadata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
 	}{
 		"online donor": {
-			DonorChannel:            actor.ChannelOnline,
+			DonorChannel:            lpadata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"paper donor": {
-			DonorChannel:            actor.ChannelPaper,
+			DonorChannel:            lpadata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 		},
 		"lay CP": {
-			CertificateProviderRelationship: actor.Personally,
+			CertificateProviderRelationship: lpadata.Personally,
 			AddressLabel:                    "address",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 		"professional CP": {
-			CertificateProviderRelationship: actor.Professionally,
+			CertificateProviderRelationship: lpadata.Professionally,
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
 			PhoneNumberLabel:                "mobileNumber",
@@ -142,7 +143,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 				Put(r.Context(), &certificateproviderdata.Provided{
 					LpaID: "lpa-id",
 					Tasks: certificateproviderdata.Tasks{
-						ConfirmYourDetails: actor.TaskCompleted,
+						ConfirmYourDetails: task.StateCompleted,
 					},
 				}).
 				Return(nil)

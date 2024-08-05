@@ -126,31 +126,31 @@ func TestClientIndexWhenIndexErrors(t *testing.T) {
 
 func TestClientQuery(t *testing.T) {
 	testcases := map[string]struct {
-		session *appcontext.SessionData
+		session *appcontext.Session
 		sk      dynamo.SK
 		from    int
 		page    int
 	}{
 		"donor": {
-			session: &appcontext.SessionData{SessionID: "abc"},
+			session: &appcontext.Session{SessionID: "abc"},
 			sk:      dynamo.DonorKey("abc"),
 			from:    0,
 			page:    1,
 		},
 		"organisation": {
-			session: &appcontext.SessionData{SessionID: "abc", OrganisationID: "xyz"},
+			session: &appcontext.Session{SessionID: "abc", OrganisationID: "xyz"},
 			sk:      dynamo.OrganisationKey("xyz"),
 			from:    0,
 			page:    1,
 		},
 		"donor paged": {
-			session: &appcontext.SessionData{SessionID: "abc"},
+			session: &appcontext.Session{SessionID: "abc"},
 			sk:      dynamo.DonorKey("abc"),
 			from:    40,
 			page:    5,
 		},
 		"organisation paged": {
-			session: &appcontext.SessionData{SessionID: "abc", OrganisationID: "xyz"},
+			session: &appcontext.Session{SessionID: "abc", OrganisationID: "xyz"},
 			sk:      dynamo.OrganisationKey("xyz"),
 			from:    40,
 			page:    5,
@@ -159,7 +159,7 @@ func TestClientQuery(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(ctx, tc.session)
+			ctx := appcontext.ContextWithSession(ctx, tc.session)
 
 			resp := &opensearchapi.SearchResp{}
 			resp.Hits.Total.Value = 10
@@ -196,7 +196,7 @@ func TestClientQuery(t *testing.T) {
 }
 
 func TestClientQueryWhenResponseInvalid(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: "abc"})
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: "abc"})
 
 	resp := &opensearchapi.SearchResp{}
 	resp.Hits.Total.Value = 10
@@ -215,7 +215,7 @@ func TestClientQueryWhenResponseInvalid(t *testing.T) {
 }
 
 func TestClientQueryWhenSearchErrors(t *testing.T) {
-	ctx := appcontext.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: "1"})
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: "1"})
 
 	svc := newMockOpensearchapiClient(t)
 	svc.EXPECT().
@@ -237,33 +237,33 @@ func TestClientCountWithQuery(t *testing.T) {
 	testcases := map[string]struct {
 		query   CountWithQueryReq
 		body    []byte
-		session *appcontext.SessionData
+		session *appcontext.Session
 	}{
 		"no query - donor": {
 			query:   CountWithQueryReq{},
 			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"DONOR#1"}},{"prefix":{"PK":"LPA#"}}]}},"size":0,"track_total_hits":true}`),
-			session: &appcontext.SessionData{SessionID: "1"},
+			session: &appcontext.Session{SessionID: "1"},
 		},
 		"no query - organisation": {
 			query:   CountWithQueryReq{},
 			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"ORGANISATION#1"}},{"prefix":{"PK":"LPA#"}}]}},"size":0,"track_total_hits":true}`),
-			session: &appcontext.SessionData{OrganisationID: "1"},
+			session: &appcontext.Session{OrganisationID: "1"},
 		},
 		"MustNotExist query - donor": {
 			query:   CountWithQueryReq{MustNotExist: "a-field"},
 			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"DONOR#1"}},{"prefix":{"PK":"LPA#"}}],"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
-			session: &appcontext.SessionData{SessionID: "1"},
+			session: &appcontext.Session{SessionID: "1"},
 		},
 		"MustNotExist query - organisation": {
 			query:   CountWithQueryReq{MustNotExist: "a-field"},
 			body:    []byte(`{"query":{"bool":{"must":[{"match":{"SK":"ORGANISATION#1"}},{"prefix":{"PK":"LPA#"}}],"must_not":{"exists":{"field":"a-field"}}}},"size":0,"track_total_hits":true}`),
-			session: &appcontext.SessionData{OrganisationID: "1"},
+			session: &appcontext.Session{OrganisationID: "1"},
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			ctx := appcontext.ContextWithSessionData(ctx, tc.session)
+			ctx := appcontext.ContextWithSession(ctx, tc.session)
 			resp := &opensearchapi.SearchResp{}
 			resp.Hits.Total.Value = 1
 
@@ -305,7 +305,7 @@ func TestClientCountWithQueryWhenSearchError(t *testing.T) {
 		svc: svc,
 	}
 
-	ctx := appcontext.ContextWithSessionData(ctx, &appcontext.SessionData{SessionID: "1"})
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: "1"})
 	_, err := client.CountWithQuery(ctx, CountWithQueryReq{})
 
 	assert.Error(t, err)

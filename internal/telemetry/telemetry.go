@@ -1,3 +1,5 @@
+// Package telemetry provides functionality for tracing with AWS X-Ray and
+// logging information related to the current web request.
 package telemetry
 
 import (
@@ -95,7 +97,7 @@ func (h *SlogHandler) Handle(ctx context.Context, record slog.Record) error {
 		record.AddAttrs(slog.String("trace_id", traceID.String()))
 	}
 
-	session, err := appcontext.SessionDataFromContext(ctx)
+	session, err := appcontext.SessionFromContext(ctx)
 	if err == nil {
 		record.AddAttrs(slog.String("session_id", session.SessionID))
 
