@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -29,7 +30,7 @@ func TestGetUploadEvidence(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{{Scanned: false}}, nil)
+		Return(document.Documents{{Scanned: false}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -38,7 +39,7 @@ func TestGetUploadEvidence(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			FeeType:              pay.FullFee,
 			MimeTypes:            acceptedMimeTypes(),
-			Documents:            page.Documents{{Scanned: false}},
+			Documents:            document.Documents{{Scanned: false}},
 		}).
 		Return(nil)
 
@@ -68,7 +69,7 @@ func TestGetUploadEvidenceWhenTemplateErrors(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{{Scanned: false}}, nil)
+		Return(document.Documents{{Scanned: false}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -104,10 +105,10 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 			documentStore := newMockDocumentStore(t)
 			documentStore.EXPECT().
 				GetAll(r.Context()).
-				Return(page.Documents{}, nil)
+				Return(document.Documents{}, nil)
 			documentStore.EXPECT().
 				Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, filename, mock.Anything).
-				Return(page.Document{
+				Return(document.Document{
 					PK:       dynamo.LpaKey("lpa-id"),
 					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 					Filename: filename,
@@ -118,7 +119,7 @@ func TestPostUploadEvidenceWithUploadActionAcceptedFileTypes(t *testing.T) {
 			template.EXPECT().
 				Execute(w, &uploadEvidenceData{
 					App: testAppData,
-					Documents: page.Documents{{
+					Documents: document.Documents{{
 						PK:       dynamo.LpaKey("lpa-id"),
 						SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 						Filename: filename,
@@ -159,10 +160,10 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 	documentStore.EXPECT().
 		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.pdf", mock.Anything).
-		Return(page.Document{
+		Return(document.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "dummy.pdf",
@@ -171,7 +172,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 		Once()
 	documentStore.EXPECT().
 		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "dummy.png", mock.Anything).
-		Return(page.Document{
+		Return(document.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "dummy.png",
@@ -183,7 +184,7 @@ func TestPostUploadEvidenceWithUploadActionMultipleFiles(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &uploadEvidenceData{
 			App: testAppData,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{
 					PK:       dynamo.LpaKey("lpa-id"),
 					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -232,10 +233,10 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 	documentStore.EXPECT().
 		Create(r.Context(), &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee}, "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic", mock.Anything).
-		Return(page.Document{
+		Return(document.Document{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "&lt;img src=1 onerror=alert(document.domain)&gt;’ brute.heic",
@@ -246,7 +247,7 @@ func TestPostUploadEvidenceWithUploadActionFilenameSpecialCharactersAreEscaped(t
 	template.EXPECT().
 		Execute(w, &uploadEvidenceData{
 			App: testAppData,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{
 					PK:       dynamo.LpaKey("lpa-id"),
 					SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
@@ -274,7 +275,7 @@ func TestPostUploadEvidenceWithPayAction(t *testing.T) {
 
 	donor := &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", FeeType: pay.HalfFee, EvidenceDelivery: pay.Upload}
 
-	documents := page.Documents{{
+	documents := document.Documents{{
 		PK:       dynamo.LpaKey("lpa-id"),
 		SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 		Filename: "safe.file",
@@ -317,7 +318,7 @@ func TestPostUploadEvidenceWithPayActionWhenPayerError(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 	documentStore.EXPECT().
 		Submit(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
@@ -344,7 +345,7 @@ func TestPostUploadEvidenceWithPayActionWhenDocumentStoreSubmitErrors(t *testing
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{{
+		Return(document.Documents{{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "safe.file",
@@ -371,7 +372,7 @@ func TestPostUploadEvidenceWithPayActionWhenUnscannedDocument(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{{
+		Return(document.Documents{{
 			PK:       dynamo.LpaKey("lpa-id"),
 			SK:       dynamo.DocumentKey("lpa-uid/evidence/a-uid"),
 			Filename: "safe.file",
@@ -406,7 +407,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -414,7 +415,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 		}, nil).
 		Once()
 	documentStore.EXPECT().
-		DeleteInfectedDocuments(r.Context(), page.Documents{
+		DeleteInfectedDocuments(r.Context(), document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -423,7 +424,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 		Return(nil)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "b", VirusDetected: false},
 		}, nil).
 		Once()
@@ -432,7 +433,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFiles(t *testing.T) 
 	template.EXPECT().
 		Execute(w, &uploadEvidenceData{
 			App:                  testAppData,
-			Documents:            page.Documents{{Filename: "b", VirusDetected: false}},
+			Documents:            document.Documents{{Filename: "b", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
@@ -454,7 +455,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithoutInfectedFiles(t *testing.
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: false},
 		}, nil)
 
@@ -462,7 +463,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithoutInfectedFiles(t *testing.
 	template.EXPECT().
 		Execute(w, &uploadEvidenceData{
 			App:                  testAppData,
-			Documents:            page.Documents{{Filename: "a", VirusDetected: false}},
+			Documents:            document.Documents{{Filename: "a", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
@@ -483,7 +484,7 @@ func TestPostUploadEvidenceWithPayActionWithInfectedFilesWhenDocumentStoreGetAll
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -504,14 +505,14 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
 			{Filename: "d", VirusDetected: true},
 		}, nil)
 	documentStore.EXPECT().
-		DeleteInfectedDocuments(r.Context(), page.Documents{
+		DeleteInfectedDocuments(r.Context(), document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -533,7 +534,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -541,7 +542,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 		}, nil).
 		Once()
 	documentStore.EXPECT().
-		DeleteInfectedDocuments(r.Context(), page.Documents{
+		DeleteInfectedDocuments(r.Context(), document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -550,7 +551,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenDocumentSto
 		Return(nil)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "b", VirusDetected: false},
 		}, expectedError).
 		Once()
@@ -569,7 +570,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -577,7 +578,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 		}, nil).
 		Once()
 	documentStore.EXPECT().
-		DeleteInfectedDocuments(r.Context(), page.Documents{
+		DeleteInfectedDocuments(r.Context(), document.Documents{
 			{Filename: "a", VirusDetected: true},
 			{Filename: "b", VirusDetected: false},
 			{Filename: "c", VirusDetected: true},
@@ -586,7 +587,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 		Return(nil)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Filename: "b", VirusDetected: false},
 		}, nil).
 		Once()
@@ -595,7 +596,7 @@ func TestPostUploadEvidenceWithScanResultsActionWithInfectedFilesWhenTemplateErr
 	template.EXPECT().
 		Execute(w, &uploadEvidenceData{
 			App:                  testAppData,
-			Documents:            page.Documents{{Filename: "b", VirusDetected: false}},
+			Documents:            document.Documents{{Filename: "b", VirusDetected: false}},
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
@@ -624,7 +625,7 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -634,7 +635,7 @@ func TestPostUploadEvidenceWhenBadCsrfField(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
 			FeeType:              pay.FullFee,
-			Documents:            page.Documents{},
+			Documents:            document.Documents{},
 		}).
 		Return(nil)
 
@@ -664,7 +665,7 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -674,7 +675,7 @@ func TestPostUploadEvidenceWhenBadActionField(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
 			FeeType:              pay.FullFee,
-			Documents:            page.Documents{},
+			Documents:            document.Documents{},
 		}).
 		Return(nil)
 
@@ -712,7 +713,7 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{}, nil)
+		Return(document.Documents{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -722,7 +723,7 @@ func TestPostUploadEvidenceNumberOfFilesLimitPassed(t *testing.T) {
 			MimeTypes:            acceptedMimeTypes(),
 			Errors:               validation.With("upload", validation.CustomError{Label: "errorTooManyFiles"}),
 			FeeType:              pay.FullFee,
-			Documents:            page.Documents{},
+			Documents:            document.Documents{},
 		}).
 		Return(nil)
 
@@ -797,7 +798,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 			documentStore := newMockDocumentStore(t)
 			documentStore.EXPECT().
 				GetAll(r.Context()).
-				Return(page.Documents{}, nil)
+				Return(document.Documents{}, nil)
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -807,7 +808,7 @@ func TestPostUploadEvidenceWhenBadUpload(t *testing.T) {
 					MimeTypes:            acceptedMimeTypes(),
 					Errors:               validation.With("upload", tc.expectedError),
 					FeeType:              pay.FullFee,
-					Documents:            page.Documents{},
+					Documents:            document.Documents{},
 				}).
 				Return(nil)
 
@@ -842,12 +843,12 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -857,7 +858,7 @@ func TestGetUploadEvidenceDeleteEvidence(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.FullFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 			},
 			Deleted: "dummy.pdf",
@@ -891,7 +892,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 		}, nil)
 
@@ -902,7 +903,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenUnexpectedFieldName(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.FullFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			},
 			Errors: validation.With("delete", validation.CustomError{Label: "errorGenericUploadProblem"}),
@@ -936,12 +937,12 @@ func TestGetUploadEvidenceDeleteEvidenceWhenDocumentStoreDeleteError(t *testing.
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
 		Return(expectedError)
 
 	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{})
@@ -970,12 +971,12 @@ func TestGetUploadEvidenceDeleteEvidenceWhenTemplateError(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf"}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -985,7 +986,7 @@ func TestGetUploadEvidenceDeleteEvidenceWhenTemplateError(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.FullFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png"},
 			},
 			Deleted: "dummy.pdf",
@@ -1015,12 +1016,12 @@ func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -1030,7 +1031,7 @@ func TestPostUploadEvidenceWithCloseConnectionAction(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
 			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
@@ -1064,12 +1065,12 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenDocumentStoreDeleteError
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
 		Return(expectedError)
 
 	err := UploadEvidence(nil, nil, nil, documentStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", FeeType: pay.HalfFee})
@@ -1098,12 +1099,12 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -1113,7 +1114,7 @@ func TestPostUploadEvidenceWithCloseConnectionActionWhenTemplateError(t *testing
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
 			Errors: validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"}),
@@ -1146,12 +1147,12 @@ func TestPostUploadEvidenceWithCancelUploadAction(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false},
 		}, nil)
 	documentStore.EXPECT().
-		Delete(r.Context(), page.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
+		Delete(r.Context(), document.Document{Key: "lpa-uid/evidence/another-uid", Filename: "dummy.png", Scanned: false}).
 		Return(nil)
 
 	template := newMockTemplate(t)
@@ -1161,7 +1162,7 @@ func TestPostUploadEvidenceWithCancelUploadAction(t *testing.T) {
 			NumberOfAllowedFiles: 5,
 			MimeTypes:            acceptedMimeTypes(),
 			FeeType:              pay.HalfFee,
-			Documents: page.Documents{
+			Documents: document.Documents{
 				{Key: "lpa-uid/evidence/a-uid", Filename: "dummy.pdf", Scanned: true},
 			},
 		}).

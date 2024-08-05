@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -92,7 +93,7 @@ func App(
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
 ) http.Handler {
-	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
+	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
 	donorStore := donordata.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
 	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient, time.Now)

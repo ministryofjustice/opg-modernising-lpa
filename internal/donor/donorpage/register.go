@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -120,12 +121,12 @@ type Localizer interface {
 }
 
 type DocumentStore interface {
-	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document) error
-	Delete(context.Context, page.Document) error
-	DeleteInfectedDocuments(context.Context, page.Documents) error
-	Create(context.Context, *donordata.Provided, string, []byte) (page.Document, error)
-	Submit(context.Context, *donordata.Provided, page.Documents) error
+	GetAll(context.Context) (document.Documents, error)
+	Put(context.Context, document.Document) error
+	Delete(context.Context, document.Document) error
+	DeleteInfectedDocuments(context.Context, document.Documents) error
+	Create(context.Context, *donordata.Provided, string, []byte) (document.Document, error)
+	Submit(context.Context, *donordata.Provided, document.Documents) error
 }
 
 type EventClient interface {

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,19 +19,19 @@ func TestUploadEvidenceSSE(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).Once()
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).Once()
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: true},
 			{Scanned: true},
 		}, nil).Once()
@@ -55,7 +55,7 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, expectedError)
@@ -77,7 +77,7 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 	documentStore := newMockDocumentStore(t)
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, nil).
@@ -85,7 +85,7 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 
 	documentStore.EXPECT().
 		GetAll(r.Context()).
-		Return(page.Documents{
+		Return(document.Documents{
 			{Scanned: false},
 			{Scanned: true},
 		}, expectedError).
