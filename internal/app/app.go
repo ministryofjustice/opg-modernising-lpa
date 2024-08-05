@@ -97,8 +97,8 @@ func App(
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
 	donorStore := donordata.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
-	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient, time.Now)
-	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
+	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient)
+	attorneyStore := attorneydata.NewStore(lpaDynamoClient)
 	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}

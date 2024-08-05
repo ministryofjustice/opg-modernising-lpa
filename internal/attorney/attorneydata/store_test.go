@@ -77,7 +77,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				WriteTransaction(ctx, expectedTransaction).
 				Return(nil)
 
-			attorneyStore := NewStore(dynamoClient, func() time.Time { return now })
+			attorneyStore := Store{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
 			attorney, err := attorneyStore.Create(ctx, shareCode, "a@example.com")
 			assert.Nil(t, err)
