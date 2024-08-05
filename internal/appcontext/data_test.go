@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -91,7 +92,7 @@ func TestIsTrustCorporation(t *testing.T) {
 }
 
 func TestAppDataIsAdmin(t *testing.T) {
-	assert.True(t, Data{SupporterData: &SupporterData{Permission: actor.PermissionAdmin}}.IsAdmin())
+	assert.True(t, Data{SupporterData: &SupporterData{Permission: supporterdata.PermissionAdmin}}.IsAdmin())
 	assert.False(t, Data{}.IsAdmin())
 }
 
