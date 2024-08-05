@@ -458,4 +458,16 @@ describe('Pay for LPA', {pageLoadTimeout: 8000}, () => {
     cy.url().should('contain', '/payment-confirmation');
     cy.checkA11yApp();
   });
+
+  it('errors when unselected', () => {
+    cy.visit('/fixtures?redirect=/which-fee-type-are-you-applying-for&progress=checkAndSendToYourCertificateProvider');
+
+    cy.contains('button', 'Save and continue').click();
+
+    cy.get('.govuk-error-summary').within(() => {
+        cy.contains('Select which fee type you are applying for');
+    });
+
+    cy.contains('.govuk-fieldset .govuk-error-message', 'Select which fee type you are applying for');
+  });
 });
