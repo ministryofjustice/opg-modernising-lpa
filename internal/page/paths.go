@@ -6,9 +6,10 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 )
 
 type Path string
@@ -124,126 +125,6 @@ func (p LpaPath) canVisit(donor *donordata.Provided) bool {
 	}
 }
 
-type AttorneyPath string
-
-func (p AttorneyPath) String() string {
-	return "/attorney/{id}" + string(p)
-}
-
-func (p AttorneyPath) Format(id string) string {
-	return "/attorney/" + id + string(p)
-}
-
-func (p AttorneyPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
-	return nil
-}
-
-func (p AttorneyPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
-	return nil
-}
-
-func (p AttorneyPath) canVisit(attorney *attorneydata.Provided) bool {
-	switch p {
-	case Paths.Attorney.RightsAndResponsibilities,
-		Paths.Attorney.WhatHappensWhenYouSign,
-		Paths.Attorney.Sign,
-		Paths.Attorney.WhatHappensNext:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed()
-
-	case Paths.Attorney.WouldLikeSecondSignatory:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed() && attorney.IsTrustCorporation
-
-	default:
-		return true
-	}
-}
-
-type CertificateProviderPath string
-
-func (p CertificateProviderPath) String() string {
-	return "/certificate-provider/{id}" + string(p)
-}
-
-func (p CertificateProviderPath) Format(id string) string {
-	return "/certificate-provider/" + id + string(p)
-}
-
-func (p CertificateProviderPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
-	return nil
-}
-
-func (p CertificateProviderPath) canVisit(certificateProvider *certificateproviderdata.Provided) bool {
-	switch p {
-	case Paths.CertificateProvider.ProveYourIdentity,
-		Paths.CertificateProvider.IdentityWithOneLogin,
-		Paths.CertificateProvider.IdentityWithOneLoginCallback:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
-
-	case Paths.CertificateProvider.WhatHappensNext,
-		Paths.CertificateProvider.ProvideCertificate,
-		Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider,
-		Paths.CertificateProvider.CertificateProvided:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed() && certificateProvider.Tasks.ConfirmYourIdentity.Completed()
-
-	default:
-		return true
-	}
-}
-
-type SupporterPath string
-
-func (p SupporterPath) String() string {
-	return "/supporter" + string(p)
-}
-
-func (p SupporterPath) Format() string {
-	return "/supporter" + string(p)
-}
-
-func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
-	return nil
-}
-
-func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
-	return nil
-}
-
-func (p SupporterPath) IsManageOrganisation() bool {
-	return p == Paths.Supporter.OrganisationDetails ||
-		p == Paths.Supporter.EditOrganisationName ||
-		p == Paths.Supporter.ManageTeamMembers ||
-		p == Paths.Supporter.EditMember
-}
-
-type SupporterLpaPath string
-
-func (p SupporterLpaPath) String() string {
-	return "/supporter" + string(p) + "/{id}"
-}
-
-func (p SupporterLpaPath) Format(lpaID string) string {
-	return "/supporter" + string(p) + "/" + lpaID
-}
-
-func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
-	return nil
-}
-
-func (p SupporterLpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
-	return nil
-}
-
-func (p SupporterLpaPath) IsManageOrganisation() bool {
-	return false
-}
-
 type AttorneyPaths struct {
 	ConfirmDontWantToBeAttorneyLoggedOut Path
 	EnterReferenceNumber                 Path
@@ -253,19 +134,19 @@ type AttorneyPaths struct {
 	Start                                Path
 	YouHaveDecidedNotToBeAttorney        Path
 
-	CodeOfConduct               AttorneyPath
-	ConfirmDontWantToBeAttorney AttorneyPath
-	ConfirmYourDetails          AttorneyPath
-	MobileNumber                AttorneyPath
-	Progress                    AttorneyPath
-	ReadTheLpa                  AttorneyPath
-	RightsAndResponsibilities   AttorneyPath
-	Sign                        AttorneyPath
-	TaskList                    AttorneyPath
-	WhatHappensNext             AttorneyPath
-	WhatHappensWhenYouSign      AttorneyPath
-	WouldLikeSecondSignatory    AttorneyPath
-	YourPreferredLanguage       AttorneyPath
+	CodeOfConduct               attorney.Path
+	ConfirmDontWantToBeAttorney attorney.Path
+	ConfirmYourDetails          attorney.Path
+	MobileNumber                attorney.Path
+	Progress                    attorney.Path
+	ReadTheLpa                  attorney.Path
+	RightsAndResponsibilities   attorney.Path
+	Sign                        attorney.Path
+	TaskList                    attorney.Path
+	WhatHappensNext             attorney.Path
+	WhatHappensWhenYouSign      attorney.Path
+	WouldLikeSecondSignatory    attorney.Path
+	YourPreferredLanguage       attorney.Path
 }
 
 type CertificateProviderPaths struct {
@@ -276,23 +157,23 @@ type CertificateProviderPaths struct {
 	ConfirmDontWantToBeCertificateProviderLoggedOut Path
 	YouHaveDecidedNotToBeCertificateProvider        Path
 
-	CertificateProvided                    CertificateProviderPath
-	ConfirmDontWantToBeCertificateProvider CertificateProviderPath
-	ConfirmYourDetails                     CertificateProviderPath
-	EnterDateOfBirth                       CertificateProviderPath
-	IdentityWithOneLogin                   CertificateProviderPath
-	IdentityWithOneLoginCallback           CertificateProviderPath
-	OneLoginIdentityDetails                CertificateProviderPath
-	ProveYourIdentity                      CertificateProviderPath
-	ProvideCertificate                     CertificateProviderPath
-	ReadTheLpa                             CertificateProviderPath
-	TaskList                               CertificateProviderPath
-	UnableToConfirmIdentity                CertificateProviderPath
-	WhatHappensNext                        CertificateProviderPath
-	WhatIsYourHomeAddress                  CertificateProviderPath
-	WhoIsEligible                          CertificateProviderPath
-	YourPreferredLanguage                  CertificateProviderPath
-	YourRole                               CertificateProviderPath
+	CertificateProvided                    certificateprovider.Path
+	ConfirmDontWantToBeCertificateProvider certificateprovider.Path
+	ConfirmYourDetails                     certificateprovider.Path
+	EnterDateOfBirth                       certificateprovider.Path
+	IdentityWithOneLogin                   certificateprovider.Path
+	IdentityWithOneLoginCallback           certificateprovider.Path
+	OneLoginIdentityDetails                certificateprovider.Path
+	ProveYourIdentity                      certificateprovider.Path
+	ProvideCertificate                     certificateprovider.Path
+	ReadTheLpa                             certificateprovider.Path
+	TaskList                               certificateprovider.Path
+	UnableToConfirmIdentity                certificateprovider.Path
+	WhatHappensNext                        certificateprovider.Path
+	WhatIsYourHomeAddress                  certificateprovider.Path
+	WhoIsEligible                          certificateprovider.Path
+	YourPreferredLanguage                  certificateprovider.Path
+	YourRole                               certificateprovider.Path
 }
 
 type HealthCheckPaths struct {
@@ -311,20 +192,20 @@ type SupporterPaths struct {
 	SigningInAdvice       Path
 	Start                 Path
 
-	ConfirmDonorCanInteractOnline SupporterPath
-	ContactOPGForPaperForms       SupporterPath
-	Dashboard                     SupporterPath
-	DeleteOrganisation            SupporterPath
-	EditMember                    SupporterPath
-	EditOrganisationName          SupporterPath
-	InviteMember                  SupporterPath
-	InviteMemberConfirmation      SupporterPath
-	ManageTeamMembers             SupporterPath
-	OrganisationCreated           SupporterPath
-	OrganisationDetails           SupporterPath
+	ConfirmDonorCanInteractOnline supporter.Path
+	ContactOPGForPaperForms       supporter.Path
+	Dashboard                     supporter.Path
+	DeleteOrganisation            supporter.Path
+	EditMember                    supporter.Path
+	EditOrganisationName          supporter.Path
+	InviteMember                  supporter.Path
+	InviteMemberConfirmation      supporter.Path
+	ManageTeamMembers             supporter.Path
+	OrganisationCreated           supporter.Path
+	OrganisationDetails           supporter.Path
 
-	ViewLPA     SupporterLpaPath
-	DonorAccess SupporterLpaPath
+	ViewLPA     supporter.LpaPath
+	DonorAccess supporter.LpaPath
 }
 
 type AppPaths struct {
@@ -468,52 +349,52 @@ type AppPaths struct {
 
 var Paths = AppPaths{
 	CertificateProvider: CertificateProviderPaths{
-		CertificateProvided:                             "/certificate-provided",
-		ConfirmDontWantToBeCertificateProvider:          "/confirm-you-do-not-want-to-be-a-certificate-provider",
+		CertificateProvided:                             certificateprovider.PathCertificateProvided,
+		ConfirmDontWantToBeCertificateProvider:          certificateprovider.PathConfirmDontWantToBeCertificateProvider,
 		ConfirmDontWantToBeCertificateProviderLoggedOut: "/confirm-you-do-not-want-to-be-a-certificate-provider",
-		ConfirmYourDetails:                              "/confirm-your-details",
-		EnterDateOfBirth:                                "/enter-date-of-birth",
+		ConfirmYourDetails:                              certificateprovider.PathConfirmYourDetails,
+		EnterDateOfBirth:                                certificateprovider.PathEnterDateOfBirth,
 		EnterReferenceNumber:                            "/certificate-provider-enter-reference-number",
 		EnterReferenceNumberOptOut:                      "/certificate-provider-enter-reference-number-opt-out",
-		IdentityWithOneLogin:                            "/identity-with-one-login",
-		IdentityWithOneLoginCallback:                    "/identity-with-one-login-callback",
+		IdentityWithOneLogin:                            certificateprovider.PathIdentityWithOneLogin,
+		IdentityWithOneLoginCallback:                    certificateprovider.PathIdentityWithOneLoginCallback,
 		Login:                                           "/certificate-provider-login",
 		LoginCallback:                                   "/certificate-provider-login-callback",
-		ProveYourIdentity:                               "/prove-your-identity",
-		OneLoginIdentityDetails:                         "/one-login-identity-details",
-		ProvideCertificate:                              "/provide-certificate",
-		ReadTheLpa:                                      "/read-the-lpa",
-		TaskList:                                        "/task-list",
-		UnableToConfirmIdentity:                         "/unable-to-confirm-identity",
-		WhatHappensNext:                                 "/what-happens-next",
-		WhatIsYourHomeAddress:                           "/what-is-your-home-address",
-		WhoIsEligible:                                   "/certificate-provider-who-is-eligible",
+		ProveYourIdentity:                               certificateprovider.PathProveYourIdentity,
+		OneLoginIdentityDetails:                         certificateprovider.PathOneLoginIdentityDetails,
+		ProvideCertificate:                              certificateprovider.PathProvideCertificate,
+		ReadTheLpa:                                      certificateprovider.PathReadTheLpa,
+		TaskList:                                        certificateprovider.PathTaskList,
+		UnableToConfirmIdentity:                         certificateprovider.PathUnableToConfirmIdentity,
+		WhatHappensNext:                                 certificateprovider.PathWhatHappensNext,
+		WhatIsYourHomeAddress:                           certificateprovider.PathWhatIsYourHomeAddress,
+		WhoIsEligible:                                   certificateprovider.PathWhoIsEligible,
 		YouHaveDecidedNotToBeCertificateProvider:        "/you-have-decided-not-to-be-a-certificate-provider",
-		YourPreferredLanguage:                           "/your-preferred-language",
-		YourRole:                                        "/your-role",
+		YourPreferredLanguage:                           certificateprovider.PathYourPreferredLanguage,
+		YourRole:                                        certificateprovider.PathYourRole,
 	},
 
 	Attorney: AttorneyPaths{
-		CodeOfConduct:                        "/code-of-conduct",
-		ConfirmDontWantToBeAttorney:          "/confirm-you-do-not-want-to-be-an-attorney",
+		CodeOfConduct:                        attorney.PathCodeOfConduct,
+		ConfirmDontWantToBeAttorney:          attorney.PathConfirmDontWantToBeAttorney,
 		ConfirmDontWantToBeAttorneyLoggedOut: "/confirm-you-do-not-want-to-be-an-attorney",
-		ConfirmYourDetails:                   "/confirm-your-details",
+		ConfirmYourDetails:                   attorney.PathConfirmYourDetails,
 		EnterReferenceNumber:                 "/attorney-enter-reference-number",
 		EnterReferenceNumberOptOut:           "/attorney-enter-reference-number-opt-out",
 		Login:                                "/attorney-login",
 		LoginCallback:                        "/attorney-login-callback",
-		MobileNumber:                         "/mobile-number",
-		Progress:                             "/progress",
-		ReadTheLpa:                           "/read-the-lpa",
-		RightsAndResponsibilities:            "/legal-rights-and-responsibilities",
-		Sign:                                 "/sign",
+		MobileNumber:                         attorney.PathMobileNumber,
+		Progress:                             attorney.PathProgress,
+		ReadTheLpa:                           attorney.PathReadTheLpa,
+		RightsAndResponsibilities:            attorney.PathRightsAndResponsibilities,
+		Sign:                                 attorney.PathSign,
 		Start:                                "/attorney-start",
-		TaskList:                             "/task-list",
-		WhatHappensNext:                      "/what-happens-next",
-		WhatHappensWhenYouSign:               "/what-happens-when-you-sign-the-lpa",
-		WouldLikeSecondSignatory:             "/would-like-second-signatory",
+		TaskList:                             attorney.PathTaskList,
+		WhatHappensNext:                      attorney.PathWhatHappensNext,
+		WhatHappensWhenYouSign:               attorney.PathWhatHappensWhenYouSign,
+		WouldLikeSecondSignatory:             attorney.PathWouldLikeSecondSignatory,
 		YouHaveDecidedNotToBeAttorney:        "/you-have-decided-not-to-be-an-attorney",
-		YourPreferredLanguage:                "/your-preferred-language",
+		YourPreferredLanguage:                attorney.PathYourPreferredLanguage,
 	},
 
 	Supporter: SupporterPaths{
@@ -525,22 +406,21 @@ var Paths = AppPaths{
 		OrganisationDeleted:   "/organisation-deleted",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
 		Start:                 "/supporter-start",
+		InviteExpired:         "/invite-expired",
 
-		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
-		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
-		Dashboard:                     "/dashboard",
-		DeleteOrganisation:            "/manage-organisation/organisation-details/delete-organisation",
-		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member",
-		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
-		InviteExpired:                 "/invite-expired",
-		InviteMember:                  "/invite-member",
-		InviteMemberConfirmation:      "/invite-member-confirmation",
-		ManageTeamMembers:             "/manage-organisation/manage-team-members",
-		OrganisationCreated:           "/organisation-or-company-created",
-		OrganisationDetails:           "/manage-organisation/organisation-details",
-		ViewLPA:                       "/view-lpa",
-
-		DonorAccess: "/donor-access",
+		ConfirmDonorCanInteractOnline: supporter.PathConfirmDonorCanInteractOnline,
+		ContactOPGForPaperForms:       supporter.PathContactOPGForPaperForms,
+		Dashboard:                     supporter.PathDashboard,
+		DeleteOrganisation:            supporter.PathDeleteOrganisation,
+		EditMember:                    supporter.PathEditMember,
+		EditOrganisationName:          supporter.PathEditOrganisationName,
+		InviteMember:                  supporter.PathInviteMember,
+		InviteMemberConfirmation:      supporter.PathInviteMemberConfirmation,
+		ManageTeamMembers:             supporter.PathManageTeamMembers,
+		OrganisationCreated:           supporter.PathOrganisationCreated,
+		OrganisationDetails:           supporter.PathOrganisationDetails,
+		ViewLPA:                       supporter.PathViewLPA,
+		DonorAccess:                   supporter.PathDonorAccess,
 	},
 
 	HealthCheck: HealthCheckPaths{
@@ -688,34 +568,6 @@ func DonorCanGoTo(donor *donordata.Provided, url string) bool {
 	if strings.HasPrefix(path, "/lpa/") {
 		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
 		return LpaPath("/" + lpaPath).canVisit(donor)
-	}
-
-	return true
-}
-
-func CertificateProviderCanGoTo(certificateProvider *certificateproviderdata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/certificate-provider/") {
-		_, certificateProviderPath, _ := strings.Cut(strings.TrimPrefix(path, "/certificate-provider/"), "/")
-		return CertificateProviderPath("/" + certificateProviderPath).canVisit(certificateProvider)
-	}
-
-	return true
-}
-
-func AttorneyCanGoTo(attorney *attorneydata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/attorney/") {
-		_, attorneyPath, _ := strings.Cut(strings.TrimPrefix(path, "/attorney/"), "/")
-		return AttorneyPath("/" + attorneyPath).canVisit(attorney)
 	}
 
 	return true

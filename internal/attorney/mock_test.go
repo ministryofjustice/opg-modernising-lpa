@@ -1,4 +1,4 @@
-package attorneydata
+package attorney
 
 import (
 	"context"
