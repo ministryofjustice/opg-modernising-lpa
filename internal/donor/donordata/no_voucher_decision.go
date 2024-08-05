@@ -1,4 +1,4 @@
-package actor
+package donordata
 
 //go:generate enumerator -type NoVoucherDecision -linecomment -empty
 type NoVoucherDecision uint8
