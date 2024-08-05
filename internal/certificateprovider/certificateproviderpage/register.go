@@ -69,6 +69,7 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
+	EmailGreeting(lpa *lpastore.Lpa) string
 	SendEmail(ctx context.Context, to string, email notify.Email) error
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }

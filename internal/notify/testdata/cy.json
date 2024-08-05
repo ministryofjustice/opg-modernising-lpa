@@ -1,0 +1,5 @@
+{
+    "property-and-affairs": "Property and affairs",
+    "emailGreetingDonor": "Hy {{.DonorFullName}}",
+    "emailGreetingCorrespondent": "Hyllw {{.CorrespondentFullName}} fwr {{.DonorFullNamePossessive}} {{.LpaType}} LPA ({{.LpaUID}})"
+}
