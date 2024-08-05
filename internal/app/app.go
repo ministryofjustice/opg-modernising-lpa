@@ -10,12 +10,12 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -94,9 +94,9 @@ func App(
 ) http.Handler {
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
-	donorStore := donordata.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
-	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient)
-	attorneyStore := attorneydata.NewStore(lpaDynamoClient)
+	donorStore := donor.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
+	certificateProviderStore := certificateprovider.NewStore(lpaDynamoClient)
+	attorneyStore := attorney.NewStore(lpaDynamoClient)
 	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
