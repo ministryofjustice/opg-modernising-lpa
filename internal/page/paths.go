@@ -11,6 +11,54 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 )
 
+const (
+	PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut = Path("/confirm-you-do-not-want-to-be-a-certificate-provider")
+	PathCertificateProviderEnterReferenceNumber                            = Path("/certificate-provider-enter-reference-number")
+	PathCertificateProviderEnterReferenceNumberOptOut                      = Path("/certificate-provider-enter-reference-number-opt-out")
+	PathCertificateProviderLogin                                           = Path("/certificate-provider-login")
+	PathCertificateProviderLoginCallback                                   = Path("/certificate-provider-login-callback")
+	PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider        = Path("/you-have-decided-not-to-be-a-certificate-provider")
+
+	PathAttorneyConfirmDontWantToBeAttorneyLoggedOut = Path("/confirm-you-do-not-want-to-be-an-attorney")
+	PathAttorneyEnterReferenceNumber                 = Path("/attorney-enter-reference-number")
+	PathAttorneyEnterReferenceNumberOptOut           = Path("/attorney-enter-reference-number-opt-out")
+	PathAttorneyLogin                                = Path("/attorney-login")
+	PathAttorneyLoginCallback                        = Path("/attorney-login-callback")
+	PathAttorneyStart                                = Path("/attorney-start")
+	PathAttorneyYouHaveDecidedNotToBeAttorney        = Path("/you-have-decided-not-to-be-an-attorney")
+
+	PathSupporterEnterOrganisationName = Path("/enter-the-name-of-your-organisation-or-company")
+	PathSupporterEnterReferenceNumber  = Path("/supporter-reference-number")
+	PathSupporterEnterYourName         = Path("/enter-your-name")
+	PathSupporterLogin                 = Path("/supporter-login")
+	PathSupporterLoginCallback         = Path("/supporter-login-callback")
+	PathSupporterOrganisationDeleted   = Path("/organisation-deleted")
+	PathSupporterSigningInAdvice       = Path("/signing-in-with-govuk-one-login")
+	PathSupporterStart                 = Path("/supporter-start")
+	PathSupporterInviteExpired         = Path("/invite-expired")
+
+	PathHealthCheckService    = Path("/health-check/service")
+	PathHealthCheckDependency = Path("/health-check/dependency")
+
+	PathAttorneyFixtures            = Path("/fixtures/attorney")
+	PathAuthRedirect                = Path("/auth/redirect")
+	PathCertificateProviderFixtures = Path("/fixtures/certificate-provider")
+	PathCertificateProviderStart    = Path("/certificate-provider-start")
+	PathCookiesConsent              = Path("/cookies-consent")
+	PathDashboard                   = Path("/dashboard")
+	PathDashboardFixtures           = Path("/fixtures/dashboard")
+	PathEnterAccessCode             = Path("/enter-access-code")
+	PathFixtures                    = Path("/fixtures")
+	PathLogin                       = Path("/login")
+	PathLoginCallback               = Path("/login-callback")
+	PathLpaDeleted                  = Path("/lpa-deleted")
+	PathLpaWithdrawn                = Path("/lpa-withdrawn")
+	PathRoot                        = Path("/")
+	PathSignOut                     = Path("/sign-out")
+	PathStart                       = Path("/start")
+	PathSupporterFixtures           = Path("/fixtures/supporter")
+)
+
 type Path string
 
 func (p Path) String() string {
@@ -254,12 +302,12 @@ type AppPaths struct {
 
 var Paths = AppPaths{
 	CertificateProvider: CertificateProviderPaths{
-		ConfirmDontWantToBeCertificateProviderLoggedOut: "/confirm-you-do-not-want-to-be-a-certificate-provider",
-		EnterReferenceNumber:                            "/certificate-provider-enter-reference-number",
-		EnterReferenceNumberOptOut:                      "/certificate-provider-enter-reference-number-opt-out",
-		Login:                                           "/certificate-provider-login",
-		LoginCallback:                                   "/certificate-provider-login-callback",
-		YouHaveDecidedNotToBeCertificateProvider:        "/you-have-decided-not-to-be-a-certificate-provider",
+		ConfirmDontWantToBeCertificateProviderLoggedOut: PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
+		EnterReferenceNumber:                            PathCertificateProviderEnterReferenceNumber,
+		EnterReferenceNumberOptOut:                      PathCertificateProviderEnterReferenceNumberOptOut,
+		Login:                                           PathCertificateProviderLogin,
+		LoginCallback:                                   PathCertificateProviderLoginCallback,
+		YouHaveDecidedNotToBeCertificateProvider:        PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
 
 		CertificateProvided:                    certificateprovider.PathCertificateProvided,
 		ConfirmDontWantToBeCertificateProvider: certificateprovider.PathConfirmDontWantToBeCertificateProvider,
@@ -281,13 +329,13 @@ var Paths = AppPaths{
 	},
 
 	Attorney: AttorneyPaths{
-		ConfirmDontWantToBeAttorneyLoggedOut: "/confirm-you-do-not-want-to-be-an-attorney",
-		EnterReferenceNumber:                 "/attorney-enter-reference-number",
-		EnterReferenceNumberOptOut:           "/attorney-enter-reference-number-opt-out",
-		Login:                                "/attorney-login",
-		LoginCallback:                        "/attorney-login-callback",
-		Start:                                "/attorney-start",
-		YouHaveDecidedNotToBeAttorney:        "/you-have-decided-not-to-be-an-attorney",
+		ConfirmDontWantToBeAttorneyLoggedOut: PathAttorneyConfirmDontWantToBeAttorneyLoggedOut,
+		EnterReferenceNumber:                 PathAttorneyEnterReferenceNumber,
+		EnterReferenceNumberOptOut:           PathAttorneyEnterReferenceNumberOptOut,
+		Login:                                PathAttorneyLogin,
+		LoginCallback:                        PathAttorneyLoginCallback,
+		Start:                                PathAttorneyStart,
+		YouHaveDecidedNotToBeAttorney:        PathAttorneyYouHaveDecidedNotToBeAttorney,
 
 		CodeOfConduct:               attorney.PathCodeOfConduct,
 		ConfirmDontWantToBeAttorney: attorney.PathConfirmDontWantToBeAttorney,
@@ -305,15 +353,15 @@ var Paths = AppPaths{
 	},
 
 	Supporter: SupporterPaths{
-		EnterOrganisationName: "/enter-the-name-of-your-organisation-or-company",
-		EnterReferenceNumber:  "/supporter-reference-number",
-		EnterYourName:         "/enter-your-name",
-		Login:                 "/supporter-login",
-		LoginCallback:         "/supporter-login-callback",
-		OrganisationDeleted:   "/organisation-deleted",
-		SigningInAdvice:       "/signing-in-with-govuk-one-login",
-		Start:                 "/supporter-start",
-		InviteExpired:         "/invite-expired",
+		EnterOrganisationName: PathSupporterEnterOrganisationName,
+		EnterReferenceNumber:  PathSupporterEnterReferenceNumber,
+		EnterYourName:         PathSupporterEnterYourName,
+		Login:                 PathSupporterLogin,
+		LoginCallback:         PathSupporterLoginCallback,
+		OrganisationDeleted:   PathSupporterOrganisationDeleted,
+		SigningInAdvice:       PathSupporterSigningInAdvice,
+		Start:                 PathSupporterStart,
+		InviteExpired:         PathSupporterInviteExpired,
 
 		ConfirmDonorCanInteractOnline: supporter.PathConfirmDonorCanInteractOnline,
 		ContactOPGForPaperForms:       supporter.PathContactOPGForPaperForms,
@@ -331,27 +379,27 @@ var Paths = AppPaths{
 	},
 
 	HealthCheck: HealthCheckPaths{
-		Service:    "/health-check/service",
-		Dependency: "/health-check/dependency",
+		Service:    PathHealthCheckService,
+		Dependency: PathHealthCheckDependency,
 	},
 
-	AttorneyFixtures:            "/fixtures/attorney",
-	AuthRedirect:                "/auth/redirect",
-	CertificateProviderFixtures: "/fixtures/certificate-provider",
-	CertificateProviderStart:    "/certificate-provider-start",
-	CookiesConsent:              "/cookies-consent",
-	Dashboard:                   "/dashboard",
-	DashboardFixtures:           "/fixtures/dashboard",
-	EnterAccessCode:             "/enter-access-code",
-	Fixtures:                    "/fixtures",
-	Login:                       "/login",
-	LoginCallback:               "/login-callback",
-	LpaDeleted:                  "/lpa-deleted",
-	LpaWithdrawn:                "/lpa-withdrawn",
-	Root:                        "/",
-	SignOut:                     "/sign-out",
-	Start:                       "/start",
-	SupporterFixtures:           "/fixtures/supporter",
+	AttorneyFixtures:            PathAttorneyFixtures,
+	AuthRedirect:                PathAuthRedirect,
+	CertificateProviderFixtures: PathCertificateProviderFixtures,
+	CertificateProviderStart:    PathCertificateProviderStart,
+	CookiesConsent:              PathCookiesConsent,
+	Dashboard:                   PathDashboard,
+	DashboardFixtures:           PathDashboardFixtures,
+	EnterAccessCode:             PathEnterAccessCode,
+	Fixtures:                    PathFixtures,
+	Login:                       PathLogin,
+	LoginCallback:               PathLoginCallback,
+	LpaDeleted:                  PathLpaDeleted,
+	LpaWithdrawn:                PathLpaWithdrawn,
+	Root:                        PathRoot,
+	SignOut:                     PathSignOut,
+	Start:                       PathStart,
+	SupporterFixtures:           PathSupporterFixtures,
 
 	AboutPayment:                                         donor.PathAboutPayment,
 	AddCorrespondent:                                     donor.PathAddCorrespondent,
