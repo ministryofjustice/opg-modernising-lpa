@@ -28,13 +28,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -147,7 +147,7 @@ func App(
 	handleRoot(page.Paths.LpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
 
-	supporter.Register(
+	supporterpage.Register(
 		rootMux,
 		logger,
 		supporterTmpls,
