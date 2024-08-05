@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -122,7 +123,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 func TestPostConfirmYourDetails(t *testing.T) {
 	testCases := map[string]struct {
 		signedAt time.Time
-		redirect page.CertificateProviderPath
+		redirect certificateprovider.Path
 	}{
 		"signed":     {signedAt: time.Now(), redirect: page.Paths.CertificateProvider.TaskList},
 		"not signed": {redirect: page.Paths.CertificateProvider.YourRole},
