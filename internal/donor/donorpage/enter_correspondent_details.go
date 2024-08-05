@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -22,48 +23,48 @@ type enterCorrespondentDetailsData struct {
 }
 
 func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
 			Form: &enterCorrespondentDetailsForm{
-				FirstNames:   donor.Correspondent.FirstNames,
-				LastName:     donor.Correspondent.LastName,
-				Email:        donor.Correspondent.Email,
-				Organisation: donor.Correspondent.Organisation,
-				Telephone:    donor.Correspondent.Telephone,
-				WantAddress:  form.NewYesNoForm(donor.Correspondent.WantAddress),
+				FirstNames:   provided.Correspondent.FirstNames,
+				LastName:     provided.Correspondent.LastName,
+				Email:        provided.Correspondent.Email,
+				Organisation: provided.Correspondent.Organisation,
+				Telephone:    provided.Correspondent.Telephone,
+				WantAddress:  form.NewYesNoForm(provided.Correspondent.WantAddress),
 			},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readEnterCorrespondentDetailsForm(r, donor.Donor)
+			data.Form = readEnterCorrespondentDetailsForm(r, provided.Donor)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Correspondent.FirstNames = data.Form.FirstNames
-				donor.Correspondent.LastName = data.Form.LastName
-				donor.Correspondent.Email = data.Form.Email
-				donor.Correspondent.Organisation = data.Form.Organisation
-				donor.Correspondent.Telephone = data.Form.Telephone
-				donor.Correspondent.WantAddress = data.Form.WantAddress.YesNo
+				provided.Correspondent.FirstNames = data.Form.FirstNames
+				provided.Correspondent.LastName = data.Form.LastName
+				provided.Correspondent.Email = data.Form.Email
+				provided.Correspondent.Organisation = data.Form.Organisation
+				provided.Correspondent.Telephone = data.Form.Telephone
+				provided.Correspondent.WantAddress = data.Form.WantAddress.YesNo
 
-				var redirect page.LpaPath
-				if donor.Correspondent.WantAddress.IsNo() {
-					donor.Correspondent.Address = place.Address{}
-					donor.Tasks.AddCorrespondent = task.StateCompleted
+				var redirect donor.Path
+				if provided.Correspondent.WantAddress.IsNo() {
+					provided.Correspondent.Address = place.Address{}
+					provided.Tasks.AddCorrespondent = task.StateCompleted
 					redirect = page.Paths.TaskList
 				} else {
-					if !donor.Tasks.AddCorrespondent.Completed() && donor.Correspondent.Address.Line1 == "" {
-						donor.Tasks.AddCorrespondent = task.StateInProgress
+					if !provided.Tasks.AddCorrespondent.Completed() && provided.Correspondent.Address.Line1 == "" {
+						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirect = page.Paths.EnterCorrespondentAddress
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, donor)
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 

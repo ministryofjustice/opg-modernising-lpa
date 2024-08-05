@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -39,7 +40,7 @@ func TestGetCheckYouCanSign(t *testing.T) {
 }
 
 func TestPostCheckYouCanSign(t *testing.T) {
-	testcases := map[form.YesNo]page.LpaPath{
+	testcases := map[form.YesNo]donor.Path{
 		form.Yes: page.Paths.YourPreferredLanguage,
 		form.No:  page.Paths.NeedHelpSigningConfirmation,
 	}

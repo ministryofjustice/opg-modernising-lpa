@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -119,32 +120,32 @@ func Register(
 
 	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
 
-	handleAttorney(page.Paths.Attorney.CodeOfConduct, None,
+	handleAttorney(attorney.PathCodeOfConduct, None,
 		Guidance(tmpls.Get("code_of_conduct.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.TaskList, None,
+	handleAttorney(attorney.PathTaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.MobileNumber, None,
+	handleAttorney(attorney.PathMobileNumber, None,
 		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
-	handleAttorney(page.Paths.Attorney.YourPreferredLanguage, CanGoBack,
+	handleAttorney(attorney.PathYourPreferredLanguage, CanGoBack,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.ConfirmYourDetails, None,
+	handleAttorney(attorney.PathConfirmYourDetails, None,
 		ConfirmYourDetails(tmpls.Get("confirm_your_details.gohtml"), attorneyStore, lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.ReadTheLpa, None,
+	handleAttorney(attorney.PathReadTheLpa, None,
 		ReadTheLpa(tmpls.Get("read_the_lpa.gohtml"), lpaStoreResolvingService, attorneyStore))
-	handleAttorney(page.Paths.Attorney.RightsAndResponsibilities, None,
+	handleAttorney(attorney.PathRightsAndResponsibilities, None,
 		Guidance(tmpls.Get("legal_rights_and_responsibilities.gohtml"), nil))
-	handleAttorney(page.Paths.Attorney.WhatHappensWhenYouSign, CanGoBack,
+	handleAttorney(attorney.PathWhatHappensWhenYouSign, CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.Sign, CanGoBack,
+	handleAttorney(attorney.PathSign, CanGoBack,
 		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now))
-	handleAttorney(page.Paths.Attorney.WouldLikeSecondSignatory, None,
+	handleAttorney(attorney.PathWouldLikeSecondSignatory, None,
 		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, lpaStoreResolvingService, lpaStoreClient))
-	handleAttorney(page.Paths.Attorney.WhatHappensNext, None,
+	handleAttorney(attorney.PathWhatHappensNext, None,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
-	handleAttorney(page.Paths.Attorney.Progress, None,
+	handleAttorney(attorney.PathProgress, None,
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
 
-	handleAttorney(page.Paths.Attorney.ConfirmDontWantToBeAttorney, CanGoBack,
+	handleAttorney(attorney.PathConfirmDontWantToBeAttorney, CanGoBack,
 		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, attorneyStore, notifyClient, appPublicURL))
 }
 
@@ -183,8 +184,8 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(page.AttorneyPath, handleOpt, Handler) {
-	return func(path page.AttorneyPath, opt handleOpt, h Handler) {
+func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, attorneyStore AttorneyStore) func(attorney.Path, handleOpt, Handler) {
+	return func(path attorney.Path, opt handleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 
@@ -209,30 +210,30 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
-			attorney, err := attorneyStore.Get(ctx)
+			provided, err := attorneyStore.Get(ctx)
 			if err != nil {
 				errorHandler(w, r, err)
 				return
 			}
 
-			if !page.AttorneyCanGoTo(attorney, r.URL.String()) {
-				page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorney.LpaID)
+			if !attorney.CanGoTo(provided, r.URL.String()) {
+				page.Paths.Attorney.TaskList.Redirect(w, r, appData, provided.LpaID)
 				return
 			}
 
 			appData.Page = path.Format(appData.LpaID)
-			appData.AttorneyUID = attorney.UID
-			if attorney.IsTrustCorporation && attorney.IsReplacement {
+			appData.AttorneyUID = provided.UID
+			if provided.IsTrustCorporation && provided.IsReplacement {
 				appData.ActorType = actor.TypeReplacementTrustCorporation
-			} else if attorney.IsTrustCorporation {
+			} else if provided.IsTrustCorporation {
 				appData.ActorType = actor.TypeTrustCorporation
-			} else if attorney.IsReplacement {
+			} else if provided.IsReplacement {
 				appData.ActorType = actor.TypeReplacementAttorney
 			} else {
 				appData.ActorType = actor.TypeAttorney
 			}
 
-			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), attorney); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), provided); err != nil {
 				errorHandler(w, r, err)
 			}
 		})

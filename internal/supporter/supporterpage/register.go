@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -145,31 +146,31 @@ func Register(
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore, tmpls.Get("suspended.gohtml"))
 
-	handleWithSupporter(paths.OrganisationCreated, None,
+	handleWithSupporter(supporter.PathOrganisationCreated, None,
 		Guidance(tmpls.Get("organisation_created.gohtml")))
-	handleWithSupporter(paths.Dashboard, None,
+	handleWithSupporter(supporter.PathDashboard, None,
 		Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, searchClient))
-	handleWithSupporter(paths.ConfirmDonorCanInteractOnline, None,
+	handleWithSupporter(supporter.PathConfirmDonorCanInteractOnline, None,
 		ConfirmDonorCanInteractOnline(tmpls.Get("confirm_donor_can_interact_online.gohtml"), organisationStore))
-	handleWithSupporter(paths.ContactOPGForPaperForms, None,
+	handleWithSupporter(supporter.PathContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
-	handleWithSupporter(paths.ViewLPA, None,
+	handleWithSupporter(supporter.PathViewLPA, None,
 		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, progressTracker))
 
-	handleWithSupporter(paths.OrganisationDetails, RequireAdmin,
+	handleWithSupporter(supporter.PathOrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))
-	handleWithSupporter(paths.EditOrganisationName, RequireAdmin,
+	handleWithSupporter(supporter.PathEditOrganisationName, RequireAdmin,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
-	handleWithSupporter(paths.ManageTeamMembers, RequireAdmin,
+	handleWithSupporter(supporter.PathManageTeamMembers, RequireAdmin,
 		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, random.String, notifyClient, appPublicURL))
-	handleWithSupporter(paths.InviteMember, CanGoBack|RequireAdmin,
+	handleWithSupporter(supporter.PathInviteMember, CanGoBack|RequireAdmin,
 		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
-	handleWithSupporter(paths.DeleteOrganisation, CanGoBack,
+	handleWithSupporter(supporter.PathDeleteOrganisation, CanGoBack,
 		DeleteOrganisation(logger, tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
-	handleWithSupporter(paths.EditMember, CanGoBack,
+	handleWithSupporter(supporter.PathEditMember, CanGoBack,
 		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
-	handleWithSupporter(paths.DonorAccess, CanGoBack,
+	handleWithSupporter(supporter.PathDonorAccess, CanGoBack,
 		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))
 }
 
@@ -243,9 +244,9 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 			appData.LoginSessionEmail = loginSession.Email
 
 			switch v := path.(type) {
-			case page.SupporterPath:
+			case supporter.Path:
 				appData.Page = v.Format()
-			case page.SupporterLpaPath:
+			case supporter.LpaPath:
 				appData.LpaID = r.PathValue("id")
 				appData.Page = v.Format(appData.LpaID)
 			default:

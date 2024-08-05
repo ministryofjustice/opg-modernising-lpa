@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -78,7 +79,7 @@ func All(globals *Globals) map[string]any {
 		"concatAnd":          concatAnd,
 		"concatOr":           concatOr,
 		"concatComma":        concatComma,
-		"donorCanGoTo":       page.DonorCanGoTo,
+		"donorCanGoTo":       donor.CanGoTo,
 		"content":            content,
 		"notificationBanner": notificationBanner,
 		"checkboxEq":         checkboxEq,

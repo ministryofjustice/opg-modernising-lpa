@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,7 +24,7 @@ type changeMobileNumberData struct {
 
 func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
 	var send func(context.Context, *donordata.Provided, page.Localizer) error
-	var redirect page.LpaPath
+	var redirect donor.Path
 	switch actorType {
 	case actor.TypeIndependentWitness:
 		send = witnessCodeSender.SendToIndependentWitness

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,11 +21,11 @@ type addCorrespondentData struct {
 }
 
 func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &addCorrespondentData{
 			App:   appData,
-			Donor: donor,
-			Form:  form.NewYesNoForm(donor.AddCorrespondent),
+			Donor: provided,
+			Form:  form.NewYesNoForm(provided.AddCorrespondent),
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,25 +33,25 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				donor.AddCorrespondent = f.YesNo
+				provided.AddCorrespondent = f.YesNo
 
-				var redirectUrl page.LpaPath
-				if donor.AddCorrespondent.IsNo() {
-					donor.Correspondent = donordata.Correspondent{}
-					donor.Tasks.AddCorrespondent = task.StateCompleted
+				var redirectUrl donor.Path
+				if provided.AddCorrespondent.IsNo() {
+					provided.Correspondent = donordata.Correspondent{}
+					provided.Tasks.AddCorrespondent = task.StateCompleted
 					redirectUrl = page.Paths.TaskList
 				} else {
-					if donor.Correspondent.FirstNames == "" {
-						donor.Tasks.AddCorrespondent = task.StateInProgress
+					if provided.Correspondent.FirstNames == "" {
+						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirectUrl = page.Paths.EnterCorrespondentDetails
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return redirectUrl.Redirect(w, r, appData, donor)
+				return redirectUrl.Redirect(w, r, appData, provided)
 			}
 		}
 

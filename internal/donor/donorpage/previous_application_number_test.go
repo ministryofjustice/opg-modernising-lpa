@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -72,7 +73,7 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostPreviousApplicationNumber(t *testing.T) {
-	testcases := map[string]page.LpaPath{
+	testcases := map[string]donor.Path{
 		"7": page.Paths.PreviousFee,
 		"M": page.Paths.EvidenceSuccessfullyUploaded,
 	}
