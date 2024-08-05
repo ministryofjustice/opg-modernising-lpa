@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
 type Localizer interface {
@@ -52,7 +53,7 @@ type SupporterData struct {
 	DonorFullName        string
 	OrganisationName     string
 	IsManageOrganisation bool
-	Permission           actor.Permission
+	Permission           supporterdata.Permission
 	LoggedInSupporterID  string
 }
 
