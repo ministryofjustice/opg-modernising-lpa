@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -26,7 +25,7 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 		Execute(w, &whatYouCanDoNowData{
 			App: testAppData,
 			Form: &whatYouCanDoNowForm{
-				Options: actor.NoVoucherDecisionValues,
+				Options: donordata.NoVoucherDecisionValues,
 			},
 		}).
 		Return(nil)
@@ -51,18 +50,18 @@ func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
 }
 
 func TestPostWhatYouCanDoNow(t *testing.T) {
-	testcases := map[actor.NoVoucherDecision]struct {
+	testcases := map[donordata.NoVoucherDecision]struct {
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		actor.ProveOwnID: {
+		donordata.ProveOwnID: {
 			expectedPath: page.Paths.TaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{},
 			},
 		},
-		actor.SelectNewVoucher: {
+		donordata.SelectNewVoucher: {
 			expectedPath: page.Paths.EnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
@@ -70,14 +69,14 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		actor.WithdrawLPA: {
+		donordata.WithdrawLPA: {
 			expectedPath: page.Paths.WithdrawThisLpa.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
-		actor.ApplyToCOP: {
+		donordata.ApplyToCOP: {
 			expectedPath: page.Paths.WhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                            "lpa-id",
@@ -114,7 +113,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 
 func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {
 	f := url.Values{
-		"do-next": {actor.ApplyToCOP.String()},
+		"do-next": {donordata.ApplyToCOP.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -168,7 +167,7 @@ func TestReadWhatYouCanDoNowForm(t *testing.T) {
 
 	result := readWhatYouCanDoNowForm(r)
 
-	assert.Equal(actor.WithdrawLPA, result.DoNext)
+	assert.Equal(donordata.WithdrawLPA, result.DoNext)
 	assert.Nil(result.Error)
 }
 
@@ -179,12 +178,12 @@ func TestWhatYouCanDoNowFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &whatYouCanDoNowForm{
-				DoNext: actor.WithdrawLPA,
+				DoNext: donordata.WithdrawLPA,
 			},
 		},
 		"invalid": {
 			form: &whatYouCanDoNowForm{
-				DoNext: actor.NoVoucherDecision(99),
+				DoNext: donordata.NoVoucherDecision(99),
 				Error:  expectedError,
 			},
 			errors: validation.

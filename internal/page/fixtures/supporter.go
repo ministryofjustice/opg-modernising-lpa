@@ -22,19 +22,20 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type OrganisationStore interface {
-	Create(context.Context, *actor.Member, string) (*actor.Organisation, error)
+	Create(context.Context, *supporterdata.Member, string) (*supporterdata.Organisation, error)
 	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
 type MemberStore interface {
-	Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error)
-	CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error
-	CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, code string, permission actor.Permission) error
-	Put(ctx context.Context, member *actor.Member) error
+	Create(ctx context.Context, firstNames, lastName string) (*supporterdata.Member, error)
+	CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error
+	CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, code string, permission supporterdata.Permission) error
+	Put(ctx context.Context, member *supporterdata.Member) error
 }
 
 type ShareCodeStore interface {
@@ -97,7 +98,7 @@ func Supporter(
 			organisationCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID})
 
 			if suspended {
-				member.Status = actor.StatusSuspended
+				member.Status = supporterdata.StatusSuspended
 
 				if err := memberStore.Put(organisationCtx, member); err != nil {
 					return err
@@ -222,7 +223,7 @@ func Supporter(
 						now = now.Add(time.Hour * -time.Duration(48))
 					}
 
-					invite := &actor.MemberInvite{
+					invite := &supporterdata.MemberInvite{
 						PK:               dynamo.OrganisationKey(org.ID),
 						SK:               dynamo.MemberInviteKey(email),
 						CreatedAt:        now,
@@ -231,7 +232,7 @@ func Supporter(
 						Email:            email,
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
-						Permission:       actor.PermissionAdmin,
+						Permission:       supporterdata.PermissionAdmin,
 						ReferenceNumber:  random.String(12),
 					}
 
@@ -249,9 +250,9 @@ func Supporter(
 
 				memberEmailSub := make(map[string]string)
 
-				permission, err := actor.ParsePermission(permission)
+				permission, err := supporterdata.ParsePermission(permission)
 				if err != nil {
-					permission = actor.PermissionNone
+					permission = supporterdata.PermissionNone
 				}
 
 				for i, member := range orgMemberNames {
@@ -265,7 +266,7 @@ func Supporter(
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
-						&actor.MemberInvite{
+						&supporterdata.MemberInvite{
 							PK:              dynamo.OrganisationKey(random.String(12)),
 							SK:              dynamo.MemberInviteKey(random.String(12)),
 							CreatedAt:       time.Now(),
