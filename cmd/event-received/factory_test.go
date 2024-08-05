@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 )
@@ -87,7 +88,7 @@ func TestShareCodeSender(t *testing.T) {
 		Secret(ctx, secrets.GovUkNotify).
 		Return("a-b-c-d-e-f-g-h-i-j-k", nil)
 
-	factory := &Factory{secretsClient: secretsClient}
+	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
 	sender, err := factory.ShareCodeSender(ctx)
 	assert.Nil(t, err)
@@ -114,7 +115,7 @@ func TestShareCodeSenderWhenSecretsClientError(t *testing.T) {
 		Secret(ctx, secrets.GovUkNotify).
 		Return("", expectedError)
 
-	factory := &Factory{secretsClient: secretsClient}
+	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
 	_, err := factory.ShareCodeSender(ctx)
 	assert.ErrorIs(t, err, expectedError)
@@ -128,7 +129,7 @@ func TestShareCodeSenderWhenNotifyClientError(t *testing.T) {
 		Secret(ctx, secrets.GovUkNotify).
 		Return("", nil)
 
-	factory := &Factory{secretsClient: secretsClient}
+	factory := &Factory{secretsClient: secretsClient, bundle: &localize.Bundle{}}
 
 	_, err := factory.ShareCodeSender(ctx)
 	assert.NotNil(t, err)

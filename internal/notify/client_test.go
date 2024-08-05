@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,18 +21,20 @@ import (
 var expectedError = errors.New("err")
 
 func TestNew(t *testing.T) {
-	client, err := New(nil, true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient, newMockEventClient(t))
+	bundle := &localize.Bundle{}
+
+	client, err := New(nil, true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", http.DefaultClient, newMockEventClient(t), bundle)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "http://base", client.baseURL)
 	assert.Equal(t, "f33517ff-2a88-4f6e-b855-c550268ce08a", client.issuer)
 	assert.Equal(t, []byte("740e5834-3a29-46b4-9a6f-16142fde533a"), client.secretKey)
 	assert.Equal(t, newMockEventClient(t), client.eventClient)
-
+	assert.Equal(t, bundle, client.bundle)
 }
 
 func TestNewWithInvalidApiKey(t *testing.T) {
-	_, err := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient, nil)
+	_, err := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f", http.DefaultClient, nil, nil)
 
 	assert.NotNil(t, err)
 }
@@ -66,7 +69,7 @@ func TestSendEmail(t *testing.T) {
 		}, nil).
 		Once()
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendEmail(ctx, "me@example.com", testEmail{A: "value"})
@@ -89,7 +92,7 @@ func TestSendEmailWhenError(t *testing.T) {
 		}, nil).
 		Once()
 
-	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
 	err := client.SendEmail(ctx, "me@example.com", testEmail{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
@@ -146,7 +149,7 @@ func TestSendActorEmail(t *testing.T) {
 				SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 				Return(nil)
 
-			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 			client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 			err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
@@ -174,7 +177,7 @@ func TestSendActorEmailWhenToSimulated(t *testing.T) {
 			}, nil).
 			Once()
 
-		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 		err := client.SendActorEmail(ctx, email, "lpa-uid", testEmail{A: "value"})
@@ -209,7 +212,7 @@ func TestSendActorEmailWhenAlreadyRecentlyCreated(t *testing.T) {
 				}, nil).
 				Once()
 
-			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 			client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 			err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
@@ -224,7 +227,7 @@ func TestSendActorEmailWhenReferenceExistsError(t *testing.T) {
 		Do(mock.Anything).
 		Return(nil, expectedError)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
 	err := client.SendActorEmail(context.Background(), "me@example.com", "lpa-uid", testEmail{A: "value"})
 	assert.Equal(t, expectedError, err)
@@ -252,7 +255,7 @@ func TestSendActorEmailWhenError(t *testing.T) {
 		}, nil).
 		Once()
 
-	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
 	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
@@ -281,7 +284,7 @@ func TestSendActorEmailWhenEventError(t *testing.T) {
 		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 		Return(expectedError)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
@@ -293,7 +296,7 @@ func TestNewRequest(t *testing.T) {
 	ctx := context.Background()
 	doer := newMockDoer(t)
 
-	client, _ := New(nil, true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "http://base", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, err := client.newRequest(ctx, http.MethodPost, "/an/url", map[string]string{"some": "json"})
@@ -309,7 +312,7 @@ func TestNewRequestWhenNewRequestError(t *testing.T) {
 	assert := assert.New(t)
 	doer := newMockDoer(t)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Now().Add(-time.Minute) }
 
 	_, err := client.newRequest(nil, http.MethodPost, "/an/url", map[string]string{"some": "json"})
@@ -332,7 +335,7 @@ func TestDo(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(jsonString)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
@@ -359,7 +362,7 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(jsonString)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
@@ -402,7 +405,7 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`{"id": "123"}`)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
@@ -427,7 +430,7 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	var jsonBody bytes.Buffer
 	jsonBody.WriteString(`not json`)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
@@ -468,7 +471,7 @@ func TestSendActorSMS(t *testing.T) {
 		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 		Return(nil)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
@@ -487,7 +490,7 @@ func TestSendActorSMSWhenToSimulated(t *testing.T) {
 				Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
 			}, nil)
 
-		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 		err := client.SendActorSMS(ctx, phone, "lpa-uid", testSMS{A: "value"})
@@ -506,7 +509,7 @@ func TestSendActorSMSWhenError(t *testing.T) {
 			Body: io.NopCloser(strings.NewReader(`{"errors":[{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`)),
 		}, nil)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
 	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
@@ -536,7 +539,7 @@ func TestSendActorSMSWhenEventError(t *testing.T) {
 		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 		Return(expectedError)
 
-	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient)
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})

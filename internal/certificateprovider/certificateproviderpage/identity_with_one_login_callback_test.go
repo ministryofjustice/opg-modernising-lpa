@@ -125,7 +125,11 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Dear donor")
+	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderFailedIDCheckEmail{
+			Greeting:                    "Dear donor",
 			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "translated LPA type",
@@ -193,6 +197,9 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("")
 	notifyClient.EXPECT().
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
