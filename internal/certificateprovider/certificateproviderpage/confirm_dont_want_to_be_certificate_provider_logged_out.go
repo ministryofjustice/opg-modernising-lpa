@@ -51,6 +51,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 
 			if !lpa.SignedAt.IsZero() {
 				email = notify.CertificateProviderOptedOutPostWitnessingEmail{
+					Greeting:                      notifyClient.EmailGreeting(lpa),
 					CertificateProviderFirstNames: lpa.CertificateProvider.FirstNames,
 					CertificateProviderFullName:   lpa.CertificateProvider.FullName(),
 					DonorFullName:                 lpa.Donor.FullName(),
@@ -71,6 +72,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				}
 
 				email = notify.CertificateProviderOptedOutPreWitnessingEmail{
+					Greeting:                    notifyClient.EmailGreeting(lpa),
 					CertificateProviderFullName: donor.CertificateProvider.FullName(),
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
@@ -87,7 +89,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				}
 			}
 
-			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
+			if err := notifyClient.SendActorEmail(ctx, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 
