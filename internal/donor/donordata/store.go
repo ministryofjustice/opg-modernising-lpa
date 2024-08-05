@@ -369,15 +369,29 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return errors.New("donorStore.Delete requires SessionID and LpaID")
 	}
 
+	keys, err := s.dynamoClient.AllKeysByPK(ctx, dynamo.LpaKey(data.LpaID))
+	if err != nil {
+		return err
+	}
+
+	canDelete := false
+	for _, key := range keys {
+		if key.PK == dynamo.LpaKey(data.LpaID) && key.SK == dynamo.DonorKey(data.SessionID) {
+			canDelete = true
+			break
+		}
+	}
+
+	if !canDelete {
+		return errors.New("cannot access data of another donor")
+	}
+
 	provided, err := s.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	if err = s.dynamoClient.DeleteKeys(ctx, []dynamo.Keys{{
-		PK: dynamo.LpaKey(data.LpaID),
-		SK: dynamo.DonorKey(data.SessionID),
-	}}); err != nil {
+	if err = s.dynamoClient.DeleteKeys(ctx, keys); err != nil {
 		return err
 	}
 
