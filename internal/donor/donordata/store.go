@@ -53,6 +53,7 @@ type UidClient interface {
 
 type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
+	SendApplicationDeleted(context.Context, event.ApplicationDeleted) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
 	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
@@ -368,24 +369,19 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return errors.New("donorStore.Delete requires SessionID and LpaID")
 	}
 
-	keys, err := s.dynamoClient.AllKeysByPK(ctx, dynamo.LpaKey(data.LpaID))
+	provided, err := s.Get(ctx)
 	if err != nil {
 		return err
 	}
 
-	canDelete := false
-	for _, key := range keys {
-		if key.PK == dynamo.LpaKey(data.LpaID) && key.SK == dynamo.DonorKey(data.SessionID) {
-			canDelete = true
-			break
-		}
+	if err = s.dynamoClient.DeleteKeys(ctx, []dynamo.Keys{{
+		PK: dynamo.LpaKey(data.LpaID),
+		SK: dynamo.DonorKey(data.SessionID),
+	}}); err != nil {
+		return err
 	}
 
-	if !canDelete {
-		return errors.New("cannot access data of another donor")
-	}
-
-	return s.dynamoClient.DeleteKeys(ctx, keys)
+	return s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID})
 }
 
 func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error {
