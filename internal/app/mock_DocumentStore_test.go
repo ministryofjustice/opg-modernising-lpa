@@ -5,7 +5,7 @@ package app
 import (
 	context "context"
 
-	page "github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,23 +23,23 @@ func (_m *mockDocumentStore) EXPECT() *mockDocumentStore_Expecter {
 }
 
 // GetAll provides a mock function with given fields: _a0
-func (_m *mockDocumentStore) GetAll(_a0 context.Context) (page.Documents, error) {
+func (_m *mockDocumentStore) GetAll(_a0 context.Context) (document.Documents, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAll")
 	}
 
-	var r0 page.Documents
+	var r0 document.Documents
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (page.Documents, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (document.Documents, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) page.Documents); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) document.Documents); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(page.Documents)
+			r0 = ret.Get(0).(document.Documents)
 		}
 	}
 
@@ -70,18 +70,18 @@ func (_c *mockDocumentStore_GetAll_Call) Run(run func(_a0 context.Context)) *moc
 	return _c
 }
 
-func (_c *mockDocumentStore_GetAll_Call) Return(_a0 page.Documents, _a1 error) *mockDocumentStore_GetAll_Call {
+func (_c *mockDocumentStore_GetAll_Call) Return(_a0 document.Documents, _a1 error) *mockDocumentStore_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockDocumentStore_GetAll_Call) RunAndReturn(run func(context.Context) (page.Documents, error)) *mockDocumentStore_GetAll_Call {
+func (_c *mockDocumentStore_GetAll_Call) RunAndReturn(run func(context.Context) (document.Documents, error)) *mockDocumentStore_GetAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: _a0, _a1
-func (_m *mockDocumentStore) Put(_a0 context.Context, _a1 page.Document) error {
+func (_m *mockDocumentStore) Put(_a0 context.Context, _a1 document.Document) error {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -89,7 +89,7 @@ func (_m *mockDocumentStore) Put(_a0 context.Context, _a1 page.Document) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, page.Document) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, document.Document) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -105,14 +105,14 @@ type mockDocumentStore_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 page.Document
+//   - _a1 document.Document
 func (_e *mockDocumentStore_Expecter) Put(_a0 interface{}, _a1 interface{}) *mockDocumentStore_Put_Call {
 	return &mockDocumentStore_Put_Call{Call: _e.mock.On("Put", _a0, _a1)}
 }
 
-func (_c *mockDocumentStore_Put_Call) Run(run func(_a0 context.Context, _a1 page.Document)) *mockDocumentStore_Put_Call {
+func (_c *mockDocumentStore_Put_Call) Run(run func(_a0 context.Context, _a1 document.Document)) *mockDocumentStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(page.Document))
+		run(args[0].(context.Context), args[1].(document.Document))
 	})
 	return _c
 }
@@ -122,7 +122,7 @@ func (_c *mockDocumentStore_Put_Call) Return(_a0 error) *mockDocumentStore_Put_C
 	return _c
 }
 
-func (_c *mockDocumentStore_Put_Call) RunAndReturn(run func(context.Context, page.Document) error) *mockDocumentStore_Put_Call {
+func (_c *mockDocumentStore_Put_Call) RunAndReturn(run func(context.Context, document.Document) error) *mockDocumentStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

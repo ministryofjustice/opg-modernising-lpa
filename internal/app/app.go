@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -33,6 +34,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -92,12 +94,12 @@ func App(
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
 ) http.Handler {
-	documentStore := NewDocumentStore(lpaDynamoClient, s3Client, eventClient, random.UuidString, time.Now)
+	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
 	donorStore := donordata.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
-	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient, time.Now)
-	attorneyStore := attorneydata.NewStore(lpaDynamoClient, time.Now)
-	shareCodeStore := &shareCodeStore{dynamoClient: lpaDynamoClient, now: time.Now}
+	certificateProviderStore := certificateproviderdata.NewStore(lpaDynamoClient)
+	attorneyStore := attorneydata.NewStore(lpaDynamoClient)
+	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
 	dashboardStore := &dashboardStore{dynamoClient: lpaDynamoClient, lpaStoreResolvingService: lpastore.NewResolvingService(donorStore, lpaStoreClient)}
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := &organisationStore{dynamoClient: lpaDynamoClient, now: time.Now, uuidString: uuid.NewString, newUID: actoruid.New}

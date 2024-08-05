@@ -33,8 +33,8 @@ type DynamoClient interface {
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
-func NewStore(dynamoClient DynamoClient, now func() time.Time) *Store {
-	return &Store{dynamoClient: dynamoClient, now: now}
+func NewStore(dynamoClient DynamoClient) *Store {
+	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
 type Store struct {
