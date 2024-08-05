@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 )
 
 type Path string
@@ -124,57 +125,6 @@ func (p LpaPath) canVisit(donor *donordata.Provided) bool {
 	}
 }
 
-type SupporterPath string
-
-func (p SupporterPath) String() string {
-	return "/supporter" + string(p)
-}
-
-func (p SupporterPath) Format() string {
-	return "/supporter" + string(p)
-}
-
-func (p SupporterPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format()), http.StatusFound)
-	return nil
-}
-
-func (p SupporterPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format())+"?"+query.Encode(), http.StatusFound)
-	return nil
-}
-
-func (p SupporterPath) IsManageOrganisation() bool {
-	return p == Paths.Supporter.OrganisationDetails ||
-		p == Paths.Supporter.EditOrganisationName ||
-		p == Paths.Supporter.ManageTeamMembers ||
-		p == Paths.Supporter.EditMember
-}
-
-type SupporterLpaPath string
-
-func (p SupporterLpaPath) String() string {
-	return "/supporter" + string(p) + "/{id}"
-}
-
-func (p SupporterLpaPath) Format(lpaID string) string {
-	return "/supporter" + string(p) + "/" + lpaID
-}
-
-func (p SupporterLpaPath) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
-	return nil
-}
-
-func (p SupporterLpaPath) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
-	return nil
-}
-
-func (p SupporterLpaPath) IsManageOrganisation() bool {
-	return false
-}
-
 type AttorneyPaths struct {
 	ConfirmDontWantToBeAttorneyLoggedOut Path
 	EnterReferenceNumber                 Path
@@ -242,20 +192,20 @@ type SupporterPaths struct {
 	SigningInAdvice       Path
 	Start                 Path
 
-	ConfirmDonorCanInteractOnline SupporterPath
-	ContactOPGForPaperForms       SupporterPath
-	Dashboard                     SupporterPath
-	DeleteOrganisation            SupporterPath
-	EditMember                    SupporterPath
-	EditOrganisationName          SupporterPath
-	InviteMember                  SupporterPath
-	InviteMemberConfirmation      SupporterPath
-	ManageTeamMembers             SupporterPath
-	OrganisationCreated           SupporterPath
-	OrganisationDetails           SupporterPath
+	ConfirmDonorCanInteractOnline supporter.Path
+	ContactOPGForPaperForms       supporter.Path
+	Dashboard                     supporter.Path
+	DeleteOrganisation            supporter.Path
+	EditMember                    supporter.Path
+	EditOrganisationName          supporter.Path
+	InviteMember                  supporter.Path
+	InviteMemberConfirmation      supporter.Path
+	ManageTeamMembers             supporter.Path
+	OrganisationCreated           supporter.Path
+	OrganisationDetails           supporter.Path
 
-	ViewLPA     SupporterLpaPath
-	DonorAccess SupporterLpaPath
+	ViewLPA     supporter.LpaPath
+	DonorAccess supporter.LpaPath
 }
 
 type AppPaths struct {
@@ -456,22 +406,21 @@ var Paths = AppPaths{
 		OrganisationDeleted:   "/organisation-deleted",
 		SigningInAdvice:       "/signing-in-with-govuk-one-login",
 		Start:                 "/supporter-start",
+		InviteExpired:         "/invite-expired",
 
-		ConfirmDonorCanInteractOnline: "/confirm-donor-can-interact-online",
-		ContactOPGForPaperForms:       "/contact-opg-for-paper-forms",
-		Dashboard:                     "/dashboard",
-		DeleteOrganisation:            "/manage-organisation/organisation-details/delete-organisation",
-		EditMember:                    "/manage-organisation/manage-team-members/edit-team-member",
-		EditOrganisationName:          "/manage-organisation/organisation-details/edit-organisation-name",
-		InviteExpired:                 "/invite-expired",
-		InviteMember:                  "/invite-member",
-		InviteMemberConfirmation:      "/invite-member-confirmation",
-		ManageTeamMembers:             "/manage-organisation/manage-team-members",
-		OrganisationCreated:           "/organisation-or-company-created",
-		OrganisationDetails:           "/manage-organisation/organisation-details",
-		ViewLPA:                       "/view-lpa",
-
-		DonorAccess: "/donor-access",
+		ConfirmDonorCanInteractOnline: supporter.PathConfirmDonorCanInteractOnline,
+		ContactOPGForPaperForms:       supporter.PathContactOPGForPaperForms,
+		Dashboard:                     supporter.PathDashboard,
+		DeleteOrganisation:            supporter.PathDeleteOrganisation,
+		EditMember:                    supporter.PathEditMember,
+		EditOrganisationName:          supporter.PathEditOrganisationName,
+		InviteMember:                  supporter.PathInviteMember,
+		InviteMemberConfirmation:      supporter.PathInviteMemberConfirmation,
+		ManageTeamMembers:             supporter.PathManageTeamMembers,
+		OrganisationCreated:           supporter.PathOrganisationCreated,
+		OrganisationDetails:           supporter.PathOrganisationDetails,
+		ViewLPA:                       supporter.PathViewLPA,
+		DonorAccess:                   supporter.PathDonorAccess,
 	},
 
 	HealthCheck: HealthCheckPaths{
