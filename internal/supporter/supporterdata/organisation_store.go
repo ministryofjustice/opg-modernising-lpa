@@ -1,4 +1,4 @@
-package app
+package supporterdata
 
 import (
 	"context"
@@ -11,14 +11,25 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
-type organisationStore struct {
+type OrganisationStore struct {
 	dynamoClient DynamoClient
 	uuidString   func() string
 	newUID       func() actoruid.UID
 	randomString func(int) string
 	now          func() time.Time
+}
+
+func NewOrganisationStore(dynamoClient DynamoClient) *OrganisationStore {
+	return &OrganisationStore{
+		dynamoClient: dynamoClient,
+		uuidString:   random.UuidString,
+		newUID:       actoruid.New,
+		randomString: random.String,
+		now:          time.Now,
+	}
 }
 
 // An organisationLink is used to join a Member to an Organisation to be accessed by MemberID.
@@ -30,7 +41,7 @@ type organisationLink struct {
 	MemberSK dynamo.MemberKeyType
 }
 
-func (s *organisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
+func (s *OrganisationStore) Create(ctx context.Context, member *actor.Member, name string) (*actor.Organisation, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -55,7 +66,7 @@ func (s *organisationStore) Create(ctx context.Context, member *actor.Member, na
 	return organisation, nil
 }
 
-func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
+func (s *OrganisationStore) Get(ctx context.Context) (*actor.Organisation, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -82,12 +93,12 @@ func (s *organisationStore) Get(ctx context.Context) (*actor.Organisation, error
 	return &organisation, err
 }
 
-func (s *organisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
+func (s *OrganisationStore) Put(ctx context.Context, organisation *actor.Organisation) error {
 	organisation.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, organisation)
 }
 
-func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
+func (s *OrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -122,7 +133,7 @@ func (s *organisationStore) CreateLPA(ctx context.Context) (*donordata.Provided,
 	return donor, err
 }
 
-func (s *organisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {
+func (s *OrganisationStore) SoftDelete(ctx context.Context, organisation *actor.Organisation) error {
 	organisation.DeletedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, organisation)

@@ -1,4 +1,4 @@
-package app
+package supporterdata
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func TestOrganisationStoreCreate(t *testing.T) {
 		}).
 		Return(nil)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 	assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestOrganisationStoreCreateWithSessionMissing(t *testing.T) {
 
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
-			organisationStore := &organisationStore{}
+			organisationStore := &OrganisationStore{}
 
 			organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 			assert.Error(t, err)
@@ -64,7 +64,7 @@ func TestOrganisationStoreCreateWhenErrors(t *testing.T) {
 		Create(ctx, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	organisation, err := organisationStore.Create(ctx, &actor.Member{OrganisationID: "a-uuid"}, "A name")
 	assert.ErrorIs(t, err, expectedError)
@@ -82,7 +82,7 @@ func TestOrganisationStoreGet(t *testing.T) {
 	dynamoClient.
 		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), organisation, nil)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	result, err := organisationStore.Get(ctx)
 	assert.Nil(t, err)
@@ -100,7 +100,7 @@ func TestOrganisationStoreGetWhenOrganisationDeleted(t *testing.T) {
 	dynamoClient.
 		ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), organisation, nil)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	result, err := organisationStore.Get(ctx)
 
@@ -116,7 +116,7 @@ func TestOrganisationStoreGetWithSessionErrors(t *testing.T) {
 
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
-			organisationStore := &organisationStore{}
+			organisationStore := &OrganisationStore{}
 
 			_, err := organisationStore.Get(ctx)
 			assert.Error(t, err)
@@ -151,7 +151,7 @@ func TestOrganisationStoreGetWhenErrors(t *testing.T) {
 					ExpectOne(ctx, dynamo.OrganisationKey("a-uuid"), dynamo.OrganisationKey("a-uuid"), nil, tc.oneError)
 			}
 
-			organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+			organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 			_, err := organisationStore.Get(ctx)
 			assert.Equal(t, expectedError, err)
@@ -167,7 +167,7 @@ func TestOrganisationStorePut(t *testing.T) {
 		Put(ctx, &actor.Organisation{PK: dynamo.OrganisationKey("123"), SK: dynamo.OrganisationKey("456"), Name: "Hey", UpdatedAt: testNow}).
 		Return(expectedError)
 
-	store := &organisationStore{
+	store := &OrganisationStore{
 		dynamoClient: dynamoClient,
 		now:          testNowFn,
 	}
@@ -195,7 +195,7 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 		Create(ctx, expectedDonor).
 		Return(nil)
 
-	organisationStore := &organisationStore{
+	organisationStore := &OrganisationStore{
 		dynamoClient: dynamoClient,
 		now:          testNowFn,
 		uuidString:   func() string { return "a-uuid" },
@@ -216,7 +216,7 @@ func TestOrganisationStoreCreateLPAWithSessionMissing(t *testing.T) {
 
 	for name, ctx := range testCases {
 		t.Run(name, func(t *testing.T) {
-			organisationStore := &organisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+			organisationStore := &OrganisationStore{dynamoClient: nil, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 			_, err := organisationStore.CreateLPA(ctx)
 			assert.Error(t, err)
@@ -232,7 +232,7 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 		Create(ctx, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := &organisationStore{
+	organisationStore := &OrganisationStore{
 		dynamoClient: dynamoClient,
 		now:          testNowFn,
 		uuidString:   func() string { return "a-uuid" },
@@ -252,7 +252,7 @@ func TestOrganisationStoreSoftDelete(t *testing.T) {
 		Put(ctx, &actor.Organisation{DeletedAt: testNow}).
 		Return(nil)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	err := organisationStore.SoftDelete(ctx, &actor.Organisation{})
 	assert.Nil(t, err)
@@ -266,7 +266,7 @@ func TestOrganisationStoreSoftDeleteWhenDynamoClientError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	organisationStore := &organisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
+	organisationStore := &OrganisationStore{dynamoClient: dynamoClient, now: testNowFn, uuidString: func() string { return "a-uuid" }}
 
 	err := organisationStore.SoftDelete(ctx, &actor.Organisation{})
 	assert.Error(t, err)

@@ -1,4 +1,4 @@
-package app
+package supporterdata
 
 import (
 	"context"
@@ -11,15 +11,34 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
-type memberStore struct {
+type DynamoClient interface {
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	Put(ctx context.Context, v interface{}) error
+}
+
+type MemberStore struct {
 	dynamoClient DynamoClient
 	uuidString   func() string
 	now          func() time.Time
 }
 
-func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, referenceNumber string, permission actor.Permission) error {
+func NewMemberStore(dynamoClient DynamoClient) *MemberStore {
+	return &MemberStore{
+		dynamoClient: dynamoClient,
+		uuidString:   random.UuidString,
+		now:          time.Now,
+	}
+}
+
+func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *actor.Organisation, firstNames, lastname, email, referenceNumber string, permission actor.Permission) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -49,7 +68,7 @@ func (s *memberStore) CreateMemberInvite(ctx context.Context, organisation *acto
 	return nil
 }
 
-func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, email string) error {
+func (s *MemberStore) DeleteMemberInvite(ctx context.Context, organisationID, email string) error {
 	if err := s.dynamoClient.DeleteOne(ctx, dynamo.OrganisationKey(organisationID), dynamo.MemberInviteKey(email)); err != nil {
 		return fmt.Errorf("error deleting member invite: %w", err)
 	}
@@ -57,7 +76,7 @@ func (s *memberStore) DeleteMemberInvite(ctx context.Context, organisationID, em
 	return nil
 }
 
-func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error) {
+func (s *MemberStore) Create(ctx context.Context, firstNames, lastName string) (*actor.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -105,7 +124,7 @@ func (s *memberStore) Create(ctx context.Context, firstNames, lastName string) (
 	return member, nil
 }
 
-func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
+func (s *MemberStore) CreateFromInvite(ctx context.Context, invite *actor.MemberInvite) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -150,7 +169,7 @@ func (s *memberStore) CreateFromInvite(ctx context.Context, invite *actor.Member
 	return nil
 }
 
-func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -168,7 +187,7 @@ func (s *memberStore) InvitedMember(ctx context.Context) (*actor.MemberInvite, e
 	return invitedMember, nil
 }
 
-func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -186,7 +205,7 @@ func (s *memberStore) InvitedMembers(ctx context.Context) ([]*actor.MemberInvite
 	return invitedMembers, nil
 }
 
-func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
+func (s *MemberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.MemberInvite, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -204,7 +223,7 @@ func (s *memberStore) InvitedMembersByEmail(ctx context.Context) ([]*actor.Membe
 	return invitedMembers, nil
 }
 
-func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
+func (s *MemberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -226,7 +245,7 @@ func (s *memberStore) GetAll(ctx context.Context) ([]*actor.Member, error) {
 	return members, nil
 }
 
-func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
+func (s *MemberStore) GetByID(ctx context.Context, memberID string) (*actor.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -249,7 +268,7 @@ func (s *memberStore) GetByID(ctx context.Context, memberID string) (*actor.Memb
 	return member, nil
 }
 
-func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
+func (s *MemberStore) Get(ctx context.Context) (*actor.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -271,7 +290,7 @@ func (s *memberStore) Get(ctx context.Context) (*actor.Member, error) {
 	return member, nil
 }
 
-func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
+func (s *MemberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -289,7 +308,7 @@ func (s *memberStore) GetAny(ctx context.Context) (*actor.Member, error) {
 	return member, nil
 }
 
-func (s *memberStore) Put(ctx context.Context, member *actor.Member) error {
+func (s *MemberStore) Put(ctx context.Context, member *actor.Member) error {
 	member.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, member)
 }
