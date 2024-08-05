@@ -38,8 +38,8 @@ type Store struct {
 	now          func() time.Time
 }
 
-func NewStore(dynamoClient DynamoClient, now func() time.Time) *Store {
-	return &Store{dynamoClient: dynamoClient, now: now}
+func NewStore(dynamoClient DynamoClient) *Store {
+	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
 func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
