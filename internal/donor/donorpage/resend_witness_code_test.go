@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -56,7 +57,7 @@ func TestGetResendWitnessCodeWhenTemplateErrors(t *testing.T) {
 
 func TestPostResendWitnessCode(t *testing.T) {
 	testcases := map[actor.Type]struct {
-		redirect page.LpaPath
+		redirect donor.Path
 		method   string
 	}{
 		actor.TypeIndependentWitness: {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -25,7 +26,7 @@ type paymentConfirmationData struct {
 	FeeType          pay.FeeType
 	PreviousFee      pay.PreviousFee
 	EvidenceDelivery pay.EvidenceDelivery
-	NextPage         page.LpaPath
+	NextPage         donor.Path
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
