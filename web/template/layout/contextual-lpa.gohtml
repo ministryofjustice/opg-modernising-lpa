@@ -435,10 +435,10 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsAttorneysMustMakeTogether" }}
+            {{ $label := "decisionsAttorneysMustMakeJointly" }}
 
             {{ if $isDonor }}
-                {{ $label = "decisionsYourAttorneysMustMakeTogether" }}
+                {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
             {{ end }}
 
             {{ template "summary-row" (summaryRow .App $label
@@ -461,10 +461,10 @@
         {{ end }}
 
         {{ if .Donor.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsReplacementAttorneysMustMakeTogether" }}
+            {{ $label := "decisionsReplacementAttorneysMustMakeJointly" }}
 
             {{ if $isDonor }}
-                {{ $label = "decisionsYourReplacementAttorneysMustMakeTogether" }}
+                {{ $label = "decisionsYourReplacementAttorneysMustMakeJointly" }}
             {{ end }}
 
             {{ template "summary-row" (summaryRow .App $label
