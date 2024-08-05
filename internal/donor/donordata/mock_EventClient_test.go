@@ -22,6 +22,53 @@ func (_m *mockEventClient) EXPECT() *mockEventClient_Expecter {
 	return &mockEventClient_Expecter{mock: &_m.Mock}
 }
 
+// SendApplicationDeleted provides a mock function with given fields: _a0, _a1
+func (_m *mockEventClient) SendApplicationDeleted(_a0 context.Context, _a1 event.ApplicationDeleted) error {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendApplicationDeleted")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.ApplicationDeleted) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendApplicationDeleted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendApplicationDeleted'
+type mockEventClient_SendApplicationDeleted_Call struct {
+	*mock.Call
+}
+
+// SendApplicationDeleted is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 event.ApplicationDeleted
+func (_e *mockEventClient_Expecter) SendApplicationDeleted(_a0 interface{}, _a1 interface{}) *mockEventClient_SendApplicationDeleted_Call {
+	return &mockEventClient_SendApplicationDeleted_Call{Call: _e.mock.On("SendApplicationDeleted", _a0, _a1)}
+}
+
+func (_c *mockEventClient_SendApplicationDeleted_Call) Run(run func(_a0 context.Context, _a1 event.ApplicationDeleted)) *mockEventClient_SendApplicationDeleted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.ApplicationDeleted))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendApplicationDeleted_Call) Return(_a0 error) *mockEventClient_SendApplicationDeleted_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendApplicationDeleted_Call) RunAndReturn(run func(context.Context, event.ApplicationDeleted) error) *mockEventClient_SendApplicationDeleted_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendApplicationUpdated provides a mock function with given fields: _a0, _a1
 func (_m *mockEventClient) SendApplicationUpdated(_a0 context.Context, _a1 event.ApplicationUpdated) error {
 	ret := _m.Called(_a0, _a1)

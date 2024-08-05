@@ -41,10 +41,15 @@ type fixturesData struct {
 	Sub        string
 	DonorEmail string
 	Errors     validation.List
+	Members    []Name
 }
 
 type Name struct {
 	Firstnames, Lastname string
+}
+
+func (n Name) Email() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s@example.org", n.Firstnames, n.Lastname))
 }
 
 var (
