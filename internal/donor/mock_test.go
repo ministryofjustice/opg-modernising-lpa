@@ -1,4 +1,4 @@
-package donordata
+package donor
 
 import (
 	"context"
