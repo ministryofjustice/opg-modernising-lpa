@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -35,9 +36,9 @@ type DynamoClient interface {
 }
 
 type DocumentStore interface {
-	GetAll(context.Context) (page.Documents, error)
-	Put(context.Context, page.Document) error
-	Create(ctx context.Context, donor *donordata.Provided, filename string, data []byte) (page.Document, error)
+	GetAll(context.Context) (document.Documents, error)
+	Put(context.Context, document.Document) error
+	Create(ctx context.Context, donor *donordata.Provided, filename string, data []byte) (document.Document, error)
 }
 
 var progressValues = []string{
