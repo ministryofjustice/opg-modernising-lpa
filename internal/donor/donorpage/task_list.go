@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -141,7 +142,7 @@ func taskListTypeSpecificStep(donor *donordata.Provided) taskListItem {
 	}
 }
 
-func taskListCheckLpaPath(donor *donordata.Provided) page.LpaPath {
+func taskListCheckLpaPath(donor *donordata.Provided) donor.Path {
 	if len(donor.Under18ActorDetails()) > 0 {
 		return page.Paths.YouCannotSignYourLpaYet
 	} else if donor.CertificateProviderSharesDetails() {
@@ -176,14 +177,14 @@ func taskListPaymentSection(donor *donordata.Provided) taskListSection {
 	}
 }
 
-func taskListSignSection(donor *donordata.Provided) taskListSection {
-	var signPath page.LpaPath
+func taskListSignSection(provided *donordata.Provided) taskListSection {
+	var signPath donor.Path
 
-	switch donor.DonorIdentityUserData.Status {
+	switch provided.DonorIdentityUserData.Status {
 	case identity.StatusConfirmed:
-		if !donor.SignedAt.IsZero() {
+		if !provided.SignedAt.IsZero() {
 			signPath = page.Paths.YouHaveSubmittedYourLpa
-		} else if donor.DonorIdentityConfirmed() {
+		} else if provided.DonorIdentityConfirmed() {
 			signPath = page.Paths.ReadYourLpa
 		} else {
 			signPath = page.Paths.OneLoginIdentityDetails
@@ -193,15 +194,15 @@ func taskListSignSection(donor *donordata.Provided) taskListSection {
 		signPath = page.Paths.RegisterWithCourtOfProtection
 
 	case identity.StatusInsufficientEvidence:
-		if !donor.SignedAt.IsZero() {
+		if !provided.SignedAt.IsZero() {
 			signPath = page.Paths.YouHaveSubmittedYourLpa
-		} else if donor.RegisteringWithCourtOfProtection {
+		} else if provided.RegisteringWithCourtOfProtection {
 			signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
-		} else if donor.Voucher.FirstNames != "" {
+		} else if provided.Voucher.FirstNames != "" {
 			signPath = page.Paths.ReadYourLpa
-		} else if donor.WantVoucher.IsYes() {
+		} else if provided.WantVoucher.IsYes() {
 			signPath = page.Paths.EnterVoucher
-		} else if donor.WantVoucher.IsNo() {
+		} else if provided.WantVoucher.IsNo() {
 			signPath = page.Paths.WhatYouCanDoNow
 		} else {
 			signPath = page.Paths.UnableToConfirmIdentity
@@ -216,8 +217,8 @@ func taskListSignSection(donor *donordata.Provided) taskListSection {
 		Items: []taskListItem{
 			{
 				Name:          "confirmYourIdentityAndSign",
-				Path:          signPath.Format(donor.LpaID),
-				IdentityState: donor.Tasks.ConfirmYourIdentityAndSign,
+				Path:          signPath.Format(provided.LpaID),
+				IdentityState: provided.Tasks.ConfirmYourIdentityAndSign,
 			},
 		},
 	}

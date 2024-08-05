@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -55,7 +56,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 	testCases := map[string]struct {
 		form     url.Values
 		person   donordata.Donor
-		redirect page.LpaPath
+		redirect donor.Path
 	}{
 		"can sign": {
 			form: url.Values{

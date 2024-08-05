@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -33,15 +34,15 @@ func (d confirmPersonAllowedToVouchData) MultipleMatches() bool {
 }
 
 func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		matches := donor.Voucher.Matches(donor)
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		matches := provided.Voucher.Matches(provided)
 
 		data := &confirmPersonAllowedToVouchData{
 			App:          appData,
 			Form:         form.NewYesNoForm(form.YesNoUnknown),
 			Matches:      matches,
-			MatchSurname: strings.EqualFold(donor.Voucher.LastName, donor.Donor.LastName) && !slices.Contains(matches, actor.TypeDonor),
-			FullName:     donor.Voucher.FullName(),
+			MatchSurname: strings.EqualFold(provided.Voucher.LastName, provided.Donor.LastName) && !slices.Contains(matches, actor.TypeDonor),
+			FullName:     provided.Voucher.FullName(),
 		}
 
 		if r.Method == http.MethodPost {
@@ -49,20 +50,20 @@ func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				var redirect page.LpaPath
+				var redirect donor.Path
 				if data.Form.YesNo.IsYes() {
-					donor.Voucher.Allowed = true
+					provided.Voucher.Allowed = true
 					redirect = page.Paths.CheckYourDetails
 				} else {
-					donor.Voucher = donordata.Voucher{}
+					provided.Voucher = donordata.Voucher{}
 					redirect = page.Paths.EnterVoucher
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, donor)
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 

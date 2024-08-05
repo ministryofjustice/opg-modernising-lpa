@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -100,7 +101,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 		HowAttorneysMakeDecisions            lpadata.AttorneysAct
 		HowReplacementAttorneysMakeDecisions lpadata.AttorneysAct
 		HowShouldReplacementAttorneysStepIn  lpadata.ReplacementAttorneysStepIn
-		ExpectedRedirectUrl                  page.LpaPath
+		ExpectedRedirectUrl                  donor.Path
 		TaskState                            task.State
 	}{
 		"multiple attorneys acting jointly and severally replacements step in when none left": {
