@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -117,7 +118,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 		updatedDetails  string
 		formType        string
 		formDetails     string
-		redirect        page.LpaPath
+		redirect        donor.Path
 	}{
 		"existing details not set": {
 			existingType:    lpadata.JointlyAndSeverally,

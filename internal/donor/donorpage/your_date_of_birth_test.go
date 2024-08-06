@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -185,7 +186,7 @@ func TestPostYourDateOfBirth(t *testing.T) {
 func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 	testcases := map[string]struct {
 		url      string
-		redirect page.LpaPath
+		redirect donor.Path
 	}{
 		"making first": {
 			url:      "/",

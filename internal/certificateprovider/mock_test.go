@@ -1,4 +1,4 @@
-package certificateproviderdata
+package certificateprovider
 
 import (
 	"context"
