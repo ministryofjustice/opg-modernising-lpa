@@ -62,6 +62,10 @@ func (c *Client) SendPaymentReceived(ctx context.Context, event PaymentReceived)
 	return c.send(ctx, "payment-received", event)
 }
 
+func (c *Client) SendCertificateProviderStarted(ctx context.Context, event CertificateProviderStarted) error {
+	return c.send(ctx, "certificate-provider-started", event)
+}
+
 func (c *Client) send(ctx context.Context, detailType string, detail any) error {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 	ctx, span := tracer.Start(ctx, detailType,
