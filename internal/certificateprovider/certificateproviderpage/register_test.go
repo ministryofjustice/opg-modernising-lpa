@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -113,7 +114,7 @@ func TestMakeCertificateProviderHandle(t *testing.T) {
 }
 
 func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
-	path := page.Paths.CertificateProvider.ProvideCertificate
+	path := certificateprovider.PathProvideCertificate
 
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	w := httptest.NewRecorder()
@@ -139,7 +140,7 @@ func TestMakeCertificateProviderHandleWhenCannotGoToURL(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.TaskList.Format("123"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathTaskList.Format("123"), resp.Header.Get("Location"))
 }
 
 func TestMakeCertificateProviderHandleSessionError(t *testing.T) {

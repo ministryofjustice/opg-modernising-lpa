@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -27,7 +27,7 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 
 		if r.Method == http.MethodPost {
 			if lpa.SignedAt.IsZero() || !lpa.Paid {
-				return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
+				return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
 			}
 
 			certificateProvider.Tasks.ReadTheLpa = task.StateCompleted
@@ -35,7 +35,7 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 				return err
 			}
 
-			return page.Paths.CertificateProvider.WhatHappensNext.Redirect(w, r, appData, lpa.LpaID)
+			return certificateprovider.PathWhatHappensNext.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &readTheLpaData{

@@ -271,8 +271,8 @@ func CertificateProvider(
 			redirect = page.Paths.Dashboard.Format()
 		case page.Paths.CertificateProviderStart.Format():
 			redirect = page.Paths.CertificateProviderStart.Format()
-		case page.Paths.CertificateProvider.EnterReferenceNumberOptOut.Format():
-			redirect = page.Paths.CertificateProvider.EnterReferenceNumberOptOut.Format()
+		case certificateprovider.PathEnterReferenceNumberOptOut.Format():
+			redirect = certificateprovider.PathEnterReferenceNumberOptOut.Format()
 		default:
 			redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
 		}

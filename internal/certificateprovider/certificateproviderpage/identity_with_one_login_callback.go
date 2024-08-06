@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -19,7 +20,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-			return page.Paths.CertificateProvider.OneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -67,13 +68,13 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				}
 			}
 
-			return page.Paths.CertificateProvider.UnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathUnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 		default:
 			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
 				return err
 			}
 
-			return page.Paths.CertificateProvider.OneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 	}
 }

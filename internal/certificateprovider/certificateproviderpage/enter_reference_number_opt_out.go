@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -42,7 +43,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					return err
 				}
 
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return certificateprovider.PathConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 
