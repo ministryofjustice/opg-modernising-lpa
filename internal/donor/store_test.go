@@ -647,7 +647,7 @@ func TestDonorStoreDelete(t *testing.T) {
 		AllKeysByPK(ctx, dynamo.LpaKey("123")).
 		Return(keys, nil)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("an-id"),
-		&Provided{LpaUID: "lpa-uid"}, nil)
+		&donordata.Provided{LpaUID: "lpa-uid"}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, keys).
 		Return(nil)
@@ -700,7 +700,7 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 				AllKeysByPK(mock.Anything, mock.Anything).
 				Return([]dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")}}, nil)
 			dynamoClient.ExpectOne(mock.Anything, mock.Anything, mock.Anything,
-				&Provided{}, expectedError)
+				&donordata.Provided{}, expectedError)
 			return dynamoClient
 		},
 		"DeleteKeys": func(t *testing.T) *mockDynamoClient {
@@ -709,7 +709,7 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 				AllKeysByPK(mock.Anything, mock.Anything).
 				Return([]dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")}}, nil)
 			dynamoClient.ExpectOne(mock.Anything, mock.Anything, mock.Anything,
-				&Provided{}, nil)
+				&donordata.Provided{}, nil)
 			dynamoClient.EXPECT().
 				DeleteKeys(ctx, mock.Anything).
 				Return(expectedError)
@@ -741,7 +741,7 @@ func TestDonorStoreDeleteWhenEventClientError(t *testing.T) {
 		AllKeysByPK(mock.Anything, mock.Anything).
 		Return(keys, nil)
 	dynamoClient.ExpectOne(mock.Anything, mock.Anything, mock.Anything,
-		&Provided{}, nil)
+		&donordata.Provided{}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(mock.Anything, mock.Anything).
 		Return(nil)
