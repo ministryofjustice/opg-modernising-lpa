@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -47,9 +48,9 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 				return err
 			}
 
-			path := Paths.YourName
+			path := donor.PathYourName
 			if form.hasExistingDonorLPAs {
-				path = Paths.MakeANewLPA
+				path = donor.PathMakeANewLPA
 			}
 
 			return path.Redirect(w, r, appData, lpa)

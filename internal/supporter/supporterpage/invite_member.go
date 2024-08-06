@@ -50,7 +50,7 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 					OrganisationName:      organisation.Name,
 					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
-					JoinAnOrganisationURL: appPublicURL + supporter.PathStart.Format(),
+					JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
 				}); err != nil {
 					return err
 				}

@@ -268,11 +268,11 @@ func CertificateProvider(
 
 		switch redirect {
 		case "":
-			redirect = page.Paths.Dashboard.Format()
-		case page.Paths.CertificateProviderStart.Format():
-			redirect = page.Paths.CertificateProviderStart.Format()
-		case certificateprovider.PathEnterReferenceNumberOptOut.Format():
-			redirect = certificateprovider.PathEnterReferenceNumberOptOut.Format()
+			redirect = page.PathDashboard.Format()
+		case page.PathCertificateProviderStart.Format():
+			redirect = page.PathCertificateProviderStart.Format()
+		case page.PathCertificateProviderEnterReferenceNumberOptOut.Format():
+			redirect = page.PathCertificateProviderEnterReferenceNumberOptOut.Format()
 		default:
 			redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
 		}

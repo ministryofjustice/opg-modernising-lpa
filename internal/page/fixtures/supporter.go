@@ -296,7 +296,7 @@ func Supporter(
 			return err
 		}
 
-		if redirect != supporter.PathEnterOrganisationName.Format() && redirect != supporter.PathEnterYourName.Format() && redirect != page.Paths.EnterAccessCode.Format() {
+		if redirect != page.PathSupporterEnterOrganisationName.Format() && redirect != page.PathSupporterEnterYourName.Format() && redirect != page.PathEnterAccessCode.Format() {
 			redirect = "/supporter" + redirect
 		}
 

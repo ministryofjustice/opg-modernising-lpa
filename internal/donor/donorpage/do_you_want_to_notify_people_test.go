@@ -128,7 +128,7 @@ func TestGetDoYouWantToNotifyPeopleFromStoreWithPeople(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetDoYouWantToNotifyPeopleWhenTemplateErrors(t *testing.T) {
@@ -157,13 +157,13 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 		{
 			YesNo:            form.Yes,
 			ExistingAnswer:   form.No,
-			ExpectedRedirect: page.Paths.ChoosePeopleToNotify,
+			ExpectedRedirect: donor.PathChoosePeopleToNotify,
 			ExpectedStatus:   task.StateInProgress,
 		},
 		{
 			YesNo:            form.No,
 			ExistingAnswer:   form.Yes,
-			ExpectedRedirect: page.Paths.TaskList,
+			ExpectedRedirect: donor.PathTaskList,
 			ExpectedStatus:   task.StateCompleted,
 		},
 	}

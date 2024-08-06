@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -19,11 +20,11 @@ type whichFeeTypeAreYouApplyingForData struct {
 }
 
 func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &whichFeeTypeAreYouApplyingForData{
 			App: appData,
 			Form: &whichFeeTypeAreYouApplyingForForm{
-				FeeType: donor.FeeType,
+				FeeType: provided.FeeType,
 			},
 			Options: pay.FeeTypeValues,
 		}
@@ -33,15 +34,15 @@ func WhichFeeTypeAreYouApplyingFor(tmpl template.Template, donorStore DonorStore
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.FeeType = data.Form.FeeType
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				provided.FeeType = data.Form.FeeType
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if donor.FeeType.IsRepeatApplicationFee() {
-					return page.Paths.PreviousApplicationNumber.Redirect(w, r, appData, donor)
+				if provided.FeeType.IsRepeatApplicationFee() {
+					return donor.PathPreviousApplicationNumber.Redirect(w, r, appData, provided)
 				} else {
-					return page.Paths.EvidenceRequired.Redirect(w, r, appData, donor)
+					return donor.PathEvidenceRequired.Redirect(w, r, appData, provided)
 				}
 			}
 		}

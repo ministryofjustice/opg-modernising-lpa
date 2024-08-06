@@ -62,7 +62,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 					DonorFullName:               lpa.Donor.FullName(),
 					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 					LpaType:                     appData.Localizer.T(lpa.Type.String()),
-					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
 				}); err != nil {
 					return err
 				}

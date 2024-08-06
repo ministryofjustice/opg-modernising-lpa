@@ -11,10 +11,10 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -164,7 +164,7 @@ func TestLink(t *testing.T) {
 
 func TestFromLink(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id/your-details?from=/previous#f-first-names",
-		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
+		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, donor.PathYourDetails, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
 		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, attorney.PathConfirmYourDetails, ""))
 }
@@ -172,7 +172,7 @@ func TestFromLink(t *testing.T) {
 func TestFromLinkActor(t *testing.T) {
 	uid := actoruid.New()
 	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id/your-details?from=/previous&id=%s#f-first-names", uid.String()),
-		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
+		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, donor.PathYourDetails, uid, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous&id="+uid.String(),
 		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, attorney.PathConfirmYourDetails, uid, ""))
 }
@@ -326,21 +326,21 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 	uid2 := actoruid.New()
 
 	attorneyLinks := attorneySummaryDataLinks{
-		Attorney:                page.Paths.ChooseAttorneys.Format("lpa-id") + "?from=/here",
-		AttorneyAddress:         page.Paths.ChooseAttorneysAddress.Format("lpa-id") + "?from=/here",
-		RemoveAttorney:          page.Paths.RemoveAttorney.Format("lpa-id") + "?from=/here",
-		TrustCorporation:        page.Paths.EnterTrustCorporation.Format("lpa-id") + "?from=/here",
-		TrustCorporationAddress: page.Paths.EnterTrustCorporationAddress.Format("lpa-id") + "?from=/here",
-		RemoveTrustCorporation:  page.Paths.RemoveTrustCorporation.Format("lpa-id") + "?from=/here",
+		Attorney:                donor.PathChooseAttorneys.Format("lpa-id") + "?from=/here",
+		AttorneyAddress:         donor.PathChooseAttorneysAddress.Format("lpa-id") + "?from=/here",
+		RemoveAttorney:          donor.PathRemoveAttorney.Format("lpa-id") + "?from=/here",
+		TrustCorporation:        donor.PathEnterTrustCorporation.Format("lpa-id") + "?from=/here",
+		TrustCorporationAddress: donor.PathEnterTrustCorporationAddress.Format("lpa-id") + "?from=/here",
+		RemoveTrustCorporation:  donor.PathRemoveTrustCorporation.Format("lpa-id") + "?from=/here",
 	}
 
 	replacementLinks := attorneySummaryDataLinks{
-		Attorney:                page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
-		AttorneyAddress:         page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here",
-		RemoveAttorney:          page.Paths.RemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
-		TrustCorporation:        page.Paths.EnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
-		TrustCorporationAddress: page.Paths.EnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here",
-		RemoveTrustCorporation:  page.Paths.RemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
+		Attorney:                donor.PathChooseReplacementAttorneys.Format("lpa-id") + "?from=/here",
+		AttorneyAddress:         donor.PathChooseReplacementAttorneysAddress.Format("lpa-id") + "?from=/here",
+		RemoveAttorney:          donor.PathRemoveReplacementAttorney.Format("lpa-id") + "?from=/here",
+		TrustCorporation:        donor.PathEnterReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
+		TrustCorporationAddress: donor.PathEnterReplacementTrustCorporationAddress.Format("lpa-id") + "?from=/here",
+		RemoveTrustCorporation:  donor.PathRemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
 	}
 
 	lpaStoreAttorneys := []lpastore.Attorney{

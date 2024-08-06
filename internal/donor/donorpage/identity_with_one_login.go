@@ -4,14 +4,14 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
 func IdentityWithOneLogin(oneLoginClient OneLoginClient, sessionStore SessionStore, randomString func(int) string) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		locale := ""
 		if appData.Lang == localize.Cy {
 			locale = "cy"
@@ -29,8 +29,8 @@ func IdentityWithOneLogin(oneLoginClient OneLoginClient, sessionStore SessionSto
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			LpaID:    donor.LpaID,
-			Redirect: page.Paths.IdentityWithOneLoginCallback.Format(donor.LpaID),
+			LpaID:    provided.LpaID,
+			Redirect: donor.PathIdentityWithOneLoginCallback.Format(provided.LpaID),
 		}); err != nil {
 			return err
 		}

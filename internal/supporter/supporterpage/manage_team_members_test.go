@@ -137,7 +137,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
-			JoinAnOrganisationURL: "http://base" + supporter.PathStart.Format(),
+			JoinAnOrganisationURL: "http://base" + page.PathSupporterStart.Format(),
 		}).
 		Return(nil)
 

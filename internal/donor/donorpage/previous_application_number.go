@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -18,11 +19,11 @@ type previousApplicationNumberData struct {
 }
 
 func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &previousApplicationNumberData{
 			App: appData,
 			Form: &previousApplicationNumberForm{
-				PreviousApplicationNumber: donor.PreviousApplicationNumber,
+				PreviousApplicationNumber: provided.PreviousApplicationNumber,
 			},
 		}
 
@@ -31,23 +32,23 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, ev
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
+				provided.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
 				if err := eventClient.SendPreviousApplicationLinked(r.Context(), event.PreviousApplicationLinked{
-					UID:                       donor.LpaUID,
-					PreviousApplicationNumber: donor.PreviousApplicationNumber,
+					UID:                       provided.LpaUID,
+					PreviousApplicationNumber: provided.PreviousApplicationNumber,
 				}); err != nil {
 					return err
 				}
 
-				if donor.PreviousApplicationNumber[0] == '7' {
-					return page.Paths.PreviousFee.Redirect(w, r, appData, donor)
+				if provided.PreviousApplicationNumber[0] == '7' {
+					return donor.PathPreviousFee.Redirect(w, r, appData, provided)
 				} else {
-					return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, donor)
+					return donor.PathEvidenceSuccessfullyUploaded.Redirect(w, r, appData, provided)
 				}
 			}
 		}

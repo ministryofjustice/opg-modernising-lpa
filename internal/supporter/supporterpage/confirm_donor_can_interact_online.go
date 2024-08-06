@@ -5,8 +5,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -35,7 +35,7 @@ func ConfirmDonorCanInteractOnline(tmpl template.Template, organisationStore Org
 					return err
 				}
 
-				return page.Paths.YourName.Redirect(w, r, appData, donorProvided)
+				return donor.PathYourName.Redirect(w, r, appData, donorProvided)
 			} else if data.Form.YesNo.IsNo() {
 				return supporter.PathContactOPGForPaperForms.Redirect(w, r, appData)
 			}

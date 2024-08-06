@@ -86,7 +86,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseAttorneysSummary,
+			redirect: donor.PathChooseAttorneysSummary,
 		},
 		"replacement many left": {
 			isReplacement: true,
@@ -101,7 +101,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 				Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"one left": {
 			donor: &donordata.Provided{
@@ -114,7 +114,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseAttorneysSummary,
+			redirect: donor.PathChooseAttorneysSummary,
 		},
 		"replacement one left": {
 			isReplacement: true,
@@ -128,7 +128,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 				Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"none left": {
 			donor: &donordata.Provided{LpaID: "lpa-id", Attorneys: donordata.Attorneys{TrustCorporation: trustCorporation}},
@@ -136,7 +136,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				LpaID:     "lpa-id",
 				Attorneys: donordata.Attorneys{},
 			},
-			redirect: page.Paths.ChooseAttorneysSummary,
+			redirect: donor.PathChooseAttorneysSummary,
 		},
 		"replacement none left": {
 			isReplacement: true,
@@ -145,7 +145,7 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: donordata.Attorneys{},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 	}
 
@@ -207,7 +207,7 @@ func TestPostRemoveTrustCorporationWithFormValueNo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveTrustCorporationErrorOnPutStore(t *testing.T) {

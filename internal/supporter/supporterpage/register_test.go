@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
@@ -113,7 +114,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, supporter.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeSupporterHandle(t *testing.T) {
@@ -462,7 +463,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, supporter.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {

@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -27,15 +26,15 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		nextPage         donor.Path
 	}{
 		"empty": {
-			nextPage: page.Paths.TaskList,
+			nextPage: donor.PathTaskList,
 		},
 		"upload": {
 			evidenceDelivery: pay.Upload,
-			nextPage:         page.Paths.EvidenceSuccessfullyUploaded,
+			nextPage:         donor.PathEvidenceSuccessfullyUploaded,
 		},
 		"post": {
 			evidenceDelivery: pay.Post,
-			nextPage:         page.Paths.WhatHappensNextPostEvidence,
+			nextPage:         donor.PathWhatHappensNextPostEvidence,
 		},
 	}
 
@@ -140,7 +139,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			App:              testAppData,
 			PaymentReference: "123456789012",
 			FeeType:          pay.HalfFee,
-			NextPage:         page.Paths.TaskList,
+			NextPage:         donor.PathTaskList,
 		}).
 		Return(nil)
 
@@ -219,7 +218,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.TaskList,
+					NextPage:         donor.PathTaskList,
 				}).
 				Return(nil)
 
@@ -319,7 +318,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.TaskList,
+					NextPage:         donor.PathTaskList,
 				}).
 				Return(nil)
 
@@ -395,7 +394,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.WeHaveContactedVoucher,
+					NextPage:         donor.PathWeHaveContactedVoucher,
 				}).
 				Return(nil)
 

@@ -68,7 +68,7 @@ func TestGetRemoveReplacementAttorneyAttorneyDoesNotExist(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveReplacementAttorney(t *testing.T) {
@@ -93,7 +93,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 				Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"one left": {
 			donor: &donordata.Provided{
@@ -106,7 +106,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress}},
 				Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 		"none left": {
 			donor: &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithoutAddress}}},
@@ -114,7 +114,7 @@ func TestPostRemoveReplacementAttorney(t *testing.T) {
 				LpaID:                "lpa-id",
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{}},
 			},
-			redirect: page.Paths.ChooseReplacementAttorneysSummary,
+			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},
 	}
 
@@ -171,7 +171,7 @@ func TestPostRemoveReplacementAttorneyWithFormValueNo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostRemoveReplacementAttorneyErrorOnPutStore(t *testing.T) {

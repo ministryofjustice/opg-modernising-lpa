@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -53,10 +52,10 @@ func ConfirmPersonAllowedToVouch(tmpl template.Template, donorStore DonorStore) 
 				var redirect donor.Path
 				if data.Form.YesNo.IsYes() {
 					provided.Voucher.Allowed = true
-					redirect = page.Paths.CheckYourDetails
+					redirect = donor.PathCheckYourDetails
 				} else {
 					provided.Voucher = donordata.Voucher{}
-					redirect = page.Paths.EnterVoucher
+					redirect = donor.PathEnterVoucher
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

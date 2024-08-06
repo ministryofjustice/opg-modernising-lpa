@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -55,14 +56,14 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 		expectedDonor *donordata.Provided
 	}{
 		donordata.ProveOwnID: {
-			expectedPath: page.Paths.TaskList.Format("lpa-id"),
+			expectedPath: donor.PathTaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{},
 			},
 		},
 		donordata.SelectNewVoucher: {
-			expectedPath: page.Paths.EnterVoucher.Format("lpa-id"),
+			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
 				WantVoucher:           form.Yes,
@@ -70,14 +71,14 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 			},
 		},
 		donordata.WithdrawLPA: {
-			expectedPath: page.Paths.WithdrawThisLpa.Format("lpa-id"),
+			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                 "lpa-id",
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
 		donordata.ApplyToCOP: {
-			expectedPath: page.Paths.WhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
+			expectedPath: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:                            "lpa-id",
 				RegisteringWithCourtOfProtection: true,

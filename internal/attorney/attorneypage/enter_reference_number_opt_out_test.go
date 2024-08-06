@@ -9,7 +9,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -89,7 +88,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, attorney.PathConfirmDontWantToBeAttorneyLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {

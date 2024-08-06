@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
@@ -95,7 +96,7 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, supporter.PathOrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterOrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
 }
 
 func TestPostDeleteOrganisationNameWhenSessionStoreErrors(t *testing.T) {

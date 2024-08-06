@@ -9,7 +9,7 @@ import (
 
 func SignOut(logger Logger, sessionStore SessionStore, oneLoginClient OneLoginClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
-		redirectURL := appPublicURL + Paths.Start.Format()
+		redirectURL := appPublicURL + PathStart.Format()
 
 		var idToken string
 		if session, err := sessionStore.Login(r); err == nil && session != nil {

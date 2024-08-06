@@ -162,7 +162,7 @@ func TestMakeCertificateProviderHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathCertificateProviderStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeCertificateProviderHandleWhenAttorneyStoreError(t *testing.T) {

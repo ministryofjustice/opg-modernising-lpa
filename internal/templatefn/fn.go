@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -30,7 +29,7 @@ type Globals struct {
 	StaticHash  string
 	RumConfig   RumConfig
 	ActorTypes  actor.Types
-	Paths       page.AppPaths
+	Paths       appPaths
 }
 
 type RumConfig struct {
@@ -42,6 +41,8 @@ type RumConfig struct {
 }
 
 func All(globals *Globals) map[string]any {
+	globals.Paths = paths
+
 	return map[string]any{
 		"global":             func() *Globals { return globals },
 		"isEnglish":          isEnglish,
@@ -380,19 +381,19 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 	}
 
 	if attorneyType == "replacement" {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneys.Format(app.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementAttorney.Format(app.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporation.Format(app.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterReplacementTrustCorporationAddress.Format(app.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveReplacementTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathChooseReplacementAttorneys.Format(app.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", donor.PathChooseReplacementAttorneysAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", donor.PathRemoveReplacementAttorney.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathEnterReplacementTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", donor.PathEnterReplacementTrustCorporationAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathRemoveReplacementTrustCorporation.Format(app.LpaID), app.Page)
 	} else {
-		data.Link.Attorney = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneys.Format(app.LpaID), app.Page)
-		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", page.Paths.ChooseAttorneysAddress.Format(app.LpaID), app.Page)
-		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", page.Paths.RemoveAttorney.Format(app.LpaID), app.Page)
-		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporation.Format(app.LpaID), app.Page)
-		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", page.Paths.EnterTrustCorporationAddress.Format(app.LpaID), app.Page)
-		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", page.Paths.RemoveTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.Attorney = fmt.Sprintf("%s?from=%s", donor.PathChooseAttorneys.Format(app.LpaID), app.Page)
+		data.Link.AttorneyAddress = fmt.Sprintf("%s?from=%s", donor.PathChooseAttorneysAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveAttorney = fmt.Sprintf("%s?from=%s", donor.PathRemoveAttorney.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathEnterTrustCorporation.Format(app.LpaID), app.Page)
+		data.Link.TrustCorporationAddress = fmt.Sprintf("%s?from=%s", donor.PathEnterTrustCorporationAddress.Format(app.LpaID), app.Page)
+		data.Link.RemoveTrustCorporation = fmt.Sprintf("%s?from=%s", donor.PathRemoveTrustCorporation.Format(app.LpaID), app.Page)
 	}
 
 	return data

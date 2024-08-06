@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -42,24 +43,24 @@ func (n *checkYourLpaNotifier) Notify(ctx context.Context, appData appcontext.Da
 	return n.sendOnlineNotification(ctx, appData, donor, wasCompleted)
 }
 
-func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
+func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appData appcontext.Data, provided *donordata.Provided, wasCompleted bool) error {
 	var sms notify.SMS
 	if wasCompleted {
 		sms = notify.CertificateProviderActingOnPaperDetailsChangedSMS{
-			DonorFullName:   donor.Donor.FullName(),
-			DonorFirstNames: donor.Donor.FirstNames,
-			LpaUID:          donor.LpaUID,
+			DonorFullName:   provided.Donor.FullName(),
+			DonorFirstNames: provided.Donor.FirstNames,
+			LpaUID:          provided.LpaUID,
 		}
 	} else {
 		sms = notify.CertificateProviderActingOnPaperMeetingPromptSMS{
-			DonorFullName:                   donor.Donor.FullName(),
-			DonorFirstNames:                 donor.Donor.FirstNames,
-			LpaType:                         localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-			CertificateProviderStartPageURL: n.appPublicURL + appData.Lang.URL(page.Paths.CertificateProviderStart.Format()),
+			DonorFullName:                   provided.Donor.FullName(),
+			DonorFirstNames:                 provided.Donor.FirstNames,
+			LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+			CertificateProviderStartPageURL: n.appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
 		}
 	}
 
-	return n.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
+	return n.notifyClient.SendActorSMS(ctx, provided.CertificateProvider.Mobile, provided.LpaUID, sms)
 }
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
@@ -108,15 +109,15 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 		appPublicURL:             appPublicURL,
 	}
 
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &checkYourLpaData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form: &checkYourLpaForm{
-				CheckedAndHappy: !donor.CheckedAt.IsZero(),
+				CheckedAndHappy: !provided.CheckedAt.IsZero(),
 			},
-			CertificateProviderContacted: !donor.CheckedAt.IsZero(),
-			CanContinue:                  donor.CheckedHashChanged(),
+			CertificateProviderContacted: !provided.CheckedAt.IsZero(),
+			CanContinue:                  provided.CheckedHashChanged(),
 		}
 
 		if r.Method == http.MethodPost && data.CanContinue {
@@ -124,25 +125,25 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Tasks.CheckYourLpa = task.StateCompleted
-				donor.CheckedAt = now()
-				if err := donor.UpdateCheckedHash(); err != nil {
+				provided.Tasks.CheckYourLpa = task.StateCompleted
+				provided.CheckedAt = now()
+				if err := provided.UpdateCheckedHash(); err != nil {
 					return err
 				}
 
-				if err := notifier.Notify(r.Context(), appData, donor, data.CertificateProviderContacted); err != nil {
+				if err := notifier.Notify(r.Context(), appData, provided, data.CertificateProviderContacted); err != nil {
 					return err
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
 				if !data.CertificateProviderContacted {
-					return page.Paths.LpaDetailsSaved.RedirectQuery(w, r, appData, donor, url.Values{"firstCheck": {"1"}})
+					return donor.PathLpaDetailsSaved.RedirectQuery(w, r, appData, provided, url.Values{"firstCheck": {"1"}})
 				}
 
-				return page.Paths.LpaDetailsSaved.Redirect(w, r, appData, donor)
+				return donor.PathLpaDetailsSaved.Redirect(w, r, appData, provided)
 			}
 		}
 

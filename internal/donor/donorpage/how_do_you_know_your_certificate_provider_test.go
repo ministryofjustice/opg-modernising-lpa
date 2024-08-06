@@ -93,7 +93,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: lpadata.Professionally,
 			},
-			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
+			redirect: donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"personally": {
 			form: url.Values{"how": {lpadata.Personally.String()}},
@@ -101,7 +101,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				FirstNames:   "John",
 				Relationship: lpadata.Personally,
 			},
-			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect: donor.PathHowLongHaveYouKnownCertificateProvider,
 		},
 	}
 
@@ -159,7 +159,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				Relationship: lpadata.Professionally,
 				Address:      place.Address{},
 			},
-			redirect: page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole,
+			redirect: donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"professionally to personally": {
 			form: url.Values{"how": {lpadata.Personally.String()}},
@@ -171,7 +171,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				Relationship: lpadata.Personally,
 				Address:      place.Address{},
 			},
-			redirect: page.Paths.HowLongHaveYouKnownCertificateProvider,
+			redirect: donor.PathHowLongHaveYouKnownCertificateProvider,
 		},
 	}
 

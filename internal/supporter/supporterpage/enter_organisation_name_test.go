@@ -170,7 +170,7 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, supporter.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {

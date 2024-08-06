@@ -134,7 +134,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "translated LPA type",
-			DonorStartPageURL:           "www.example.com" + page.Paths.Start.Format(),
+			DonorStartPageURL:           "www.example.com" + page.PathStart.Format(),
 		}).
 		Return(nil)
 

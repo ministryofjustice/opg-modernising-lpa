@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -53,7 +54,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenNoCertificateProvider(
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *testing.T) {
@@ -125,7 +126,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CheckYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathCheckYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
@@ -160,7 +161,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathCertificateProviderDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testing.T) {

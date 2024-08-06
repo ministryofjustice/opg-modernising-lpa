@@ -18,19 +18,18 @@ type deleteLpaData struct {
 }
 
 func DeleteLpa(tmpl template.Template, donorStore DonorStore) Handler {
-
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if err := donorStore.Delete(r.Context()); err != nil {
 				return err
 			}
 
-			return page.Paths.LpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {donor.LpaUID}})
+			return page.PathLpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})
 		}
 
 		return tmpl(w, &deleteLpaData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 		})
 	}
 }

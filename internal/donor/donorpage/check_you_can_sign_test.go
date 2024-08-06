@@ -41,8 +41,8 @@ func TestGetCheckYouCanSign(t *testing.T) {
 
 func TestPostCheckYouCanSign(t *testing.T) {
 	testcases := map[form.YesNo]donor.Path{
-		form.Yes: page.Paths.YourPreferredLanguage,
-		form.No:  page.Paths.NeedHelpSigningConfirmation,
+		form.Yes: donor.PathYourPreferredLanguage,
+		form.No:  donor.PathNeedHelpSigningConfirmation,
 	}
 
 	for yesNo, redirect := range testcases {

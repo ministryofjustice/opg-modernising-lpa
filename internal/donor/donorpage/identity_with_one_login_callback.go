@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if donor.DonorIdentityConfirmed() {
-			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.DonorIdentityConfirmed() {
+			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -41,25 +41,25 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return err
 		}
 
-		donor.DonorIdentityUserData = userData
+		provided.DonorIdentityUserData = userData
 
 		if userData.Status.IsFailed() {
-			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
+			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
 		} else {
-			donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 		}
 
-		if err := donorStore.Put(r.Context(), donor); err != nil {
+		if err := donorStore.Put(r.Context(), provided); err != nil {
 			return err
 		}
 
-		switch donor.DonorIdentityUserData.Status {
+		switch provided.DonorIdentityUserData.Status {
 		case identity.StatusFailed:
-			return page.Paths.RegisterWithCourtOfProtection.Redirect(w, r, appData, donor)
+			return donor.PathRegisterWithCourtOfProtection.Redirect(w, r, appData, provided)
 		case identity.StatusInsufficientEvidence:
-			return page.Paths.UnableToConfirmIdentity.Redirect(w, r, appData, donor)
+			return donor.PathUnableToConfirmIdentity.Redirect(w, r, appData, provided)
 		default:
-			return page.Paths.OneLoginIdentityDetails.Redirect(w, r, appData, donor)
+			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
 		}
 	}
 }

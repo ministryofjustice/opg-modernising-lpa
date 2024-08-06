@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -44,7 +43,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
-				DonorStartPageURL: appPublicURL + page.Paths.Start.Format(),
+				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
 			if err := attorneyStore.Delete(r.Context()); err != nil {
@@ -55,7 +54,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				return err
 			}
 
-			return attorney.PathYouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
+			return page.PathAttorneyYouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
 				"donorFullName":   {lpa.Donor.FullName()},
 				"donorFirstNames": {lpa.Donor.FirstNames},
 			})
