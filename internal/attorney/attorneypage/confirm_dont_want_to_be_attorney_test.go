@@ -10,8 +10,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +100,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 					{FirstNames: "d e", LastName: "f", UID: uid},
 				},
 			},
-			Type: donordata.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	certificateProviderStore := newMockAttorneyStore(t)
@@ -117,7 +117,11 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Dear donor")
+	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+			Greeting:          "Dear donor",
 			AttorneyFullName:  "d e f",
 			DonorFullName:     "a b c",
 			LpaType:           "Personal welfare",
@@ -151,7 +155,7 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 			Donor: lpastore.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Type: donordata.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com")(testAppData, w, r, &attorneydata.Provided{
@@ -176,6 +180,14 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 
 				return certificateProviderStore
 			},
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("")
+
+				return client
+			},
 		},
 		"when notifyClient.SendActorEmail() error": {
 			certificateProviderStore: func(t *testing.T) *mockAttorneyStore {
@@ -188,6 +200,9 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("")
 				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)

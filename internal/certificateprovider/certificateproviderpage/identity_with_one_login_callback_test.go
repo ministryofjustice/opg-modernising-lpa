@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -96,7 +96,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 			LpaUID:              "lpa-uid",
 			CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"},
 			Donor:               lpastore.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                donordata.LpaTypePersonalWelfare,
+			Type:                lpadata.LpaTypePersonalWelfare,
 			SignedAt:            time.Now(),
 		}, nil)
 
@@ -125,7 +125,11 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Dear donor")
+	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderFailedIDCheckEmail{
+			Greeting:                    "Dear donor",
 			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
 			LpaType:                     "translated LPA type",
@@ -165,7 +169,7 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 			LpaUID:              "lpa-uid",
 			CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"},
 			Donor:               lpastore.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                donordata.LpaTypePersonalWelfare,
+			Type:                lpadata.LpaTypePersonalWelfare,
 			SignedAt:            time.Now(),
 		}, nil)
 
@@ -193,6 +197,9 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 	testAppData.Localizer = localizer
 
 	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("")
 	notifyClient.EXPECT().
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)

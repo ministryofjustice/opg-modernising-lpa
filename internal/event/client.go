@@ -1,3 +1,4 @@
+// Package event provides a client for AWS EventBridge.
 package event
 
 import (

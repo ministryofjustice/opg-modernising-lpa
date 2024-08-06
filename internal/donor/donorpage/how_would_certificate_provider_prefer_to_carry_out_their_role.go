@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,7 +16,7 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 	Errors              validation.List
 	CertificateProvider donordata.CertificateProvider
 	Form                *howWouldCertificateProviderPreferToCarryOutTheirRoleForm
-	Options             donordata.ChannelOptions
+	Options             lpadata.ChannelOptions
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
@@ -27,7 +28,7 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 				CarryOutBy: donor.CertificateProvider.CarryOutBy,
 				Email:      donor.CertificateProvider.Email,
 			},
-			Options: donordata.ChannelValues,
+			Options: lpadata.ChannelValues,
 		}
 
 		if r.Method == http.MethodPost {
@@ -51,13 +52,13 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 }
 
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
-	CarryOutBy donordata.Channel
+	CarryOutBy lpadata.Channel
 	Email      string
 	Error      error
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	channel, err := donordata.ParseChannel(page.PostFormString(r, "carry-out-by"))
+	channel, err := lpadata.ParseChannel(page.PostFormString(r, "carry-out-by"))
 
 	email := page.PostFormString(r, "email")
 	if channel.IsPaper() {

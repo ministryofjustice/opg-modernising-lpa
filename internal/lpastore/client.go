@@ -1,3 +1,4 @@
+// Package lpastore provides a client for the LPA store.
 package lpastore
 
 import (

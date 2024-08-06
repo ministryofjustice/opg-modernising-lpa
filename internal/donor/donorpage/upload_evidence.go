@@ -13,6 +13,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -55,7 +56,7 @@ type uploadEvidenceData struct {
 	Errors               validation.List
 	NumberOfAllowedFiles int
 	FeeType              pay.FeeType
-	Documents            page.Documents
+	Documents            document.Documents
 	MimeTypes            []string
 	Deleted              string
 	StartScan            string
@@ -88,7 +89,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 			if data.Errors.None() {
 				switch form.Action {
 				case "upload":
-					var uploadedDocuments []page.Document
+					var uploadedDocuments []document.Document
 
 					for _, file := range form.Files {
 						document, err := documentStore.Create(r.Context(), donor, file.Filename, file.Data)

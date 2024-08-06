@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -25,7 +26,7 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 			App:     testAppData,
 			Donor:   &donordata.Provided{},
 			Form:    &whenCanTheLpaBeUsedForm{},
-			Options: donordata.CanBeUsedWhenValues,
+			Options: lpadata.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
@@ -44,15 +45,15 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &whenCanTheLpaBeUsedData{
 			App:   testAppData,
-			Donor: &donordata.Provided{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity},
+			Donor: &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity},
 			Form: &whenCanTheLpaBeUsedForm{
-				When: donordata.CanBeUsedWhenHasCapacity,
+				When: lpadata.CanBeUsedWhenHasCapacity,
 			},
-			Options: donordata.CanBeUsedWhenValues,
+			Options: lpadata.CanBeUsedWhenValues,
 		}).
 		Return(nil)
 
-	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.Provided{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity})
+	err := WhenCanTheLpaBeUsed(template.Execute, nil)(testAppData, w, r, &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -77,7 +78,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	form := url.Values{
-		"when": {donordata.CanBeUsedWhenHasCapacity.String()},
+		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -88,7 +89,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
-			WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity,
+			WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
 			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, WhenCanTheLpaBeUsed: task.StateCompleted},
 		}).
 		Return(nil)
@@ -106,7 +107,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"when": {donordata.CanBeUsedWhenHasCapacity.String()},
+		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -115,7 +116,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: donordata.CanBeUsedWhenHasCapacity, Tasks: donordata.Tasks{WhenCanTheLpaBeUsed: task.StateCompleted}}).
+		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity, Tasks: donordata.Tasks{WhenCanTheLpaBeUsed: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
@@ -144,7 +145,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 	form := url.Values{
-		"when": {donordata.CanBeUsedWhenHasCapacity.String()},
+		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
@@ -152,7 +153,7 @@ func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
 
 	result := readWhenCanTheLpaBeUsedForm(r)
 
-	assert.Equal(t, donordata.CanBeUsedWhenHasCapacity, result.When)
+	assert.Equal(t, lpadata.CanBeUsedWhenHasCapacity, result.When)
 }
 
 func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {

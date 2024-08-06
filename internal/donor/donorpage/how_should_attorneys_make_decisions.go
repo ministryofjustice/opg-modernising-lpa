@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,7 +16,7 @@ type howShouldAttorneysMakeDecisionsData struct {
 	Errors  validation.List
 	Form    *howShouldAttorneysMakeDecisionsForm
 	Donor   *donordata.Provided
-	Options donordata.AttorneysActOptions
+	Options lpadata.AttorneysActOptions
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
@@ -27,11 +28,11 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 				DecisionsDetails: donor.AttorneyDecisions.Details,
 			},
 			Donor:   donor,
-			Options: donordata.AttorneysActValues,
+			Options: lpadata.AttorneysActValues,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howAttorneysShouldMakeDecisions", "detailsAboutTheDecisionsYourAttorneysMustMakeTogether")
+			data.Form = readHowShouldAttorneysMakeDecisionsForm(r, "howAttorneysShouldMakeDecisions", "detailsAboutTheDecisionsYourAttorneysMustMakeJointly")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -47,9 +48,9 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 				}
 
 				switch donor.AttorneyDecisions.How {
-				case donordata.Jointly:
+				case lpadata.Jointly:
 					return page.Paths.BecauseYouHaveChosenJointly.Redirect(w, r, appData, donor)
-				case donordata.JointlyForSomeSeverallyForOthers:
+				case lpadata.JointlyForSomeSeverallyForOthers:
 					return page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers.Redirect(w, r, appData, donor)
 				default:
 					return page.Paths.TaskList.Redirect(w, r, appData, donor)
@@ -62,7 +63,7 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 }
 
 type howShouldAttorneysMakeDecisionsForm struct {
-	DecisionsType     donordata.AttorneysAct
+	DecisionsType     lpadata.AttorneysAct
 	Error             error
 	DecisionsDetails  string
 	errorLabel        string
@@ -70,7 +71,7 @@ type howShouldAttorneysMakeDecisionsForm struct {
 }
 
 func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel, detailsErrorLabel string) *howShouldAttorneysMakeDecisionsForm {
-	how, err := donordata.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
+	how, err := lpadata.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
 
 	return &howShouldAttorneysMakeDecisionsForm{
 		DecisionsType:     how,
@@ -87,7 +88,7 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	errors.Error("decision-type", f.errorLabel, f.Error,
 		validation.Selected())
 
-	if f.DecisionsType == donordata.JointlyForSomeSeverallyForOthers {
+	if f.DecisionsType == lpadata.JointlyForSomeSeverallyForOthers {
 		errors.String("mixed-details", f.detailsErrorLabel, f.DecisionsDetails,
 			validation.Empty())
 	}

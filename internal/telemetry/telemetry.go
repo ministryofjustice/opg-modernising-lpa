@@ -1,3 +1,5 @@
+// Package telemetry provides functionality for tracing with AWS X-Ray and
+// logging information related to the current web request.
 package telemetry
 
 import (

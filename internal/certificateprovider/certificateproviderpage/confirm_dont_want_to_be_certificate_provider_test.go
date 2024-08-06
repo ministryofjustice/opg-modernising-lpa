@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -116,7 +117,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type: donordata.LpaTypePersonalWelfare,
+				Type: lpadata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
@@ -128,6 +129,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			},
 			donorStore: func() *mockDonorStore { return nil },
 			email: notify.CertificateProviderOptedOutPostWitnessingEmail{
+				Greeting:                      "Dear donor",
 				CertificateProviderFirstNames: "d e",
 				CertificateProviderFullName:   "d e f",
 				DonorFullName:                 "a b c",
@@ -146,12 +148,13 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpastore.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type:           donordata.LpaTypePersonalWelfare,
+				Type:           lpadata.LpaTypePersonalWelfare,
 				CannotRegister: true,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
 			email: notify.CertificateProviderOptedOutPostWitnessingEmail{
+				Greeting:                      "Dear donor",
 				CertificateProviderFirstNames: "d e",
 				CertificateProviderFullName:   "d e f",
 				DonorFullName:                 "a b c",
@@ -183,7 +186,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							UID:        uid,
 							FirstNames: "d e", LastName: "f",
 						},
-						Type: donordata.LpaTypePersonalWelfare,
+						Type: lpadata.LpaTypePersonalWelfare,
 					}, nil)
 				donorStore.EXPECT().
 					Put(r.Context(), &donordata.Provided{
@@ -196,13 +199,14 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 							CheckYourLpa:        task.StateNotStarted,
 						},
 						CertificateProvider: donordata.CertificateProvider{},
-						Type:                donordata.LpaTypePersonalWelfare,
+						Type:                lpadata.LpaTypePersonalWelfare,
 					}).
 					Return(nil)
 
 				return donorStore
 			},
 			email: notify.CertificateProviderOptedOutPreWitnessingEmail{
+				Greeting:                    "Dear donor",
 				CertificateProviderFullName: "d e f",
 				DonorFullName:               "a b c",
 				LpaType:                     "Personal welfare",
@@ -233,6 +237,9 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
+				EmailGreeting(mock.Anything).
+				Return("Dear donor")
+			notifyClient.EXPECT().
 				SendActorEmail(r.Context(), "a@example.com", "lpa-uid", tc.email).
 				Return(nil)
 
@@ -259,16 +266,16 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 		Return("a")
 
 	testcases := map[string]struct {
-		sessionStore             func() *mockSessionStore
-		lpaStoreResolvingService func() *mockLpaStoreResolvingService
-		lpaStoreClient           func() *mockLpaStoreClient
-		donorStore               func() *mockDonorStore
-		certificateProviderStore func() *mockCertificateProviderStore
-		localizer                func() *mockLocalizer
-		notifyClient             func() *mockNotifyClient
+		sessionStore             func(*testing.T) *mockSessionStore
+		lpaStoreResolvingService func(*testing.T) *mockLpaStoreResolvingService
+		lpaStoreClient           func(*testing.T) *mockLpaStoreClient
+		donorStore               func(*testing.T) *mockDonorStore
+		certificateProviderStore func(*testing.T) *mockCertificateProviderStore
+		localizer                func(*testing.T) *mockLocalizer
+		notifyClient             func(*testing.T) *mockNotifyClient
 	}{
 		"when lpaStoreClient error": {
-			sessionStore: func() *mockSessionStore {
+			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
 					LpaData(r).
@@ -276,7 +283,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return sessionStore
 			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(r.Context()).
@@ -284,7 +291,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient {
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
 					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
@@ -292,13 +299,20 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreClient
 			},
-			donorStore:               func() *mockDonorStore { return nil },
-			certificateProviderStore: func() *mockCertificateProviderStore { return nil },
-			localizer:                func() *mockLocalizer { return localizer },
-			notifyClient:             func() *mockNotifyClient { return nil },
+			donorStore:               func(t *testing.T) *mockDonorStore { return nil },
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore { return nil },
+			localizer:                func(t *testing.T) *mockLocalizer { return localizer },
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				notifyClient := newMockNotifyClient(t)
+				notifyClient.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+
+				return notifyClient
+			},
 		},
 		"when donorStore.GetAny() error": {
-			sessionStore: func() *mockSessionStore {
+			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
 					LpaData(r).
@@ -306,7 +320,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return sessionStore
 			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(r.Context()).
@@ -314,8 +328,8 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			donorStore: func() *mockDonorStore {
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient { return nil },
+			donorStore: func(t *testing.T) *mockDonorStore {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
@@ -323,12 +337,12 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return donorStore
 			},
-			certificateProviderStore: func() *mockCertificateProviderStore { return nil },
-			localizer:                func() *mockLocalizer { return nil },
-			notifyClient:             func() *mockNotifyClient { return nil },
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore { return nil },
+			localizer:                func(t *testing.T) *mockLocalizer { return nil },
+			notifyClient:             func(t *testing.T) *mockNotifyClient { return nil },
 		},
 		"when donorStore.Put() error": {
-			sessionStore: func() *mockSessionStore {
+			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
 					LpaData(r).
@@ -336,7 +350,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return sessionStore
 			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(r.Context()).
@@ -344,8 +358,8 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient { return nil },
-			donorStore: func() *mockDonorStore {
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient { return nil },
+			donorStore: func(t *testing.T) *mockDonorStore {
 				donorStore := newMockDonorStore(t)
 				donorStore.EXPECT().
 					GetAny(r.Context()).
@@ -356,12 +370,19 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return donorStore
 			},
-			certificateProviderStore: func() *mockCertificateProviderStore { return nil },
-			localizer:                func() *mockLocalizer { return localizer },
-			notifyClient:             func() *mockNotifyClient { return nil },
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore { return nil },
+			localizer:                func(t *testing.T) *mockLocalizer { return localizer },
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				notifyClient := newMockNotifyClient(t)
+				notifyClient.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+
+				return notifyClient
+			},
 		},
 		"when certificateProviderStore.Delete() error": {
-			sessionStore: func() *mockSessionStore {
+			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
 					LpaData(r).
@@ -369,7 +390,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return sessionStore
 			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(r.Context()).
@@ -377,7 +398,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient {
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
 					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
@@ -385,8 +406,8 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreClient
 			},
-			donorStore: func() *mockDonorStore { return nil },
-			certificateProviderStore: func() *mockCertificateProviderStore {
+			donorStore: func(t *testing.T) *mockDonorStore { return nil },
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
 				certificateProviderStore.EXPECT().
 					Delete(mock.Anything).
@@ -394,11 +415,18 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return certificateProviderStore
 			},
-			localizer:    func() *mockLocalizer { return localizer },
-			notifyClient: func() *mockNotifyClient { return nil },
+			localizer: func(t *testing.T) *mockLocalizer { return localizer },
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				notifyClient := newMockNotifyClient(t)
+				notifyClient.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+
+				return notifyClient
+			},
 		},
 		"when notifyClient.SendActorEmail() error": {
-			sessionStore: func() *mockSessionStore {
+			sessionStore: func(t *testing.T) *mockSessionStore {
 				sessionStore := newMockSessionStore(t)
 				sessionStore.EXPECT().
 					LpaData(r).
@@ -406,7 +434,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return sessionStore
 			},
-			lpaStoreResolvingService: func() *mockLpaStoreResolvingService {
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(r.Context()).
@@ -414,7 +442,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreResolvingService
 			},
-			lpaStoreClient: func() *mockLpaStoreClient {
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				lpaStoreClient := newMockLpaStoreClient(t)
 				lpaStoreClient.EXPECT().
 					SendCertificateProviderOptOut(mock.Anything, mock.Anything, mock.Anything).
@@ -422,8 +450,8 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return lpaStoreClient
 			},
-			donorStore: func() *mockDonorStore { return nil },
-			certificateProviderStore: func() *mockCertificateProviderStore {
+			donorStore: func(t *testing.T) *mockDonorStore { return nil },
+			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
 				certificateProviderStore.EXPECT().
 					Delete(mock.Anything).
@@ -431,9 +459,12 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 
 				return certificateProviderStore
 			},
-			localizer: func() *mockLocalizer { return localizer },
-			notifyClient: func() *mockNotifyClient {
+			localizer: func(t *testing.T) *mockLocalizer { return localizer },
+			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
 				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
@@ -447,9 +478,9 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			testAppData.Localizer = tc.localizer()
+			testAppData.Localizer = tc.localizer(t)
 
-			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(), tc.lpaStoreClient(), tc.donorStore(), tc.certificateProviderStore(), tc.notifyClient(), "example.com")(testAppData, w, r, nil)
+			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreResolvingService(t), tc.lpaStoreClient(t), tc.donorStore(t), tc.certificateProviderStore(t), tc.notifyClient(t), "example.com")(testAppData, w, r, nil)
 
 			resp := w.Result()
 

@@ -1,3 +1,4 @@
+// Event received is an AWS Lambda function to handle incoming events.
 package main
 
 import (
@@ -16,8 +17,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -116,7 +117,7 @@ func handler(ctx context.Context, event Event) error {
 
 	if event.isS3Event() {
 		s3Client := s3.NewClient(cfg, evidenceBucketName)
-		documentStore := app.NewDocumentStore(dynamoClient, nil, nil, nil, nil)
+		documentStore := document.NewStore(dynamoClient, nil, nil)
 
 		if err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore); err != nil {
 			return fmt.Errorf("ObjectTagging:Put: %w", err)

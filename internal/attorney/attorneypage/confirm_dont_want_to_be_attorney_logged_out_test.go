@@ -9,9 +9,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -148,6 +148,27 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
+			lpa := &lpastore.Lpa{
+				LpaUID:   "lpa-uid",
+				SignedAt: time.Now(),
+				Donor: lpastore.Donor{
+					FirstNames: "a b", LastName: "c", Email: "a@example.com",
+				},
+				Attorneys: lpastore.Attorneys{
+					TrustCorporation: lpastore.TrustCorporation{UID: trustCorporationUID, Name: "trusty"},
+					Attorneys: []lpastore.Attorney{
+						{UID: attorneyUID, FirstNames: "d e", LastName: "f"},
+					},
+				},
+				ReplacementAttorneys: lpastore.Attorneys{
+					TrustCorporation: lpastore.TrustCorporation{UID: replacementTrustCorporationUID, Name: "untrusty"},
+					Attorneys: []lpastore.Attorney{
+						{UID: replacementAttorneyUID, FirstNames: "x y", LastName: "z"},
+					},
+				},
+				Type: lpadata.LpaTypePersonalWelfare,
+			}
+
 			sessionStore := newMockSessionStore(t)
 			sessionStore.EXPECT().
 				LpaData(r).
@@ -170,30 +191,15 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(ctx).
-				Return(&lpastore.Lpa{
-					LpaUID:   "lpa-uid",
-					SignedAt: time.Now(),
-					Donor: lpastore.Donor{
-						FirstNames: "a b", LastName: "c", Email: "a@example.com",
-					},
-					Attorneys: lpastore.Attorneys{
-						TrustCorporation: lpastore.TrustCorporation{UID: trustCorporationUID, Name: "trusty"},
-						Attorneys: []lpastore.Attorney{
-							{UID: attorneyUID, FirstNames: "d e", LastName: "f"},
-						},
-					},
-					ReplacementAttorneys: lpastore.Attorneys{
-						TrustCorporation: lpastore.TrustCorporation{UID: replacementTrustCorporationUID, Name: "untrusty"},
-						Attorneys: []lpastore.Attorney{
-							{UID: replacementAttorneyUID, FirstNames: "x y", LastName: "z"},
-						},
-					},
-					Type: donordata.LpaTypePersonalWelfare,
-				}, nil)
+				Return(lpa, nil)
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
+				EmailGreeting(lpa).
+				Return("Dear donor")
+			notifyClient.EXPECT().
 				SendActorEmail(ctx, "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+					Greeting:          "Dear donor",
 					AttorneyFullName:  tc.attorneyFullName,
 					DonorFullName:     "a b c",
 					LpaType:           "Personal welfare",
@@ -250,7 +256,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 			Donor: lpastore.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Type: donordata.LpaTypePersonalWelfare,
+			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
 	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
@@ -341,6 +347,9 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
 				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
@@ -375,6 +384,9 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
 				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)

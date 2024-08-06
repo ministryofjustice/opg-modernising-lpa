@@ -1,3 +1,4 @@
+// Package date provides functionality for working with dates.
 package date
 
 import (

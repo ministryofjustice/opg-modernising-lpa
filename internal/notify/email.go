@@ -129,6 +129,7 @@ func (e DonorAccessEmail) emailID(isProduction bool) string {
 }
 
 type CertificateProviderOptedOutPreWitnessingEmail struct {
+	Greeting                    string
 	CertificateProviderFullName string
 	DonorFullName               string
 	LpaType                     string
@@ -145,6 +146,7 @@ func (e CertificateProviderOptedOutPreWitnessingEmail) emailID(isProduction bool
 }
 
 type CertificateProviderOptedOutPostWitnessingEmail struct {
+	Greeting                      string
 	CertificateProviderFirstNames string
 	CertificateProviderFullName   string
 	DonorFullName                 string
@@ -162,6 +164,7 @@ func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction boo
 }
 
 type CertificateProviderFailedIDCheckEmail struct {
+	Greeting                    string
 	DonorFullName               string
 	CertificateProviderFullName string
 	LpaType                     string
@@ -195,6 +198,7 @@ func (e PaymentConfirmationEmail) emailID(isProduction bool) string {
 }
 
 type AttorneyOptedOutEmail struct {
+	Greeting          string
 	AttorneyFullName  string
 	DonorFullName     string
 	LpaType           string

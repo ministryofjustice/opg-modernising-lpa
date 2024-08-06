@@ -14,6 +14,7 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
@@ -39,7 +40,7 @@ func TestClientSendLpa(t *testing.T) {
 		"minimal": {
 			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePropertyAndAffairs,
+				Type:   lpadata.LpaTypePropertyAndAffairs,
 				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -69,7 +70,7 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneys: donordata.Attorneys{},
-				WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed:  lpadata.CanBeUsedWhenCapacityLost,
 				CertificateProvider: donordata.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
@@ -79,7 +80,7 @@ func TestClientSendLpa(t *testing.T) {
 						TownOrCity: "c-town",
 						Country:    "GB",
 					},
-					CarryOutBy: donordata.ChannelPaper,
+					CarryOutBy: lpadata.ChannelPaper,
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
@@ -97,7 +98,7 @@ func TestClientSendLpa(t *testing.T) {
 		"everything": {
 			donor: &donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: donordata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -160,7 +161,7 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				AttorneyDecisions: donordata.AttorneyDecisions{
-					How: donordata.Jointly,
+					How: lpadata.Jointly,
 				},
 				ReplacementAttorneys: donordata.Attorneys{
 					TrustCorporation: donordata.TrustCorporation{
@@ -207,11 +208,11 @@ func TestClientSendLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-					How:     donordata.JointlyForSomeSeverallyForOthers,
+					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
+				HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				LifeSustainingTreatmentOption:       lpadata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: donordata.CertificateProvider{
 					UID:        certificateProviderUID,
@@ -227,7 +228,7 @@ func TestClientSendLpa(t *testing.T) {
 						Postcode:   "C1 1FF",
 						Country:    "GB",
 					},
-					CarryOutBy: donordata.ChannelOnline,
+					CarryOutBy: lpadata.ChannelOnline,
 				},
 				PeopleToNotify: donordata.PeopleToNotify{{
 					UID:        personToNotifyUID,
@@ -401,7 +402,7 @@ func TestClientLpa(t *testing.T) {
 		"minimal": {
 			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePropertyAndAffairs,
+				Type:   lpadata.LpaTypePropertyAndAffairs,
 				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -414,7 +415,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
-					Channel:    donordata.ChannelOnline,
+					Channel:    lpadata.ChannelOnline,
 				},
 				Attorneys: Attorneys{
 					Attorneys: []Attorney{{
@@ -431,7 +432,7 @@ func TestClientLpa(t *testing.T) {
 					}},
 				},
 				ReplacementAttorneys: Attorneys{},
-				WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
+				WhenCanTheLpaBeUsed:  lpadata.CanBeUsedWhenCapacityLost,
 				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
@@ -441,7 +442,7 @@ func TestClientLpa(t *testing.T) {
 						TownOrCity: "c-town",
 						Country:    "GB",
 					},
-					Channel: donordata.ChannelPaper,
+					Channel: lpadata.ChannelPaper,
 				},
 				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 			},
@@ -460,7 +461,7 @@ func TestClientLpa(t *testing.T) {
 		"everything": {
 			donor: &Lpa{
 				LpaUID: "M-0000-1111-2222",
-				Type:   donordata.LpaTypePersonalWelfare,
+				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -476,7 +477,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					OtherNames: "JJ",
-					Channel:    donordata.ChannelOnline,
+					Channel:    lpadata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 2, 12, 13, 14, 1, time.UTC),
 						Type:      "one-login",
@@ -496,7 +497,7 @@ func TestClientLpa(t *testing.T) {
 							Postcode:   "A1 1FF",
 							Country:    "GB",
 						},
-						Channel: donordata.ChannelOnline,
+						Channel: lpadata.ChannelOnline,
 					},
 					Attorneys: []Attorney{{
 						UID:         attorneyUID,
@@ -528,8 +529,8 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				AttorneyDecisions: donordata.AttorneyDecisions{
-					How: donordata.Jointly,
+				AttorneyDecisions: AttorneyDecisions{
+					How: lpadata.Jointly,
 				},
 				ReplacementAttorneys: Attorneys{
 					TrustCorporation: TrustCorporation{
@@ -544,7 +545,7 @@ func TestClientLpa(t *testing.T) {
 							Postcode:   "A1 1FF",
 							Country:    "GB",
 						},
-						Channel: donordata.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 					},
 					Attorneys: []Attorney{{
 						UID:         replacementAttorneyUID,
@@ -576,12 +577,12 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-					How:     donordata.JointlyForSomeSeverallyForOthers,
+				ReplacementAttorneyDecisions: AttorneyDecisions{
+					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
-				HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-				LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
+				HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+				LifeSustainingTreatmentOption:       lpadata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
 				CertificateProvider: CertificateProvider{
 					UID:        certificateProviderUID,
@@ -597,13 +598,13 @@ func TestClientLpa(t *testing.T) {
 						Postcode:   "C1 1FF",
 						Country:    "GB",
 					},
-					Channel: donordata.ChannelOnline,
+					Channel: lpadata.ChannelOnline,
 					IdentityCheck: IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 1, 13, 14, 15, 16, time.UTC),
 						Type:      "one-login",
 					},
 				},
-				PeopleToNotify: donordata.PeopleToNotify{{
+				PeopleToNotify: []PersonToNotify{{
 					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
@@ -775,7 +776,7 @@ func TestClientLpas(t *testing.T) {
 			lpas: []*Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
-					Type:   donordata.LpaTypePropertyAndAffairs,
+					Type:   lpadata.LpaTypePropertyAndAffairs,
 					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -788,7 +789,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
-						Channel:    donordata.ChannelOnline,
+						Channel:    lpadata.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						Attorneys: []Attorney{{
@@ -805,7 +806,7 @@ func TestClientLpas(t *testing.T) {
 						}},
 					},
 					ReplacementAttorneys: Attorneys{},
-					WhenCanTheLpaBeUsed:  donordata.CanBeUsedWhenCapacityLost,
+					WhenCanTheLpaBeUsed:  lpadata.CanBeUsedWhenCapacityLost,
 					CertificateProvider: CertificateProvider{
 						UID:        certificateProviderUID,
 						FirstNames: "Carol",
@@ -815,7 +816,7 @@ func TestClientLpas(t *testing.T) {
 							TownOrCity: "c-town",
 							Country:    "GB",
 						},
-						Channel: donordata.ChannelPaper,
+						Channel: lpadata.ChannelPaper,
 					},
 					SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				},
@@ -836,7 +837,7 @@ func TestClientLpas(t *testing.T) {
 			lpas: []*Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
-					Type:   donordata.LpaTypePersonalWelfare,
+					Type:   lpadata.LpaTypePersonalWelfare,
 					Donor: Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -852,7 +853,7 @@ func TestClientLpas(t *testing.T) {
 							Country:    "GB",
 						},
 						OtherNames: "JJ",
-						Channel:    donordata.ChannelOnline,
+						Channel:    lpadata.ChannelOnline,
 					},
 					Attorneys: Attorneys{
 						TrustCorporation: TrustCorporation{
@@ -899,8 +900,8 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					AttorneyDecisions: donordata.AttorneyDecisions{
-						How: donordata.Jointly,
+					AttorneyDecisions: AttorneyDecisions{
+						How: lpadata.Jointly,
 					},
 					ReplacementAttorneys: Attorneys{
 						TrustCorporation: TrustCorporation{
@@ -947,12 +948,12 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					ReplacementAttorneyDecisions: donordata.AttorneyDecisions{
-						How:     donordata.JointlyForSomeSeverallyForOthers,
+					ReplacementAttorneyDecisions: AttorneyDecisions{
+						How:     lpadata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
-					HowShouldReplacementAttorneysStepIn: donordata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-					LifeSustainingTreatmentOption:       donordata.LifeSustainingTreatmentOptionA,
+					HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+					LifeSustainingTreatmentOption:       lpadata.LifeSustainingTreatmentOptionA,
 					Restrictions:                        "do not do this",
 					CertificateProvider: CertificateProvider{
 						UID:        certificateProviderUID,
@@ -968,9 +969,9 @@ func TestClientLpas(t *testing.T) {
 							Postcode:   "C1 1FF",
 							Country:    "GB",
 						},
-						Channel: donordata.ChannelOnline,
+						Channel: lpadata.ChannelOnline,
 					},
-					PeopleToNotify: donordata.PeopleToNotify{{
+					PeopleToNotify: []PersonToNotify{{
 						UID:        personToNotifyUID,
 						FirstNames: "Peter",
 						LastName:   "Notify",
@@ -1183,6 +1184,14 @@ func TestCertificateProviderFullName(t *testing.T) {
 	assert.Equal(t, "John Smith", CertificateProvider{FirstNames: "John", LastName: "Smith"}.FullName())
 }
 
+func TestPersonToNotifyFullName(t *testing.T) {
+	assert.Equal(t, "John Smith", PersonToNotify{FirstNames: "John", LastName: "Smith"}.FullName())
+}
+
+func TestCorrespondentFullName(t *testing.T) {
+	assert.Equal(t, "John Smith", Correspondent{FirstNames: "John", LastName: "Smith"}.FullName())
+}
+
 func TestAttorneysLen(t *testing.T) {
 	testcases := map[string]struct {
 		attorneys Attorneys
@@ -1285,4 +1294,19 @@ func TestAttorneysFullNames(t *testing.T) {
 			assert.Equal(t, tc.fullNames, tc.attorneys.FullNames())
 		})
 	}
+}
+
+func TestLpaCorrespondentEmail(t *testing.T) {
+	lpa := &Lpa{
+		Donor: Donor{Email: "donor"},
+	}
+	assert.Equal(t, "donor", lpa.CorrespondentEmail())
+}
+
+func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
+	lpa := &Lpa{
+		Donor:         Donor{Email: "donor"},
+		Correspondent: Correspondent{Email: "correspondent"},
+	}
+	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
 }
