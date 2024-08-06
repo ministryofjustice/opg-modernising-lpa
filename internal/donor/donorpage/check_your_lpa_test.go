@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -121,7 +122,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			uid := actoruid.New()
-			donor := &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID:               "lpa-id",
 				Hash:                5,
 				Tasks:               donordata.Tasks{CheckYourLpa: existingTaskState},
@@ -140,9 +141,9 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
 				SendCertificateProviderInvite(r.Context(), testAppData, page.CertificateProviderInvite{
-					CertificateProviderUID:      donor.CertificateProvider.UID,
-					CertificateProviderFullName: donor.CertificateProvider.FullName(),
-					CertificateProviderEmail:    donor.CertificateProvider.Email,
+					CertificateProviderUID:      provided.CertificateProvider.UID,
+					CertificateProviderFullName: provided.CertificateProvider.FullName(),
+					CertificateProviderEmail:    provided.CertificateProvider.Email,
 				}).
 				Return(nil)
 
@@ -151,12 +152,12 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 				Put(r.Context(), updatedDonor).
 				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, shareCodeSender, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id")+"?firstCheck=1", resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathLpaDetailsSaved.Format("lpa-id")+"?firstCheck=1", resp.Header.Get("Location"))
 		})
 	}
 }
@@ -212,7 +213,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			testAppData.Localizer = localizer
 
-			donor := &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID:               "lpa-id",
 				LpaUID:              "lpa-uid",
 				Hash:                5,
@@ -230,7 +231,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), donor).
+				Put(r.Context(), provided).
 				Return(nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
@@ -240,12 +241,12 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 					Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: tc.certificateProviderDetailsTaskState},
 				}, nil)
 
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathLpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -294,7 +295,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			donor := &donordata.Provided{
+			provided := &donordata.Provided{
 				LpaID:               "lpa-id",
 				LpaUID:              "lpa-uid",
 				Hash:                5,
@@ -331,12 +332,12 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id")+"?firstCheck=1", resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathLpaDetailsSaved.Format("lpa-id")+"?firstCheck=1", resp.Header.Get("Location"))
 		})
 	}
 }
@@ -350,7 +351,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID:               "lpa-id",
 		LpaUID:              "lpa-uid",
 		Hash:                5,
@@ -363,7 +364,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), donor).
+		Put(r.Context(), provided).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -375,12 +376,12 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		}).
 		Return(nil)
 
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.LpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathLpaDetailsSaved.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {

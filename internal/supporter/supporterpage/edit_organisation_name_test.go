@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -68,7 +69,7 @@ func TestPostEditOrganisationName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.OrganisationDetails.Format()+"?updated=name", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathOrganisationDetails.Format()+"?updated=name", resp.Header.Get("Location"))
 }
 
 func TestPostEditOrganisationNameWhenValidationError(t *testing.T) {

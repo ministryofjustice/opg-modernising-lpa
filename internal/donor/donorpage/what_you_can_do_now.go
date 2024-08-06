@@ -38,15 +38,15 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 				switch data.Form.DoNext {
 				case donordata.ProveOwnID:
 					provided.DonorIdentityUserData = identity.UserData{}
-					next = page.Paths.TaskList
+					next = donor.PathTaskList
 				case donordata.SelectNewVoucher:
 					provided.WantVoucher = form.Yes
-					next = page.Paths.EnterVoucher
+					next = donor.PathEnterVoucher
 				case donordata.WithdrawLPA:
-					next = page.Paths.WithdrawThisLpa
+					next = donor.PathWithdrawThisLpa
 				case donordata.ApplyToCOP:
 					provided.RegisteringWithCourtOfProtection = true
-					next = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
+					next = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

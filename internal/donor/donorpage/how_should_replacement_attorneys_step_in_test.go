@@ -91,7 +91,7 @@ func TestPostHowShouldReplacementAttorneysStepIn(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
@@ -115,7 +115,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			ExpectedRedirectUrl:                 page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+			ExpectedRedirectUrl:                 donor.PathHowShouldReplacementAttorneysMakeDecisions,
 			TaskState:                           task.StateInProgress,
 		},
 		"multiple attorneys acting jointly": {
@@ -126,7 +126,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			HowAttorneysMakeDecisions:            lpadata.Jointly,
 			HowShouldReplacementAttorneysStepIn:  lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			HowReplacementAttorneysMakeDecisions: lpadata.Jointly,
-			ExpectedRedirectUrl:                  page.Paths.TaskList,
+			ExpectedRedirectUrl:                  donor.PathTaskList,
 			TaskState:                            task.StateInProgress,
 		},
 		"multiple attorneys acting jointly and severally replacements step in when one loses capacity": {
@@ -136,7 +136,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
-			ExpectedRedirectUrl:                 page.Paths.TaskList,
+			ExpectedRedirectUrl:                 donor.PathTaskList,
 			TaskState:                           task.StateNotStarted,
 		},
 		"multiple attorneys acting jointly and severally": {
@@ -150,7 +150,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 			}},
 			HowAttorneysMakeDecisions:           lpadata.JointlyAndSeverally,
 			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
-			ExpectedRedirectUrl:                 page.Paths.TaskList,
+			ExpectedRedirectUrl:                 donor.PathTaskList,
 			TaskState:                           task.StateInProgress,
 		},
 	}
@@ -249,7 +249,7 @@ func TestPostHowShouldReplacementAttorneysStepInFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

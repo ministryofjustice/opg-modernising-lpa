@@ -30,7 +30,7 @@ func DeleteOrganisation(logger Logger, tmpl template.Template, organisationStore
 				return err
 			}
 
-			return page.Paths.Supporter.OrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.SupporterData.OrganisationName}})
+			return page.PathSupporterOrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.SupporterData.OrganisationName}})
 		}
 
 		inProgressLPACount, err := searchClient.CountWithQuery(r.Context(), search.CountWithQueryReq{MustNotExist: "RegisteredAt"})

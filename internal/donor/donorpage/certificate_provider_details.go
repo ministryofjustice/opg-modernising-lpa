@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -22,20 +23,20 @@ type certificateProviderDetailsData struct {
 }
 
 func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &certificateProviderDetailsData{
 			App: appData,
 			Form: &certificateProviderDetailsForm{
-				FirstNames:     donor.CertificateProvider.FirstNames,
-				LastName:       donor.CertificateProvider.LastName,
-				HasNonUKMobile: donor.CertificateProvider.HasNonUKMobile,
+				FirstNames:     provided.CertificateProvider.FirstNames,
+				LastName:       provided.CertificateProvider.LastName,
+				HasNonUKMobile: provided.CertificateProvider.HasNonUKMobile,
 			},
 		}
 
-		if donor.CertificateProvider.HasNonUKMobile {
-			data.Form.NonUKMobile = donor.CertificateProvider.Mobile
+		if provided.CertificateProvider.HasNonUKMobile {
+			data.Form.NonUKMobile = provided.CertificateProvider.Mobile
 		} else {
-			data.Form.Mobile = donor.CertificateProvider.Mobile
+			data.Form.Mobile = provided.CertificateProvider.Mobile
 		}
 
 		if r.Method == http.MethodPost {
@@ -44,7 +45,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 
 			sameNameWarning := actor.NewSameNameWarning(
 				actor.TypeCertificateProvider,
-				certificateProviderMatches(donor, data.Form.FirstNames, data.Form.LastName),
+				certificateProviderMatches(provided, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -54,29 +55,29 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
-				if donor.CertificateProvider.UID.IsZero() {
-					donor.CertificateProvider.UID = newUID()
+				if provided.CertificateProvider.UID.IsZero() {
+					provided.CertificateProvider.UID = newUID()
 				}
 
-				donor.CertificateProvider.FirstNames = data.Form.FirstNames
-				donor.CertificateProvider.LastName = data.Form.LastName
-				donor.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+				provided.CertificateProvider.FirstNames = data.Form.FirstNames
+				provided.CertificateProvider.LastName = data.Form.LastName
+				provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
 
 				if data.Form.HasNonUKMobile {
-					donor.CertificateProvider.Mobile = data.Form.NonUKMobile
+					provided.CertificateProvider.Mobile = data.Form.NonUKMobile
 				} else {
-					donor.CertificateProvider.Mobile = data.Form.Mobile
+					provided.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
-				if !donor.Tasks.CertificateProvider.Completed() {
-					donor.Tasks.CertificateProvider = task.StateInProgress
+				if !provided.Tasks.CertificateProvider.Completed() {
+					provided.Tasks.CertificateProvider = task.StateInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.HowDoYouKnowYourCertificateProvider.Redirect(w, r, appData, donor)
+				return donor.PathHowDoYouKnowYourCertificateProvider.Redirect(w, r, appData, provided)
 			}
 		}
 

@@ -7,9 +7,9 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -21,14 +21,14 @@ type chooseAttorneysSummaryData struct {
 }
 
 func ChooseAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if donor.Attorneys.Len() == 0 {
-			return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"id": {newUID().String()}})
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.Attorneys.Len() == 0 {
+			return donor.PathChooseAttorneys.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
 		}
 
 		data := &chooseAttorneysSummaryData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form:  form.NewYesNoForm(form.YesNoUnknown),
 		}
 
@@ -37,15 +37,15 @@ func ChooseAttorneysSummary(tmpl template.Template, newUID func() actoruid.UID) 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				redirectUrl := page.Paths.TaskList
-				if donor.Attorneys.Len() > 1 {
-					redirectUrl = page.Paths.HowShouldAttorneysMakeDecisions
+				redirectUrl := donor.PathTaskList
+				if provided.Attorneys.Len() > 1 {
+					redirectUrl = donor.PathHowShouldAttorneysMakeDecisions
 				}
 
 				if data.Form.YesNo.IsYes() {
-					return page.Paths.ChooseAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"addAnother": {"1"}, "id": {newUID().String()}})
+					return donor.PathChooseAttorneys.RedirectQuery(w, r, appData, provided, url.Values{"addAnother": {"1"}, "id": {newUID().String()}})
 				} else {
-					return redirectUrl.Redirect(w, r, appData, donor)
+					return redirectUrl.Redirect(w, r, appData, provided)
 				}
 			}
 		}

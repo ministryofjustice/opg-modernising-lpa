@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -108,7 +109,7 @@ func TestPostLpaType(t *testing.T) {
 		},
 	}
 
-	for lpaType, donor := range testcases {
+	for lpaType, provided := range testcases {
 		t.Run(lpaType.String(), func(t *testing.T) {
 			form := url.Values{
 				"lpa-type": {lpaType.String()},
@@ -122,7 +123,7 @@ func TestPostLpaType(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
-				Put(r.Context(), donor).
+				Put(r.Context(), provided).
 				Return(nil)
 
 			eventClient := newMockEventClient(t)
@@ -153,7 +154,7 @@ func TestPostLpaType(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

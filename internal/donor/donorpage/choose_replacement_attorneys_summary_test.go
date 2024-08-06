@@ -63,7 +63,7 @@ func TestGetChooseReplacementAttorneysSummaryWhenNoReplacementAttorneys(t *testi
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.DoYouWantReplacementAttorneys.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathDoYouWantReplacementAttorneys.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
@@ -80,7 +80,7 @@ func TestPostChooseReplacementAttorneysSummaryAddAttorney(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneys.Format("lpa-id")+"?addAnother=1&id="+testUID.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneys.Format("lpa-id")+"?addAnother=1&id="+testUID.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
@@ -95,39 +95,39 @@ func TestPostChooseReplacementAttorneysSummaryDoNotAddAttorney(t *testing.T) {
 		decisionDetails      string
 	}{
 		"with multiple attorneys acting jointly and severally and single replacement attorney": {
-			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
+			redirectUrl:          donor.PathHowShouldReplacementAttorneysStepIn,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
 			howAttorneysAct:      lpadata.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and severally and multiple replacement attorney": {
-			redirectUrl:          page.Paths.HowShouldReplacementAttorneysStepIn,
+			redirectUrl:          donor.PathHowShouldReplacementAttorneysStepIn,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			howAttorneysAct:      lpadata.JointlyAndSeverally,
 		},
 		"with multiple attorneys acting jointly and multiple replacement attorneys": {
-			redirectUrl:          page.Paths.HowShouldReplacementAttorneysMakeDecisions,
+			redirectUrl:          donor.PathHowShouldReplacementAttorneysMakeDecisions,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			howAttorneysAct:      lpadata.Jointly,
 		},
 		"with multiple attorneys acting jointly for some decisions and jointly and severally for other decisions and single replacement attorney": {
-			redirectUrl:          page.Paths.TaskList,
+			redirectUrl:          donor.PathTaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
 			howAttorneysAct:      lpadata.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly for some decisions, and jointly and severally for other decisions and multiple replacement attorneys": {
-			redirectUrl:          page.Paths.TaskList,
+			redirectUrl:          donor.PathTaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			howAttorneysAct:      lpadata.JointlyForSomeSeverallyForOthers,
 			decisionDetails:      "some words",
 		},
 		"with multiple attorneys acting jointly and single replacement attorneys": {
-			redirectUrl:          page.Paths.TaskList,
+			redirectUrl:          donor.PathTaskList,
 			attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1, attorney2}},
 			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorney1}},
 			howAttorneysAct:      lpadata.Jointly,

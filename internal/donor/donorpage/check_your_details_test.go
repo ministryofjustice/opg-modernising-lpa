@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
@@ -57,7 +57,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
@@ -69,5 +69,5 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WeHaveReceivedVoucherDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWeHaveReceivedVoucherDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -107,7 +108,7 @@ func TestPostEditMember(t *testing.T) {
 			},
 			userPermission:   supporterdata.PermissionAdmin,
 			memberEmail:      "self@example.org",
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
+			expectedRedirect: supporter.PathManageTeamMembers.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "c",
@@ -124,7 +125,7 @@ func TestPostEditMember(t *testing.T) {
 			},
 			userPermission:   supporterdata.PermissionNone,
 			memberEmail:      "self@example.org",
-			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
+			expectedRedirect: supporter.PathDashboard.Format() + "?nameUpdated=c+d&selfUpdated=1",
 			expectedMember: &supporterdata.Member{
 				ID:         "an-id",
 				FirstNames: "c",
@@ -219,7 +220,7 @@ func TestPostEditMemberWhenOtherMember(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+"?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathManageTeamMembers.Format()+"?nameUpdated=c+d&statusEmail=team-member%40example.org&statusUpdated=suspended", resp.Header.Get("Location"))
 }
 
 func TestPostEditMemberNoUpdate(t *testing.T) {
@@ -231,12 +232,12 @@ func TestPostEditMemberNoUpdate(t *testing.T) {
 		"self": {
 			userPermission:   supporterdata.PermissionAdmin,
 			memberEmail:      "self@example.org",
-			expectedRedirect: page.Paths.Supporter.ManageTeamMembers.Format() + "?",
+			expectedRedirect: supporter.PathManageTeamMembers.Format() + "?",
 		},
 		"non-admin": {
 			userPermission:   supporterdata.PermissionNone,
 			memberEmail:      "self@example.org",
-			expectedRedirect: page.Paths.Supporter.Dashboard.Format() + "?",
+			expectedRedirect: supporter.PathDashboard.Format() + "?",
 		},
 	}
 
@@ -308,7 +309,7 @@ func TestPostEditMemberNoUpdateWhenOtherMember(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+"?", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathManageTeamMembers.Format()+"?", resp.Header.Get("Location"))
 }
 
 func TestPostEditMemberWhenOrganisationStorePutError(t *testing.T) {

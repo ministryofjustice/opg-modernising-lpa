@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -97,7 +98,7 @@ func TestGetChooseReplacementAttorneysWhenNoID(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChooseReplacementAttorneysDobWarningIsAlwaysShown(t *testing.T) {
@@ -231,7 +232,7 @@ func TestPostChooseReplacementAttorneysAttorneyDoesNotExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -333,7 +334,7 @@ func TestPostChooseReplacementAttorneysAttorneyExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -380,7 +381,7 @@ func TestPostChooseReplacementAttorneysNameWarningOnlyShownWhenAttorneyAndFormNa
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysWhenInputRequired(t *testing.T) {

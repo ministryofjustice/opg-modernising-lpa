@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -108,7 +108,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
@@ -123,7 +123,7 @@ func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *testing.T) {
@@ -136,7 +136,7 @@ func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *tes
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {

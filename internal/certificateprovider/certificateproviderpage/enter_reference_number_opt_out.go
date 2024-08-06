@@ -42,7 +42,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					return err
 				}
 
-				return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 

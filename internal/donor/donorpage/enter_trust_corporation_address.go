@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -12,8 +13,8 @@ import (
 )
 
 func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		trustCorporation := donor.Attorneys.TrustCorporation
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		trustCorporation := provided.Attorneys.TrustCorporation
 
 		data := newChooseAddressData(
 			appData,
@@ -33,16 +34,16 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 
 			setAddress := func(address place.Address) error {
 				trustCorporation.Address = address
-				donor.Attorneys.TrustCorporation = trustCorporation
+				provided.Attorneys.TrustCorporation = trustCorporation
 
-				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
+				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {
@@ -66,13 +67,13 @@ func EnterTrustCorporationAddress(logger Logger, tmpl template.Template, address
 				}
 
 			case "reuse":
-				data.Addresses = donor.ActorAddresses()
+				data.Addresses = provided.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
 					return setAddress(*data.Form.Address)
 				} else {
-					data.Addresses = donor.ActorAddresses()
+					data.Addresses = provided.ActorAddresses()
 				}
 			}
 		}

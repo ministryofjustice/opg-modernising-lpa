@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -58,7 +59,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
-				return page.Paths.Attorney.CodeOfConduct.Redirect(w, r, appData, appData.LpaID)
+				return attorney.PathCodeOfConduct.Redirect(w, r, appData, appData.LpaID)
 			}
 		}
 

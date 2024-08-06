@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -181,7 +182,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManualWhenStoreErrors(t *testing.T) {
@@ -249,7 +250,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressManualWhenValidationError(t *testing.T) {
@@ -673,7 +674,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseReplacementAttorneysAddressReuseSelectWhenValidationError(t *testing.T) {

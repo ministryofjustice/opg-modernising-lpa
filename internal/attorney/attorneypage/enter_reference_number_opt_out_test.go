@@ -88,7 +88,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.ConfirmDontWantToBeAttorneyLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {

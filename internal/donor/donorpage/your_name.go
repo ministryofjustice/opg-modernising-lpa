@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,15 +25,15 @@ type yourNameData struct {
 }
 
 func YourName(tmpl template.Template, donorStore DonorStore, sessionStore SessionStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourNameData{
 			App: appData,
 			Form: &yourNameForm{
-				FirstNames: donor.Donor.FirstNames,
-				LastName:   donor.Donor.LastName,
-				OtherNames: donor.Donor.OtherNames,
+				FirstNames: provided.Donor.FirstNames,
+				LastName:   provided.Donor.LastName,
+				OtherNames: provided.Donor.OtherNames,
 			},
-			CanTaskList:      !donor.Type.Empty(),
+			CanTaskList:      !provided.Type.Empty(),
 			MakingAnotherLPA: r.FormValue("makingAnotherLPA") == "1",
 		}
 
@@ -44,24 +45,24 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeDonor,
-				donorMatches(donor, data.Form.FirstNames, data.Form.LastName),
+				donorMatches(provided, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
 
 			if data.Errors.Any() ||
 				data.Form.IgnoreNameWarning != nameWarning.String() &&
-					donor.Donor.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
+					provided.Donor.FullName() != fmt.Sprintf("%s %s", data.Form.FirstNames, data.Form.LastName) {
 				data.NameWarning = nameWarning
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
-				if !donor.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
+				if !provided.NamesChanged(data.Form.FirstNames, data.Form.LastName, data.Form.OtherNames) {
 					if data.MakingAnotherLPA {
-						return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+						return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
 					}
 
-					return page.Paths.YourDateOfBirth.Redirect(w, r, appData, donor)
+					return donor.PathYourDateOfBirth.Redirect(w, r, appData, provided)
 				}
 
 				if appData.SupporterData == nil {
@@ -73,23 +74,23 @@ func YourName(tmpl template.Template, donorStore DonorStore, sessionStore Sessio
 						return fmt.Errorf("no email in login session")
 					}
 
-					donor.Donor.Email = loginSession.Email
+					provided.Donor.Email = loginSession.Email
 				}
 
-				donor.Donor.FirstNames = data.Form.FirstNames
-				donor.Donor.LastName = data.Form.LastName
-				donor.Donor.OtherNames = data.Form.OtherNames
-				donor.HasSentApplicationUpdatedEvent = false
+				provided.Donor.FirstNames = data.Form.FirstNames
+				provided.Donor.LastName = data.Form.LastName
+				provided.Donor.OtherNames = data.Form.OtherNames
+				provided.HasSentApplicationUpdatedEvent = false
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
 				if data.MakingAnotherLPA {
-					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"name"}})
+					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"name"}})
 				}
 
-				return page.Paths.YourDateOfBirth.Redirect(w, r, appData, donor)
+				return donor.PathYourDateOfBirth.Redirect(w, r, appData, provided)
 			}
 		}
 

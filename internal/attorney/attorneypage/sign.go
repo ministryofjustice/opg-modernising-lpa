@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -46,12 +47,14 @@ func Sign(
 			attorneys = lpa.ReplacementAttorneys
 		}
 
-		attorney, ok := attorneys.Get(appData.AttorneyUID)
-		if !ok {
-			return page.Paths.Attorney.Start.Redirect(w, r, appData)
-		}
+		{
+			attorney, ok := attorneys.Get(appData.AttorneyUID)
+			if !ok {
+				return page.PathAttorneyStart.Redirect(w, r, appData)
+			}
 
-		data.Attorney = attorney
+			data.Attorney = attorney
+		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readSignForm(r)
@@ -61,19 +64,19 @@ func Sign(
 				attorneyProvidedDetails.Tasks.SignTheLpa = task.StateCompleted
 				attorneyProvidedDetails.SignedAt = now()
 
-				if attorney.SignedAt.IsZero() {
+				if data.Attorney.SignedAt.IsZero() {
 					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
 						return err
 					}
 				} else {
-					attorneyProvidedDetails.SignedAt = attorney.SignedAt
+					attorneyProvidedDetails.SignedAt = data.Attorney.SignedAt
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
 				}
 
-				return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 
@@ -140,9 +143,9 @@ func Sign(
 				}
 
 				if signatoryIndex == 0 {
-					return page.Paths.Attorney.WouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+					return attorney.PathWouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
-					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+					return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
 		}
@@ -152,7 +155,7 @@ func Sign(
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if attorneyProvidedDetails.Signed() {
-			return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
@@ -161,7 +164,7 @@ func Sign(
 		}
 
 		if lpa.SignedAt.IsZero() || lpa.CertificateProvider.SignedAt.IsZero() {
-			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		if appData.IsTrustCorporation() {

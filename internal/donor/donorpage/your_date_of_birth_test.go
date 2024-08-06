@@ -123,7 +123,7 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			person: donordata.Donor{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
-			redirect: page.Paths.YourAddress.Format("lpa-id"),
+			redirect: donor.PathYourAddress.Format("lpa-id"),
 		},
 		"warning ignored": {
 			url: "/",
@@ -136,7 +136,7 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			person: donordata.Donor{
 				DateOfBirth: date.New("1900", "1", "2"),
 			},
-			redirect: page.Paths.YourAddress.Format("lpa-id"),
+			redirect: donor.PathYourAddress.Format("lpa-id"),
 		},
 		"making another lpa": {
 			url: "/?makingAnotherLPA=1",
@@ -148,7 +148,7 @@ func TestPostYourDateOfBirth(t *testing.T) {
 			person: donordata.Donor{
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
-			redirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=dateOfBirth",
+			redirect: donor.PathWeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=dateOfBirth",
 		},
 	}
 
@@ -190,11 +190,11 @@ func TestPostYourDateOfBirthWhenDetailsNotChanged(t *testing.T) {
 	}{
 		"making first": {
 			url:      "/",
-			redirect: page.Paths.YourAddress,
+			redirect: donor.PathYourAddress,
 		},
 		"making another": {
 			url:      "/?makingAnotherLPA=1",
-			redirect: page.Paths.MakeANewLPA,
+			redirect: donor.PathMakeANewLPA,
 		},
 	}
 

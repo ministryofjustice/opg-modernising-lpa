@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -101,7 +101,7 @@ func TestPostUnableToConfirmIdentity(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.ReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathReadTheLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostUnableToConfirmIdentityWhenCertificateProviderStoreErrors(t *testing.T) {

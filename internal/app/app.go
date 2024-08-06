@@ -116,33 +116,33 @@ func App(
 	handleRoot := makeHandle(rootMux, errorHandler, sessionStore)
 
 	if devMode {
-		handleRoot(page.Paths.Fixtures, None,
+		handleRoot(page.PathFixtures, None,
 			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore))
-		handleRoot(page.Paths.CertificateProviderFixtures, None,
+		handleRoot(page.PathCertificateProviderFixtures, None,
 			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
-		handleRoot(page.Paths.AttorneyFixtures, None,
+		handleRoot(page.PathAttorneyFixtures, None,
 			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore))
-		handleRoot(page.Paths.SupporterFixtures, None,
+		handleRoot(page.PathSupporterFixtures, None,
 			fixtures.Supporter(sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient))
-		handleRoot(page.Paths.DashboardFixtures, None,
+		handleRoot(page.PathDashboardFixtures, None,
 			fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, shareCodeStore))
 	}
 
-	handleRoot(page.Paths.Root, None,
+	handleRoot(page.PathRoot, None,
 		notFoundHandler)
-	handleRoot(page.Paths.SignOut, None,
+	handleRoot(page.PathSignOut, None,
 		page.SignOut(logger, sessionStore, oneLoginClient, appPublicURL))
-	handleRoot(page.Paths.Start, None,
+	handleRoot(page.PathStart, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
-	handleRoot(page.Paths.CertificateProviderStart, None,
+	handleRoot(page.PathCertificateProviderStart, None,
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
-	handleRoot(page.Paths.Attorney.Start, None,
+	handleRoot(page.PathAttorneyStart, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
-	handleRoot(page.Paths.Dashboard, RequireSession,
+	handleRoot(page.PathDashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
-	handleRoot(page.Paths.LpaDeleted, RequireSession,
+	handleRoot(page.PathLpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
-	handleRoot(page.Paths.LpaWithdrawn, RequireSession,
+	handleRoot(page.PathLpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
 
 	supporterpage.Register(
@@ -267,7 +267,7 @@ func makeHandle(mux *http.ServeMux, errorHandler page.ErrorHandler, sessionStore
 			if opt&RequireSession != 0 {
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
+					http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
 					return
 				}
 

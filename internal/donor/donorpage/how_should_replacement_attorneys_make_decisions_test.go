@@ -100,7 +100,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
@@ -121,7 +121,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
 			updated:   donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "some details"},
 			taskState: task.StateCompleted,
-			redirect:  page.Paths.TaskList,
+			redirect:  donor.PathTaskList,
 		},
 		"existing details set": {
 			form: url.Values{
@@ -132,7 +132,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
 			updated:   donordata.AttorneyDecisions{How: lpadata.Jointly},
 			taskState: task.StateCompleted,
-			redirect:  page.Paths.TaskList,
+			redirect:  donor.PathTaskList,
 		},
 	}
 

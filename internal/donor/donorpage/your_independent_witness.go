@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -21,12 +22,12 @@ type yourIndependentWitnessData struct {
 }
 
 func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
 			Form: &yourIndependentWitnessForm{
-				FirstNames: donor.IndependentWitness.FirstNames,
-				LastName:   donor.IndependentWitness.LastName,
+				FirstNames: provided.IndependentWitness.FirstNames,
+				LastName:   provided.IndependentWitness.LastName,
 			},
 		}
 
@@ -36,7 +37,7 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeIndependentWitness,
-				independentWitnessMatches(donor, data.Form.FirstNames, data.Form.LastName),
+				independentWitnessMatches(provided, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -46,18 +47,18 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
-				donor.IndependentWitness.FirstNames = data.Form.FirstNames
-				donor.IndependentWitness.LastName = data.Form.LastName
+				provided.IndependentWitness.FirstNames = data.Form.FirstNames
+				provided.IndependentWitness.LastName = data.Form.LastName
 
-				if !donor.Tasks.ChooseYourSignatory.Completed() {
-					donor.Tasks.ChooseYourSignatory = task.StateInProgress
+				if !provided.Tasks.ChooseYourSignatory.Completed() {
+					provided.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.YourIndependentWitnessMobile.Redirect(w, r, appData, donor)
+				return donor.PathYourIndependentWitnessMobile.Redirect(w, r, appData, provided)
 			}
 		}
 

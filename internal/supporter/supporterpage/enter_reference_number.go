@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -41,7 +42,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 				}
 
 				if invite.HasExpired() {
-					return page.Paths.Supporter.InviteExpired.Redirect(w, r, appData)
+					return page.PathSupporterInviteExpired.Redirect(w, r, appData)
 				}
 
 				if err := memberStore.CreateFromInvite(r.Context(), invite); err != nil {
@@ -50,7 +51,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					return page.Paths.Supporter.Start.Redirect(w, r, appData)
+					return page.PathSupporterStart.Redirect(w, r, appData)
 				}
 
 				loginSession.OrganisationID = invite.OrganisationID
@@ -62,7 +63,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 					return err
 				}
 
-				return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
+				return supporter.PathDashboard.Redirect(w, r, appData)
 			}
 		}
 
