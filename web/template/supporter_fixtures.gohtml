@@ -1,0 +1,52 @@
+{{ template "fixtures-page" . }}
+
+{{ define "pageTitle" }}Supporter fixtures{{ end }}
+
+{{ define "fixtures-main" }}
+    <div class="govuk-form-group">
+        <label class="govuk-label" for="sort">
+            Organisation member email
+        </label>
+        <select class="govuk-select" id="sort" name="asMember">
+            {{ range .Members }}
+                <option value="{{ .Email }}">{{ .Email }}</option>
+            {{ end }}
+        </select>
+    </div>
+    <div class="govuk-hint govuk-!-padding-bottom-2">
+        Choose an organisation member to log in as
+    </div>
+
+    <div class="govuk-form-group">
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-permission" name="permission" type="checkbox" value="admin">
+                <label class="govuk-label govuk-checkboxes__label" for="f-permission">
+                    Login as admin
+                </label>
+            </div>
+        </div>
+    </div>
+
+    {{ template "input" (input . "supporterSub" "Supporter OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
+    <div class="govuk-hint govuk-!-padding-bottom-2">
+        Copy this value or change to your own to log back in to an existing organisation from the <a class="govuk-link" href="{{ global.Paths.Supporter.Start.Format }}">supporter start page</a>
+    </div>
+
+    <div class="govuk-form-group">
+        <label class="govuk-label" for="sort">
+            Number of organisation members
+        </label>
+        <select class="govuk-select" id="sort" name="members">
+            {{ range $i, $_ := .Members }}
+                <option value="{{ inc $i }}">{{ inc $i }}</option>
+            {{ end }}
+        </select>
+    </div>
+
+    {{ template "input" (input . "lpa" "Number of LPAs in Organisation" "0" "classes" "govuk-input--width-20") }}
+
+    {{ template "input" (input . "invitedMembers" "Number of member invites" "0" "classes" "govuk-input--width-20") }}
+
+    <input type="hidden" name="organisation" value="1" />
+{{ end }}

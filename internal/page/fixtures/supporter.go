@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -44,6 +45,7 @@ type ShareCodeStore interface {
 }
 
 func Supporter(
+	tmpl template.Template,
 	sessionStore *sesh.Store,
 	organisationStore OrganisationStore,
 	donorStore DonorStore,
@@ -73,13 +75,31 @@ func Supporter(
 			setLPAProgress = r.FormValue("setLPAProgress") == "1"
 			accessCode     = r.FormValue("accessCode")
 			linkDonor      = r.FormValue("linkDonor") == "1"
-
-			supporterSub       = random.String(16)
-			supporterSessionID = base64.StdEncoding.EncodeToString([]byte(supporterSub))
-			supporterCtx       = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: testEmail})
+			supporterSub   = r.FormValue("supporterSub")
 		)
 
+		if supporterSub == "" {
+			supporterSub = random.String(16)
+		}
+
+		supporterSessionID := base64.StdEncoding.EncodeToString([]byte(supporterSub))
+
+		supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: testEmail})
+
 		loginSession := &sesh.LoginSession{Sub: supporterSub, Email: testEmail}
+
+		if asMember != "" {
+			supporterCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: supporterSessionID, Email: asMember})
+			loginSession = &sesh.LoginSession{Sub: supporterSub, Email: asMember}
+		}
+
+		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
+			return tmpl(w, &fixturesData{
+				App:     appData,
+				Sub:     supporterSub,
+				Members: orgMemberNames,
+			})
+		}
 
 		if organisation == "1" {
 			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
@@ -216,8 +236,6 @@ func Supporter(
 						break
 					}
 
-					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
-
 					now := time.Now()
 					if expireInvites {
 						now = now.Add(time.Hour * -time.Duration(48))
@@ -225,11 +243,11 @@ func Supporter(
 
 					invite := &supporterdata.MemberInvite{
 						PK:               dynamo.OrganisationKey(org.ID),
-						SK:               dynamo.MemberInviteKey(email),
+						SK:               dynamo.MemberInviteKey(member.Email()),
 						CreatedAt:        now,
 						OrganisationID:   org.ID,
 						OrganisationName: org.Name,
-						Email:            email,
+						Email:            member.Email(),
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
 						Permission:       supporterdata.PermissionAdmin,
@@ -296,7 +314,9 @@ func Supporter(
 			return err
 		}
 
-		if redirect != page.Paths.Supporter.EnterOrganisationName.Format() && redirect != page.Paths.Supporter.EnterYourName.Format() && redirect != page.Paths.EnterAccessCode.Format() {
+		if redirect == "" {
+			redirect = page.Paths.Supporter.Dashboard.Format()
+		} else if redirect != page.Paths.Supporter.EnterOrganisationName.Format() && redirect != page.Paths.Supporter.EnterYourName.Format() && redirect != page.Paths.EnterAccessCode.Format() {
 			redirect = "/supporter" + redirect
 		}
 
