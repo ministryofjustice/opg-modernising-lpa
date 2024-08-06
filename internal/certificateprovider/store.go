@@ -1,4 +1,4 @@
-package certificateproviderdata
+package certificateprovider
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
@@ -42,7 +43,7 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 		return nil, errors.New("certificateProviderStore.Create requires LpaID and SessionID")
 	}
 
-	certificateProvider := &Provided{
+	certificateProvider := &certificateproviderdata.Provided{
 		PK:        dynamo.LpaKey(data.LpaID),
 		SK:        dynamo.CertificateProviderKey(data.SessionID),
 		UID:       shareCode.ActorUID,
@@ -79,7 +80,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 	return certificateProvider, err
 }
 
-func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
+func (s *Store) GetAny(ctx context.Context) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -89,13 +90,13 @@ func (s *Store) GetAny(ctx context.Context) (*Provided, error) {
 		return nil, errors.New("certificateProviderStore.GetAny requires LpaID")
 	}
 
-	var certificateProvider Provided
+	var certificateProvider certificateproviderdata.Provided
 	err = s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(""), &certificateProvider)
 
 	return &certificateProvider, err
 }
 
-func (s *Store) Get(ctx context.Context) (*Provided, error) {
+func (s *Store) Get(ctx context.Context) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -105,13 +106,13 @@ func (s *Store) Get(ctx context.Context) (*Provided, error) {
 		return nil, errors.New("certificateProviderStore.Get requires LpaID and SessionID")
 	}
 
-	var certificateProvider Provided
+	var certificateProvider certificateproviderdata.Provided
 	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID), &certificateProvider)
 
 	return &certificateProvider, err
 }
 
-func (s *Store) Put(ctx context.Context, certificateProvider *Provided) error {
+func (s *Store) Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error {
 	certificateProvider.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, certificateProvider)
 }

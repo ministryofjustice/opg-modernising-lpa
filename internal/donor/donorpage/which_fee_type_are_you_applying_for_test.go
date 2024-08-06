@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -76,7 +77,7 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 }
 
 func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
-	testcases := map[pay.FeeType]page.LpaPath{
+	testcases := map[pay.FeeType]donor.Path{
 		pay.HalfFee:              page.Paths.EvidenceRequired,
 		pay.NoFee:                page.Paths.EvidenceRequired,
 		pay.HardshipFee:          page.Paths.EvidenceRequired,

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -100,7 +101,7 @@ func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 	testCases := map[string]struct {
 		yesNo    form.YesNo
 		voucher  donordata.Voucher
-		redirect page.LpaPath
+		redirect donor.Path
 	}{
 		"yes": {
 			yesNo:    form.Yes,

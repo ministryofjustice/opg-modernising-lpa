@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -139,7 +140,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 		Return(&supporterdata.Member{Permission: supporterdata.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
+	handle(supporter.Path("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
@@ -189,7 +190,7 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 		Return(&supporterdata.Member{Permission: supporterdata.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterLpaPath("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
+	handle(supporter.LpaPath("/path"), CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path/xyz",
 			SessionID: "cmFuZG9t",
@@ -240,7 +241,7 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 		Return(&supporterdata.Member{Permission: supporterdata.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), RequireAdmin, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
+	handle(supporter.Path("/path"), RequireAdmin, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
@@ -293,7 +294,7 @@ func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
 		Execute(w, r, mock.Anything)
 
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), RequireAdmin, nil)
+	handle(supporter.Path("/path"), RequireAdmin, nil)
 
 	mux.ServeHTTP(w, r)
 }
@@ -334,7 +335,7 @@ func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
 		Return(nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, suspendedTmpl.Execute)
-	handle(page.SupporterPath("/path"), RequireAdmin, nil)
+	handle(supporter.Path("/path"), RequireAdmin, nil)
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -382,7 +383,7 @@ func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
 		Execute(w, r, expectedError)
 
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, suspendedTmpl.Execute)
-	handle(page.SupporterPath("/path"), RequireAdmin, nil)
+	handle(supporter.Path("/path"), RequireAdmin, nil)
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -418,7 +419,7 @@ func TestMakeSupporterHandleWithSession(t *testing.T) {
 		Return(&supporterdata.Member{Permission: supporterdata.PermissionAdmin, ID: "member-id"}, nil)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
+	handle(supporter.Path("/path"), None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/supporter/path",
 			SessionID: "cmFuZG9t",
@@ -456,7 +457,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 		Return(nil, expectedError)
 
 	handle := makeSupporterHandle(mux, sessionStore, nil, nil, nil, nil)
-	handle(page.SupporterPath("/path"), None, nil)
+	handle(supporter.Path("/path"), None, nil)
 
 	mux.ServeHTTP(w, r)
 	resp := w.Result()
@@ -486,7 +487,7 @@ func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, nil, nil)
-	handle(page.SupporterPath("/path"), None, nil)
+	handle(supporter.Path("/path"), None, nil)
 
 	mux.ServeHTTP(w, r)
 }
@@ -517,7 +518,7 @@ func TestMakeSupporterHandleWhenMemberStoreError(t *testing.T) {
 		Return(&supporterdata.Member{}, expectedError)
 
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, nil)
+	handle(supporter.Path("/path"), None, nil)
 
 	mux.ServeHTTP(w, r)
 }
@@ -547,7 +548,7 @@ func TestMakeSupporterHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeSupporterHandle(mux, sessionStore, errorHandler.Execute, organisationStore, memberStore, nil)
-	handle(page.SupporterPath("/path"), None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *supporterdata.Organisation, _ *supporterdata.Member) error {
+	handle(supporter.Path("/path"), None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *supporterdata.Organisation, _ *supporterdata.Member) error {
 		return expectedError
 	})
 
