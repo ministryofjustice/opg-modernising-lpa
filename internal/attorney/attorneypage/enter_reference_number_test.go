@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -134,7 +135,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.CodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathCodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -171,7 +172,7 @@ func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.CodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, attorney.PathCodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {

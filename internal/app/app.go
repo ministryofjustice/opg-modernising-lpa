@@ -136,7 +136,7 @@ func App(
 		page.Guidance(tmpls.Get("start.gohtml")))
 	handleRoot(page.Paths.CertificateProviderStart, None,
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
-	handleRoot(page.Paths.Attorney.Start, None,
+	handleRoot(attorney.PathStart, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
 	handleRoot(page.Paths.Dashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))

@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -54,7 +55,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				return err
 			}
 
-			return page.Paths.Attorney.YouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
+			return attorney.PathYouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
 				"donorFullName":   {lpa.Donor.FullName()},
 				"donorFirstNames": {lpa.Donor.FirstNames},
 			})

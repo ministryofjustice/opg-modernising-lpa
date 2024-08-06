@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -165,7 +166,7 @@ func TestFromLink(t *testing.T) {
 	assert.Equal(t, "/lpa/lpa-id/your-details?from=/previous#f-first-names",
 		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous",
-		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, ""))
+		fromLink(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, attorney.PathConfirmYourDetails, ""))
 }
 
 func TestFromLinkActor(t *testing.T) {
@@ -173,7 +174,7 @@ func TestFromLinkActor(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("/lpa/lpa-id/your-details?from=/previous&id=%s#f-first-names", uid.String()),
 		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous"}, page.Paths.YourDetails, uid, "#f-first-names"))
 	assert.Equal(t, "/cy/attorney/lpa-id/confirm-your-details?from=/previous&id="+uid.String(),
-		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, page.Paths.Attorney.ConfirmYourDetails, uid, ""))
+		fromLinkActor(appcontext.Data{LpaID: "lpa-id", Page: "/previous", Lang: localize.Cy}, attorney.PathConfirmYourDetails, uid, ""))
 }
 
 func TestCheckboxEq(t *testing.T) {

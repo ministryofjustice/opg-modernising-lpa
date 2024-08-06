@@ -10,9 +10,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -121,7 +121,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -261,7 +261,7 @@ func TestMakeAttorneyHandleExistingLpaData(t *testing.T) {
 }
 
 func TestMakeAttorneyHandleExistingSessionWhenCannotGoToURL(t *testing.T) {
-	path := page.Paths.Attorney.Sign
+	path := attorney.PathSign
 
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "ignored-session-id"})
 	uid := actoruid.New()
@@ -289,7 +289,7 @@ func TestMakeAttorneyHandleExistingSessionWhenCannotGoToURL(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.TaskList.Format("123"), resp.Header.Get("Location"))
+	assert.Equal(t, attorney.PathTaskList.Format("123"), resp.Header.Get("Location"))
 }
 
 func TestMakeAttorneyHandleErrors(t *testing.T) {
@@ -365,5 +365,5 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
 }
