@@ -1,4 +1,4 @@
-package attorneydata
+package attorney
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
@@ -42,7 +43,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*attorneydata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -52,7 +53,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 		return nil, errors.New("attorneyStore.Create requires LpaID and SessionID")
 	}
 
-	attorney := &Provided{
+	attorney := &attorneydata.Provided{
 		PK:                 dynamo.LpaKey(data.LpaID),
 		SK:                 dynamo.AttorneyKey(data.SessionID),
 		UID:                shareCode.ActorUID,
@@ -81,7 +82,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email stri
 	return attorney, err
 }
 
-func (s *Store) Get(ctx context.Context) (*Provided, error) {
+func (s *Store) Get(ctx context.Context) (*attorneydata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -91,13 +92,13 @@ func (s *Store) Get(ctx context.Context) (*Provided, error) {
 		return nil, errors.New("attorneyStore.Get requires LpaID and SessionID")
 	}
 
-	var attorney Provided
+	var attorney attorneydata.Provided
 	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.AttorneyKey(data.SessionID), &attorney)
 
 	return &attorney, err
 }
 
-func (s *Store) Put(ctx context.Context, attorney *Provided) error {
+func (s *Store) Put(ctx context.Context, attorney *attorneydata.Provided) error {
 	attorney.UpdatedAt = s.now()
 	return s.dynamoClient.Put(ctx, attorney)
 }

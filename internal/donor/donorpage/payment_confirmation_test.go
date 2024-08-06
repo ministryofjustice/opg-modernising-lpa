@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -23,7 +24,7 @@ import (
 func TestGetPaymentConfirmationFullFee(t *testing.T) {
 	testcases := map[string]struct {
 		evidenceDelivery pay.EvidenceDelivery
-		nextPage         page.LpaPath
+		nextPage         donor.Path
 	}{
 		"empty": {
 			nextPage: page.Paths.TaskList,

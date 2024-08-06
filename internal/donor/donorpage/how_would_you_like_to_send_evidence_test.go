@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -70,7 +71,7 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
-	testcases := map[pay.EvidenceDelivery]page.LpaPath{
+	testcases := map[pay.EvidenceDelivery]donor.Path{
 		pay.Upload: page.Paths.UploadEvidence,
 		pay.Post:   page.Paths.SendUsYourEvidenceByPost,
 	}

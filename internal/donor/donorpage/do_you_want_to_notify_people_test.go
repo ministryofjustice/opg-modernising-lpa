@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -150,7 +151,7 @@ func TestPostDoYouWantToNotifyPeople(t *testing.T) {
 	testCases := []struct {
 		YesNo            form.YesNo
 		ExistingAnswer   form.YesNo
-		ExpectedRedirect page.LpaPath
+		ExpectedRedirect donor.Path
 		ExpectedStatus   task.State
 	}{
 		{
