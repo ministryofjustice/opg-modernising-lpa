@@ -1184,6 +1184,14 @@ func TestCertificateProviderFullName(t *testing.T) {
 	assert.Equal(t, "John Smith", CertificateProvider{FirstNames: "John", LastName: "Smith"}.FullName())
 }
 
+func TestPersonToNotifyFullName(t *testing.T) {
+	assert.Equal(t, "John Smith", PersonToNotify{FirstNames: "John", LastName: "Smith"}.FullName())
+}
+
+func TestCorrespondentFullName(t *testing.T) {
+	assert.Equal(t, "John Smith", Correspondent{FirstNames: "John", LastName: "Smith"}.FullName())
+}
+
 func TestAttorneysLen(t *testing.T) {
 	testcases := map[string]struct {
 		attorneys Attorneys
@@ -1286,4 +1294,19 @@ func TestAttorneysFullNames(t *testing.T) {
 			assert.Equal(t, tc.fullNames, tc.attorneys.FullNames())
 		})
 	}
+}
+
+func TestLpaCorrespondentEmail(t *testing.T) {
+	lpa := &Lpa{
+		Donor: Donor{Email: "donor"},
+	}
+	assert.Equal(t, "donor", lpa.CorrespondentEmail())
+}
+
+func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
+	lpa := &Lpa{
+		Donor:         Donor{Email: "donor"},
+		Correspondent: Correspondent{Email: "correspondent"},
+	}
+	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
 }

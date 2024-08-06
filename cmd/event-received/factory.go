@@ -71,6 +71,7 @@ type Factory struct {
 
 	// previously constructed values
 	appData         *appcontext.Data
+	bundle          *localize.Bundle
 	lambdaClient    LambdaClient
 	secretsClient   SecretsClient
 	shareCodeSender ShareCodeSender
@@ -91,9 +92,22 @@ func (f *Factory) UuidString() func() string {
 	return f.uuidString
 }
 
+func (f *Factory) Bundle() (*localize.Bundle, error) {
+	if f.bundle == nil {
+		bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
+		if err != nil {
+			return nil, err
+		}
+
+		f.bundle = bundle
+	}
+
+	return f.bundle, nil
+}
+
 func (f *Factory) AppData() (appcontext.Data, error) {
 	if f.appData == nil {
-		bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
+		bundle, err := f.Bundle()
 		if err != nil {
 			return appcontext.Data{}, err
 		}
@@ -128,6 +142,11 @@ func (f *Factory) SecretsClient() (SecretsClient, error) {
 
 func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) {
 	if f.shareCodeSender == nil {
+		bundle, err := f.Bundle()
+		if err != nil {
+			return nil, err
+		}
+
 		secretsClient, err := f.SecretsClient()
 		if err != nil {
 			return nil, err
@@ -138,7 +157,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(f.cfg, f.eventBusName))
+		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(f.cfg, f.eventBusName), bundle)
 		if err != nil {
 			return nil, err
 		}

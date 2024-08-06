@@ -439,6 +439,16 @@ func (p PersonToNotify) FullName() string {
 	return p.FirstNames + " " + p.LastName
 }
 
+type Correspondent struct {
+	FirstNames string
+	LastName   string
+	Email      string
+}
+
+func (c Correspondent) FullName() string {
+	return c.FirstNames + " " + c.LastName
+}
+
 type Lpa struct {
 	LpaKey                                     dynamo.LpaKeyType
 	LpaOwnerKey                                dynamo.LpaOwnerKeyType
@@ -470,6 +480,15 @@ type Lpa struct {
 	IsOrganisationDonor                      bool
 	Drafted                                  bool
 	CannotRegister                           bool
+	Correspondent                            Correspondent
+}
+
+func (l *Lpa) CorrespondentEmail() string {
+	if l.Correspondent.Email == "" {
+		return l.Donor.Email
+	}
+
+	return l.Correspondent.Email
 }
 
 func (l Lpa) AllAttorneysSigned() bool {
@@ -716,6 +735,11 @@ func FromDonorProvidedDetails(l *donordata.Provided) *Lpa {
 		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
 		SignedAt:                                 l.SignedAt,
 		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
+		Correspondent: Correspondent{
+			FirstNames: l.Correspondent.FirstNames,
+			LastName:   l.Correspondent.LastName,
+			Email:      l.Correspondent.Email,
+		},
 	}
 }
 

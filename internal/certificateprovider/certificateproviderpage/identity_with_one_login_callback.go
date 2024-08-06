@@ -56,7 +56,8 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		switch certificateProvider.IdentityUserData.Status {
 		case identity.StatusFailed, identity.StatusInsufficientEvidence, identity.StatusUnknown:
 			if !lpa.SignedAt.IsZero() {
-				if err = notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
+				if err = notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
+					Greeting:                    notifyClient.EmailGreeting(lpa),
 					DonorFullName:               lpa.Donor.FullName(),
 					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
 					LpaType:                     appData.Localizer.T(lpa.Type.String()),
