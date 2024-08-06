@@ -8,11 +8,12 @@
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.CertificateProviderFixtures.Format }}">Certificate provider</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.AttorneyFixtures.Format }}">Attorney</a></li>
         <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.DashboardFixtures.Format }}">Dashboard</a></li>
+        <li><a class="govuk-link govuk-link--no-visited-state" href="{{ link .App global.Paths.SupporterFixtures.Format }}">Supporter</a></li>
       </ul>
 
       <form id="the-form" novalidate method="post">
         <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-      
+
         {{ template "fixtures-main" . }}
         <button type="submit" class="govuk-button" data-module="govuk-button">Start</button>
 
@@ -28,12 +29,12 @@
   <script>
     const theForm = document.getElementById('the-form');
     const theLink = document.getElementById('the-link');
-    
+
     function updateTheLink() {
       const data = new FormData(theForm);
       data.delete('csrf');
       const query = Array.from(data).reduce((a, [k,v]) => `${a}&${k}=${v}`, 'redirect=');
-      
+
       theLink.innerText = `${document.location.origin}${document.location.pathname}?${query}`;
     }
 

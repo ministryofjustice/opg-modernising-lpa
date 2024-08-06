@@ -54,6 +54,7 @@ type UidClient interface {
 
 type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
+	SendApplicationDeleted(context.Context, event.ApplicationDeleted) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
 	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
@@ -384,6 +385,15 @@ func (s *donorStore) Delete(ctx context.Context) error {
 
 	if !canDelete {
 		return errors.New("cannot access data of another donor")
+	}
+
+	provided, err := s.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err = s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
+		return err
 	}
 
 	return s.dynamoClient.DeleteKeys(ctx, keys)
