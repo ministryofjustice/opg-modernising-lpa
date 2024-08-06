@@ -34,15 +34,19 @@ jobs:
       matrix:
         include:
           - ecr_repository: modernising-lpa/app
+            name: app
             path: ./docker/mlpa/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
+            name: create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
+            name: event-received
             path: ./docker/event-received/Dockerfile
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/mock-pay
+            name: mock-pay
             path: ./docker/mock-pay/Dockerfile
             platforms: linux/amd64
 
@@ -119,7 +123,7 @@ jobs:
       - name: Upload trivy report as a Github artifact
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-sbom-report-${{ matrix.ecr_repository }}-${{ inputs.tag }}
+          name: trivy-sbom-report-${{ matrix.name }}-${{ inputs.tag }}
           path: '${{ github.workspace }}/dependency-results.sbom.json'
           retention-days: 20 # 90 is the default
 
