@@ -102,6 +102,12 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
 
+					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+						UID: donor.LpaUID,
+					}); err != nil {
+						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
+					}
+
 					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
 						return fmt.Errorf("failed to send to lpastore: %w", err)
 					}

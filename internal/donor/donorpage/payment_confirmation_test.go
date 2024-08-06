@@ -349,6 +349,11 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					Amount:    8200,
 				}).
 				Return(nil)
+			eventClient.EXPECT().
+				SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+					UID: "lpa-uid",
+				}).
+				Return(nil)
 
 			notifyClient := newMockNotifyClient(t).
 				withEmailPersonalizations(r.Context(), "£82")
@@ -690,6 +695,9 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendPaymentReceived(r.Context(), mock.Anything).
+		Return(nil)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
 		Return(nil)
 
 	localizer := newMockLocalizer(t).

@@ -135,6 +135,7 @@ type EventClient interface {
 	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
 	SendUidRequested(ctx context.Context, e event.UidRequested) error
 	SendPreviousApplicationLinked(ctx context.Context, e event.PreviousApplicationLinked) error
+	SendCertificateProviderStarted(ctx context.Context, e event.CertificateProviderStarted) error
 }
 
 type DashboardStore interface {
@@ -416,7 +417,7 @@ func Register(
 	handleWithDonor(page.Paths.ChangeIndependentWitnessMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithDonor(page.Paths.WitnessingAsCertificateProvider, page.None,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, eventClient, time.Now))
 	handleWithDonor(page.Paths.ResendCertificateProviderCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithDonor(page.Paths.ChangeCertificateProviderMobileNumber, page.CanGoBack,
