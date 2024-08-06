@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -37,10 +38,13 @@ var (
 		SupporterData: &appcontext.SupporterData{},
 		Lang:          localize.En,
 	}
-	testNow   = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
-	testNowFn = func() time.Time { return testNow }
-	testUID   = actoruid.New()
-	testUIDFn = func() actoruid.UID { return testUID }
+	testNow     = time.Date(2023, time.July, 3, 4, 5, 6, 1, time.UTC)
+	testNowFn   = func() time.Time { return testNow }
+	testUID     = actoruid.New()
+	testUIDFn   = func() actoruid.UID { return testUID }
+	testLimiter = func() *donordata.Limiter {
+		return &donordata.Limiter{TokensAt: testNow, MaxTokens: 1, TokenPer: time.Second, Tokens: 1}
+	}
 )
 
 func (m *mockSessionStore) withPaySession(r *http.Request) *mockSessionStore {

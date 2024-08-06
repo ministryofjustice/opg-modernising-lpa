@@ -69,6 +69,7 @@ type DocumentStore interface {
 
 type EventClient interface {
 	SendApplicationUpdated(ctx context.Context, event event.ApplicationUpdated) error
+	SendCertificateProviderStarted(ctx context.Context, event event.CertificateProviderStarted) error
 }
 
 type Event struct {
