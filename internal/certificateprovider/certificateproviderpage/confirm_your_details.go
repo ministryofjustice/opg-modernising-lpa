@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -36,9 +36,9 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 				return err
 			}
 
-			redirect := page.Paths.CertificateProvider.YourRole
+			redirect := certificateprovider.PathYourRole
 			if !lpa.SignedAt.IsZero() {
-				redirect = page.Paths.CertificateProvider.TaskList
+				redirect = certificateprovider.PathTaskList
 			}
 
 			return redirect.Redirect(w, r, appData, certificateProvider.LpaID)

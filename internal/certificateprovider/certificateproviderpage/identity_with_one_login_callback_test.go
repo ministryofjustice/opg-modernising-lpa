@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -69,7 +70,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
@@ -142,7 +143,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.UnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathUnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
@@ -262,7 +263,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 				return certificateProviderStore
 			},
-			expectedRedirectURL: page.Paths.CertificateProvider.UnableToConfirmIdentity.Format("lpa-id"),
+			expectedRedirectURL: certificateprovider.PathUnableToConfirmIdentity.Format("lpa-id"),
 			expectedStatus:      http.StatusFound,
 		},
 		"errored on parse": {
@@ -461,5 +462,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
