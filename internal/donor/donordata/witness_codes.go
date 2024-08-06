@@ -1,6 +1,8 @@
 package donordata
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	witnessCodeExpireAfter  = 15 * time.Minute
@@ -13,16 +15,16 @@ type WitnessCode struct {
 	Created time.Time
 }
 
-func (w WitnessCode) HasExpired() bool {
-	return w.Created.Add(witnessCodeExpireAfter).Before(time.Now())
+func (w WitnessCode) HasExpired(now time.Time) bool {
+	return w.Created.Add(witnessCodeExpireAfter).Before(now)
 }
 
 type WitnessCodes []WitnessCode
 
-func (ws WitnessCodes) Find(code string) (WitnessCode, bool) {
+func (ws WitnessCodes) Find(code string, now time.Time) (WitnessCode, bool) {
 	for _, w := range ws {
 		if w.Code == code {
-			if w.Created.Add(witnessCodeIgnoreAfter).Before(time.Now()) {
+			if w.Created.Add(witnessCodeIgnoreAfter).Before(now) {
 				break
 			}
 

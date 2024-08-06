@@ -65,3 +65,7 @@ type PaymentReceived struct {
 	PaymentID string `json:"paymentId"`
 	Amount    int    `json:"amount"`
 }
+
+type CertificateProviderStarted struct {
+	UID string `json:"uid"`
+}
