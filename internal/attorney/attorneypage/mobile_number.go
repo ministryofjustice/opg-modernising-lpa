@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -46,7 +47,7 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 					return err
 				}
 
-				return page.Paths.Attorney.YourPreferredLanguage.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathYourPreferredLanguage.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 

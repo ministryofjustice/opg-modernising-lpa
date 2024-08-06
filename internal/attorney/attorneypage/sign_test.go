@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -178,7 +179,7 @@ func TestGetSignWhenSigned(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathWhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -230,7 +231,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -283,7 +284,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.Start.Format(), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -449,7 +450,7 @@ func TestPostSign(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathWhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -568,7 +569,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.WhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathWhatHappensNext.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -656,7 +657,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Attorney.WouldLikeSecondSignatory.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, attorney.PathWouldLikeSecondSignatory.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

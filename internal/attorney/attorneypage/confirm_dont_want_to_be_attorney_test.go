@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -137,7 +138,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, page.Paths.Attorney.YouHaveDecidedNotToBeAttorney.Format()+"?donorFirstNames=a+b&donorFullName=a+b+c", resp.Header.Get("Location"))
+	assert.Equal(t, attorney.PathYouHaveDecidedNotToBeAttorney.Format()+"?donorFirstNames=a+b&donorFullName=a+b+c", resp.Header.Get("Location"))
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 }
 

@@ -409,7 +409,7 @@ func Attorney(
 				Localizer: appData.Localizer,
 			}, lpa)
 
-			http.Redirect(w, r, page.Paths.Attorney.Start.Format(), http.StatusFound)
+			http.Redirect(w, r, attorney.PathStart.Format(), http.StatusFound)
 			return nil
 		}
 

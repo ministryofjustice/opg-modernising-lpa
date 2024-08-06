@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -48,7 +49,7 @@ func Sign(
 
 		attorney, ok := attorneys.Get(appData.AttorneyUID)
 		if !ok {
-			return page.Paths.Attorney.Start.Redirect(w, r, appData)
+			return attorney.PathStart.Redirect(w, r, appData)
 		}
 
 		data.Attorney = attorney
@@ -73,7 +74,7 @@ func Sign(
 					return err
 				}
 
-				return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 
@@ -140,9 +141,9 @@ func Sign(
 				}
 
 				if signatoryIndex == 0 {
-					return page.Paths.Attorney.WouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+					return attorney.PathWouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
-					return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+					return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}
 		}
@@ -152,7 +153,7 @@ func Sign(
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		if attorneyProvidedDetails.Signed() {
-			return page.Paths.Attorney.WhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
@@ -161,7 +162,7 @@ func Sign(
 		}
 
 		if lpa.SignedAt.IsZero() || lpa.CertificateProvider.SignedAt.IsZero() {
-			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		if appData.IsTrustCorporation() {

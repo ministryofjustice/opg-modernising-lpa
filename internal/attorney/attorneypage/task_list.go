@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -38,7 +37,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		var signPath string
 		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() &&
 			!lpa.SignedAt.IsZero() && !lpa.CertificateProvider.SignedAt.IsZero() {
-			signPath = page.Paths.Attorney.RightsAndResponsibilities.Format(lpa.LpaID)
+			signPath = attorney.PathRightsAndResponsibilities.Format(lpa.LpaID)
 		}
 
 		signItems := []taskListItem{{
@@ -54,7 +53,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				State: tasks.SignTheLpa,
 			}, {
 				Name:  "signTheLpaSignatory2",
-				Path:  page.Paths.Attorney.Sign.Format(lpa.LpaID) + "?second",
+				Path:  attorney.PathSign.Format(lpa.LpaID) + "?second",
 				State: tasks.SignTheLpaSecond,
 			}}
 		}
@@ -65,12 +64,12 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.Attorney.MobileNumber.Format(lpa.LpaID),
+					Path:  attorney.PathMobileNumber.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
 					Name:  "readTheLpa",
-					Path:  page.Paths.Attorney.ReadTheLpa.Format(lpa.LpaID),
+					Path:  attorney.PathReadTheLpa.Format(lpa.LpaID),
 					State: tasks.ReadTheLpa,
 				},
 			}, signItems...),
