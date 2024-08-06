@@ -392,11 +392,11 @@ func (s *donorStore) Delete(ctx context.Context) error {
 		return err
 	}
 
-	if err = s.dynamoClient.DeleteKeys(ctx, keys); err != nil {
+	if err = s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
 		return err
 	}
 
-	return s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID})
+	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
 func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error {
