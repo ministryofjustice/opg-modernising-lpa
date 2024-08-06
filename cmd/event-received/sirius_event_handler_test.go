@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -14,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -122,7 +122,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 }
 
 func TestHandleFeeApproved(t *testing.T) {
-	event := events.CloudWatchEvent{
+	e := events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -140,6 +140,13 @@ func TestHandleFeeApproved(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendLpa(ctx, &completedDonorProvided).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
+			UID: "M-1111-2222-3333",
+		}).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -163,11 +170,9 @@ func TestHandleFeeApproved(t *testing.T) {
 			return nil
 		})
 
-	now := time.Now()
-
 	updatedDonorProvided := completedDonorProvided
 	updatedDonorProvided.UpdateHash()
-	updatedDonorProvided.UpdatedAt = now
+	updatedDonorProvided.UpdatedAt = testNow
 
 	client.EXPECT().
 		Put(ctx, &updatedDonorProvided).
@@ -191,10 +196,13 @@ func TestHandleFeeApproved(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		Now().
-		Return(func() time.Time { return now })
+		Return(testNowFn)
+	factory.EXPECT().
+		EventClient().
+		Return(eventClient)
 
 	handler := &siriusEventHandler{}
-	err := handler.Handle(ctx, factory, event)
+	err := handler.Handle(ctx, factory, e)
 
 	assert.Nil(t, err)
 }
@@ -231,11 +239,9 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 			return nil
 		})
 
-	now := time.Now()
-
 	updatedDonorProvided := completedDonorProvided
 	updatedDonorProvided.UpdateHash()
-	updatedDonorProvided.UpdatedAt = now
+	updatedDonorProvided.UpdatedAt = testNow
 
 	client.EXPECT().
 		Put(ctx, &updatedDonorProvided).
@@ -259,7 +265,10 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		Now().
-		Return(func() time.Time { return now })
+		Return(testNowFn)
+	factory.EXPECT().
+		EventClient().
+		Return(nil)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, event)
@@ -296,18 +305,16 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 			return nil
 		})
 
-	now := time.Now()
-
 	updatedDonorProvided := donorProvided
 	updatedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 	updatedDonorProvided.UpdateHash()
-	updatedDonorProvided.UpdatedAt = now
+	updatedDonorProvided.UpdatedAt = testNow
 
 	client.EXPECT().
 		Put(ctx, &updatedDonorProvided).
 		Return(nil)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -345,7 +352,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 					return nil
 				})
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, nil)
+			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, nil)
 			assert.Nil(t, err)
 		})
 	}
@@ -356,8 +363,6 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -378,7 +383,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, nil, appcontext.Data{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -387,8 +392,6 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -416,12 +419,17 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 		SendLpa(mock.Anything, mock.Anything).
 		Return(nil)
 
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(mock.Anything, mock.Anything).
+		Return(nil)
+
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
 		SendCertificateProviderPrompt(ctx, appcontext.Data{}, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, appcontext.Data{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, lpaStoreClient, eventClient, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
@@ -430,8 +438,6 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -459,7 +465,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 		SendLpa(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, appcontext.Data{}, func() time.Time { return now })
+	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, nil, appcontext.Data{}, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send to lpastore: %w", expectedError), err)
 }
 
@@ -469,8 +475,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	now := time.Now()
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: testNow}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -498,7 +503,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		Now().
-		Return(func() time.Time { return now })
+		Return(testNowFn)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, event)
@@ -511,8 +516,6 @@ func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(
 		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -536,7 +539,7 @@ func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(
 			return nil
 		})
 
-	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
+	err := handleFurtherInfoRequested(ctx, client, event, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -546,8 +549,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	now := time.Now()
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: now}
+	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: testNow}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -569,7 +571,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 		Put(ctx, updated).
 		Return(expectedError)
 
-	err := handleFurtherInfoRequested(ctx, client, event, func() time.Time { return now })
+	err := handleFurtherInfoRequested(ctx, client, event, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
@@ -579,8 +581,7 @@ func TestHandleFeeDenied(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	now := time.Now()
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}, FeeType: pay.FullFee, UpdatedAt: now}
+	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}, FeeType: pay.FullFee, UpdatedAt: testNow}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -608,7 +609,7 @@ func TestHandleFeeDenied(t *testing.T) {
 		Return(client)
 	factory.EXPECT().
 		Now().
-		Return(func() time.Time { return now })
+		Return(testNowFn)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, event)
@@ -621,8 +622,6 @@ func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -640,7 +639,7 @@ func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
 			return nil
 		})
 
-	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
+	err := handleFeeDenied(ctx, client, event, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -649,8 +648,6 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
-
-	now := time.Now()
 
 	client := newMockDynamodbClient(t)
 	client.
@@ -671,7 +668,7 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 		Put(ctx, mock.Anything).
 		Return(expectedError)
 
-	err := handleFeeDenied(ctx, client, event, func() time.Time { return now })
+	err := handleFeeDenied(ctx, client, event, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
