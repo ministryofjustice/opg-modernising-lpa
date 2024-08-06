@@ -116,6 +116,12 @@ jobs:
           format: 'github'
           output: 'dependency-results.sbom.json'
           github-pat: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload trivy report as a Github artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-sbom-report-${{ matrix.ecr_repository }}-${{ inputs.tag }}
+          path: '${{ github.workspace }}/dependency-results.sbom.json'
+          retention-days: 20 # 90 is the default
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
