@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,29 +21,29 @@ func TestAuthRedirect(t *testing.T) {
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "en",
-				Redirect: Paths.LoginCallback.Format(),
+				Redirect: PathLoginCallback.Format(),
 			},
-			redirect: Paths.LoginCallback.Format(),
+			redirect: PathLoginCallback.Format(),
 		},
 		"login with nested route": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "en",
-				Redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
+				Redirect: donor.PathIdentityWithOneLoginCallback.Format("123"),
 				LpaID:    "123",
 			},
-			redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
+			redirect: donor.PathIdentityWithOneLoginCallback.Format("123"),
 		},
 		"welsh": {
 			session: &sesh.OneLoginSession{
 				State:    "my-state",
 				Nonce:    "my-nonce",
 				Locale:   "cy",
-				Redirect: Paths.IdentityWithOneLoginCallback.Format("123"),
+				Redirect: donor.PathIdentityWithOneLoginCallback.Format("123"),
 				LpaID:    "123",
 			},
-			redirect: "/cy" + Paths.IdentityWithOneLoginCallback.Format("123"),
+			redirect: "/cy" + donor.PathIdentityWithOneLoginCallback.Format("123"),
 		},
 	}
 
@@ -95,7 +96,7 @@ func TestAuthRedirectStateIncorrect(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		OneLogin(r).
-		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: Paths.LoginCallback.Format()}, nil)
+		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Redirect: PathLoginCallback.Format()}, nil)
 
 	AuthRedirect(logger, sessionStore)(w, r)
 	resp := w.Result()

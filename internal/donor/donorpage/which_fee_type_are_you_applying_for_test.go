@@ -78,10 +78,10 @@ func TestGetWhichFeeTypeAreYouApplyingForOnTemplateError(t *testing.T) {
 
 func TestPostWhichFeeTypeAreYouApplyingFor(t *testing.T) {
 	testcases := map[pay.FeeType]donor.Path{
-		pay.HalfFee:              page.Paths.EvidenceRequired,
-		pay.NoFee:                page.Paths.EvidenceRequired,
-		pay.HardshipFee:          page.Paths.EvidenceRequired,
-		pay.RepeatApplicationFee: page.Paths.PreviousApplicationNumber,
+		pay.HalfFee:              donor.PathEvidenceRequired,
+		pay.NoFee:                donor.PathEvidenceRequired,
+		pay.HardshipFee:          donor.PathEvidenceRequired,
+		pay.RepeatApplicationFee: donor.PathPreviousApplicationNumber,
 	}
 
 	for feeType, redirect := range testcases {

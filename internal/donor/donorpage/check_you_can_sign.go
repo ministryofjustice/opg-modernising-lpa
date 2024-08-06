@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -18,10 +18,10 @@ type checkYouCanSignData struct {
 }
 
 func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &checkYouCanSignData{
 			App:  appData,
-			Form: form.NewYesNoForm(donor.Donor.CanSign),
+			Form: form.NewYesNoForm(provided.Donor.CanSign),
 		}
 
 		if r.Method == http.MethodPost {
@@ -29,18 +29,18 @@ func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Donor.CanSign = data.Form.YesNo
+				provided.Donor.CanSign = data.Form.YesNo
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				redirect := page.Paths.YourPreferredLanguage
-				if donor.Donor.CanSign.IsNo() {
-					redirect = page.Paths.NeedHelpSigningConfirmation
+				redirect := donor.PathYourPreferredLanguage
+				if provided.Donor.CanSign.IsNo() {
+					redirect = donor.PathNeedHelpSigningConfirmation
 				}
 
-				return redirect.Redirect(w, r, appData, donor)
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 

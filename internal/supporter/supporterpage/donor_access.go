@@ -107,7 +107,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					OrganisationName:  organisation.Name,
 					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 					DonorName:         donor.Donor.FullName(),
-					URL:               appPublicURL + page.Paths.Start.Format(),
+					URL:               appPublicURL + page.PathStart.Format(),
 					ShareCode:         shareCode,
 				}); err != nil {
 					return err

@@ -125,17 +125,17 @@ func Register(
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
-	handleRoot(certificateprovider.PathLogin,
-		page.Login(oneLoginClient, sessionStore, random.String, certificateprovider.PathLoginCallback))
-	handleRoot(certificateprovider.PathLoginCallback,
-		page.LoginCallback(logger, oneLoginClient, sessionStore, certificateprovider.PathEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
-	handleRoot(certificateprovider.PathEnterReferenceNumber,
+	handleRoot(page.PathCertificateProviderLogin,
+		page.Login(oneLoginClient, sessionStore, random.String, page.PathCertificateProviderLoginCallback))
+	handleRoot(page.PathCertificateProviderLoginCallback,
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathCertificateProviderEnterReferenceNumber, dashboardStore, actor.TypeCertificateProvider))
+	handleRoot(page.PathCertificateProviderEnterReferenceNumber,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, certificateProviderStore))
-	handleRoot(certificateprovider.PathEnterReferenceNumberOptOut,
+	handleRoot(page.PathCertificateProviderEnterReferenceNumberOptOut,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(certificateprovider.PathConfirmDontWantToBeCertificateProviderLoggedOut,
+	handleRoot(page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
 		ConfirmDontWantToBeCertificateProviderLoggedOut(tmpls.Get("confirm_dont_want_to_be_certificate_provider.gohtml"), shareCodeStore, lpaStoreResolvingService, lpaStoreClient, donorStore, sessionStore, notifyClient, appPublicURL))
-	handleRoot(certificateprovider.PathYouHaveDecidedNotToBeCertificateProvider,
+	handleRoot(page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_a_certificate_provider.gohtml")))
 
 	handleCertificateProvider := makeCertificateProviderHandle(rootMux, sessionStore, errorHandler, certificateProviderStore)
@@ -206,7 +206,7 @@ func makeCertificateProviderHandle(mux *http.ServeMux, sessionStore SessionStore
 
 			session, err := sessionStore.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.CertificateProviderStart.Format(), http.StatusFound)
+				http.Redirect(w, r, page.PathCertificateProviderStart.Format(), http.StatusFound)
 				return
 			}
 

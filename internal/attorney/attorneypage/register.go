@@ -106,17 +106,17 @@ func Register(
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(attorney.PathLogin, None,
-		page.Login(oneLoginClient, sessionStore, random.String, attorney.PathLoginCallback))
-	handleRoot(attorney.PathLoginCallback, None,
-		page.LoginCallback(logger, oneLoginClient, sessionStore, attorney.PathEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
-	handleRoot(attorney.PathEnterReferenceNumber, RequireSession,
+	handleRoot(page.PathAttorneyLogin, None,
+		page.Login(oneLoginClient, sessionStore, random.String, page.PathAttorneyLoginCallback))
+	handleRoot(page.PathAttorneyLoginCallback, None,
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathAttorneyEnterReferenceNumber, dashboardStore, actor.TypeAttorney))
+	handleRoot(page.PathAttorneyEnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, attorneyStore))
-	handleRoot(attorney.PathEnterReferenceNumberOptOut, None,
+	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
-	handleRoot(attorney.PathConfirmDontWantToBeAttorneyLoggedOut, None,
+	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
 		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, appPublicURL))
-	handleRoot(attorney.PathYouHaveDecidedNotToBeAttorney, None,
+	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 
 	handleAttorney := makeAttorneyHandle(rootMux, sessionStore, errorHandler, attorneyStore)
@@ -170,7 +170,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, attorney.PathStart.Format(), http.StatusFound)
+					http.Redirect(w, r, page.PathAttorneyStart.Format(), http.StatusFound)
 					return
 				}
 
@@ -196,7 +196,7 @@ func makeAttorneyHandle(mux *http.ServeMux, store SessionStore, errorHandler pag
 
 			session, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, attorney.PathStart.Format(), http.StatusFound)
+				http.Redirect(w, r, page.PathAttorneyStart.Format(), http.StatusFound)
 				return
 			}
 

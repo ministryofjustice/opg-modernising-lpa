@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -26,13 +27,13 @@ type taskListItem struct {
 }
 
 func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorney *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		tasks := attorney.Tasks
+		tasks := provided.Tasks
 
 		var signPath string
 		if tasks.ConfirmYourDetails.Completed() && tasks.ReadTheLpa.Completed() &&
@@ -46,7 +47,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			State: tasks.SignTheLpa,
 		}}
 
-		if attorney.WouldLikeSecondSignatory.IsYes() && signPath != "" {
+		if provided.WouldLikeSecondSignatory.IsYes() && signPath != "" {
 			signItems = []taskListItem{{
 				Name:  "signTheLpaSignatory1",
 				Path:  signPath,

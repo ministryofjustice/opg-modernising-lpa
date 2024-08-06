@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -121,7 +122,7 @@ func TestMakeHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathAttorneyStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleNoSessionRequired(t *testing.T) {
@@ -365,5 +366,5 @@ func TestMakeAttorneyHandleSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathAttorneyStart.Format(), resp.Header.Get("Location"))
 }

@@ -409,12 +409,12 @@ func Attorney(
 				Localizer: appData.Localizer,
 			}, lpa)
 
-			http.Redirect(w, r, attorney.PathStart.Format(), http.StatusFound)
+			http.Redirect(w, r, page.PathAttorneyStart.Format(), http.StatusFound)
 			return nil
 		}
 
 		if redirect == "" {
-			redirect = page.Paths.Dashboard.Format()
+			redirect = page.PathDashboard.Format()
 		} else {
 			redirect = "/attorney/" + donorDetails.LpaID + redirect
 		}

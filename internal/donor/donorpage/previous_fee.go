@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -19,11 +20,11 @@ type previousFeeData struct {
 }
 
 func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &previousFeeData{
 			App: appData,
 			Form: &previousFeeForm{
-				PreviousFee: donor.PreviousFee,
+				PreviousFee: provided.PreviousFee,
 			},
 			Options: pay.PreviousFeeValues,
 		}
@@ -33,19 +34,19 @@ func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) H
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if donor.PreviousFee != data.Form.PreviousFee {
-					donor.PreviousFee = data.Form.PreviousFee
+				if provided.PreviousFee != data.Form.PreviousFee {
+					provided.PreviousFee = data.Form.PreviousFee
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return err
 					}
 				}
 
-				if donor.PreviousFee.IsPreviousFeeFull() {
-					return payer(appData, w, r, donor)
+				if provided.PreviousFee.IsPreviousFeeFull() {
+					return payer(appData, w, r, provided)
 				}
 
-				return page.Paths.EvidenceRequired.Redirect(w, r, appData, donor)
+				return donor.PathEvidenceRequired.Redirect(w, r, appData, provided)
 			}
 		}
 

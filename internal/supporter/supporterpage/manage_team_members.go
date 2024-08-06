@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -55,7 +56,7 @@ func ManageTeamMembers(tmpl template.Template, memberStore MemberStore, randomSt
 					OrganisationName:      organisation.Name,
 					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
-					JoinAnOrganisationURL: appPublicURL + supporter.PathStart.Format(),
+					JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
 				}); err != nil {
 					return err
 				}

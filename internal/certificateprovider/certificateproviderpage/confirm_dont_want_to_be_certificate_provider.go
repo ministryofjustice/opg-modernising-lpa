@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -45,7 +44,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
 					LpaUID:                        lpa.LpaUID,
-					DonorStartPageURL:             appPublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
 				}
 
 				if !lpa.CannotRegister {
@@ -65,7 +64,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
 					LpaUID:                      donor.LpaUID,
-					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
 				}
 
 				donor.CertificateProvider = donordata.CertificateProvider{}
@@ -85,7 +84,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 				return err
 			}
 
-			return certificateprovider.PathYouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
+			return page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
 		}
 
 		return tmpl(w, data)

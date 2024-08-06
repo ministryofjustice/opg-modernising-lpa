@@ -284,7 +284,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, attorney.PathStart.Format(), resp.Header.Get("Location"))
+			assert.Equal(t, page.PathAttorneyStart.Format(), resp.Header.Get("Location"))
 		})
 	}
 }

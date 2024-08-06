@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -38,20 +37,20 @@ type taskListSection struct {
 }
 
 func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		evidenceReceived, err := evidenceReceivedStore.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		chooseAttorneysLink := page.Paths.ChooseAttorneysGuidance.Format(donor.LpaID)
-		if donor.Attorneys.Len() > 0 {
-			chooseAttorneysLink = page.Paths.ChooseAttorneysSummary.Format(donor.LpaID)
+		chooseAttorneysLink := donor.PathChooseAttorneysGuidance.Format(provided.LpaID)
+		if provided.Attorneys.Len() > 0 {
+			chooseAttorneysLink = donor.PathChooseAttorneysSummary.Format(provided.LpaID)
 		}
 
-		chooseReplacementAttorneysLink := page.Paths.DoYouWantReplacementAttorneys.Format(donor.LpaID)
-		if donor.ReplacementAttorneys.Len() > 0 {
-			chooseReplacementAttorneysLink = page.Paths.ChooseReplacementAttorneysSummary.Format(donor.LpaID)
+		chooseReplacementAttorneysLink := donor.PathDoYouWantReplacementAttorneys.Format(provided.LpaID)
+		if provided.ReplacementAttorneys.Len() > 0 {
+			chooseReplacementAttorneysLink = donor.PathChooseReplacementAttorneysSummary.Format(provided.LpaID)
 		}
 
 		section1 := taskListSection{
@@ -59,48 +58,48 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			Items: []taskListItem{
 				{
 					Name:  "provideYourDetails",
-					Path:  page.Paths.YourDetails.Format(donor.LpaID),
-					State: donor.Tasks.YourDetails,
+					Path:  donor.PathYourDetails.Format(provided.LpaID),
+					State: provided.Tasks.YourDetails,
 				},
 				{
 					Name:  "chooseYourAttorneys",
 					Path:  chooseAttorneysLink,
-					State: donor.Tasks.ChooseAttorneys,
-					Count: donor.Attorneys.Len(),
+					State: provided.Tasks.ChooseAttorneys,
+					Count: provided.Attorneys.Len(),
 				},
 				{
 					Name:  "chooseYourReplacementAttorneys",
 					Path:  chooseReplacementAttorneysLink,
-					State: donor.Tasks.ChooseReplacementAttorneys,
-					Count: donor.ReplacementAttorneys.Len(),
+					State: provided.Tasks.ChooseReplacementAttorneys,
+					Count: provided.ReplacementAttorneys.Len(),
 				},
-				taskListTypeSpecificStep(donor),
+				taskListTypeSpecificStep(provided),
 				{
 					Name:  "addRestrictionsToTheLpa",
-					Path:  page.Paths.Restrictions.Format(donor.LpaID),
-					State: donor.Tasks.Restrictions,
+					Path:  donor.PathRestrictions.Format(provided.LpaID),
+					State: provided.Tasks.Restrictions,
 				},
 				{
 					Name:  "chooseYourCertificateProvider",
-					Path:  page.Paths.WhatACertificateProviderDoes.Format(donor.LpaID),
-					State: donor.Tasks.CertificateProvider,
+					Path:  donor.PathWhatACertificateProviderDoes.Format(provided.LpaID),
+					State: provided.Tasks.CertificateProvider,
 				},
 				{
 					Name:  "peopleToNotifyAboutYourLpa",
-					Path:  page.Paths.DoYouWantToNotifyPeople.Format(donor.LpaID),
-					State: donor.Tasks.PeopleToNotify,
-					Count: len(donor.PeopleToNotify),
+					Path:  donor.PathDoYouWantToNotifyPeople.Format(provided.LpaID),
+					State: provided.Tasks.PeopleToNotify,
+					Count: len(provided.PeopleToNotify),
 				},
 				{
 					Name:  "addCorrespondent",
-					Path:  page.Paths.AddCorrespondent.Format(donor.LpaID),
-					State: donor.Tasks.AddCorrespondent,
+					Path:  donor.PathAddCorrespondent.Format(provided.LpaID),
+					State: provided.Tasks.AddCorrespondent,
 				},
 				{
 					Name:   "chooseYourSignatoryAndIndependentWitness",
-					Path:   page.Paths.GettingHelpSigning.Format(donor.LpaID),
-					State:  donor.Tasks.ChooseYourSignatory,
-					Hidden: !donor.Donor.CanSign.IsNo(),
+					Path:   donor.PathGettingHelpSigning.Format(provided.LpaID),
+					State:  provided.Tasks.ChooseYourSignatory,
+					Hidden: !provided.Donor.CanSign.IsNo(),
 				},
 			},
 		}
@@ -111,58 +110,58 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		} else {
 			section1.Items = append(section1.Items, taskListItem{
 				Name:  "checkAndSendToYourCertificateProvider",
-				Path:  taskListCheckLpaPath(donor).Format(donor.LpaID),
-				State: donor.Tasks.CheckYourLpa,
+				Path:  taskListCheckLpaPath(provided).Format(provided.LpaID),
+				State: provided.Tasks.CheckYourLpa,
 			})
-			sections = []taskListSection{section1, taskListPaymentSection(donor), taskListSignSection(donor)}
+			sections = []taskListSection{section1, taskListPaymentSection(provided), taskListSignSection(provided)}
 		}
 
 		return tmpl(w, &taskListData{
 			App:              appData,
-			Donor:            donor,
+			Donor:            provided,
 			EvidenceReceived: evidenceReceived,
 			Sections:         sections,
 		})
 	}
 }
 
-func taskListTypeSpecificStep(donor *donordata.Provided) taskListItem {
-	if donor.Type == lpadata.LpaTypePersonalWelfare {
+func taskListTypeSpecificStep(provided *donordata.Provided) taskListItem {
+	if provided.Type == lpadata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
-			Path:  page.Paths.LifeSustainingTreatment.Format(donor.LpaID),
-			State: donor.Tasks.LifeSustainingTreatment,
+			Path:  donor.PathLifeSustainingTreatment.Format(provided.LpaID),
+			State: provided.Tasks.LifeSustainingTreatment,
 		}
 	}
 
 	return taskListItem{
 		Name:  "chooseWhenTheLpaCanBeUsed",
-		Path:  page.Paths.WhenCanTheLpaBeUsed.Format(donor.LpaID),
-		State: donor.Tasks.WhenCanTheLpaBeUsed,
+		Path:  donor.PathWhenCanTheLpaBeUsed.Format(provided.LpaID),
+		State: provided.Tasks.WhenCanTheLpaBeUsed,
 	}
 }
 
-func taskListCheckLpaPath(donor *donordata.Provided) donor.Path {
-	if len(donor.Under18ActorDetails()) > 0 {
-		return page.Paths.YouCannotSignYourLpaYet
-	} else if donor.CertificateProviderSharesDetails() {
-		return page.Paths.ConfirmYourCertificateProviderIsNotRelated
+func taskListCheckLpaPath(provided *donordata.Provided) donor.Path {
+	if len(provided.Under18ActorDetails()) > 0 {
+		return donor.PathYouCannotSignYourLpaYet
+	} else if provided.CertificateProviderSharesDetails() {
+		return donor.PathConfirmYourCertificateProviderIsNotRelated
 	} else {
-		return page.Paths.CheckYourLpa
+		return donor.PathCheckYourLpa
 	}
 }
 
-func taskListPaymentSection(donor *donordata.Provided) taskListSection {
+func taskListPaymentSection(provided *donordata.Provided) taskListSection {
 	var paymentPath string
-	switch donor.Tasks.PayForLpa {
+	switch provided.Tasks.PayForLpa {
 	case task.PaymentStateApproved:
-		paymentPath = page.Paths.FeeApproved.Format(donor.LpaID)
+		paymentPath = donor.PathFeeApproved.Format(provided.LpaID)
 	case task.PaymentStateDenied:
-		paymentPath = page.Paths.FeeDenied.Format(donor.LpaID)
+		paymentPath = donor.PathFeeDenied.Format(provided.LpaID)
 	case task.PaymentStateMoreEvidenceRequired:
-		paymentPath = page.Paths.UploadEvidence.Format(donor.LpaID)
+		paymentPath = donor.PathUploadEvidence.Format(provided.LpaID)
 	default:
-		paymentPath = page.Paths.AboutPayment.Format(donor.LpaID)
+		paymentPath = donor.PathAboutPayment.Format(provided.LpaID)
 	}
 
 	return taskListSection{
@@ -171,7 +170,7 @@ func taskListPaymentSection(donor *donordata.Provided) taskListSection {
 			{
 				Name:         "payForTheLpa",
 				Path:         paymentPath,
-				PaymentState: donor.Tasks.PayForLpa,
+				PaymentState: provided.Tasks.PayForLpa,
 			},
 		},
 	}
@@ -183,33 +182,33 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 	switch provided.DonorIdentityUserData.Status {
 	case identity.StatusConfirmed:
 		if !provided.SignedAt.IsZero() {
-			signPath = page.Paths.YouHaveSubmittedYourLpa
+			signPath = donor.PathYouHaveSubmittedYourLpa
 		} else if provided.DonorIdentityConfirmed() {
-			signPath = page.Paths.ReadYourLpa
+			signPath = donor.PathReadYourLpa
 		} else {
-			signPath = page.Paths.OneLoginIdentityDetails
+			signPath = donor.PathOneLoginIdentityDetails
 		}
 
 	case identity.StatusFailed:
-		signPath = page.Paths.RegisterWithCourtOfProtection
+		signPath = donor.PathRegisterWithCourtOfProtection
 
 	case identity.StatusInsufficientEvidence:
 		if !provided.SignedAt.IsZero() {
-			signPath = page.Paths.YouHaveSubmittedYourLpa
+			signPath = donor.PathYouHaveSubmittedYourLpa
 		} else if provided.RegisteringWithCourtOfProtection {
-			signPath = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
+			signPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 		} else if provided.Voucher.FirstNames != "" {
-			signPath = page.Paths.ReadYourLpa
+			signPath = donor.PathReadYourLpa
 		} else if provided.WantVoucher.IsYes() {
-			signPath = page.Paths.EnterVoucher
+			signPath = donor.PathEnterVoucher
 		} else if provided.WantVoucher.IsNo() {
-			signPath = page.Paths.WhatYouCanDoNow
+			signPath = donor.PathWhatYouCanDoNow
 		} else {
-			signPath = page.Paths.UnableToConfirmIdentity
+			signPath = donor.PathUnableToConfirmIdentity
 		}
 
 	default:
-		signPath = page.Paths.HowToConfirmYourIdentityAndSign
+		signPath = donor.PathHowToConfirmYourIdentityAndSign
 	}
 
 	return taskListSection{

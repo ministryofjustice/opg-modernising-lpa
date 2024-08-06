@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,14 +21,14 @@ type howShouldAttorneysMakeDecisionsData struct {
 }
 
 func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howShouldAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    donor.AttorneyDecisions.How,
-				DecisionsDetails: donor.AttorneyDecisions.Details,
+				DecisionsType:    provided.AttorneyDecisions.How,
+				DecisionsDetails: provided.AttorneyDecisions.Details,
 			},
-			Donor:   donor,
+			Donor:   provided,
 			Options: lpadata.AttorneysActValues,
 		}
 
@@ -36,24 +37,24 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.AttorneyDecisions = donordata.MakeAttorneyDecisions(
-					donor.AttorneyDecisions,
+				provided.AttorneyDecisions = donordata.MakeAttorneyDecisions(
+					provided.AttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				switch donor.AttorneyDecisions.How {
+				switch provided.AttorneyDecisions.How {
 				case lpadata.Jointly:
-					return page.Paths.BecauseYouHaveChosenJointly.Redirect(w, r, appData, donor)
+					return donor.PathBecauseYouHaveChosenJointly.Redirect(w, r, appData, provided)
 				case lpadata.JointlyForSomeSeverallyForOthers:
-					return page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers.Redirect(w, r, appData, donor)
+					return donor.PathBecauseYouHaveChosenJointlyForSomeSeverallyForOthers.Redirect(w, r, appData, provided)
 				default:
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				}
 			}
 		}

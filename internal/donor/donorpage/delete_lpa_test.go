@@ -62,7 +62,7 @@ func TestPostDeleteLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.LpaDeleted.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathLpaDeleted.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
 }
 
 func TestPostDeleteLpaWhenStoreErrors(t *testing.T) {

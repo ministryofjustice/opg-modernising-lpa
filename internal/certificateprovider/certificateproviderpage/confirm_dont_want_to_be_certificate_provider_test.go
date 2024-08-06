@@ -9,7 +9,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -136,7 +135,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.PathStart.Format(),
 			},
 		},
 		"cannot-register": {
@@ -161,7 +160,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:                 "a b c",
 				LpaType:                       "Personal welfare",
 				LpaUID:                        "lpa-uid",
-				DonorStartPageURL:             "example.com" + page.Paths.Start.Format(),
+				DonorStartPageURL:             "example.com" + page.PathStart.Format(),
 			},
 		},
 		"not witnessed and signed": {
@@ -212,7 +211,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				DonorFullName:               "a b c",
 				LpaType:                     "Personal welfare",
 				LpaUID:                      "lpa-uid",
-				DonorStartPageURL:           "example.com" + page.Paths.Start.Format(),
+				DonorStartPageURL:           "example.com" + page.PathStart.Format(),
 			},
 		},
 	}
@@ -249,7 +248,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			resp := w.Result()
 
 			assert.Nil(t, err)
-			assert.Equal(t, certificateprovider.PathYouHaveDecidedNotToBeCertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
+			assert.Equal(t, page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 		})
 	}

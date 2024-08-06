@@ -66,7 +66,7 @@ func TestPostEnterYourName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, supporter.PathEnterOrganisationName.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterEnterOrganisationName.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterYourNameWhenValidationError(t *testing.T) {

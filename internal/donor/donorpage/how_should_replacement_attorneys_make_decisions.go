@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,15 +21,15 @@ type howShouldReplacementAttorneysMakeDecisionsData struct {
 }
 
 func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howShouldReplacementAttorneysMakeDecisionsData{
 			App: appData,
 			Form: &howShouldAttorneysMakeDecisionsForm{
-				DecisionsType:    donor.ReplacementAttorneyDecisions.How,
-				DecisionsDetails: donor.ReplacementAttorneyDecisions.Details,
+				DecisionsType:    provided.ReplacementAttorneyDecisions.How,
+				DecisionsDetails: provided.ReplacementAttorneyDecisions.Details,
 			},
 			Options: lpadata.AttorneysActValues,
-			Donor:   donor,
+			Donor:   provided,
 		}
 
 		if r.Method == http.MethodPost {
@@ -36,17 +37,17 @@ func HowShouldReplacementAttorneysMakeDecisions(tmpl template.Template, donorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.ReplacementAttorneyDecisions = donordata.MakeAttorneyDecisions(
-					donor.ReplacementAttorneyDecisions,
+				provided.ReplacementAttorneyDecisions = donordata.MakeAttorneyDecisions(
+					provided.ReplacementAttorneyDecisions,
 					data.Form.DecisionsType,
 					data.Form.DecisionsDetails)
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				return donor.PathTaskList.Redirect(w, r, appData, provided)
 			}
 		}
 

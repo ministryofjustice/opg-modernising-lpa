@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,14 +21,14 @@ type canYouSignYourLpaData struct {
 }
 
 func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &canYouSignYourLpaData{
 			App: appData,
 			Form: &canYouSignYourLpaForm{
-				CanSign: donor.Donor.ThinksCanSign,
+				CanSign: provided.Donor.ThinksCanSign,
 			},
 			YesNoMaybeOptions: donordata.YesNoMaybeValues,
-			CanTaskList:       !donor.Type.Empty(),
+			CanTaskList:       !provided.Type.Empty(),
 		}
 
 		if r.Method == http.MethodPost {
@@ -35,21 +36,21 @@ func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Donor.ThinksCanSign = data.Form.CanSign
+				provided.Donor.ThinksCanSign = data.Form.CanSign
 
-				if donor.Donor.ThinksCanSign.IsYes() {
-					donor.Donor.CanSign = form.Yes
+				if provided.Donor.ThinksCanSign.IsYes() {
+					provided.Donor.CanSign = form.Yes
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if donor.Donor.ThinksCanSign.IsYes() {
-					return page.Paths.YourPreferredLanguage.Redirect(w, r, appData, donor)
+				if provided.Donor.ThinksCanSign.IsYes() {
+					return donor.PathYourPreferredLanguage.Redirect(w, r, appData, provided)
 				}
 
-				return page.Paths.CheckYouCanSign.Redirect(w, r, appData, donor)
+				return donor.PathCheckYouCanSign.Redirect(w, r, appData, provided)
 			}
 		}
 

@@ -42,7 +42,7 @@ func EnterOrganisationName(logger Logger, tmpl template.Template, organisationSt
 
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					return supporter.PathStart.Redirect(w, r, appData)
+					return page.PathSupporterStart.Redirect(w, r, appData)
 				}
 
 				loginSession.OrganisationID = organisation.ID

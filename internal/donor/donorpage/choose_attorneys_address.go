@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -13,11 +14,10 @@ import (
 )
 
 func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		attorney, found := donor.Attorneys.Get(actoruid.FromRequest(r))
-
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		attorney, found := provided.Attorneys.Get(actoruid.FromRequest(r))
 		if found == false {
-			return page.Paths.ChooseAttorneys.Redirect(w, r, appData, donor)
+			return donor.PathChooseAttorneys.Redirect(w, r, appData, provided)
 		}
 
 		data := newChooseAddressData(
@@ -38,15 +38,15 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 
 			setAddress := func(address place.Address) error {
 				attorney.Address = address
-				donor.Attorneys.Put(attorney)
-				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Attorneys.Put(attorney)
+				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.ChooseAttorneysSummary.Redirect(w, r, appData, donor)
+				return donor.PathChooseAttorneysSummary.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {
@@ -70,13 +70,13 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 				}
 
 			case "reuse":
-				data.Addresses = donor.ActorAddresses()
+				data.Addresses = provided.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
 					return setAddress(*data.Form.Address)
 				} else {
-					data.Addresses = donor.ActorAddresses()
+					data.Addresses = provided.ActorAddresses()
 				}
 			}
 		}

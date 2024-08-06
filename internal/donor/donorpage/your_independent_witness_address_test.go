@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -160,7 +161,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
@@ -226,7 +227,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourIndependentWitnessAddressManualWhenValidationError(t *testing.T) {
@@ -588,7 +589,7 @@ func TestPostYourIndependentWitnessAddressReuseSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourIndependentWitnessAddressReuseSelectWhenValidationError(t *testing.T) {

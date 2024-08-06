@@ -47,12 +47,14 @@ func Sign(
 			attorneys = lpa.ReplacementAttorneys
 		}
 
-		attorney, ok := attorneys.Get(appData.AttorneyUID)
-		if !ok {
-			return attorney.PathStart.Redirect(w, r, appData)
-		}
+		{
+			attorney, ok := attorneys.Get(appData.AttorneyUID)
+			if !ok {
+				return page.PathAttorneyStart.Redirect(w, r, appData)
+			}
 
-		data.Attorney = attorney
+			data.Attorney = attorney
+		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readSignForm(r)
@@ -62,12 +64,12 @@ func Sign(
 				attorneyProvidedDetails.Tasks.SignTheLpa = task.StateCompleted
 				attorneyProvidedDetails.SignedAt = now()
 
-				if attorney.SignedAt.IsZero() {
+				if data.Attorney.SignedAt.IsZero() {
 					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
 						return err
 					}
 				} else {
-					attorneyProvidedDetails.SignedAt = attorney.SignedAt
+					attorneyProvidedDetails.SignedAt = data.Attorney.SignedAt
 				}
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {

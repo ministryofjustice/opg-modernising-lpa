@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -53,7 +54,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenYes(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.YourName.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathYourName.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostConfirmDonorCanInteractOnlineWhenNo(t *testing.T) {

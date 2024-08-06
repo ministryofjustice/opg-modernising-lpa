@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func CookieConsent(paths AppPaths) http.HandlerFunc {
+func CookieConsent() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		consent := "reject"
 		if r.PostFormValue("cookies") == "accept" {
@@ -20,7 +20,7 @@ func CookieConsent(paths AppPaths) http.HandlerFunc {
 
 		redirectURL := r.PostFormValue("cookies-redirect")
 		if len(redirectURL) <= 1 || redirectURL[0] != '/' || redirectURL[1] == '/' || redirectURL[1] == '\\' {
-			redirectURL = paths.Start.String()
+			redirectURL = PathStart.String()
 		}
 
 		http.Redirect(w, r, redirectURL, http.StatusFound)

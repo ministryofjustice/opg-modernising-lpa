@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 )
 
-type AttorneyPaths struct {
+type attorneyPaths struct {
 	ConfirmDontWantToBeAttorneyLoggedOut page.Path
 	EnterReferenceNumber                 page.Path
 	EnterReferenceNumberOptOut           page.Path
@@ -32,7 +32,7 @@ type AttorneyPaths struct {
 	YourPreferredLanguage       attorney.Path
 }
 
-type CertificateProviderPaths struct {
+type certificateProviderPaths struct {
 	Login                                           page.Path
 	LoginCallback                                   page.Path
 	EnterReferenceNumber                            page.Path
@@ -59,12 +59,12 @@ type CertificateProviderPaths struct {
 	YourRole                               certificateprovider.Path
 }
 
-type HealthCheckPaths struct {
+type healthCheckPaths struct {
 	Service    page.Path
 	Dependency page.Path
 }
 
-type SupporterPaths struct {
+type supporterPaths struct {
 	EnterOrganisationName page.Path
 	EnterReferenceNumber  page.Path
 	EnterYourName         page.Path
@@ -91,11 +91,11 @@ type SupporterPaths struct {
 	DonorAccess supporter.LpaPath
 }
 
-type AppPaths struct {
-	Attorney            AttorneyPaths
-	CertificateProvider CertificateProviderPaths
-	Supporter           SupporterPaths
-	HealthCheck         HealthCheckPaths
+type appPaths struct {
+	Attorney            attorneyPaths
+	CertificateProvider certificateProviderPaths
+	Supporter           supporterPaths
+	HealthCheck         healthCheckPaths
 
 	AttorneyFixtures            page.Path
 	AuthRedirect                page.Path
@@ -229,8 +229,8 @@ type AppPaths struct {
 	YourPreferredLanguage                                donor.Path
 }
 
-var Paths = AppPaths{
-	CertificateProvider: CertificateProviderPaths{
+var paths = appPaths{
+	CertificateProvider: certificateProviderPaths{
 		ConfirmDontWantToBeCertificateProviderLoggedOut: page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut,
 		EnterReferenceNumber:                            page.PathCertificateProviderEnterReferenceNumber,
 		EnterReferenceNumberOptOut:                      page.PathCertificateProviderEnterReferenceNumberOptOut,
@@ -257,7 +257,7 @@ var Paths = AppPaths{
 		YourRole:                               certificateprovider.PathYourRole,
 	},
 
-	Attorney: AttorneyPaths{
+	Attorney: attorneyPaths{
 		ConfirmDontWantToBeAttorneyLoggedOut: page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut,
 		EnterReferenceNumber:                 page.PathAttorneyEnterReferenceNumber,
 		EnterReferenceNumberOptOut:           page.PathAttorneyEnterReferenceNumberOptOut,
@@ -281,7 +281,7 @@ var Paths = AppPaths{
 		YourPreferredLanguage:       attorney.PathYourPreferredLanguage,
 	},
 
-	Supporter: SupporterPaths{
+	Supporter: supporterPaths{
 		EnterOrganisationName: page.PathSupporterEnterOrganisationName,
 		EnterReferenceNumber:  page.PathSupporterEnterReferenceNumber,
 		EnterYourName:         page.PathSupporterEnterYourName,
@@ -307,7 +307,7 @@ var Paths = AppPaths{
 		DonorAccess:                   supporter.PathDonorAccess,
 	},
 
-	HealthCheck: HealthCheckPaths{
+	HealthCheck: healthCheckPaths{
 		Service:    page.PathHealthCheckService,
 		Dependency: page.PathHealthCheckDependency,
 	},

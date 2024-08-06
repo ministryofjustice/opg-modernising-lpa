@@ -107,7 +107,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
@@ -127,7 +127,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "some details",
 			formType:        lpadata.JointlyForSomeSeverallyForOthers.String(),
 			formDetails:     "some details",
-			redirect:        page.Paths.BecauseYouHaveChosenJointlyForSomeSeverallyForOthers,
+			redirect:        donor.PathBecauseYouHaveChosenJointlyForSomeSeverallyForOthers,
 		},
 		"existing details set": {
 			existingType:    lpadata.JointlyForSomeSeverallyForOthers,
@@ -136,7 +136,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 			updatedDetails:  "",
 			formType:        lpadata.Jointly.String(),
 			formDetails:     "some details",
-			redirect:        page.Paths.BecauseYouHaveChosenJointly,
+			redirect:        donor.PathBecauseYouHaveChosenJointly,
 		},
 	}
 
