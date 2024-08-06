@@ -6,7 +6,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -30,7 +29,7 @@ func DeleteOrganisation(logger Logger, tmpl template.Template, organisationStore
 				return err
 			}
 
-			return page.Paths.Supporter.OrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.SupporterData.OrganisationName}})
+			return supporter.PathOrganisationDeleted.RedirectQuery(w, r, appData, url.Values{"organisationName": {appData.SupporterData.OrganisationName}})
 		}
 
 		inProgressLPACount, err := searchClient.CountWithQuery(r.Context(), search.CountWithQueryReq{MustNotExist: "RegisteredAt"})

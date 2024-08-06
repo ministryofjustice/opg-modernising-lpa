@@ -196,7 +196,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
+					http.Redirect(w, r, supporter.PathStart.Format(), http.StatusFound)
 					return
 				}
 
@@ -228,7 +228,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
+				http.Redirect(w, r, supporter.PathStart.Format(), http.StatusFound)
 				return
 			}
 

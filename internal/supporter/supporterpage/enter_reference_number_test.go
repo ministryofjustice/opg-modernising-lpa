@@ -100,7 +100,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathDashboard.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
@@ -156,7 +156,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.InviteExpired.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathInviteExpired.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T) {
@@ -235,7 +235,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
