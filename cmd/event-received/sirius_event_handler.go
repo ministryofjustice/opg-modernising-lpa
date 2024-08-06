@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -39,7 +40,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, appData, factory.Now())
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, factory.EventClient(), appData, factory.Now())
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -95,9 +96,18 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 	return nil
 }
 
-func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, appData appcontext.Data, now func() time.Time) error {
+func handleFeeApproved(
+	ctx context.Context,
+	client dynamodbClient,
+	e events.CloudWatchEvent,
+	shareCodeSender ShareCodeSender,
+	lpaStoreClient LpaStoreClient,
+	eventClient EventClient,
+	appData appcontext.Data,
+	now func() time.Time,
+) error {
 	var v uidEvent
-	if err := json.Unmarshal(event.Detail, &v); err != nil {
+	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
@@ -116,6 +126,12 @@ func handleFeeApproved(ctx context.Context, client dynamodbClient, event events.
 		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
 				return fmt.Errorf("failed to send to lpastore: %w", err)
+			}
+
+			if err := eventClient.SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
+				UID: v.UID,
+			}); err != nil {
+				return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
 			}
 
 			if err := shareCodeSender.SendCertificateProviderPrompt(ctx, appData, donor); err != nil {
