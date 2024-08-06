@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,6 +25,7 @@ func WitnessingAsCertificateProvider(
 	donorStore DonorStore,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
+	eventClient EventClient,
 	now func() time.Time,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
@@ -44,10 +46,10 @@ func WitnessingAsCertificateProvider(
 			if !donor.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := donor.CertificateProviderCodes.Find(data.Form.Code)
+				code, found := donor.CertificateProviderCodes.Find(data.Form.Code, now())
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
-				} else if code.HasExpired() {
+				} else if code.HasExpired(now()) {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 				}
 			}
@@ -71,6 +73,12 @@ func WitnessingAsCertificateProvider(
 			if data.Errors.None() {
 				if donor.Tasks.PayForLpa.IsCompleted() {
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
+						return err
+					}
+
+					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+						UID: donor.LpaUID,
+					}); err != nil {
 						return err
 					}
 
