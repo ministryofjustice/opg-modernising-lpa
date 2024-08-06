@@ -117,7 +117,11 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Dear donor")
+	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+			Greeting:          "Dear donor",
 			AttorneyFullName:  "d e f",
 			DonorFullName:     "a b c",
 			LpaType:           "Personal welfare",
@@ -176,6 +180,14 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 
 				return certificateProviderStore
 			},
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("")
+
+				return client
+			},
 		},
 		"when notifyClient.SendActorEmail() error": {
 			certificateProviderStore: func(t *testing.T) *mockAttorneyStore {
@@ -188,6 +200,9 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("")
 				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)

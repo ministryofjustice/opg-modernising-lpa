@@ -82,6 +82,7 @@ type LpaStoreClient interface {
 }
 
 type NotifyClient interface {
+	EmailGreeting(lpa *lpastore.Lpa) string
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
