@@ -26,6 +26,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendUidRequested(ctx, event) }, event
 		},
+		"application-deleted": func() (func(*Client) error, any) {
+			event := ApplicationDeleted{UID: "a"}
+
+			return func(client *Client) error { return client.SendApplicationDeleted(ctx, event) }, event
+		},
 		"application-updated": func() (func(*Client) error, any) {
 			event := ApplicationUpdated{UID: "a"}
 
