@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -133,7 +134,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 		actorType actor.Type
 		donor     *donordata.Provided
 		send      string
-		redirect  page.LpaPath
+		redirect  donor.Path
 	}{
 		"certificate provider valid": {
 			form: url.Values{

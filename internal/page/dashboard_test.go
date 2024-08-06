@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/stretchr/testify/assert"
@@ -115,7 +116,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 func TestPostDashboard(t *testing.T) {
 	testCases := map[string]struct {
 		Form             url.Values
-		ExpectedRedirect LpaPath
+		ExpectedRedirect donor.Path
 	}{
 		"no donor LPAs": {
 			ExpectedRedirect: Paths.YourName,

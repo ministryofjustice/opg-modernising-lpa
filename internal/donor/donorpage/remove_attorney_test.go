@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -81,7 +82,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 	testcases := map[string]struct {
 		donor        *donordata.Provided
 		updatedDonor *donordata.Provided
-		redirect     page.LpaPath
+		redirect     donor.Path
 	}{
 		"many left": {
 			donor: &donordata.Provided{
