@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -19,7 +20,7 @@ type whatYouCanDoNowData struct {
 }
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &whatYouCanDoNowData{
 			App: appData,
 			Form: &whatYouCanDoNowForm{
@@ -32,27 +33,27 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				var next page.LpaPath
+				var next donor.Path
 
 				switch data.Form.DoNext {
 				case donordata.ProveOwnID:
-					donor.DonorIdentityUserData = identity.UserData{}
+					provided.DonorIdentityUserData = identity.UserData{}
 					next = page.Paths.TaskList
 				case donordata.SelectNewVoucher:
-					donor.WantVoucher = form.Yes
+					provided.WantVoucher = form.Yes
 					next = page.Paths.EnterVoucher
 				case donordata.WithdrawLPA:
 					next = page.Paths.WithdrawThisLpa
 				case donordata.ApplyToCOP:
-					donor.RegisteringWithCourtOfProtection = true
+					provided.RegisteringWithCourtOfProtection = true
 					next = page.Paths.WhatHappensNextRegisteringWithCourtOfProtection
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return next.Redirect(w, r, appData, donor)
+				return next.Redirect(w, r, appData, provided)
 			}
 		}
 

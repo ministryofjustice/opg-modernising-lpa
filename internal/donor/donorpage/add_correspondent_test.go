@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -79,7 +80,7 @@ func TestPostAddCorrespondent(t *testing.T) {
 		existingTaskState     task.State
 		expectedCorrespondent donordata.Correspondent
 		expectedTaskState     task.State
-		redirect              page.LpaPath
+		redirect              donor.Path
 	}{
 		"yes was yes": {
 			yesNo:                 form.Yes,

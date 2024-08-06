@@ -8,11 +8,14 @@ all: true
 packages:
   github.com/ministryofjustice/opg-modernising-lpa/cmd/event-received:
   github.com/ministryofjustice/opg-modernising-lpa/internal/app:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/attorney:
   github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneypage:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider:
   github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderpage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/document:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/donor:
   github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donorpage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo:
