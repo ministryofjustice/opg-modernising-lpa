@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -167,7 +168,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?inviteSentTo=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathViewLPA.Format("lpa-id")+"?inviteSentTo=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessWhenDonorUpdateErrors(t *testing.T) {
@@ -311,7 +312,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?inviteRecalledFor=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathViewLPA.Format("lpa-id")+"?inviteRecalledFor=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
@@ -420,7 +421,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ViewLPA.Format("lpa-id")+"?accessRemovedFor=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathViewLPA.Format("lpa-id")+"?accessRemovedFor=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -97,7 +98,7 @@ func TestPostEnterOrganisationName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.OrganisationCreated.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathOrganisationCreated.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterOrganisationNameWhenSessionStoreSaveError(t *testing.T) {
@@ -169,7 +170,7 @@ func TestPostEnterOrganisationNameWhenSessionStoreGetError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterOrganisationNameWhenValidationError(t *testing.T) {

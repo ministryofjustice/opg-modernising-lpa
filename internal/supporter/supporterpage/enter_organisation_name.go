@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -41,7 +42,7 @@ func EnterOrganisationName(logger Logger, tmpl template.Template, organisationSt
 
 				loginSession, err := sessionStore.Login(r)
 				if err != nil {
-					return page.Paths.Supporter.Start.Redirect(w, r, appData)
+					return supporter.PathStart.Redirect(w, r, appData)
 				}
 
 				loginSession.OrganisationID = organisation.ID
@@ -50,7 +51,7 @@ func EnterOrganisationName(logger Logger, tmpl template.Template, organisationSt
 					return err
 				}
 
-				return page.Paths.Supporter.OrganisationCreated.Redirect(w, r, appData)
+				return supporter.PathOrganisationCreated.Redirect(w, r, appData)
 			}
 		}
 

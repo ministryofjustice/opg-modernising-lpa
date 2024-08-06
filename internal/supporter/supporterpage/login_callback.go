@@ -66,10 +66,10 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			}
 
 			if len(invites) > 0 {
-				return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+				return supporter.PathEnterReferenceNumber.Redirect(w, r, appData)
 			}
 
-			return page.Paths.Supporter.EnterYourName.Redirect(w, r, appData)
+			return supporter.PathEnterYourName.Redirect(w, r, appData)
 		} else if err != nil {
 			return err
 		}
@@ -80,7 +80,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 				return err
 			}
 
-			return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
+			return supporter.PathEnterOrganisationName.Redirect(w, r, appData)
 		} else if err != nil {
 			return err
 		}
@@ -101,6 +101,6 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			return err
 		}
 
-		return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
+		return supporter.PathDashboard.Redirect(w, r, appData)
 	}
 }

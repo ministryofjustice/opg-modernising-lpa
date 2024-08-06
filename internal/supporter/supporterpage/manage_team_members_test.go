@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -136,7 +137,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
-			JoinAnOrganisationURL: "http://base" + page.Paths.Supporter.Start.Format(),
+			JoinAnOrganisationURL: "http://base" + supporter.PathStart.Format(),
 		}).
 		Return(nil)
 
@@ -146,7 +147,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ManageTeamMembers.Format()+"?inviteSent=email%40example.com", resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathManageTeamMembers.Format()+"?inviteSent=email%40example.com", resp.Header.Get("Location"))
 }
 
 func TestPostManageTeamMembersWhenValidationErrors(t *testing.T) {

@@ -10,6 +10,7 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -67,7 +68,7 @@ func TestPostConfirmDonorCanInteractOnlineWhenNo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.ContactOPGForPaperForms.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathContactOPGForPaperForms.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostConfirmDonorCanInteractOnlineWhenValidationError(t *testing.T) {
