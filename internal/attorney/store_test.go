@@ -1,4 +1,4 @@
-package attorneydata
+package attorney
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +33,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"})
 			now := time.Now()
 			uid := actoruid.New()
-			details := &Provided{
+			details := &attorneydata.Provided{
 				PK:                 dynamo.LpaKey("123"),
 				SK:                 dynamo.AttorneyKey("456"),
 				UID:                uid,
@@ -137,13 +138,13 @@ func TestAttorneyStoreGet(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		ExpectOne(ctx, dynamo.LpaKey("123"), dynamo.AttorneyKey("456"),
-			&Provided{LpaID: "123"}, nil)
+			&attorneydata.Provided{LpaID: "123"}, nil)
 
 	attorneyStore := &Store{dynamoClient: dynamoClient, now: nil}
 
 	attorney, err := attorneyStore.Get(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &Provided{LpaID: "123"}, attorney)
+	assert.Equal(t, &attorneydata.Provided{LpaID: "123"}, attorney)
 }
 
 func TestAttorneyStoreGetWhenSessionMissing(t *testing.T) {
@@ -179,7 +180,7 @@ func TestAttorneyStoreGetOnError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.
 		ExpectOne(ctx, dynamo.LpaKey("123"), dynamo.AttorneyKey("456"),
-			&Provided{LpaID: "123"}, expectedError)
+			&attorneydata.Provided{LpaID: "123"}, expectedError)
 
 	attorneyStore := &Store{dynamoClient: dynamoClient, now: nil}
 
@@ -193,7 +194,7 @@ func TestAttorneyStorePut(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123", UpdatedAt: now}).
+		Put(ctx, &attorneydata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123", UpdatedAt: now}).
 		Return(nil)
 
 	attorneyStore := &Store{
@@ -201,7 +202,7 @@ func TestAttorneyStorePut(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 
-	err := attorneyStore.Put(ctx, &Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123"})
+	err := attorneyStore.Put(ctx, &attorneydata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123"})
 	assert.Nil(t, err)
 }
 
@@ -211,7 +212,7 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, &Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123", UpdatedAt: now}).
+		Put(ctx, &attorneydata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123", UpdatedAt: now}).
 		Return(expectedError)
 
 	attorneyStore := &Store{
@@ -219,7 +220,7 @@ func TestAttorneyStorePutOnError(t *testing.T) {
 		now:          func() time.Time { return now },
 	}
 
-	err := attorneyStore.Put(ctx, &Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123"})
+	err := attorneyStore.Put(ctx, &attorneydata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.AttorneyKey("456"), LpaID: "123"})
 	assert.Equal(t, expectedError, err)
 }
 

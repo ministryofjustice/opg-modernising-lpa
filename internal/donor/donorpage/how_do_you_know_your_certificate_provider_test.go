@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -84,7 +85,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	testCases := map[string]struct {
 		form                       url.Values
 		certificateProviderDetails donordata.CertificateProvider
-		redirect                   page.LpaPath
+		redirect                   donor.Path
 	}{
 		"professionally": {
 			form: url.Values{"how": {lpadata.Professionally.String()}},
@@ -144,7 +145,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 		form                               url.Values
 		existingCertificateProviderDetails donordata.CertificateProvider
 		updatedCertificateProviderDetails  donordata.CertificateProvider
-		redirect                           page.LpaPath
+		redirect                           donor.Path
 		taskState                          task.State
 	}{
 		"personally to professionally": {

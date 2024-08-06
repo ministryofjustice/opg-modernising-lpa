@@ -1,4 +1,4 @@
-package donordata
+package donor
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -85,7 +86,7 @@ func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger,
 	}
 }
 
-func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
+func (s *donorStore) Create(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -98,13 +99,13 @@ func (s *donorStore) Create(ctx context.Context) (*Provided, error) {
 	lpaID := s.uuidString()
 	donorUID := s.newUID()
 
-	donor := &Provided{
+	donor := &donordata.Provided{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
 		LpaID:     lpaID,
 		CreatedAt: s.now(),
 		Version:   1,
-		Donor: Donor{
+		Donor: donordata.Donor{
 			UID:     donorUID,
 			Channel: lpadata.ChannelOnline,
 		},
@@ -203,7 +204,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
+func (s *donorStore) GetAny(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -219,7 +220,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
 	}
 
 	var donor struct {
-		Provided
+		donordata.Provided
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -233,7 +234,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*Provided, error) {
 	return &donor.Provided, err
 }
 
-func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
+func (s *donorStore) Get(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -249,7 +250,7 @@ func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
 	}
 
 	var donor struct {
-		Provided
+		donordata.Provided
 		ReferencedSK dynamo.OrganisationKeyType
 	}
 	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
@@ -263,7 +264,7 @@ func (s *donorStore) Get(ctx context.Context) (*Provided, error) {
 	return &donor.Provided, err
 }
 
-func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
+func (s *donorStore) Latest(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -273,7 +274,7 @@ func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
 		return nil, errors.New("donorStore.Latest requires SessionID")
 	}
 
-	var donor *Provided
+	var donor *donordata.Provided
 	if err := s.dynamoClient.LatestForActor(ctx, dynamo.DonorKey(data.SessionID), &donor); err != nil {
 		return nil, err
 	}
@@ -281,7 +282,7 @@ func (s *donorStore) Latest(ctx context.Context) (*Provided, error) {
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Provided, error) {
+func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -291,10 +292,10 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Provi
 		return nil, err
 	}
 
-	var donors []Provided
+	var donors []donordata.Provided
 	err = attributevalue.UnmarshalListOfMaps(items, &donors)
 
-	mappedDonors := map[string]Provided{}
+	mappedDonors := map[string]donordata.Provided{}
 	for _, donor := range donors {
 		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
 	}
@@ -307,7 +308,7 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]Provi
 	return donors, err
 }
 
-func (s *donorStore) Put(ctx context.Context, donor *Provided) error {
+func (s *donorStore) Put(ctx context.Context, donor *donordata.Provided) error {
 	if !donor.HashChanged() {
 		return nil
 	}

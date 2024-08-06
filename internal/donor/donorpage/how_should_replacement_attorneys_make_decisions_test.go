@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -109,7 +110,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		attorneys donordata.Attorneys
 		updated   donordata.AttorneyDecisions
 		taskState task.State
-		redirect  page.LpaPath
+		redirect  donor.Path
 	}{
 		"existing details not set": {
 			form: url.Values{

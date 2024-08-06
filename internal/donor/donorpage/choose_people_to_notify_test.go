@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -88,7 +89,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 
 	testcases := map[string]struct {
 		addedPeople donordata.PeopleToNotify
-		expectedUrl page.LpaPath
+		expectedUrl donor.Path
 	}{
 		"5 people": {
 			addedPeople: donordata.PeopleToNotify{
