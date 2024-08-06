@@ -275,7 +275,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient)
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient, bundle)
 	if err != nil {
 		return err
 	}

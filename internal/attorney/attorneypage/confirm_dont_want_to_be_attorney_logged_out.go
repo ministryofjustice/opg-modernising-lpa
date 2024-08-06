@@ -52,6 +52,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 			}
 
 			email := notify.AttorneyOptedOutEmail{
+				Greeting:          notifyClient.EmailGreeting(lpa),
 				AttorneyFullName:  attorneyFullName,
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
@@ -59,7 +60,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				DonorStartPageURL: appPublicURL + page.Paths.Start.Format(),
 			}
 
-			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
+			if err := notifyClient.SendActorEmail(ctx, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 
