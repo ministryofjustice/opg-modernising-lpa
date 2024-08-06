@@ -108,7 +108,7 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
-        id: trivy_scan
+        id: trivy_sbom
         uses: aquasecurity/trivy-action@0.24.0
         with:
           scan-type: 'image'
