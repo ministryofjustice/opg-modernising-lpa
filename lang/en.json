@@ -1239,5 +1239,7 @@
     "canYouSignTheLpaYourselfOnline": "Can you sign the LPA yourself online?",
     "whatIsYourEmailOptional": "What is your email address? (optional)",
     "someOfTheseDetailsCanNoLongerBeChanged": "Some of these details can no longer be changed because they have been successfully matched with your confirmed identity details.",
-    "whichFeeTypeYouAreApplyingFor": "which fee type you are applying for"
+    "whichFeeTypeYouAreApplyingFor": "which fee type you are applying for",
+    "emailGreetingDonor": "Dear {{.DonorFullName}},",
+    "emailGreetingCorrespondent": "Our ref: {{.LpaUID}}\n\nDear {{.CorrespondentFullName}}\n\nRe: {{.DonorFullNamePossessive}} Lasting Power of Attorney for {{.LpaType}}"
 }

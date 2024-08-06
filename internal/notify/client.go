@@ -16,6 +16,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 )
 
 var (
@@ -53,9 +55,10 @@ type Client struct {
 	now          func() time.Time
 	isProduction bool
 	eventClient  EventClient
+	bundle       *localize.Bundle
 }
 
-func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient) (*Client, error) {
+func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle *localize.Bundle) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
@@ -70,7 +73,25 @@ func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Do
 		now:          time.Now,
 		isProduction: isProduction,
 		eventClient:  eventClient,
+		bundle:       bundle,
 	}, nil
+}
+
+func (c *Client) EmailGreeting(lpa *lpastore.Lpa) string {
+	localizer := c.bundle.For(lpa.Donor.ContactLanguagePreference)
+
+	if lpa.Correspondent.FirstNames == "" {
+		return localizer.Format("emailGreetingDonor", map[string]any{
+			"DonorFullName": lpa.Donor.FullName(),
+		})
+	}
+
+	return localizer.Format("emailGreetingCorrespondent", map[string]any{
+		"LpaUID":                  lpa.LpaUID,
+		"CorrespondentFullName":   lpa.Correspondent.FullName(),
+		"DonorFullNamePossessive": localizer.Possessive(lpa.Donor.FullName()),
+		"LpaType":                 localizer.T(lpa.Type.String()),
+	})
 }
 
 type Sms struct {
