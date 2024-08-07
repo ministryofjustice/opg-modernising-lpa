@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -31,7 +32,7 @@ func TestGetWitnessingAsCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{})
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +54,7 @@ func TestGetWitnessingAsCertificateProviderFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider: donordata.CertificateProvider{FirstNames: "Joan"},
 	})
 	resp := w.Result()
@@ -75,7 +76,7 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{})
+	err := WitnessingAsCertificateProvider(template.Execute, nil, nil, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -105,14 +106,14 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
-			now := time.Now()
 
 			provided := &donordata.Provided{
 				LpaID:                            "lpa-id",
+				LpaUID:                           "lpa-uid",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
-				WitnessedByCertificateProviderAt: now,
+				WitnessedByCertificateProviderAt: testNow,
 				Tasks: donordata.Tasks{
 					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
 					PayForLpa:                  task.PaymentStateCompleted,
@@ -130,18 +131,27 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				SendCertificateProviderPrompt(r.Context(), testAppData, provided).
 				Return(nil)
 
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+					UID: "lpa-uid",
+				}).
+				Return(nil)
+
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
 				SendLpa(r.Context(), provided).
 				Return(nil)
 
-			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
+			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 				LpaID:                            "lpa-id",
+				LpaUID:                           "lpa-uid",
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
-				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				Tasks:                            donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
+				WitnessCodeLimiter:               testLimiter(),
 			})
 			resp := w.Result()
 
@@ -161,14 +171,13 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-	now := time.Now()
 
 	provided := &donordata.Provided{
 		LpaID:                            "lpa-id",
 		DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
-		WitnessedByCertificateProviderAt: now,
+		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
+		WitnessedByCertificateProviderAt: testNow,
 		Tasks: donordata.Tasks{
 			PayForLpa:                  task.PaymentStatePending,
 			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
@@ -179,12 +188,13 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		Put(r.Context(), provided).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStatePending},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 	resp := w.Result()
 
@@ -201,7 +211,6 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -213,17 +222,58 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		SendCertificateProviderPrompt(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
 
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
+		Return(nil)
+
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendLpa(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		WitnessCodeLimiter:       testLimiter(),
+	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) {
+	form := url.Values{
+		"witness-code": {"1234"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(r.Context(), mock.Anything, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
+		Return(expectedError)
+
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
+		LpaID:                    "lpa-id",
+		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
+		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
+		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 	assert.Equal(t, expectedError, err)
 }
@@ -236,7 +286,6 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-	now := time.Now()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -248,10 +297,11 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 		SendCertificateProviderPrompt(r.Context(), testAppData, mock.Anything).
 		Return(expectedError)
 
-	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 
 	assert.Equal(t, expectedError, err)
@@ -266,8 +316,7 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	now := time.Now()
-	invalidCreated := now.Add(-45 * time.Minute)
+	invalidCreated := testNow.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -291,8 +340,9 @@ func TestPostWitnessingAsCertificateProviderCodeTooOld(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 	resp := w.Result()
 
@@ -309,14 +359,12 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	now := time.Now()
-
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.Provided) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.Provided{
-				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 			})
 		})).
 		Return(nil)
@@ -326,15 +374,16 @@ func TestPostWitnessingAsCertificateProviderCodeDoesNotMatch(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.Provided{
-				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 	resp := w.Result()
 
@@ -351,8 +400,7 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	now := time.Now()
-	invalidCreated := now.Add(-45 * time.Minute)
+	invalidCreated := testNow.Add(-45 * time.Minute)
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -376,8 +424,9 @@ func TestPostWitnessingAsCertificateProviderWhenCodeExpired(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: invalidCreated}},
+		WitnessCodeLimiter:       testLimiter(),
 	})
 	resp := w.Result()
 
@@ -394,14 +443,12 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	now := time.Now()
-
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.MatchedBy(func(donor *donordata.Provided) bool {
 			donor.WitnessCodeLimiter = nil
 			return assert.Equal(t, donor, &donordata.Provided{
-				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 			})
 		})).
 		Return(nil)
@@ -411,16 +458,16 @@ func TestPostWitnessingAsCertificateProviderCodeLimitBreached(t *testing.T) {
 		Execute(w, &witnessingAsCertificateProviderData{
 			App: testAppData,
 			Donor: &donordata.Provided{
-				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+				CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 			},
 			Errors: validation.With("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"}),
 			Form:   &witnessingAsCertificateProviderForm{Code: "4321"},
 		}).
 		Return(nil)
 
-	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, time.Now)(testAppData, w, r, &donordata.Provided{
+	err := WitnessingAsCertificateProvider(template.Execute, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		WitnessCodeLimiter:       donordata.NewLimiter(time.Minute, 0, 10),
-		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 	})
 	resp := w.Result()
 

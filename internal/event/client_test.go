@@ -61,6 +61,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendPaymentReceived(ctx, event) }, event
 		},
+		"certificate-provider-started": func() (func(*Client) error, any) {
+			event := CertificateProviderStarted{UID: "a"}
+
+			return func(client *Client) error { return client.SendCertificateProviderStarted(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {
