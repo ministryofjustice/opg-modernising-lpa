@@ -38,10 +38,10 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			if !provided.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := provided.IndependentWitnessCodes.Find(data.Form.Code)
+				code, found := provided.IndependentWitnessCodes.Find(data.Form.Code, now())
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
-				} else if code.HasExpired() {
+				} else if code.HasExpired(now()) {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 				}
 			}

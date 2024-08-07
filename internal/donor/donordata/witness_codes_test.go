@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWitnessCodeHasExpired(t *testing.T) {
-	now := time.Now()
+var testNow = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 
+func TestWitnessCodeHasExpired(t *testing.T) {
 	testCases := map[string]struct {
 		duration time.Duration
 		expected bool
@@ -24,7 +24,7 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 		},
 		"15m ago": {
 			duration: 15 * time.Minute,
-			expected: true,
+			expected: false,
 		},
 		"15m01s ago": {
 			duration: 15*time.Minute + time.Second,
@@ -35,21 +35,21 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			codes := WitnessCodes{
-				{Code: "a", Created: now.Add(-tc.duration)},
+				{Code: "a", Created: testNow.Add(-tc.duration)},
 			}
 
-			code, _ := codes.Find("a")
-			assert.Equal(t, tc.expected, code.HasExpired())
+			code, _ := codes.Find("a", testNow)
+			assert.Equal(t, tc.expected, code.HasExpired(testNow))
 		})
 	}
 }
 
 func TestWitnessCodesFind(t *testing.T) {
 	codes := WitnessCodes{
-		{Code: "new", Created: time.Now()},
-		{Code: "expired", Created: time.Now().Add(-16 * time.Minute)},
-		{Code: "almost ignored", Created: time.Now().Add(-2*time.Hour + time.Second)},
-		{Code: "ignored", Created: time.Now().Add(-2 * time.Hour)},
+		{Code: "new", Created: testNow},
+		{Code: "expired", Created: testNow.Add(-16 * time.Minute)},
+		{Code: "almost ignored", Created: testNow.Add(-2 * time.Hour)},
+		{Code: "ignored", Created: testNow.Add(-2*time.Hour - time.Second)},
 	}
 
 	testcases := map[string]bool{
@@ -62,15 +62,13 @@ func TestWitnessCodesFind(t *testing.T) {
 
 	for code, expected := range testcases {
 		t.Run(code, func(t *testing.T) {
-			_, ok := codes.Find(code)
+			_, ok := codes.Find(code, testNow)
 			assert.Equal(t, expected, ok)
 		})
 	}
 }
 
 func TestWitnessCodesCanRequest(t *testing.T) {
-	now := time.Now()
-
 	testcases := map[string]struct {
 		codes    WitnessCodes
 		expected bool
@@ -79,18 +77,18 @@ func TestWitnessCodesCanRequest(t *testing.T) {
 			expected: true,
 		},
 		"after 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute - time.Second)}},
+			codes:    WitnessCodes{{Created: testNow.Add(-time.Minute - time.Second)}},
 			expected: true,
 		},
 		"within 1 minute": {
-			codes:    WitnessCodes{{Created: now.Add(-time.Minute)}},
+			codes:    WitnessCodes{{Created: testNow.Add(-time.Minute)}},
 			expected: false,
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.codes.CanRequest(now))
+			assert.Equal(t, tc.expected, tc.codes.CanRequest(testNow))
 		})
 	}
 }
