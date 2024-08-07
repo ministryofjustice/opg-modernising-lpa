@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
@@ -57,7 +58,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 			expectedTransaction := &dynamo.Transaction{
 				Creates: []any{
 					details,
-					actor.LpaLink{
+					dashboarddata.LpaLink{
 						PK:        dynamo.LpaKey("123"),
 						SK:        dynamo.SubKey("456"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
