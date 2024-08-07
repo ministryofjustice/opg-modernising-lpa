@@ -43,7 +43,7 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 					provided.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

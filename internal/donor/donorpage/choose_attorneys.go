@@ -83,8 +83,8 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 
 				provided.Attorneys.Put(attorney)
 
-				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
