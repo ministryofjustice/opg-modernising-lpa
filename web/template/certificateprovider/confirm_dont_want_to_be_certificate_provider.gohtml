@@ -12,8 +12,6 @@
 
             {{ trFormatHtml .App "confirmYouDoNotWantToBeACertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "LpaType" $lpaType "LpaUID" .Lpa.LpaUID }}
 
-            {{ template "details" (details . "ifYouHaveConcernsAboutThisLPA" "ifYouHaveConcernsAboutThisLPAContent" false) }}
-
             <p class="govuk-body">{{ trFormat .App "whenYouSelectConfirmWeWillContactDonor" "DonorFirstNames" .Lpa.Donor.FirstNames }}</p>
 
             <form novalidate method="post">
