@@ -8,6 +8,10 @@ resource "aws_lambda_layer_version" "lambda_layer" {
   provider                 = aws.region
 }
 
+resource "terraform_data" "replacement" {
+  triggers_replace = [filebase64sha256("${path.module}/myFunction.zip")]
+}
+
 resource "aws_lambda_function" "lambda_function" {
   function_name    = "zip-s3-antivirus-${data.aws_default_tags.current.tags.environment-name}"
   description      = "Function to scan S3 objects for viruses"
@@ -18,7 +22,7 @@ resource "aws_lambda_function" "lambda_function" {
   runtime          = "provided.al2023"
   timeout          = 300
   memory_size      = 4096
-  publish          = true
+  publish          = filebase64sha256("${path.module}/myFunction.zip") != terraform_data.replacement.triggers_replace[0] ? true : false
 
   layers = [
     aws_lambda_layer_version.lambda_layer.arn
