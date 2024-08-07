@@ -29,6 +29,7 @@ go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
 go-generate: ##@testing Runs go generate for mocks and enums
+	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm
 	mockery
 	go install ./cmd/enumerator
 	go generate ./...
