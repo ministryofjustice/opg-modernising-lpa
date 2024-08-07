@@ -42,8 +42,8 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 				trustCorporation.Email = data.Form.Email
 				provided.Attorneys.TrustCorporation = trustCorporation
 
-				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

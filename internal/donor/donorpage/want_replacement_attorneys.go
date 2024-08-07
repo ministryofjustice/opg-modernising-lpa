@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -40,7 +39,7 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, new
 					provided.ReplacementAttorneys = donordata.Attorneys{}
 				}
 
-				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
