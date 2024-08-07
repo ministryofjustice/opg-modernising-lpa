@@ -28,7 +28,6 @@ query/s3_objects/**
 /cypress/downloads/*
 /cypress/videos/*
 /cypress/screenshots/*
-/cypress/parallel-weights.json
 multi-reporter-config.json
 /runner-results
 /web/static/*
