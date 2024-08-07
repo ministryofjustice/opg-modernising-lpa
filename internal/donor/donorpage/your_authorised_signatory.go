@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -21,12 +22,12 @@ type yourAuthorisedSignatoryData struct {
 }
 
 func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourAuthorisedSignatoryData{
 			App: appData,
 			Form: &yourAuthorisedSignatoryForm{
-				FirstNames: donor.AuthorisedSignatory.FirstNames,
-				LastName:   donor.AuthorisedSignatory.LastName,
+				FirstNames: provided.AuthorisedSignatory.FirstNames,
+				LastName:   provided.AuthorisedSignatory.LastName,
 			},
 		}
 
@@ -36,7 +37,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeAuthorisedSignatory,
-				signatoryMatches(donor, data.Form.FirstNames, data.Form.LastName),
+				signatoryMatches(provided, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -46,18 +47,18 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
-				donor.AuthorisedSignatory.FirstNames = data.Form.FirstNames
-				donor.AuthorisedSignatory.LastName = data.Form.LastName
+				provided.AuthorisedSignatory.FirstNames = data.Form.FirstNames
+				provided.AuthorisedSignatory.LastName = data.Form.LastName
 
-				if !donor.Tasks.ChooseYourSignatory.Completed() {
-					donor.Tasks.ChooseYourSignatory = task.StateInProgress
+				if !provided.Tasks.ChooseYourSignatory.Completed() {
+					provided.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.YourIndependentWitness.Redirect(w, r, appData, donor)
+				return donor.PathYourIndependentWitness.Redirect(w, r, appData, provided)
 			}
 		}
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -111,7 +112,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProvider.ConfirmYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, certificateprovider.PathConfirmYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

@@ -157,7 +157,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		StaticHash:  staticHash,
 		RumConfig:   rumConfig,
 		ActorTypes:  actor.ActorTypes,
-		Paths:       page.Paths,
 	}))
 	if err != nil {
 		return err
@@ -232,7 +231,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	sessionStore := sesh.NewStore(sessionKeys)
 
-	redirectURL := authRedirectBaseURL + page.Paths.AuthRedirect.Format()
+	redirectURL := authRedirectBaseURL + page.PathAuthRedirect.Format()
 
 	identityPublicKeyFunc := func(ctx context.Context) (*ecdsa.PublicKey, error) {
 		bytes, err := secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginIdentityPublicKey)
@@ -287,8 +286,8 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lambdaClient)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(page.Paths.HealthCheck.Service.String(), func(w http.ResponseWriter, r *http.Request) {})
-	mux.Handle(page.Paths.HealthCheck.Dependency.String(), page.DependencyHealthCheck(map[string]page.HealthChecker{
+	mux.HandleFunc(page.PathHealthCheckService.String(), func(w http.ResponseWriter, r *http.Request) {})
+	mux.Handle(page.PathHealthCheckDependency.String(), page.DependencyHealthCheck(map[string]page.HealthChecker{
 		"uid":      uidClient,
 		"onelogin": oneloginClient,
 		"lpaStore": lpaStoreClient,
@@ -297,8 +296,8 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		http.ServeFile(w, r, webDir+"/robots.txt")
 	})
 	mux.Handle("/static/", http.StripPrefix("/static", handlers.CompressHandler(page.CacheControlHeaders(http.FileServer(http.Dir(webDir+"/static/"))))))
-	mux.Handle(page.Paths.AuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
-	mux.Handle(page.Paths.CookiesConsent.String(), page.CookieConsent(page.Paths))
+	mux.Handle(page.PathAuthRedirect.String(), page.AuthRedirect(logger, sessionStore))
+	mux.Handle(page.PathCookiesConsent.String(), page.CookieConsent())
 
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
 		devMode,

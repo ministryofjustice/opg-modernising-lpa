@@ -6,9 +6,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -22,21 +22,21 @@ type oneLoginIdentityDetailsData struct {
 }
 
 func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &oneLoginIdentityDetailsData{
 			App:            appData,
 			Form:           form.NewYesNoForm(form.YesNoUnknown),
-			DonorProvided:  donor,
+			DonorProvided:  provided,
 			DetailsUpdated: r.FormValue("detailsUpdated") == "1",
-			DetailsMatch: donor.Donor.FirstNames == donor.DonorIdentityUserData.FirstNames &&
-				donor.Donor.LastName == donor.DonorIdentityUserData.LastName &&
-				donor.Donor.DateOfBirth == donor.DonorIdentityUserData.DateOfBirth &&
-				donor.Donor.Address.Postcode == donor.DonorIdentityUserData.CurrentAddress.Postcode,
+			DetailsMatch: provided.Donor.FirstNames == provided.DonorIdentityUserData.FirstNames &&
+				provided.Donor.LastName == provided.DonorIdentityUserData.LastName &&
+				provided.Donor.DateOfBirth == provided.DonorIdentityUserData.DateOfBirth &&
+				provided.Donor.Address.Postcode == provided.DonorIdentityUserData.CurrentAddress.Postcode,
 		}
 
 		if r.Method == http.MethodPost {
-			if donor.DonorIdentityConfirmed() {
-				return page.Paths.ReadYourLpa.Redirect(w, r, appData, donor)
+			if provided.DonorIdentityConfirmed() {
+				return donor.PathReadYourLpa.Redirect(w, r, appData, provided)
 			}
 
 			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
@@ -44,21 +44,21 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 
 			if data.Errors.None() {
 				if f.YesNo.IsYes() {
-					donor.Donor.FirstNames = donor.DonorIdentityUserData.FirstNames
-					donor.Donor.LastName = donor.DonorIdentityUserData.LastName
-					donor.Donor.DateOfBirth = donor.DonorIdentityUserData.DateOfBirth
-					donor.Donor.Address = donor.DonorIdentityUserData.CurrentAddress
-					if err := donor.UpdateCheckedHash(); err != nil {
+					provided.Donor.FirstNames = provided.DonorIdentityUserData.FirstNames
+					provided.Donor.LastName = provided.DonorIdentityUserData.LastName
+					provided.Donor.DateOfBirth = provided.DonorIdentityUserData.DateOfBirth
+					provided.Donor.Address = provided.DonorIdentityUserData.CurrentAddress
+					if err := provided.UpdateCheckedHash(); err != nil {
 						return err
 					}
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return err
 					}
 
-					return page.Paths.OneLoginIdentityDetails.RedirectQuery(w, r, appData, donor, url.Values{"detailsUpdated": {"1"}})
+					return donor.PathOneLoginIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{"detailsUpdated": {"1"}})
 				} else {
-					return page.Paths.WithdrawThisLpa.Redirect(w, r, appData, donor)
+					return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
 				}
 			}
 		}

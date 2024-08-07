@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +101,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, supporter.PathDashboard.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
@@ -156,7 +157,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.InviteExpired.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterInviteExpired.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenMemberStoreInvitedMemberError(t *testing.T) {
@@ -235,7 +236,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {

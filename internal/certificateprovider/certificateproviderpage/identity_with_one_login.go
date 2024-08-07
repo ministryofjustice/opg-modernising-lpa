@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
@@ -29,7 +29,7 @@ func IdentityWithOneLogin(oneLoginClient OneLoginClient, sessionStore SessionSto
 			State:    state,
 			Nonce:    nonce,
 			Locale:   locale,
-			Redirect: page.Paths.CertificateProvider.IdentityWithOneLoginCallback.Format(appData.LpaID),
+			Redirect: certificateprovider.PathIdentityWithOneLoginCallback.Format(appData.LpaID),
 		}); err != nil {
 			return err
 		}

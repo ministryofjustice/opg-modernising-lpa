@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -81,7 +82,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.YourLegalRightsAndResponsibilitiesIfYouMakeLpa.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathYourLegalRightsAndResponsibilitiesIfYouMakeLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

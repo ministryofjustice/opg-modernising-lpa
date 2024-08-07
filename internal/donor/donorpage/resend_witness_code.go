@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,11 +20,11 @@ type resendWitnessCodeData struct {
 
 func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
 	send := witnessCodeSender.SendToCertificateProvider
-	redirect := page.Paths.WitnessingAsCertificateProvider
+	redirect := donor.PathWitnessingAsCertificateProvider
 
 	if actorType == actor.TypeIndependentWitness {
 		send = witnessCodeSender.SendToIndependentWitness
-		redirect = page.Paths.WitnessingAsIndependentWitness
+		redirect = donor.PathWitnessingAsIndependentWitness
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {

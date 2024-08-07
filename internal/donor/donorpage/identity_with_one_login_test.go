@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -25,7 +25,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
-		SetOneLogin(r, w, &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: page.Paths.IdentityWithOneLoginCallback.Format("lpa-id"), LpaID: "lpa-id"}).
+		SetOneLogin(r, w, &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: donor.PathIdentityWithOneLoginCallback.Format("lpa-id"), LpaID: "lpa-id"}).
 		Return(nil)
 
 	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(appcontext.Data{Lang: localize.Cy}, w, r, &donordata.Provided{LpaID: "lpa-id"})

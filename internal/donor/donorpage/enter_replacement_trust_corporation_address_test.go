@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -128,7 +129,7 @@ func TestPostEnterReplacementTrustCorporationAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReplacementTrustCorporationAddressManualWhenStoreErrors(t *testing.T) {
@@ -194,7 +195,7 @@ func TestPostEnterReplacementTrustCorporationAddressManualFromStore(t *testing.T
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReplacementTrustCorporationAddressManualWhenValidationError(t *testing.T) {
@@ -602,7 +603,7 @@ func TestPostEnterReplacementTrustCorporationAddressReuseSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterReplacementTrustCorporationAddressReuseSelectWhenValidationError(t *testing.T) {
@@ -650,11 +651,11 @@ func TestPostEnterReplacementTrustCorporationAddressManuallyFromAnotherPage(t *t
 		},
 		"without from value": {
 			"/?from=",
-			page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"),
+			donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"),
 		},
 		"missing from key": {
 			"/",
-			page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"),
+			donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"),
 		},
 	}
 

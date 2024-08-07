@@ -88,30 +88,30 @@ func TestPostAddCorrespondent(t *testing.T) {
 			existingTaskState:     task.StateCompleted,
 			expectedCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			expectedTaskState:     task.StateCompleted,
-			redirect:              page.Paths.EnterCorrespondentDetails,
+			redirect:              donor.PathEnterCorrespondentDetails,
 		},
 		"yes was no": {
 			yesNo:             form.Yes,
 			existingTaskState: task.StateCompleted,
 			expectedTaskState: task.StateInProgress,
-			redirect:          page.Paths.EnterCorrespondentDetails,
+			redirect:          donor.PathEnterCorrespondentDetails,
 		},
 		"yes": {
 			yesNo:             form.Yes,
 			expectedTaskState: task.StateInProgress,
-			redirect:          page.Paths.EnterCorrespondentDetails,
+			redirect:          donor.PathEnterCorrespondentDetails,
 		},
 		"no was yes": {
 			yesNo:                 form.No,
 			existingCorrespondent: donordata.Correspondent{FirstNames: "John"},
 			existingTaskState:     task.StateCompleted,
 			expectedTaskState:     task.StateCompleted,
-			redirect:              page.Paths.TaskList,
+			redirect:              donor.PathTaskList,
 		},
 		"no": {
 			yesNo:             form.No,
 			expectedTaskState: task.StateCompleted,
-			redirect:          page.Paths.TaskList,
+			redirect:          donor.PathTaskList,
 		},
 	}
 

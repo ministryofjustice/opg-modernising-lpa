@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -49,12 +50,12 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 					OrganisationName:      organisation.Name,
 					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
-					JoinAnOrganisationURL: appPublicURL + page.Paths.Supporter.Start.Format(),
+					JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
 				}); err != nil {
 					return err
 				}
 
-				return page.Paths.Supporter.ManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"inviteSent": {data.Form.Email}})
+				return supporter.PathManageTeamMembers.RedirectQuery(w, r, appData, url.Values{"inviteSent": {data.Form.Email}})
 			}
 		}
 

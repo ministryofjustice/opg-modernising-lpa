@@ -172,7 +172,7 @@ func TestMakeHandleRequireSessionError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleWhenError(t *testing.T) {

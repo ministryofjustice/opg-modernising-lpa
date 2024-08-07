@@ -46,7 +46,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore Share
 				}
 				logger.InfoContext(r.Context(), "donor access added", slog.String("lpa_id", shareCode.LpaKey.ID()))
 
-				return page.Paths.Dashboard.Redirect(w, r, appData)
+				return page.PathDashboard.Redirect(w, r, appData)
 			}
 		}
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -23,19 +24,19 @@ type lpaTypeData struct {
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &lpaTypeData{
 			App: appData,
 			Form: &lpaTypeForm{
-				LpaType: donor.Type,
+				LpaType: provided.Type,
 			},
 			Options:     lpadata.LpaTypeValues,
-			CanTaskList: !donor.Type.Empty(),
+			CanTaskList: !provided.Type.Empty(),
 		}
 
 		if r.Method == http.MethodPost {
 			data.Form = readLpaTypeForm(r)
-			data.Errors = data.Form.Validate(donor.Attorneys.TrustCorporation.Name != "" || donor.ReplacementAttorneys.TrustCorporation.Name != "")
+			data.Errors = data.Form.Validate(provided.Attorneys.TrustCorporation.Name != "" || provided.ReplacementAttorneys.TrustCorporation.Name != "")
 
 			if data.Errors.None() {
 				session, err := appcontext.SessionFromContext(r.Context())
@@ -43,32 +44,32 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 					return err
 				}
 
-				donor.Type = data.Form.LpaType
-				if donor.Type.IsPersonalWelfare() {
-					donor.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+				provided.Type = data.Form.LpaType
+				if provided.Type.IsPersonalWelfare() {
+					provided.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
 				}
-				donor.Tasks.YourDetails = task.StateCompleted
-				donor.HasSentApplicationUpdatedEvent = false
+				provided.Tasks.YourDetails = task.StateCompleted
+				provided.HasSentApplicationUpdatedEvent = false
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
 				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
-					LpaID:          donor.LpaID,
+					LpaID:          provided.LpaID,
 					DonorSessionID: session.SessionID,
 					OrganisationID: session.OrganisationID,
-					Type:           donor.Type.String(),
+					Type:           provided.Type.String(),
 					Donor: uid.DonorDetails{
-						Name:     donor.Donor.FullName(),
-						Dob:      donor.Donor.DateOfBirth,
-						Postcode: donor.Donor.Address.Postcode,
+						Name:     provided.Donor.FullName(),
+						Dob:      provided.Donor.DateOfBirth,
+						Postcode: provided.Donor.Address.Postcode,
 					},
 				}); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				return donor.PathTaskList.Redirect(w, r, appData, provided)
 			}
 		}
 

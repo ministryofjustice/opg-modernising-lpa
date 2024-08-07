@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,12 +20,12 @@ type howShouldReplacementAttorneysStepInData struct {
 }
 
 func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howShouldReplacementAttorneysStepInData{
 			App: appData,
 			Form: &howShouldReplacementAttorneysStepInForm{
-				WhenToStepIn: donor.HowShouldReplacementAttorneysStepIn,
-				OtherDetails: donor.HowShouldReplacementAttorneysStepInDetails,
+				WhenToStepIn: provided.HowShouldReplacementAttorneysStepIn,
+				OtherDetails: provided.HowShouldReplacementAttorneysStepInDetails,
 			},
 			Options: lpadata.ReplacementAttorneysStepInValues,
 		}
@@ -34,24 +35,24 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
+				provided.HowShouldReplacementAttorneysStepIn = data.Form.WhenToStepIn
 
-				if donor.HowShouldReplacementAttorneysStepIn != lpadata.ReplacementAttorneysStepInAnotherWay {
-					donor.HowShouldReplacementAttorneysStepInDetails = ""
+				if provided.HowShouldReplacementAttorneysStepIn != lpadata.ReplacementAttorneysStepInAnotherWay {
+					provided.HowShouldReplacementAttorneysStepInDetails = ""
 				} else {
-					donor.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
+					provided.HowShouldReplacementAttorneysStepInDetails = data.Form.OtherDetails
 				}
 
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if donor.ReplacementAttorneys.Len() > 1 && donor.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
-					return page.Paths.HowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, donor)
+				if provided.ReplacementAttorneys.Len() > 1 && provided.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
+					return donor.PathHowShouldReplacementAttorneysMakeDecisions.Redirect(w, r, appData, provided)
 				} else {
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				}
 			}
 		}

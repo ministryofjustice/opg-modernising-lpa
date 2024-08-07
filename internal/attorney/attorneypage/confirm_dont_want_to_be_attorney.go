@@ -43,7 +43,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
-				DonorStartPageURL: appPublicURL + page.Paths.Start.Format(),
+				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
 			if err := attorneyStore.Delete(r.Context()); err != nil {
@@ -54,7 +54,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				return err
 			}
 
-			return page.Paths.Attorney.YouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
+			return page.PathAttorneyYouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{
 				"donorFullName":   {lpa.Donor.FullName()},
 				"donorFirstNames": {lpa.Donor.FirstNames},
 			})

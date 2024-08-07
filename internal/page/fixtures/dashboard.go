@@ -122,7 +122,7 @@ func Dashboard(
 			}
 		}
 
-		http.Redirect(w, r, page.Paths.Dashboard.Format(), http.StatusFound)
+		http.Redirect(w, r, page.PathDashboard.Format(), http.StatusFound)
 		return nil
 	}
 }

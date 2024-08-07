@@ -72,8 +72,8 @@ func TestGetHowWouldYouLikeToSendEvidenceWhenTemplateErrors(t *testing.T) {
 
 func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 	testcases := map[pay.EvidenceDelivery]donor.Path{
-		pay.Upload: page.Paths.UploadEvidence,
-		pay.Post:   page.Paths.SendUsYourEvidenceByPost,
+		pay.Upload: donor.PathUploadEvidence,
+		pay.Post:   donor.PathSendUsYourEvidenceByPost,
 	}
 
 	for evidenceDelivery, redirect := range testcases {

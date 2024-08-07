@@ -5,11 +5,11 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -49,7 +49,7 @@ func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, 
 					return err
 				}
 
-				return page.Paths.Attorney.ConfirmYourDetails.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathConfirmYourDetails.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 			}
 		}
 

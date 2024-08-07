@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -91,9 +92,9 @@ func EditMember(logger Logger, tmpl template.Template, memberStore MemberStore) 
 					}
 				}
 
-				redirect := page.Paths.Supporter.Dashboard
+				redirect := supporter.PathDashboard
 				if appData.IsAdmin() {
-					redirect = page.Paths.Supporter.ManageTeamMembers
+					redirect = supporter.PathManageTeamMembers
 				}
 
 				return redirect.RedirectQuery(w, r, appData, query)
