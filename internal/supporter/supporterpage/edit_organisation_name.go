@@ -6,7 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -36,7 +36,7 @@ func EditOrganisationName(tmpl template.Template, organisationStore Organisation
 					return err
 				}
 
-				return page.Paths.Supporter.OrganisationDetails.RedirectQuery(w, r, appData, url.Values{"updated": {"name"}})
+				return supporter.PathOrganisationDetails.RedirectQuery(w, r, appData, url.Values{"updated": {"name"}})
 			}
 		}
 

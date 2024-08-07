@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -103,7 +104,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeHandleErrors(t *testing.T) {
@@ -273,7 +274,7 @@ func TestMakeLpaHandleWhenSessionStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
@@ -328,7 +329,7 @@ func TestMakeLpaHandleWhenDonorStoreError(t *testing.T) {
 }
 
 func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
-	path := page.Paths.WhenCanTheLpaBeUsed
+	path := donor.PathWhenCanTheLpaBeUsed
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, path.Format("123"), nil)
 
@@ -353,7 +354,7 @@ func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.TaskList.Format("123"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("123"), resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleSessionExistingSession(t *testing.T) {

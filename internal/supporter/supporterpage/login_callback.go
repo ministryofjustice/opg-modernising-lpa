@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 )
 
 type LoginCallbackOneLoginClient interface {
@@ -66,10 +67,10 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			}
 
 			if len(invites) > 0 {
-				return page.Paths.Supporter.EnterReferenceNumber.Redirect(w, r, appData)
+				return page.PathSupporterEnterReferenceNumber.Redirect(w, r, appData)
 			}
 
-			return page.Paths.Supporter.EnterYourName.Redirect(w, r, appData)
+			return page.PathSupporterEnterYourName.Redirect(w, r, appData)
 		} else if err != nil {
 			return err
 		}
@@ -80,7 +81,7 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 				return err
 			}
 
-			return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
+			return page.PathSupporterEnterOrganisationName.Redirect(w, r, appData)
 		} else if err != nil {
 			return err
 		}
@@ -101,6 +102,6 @@ func LoginCallback(logger Logger, oneLoginClient LoginCallbackOneLoginClient, se
 			return err
 		}
 
-		return page.Paths.Supporter.Dashboard.Redirect(w, r, appData)
+		return supporter.PathDashboard.Redirect(w, r, appData)
 	}
 }

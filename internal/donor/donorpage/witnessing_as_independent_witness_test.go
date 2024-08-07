@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -109,7 +110,7 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWitnessingAsIndependentWitnessWhenDonorStoreErrors(t *testing.T) {

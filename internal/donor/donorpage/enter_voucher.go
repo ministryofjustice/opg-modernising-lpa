@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,13 +19,13 @@ type enterVoucherData struct {
 }
 
 func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterVoucherData{
 			App: appData,
 			Form: &enterVoucherForm{
-				FirstNames: donor.Voucher.FirstNames,
-				LastName:   donor.Voucher.LastName,
-				Email:      donor.Voucher.Email,
+				FirstNames: provided.Voucher.FirstNames,
+				LastName:   provided.Voucher.LastName,
+				Email:      provided.Voucher.Email,
 			},
 		}
 
@@ -33,23 +34,23 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if donor.Voucher.FirstNames != data.Form.FirstNames || donor.Voucher.LastName != data.Form.LastName {
-					donor.Voucher.FirstNames = data.Form.FirstNames
-					donor.Voucher.LastName = data.Form.LastName
-					donor.Voucher.Allowed = len(donor.Voucher.Matches(donor)) == 0 && !strings.EqualFold(donor.Voucher.LastName, donor.Donor.LastName)
+				if provided.Voucher.FirstNames != data.Form.FirstNames || provided.Voucher.LastName != data.Form.LastName {
+					provided.Voucher.FirstNames = data.Form.FirstNames
+					provided.Voucher.LastName = data.Form.LastName
+					provided.Voucher.Allowed = len(provided.Voucher.Matches(provided)) == 0 && !strings.EqualFold(provided.Voucher.LastName, provided.Donor.LastName)
 				}
 
-				donor.Voucher.Email = data.Form.Email
+				provided.Voucher.Email = data.Form.Email
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if !donor.Voucher.Allowed {
-					return page.Paths.ConfirmPersonAllowedToVouch.Redirect(w, r, appData, donor)
+				if !provided.Voucher.Allowed {
+					return donor.PathConfirmPersonAllowedToVouch.Redirect(w, r, appData, provided)
 				}
 
-				return page.Paths.CheckYourDetails.Redirect(w, r, appData, donor)
+				return donor.PathCheckYourDetails.Redirect(w, r, appData, provided)
 			}
 		}
 

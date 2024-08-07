@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -36,7 +36,7 @@ func TestGetTaskList(t *testing.T) {
 			attorney: &attorneydata.Provided{},
 			appData:  testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
+				items[0].Path = attorney.PathMobileNumber.Format("lpa-id")
 
 				return items
 			},
@@ -57,14 +57,14 @@ func TestGetTaskList(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[0].Path = page.Paths.Attorney.MobileNumber.Format("lpa-id")
+				items[0].Path = attorney.PathMobileNumber.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].Name = "signTheLpaSignatory1"
-				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
+				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
 
 				return append(items, taskListItem{
 					Name: "signTheLpaSignatory2",
-					Path: page.Paths.Attorney.Sign.Format("lpa-id") + "?second",
+					Path: attorney.PathSign.Format("lpa-id") + "?second",
 				})
 			},
 		},
@@ -103,7 +103,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
-				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
+				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
@@ -126,7 +126,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
-				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
+				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
@@ -149,7 +149,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
-				items[2].Path = page.Paths.Attorney.RightsAndResponsibilities.Format("lpa-id")
+				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
 
 				return items
 			},
@@ -172,8 +172,8 @@ func TestGetTaskList(t *testing.T) {
 					App: tc.appData,
 					Lpa: tc.lpa,
 					Items: tc.expected([]taskListItem{
-						{Name: "confirmYourDetails", Path: page.Paths.Attorney.MobileNumber.Format("lpa-id")},
-						{Name: "readTheLpa", Path: page.Paths.Attorney.ReadTheLpa.Format("lpa-id")},
+						{Name: "confirmYourDetails", Path: attorney.PathMobileNumber.Format("lpa-id")},
+						{Name: "readTheLpa", Path: attorney.PathReadTheLpa.Format("lpa-id")},
 						{Name: "signTheLpa"},
 					}),
 				}).

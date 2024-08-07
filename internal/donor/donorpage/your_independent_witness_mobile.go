@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,19 +19,19 @@ type yourIndependentWitnessMobileData struct {
 }
 
 func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourIndependentWitnessMobileData{
 			App:                 appData,
-			AuthorisedSignatory: donor.AuthorisedSignatory,
+			AuthorisedSignatory: provided.AuthorisedSignatory,
 			Form: &yourIndependentWitnessMobileForm{
-				HasNonUKMobile: donor.IndependentWitness.HasNonUKMobile,
+				HasNonUKMobile: provided.IndependentWitness.HasNonUKMobile,
 			},
 		}
 
-		if donor.IndependentWitness.HasNonUKMobile {
-			data.Form.NonUKMobile = donor.IndependentWitness.Mobile
+		if provided.IndependentWitness.HasNonUKMobile {
+			data.Form.NonUKMobile = provided.IndependentWitness.Mobile
 		} else {
-			data.Form.Mobile = donor.IndependentWitness.Mobile
+			data.Form.Mobile = provided.IndependentWitness.Mobile
 		}
 
 		if r.Method == http.MethodPost {
@@ -38,18 +39,18 @@ func YourIndependentWitnessMobile(tmpl template.Template, donorStore DonorStore)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
+				provided.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
 				if data.Form.HasNonUKMobile {
-					donor.IndependentWitness.Mobile = data.Form.NonUKMobile
+					provided.IndependentWitness.Mobile = data.Form.NonUKMobile
 				} else {
-					donor.IndependentWitness.Mobile = data.Form.Mobile
+					provided.IndependentWitness.Mobile = data.Form.Mobile
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.YourIndependentWitnessAddress.Redirect(w, r, appData, donor)
+				return donor.PathYourIndependentWitnessAddress.Redirect(w, r, appData, provided)
 			}
 		}
 

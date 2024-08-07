@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -20,13 +21,13 @@ type howWouldCertificateProviderPreferToCarryOutTheirRoleData struct {
 }
 
 func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howWouldCertificateProviderPreferToCarryOutTheirRoleData{
 			App:                 appData,
-			CertificateProvider: donor.CertificateProvider,
+			CertificateProvider: provided.CertificateProvider,
 			Form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: donor.CertificateProvider.CarryOutBy,
-				Email:      donor.CertificateProvider.Email,
+				CarryOutBy: provided.CertificateProvider.CarryOutBy,
+				Email:      provided.CertificateProvider.Email,
 			},
 			Options: lpadata.ChannelValues,
 		}
@@ -36,14 +37,14 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
-				donor.CertificateProvider.Email = data.Form.Email
+				provided.CertificateProvider.CarryOutBy = data.Form.CarryOutBy
+				provided.CertificateProvider.Email = data.Form.Email
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.CertificateProviderAddress.Redirect(w, r, appData, donor)
+				return donor.PathCertificateProviderAddress.Redirect(w, r, appData, provided)
 			}
 		}
 

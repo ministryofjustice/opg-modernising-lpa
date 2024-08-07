@@ -57,7 +57,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
-				DonorStartPageURL: appPublicURL + page.Paths.Start.Format(),
+				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
 			if err := notifyClient.SendActorEmail(ctx, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
@@ -68,7 +68,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			return page.Paths.Attorney.YouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
+			return page.PathAttorneyYouHaveDecidedNotToBeAttorney.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
 		}
 
 		return tmpl(w, data)

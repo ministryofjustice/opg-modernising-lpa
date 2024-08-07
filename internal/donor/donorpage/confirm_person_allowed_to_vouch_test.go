@@ -106,11 +106,11 @@ func TestPostConfirmPersonAllowedToVouch(t *testing.T) {
 		"yes": {
 			yesNo:    form.Yes,
 			voucher:  donordata.Voucher{FirstNames: "John", Allowed: true},
-			redirect: page.Paths.CheckYourDetails,
+			redirect: donor.PathCheckYourDetails,
 		},
 		"no": {
 			yesNo:    form.No,
-			redirect: page.Paths.EnterVoucher,
+			redirect: donor.PathEnterVoucher,
 		},
 	}
 

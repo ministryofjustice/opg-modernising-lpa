@@ -73,7 +73,7 @@ func TestPostWithdrawLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.LpaWithdrawn.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathLpaWithdrawn.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
 }
 
 func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {

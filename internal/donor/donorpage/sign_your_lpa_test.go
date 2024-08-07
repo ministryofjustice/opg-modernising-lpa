@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -51,7 +52,7 @@ func TestGetSignYourLpaWhenSigned(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingYourSignature.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWitnessingYourSignature.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetSignYourLpaFromStore(t *testing.T) {
@@ -109,7 +110,7 @@ func TestPostSignYourLpa(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingYourSignature.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWitnessingYourSignature.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostSignYourLpaWhenStoreErrors(t *testing.T) {

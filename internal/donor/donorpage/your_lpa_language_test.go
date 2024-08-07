@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -74,7 +75,7 @@ func TestPostYourLpaLanguageWhenContinue(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathLpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -120,7 +121,7 @@ func TestPostYourLpaLanguageWhenSwitch(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.LpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathLpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

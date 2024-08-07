@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -88,7 +88,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {

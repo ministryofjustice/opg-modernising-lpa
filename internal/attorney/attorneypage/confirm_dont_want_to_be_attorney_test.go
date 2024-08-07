@@ -126,7 +126,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 			DonorFullName:     "a b c",
 			LpaType:           "Personal welfare",
 			LpaUID:            "lpa-uid",
-			DonorStartPageURL: "example.com" + page.Paths.Start.Format(),
+			DonorStartPageURL: "example.com" + page.PathStart.Format(),
 		}).
 		Return(nil)
 
@@ -137,7 +137,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, page.Paths.Attorney.YouHaveDecidedNotToBeAttorney.Format()+"?donorFirstNames=a+b&donorFullName=a+b+c", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathAttorneyYouHaveDecidedNotToBeAttorney.Format()+"?donorFirstNames=a+b&donorFullName=a+b+c", resp.Header.Get("Location"))
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 }
 

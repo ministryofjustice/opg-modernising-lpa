@@ -149,7 +149,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
-			redirect: page.Paths.WitnessingAsCertificateProvider,
+			redirect: donor.PathWitnessingAsCertificateProvider,
 		},
 		"certificate provider valid non uk mobile": {
 			form: url.Values{
@@ -166,7 +166,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
-			redirect: page.Paths.WitnessingAsCertificateProvider,
+			redirect: donor.PathWitnessingAsCertificateProvider,
 		},
 		"independent witness valid": {
 			form: url.Values{
@@ -181,7 +181,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
-			redirect: page.Paths.WitnessingAsIndependentWitness,
+			redirect: donor.PathWitnessingAsIndependentWitness,
 		},
 		"independent witness valid non uk mobile": {
 			form: url.Values{
@@ -198,7 +198,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
-			redirect: page.Paths.WitnessingAsIndependentWitness,
+			redirect: donor.PathWitnessingAsIndependentWitness,
 		},
 	}
 

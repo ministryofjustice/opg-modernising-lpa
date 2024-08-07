@@ -159,7 +159,7 @@ func Donor(
 		}
 
 		if data.Redirect == "" {
-			data.Redirect = page.Paths.Dashboard.Format()
+			data.Redirect = page.PathDashboard.Format()
 		} else {
 			data.Redirect = "/lpa/" + donorDetails.LpaID + data.Redirect
 		}

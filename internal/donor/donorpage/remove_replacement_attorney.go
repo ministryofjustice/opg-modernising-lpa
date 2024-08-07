@@ -7,17 +7,18 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		attorney, found := donor.ReplacementAttorneys.Get(actoruid.FromRequest(r))
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		attorney, found := provided.ReplacementAttorneys.Get(actoruid.FromRequest(r))
 
 		if found == false {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
+			return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
 		}
 
 		data := &removeAttorneyData{
@@ -33,19 +34,19 @@ func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Ha
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					donor.ReplacementAttorneys.Delete(attorney)
-					if donor.ReplacementAttorneys.Len() == 1 {
-						donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
+					provided.ReplacementAttorneys.Delete(attorney)
+					if provided.ReplacementAttorneys.Len() == 1 {
+						provided.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
 					}
 
-					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+					provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return fmt.Errorf("error removing replacement Attorney from LPA: %w", err)
 					}
 				}
 
-				return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
+				return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
 			}
 		}
 

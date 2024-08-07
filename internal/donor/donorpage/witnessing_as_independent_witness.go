@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,10 +20,10 @@ type witnessingAsIndependentWitnessData struct {
 }
 
 func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &witnessingAsIndependentWitnessData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form:  &witnessingAsIndependentWitnessForm{},
 		}
 
@@ -30,32 +31,32 @@ func WitnessingAsIndependentWitness(tmpl template.Template, donorStore DonorStor
 			data.Form = readWitnessingAsIndependentWitnessForm(r)
 			data.Errors = data.Form.Validate()
 
-			if donor.WitnessCodeLimiter == nil {
-				donor.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
+			if provided.WitnessCodeLimiter == nil {
+				provided.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
 			}
 
-			if !donor.WitnessCodeLimiter.Allow(now()) {
+			if !provided.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := donor.IndependentWitnessCodes.Find(data.Form.Code)
+				code, found := provided.IndependentWitnessCodes.Find(data.Form.Code, now())
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
-				} else if code.HasExpired() {
+				} else if code.HasExpired(now()) {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 				}
 			}
 
 			if data.Errors.None() {
-				donor.WitnessCodeLimiter = nil
-				donor.WitnessedByIndependentWitnessAt = now()
+				provided.WitnessCodeLimiter = nil
+				provided.WitnessedByIndependentWitnessAt = now()
 			}
 
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
 			if data.Errors.None() {
-				return page.Paths.WitnessingAsCertificateProvider.Redirect(w, r, appData, donor)
+				return donor.PathWitnessingAsCertificateProvider.Redirect(w, r, appData, provided)
 			}
 		}
 

@@ -5,8 +5,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -17,17 +17,17 @@ type chooseNewCertificateProviderData struct {
 }
 
 func ChooseNewCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		data := &chooseNewCertificateProviderData{Donor: donor, App: appData}
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		data := &chooseNewCertificateProviderData{Donor: provided, App: appData}
 
 		if r.Method == http.MethodPost {
-			donor.CertificateProvider = donordata.CertificateProvider{}
+			provided.CertificateProvider = donordata.CertificateProvider{}
 
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
-			return page.Paths.ChooseYourCertificateProvider.Redirect(w, r, appData, donor)
+			return donor.PathChooseYourCertificateProvider.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)

@@ -4,17 +4,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var now = time.Now()
 
 func TestGetWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -54,7 +51,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{CanSign: form.Yes},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -63,22 +60,22 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(r.Context(), donor, mock.Anything).
+		SendToCertificateProvider(r.Context(), provided, mock.Anything).
 		Return(nil)
 
-	err := WitnessingYourSignature(nil, witnessCodeSender, nil)(testAppData, w, r, donor)
+	err := WitnessingYourSignature(nil, witnessCodeSender, nil)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWitnessingAsCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	donor := &donordata.Provided{
+	provided := &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{CanSign: form.No},
 		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -87,7 +84,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(r.Context(), donor, mock.Anything).
+		SendToCertificateProvider(r.Context(), provided, mock.Anything).
 		Return(nil)
 	witnessCodeSender.EXPECT().
 		SendToIndependentWitness(r.Context(), &donordata.Provided{
@@ -108,12 +105,12 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 			CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
 		}, nil)
 
-	err := WitnessingYourSignature(nil, witnessCodeSender, donorStore)(testAppData, w, r, donor)
+	err := WitnessingYourSignature(nil, witnessCodeSender, donorStore)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.WitnessingAsIndependentWitness.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWitnessingAsIndependentWitness.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {

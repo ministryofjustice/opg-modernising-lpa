@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -27,15 +26,15 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 		nextPage         donor.Path
 	}{
 		"empty": {
-			nextPage: page.Paths.TaskList,
+			nextPage: donor.PathTaskList,
 		},
 		"upload": {
 			evidenceDelivery: pay.Upload,
-			nextPage:         page.Paths.EvidenceSuccessfullyUploaded,
+			nextPage:         donor.PathEvidenceSuccessfullyUploaded,
 		},
 		"post": {
 			evidenceDelivery: pay.Post,
-			nextPage:         page.Paths.WhatHappensNextPostEvidence,
+			nextPage:         donor.PathWhatHappensNextPostEvidence,
 		},
 	}
 
@@ -140,7 +139,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 			App:              testAppData,
 			PaymentReference: "123456789012",
 			FeeType:          pay.HalfFee,
-			NextPage:         page.Paths.TaskList,
+			NextPage:         donor.PathTaskList,
 		}).
 		Return(nil)
 
@@ -219,7 +218,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.TaskList,
+					NextPage:         donor.PathTaskList,
 				}).
 				Return(nil)
 
@@ -319,7 +318,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.TaskList,
+					NextPage:         donor.PathTaskList,
 				}).
 				Return(nil)
 
@@ -348,6 +347,11 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					UID:       "lpa-uid",
 					PaymentID: "abc123",
 					Amount:    8200,
+				}).
+				Return(nil)
+			eventClient.EXPECT().
+				SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+					UID: "lpa-uid",
 				}).
 				Return(nil)
 
@@ -395,7 +399,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 					App:              testAppData,
 					PaymentReference: "123456789012",
 					FeeType:          pay.FullFee,
-					NextPage:         page.Paths.WeHaveContactedVoucher,
+					NextPage:         donor.PathWeHaveContactedVoucher,
 				}).
 				Return(nil)
 
@@ -692,6 +696,9 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 	eventClient.EXPECT().
 		SendPaymentReceived(r.Context(), mock.Anything).
 		Return(nil)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
+		Return(nil)
 
 	localizer := newMockLocalizer(t).
 		withEmailLocalizations()
@@ -702,6 +709,54 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 		withEmailPersonalizations(r.Context(), "£82")
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+		LpaUID:  "lpa-uid",
+		Type:    lpadata.LpaTypePersonalWelfare,
+		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
+		FeeType: pay.FullFee,
+		CertificateProvider: donordata.CertificateProvider{
+			Email: "certificateprovider@example.com",
+		},
+		Tasks: donordata.Tasks{
+			PayForLpa:                  task.PaymentStateApproved,
+			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+		},
+	})
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+	payClient := newMockPayClient(t).
+		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+
+	sessionStore := newMockSessionStore(t).
+		withPaySession(r)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderPrompt(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentReceived(r.Context(), mock.Anything).
+		Return(nil)
+	eventClient.EXPECT().
+		SendCertificateProviderStarted(r.Context(), mock.Anything).
+		Return(expectedError)
+
+	localizer := newMockLocalizer(t).
+		withEmailLocalizations()
+
+	testAppData.Localizer = localizer
+
+	notifyClient := newMockNotifyClient(t).
+		withEmailPersonalizations(r.Context(), "£82")
+
+	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
 		LpaUID:  "lpa-uid",
 		Type:    lpadata.LpaTypePersonalWelfare,
 		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},

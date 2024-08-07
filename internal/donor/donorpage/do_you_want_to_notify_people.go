@@ -5,10 +5,10 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -22,18 +22,18 @@ type doYouWantToNotifyPeopleData struct {
 }
 
 func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if len(donor.PeopleToNotify) > 0 {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if len(provided.PeopleToNotify) > 0 {
+			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 		}
 
 		data := &doYouWantToNotifyPeopleData{
 			App:   appData,
-			Donor: donor,
-			Form:  form.NewYesNoForm(donor.DoYouWantToNotifyPeople),
+			Donor: provided,
+			Form:  form.NewYesNoForm(provided.DoYouWantToNotifyPeople),
 		}
 
-		switch donor.AttorneyDecisions.How {
+		switch provided.AttorneyDecisions.How {
 		case lpadata.Jointly:
 			data.HowWorkTogether = "jointlyDescription"
 		case lpadata.JointlyAndSeverally:
@@ -47,21 +47,21 @@ func DoYouWantToNotifyPeople(tmpl template.Template, donorStore DonorStore) Hand
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.DoYouWantToNotifyPeople = data.Form.YesNo
-				donor.Tasks.PeopleToNotify = task.StateInProgress
+				provided.DoYouWantToNotifyPeople = data.Form.YesNo
+				provided.Tasks.PeopleToNotify = task.StateInProgress
 
-				redirectPath := page.Paths.ChoosePeopleToNotify
+				redirectPath := donor.PathChoosePeopleToNotify
 
-				if donor.DoYouWantToNotifyPeople == form.No {
-					redirectPath = page.Paths.TaskList
-					donor.Tasks.PeopleToNotify = task.StateCompleted
+				if provided.DoYouWantToNotifyPeople == form.No {
+					redirectPath = donor.PathTaskList
+					provided.Tasks.PeopleToNotify = task.StateCompleted
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return redirectPath.Redirect(w, r, appData, donor)
+				return redirectPath.Redirect(w, r, appData, provided)
 			}
 		}
 

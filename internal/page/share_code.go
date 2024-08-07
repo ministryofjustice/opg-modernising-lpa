@@ -62,12 +62,12 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 		CertificateProviderFullName:  invite.CertificateProviderFullName,
 		DonorFullName:                invite.DonorFullName,
 		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
-		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderStart),
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
 		WhatLpaCovers:                appData.Localizer.T(invite.Type.WhatLPACoversTransKey()),
 		ShareCode:                    shareCode,
-		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProvider.EnterReferenceNumberOptOut),
+		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderEnterReferenceNumberOptOut),
 	})
 }
 
@@ -85,7 +85,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, Paths.CertificateProviderStart),
+		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderStart),
 		ShareCode:                   shareCode,
 	})
 }
@@ -130,9 +130,9 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appc
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + Paths.Attorney.Start.Format(),
+			AttorneyStartPageURL:      s.appPublicURL + PathAttorneyStart.Format(),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -153,9 +153,9 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData a
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + Paths.Attorney.Start.Format(),
+			AttorneyStartPageURL:      s.appPublicURL + PathAttorneyStart.Format(),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -180,9 +180,9 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appc
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, PathAttorneyStart),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -207,9 +207,9 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, Paths.Attorney.Start),
+			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, PathAttorneyStart),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + Paths.Attorney.EnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 

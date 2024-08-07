@@ -6,7 +6,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,12 +26,13 @@ func WitnessingAsCertificateProvider(
 	donorStore DonorStore,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
+	eventClient EventClient,
 	now func() time.Time,
 ) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &witnessingAsCertificateProviderData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form:  &witnessingAsCertificateProviderForm{},
 		}
 
@@ -37,49 +40,55 @@ func WitnessingAsCertificateProvider(
 			data.Form = readWitnessingAsCertificateProviderForm(r)
 			data.Errors = data.Form.Validate()
 
-			if donor.WitnessCodeLimiter == nil {
-				donor.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
+			if provided.WitnessCodeLimiter == nil {
+				provided.WitnessCodeLimiter = donordata.NewLimiter(time.Minute, 5, 10)
 			}
 
-			if !donor.WitnessCodeLimiter.Allow(now()) {
+			if !provided.WitnessCodeLimiter.Allow(now()) {
 				data.Errors.Add("witness-code", validation.CustomError{Label: "tooManyWitnessCodeAttempts"})
 			} else {
-				code, found := donor.CertificateProviderCodes.Find(data.Form.Code)
+				code, found := provided.CertificateProviderCodes.Find(data.Form.Code, now())
 				if !found {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeDoesNotMatch"})
-				} else if code.HasExpired() {
+				} else if code.HasExpired(now()) {
 					data.Errors.Add("witness-code", validation.CustomError{Label: "witnessCodeExpired"})
 				}
 			}
 
 			if data.Errors.None() {
-				donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
-				if donor.RegisteringWithCourtOfProtection {
-					donor.Tasks.ConfirmYourIdentityAndSign = task.IdentityStatePending
+				provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
+				if provided.RegisteringWithCourtOfProtection {
+					provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStatePending
 				}
 
-				donor.WitnessCodeLimiter = nil
-				if donor.WitnessedByCertificateProviderAt.IsZero() {
-					donor.WitnessedByCertificateProviderAt = now()
+				provided.WitnessCodeLimiter = nil
+				if provided.WitnessedByCertificateProviderAt.IsZero() {
+					provided.WitnessedByCertificateProviderAt = now()
 				}
 			}
 
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
 			if data.Errors.None() {
-				if donor.Tasks.PayForLpa.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
+				if provided.Tasks.PayForLpa.IsCompleted() {
+					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
 						return err
 					}
 
-					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+						UID: provided.LpaUID,
+					}); err != nil {
+						return err
+					}
+
+					if err := lpaStoreClient.SendLpa(r.Context(), provided); err != nil {
 						return err
 					}
 				}
 
-				return page.Paths.YouHaveSubmittedYourLpa.Redirect(w, r, appData, donor)
+				return donor.PathYouHaveSubmittedYourLpa.Redirect(w, r, appData, provided)
 			}
 		}
 

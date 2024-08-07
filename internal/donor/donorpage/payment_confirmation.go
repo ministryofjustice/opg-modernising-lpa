@@ -13,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -30,7 +29,7 @@ type paymentConfirmationData struct {
 }
 
 func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
 			return err
@@ -50,11 +49,11 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			PaymentId:        payment.PaymentID,
 			Amount:           payment.AmountPence.Pence(),
 		}
-		if !slices.Contains(donor.PaymentDetails, paymentDetail) {
-			donor.PaymentDetails = append(donor.PaymentDetails, paymentDetail)
+		if !slices.Contains(provided.PaymentDetails, paymentDetail) {
+			provided.PaymentDetails = append(provided.PaymentDetails, paymentDetail)
 
 			if err := eventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
-				UID:       donor.LpaUID,
+				UID:       provided.LpaUID,
 				PaymentID: payment.PaymentID,
 				Amount:    payment.AmountPence.Pence(),
 			}); err != nil {
@@ -63,10 +62,10 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		}
 
 		if err := notifyClient.SendEmail(r.Context(), payment.Email, notify.PaymentConfirmationEmail{
-			DonorFullNamesPossessive: appData.Localizer.Possessive(donor.Donor.FullName()),
-			LpaType:                  appData.Localizer.T(donor.Type.String()),
+			DonorFullNamesPossessive: appData.Localizer.Possessive(provided.Donor.FullName()),
+			LpaType:                  appData.Localizer.T(provided.Type.String()),
 			PaymentCardFullName:      payment.CardDetails.CardholderName,
-			LpaReferenceNumber:       donor.LpaUID,
+			LpaReferenceNumber:       provided.LpaUID,
 			PaymentReferenceID:       payment.PaymentID,
 			PaymentConfirmationDate:  appData.Localizer.FormatDate(payment.SettlementSummary.CaptureSubmitTime),
 			AmountPaidWithCurrency:   payment.AmountPence.String(),
@@ -74,43 +73,49 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			return err
 		}
 
-		nextPage := page.Paths.TaskList
-		if donor.EvidenceDelivery.IsUpload() {
-			nextPage = page.Paths.EvidenceSuccessfullyUploaded
-		} else if donor.EvidenceDelivery.IsPost() {
-			nextPage = page.Paths.WhatHappensNextPostEvidence
+		nextPage := donor.PathTaskList
+		if provided.EvidenceDelivery.IsUpload() {
+			nextPage = donor.PathEvidenceSuccessfullyUploaded
+		} else if provided.EvidenceDelivery.IsPost() {
+			nextPage = donor.PathWhatHappensNextPostEvidence
 		}
 
-		switch donor.Tasks.PayForLpa {
+		switch provided.Tasks.PayForLpa {
 		case task.PaymentStateInProgress:
-			if donor.FeeType.IsFullFee() && donor.FeeAmount() == 0 {
-				donor.Tasks.PayForLpa = task.PaymentStateCompleted
+			if provided.FeeType.IsFullFee() && provided.FeeAmount() == 0 {
+				provided.Tasks.PayForLpa = task.PaymentStateCompleted
 			} else {
-				donor.Tasks.PayForLpa = task.PaymentStatePending
+				provided.Tasks.PayForLpa = task.PaymentStatePending
 			}
 		case task.PaymentStateApproved, task.PaymentStateDenied:
-			if donor.FeeAmount() == 0 {
-				donor.Tasks.PayForLpa = task.PaymentStateCompleted
-				nextPage = page.Paths.TaskList
+			if provided.FeeAmount() == 0 {
+				provided.Tasks.PayForLpa = task.PaymentStateCompleted
+				nextPage = donor.PathTaskList
 
-				if donor.Voucher.Allowed {
+				if provided.Voucher.Allowed {
 					// TODO: MLPAB-1897 send code to donor and MLPAB-1899 contact voucher
-					nextPage = page.Paths.WeHaveContactedVoucher
+					nextPage = donor.PathWeHaveContactedVoucher
 				}
 
-				if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
-					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, donor); err != nil {
+				if provided.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
+					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
 
-					if err := lpaStoreClient.SendLpa(r.Context(), donor); err != nil {
+					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+						UID: provided.LpaUID,
+					}); err != nil {
+						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
+					}
+
+					if err := lpaStoreClient.SendLpa(r.Context(), provided); err != nil {
 						return fmt.Errorf("failed to send to lpastore: %w", err)
 					}
 				}
 			}
 		}
 
-		if err := donorStore.Put(r.Context(), donor); err != nil {
+		if err := donorStore.Put(r.Context(), provided); err != nil {
 			return fmt.Errorf("unable to update lpa in donorStore: %w", err)
 		}
 
@@ -121,9 +126,9 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		data := &paymentConfirmationData{
 			App:              appData,
 			PaymentReference: payment.Reference,
-			FeeType:          donor.FeeType,
-			PreviousFee:      donor.PreviousFee,
-			EvidenceDelivery: donor.EvidenceDelivery,
+			FeeType:          provided.FeeType,
+			PreviousFee:      provided.PreviousFee,
+			EvidenceDelivery: provided.EvidenceDelivery,
 			NextPage:         nextPage,
 		}
 

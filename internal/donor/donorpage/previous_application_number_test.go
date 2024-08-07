@@ -74,8 +74,8 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 
 func TestPostPreviousApplicationNumber(t *testing.T) {
 	testcases := map[string]donor.Path{
-		"7": page.Paths.PreviousFee,
-		"M": page.Paths.EvidenceSuccessfullyUploaded,
+		"7": donor.PathPreviousFee,
+		"M": donor.PathEvidenceSuccessfullyUploaded,
 	}
 
 	for start, redirect := range testcases {

@@ -119,11 +119,11 @@ func TestPostDashboard(t *testing.T) {
 		ExpectedRedirect donor.Path
 	}{
 		"no donor LPAs": {
-			ExpectedRedirect: Paths.YourName,
+			ExpectedRedirect: donor.PathYourName,
 		},
 		"with donor LPAs": {
 			Form:             url.Values{"has-existing-donor-lpas": {"true"}},
-			ExpectedRedirect: Paths.MakeANewLPA,
+			ExpectedRedirect: donor.PathMakeANewLPA,
 		},
 	}
 

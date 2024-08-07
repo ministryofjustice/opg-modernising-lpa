@@ -31,7 +31,7 @@ func EnterYourName(tmpl template.Template, memberStore MemberStore) page.Handler
 					return err
 				}
 
-				return page.Paths.Supporter.EnterOrganisationName.Redirect(w, r, appData)
+				return page.PathSupporterEnterOrganisationName.Redirect(w, r, appData)
 			}
 		}
 

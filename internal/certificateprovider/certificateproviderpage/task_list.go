@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -33,9 +33,9 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
-		identityTaskPage := page.Paths.CertificateProvider.ProveYourIdentity
+		identityTaskPage := certificateprovider.PathProveYourIdentity
 		if certificateProvider.Tasks.ConfirmYourIdentity.Completed() {
-			identityTaskPage = page.Paths.CertificateProvider.ReadTheLpa
+			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
 
 		tasks := certificateProvider.Tasks
@@ -46,7 +46,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  page.Paths.CertificateProvider.EnterDateOfBirth.Format(lpa.LpaID),
+					Path:  certificateprovider.PathEnterDateOfBirth.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
@@ -57,7 +57,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				},
 				{
 					Name:     "provideYourCertificate",
-					Path:     page.Paths.CertificateProvider.ReadTheLpa.Format(lpa.LpaID),
+					Path:     certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
 					State:    tasks.ProvideTheCertificate,
 					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
 				},

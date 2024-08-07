@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,13 +19,13 @@ type yourEmailData struct {
 }
 
 func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourEmailData{
 			App: appData,
 			Form: &yourEmailForm{
-				Email: donor.Donor.Email,
+				Email: provided.Donor.Email,
 			},
-			CanTaskList: !donor.Type.Empty(),
+			CanTaskList: !provided.Type.Empty(),
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,13 +33,13 @@ func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.Donor.Email = data.Form.Email
+				provided.Donor.Email = data.Form.Email
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.CanYouSignYourLpa.Redirect(w, r, appData, donor)
+				return donor.PathCanYouSignYourLpa.Redirect(w, r, appData, provided)
 			}
 		}
 

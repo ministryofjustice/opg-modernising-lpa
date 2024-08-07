@@ -5,16 +5,17 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isReplacement bool) Handler {
-	redirect := page.Paths.ChooseAttorneysSummary
+	redirect := donor.PathChooseAttorneysSummary
 	titleLabel := "removeTrustCorporation"
 	if isReplacement {
-		redirect = page.Paths.ChooseReplacementAttorneysSummary
+		redirect = donor.PathChooseReplacementAttorneysSummary
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
