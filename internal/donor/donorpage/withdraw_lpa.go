@@ -18,11 +18,15 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
+func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			provided.WithdrawnAt = now()
 			if err := donorStore.Put(r.Context(), provided); err != nil {
+				return err
+			}
+
+			if err := lpaStoreClient.SendDonorWithdrawLPA(r.Context(), provided.LpaUID); err != nil {
 				return err
 			}
 
