@@ -25,7 +25,7 @@ func TestGetWithdrawLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,7 +41,7 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -63,7 +63,12 @@ func TestPostWithdrawLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendDonorWithdrawLPA(r.Context(), "lpa-uid").
+		Return(nil)
+
+	err := WithdrawLpa(nil, donorStore, func() time.Time { return now }, lpaStoreClient)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -81,6 +86,25 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestPostWithdrawLpaWhenLpaStoreClientErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendDonorWithdrawLPA(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

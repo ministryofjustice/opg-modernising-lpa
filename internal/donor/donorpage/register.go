@@ -147,6 +147,7 @@ type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
 	SendLpa(ctx context.Context, details *donordata.Provided) error
+	SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error
 }
 
 type ShareCodeStore interface {
@@ -199,7 +200,7 @@ func Register(
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
-		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now))
+		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
