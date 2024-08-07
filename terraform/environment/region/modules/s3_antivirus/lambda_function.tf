@@ -22,7 +22,7 @@ resource "aws_lambda_function" "lambda_function" {
   runtime          = "provided.al2023"
   timeout          = 300
   memory_size      = 4096
-  publish          = filebase64sha256("${path.module}/myFunction.zip") != terraform_data.replacement.triggers_replace[0] ? true : false
+  publish          = filebase64sha256("${path.module}/myFunction.zip") != terraform_data.replacement.triggers_replace[0]
 
   layers = [
     aws_lambda_layer_version.lambda_layer.arn
