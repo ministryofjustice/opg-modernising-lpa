@@ -58,7 +58,7 @@ func TestGetChoosePeopleToNotifyFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChoosePeopleToNotifySummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetChoosePeopleToNotifyWhenTemplateErrors(t *testing.T) {
@@ -99,7 +99,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
+			expectedUrl: donor.PathChoosePeopleToNotifySummary,
 		},
 		"6 people": {
 			addedPeople: donordata.PeopleToNotify{
@@ -110,7 +110,7 @@ func TestGetChoosePeopleToNotifyPeopleLimitReached(t *testing.T) {
 				personToNotify,
 				personToNotify,
 			},
-			expectedUrl: page.Paths.ChoosePeopleToNotifySummary,
+			expectedUrl: donor.PathChoosePeopleToNotifySummary,
 		},
 	}
 
@@ -186,7 +186,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -227,7 +227,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChoosePeopleToNotifyAddress.Format("lpa-id")+"?id="+uid.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChoosePeopleToNotifyWhenInputRequired(t *testing.T) {

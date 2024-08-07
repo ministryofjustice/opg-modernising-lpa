@@ -52,12 +52,12 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				if provided.Correspondent.WantAddress.IsNo() {
 					provided.Correspondent.Address = place.Address{}
 					provided.Tasks.AddCorrespondent = task.StateCompleted
-					redirect = page.Paths.TaskList
+					redirect = donor.PathTaskList
 				} else {
 					if !provided.Tasks.AddCorrespondent.Completed() && provided.Correspondent.Address.Line1 == "" {
 						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
-					redirect = page.Paths.EnterCorrespondentAddress
+					redirect = donor.PathEnterCorrespondentAddress
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

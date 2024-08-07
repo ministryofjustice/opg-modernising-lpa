@@ -114,7 +114,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeSupporterHandle(t *testing.T) {
@@ -463,7 +463,7 @@ func TestMakeSupporterHandleWhenSessionStoreError(t *testing.T) {
 	resp := w.Result()
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeSupporterHandleWhenOrganisationStoreErrors(t *testing.T) {

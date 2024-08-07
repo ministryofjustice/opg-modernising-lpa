@@ -8,7 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -39,12 +38,12 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 				if provided.AddCorrespondent.IsNo() {
 					provided.Correspondent = donordata.Correspondent{}
 					provided.Tasks.AddCorrespondent = task.StateCompleted
-					redirectUrl = page.Paths.TaskList
+					redirectUrl = donor.PathTaskList
 				} else {
 					if provided.Correspondent.FirstNames == "" {
 						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
-					redirectUrl = page.Paths.EnterCorrespondentDetails
+					redirectUrl = donor.PathEnterCorrespondentDetails
 				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

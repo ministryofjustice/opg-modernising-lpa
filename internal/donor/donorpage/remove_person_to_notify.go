@@ -7,9 +7,9 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -22,11 +22,11 @@ type removePersonToNotifyData struct {
 }
 
 func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		person, found := donor.PeopleToNotify.Get(actoruid.FromRequest(r))
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		person, found := provided.PeopleToNotify.Get(actoruid.FromRequest(r))
 
 		if found == false {
-			return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
+			return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 		}
 
 		data := &removePersonToNotifyData{
@@ -41,17 +41,17 @@ func RemovePersonToNotify(tmpl template.Template, donorStore DonorStore) Handler
 
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
-					donor.PeopleToNotify.Delete(person)
-					if len(donor.PeopleToNotify) == 0 {
-						donor.Tasks.PeopleToNotify = task.StateNotStarted
+					provided.PeopleToNotify.Delete(person)
+					if len(provided.PeopleToNotify) == 0 {
+						provided.Tasks.PeopleToNotify = task.StateNotStarted
 					}
 
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return fmt.Errorf("error removing PersonToNotify from LPA: %w", err)
 					}
 				}
 
-				return page.Paths.ChoosePeopleToNotifySummary.Redirect(w, r, appData, donor)
+				return donor.PathChoosePeopleToNotifySummary.Redirect(w, r, appData, provided)
 			}
 		}
 

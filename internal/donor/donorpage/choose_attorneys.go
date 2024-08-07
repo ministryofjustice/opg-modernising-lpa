@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -27,19 +28,19 @@ type chooseAttorneysData struct {
 }
 
 func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		uid := actoruid.FromRequest(r)
 
 		if uid.IsZero() {
-			return page.Paths.TaskList.Redirect(w, r, appData, donor)
+			return donor.PathTaskList.Redirect(w, r, appData, provided)
 		}
 
 		addAnother := r.FormValue("addAnother") == "1"
-		attorney, attorneyFound := donor.Attorneys.Get(uid)
+		attorney, attorneyFound := provided.Attorneys.Get(uid)
 
 		data := &chooseAttorneysData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form: &chooseAttorneysForm{
 				FirstNames: attorney.FirstNames,
 				LastName:   attorney.LastName,
@@ -47,7 +48,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 				Dob:        attorney.DateOfBirth,
 			},
 			ShowDetails:              attorneyFound == false && addAnother == false,
-			ShowTrustCorporationLink: donor.Type.IsPropertyAndAffairs() && donor.ReplacementAttorneys.TrustCorporation.Name == "",
+			ShowTrustCorporationLink: provided.Type.IsPropertyAndAffairs() && provided.ReplacementAttorneys.TrustCorporation.Name == "",
 		}
 
 		if r.Method == http.MethodPost {
@@ -57,7 +58,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 
 			nameWarning := actor.NewSameNameWarning(
 				actor.TypeAttorney,
-				attorneyMatches(donor, attorney.UID, data.Form.FirstNames, data.Form.LastName),
+				attorneyMatches(provided, attorney.UID, data.Form.FirstNames, data.Form.LastName),
 				data.Form.FirstNames,
 				data.Form.LastName,
 			)
@@ -80,16 +81,16 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 				attorney.Email = data.Form.Email
 				attorney.DateOfBirth = data.Form.Dob
 
-				donor.Attorneys.Put(attorney)
+				provided.Attorneys.Put(attorney)
 
-				donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.ChooseAttorneysAddress.RedirectQuery(w, r, appData, donor, url.Values{"id": {attorney.UID.String()}})
+				return donor.PathChooseAttorneysAddress.RedirectQuery(w, r, appData, provided, url.Values{"id": {attorney.UID.String()}})
 			}
 		}
 

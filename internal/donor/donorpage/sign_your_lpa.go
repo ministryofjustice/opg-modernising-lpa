@@ -6,8 +6,8 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -26,17 +26,17 @@ const (
 )
 
 func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if !donor.SignedAt.IsZero() {
-			return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, donor)
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if !provided.SignedAt.IsZero() {
+			return donor.PathWitnessingYourSignature.Redirect(w, r, appData, provided)
 		}
 
 		data := &signYourLpaData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 			Form: &signYourLpaForm{
-				WantToApply: donor.WantToApplyForLpa,
-				WantToSign:  donor.WantToSignLpa,
+				WantToApply: provided.WantToApplyForLpa,
+				WantToSign:  provided.WantToSignLpa,
 			},
 			WantToSignFormValue:  WantToSignLpa,
 			WantToApplyFormValue: WantToApplyForLpa,
@@ -47,15 +47,15 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				donor.WantToApplyForLpa = data.Form.WantToApply
-				donor.WantToSignLpa = data.Form.WantToSign
-				donor.SignedAt = now()
+				provided.WantToApplyForLpa = data.Form.WantToApply
+				provided.WantToSignLpa = data.Form.WantToSign
+				provided.SignedAt = now()
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.WitnessingYourSignature.Redirect(w, r, appData, donor)
+				return donor.PathWitnessingYourSignature.Redirect(w, r, appData, provided)
 			}
 		}
 

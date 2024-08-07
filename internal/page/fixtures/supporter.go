@@ -23,6 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -315,8 +316,8 @@ func Supporter(
 		}
 
 		if redirect == "" {
-			redirect = page.Paths.Supporter.Dashboard.Format()
-		} else if redirect != page.Paths.Supporter.EnterOrganisationName.Format() && redirect != page.Paths.Supporter.EnterYourName.Format() && redirect != page.Paths.EnterAccessCode.Format() {
+			redirect = supporter.PathDashboard.Format()
+		} else if redirect != page.PathSupporterEnterOrganisationName.Format() && redirect != page.PathSupporterEnterYourName.Format() && redirect != page.PathEnterAccessCode.Format() {
 			redirect = "/supporter" + redirect
 		}
 

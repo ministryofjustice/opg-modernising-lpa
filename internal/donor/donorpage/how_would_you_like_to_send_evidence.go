@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -19,7 +19,7 @@ type howWouldYouLikeToSendEvidenceData struct {
 }
 
 func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howWouldYouLikeToSendEvidenceData{
 			App:     appData,
 			Options: pay.EvidenceDeliveryValues,
@@ -30,16 +30,16 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore
 			data.Errors = form.Validate()
 
 			if data.Errors.None() {
-				donor.EvidenceDelivery = form.EvidenceDelivery
+				provided.EvidenceDelivery = form.EvidenceDelivery
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if donor.EvidenceDelivery.IsUpload() {
-					return page.Paths.UploadEvidence.Redirect(w, r, appData, donor)
+				if provided.EvidenceDelivery.IsUpload() {
+					return donor.PathUploadEvidence.Redirect(w, r, appData, provided)
 				} else {
-					return page.Paths.SendUsYourEvidenceByPost.Redirect(w, r, appData, donor)
+					return donor.PathSendUsYourEvidenceByPost.Redirect(w, r, appData, provided)
 				}
 			}
 		}

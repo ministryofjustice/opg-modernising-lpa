@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -60,7 +60,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
@@ -230,7 +230,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.UnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathUnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *testing.T) {
@@ -272,7 +272,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.RegisterWithCourtOfProtection.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathRegisterWithCourtOfProtection.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
@@ -321,5 +321,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.OneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }

@@ -122,26 +122,25 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
-	paths := page.Paths.Supporter
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(paths.Start, None,
+	handleRoot(page.PathSupporterStart, None,
 		page.Guidance(tmpls.Get("start.gohtml")))
-	handleRoot(paths.SigningInAdvice, None,
+	handleRoot(page.PathSupporterSigningInAdvice, None,
 		page.Guidance(tmpls.Get("signing_in_advice.gohtml")))
-	handleRoot(paths.Login, None,
-		page.Login(oneLoginClient, sessionStore, random.String, paths.LoginCallback))
-	handleRoot(paths.LoginCallback, None,
+	handleRoot(page.PathSupporterLogin, None,
+		page.Login(oneLoginClient, sessionStore, random.String, page.PathSupporterLoginCallback))
+	handleRoot(page.PathSupporterLoginCallback, None,
 		LoginCallback(logger, oneLoginClient, sessionStore, organisationStore, time.Now, memberStore))
-	handleRoot(paths.EnterYourName, RequireSession,
+	handleRoot(page.PathSupporterEnterYourName, RequireSession,
 		EnterYourName(tmpls.Get("enter_your_name.gohtml"), memberStore))
-	handleRoot(paths.EnterOrganisationName, RequireSession,
+	handleRoot(page.PathSupporterEnterOrganisationName, RequireSession,
 		EnterOrganisationName(logger, tmpls.Get("enter_organisation_name.gohtml"), organisationStore, memberStore, sessionStore))
-	handleRoot(paths.EnterReferenceNumber, RequireSession,
+	handleRoot(page.PathSupporterEnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(logger, tmpls.Get("enter_reference_number.gohtml"), memberStore, sessionStore))
-	handleRoot(paths.InviteExpired, RequireSession,
+	handleRoot(page.PathSupporterInviteExpired, RequireSession,
 		page.Guidance(tmpls.Get("invite_expired.gohtml")))
-	handleRoot(paths.OrganisationDeleted, None,
+	handleRoot(page.PathSupporterOrganisationDeleted, None,
 		page.Guidance(tmpls.Get("organisation_deleted.gohtml")))
 
 	handleWithSupporter := makeSupporterHandle(rootMux, sessionStore, errorHandler, organisationStore, memberStore, tmpls.Get("suspended.gohtml"))
@@ -196,7 +195,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
+					http.Redirect(w, r, page.PathSupporterStart.Format(), http.StatusFound)
 					return
 				}
 
@@ -228,7 +227,7 @@ func makeSupporterHandle(mux *http.ServeMux, store SessionStore, errorHandler pa
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			loginSession, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.Supporter.Start.Format(), http.StatusFound)
+				http.Redirect(w, r, page.PathSupporterStart.Format(), http.StatusFound)
 				return
 			}
 

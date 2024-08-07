@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -123,7 +124,7 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathEvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
@@ -143,7 +144,7 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.EvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathEvidenceRequired.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {

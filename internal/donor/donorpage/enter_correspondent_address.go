@@ -6,25 +6,25 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := newChooseAddressData(
 			appData,
 			"correspondent",
-			donor.Correspondent.FullName(),
+			provided.Correspondent.FullName(),
 			actoruid.UID{},
 		)
 
-		if donor.Correspondent.Address.Line1 != "" {
+		if provided.Correspondent.Address.Line1 != "" {
 			data.Form.Action = "manual"
-			data.Form.Address = &donor.Correspondent.Address
+			data.Form.Address = &provided.Correspondent.Address
 		}
 
 		if r.Method == http.MethodPost {
@@ -32,14 +32,14 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				donor.Tasks.AddCorrespondent = task.StateCompleted
-				donor.Correspondent.Address = *data.Form.Address
+				provided.Tasks.AddCorrespondent = task.StateCompleted
+				provided.Correspondent.Address = *data.Form.Address
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.TaskList.Redirect(w, r, appData, donor)
+				return donor.PathTaskList.Redirect(w, r, appData, provided)
 			}
 
 			switch data.Form.Action {
@@ -63,13 +63,13 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 				}
 
 			case "reuse":
-				data.Addresses = donor.ActorAddresses()
+				data.Addresses = provided.ActorAddresses()
 
 			case "reuse-select":
 				if data.Errors.None() {
 					return setAddress(*data.Form.Address)
 				} else {
-					data.Addresses = donor.ActorAddresses()
+					data.Addresses = provided.ActorAddresses()
 				}
 			}
 		}

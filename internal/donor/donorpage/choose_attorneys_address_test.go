@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -181,7 +182,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressManualWhenStoreErrors(t *testing.T) {
@@ -254,7 +255,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressManualWhenValidationError(t *testing.T) {
@@ -693,7 +694,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysAddressReuseSelectWhenValidationError(t *testing.T) {
@@ -746,11 +747,11 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 		},
 		"without from value": {
 			"/?from=&id=" + uid.String(),
-			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
+			donor.PathChooseAttorneysSummary.Format("lpa-id"),
 		},
 		"missing from key": {
 			"/?id=" + uid.String(),
-			page.Paths.ChooseAttorneysSummary.Format("lpa-id"),
+			donor.PathChooseAttorneysSummary.Format("lpa-id"),
 		},
 	}
 

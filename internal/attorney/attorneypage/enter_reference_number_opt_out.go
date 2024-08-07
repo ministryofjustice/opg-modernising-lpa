@@ -42,7 +42,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					return err
 				}
 
-				return page.Paths.Attorney.ConfirmDontWantToBeAttorneyLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
 			}
 		}
 

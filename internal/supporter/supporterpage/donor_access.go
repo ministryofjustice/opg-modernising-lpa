@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -49,7 +50,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					return err
 				}
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
+				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"inviteRecalledFor": {shareCodeData.InviteSentTo},
 				})
 
@@ -63,7 +64,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 				logger.InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", appData.LpaID))
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
+				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"accessRemovedFor": {shareCodeData.InviteSentTo},
 				})
 
@@ -106,13 +107,13 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					OrganisationName:  organisation.Name,
 					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 					DonorName:         donor.Donor.FullName(),
-					URL:               appPublicURL + page.Paths.Start.Format(),
+					URL:               appPublicURL + page.PathStart.Format(),
 					ShareCode:         shareCode,
 				}); err != nil {
 					return err
 				}
 
-				return page.Paths.Supporter.ViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
+				return supporter.PathViewLPA.RedirectQuery(w, r, appData, appData.LpaID, url.Values{
 					"inviteSentTo": {data.Form.Email},
 				})
 			}

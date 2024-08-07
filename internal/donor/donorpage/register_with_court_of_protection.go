@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -19,7 +20,7 @@ type registerWithCourtOfProtectionData struct {
 }
 
 func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &registerWithCourtOfProtectionData{
 			App:  appData,
 			Form: form.NewYesNoForm(form.YesNoUnknown),
@@ -31,16 +32,16 @@ func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					return page.Paths.WithdrawThisLpa.Redirect(w, r, appData, donor)
+					return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
 				} else {
-					donor.RegisteringWithCourtOfProtection = true
+					provided.RegisteringWithCourtOfProtection = true
 				}
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.Dashboard.Redirect(w, r, appData)
+				return page.PathDashboard.Redirect(w, r, appData)
 			}
 		}
 

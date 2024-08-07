@@ -66,10 +66,10 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 			DonorFirstNames:              "Jan",
 			DonorFullName:                "Jan Smith",
 			LpaType:                      "property and affairs",
-			CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+			CertificateProviderStartURL:  fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 			DonorFirstNamesPossessive:    "Jan’s",
 			WhatLpaCovers:                "houses and stuff",
-			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
+			CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", PathCertificateProviderEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 
@@ -158,11 +158,11 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
 					LpaType:                      "property and affairs",
-					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 					ShareCode:                    tc.expectedTestCode,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "houses and stuff",
-					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", PathCertificateProviderEnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)
@@ -172,11 +172,11 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
 					LpaType:                      "property and affairs",
-					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 					ShareCode:                    testRandomString,
 					DonorFirstNamesPossessive:    "Jan’s",
 					WhatLpaCovers:                "houses and stuff",
-					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", Paths.CertificateProvider.EnterReferenceNumberOptOut),
+					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", PathCertificateProviderEnterReferenceNumberOptOut),
 				}).
 				Once().
 				Return(nil)
@@ -313,7 +313,7 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 			CertificateProviderFullName: "Joanna Jones",
 			DonorFullName:               "Jan Smith",
 			LpaType:                     "property and affairs",
-			CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+			CertificateProviderStartURL: fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 		}).
 		Return(nil)
 
@@ -445,7 +445,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					CertificateProviderStartURL: fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 					ShareCode:                   tc.expectedTestCode,
 				}).
 				Once().
@@ -455,7 +455,7 @@ func TestShareCodeSenderSendCertificateProviderPromptWithTestCode(t *testing.T) 
 					CertificateProviderFullName: "Joanna Jones",
 					DonorFullName:               "Jan Smith",
 					LpaType:                     "property and affairs",
-					CertificateProviderStartURL: fmt.Sprintf("http://app%s", Paths.CertificateProviderStart),
+					CertificateProviderStartURL: fmt.Sprintf("http://app%s", PathCertificateProviderStart),
 					ShareCode:                   testRandomString,
 				}).
 				Once().
@@ -684,8 +684,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 	notifyClient.EXPECT().
@@ -696,8 +696,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 	notifyClient.EXPECT().
@@ -708,8 +708,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 	notifyClient.EXPECT().
@@ -720,8 +720,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 	notifyClient.EXPECT().
@@ -732,8 +732,8 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			DonorFullName:             "Jan Smith",
 			DonorFirstNamesPossessive: "Jan's",
 			LpaType:                   "property and affairs",
-			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+			AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+			AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 		}).
 		Return(nil)
 
@@ -896,8 +896,8 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
 			notifyClient.EXPECT().
@@ -908,8 +908,8 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 					DonorFullName:             "Jan Smith",
 					DonorFirstNamesPossessive: "Jan's",
 					LpaType:                   "property and affairs",
-					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", Paths.Attorney.Start),
-					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", Paths.Attorney.EnterReferenceNumberOptOut),
+					AttorneyStartPageURL:      fmt.Sprintf("http://app%s", PathAttorneyStart),
+					AttorneyOptOutURL:         fmt.Sprintf("http://app%s", PathAttorneyEnterReferenceNumberOptOut),
 				}).
 				Return(nil)
 

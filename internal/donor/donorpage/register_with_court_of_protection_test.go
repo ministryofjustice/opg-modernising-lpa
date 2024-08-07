@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -59,7 +60,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 	}{
 		"yes": {
 			yesNo:            form.Yes,
-			expectedRedirect: page.Paths.WithdrawThisLpa.Format("lpa-id"),
+			expectedRedirect: donor.PathWithdrawThisLpa.Format("lpa-id"),
 			donorStore:       func() *mockDonorStore { return nil },
 		},
 		"no": {
@@ -71,7 +72,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 					Return(nil)
 				return donorStore
 			},
-			expectedRedirect: page.Paths.Dashboard.Format(),
+			expectedRedirect: page.PathDashboard.Format(),
 		},
 	}
 

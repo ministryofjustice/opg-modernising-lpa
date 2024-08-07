@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -28,7 +28,7 @@ func TestPay(t *testing.T) {
 		},
 		"fake": {
 			nextURL:  "/lpa/lpa-id/something-else",
-			redirect: page.Paths.PaymentConfirmation.Format("lpa-id"),
+			redirect: donor.PathPaymentConfirmation.Format("lpa-id"),
 		},
 	}
 
@@ -110,7 +110,7 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.EvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathEvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -145,7 +145,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.WhatHappensNextPostEvidence.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathWhatHappensNextPostEvidence.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -174,7 +174,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.EvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathEvidenceSuccessfullyUploaded.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
@@ -223,12 +223,12 @@ func TestPayWhenFeeDenied(t *testing.T) {
 			PaymentID: "a-fake-id",
 			Links: map[string]pay.Link{
 				"next_url": {
-					Href: page.Paths.PaymentConfirmation.Format("lpa-id"),
+					Href: donor.PathPaymentConfirmation.Format("lpa-id"),
 				},
 			},
 		}, nil)
 	payClient.EXPECT().
-		CanRedirect(page.Paths.PaymentConfirmation.Format("lpa-id")).
+		CanRedirect(donor.PathPaymentConfirmation.Format("lpa-id")).
 		Return(false)
 
 	logger := newMockLogger(t)

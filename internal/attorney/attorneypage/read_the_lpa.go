@@ -5,9 +5,9 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -27,7 +27,7 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 				return err
 			}
 
-			return page.Paths.Attorney.TaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())

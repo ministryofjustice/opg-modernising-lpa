@@ -66,7 +66,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 				ThinksCanSign: donordata.Yes,
 				CanSign:       form.Yes,
 			},
-			redirect: page.Paths.YourPreferredLanguage,
+			redirect: donor.PathYourPreferredLanguage,
 		},
 		"cannot sign": {
 			form: url.Values{
@@ -75,7 +75,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 			person: donordata.Donor{
 				ThinksCanSign: donordata.No,
 			},
-			redirect: page.Paths.CheckYouCanSign,
+			redirect: donor.PathCheckYouCanSign,
 		},
 		"maybe can sign": {
 			form: url.Values{
@@ -84,7 +84,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 			person: donordata.Donor{
 				ThinksCanSign: donordata.Maybe,
 			},
-			redirect: page.Paths.CheckYouCanSign,
+			redirect: donor.PathCheckYouCanSign,
 		},
 	}
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -21,30 +21,30 @@ func Pay(
 	randomString func(int) string,
 	appPublicURL string,
 ) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if donor.FeeType.IsNoFee() || donor.FeeType.IsHardshipFee() || donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-			donor.Tasks.PayForLpa = task.PaymentStatePending
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.FeeType.IsNoFee() || provided.FeeType.IsHardshipFee() || provided.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+			provided.Tasks.PayForLpa = task.PaymentStatePending
+			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
-			if donor.EvidenceDelivery.IsPost() {
-				return page.Paths.WhatHappensNextPostEvidence.Redirect(w, r, appData, donor)
+			if provided.EvidenceDelivery.IsPost() {
+				return donor.PathWhatHappensNextPostEvidence.Redirect(w, r, appData, provided)
 			}
 
-			return page.Paths.EvidenceSuccessfullyUploaded.Redirect(w, r, appData, donor)
+			return donor.PathEvidenceSuccessfullyUploaded.Redirect(w, r, appData, provided)
 		}
 
 		createPaymentBody := pay.CreatePaymentBody{
-			Amount:      donor.FeeAmount().Pence(),
+			Amount:      provided.FeeAmount().Pence(),
 			Reference:   randomString(12),
 			Description: "Property and Finance LPA",
-			ReturnURL:   appPublicURL + appData.Lang.URL(page.Paths.PaymentConfirmation.Format(donor.LpaID)),
-			Email:       donor.Donor.Email,
+			ReturnURL:   appPublicURL + appData.Lang.URL(donor.PathPaymentConfirmation.Format(provided.LpaID)),
+			Email:       provided.Donor.Email,
 			Language:    appData.Lang.String(),
 		}
 
-		resp, err := payClient.CreatePayment(r.Context(), donor.LpaUID, createPaymentBody)
+		resp, err := payClient.CreatePayment(r.Context(), provided.LpaUID, createPaymentBody)
 		if err != nil {
 			return fmt.Errorf("error creating payment: %w", err)
 		}
@@ -62,6 +62,6 @@ func Pay(
 		}
 
 		logger.InfoContext(r.Context(), "skipping payment", slog.String("next_url", nextUrl))
-		return page.Paths.PaymentConfirmation.Redirect(w, r, appData, donor)
+		return donor.PathPaymentConfirmation.Redirect(w, r, appData, provided)
 	}
 }

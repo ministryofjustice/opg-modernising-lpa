@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -58,7 +59,7 @@ func TestGetChooseAttorneysSummaryWhenNoAttorneysOrTrustCorporation(t *testing.T
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseAttorneys.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseAttorneys.Format("lpa-id")+"?id="+testUID.String(), resp.Header.Get("Location"))
 }
 
 func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
@@ -69,22 +70,22 @@ func TestPostChooseAttorneysSummaryAddAttorney(t *testing.T) {
 	}{
 		"add attorney - no attorneys": {
 			addMoreFormValue: form.Yes,
-			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
+			expectedUrl:      donor.PathChooseAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{}},
 		},
 		"add attorney - with attorney": {
 			addMoreFormValue: form.Yes,
-			expectedUrl:      page.Paths.ChooseAttorneys.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
+			expectedUrl:      donor.PathChooseAttorneys.Format("lpa-id") + "?addAnother=1&id=" + testUID.String(),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with single attorney": {
 			addMoreFormValue: form.No,
-			expectedUrl:      page.Paths.TaskList.Format("lpa-id"),
+			expectedUrl:      donor.PathTaskList.Format("lpa-id"),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}}},
 		},
 		"do not add attorney - with multiple attorneys": {
 			addMoreFormValue: form.No,
-			expectedUrl:      page.Paths.HowShouldAttorneysMakeDecisions.Format("lpa-id"),
+			expectedUrl:      donor.PathHowShouldAttorneysMakeDecisions.Format("lpa-id"),
 			Attorneys:        donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: actoruid.New()}, {UID: actoruid.New()}}},
 		},
 	}

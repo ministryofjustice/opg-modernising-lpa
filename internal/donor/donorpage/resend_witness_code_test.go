@@ -61,11 +61,11 @@ func TestPostResendWitnessCode(t *testing.T) {
 		method   string
 	}{
 		actor.TypeIndependentWitness: {
-			redirect: page.Paths.WitnessingAsIndependentWitness,
+			redirect: donor.PathWitnessingAsIndependentWitness,
 			method:   "SendToIndependentWitness",
 		},
 		actor.TypeCertificateProvider: {
-			redirect: page.Paths.WitnessingAsCertificateProvider,
+			redirect: donor.PathWitnessingAsCertificateProvider,
 			method:   "SendToCertificateProvider",
 		},
 	}

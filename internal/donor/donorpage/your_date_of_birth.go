@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -22,13 +23,13 @@ type yourDateOfBirthData struct {
 }
 
 func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourDateOfBirthData{
 			App: appData,
 			Form: &yourDateOfBirthForm{
-				Dob: donor.Donor.DateOfBirth,
+				Dob: provided.Donor.DateOfBirth,
 			},
-			CanTaskList:      !donor.Type.Empty(),
+			CanTaskList:      !provided.Type.Empty(),
 			MakingAnotherLPA: r.FormValue("makingAnotherLPA") == "1",
 		}
 
@@ -42,26 +43,26 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 
 			if data.Errors.None() && data.DobWarning == "" {
-				if donor.Donor.DateOfBirth == data.Form.Dob {
+				if provided.Donor.DateOfBirth == data.Form.Dob {
 					if data.MakingAnotherLPA {
-						return page.Paths.MakeANewLPA.Redirect(w, r, appData, donor)
+						return donor.PathMakeANewLPA.Redirect(w, r, appData, provided)
 					}
 
-					return page.Paths.YourAddress.Redirect(w, r, appData, donor)
+					return donor.PathYourAddress.Redirect(w, r, appData, provided)
 				}
 
-				donor.Donor.DateOfBirth = data.Form.Dob
-				donor.HasSentApplicationUpdatedEvent = false
+				provided.Donor.DateOfBirth = data.Form.Dob
+				provided.HasSentApplicationUpdatedEvent = false
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
 				if data.MakingAnotherLPA {
-					return page.Paths.WeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, donor, url.Values{"detail": {"dateOfBirth"}})
+					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"dateOfBirth"}})
 				}
 
-				return page.Paths.YourAddress.Redirect(w, r, appData, donor)
+				return donor.PathYourAddress.Redirect(w, r, appData, provided)
 			}
 		}
 

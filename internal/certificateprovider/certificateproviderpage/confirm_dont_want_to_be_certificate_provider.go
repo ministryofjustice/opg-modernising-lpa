@@ -44,7 +44,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:                 lpa.Donor.FullName(),
 					LpaType:                       appData.Localizer.T(lpa.Type.String()),
 					LpaUID:                        lpa.LpaUID,
-					DonorStartPageURL:             appPublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
 				}
 
 				if !lpa.CannotRegister {
@@ -64,7 +64,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 					DonorFullName:               donor.Donor.FullName(),
 					LpaType:                     appData.Localizer.T(donor.Type.String()),
 					LpaUID:                      donor.LpaUID,
-					DonorStartPageURL:           appPublicURL + page.Paths.Start.Format(),
+					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
 				}
 
 				donor.CertificateProvider = donordata.CertificateProvider{}
@@ -84,7 +84,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 				return err
 			}
 
-			return page.Paths.CertificateProvider.YouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
+			return page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{"donorFullName": {lpa.Donor.FullName()}})
 		}
 
 		return tmpl(w, data)

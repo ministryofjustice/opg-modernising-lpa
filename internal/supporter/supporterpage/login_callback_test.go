@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -29,11 +30,11 @@ func TestLoginCallback(t *testing.T) {
 		redirect page.Path
 	}{
 		"no invite": {
-			redirect: page.Paths.Supporter.EnterYourName,
+			redirect: page.PathSupporterEnterYourName,
 		},
 		"has invite": {
 			invites:  []*supporterdata.MemberInvite{{}},
-			redirect: page.Paths.Supporter.EnterReferenceNumber,
+			redirect: page.PathSupporterEnterReferenceNumber,
 		},
 	}
 
@@ -229,7 +230,7 @@ func TestLoginCallbackHasMember(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.EnterOrganisationName.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterEnterOrganisationName.Format(), resp.Header.Get("Location"))
 }
 
 func TestLoginCallbackHasMemberWhenSessionErrors(t *testing.T) {
@@ -398,7 +399,7 @@ func TestLoginCallbackHasOrganisation(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.Supporter.Dashboard.Format(), resp.Header.Get("Location"))
+			assert.Equal(t, supporter.PathDashboard.Format(), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -517,7 +518,7 @@ func TestLoginCallbackWhenExchangeErrors(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		OneLogin(r).
-		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: page.Paths.Supporter.LoginCallback.Format()}, nil)
+		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: page.PathSupporterLoginCallback.Format()}, nil)
 
 	err := LoginCallback(nil, client, sessionStore, nil, testNowFn, nil)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
@@ -538,7 +539,7 @@ func TestLoginCallbackWhenUserInfoError(t *testing.T) {
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
 		OneLogin(r).
-		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: page.Paths.Supporter.LoginCallback.Format()}, nil)
+		Return(&sesh.OneLoginSession{State: "my-state", Nonce: "my-nonce", Locale: "en", Redirect: page.PathSupporterLoginCallback.Format()}, nil)
 
 	err := LoginCallback(nil, client, sessionStore, nil, testNowFn, nil)(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
@@ -563,7 +564,7 @@ func TestLoginCallbackWhenSessionError(t *testing.T) {
 			State:    "my-state",
 			Nonce:    "my-nonce",
 			Locale:   "en",
-			Redirect: page.Paths.Supporter.LoginCallback.Format(),
+			Redirect: page.PathSupporterLoginCallback.Format(),
 		}, nil)
 	sessionStore.EXPECT().
 		SetLogin(r, w, mock.Anything).

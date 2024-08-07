@@ -24,7 +24,7 @@ func TestSignOut(t *testing.T) {
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().
-		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
+		EndSessionURL("id-token", "http://public"+PathStart.Format()).
 		Return("http://end-session", nil)
 
 	logger := newMockLogger(t)
@@ -59,7 +59,7 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().
-		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
+		EndSessionURL("id-token", "http://public"+PathStart.Format()).
 		Return("", expectedError)
 
 	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)
@@ -67,7 +67,7 @@ func TestSignOutWhenEndSessionURLFails(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "http://public"+Paths.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, "http://public"+PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestSignOutWhenClearSessionFails(t *testing.T) {
@@ -90,7 +90,7 @@ func TestSignOutWhenClearSessionFails(t *testing.T) {
 
 	oneLoginClient := newMockOneLoginClient(t)
 	oneLoginClient.EXPECT().
-		EndSessionURL("id-token", "http://public"+Paths.Start.Format()).
+		EndSessionURL("id-token", "http://public"+PathStart.Format()).
 		Return("http://end-session", nil)
 
 	err := SignOut(logger, sessionStore, oneLoginClient, "http://public")(TestAppData, w, r)

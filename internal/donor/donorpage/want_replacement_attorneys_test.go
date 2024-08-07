@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -48,7 +49,7 @@ func TestGetWantReplacementAttorneysWithExistingReplacementAttorneys(t *testing.
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetWantReplacementAttorneysFromStore(t *testing.T) {
@@ -102,7 +103,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			existingReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 			expectedReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{UID: uid}}},
 			taskState:                    task.StateInProgress,
-			redirect:                     page.Paths.ChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
+			redirect:                     donor.PathChooseReplacementAttorneys.Format("lpa-id") + "?id=" + testUID.String(),
 		},
 		"no": {
 			yesNo: form.No,
@@ -112,7 +113,7 @@ func TestPostWantReplacementAttorneys(t *testing.T) {
 			}},
 			expectedReplacementAttorneys: donordata.Attorneys{},
 			taskState:                    task.StateCompleted,
-			redirect:                     page.Paths.TaskList.Format("lpa-id"),
+			redirect:                     donor.PathTaskList.Format("lpa-id"),
 		},
 	}
 
