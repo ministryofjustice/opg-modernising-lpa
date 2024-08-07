@@ -17,6 +17,10 @@ type UidRequested struct {
 	Donor          uid.DonorDetails
 }
 
+type ApplicationDeleted struct {
+	UID string `json:"uid"`
+}
+
 type ApplicationUpdated struct {
 	UID       string                  `json:"uid"`
 	Type      string                  `json:"type"`
