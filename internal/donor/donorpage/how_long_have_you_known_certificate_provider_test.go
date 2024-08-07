@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -109,7 +110,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) {
@@ -126,7 +127,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderLessThan2Years(t *testing.T) 
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.ChooseNewCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathChooseNewCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostHowLongHaveYouKnownCertificateProviderWhenStoreErrors(t *testing.T) {

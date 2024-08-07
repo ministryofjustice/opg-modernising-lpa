@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -40,11 +41,11 @@ func ProvideCertificate(
 		}
 
 		if lpa.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.TaskList.Redirect(w, r, appData, lpa.LpaID)
+			return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		if !certificateProvider.SignedAt.IsZero() {
-			return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, lpa.LpaID)
+			return certificateprovider.PathCertificateProvided.Redirect(w, r, appData, lpa.LpaID)
 		}
 
 		data := &provideCertificateData{
@@ -62,7 +63,7 @@ func ProvideCertificate(
 
 			if data.Errors.None() {
 				if data.Form.Submittable == "cannot-submit" {
-					return page.Paths.CertificateProvider.ConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
+					return certificateprovider.PathConfirmDontWantToBeCertificateProvider.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
 				certificateProvider.SignedAt = now()
@@ -94,7 +95,7 @@ func ProvideCertificate(
 					return err
 				}
 
-				return page.Paths.CertificateProvider.CertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)
+				return certificateprovider.PathCertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)
 			}
 		}
 

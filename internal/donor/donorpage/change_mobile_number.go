@@ -28,10 +28,10 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 	switch actorType {
 	case actor.TypeIndependentWitness:
 		send = witnessCodeSender.SendToIndependentWitness
-		redirect = page.Paths.WitnessingAsIndependentWitness
+		redirect = donor.PathWitnessingAsIndependentWitness
 	case actor.TypeCertificateProvider:
 		send = witnessCodeSender.SendToCertificateProvider
-		redirect = page.Paths.WitnessingAsCertificateProvider
+		redirect = donor.PathWitnessingAsCertificateProvider
 	default:
 		panic("ChangeMobileNumber only supports IndependentWitness or CertificateProvider actors")
 	}

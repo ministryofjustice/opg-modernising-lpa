@@ -187,11 +187,11 @@ func Register(
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
-	handleRoot(page.Paths.Login, page.None,
-		page.Login(oneLoginClient, sessionStore, random.String, page.Paths.LoginCallback))
-	handleRoot(page.Paths.LoginCallback, page.None,
-		page.LoginCallback(logger, oneLoginClient, sessionStore, page.Paths.Dashboard, dashboardStore, actor.TypeDonor))
-	handleRoot(page.Paths.EnterAccessCode, page.RequireSession,
+	handleRoot(page.PathLogin, page.None,
+		page.Login(oneLoginClient, sessionStore, random.String, page.PathLoginCallback))
+	handleRoot(page.PathLoginCallback, page.None,
+		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathDashboard, dashboardStore, actor.TypeDonor))
+	handleRoot(page.PathEnterAccessCode, page.RequireSession,
 		EnterAccessCode(logger, tmpls.Get("enter_access_code.gohtml"), shareCodeStore, donorStore))
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
@@ -444,7 +444,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			if opt&page.RequireSession != 0 {
 				session, err := store.Login(r)
 				if err != nil {
-					http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
+					http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
 					return
 				}
 
@@ -467,7 +467,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 
 			loginSession, err := store.Login(r)
 			if err != nil {
-				http.Redirect(w, r, page.Paths.Start.Format(), http.StatusFound)
+				http.Redirect(w, r, page.PathStart.Format(), http.StatusFound)
 				return
 			}
 
@@ -502,7 +502,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if !donor.CanGoTo(lpa, r.URL.String()) {
-				http.Redirect(w, r, appData.Lang.URL(page.Paths.TaskList.Format(lpa.LpaID)), http.StatusFound)
+				http.Redirect(w, r, appData.Lang.URL(donor.PathTaskList.Format(lpa.LpaID)), http.StatusFound)
 			}
 
 			if lpa.Donor.Email == "" && loginSession.OrganisationID == "" {

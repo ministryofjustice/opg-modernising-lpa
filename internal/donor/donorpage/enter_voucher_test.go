@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -81,7 +82,7 @@ func TestPostEnterVoucher(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CheckYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathCheckYourDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterVoucherWhenMatches(t *testing.T) {
@@ -126,7 +127,7 @@ func TestPostEnterVoucherWhenMatches(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.ConfirmPersonAllowedToVouch.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathConfirmPersonAllowedToVouch.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

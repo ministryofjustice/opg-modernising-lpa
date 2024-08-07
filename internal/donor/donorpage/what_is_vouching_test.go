@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -51,8 +52,8 @@ func TestGetWhatIsVouchingWhenTemplateError(t *testing.T) {
 
 func TestPostWhatIsVouching(t *testing.T) {
 	testcases := map[form.YesNo]string{
-		form.Yes: page.Paths.EnterVoucher.Format("lpa-id"),
-		form.No:  page.Paths.WhatYouCanDoNow.Format("lpa-id"),
+		form.Yes: donor.PathEnterVoucher.Format("lpa-id"),
+		form.No:  donor.PathWhatYouCanDoNow.Format("lpa-id"),
 	}
 
 	for yesNo, path := range testcases {

@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -21,11 +22,11 @@ type wantReplacementAttorneysData struct {
 }
 
 func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &wantReplacementAttorneysData{
 			App:   appData,
-			Donor: donor,
-			Form:  form.NewYesNoForm(donor.WantReplacementAttorneys),
+			Donor: provided,
+			Form:  form.NewYesNoForm(provided.WantReplacementAttorneys),
 		}
 
 		if r.Method == http.MethodPost {
@@ -33,28 +34,28 @@ func WantReplacementAttorneys(tmpl template.Template, donorStore DonorStore, new
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
-				donor.WantReplacementAttorneys = f.YesNo
+				provided.WantReplacementAttorneys = f.YesNo
 
-				if donor.WantReplacementAttorneys.IsNo() {
-					donor.ReplacementAttorneys = donordata.Attorneys{}
+				if provided.WantReplacementAttorneys.IsNo() {
+					provided.ReplacementAttorneys = donordata.Attorneys{}
 				}
 
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if donor.WantReplacementAttorneys.IsYes() {
-					return page.Paths.ChooseReplacementAttorneys.RedirectQuery(w, r, appData, donor, url.Values{"id": {newUID().String()}})
+				if provided.WantReplacementAttorneys.IsYes() {
+					return donor.PathChooseReplacementAttorneys.RedirectQuery(w, r, appData, provided, url.Values{"id": {newUID().String()}})
 				} else {
-					return page.Paths.TaskList.Redirect(w, r, appData, donor)
+					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				}
 			}
 		}
 
-		if donor.ReplacementAttorneys.Len() > 0 {
-			return page.Paths.ChooseReplacementAttorneysSummary.Redirect(w, r, appData, donor)
+		if provided.ReplacementAttorneys.Len() > 0 {
+			return donor.PathChooseReplacementAttorneysSummary.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)

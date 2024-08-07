@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -61,10 +62,10 @@ func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreR
 				}
 
 				if lpa.CertificateProvider.Relationship.IsProfessionally() {
-					return page.Paths.CertificateProvider.WhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
+					return certificateprovider.PathWhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
-				return page.Paths.CertificateProvider.YourPreferredLanguage.Redirect(w, r, appData, certificateProvider.LpaID)
+				return certificateprovider.PathYourPreferredLanguage.Redirect(w, r, appData, certificateProvider.LpaID)
 			}
 		}
 

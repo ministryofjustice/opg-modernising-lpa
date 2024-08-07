@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -125,8 +124,8 @@ func TestPostConfirmYourDetails(t *testing.T) {
 		signedAt time.Time
 		redirect certificateprovider.Path
 	}{
-		"signed":     {signedAt: time.Now(), redirect: page.Paths.CertificateProvider.TaskList},
-		"not signed": {redirect: page.Paths.CertificateProvider.YourRole},
+		"signed":     {signedAt: time.Now(), redirect: certificateprovider.PathTaskList},
+		"not signed": {redirect: certificateprovider.PathYourRole},
 	}
 
 	for name, tc := range testCases {

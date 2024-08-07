@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -147,7 +148,7 @@ func TestPostYourIndependentWitnessMobile(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.YourIndependentWitnessAddress.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathYourIndependentWitnessAddress.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

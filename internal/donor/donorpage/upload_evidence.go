@@ -14,8 +14,8 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -63,9 +63,9 @@ type uploadEvidenceData struct {
 }
 
 func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, documentStore DocumentStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		if donor.Tasks.PayForLpa.IsPending() {
-			return page.Paths.TaskList.Redirect(w, r, appData, donor)
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.Tasks.PayForLpa.IsPending() {
+			return donor.PathTaskList.Redirect(w, r, appData, provided)
 		}
 
 		documents, err := documentStore.GetAll(r.Context())
@@ -76,7 +76,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 		data := &uploadEvidenceData{
 			App:                  appData,
 			NumberOfAllowedFiles: numberOfAllowedFiles,
-			FeeType:              donor.FeeType,
+			FeeType:              provided.FeeType,
 			Documents:            documents,
 			MimeTypes:            acceptedMimeTypes(),
 		}
@@ -92,7 +92,7 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 					var uploadedDocuments []document.Document
 
 					for _, file := range form.Files {
-						document, err := documentStore.Create(r.Context(), donor, file.Filename, file.Data)
+						document, err := documentStore.Create(r.Context(), provided, file.Filename, file.Data)
 						if err != nil {
 							return err
 						}
@@ -124,16 +124,16 @@ func UploadEvidence(tmpl template.Template, logger Logger, payer Handler, docume
 
 				case "pay":
 					if len(documents.NotScanned()) > 0 {
-						logger.InfoContext(r.Context(), "attempt to pay with unscanned documents on lpa", slog.String("lpa_uid", donor.LpaUID))
+						logger.InfoContext(r.Context(), "attempt to pay with unscanned documents on lpa", slog.String("lpa_uid", provided.LpaUID))
 						data.Errors = validation.With("upload", validation.CustomError{Label: "errorGenericUploadProblem"})
 						return tmpl(w, data)
 					}
 
-					if err := documentStore.Submit(r.Context(), donor, documents); err != nil {
+					if err := documentStore.Submit(r.Context(), provided, documents); err != nil {
 						return err
 					}
 
-					return payer(appData, w, r, donor)
+					return payer(appData, w, r, provided)
 
 				case "delete":
 					document := documents.Get(form.DeleteKey)

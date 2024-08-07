@@ -17,7 +17,7 @@ func TestRoot(t *testing.T) {
 
 	resp := w.Result()
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, Paths.Start.Format(), resp.Header.Get("Location"))
+	assert.Equal(t, PathStart.Format(), resp.Header.Get("Location"))
 }
 
 func TestRootNotFound(t *testing.T) {

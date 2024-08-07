@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,11 +20,11 @@ type howLongHaveYouKnownCertificateProviderData struct {
 }
 
 func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howLongHaveYouKnownCertificateProviderData{
 			App:                 appData,
-			CertificateProvider: donor.CertificateProvider,
-			RelationshipLength:  donor.CertificateProvider.RelationshipLength,
+			CertificateProvider: provided.CertificateProvider,
+			RelationshipLength:  provided.CertificateProvider.RelationshipLength,
 			Options:             donordata.CertificateProviderRelationshipLengthValues,
 		}
 
@@ -33,15 +34,15 @@ func HowLongHaveYouKnownCertificateProvider(tmpl template.Template, donorStore D
 
 			if data.Errors.None() {
 				if form.RelationshipLength == donordata.LessThanTwoYears {
-					return page.Paths.ChooseNewCertificateProvider.Redirect(w, r, appData, donor)
+					return donor.PathChooseNewCertificateProvider.Redirect(w, r, appData, provided)
 				}
 
-				donor.CertificateProvider.RelationshipLength = form.RelationshipLength
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				provided.CertificateProvider.RelationshipLength = form.RelationshipLength
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.HowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, donor)
+				return donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole.Redirect(w, r, appData, provided)
 			}
 		}
 

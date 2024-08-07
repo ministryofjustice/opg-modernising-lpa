@@ -19,19 +19,19 @@ type withdrawLpaData struct {
 }
 
 func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
-			donor.WithdrawnAt = now()
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+			provided.WithdrawnAt = now()
+			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
-			return page.Paths.LpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {donor.LpaUID}})
+			return page.PathLpaWithdrawn.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})
 		}
 
 		return tmpl(w, &withdrawLpaData{
 			App:   appData,
-			Donor: donor,
+			Donor: provided,
 		})
 	}
 }

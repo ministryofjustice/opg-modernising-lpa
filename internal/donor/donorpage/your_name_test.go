@@ -101,7 +101,7 @@ func TestPostYourName(t *testing.T) {
 				OtherNames: "Fawn",
 				Email:      "what",
 			},
-			redirect: page.Paths.YourDateOfBirth.Format("lpa-id"),
+			redirect: donor.PathYourDateOfBirth.Format("lpa-id"),
 		},
 		"warning ignored": {
 			url: "/",
@@ -115,7 +115,7 @@ func TestPostYourName(t *testing.T) {
 				LastName:   "Bloggs",
 				Email:      "what",
 			},
-			redirect: page.Paths.YourDateOfBirth.Format("lpa-id"),
+			redirect: donor.PathYourDateOfBirth.Format("lpa-id"),
 		},
 		"making another lpa": {
 			url: "/?makingAnotherLPA=1",
@@ -130,7 +130,7 @@ func TestPostYourName(t *testing.T) {
 				OtherNames: "Fawn",
 				Email:      "what",
 			},
-			redirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=name",
+			redirect: donor.PathWeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=name",
 		},
 	}
 
@@ -177,11 +177,11 @@ func TestPostYourNameWhenDetailsNotChanged(t *testing.T) {
 	}{
 		"making first": {
 			url:      "/",
-			redirect: page.Paths.YourDateOfBirth,
+			redirect: donor.PathYourDateOfBirth,
 		},
 		"making another": {
 			url:      "/?makingAnotherLPA=1",
-			redirect: page.Paths.MakeANewLPA,
+			redirect: donor.PathMakeANewLPA,
 		},
 	}
 

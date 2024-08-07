@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,8 +19,8 @@ type enterReplacementTrustCorporationData struct {
 }
 
 func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
-		trustCorporation := donor.ReplacementAttorneys.TrustCorporation
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		trustCorporation := provided.ReplacementAttorneys.TrustCorporation
 
 		data := &enterReplacementTrustCorporationData{
 			App: appData,
@@ -28,7 +29,7 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				CompanyNumber: trustCorporation.CompanyNumber,
 				Email:         trustCorporation.Email,
 			},
-			LpaID: donor.LpaID,
+			LpaID: provided.LpaID,
 		}
 
 		if r.Method == http.MethodPost {
@@ -39,15 +40,15 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				trustCorporation.Name = data.Form.Name
 				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
-				donor.ReplacementAttorneys.TrustCorporation = trustCorporation
+				provided.ReplacementAttorneys.TrustCorporation = trustCorporation
 
-				donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
 
-				if err := donorStore.Put(r.Context(), donor); err != nil {
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return page.Paths.EnterReplacementTrustCorporationAddress.Redirect(w, r, appData, donor)
+				return donor.PathEnterReplacementTrustCorporationAddress.Redirect(w, r, appData, provided)
 			}
 		}
 

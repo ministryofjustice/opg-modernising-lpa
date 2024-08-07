@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
@@ -204,7 +205,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, page.Paths.CertificateProvider.YourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, certificateprovider.PathYourPreferredLanguage.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -242,7 +243,7 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CertificateProvider.WhatIsYourHomeAddress.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathWhatIsYourHomeAddress.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {

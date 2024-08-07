@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -143,17 +144,17 @@ func TestPostYourAddressManual(t *testing.T) {
 		"making first LPA": {
 			url:              "/",
 			appData:          testAppData,
-			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
+			expectedRedirect: donor.PathCanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
 			appData:          testAppData,
-			expectedRedirect: page.Paths.WeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=address",
+			expectedRedirect: donor.PathWeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=address",
 		},
 		"supporter": {
 			url:              "/",
 			appData:          testSupporterAppData,
-			expectedRedirect: page.Paths.YourEmail.Format("lpa-id"),
+			expectedRedirect: donor.PathYourEmail.Format("lpa-id"),
 		},
 	}
 
@@ -206,11 +207,11 @@ func TestPostYourAddressManualWhenAddressNotChanged(t *testing.T) {
 	}{
 		"making first LPA": {
 			url:              "/",
-			expectedRedirect: page.Paths.CanYouSignYourLpa.Format("lpa-id"),
+			expectedRedirect: donor.PathCanYouSignYourLpa.Format("lpa-id"),
 		},
 		"making another LPA": {
 			url:              "/?makingAnotherLPA=1",
-			expectedRedirect: page.Paths.MakeANewLPA.Format("lpa-id"),
+			expectedRedirect: donor.PathMakeANewLPA.Format("lpa-id"),
 		},
 	}
 
@@ -315,7 +316,7 @@ func TestPostYourAddressManualFromStore(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.CanYouSignYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathCanYouSignYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourAddressManualWhenValidationError(t *testing.T) {

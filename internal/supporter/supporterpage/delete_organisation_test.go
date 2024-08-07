@@ -96,7 +96,7 @@ func TestPostDeleteOrganisationName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.Paths.Supporter.OrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathSupporterOrganisationDeleted.Format()+"?organisationName=My+organisation", resp.Header.Get("Location"))
 }
 
 func TestPostDeleteOrganisationNameWhenSessionStoreErrors(t *testing.T) {
