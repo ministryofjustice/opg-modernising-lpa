@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +33,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	expectedTransaction := &dynamo.Transaction{
 		Creates: []any{
 			details,
-			actor.LpaLink{
+			dashboarddata.LpaLink{
 				PK:        dynamo.LpaKey("lpa-id"),
 				SK:        dynamo.SubKey("session-id"),
 				DonorKey:  shareCode.LpaOwnerKey,
