@@ -69,6 +69,53 @@ func (_c *mockEventClient_SendApplicationUpdated_Call) RunAndReturn(run func(con
 	return _c
 }
 
+// SendCertificateProviderStarted provides a mock function with given fields: ctx, _a1
+func (_m *mockEventClient) SendCertificateProviderStarted(ctx context.Context, _a1 event.CertificateProviderStarted) error {
+	ret := _m.Called(ctx, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCertificateProviderStarted")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.CertificateProviderStarted) error); ok {
+		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendCertificateProviderStarted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderStarted'
+type mockEventClient_SendCertificateProviderStarted_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderStarted is a helper method to define mock.On call
+//   - ctx context.Context
+//   - _a1 event.CertificateProviderStarted
+func (_e *mockEventClient_Expecter) SendCertificateProviderStarted(ctx interface{}, _a1 interface{}) *mockEventClient_SendCertificateProviderStarted_Call {
+	return &mockEventClient_SendCertificateProviderStarted_Call{Call: _e.mock.On("SendCertificateProviderStarted", ctx, _a1)}
+}
+
+func (_c *mockEventClient_SendCertificateProviderStarted_Call) Run(run func(ctx context.Context, _a1 event.CertificateProviderStarted)) *mockEventClient_SendCertificateProviderStarted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.CertificateProviderStarted))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendCertificateProviderStarted_Call) Return(_a0 error) *mockEventClient_SendCertificateProviderStarted_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendCertificateProviderStarted_Call) RunAndReturn(run func(context.Context, event.CertificateProviderStarted) error) *mockEventClient_SendCertificateProviderStarted_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockEventClient creates a new instance of mockEventClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockEventClient(t interface {
