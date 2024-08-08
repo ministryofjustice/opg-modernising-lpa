@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,7 +18,7 @@ import (
 type confirmDontWantToBeAttorneyDataLoggedOut struct {
 	App    appcontext.Data
 	Errors validation.List
-	Lpa    *lpastore.Lpa
+	Lpa    *lpadata.Lpa
 }
 
 func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string) page.Handler {
@@ -46,7 +46,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID, shareCode.IsTrustCorporation, shareCode.IsReplacementAttorney)
+			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID)
 			if err != nil {
 				return err
 			}
@@ -75,7 +75,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 	}
 }
 
-func findAttorneyFullName(lpa *lpastore.Lpa, uid actoruid.UID, isTrustCorporation, isReplacement bool) (string, error) {
+func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID) (string, error) {
 	if t := lpa.ReplacementAttorneys.TrustCorporation; t.UID == uid {
 		return t.Name, nil
 	}

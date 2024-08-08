@@ -14,8 +14,8 @@ type DonorStore interface {
 }
 
 type LpaClient interface {
-	Lpa(ctx context.Context, lpaUID string) (*Lpa, error)
-	Lpas(ctx context.Context, lpaUIDs []string) ([]*Lpa, error)
+	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
+	Lpas(ctx context.Context, lpaUIDs []string) ([]*lpadata.Lpa, error)
 }
 
 // A ResolvingService wraps a Client so that an Lpa can be retrieved without
@@ -29,7 +29,7 @@ func NewResolvingService(donorStore DonorStore, client LpaClient) *ResolvingServ
 	return &ResolvingService{donorStore: donorStore, client: client}
 }
 
-func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
+func (s *ResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
 	donor, err := s.donorStore.GetAny(ctx)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (s *ResolvingService) Get(ctx context.Context) (*Lpa, error) {
 	return s.merge(lpa, donor), nil
 }
 
-func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*Lpa, error) {
+func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpadata.Lpa, error) {
 	lpaUIDs := make([]string, len(donors))
 	for i, donor := range donors {
 		lpaUIDs[i] = donor.LpaUID
@@ -60,12 +60,12 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.
 		return nil, err
 	}
 
-	lpaMap := map[string]*Lpa{}
+	lpaMap := map[string]*lpadata.Lpa{}
 	for _, lpa := range lpas {
 		lpaMap[lpa.LpaUID] = lpa
 	}
 
-	result := make([]*Lpa, len(donors))
+	result := make([]*lpadata.Lpa, len(donors))
 	for i, donor := range donors {
 		if lpa, ok := lpaMap[donor.LpaUID]; ok {
 			result[i] = s.merge(lpa, donor)
@@ -77,7 +77,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.
 	return result, nil
 }
 
-func (s *ResolvingService) merge(lpa *Lpa, donor *donordata.Provided) *Lpa {
+func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *lpadata.Lpa {
 	lpa.LpaKey = donor.PK
 	lpa.LpaOwnerKey = donor.SK
 	lpa.LpaID = donor.LpaID

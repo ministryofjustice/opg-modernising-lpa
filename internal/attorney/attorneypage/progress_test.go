@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestProgress(t *testing.T) {
 
 	testcases := map[string]struct {
 		attorney        *attorneydata.Provided
-		attorneys       []lpastore.Attorney
+		attorneys       []lpadata.Attorney
 		signed          bool
 		attorneysSigned bool
 	}{
@@ -28,12 +28,12 @@ func TestProgress(t *testing.T) {
 			attorney: &attorneydata.Provided{
 				SignedAt: attorneySignedAt,
 			},
-			attorneys: []lpastore.Attorney{{}},
+			attorneys: []lpadata.Attorney{{}},
 			signed:    true,
 		},
 		"all signed": {
 			attorney: &attorneydata.Provided{},
-			attorneys: []lpastore.Attorney{{
+			attorneys: []lpadata.Attorney{{
 				SignedAt: attorneySignedAt,
 			}},
 			attorneysSigned: true,
@@ -45,9 +45,9 @@ func TestProgress(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donor := &lpastore.Lpa{
+			donor := &lpadata.Lpa{
 				SignedAt:  lpaSignedAt,
-				Attorneys: lpastore.Attorneys{Attorneys: tc.attorneys},
+				Attorneys: lpadata.Attorneys{Attorneys: tc.attorneys},
 			}
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -73,7 +73,7 @@ func TestProgressWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{}
+	donor := &lpadata.Lpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -91,11 +91,11 @@ func TestProgressWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &progressData{App: testAppData, Lpa: &lpastore.Lpa{}}).
+		Execute(w, &progressData{App: testAppData, Lpa: &lpadata.Lpa{}}).
 		Return(expectedError)
 
 	err := Progress(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{})

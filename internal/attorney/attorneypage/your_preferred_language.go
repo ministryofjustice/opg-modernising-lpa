@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -19,7 +19,7 @@ type yourPreferredLanguageData struct {
 	Form      *form.LanguagePreferenceForm
 	Options   localize.LangOptions
 	FieldName string
-	Lpa       *lpastore.Lpa
+	Lpa       *lpadata.Lpa
 }
 
 func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {

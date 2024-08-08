@@ -38,7 +38,7 @@ func ChoosePeopleToNotifyAddress(logger Logger, tmpl template.Template, addressC
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				personToNotify.Address = *data.Form.Address
+				personToNotify.Address = address
 				provided.PeopleToNotify.Put(personToNotify)
 				provided.Tasks.PeopleToNotify = task.StateCompleted
 

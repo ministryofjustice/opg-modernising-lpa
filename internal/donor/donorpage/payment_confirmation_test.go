@@ -44,7 +44,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 			payClient := newMockPayClient(t).
-				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+				withASuccessfulPayment(8200, r.Context())
 
 			localizer := newMockLocalizer(t).
 				withEmailLocalizations()
@@ -126,7 +126,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
+		withASuccessfulPayment(4100, r.Context())
 
 	localizer := newMockLocalizer(t).
 		withEmailLocalizations()
@@ -205,7 +205,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 			payClient := newMockPayClient(t).
-				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+				withASuccessfulPayment(8200, r.Context())
 
 			localizer := newMockLocalizer(t).
 				withEmailLocalizations()
@@ -305,7 +305,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 			}
 
 			payClient := newMockPayClient(t).
-				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+				withASuccessfulPayment(8200, r.Context())
 
 			localizer := newMockLocalizer(t).
 				withEmailLocalizations()
@@ -386,7 +386,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 			payClient := newMockPayClient(t).
-				withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+				withASuccessfulPayment(8200, r.Context())
 
 			localizer := newMockLocalizer(t).
 				withEmailLocalizations()
@@ -530,7 +530,7 @@ func TestGetPaymentConfirmationWhenErrorExpiringSession(t *testing.T) {
 		InfoContext(r.Context(), "unable to expire cookie in session", slog.Any("err", expectedError))
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+		withASuccessfulPayment(8200, r.Context())
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -568,7 +568,7 @@ func TestGetPaymentConfirmationWhenEventClientError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
+		withASuccessfulPayment(4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -595,7 +595,7 @@ func TestGetPaymentConfirmationWhenNotifyClientError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
+		withASuccessfulPayment(4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -634,7 +634,7 @@ func TestGetPaymentConfirmationHalfFeeWhenDonorStorePutError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 4100, r.Context())
+		withASuccessfulPayment(4100, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -677,7 +677,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+		withASuccessfulPayment(8200, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -730,7 +730,7 @@ func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+		withASuccessfulPayment(8200, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -778,7 +778,7 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
 	payClient := newMockPayClient(t).
-		withASuccessfulPayment("abc123", "123456789012", 8200, r.Context())
+		withASuccessfulPayment(8200, r.Context())
 
 	sessionStore := newMockSessionStore(t).
 		withPaySession(r)
@@ -818,17 +818,17 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func (m *mockPayClient) withASuccessfulPayment(paymentId, reference string, amount int, ctx context.Context) *mockPayClient {
+func (m *mockPayClient) withASuccessfulPayment(amount int, ctx context.Context) *mockPayClient {
 	m.EXPECT().
-		GetPayment(ctx, paymentId).
+		GetPayment(ctx, "abc123").
 		Return(pay.GetPaymentResponse{
 			Email: "a@example.com",
 			State: pay.State{
 				Status:   "success",
 				Finished: true,
 			},
-			PaymentID:   paymentId,
-			Reference:   reference,
+			PaymentID:   "abc123",
+			Reference:   "123456789012",
 			AmountPence: pay.AmountPence(amount),
 			SettlementSummary: pay.SettlementSummary{
 				CaptureSubmitTime: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC),

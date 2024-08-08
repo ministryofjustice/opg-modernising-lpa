@@ -123,7 +123,7 @@ func Donor(
 			return err
 		}
 
-		var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
+		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
 		if err != nil {
 			return err
@@ -181,8 +181,8 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
-) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpastore.Lpa) error, error) {
-	var fns []func(context.Context, *lpastore.Client, *lpastore.Lpa) error
+) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
+	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor(data.DonorEmail)
@@ -466,7 +466,7 @@ func updateLPAProgress(
 
 		certificateProviderUID = certificateProvider.UID
 
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpastore.Lpa) error {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
 		})
 	}
@@ -501,7 +501,7 @@ func updateLPAProgress(
 					return nil, nil, err
 				}
 
-				fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpastore.Lpa) error {
+				fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 					return client.SendAttorney(ctx, lpa, attorney)
 				})
 			}
@@ -539,7 +539,7 @@ func updateLPAProgress(
 					return nil, nil, err
 				}
 
-				fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpastore.Lpa) error {
+				fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 					return client.SendAttorney(ctx, lpa, attorney)
 				})
 			}
@@ -551,7 +551,7 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "perfect") {
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendPerfect(ctx, donorDetails.LpaUID)
 		})
 		donorDetails.PerfectAt = time.Now()
@@ -562,13 +562,13 @@ func updateLPAProgress(
 	}
 
 	if data.Progress == slices.Index(progressValues, "certificateProviderOptedOut") {
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendCertificateProviderOptOut(ctx, donorDetails.LpaUID, certificateProviderUID)
 		})
 	}
 
 	if data.Progress >= slices.Index(progressValues, "registered") {
-		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpastore.Lpa) error {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendRegister(ctx, donorDetails.LpaUID)
 		})
 	}

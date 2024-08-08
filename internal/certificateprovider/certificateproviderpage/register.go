@@ -16,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -29,7 +29,7 @@ import (
 type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *certificateproviderdata.Provided) error
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*lpastore.Lpa, error)
+	Get(ctx context.Context) (*lpadata.Lpa, error)
 }
 
 type Logger interface {
@@ -70,13 +70,13 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	EmailGreeting(lpa *lpastore.Lpa) string
+	EmailGreeting(lpa *lpadata.Lpa) string
 	SendEmail(ctx context.Context, to string, email notify.Email) error
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
 type ShareCodeSender interface {
-	SendAttorneys(context.Context, appcontext.Data, *lpastore.Lpa) error
+	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
 
 type AddressClient interface {
@@ -93,7 +93,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpastore.Lpa) error
+	SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error
 	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
 	SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error
 }
