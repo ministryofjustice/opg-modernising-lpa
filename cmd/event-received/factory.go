@@ -162,7 +162,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewShareCodeSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
+		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
 	}
 
 	return f.shareCodeSender, nil

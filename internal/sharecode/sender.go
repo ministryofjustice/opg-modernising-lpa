@@ -48,7 +48,7 @@ type EventClient interface {
 	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
 }
 
-type ShareCodeSender struct {
+type Sender struct {
 	testCode       string
 	shareCodeStore ShareCodeStore
 	notifyClient   NotifyClient
@@ -57,8 +57,8 @@ type ShareCodeSender struct {
 	eventClient    EventClient
 }
 
-func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient) *ShareCodeSender {
-	return &ShareCodeSender{
+func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient) *Sender {
+	return &Sender{
 		shareCodeStore: shareCodeStore,
 		notifyClient:   notifyClient,
 		appPublicURL:   appPublicURL,
@@ -67,7 +67,7 @@ func NewShareCodeSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient
 	}
 }
 
-func (s *ShareCodeSender) UseTestCode(shareCode string) {
+func (s *Sender) UseTestCode(shareCode string) {
 	s.testCode = shareCode
 }
 
@@ -83,7 +83,7 @@ type CertificateProviderInvite struct {
 	CertificateProviderEmail    string
 }
 
-func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite CertificateProviderInvite) error {
+func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite CertificateProviderInvite) error {
 	shareCode, err := s.createShareCode(ctx, invite.LpaKey, invite.LpaOwnerKey, invite.CertificateProviderUID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
+func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, donor *donordata.Provided) error {
 	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.CertificateProvider.UID, actor.TypeCertificateProvider)
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpadata.Lpa) error {
+func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpadata.Lpa) error {
 	if err := s.sendTrustCorporation(ctx, appData, donor, donor.Attorneys.TrustCorporation); err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.
 	return nil
 }
 
-func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
+func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
@@ -167,7 +167,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appc
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
+func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
@@ -190,7 +190,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData a
 		})
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
+func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -217,7 +217,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appc
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
+func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -244,7 +244,7 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 		})
 }
 
-func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (string, error) {
+func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (string, error) {
 	shareCode := s.randomString(12)
 	if s.testCode != "" {
 		shareCode = s.testCode
@@ -266,7 +266,7 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.Lpa
 	return shareCode, nil
 }
 
-func (s *ShareCodeSender) sendEmail(ctx context.Context, to string, lpaUID string, email notify.Email) error {
+func (s *Sender) sendEmail(ctx context.Context, to string, lpaUID string, email notify.Email) error {
 	if err := s.notifyClient.SendActorEmail(ctx, to, lpaUID, email); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
@@ -274,7 +274,7 @@ func (s *ShareCodeSender) sendEmail(ctx context.Context, to string, lpaUID strin
 	return nil
 }
 
-func (s *ShareCodeSender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode string) error {
+func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode string) error {
 	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 		UID:        lpaUID,
 		ActorType:  actorType.String(),
