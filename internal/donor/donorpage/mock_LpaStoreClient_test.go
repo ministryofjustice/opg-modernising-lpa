@@ -130,6 +130,53 @@ func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) RunAndReturn(run fun
 	return _c
 }
 
+// SendDonorWithdrawLPA provides a mock function with given fields: ctx, lpaUID
+func (_m *mockLpaStoreClient) SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error {
+	ret := _m.Called(ctx, lpaUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendDonorWithdrawLPA")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, lpaUID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendDonorWithdrawLPA_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendDonorWithdrawLPA'
+type mockLpaStoreClient_SendDonorWithdrawLPA_Call struct {
+	*mock.Call
+}
+
+// SendDonorWithdrawLPA is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+func (_e *mockLpaStoreClient_Expecter) SendDonorWithdrawLPA(ctx interface{}, lpaUID interface{}) *mockLpaStoreClient_SendDonorWithdrawLPA_Call {
+	return &mockLpaStoreClient_SendDonorWithdrawLPA_Call{Call: _e.mock.On("SendDonorWithdrawLPA", ctx, lpaUID)}
+}
+
+func (_c *mockLpaStoreClient_SendDonorWithdrawLPA_Call) Run(run func(ctx context.Context, lpaUID string)) *mockLpaStoreClient_SendDonorWithdrawLPA_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorWithdrawLPA_Call) Return(_a0 error) *mockLpaStoreClient_SendDonorWithdrawLPA_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorWithdrawLPA_Call) RunAndReturn(run func(context.Context, string) error) *mockLpaStoreClient_SendDonorWithdrawLPA_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendLpa provides a mock function with given fields: ctx, details
 func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, details *donordata.Provided) error {
 	ret := _m.Called(ctx, details)
