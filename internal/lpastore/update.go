@@ -71,6 +71,14 @@ func (c *Client) SendPerfect(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
+func (c *Client) SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error {
+	body := updateRequest{
+		Type: "DONOR_WITHDRAW_LPA",
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}
+
 func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
