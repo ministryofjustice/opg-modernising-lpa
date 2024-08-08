@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -24,7 +23,7 @@ func TestGetConfirmDontWantToBeCertificateProvider(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -59,7 +58,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{}, expectedError)
+					Return(&lpadata.Lpa{}, expectedError)
 
 				return lpaStoreResolvingService
 			},
@@ -70,7 +69,7 @@ func TestGetConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{}, nil)
+					Return(&lpadata.Lpa{}, nil)
 
 				return lpaStoreResolvingService
 			},
@@ -102,19 +101,19 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 	uid := actoruid.New()
 
 	testcases := map[string]struct {
-		lpa            lpastore.Lpa
+		lpa            lpadata.Lpa
 		lpaStoreClient func() *mockLpaStoreClient
 		donorStore     func() *mockDonorStore
 		email          notify.Email
 	}{
 		"witnessed and signed": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID:   "lpa-uid",
 				SignedAt: time.Now(),
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
-				CertificateProvider: lpastore.CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
 				Type: lpadata.LpaTypePersonalWelfare,
@@ -139,13 +138,13 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			},
 		},
 		"cannot-register": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID:   "lpa-uid",
 				SignedAt: time.Now(),
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
-				CertificateProvider: lpastore.CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
 				Type:           lpadata.LpaTypePersonalWelfare,
@@ -164,9 +163,9 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			},
 		},
 		"not witnessed and signed": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Donor:  lpastore.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
+				Donor:  lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore: func() *mockDonorStore {
@@ -257,8 +256,8 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 
-	unsignedLPA := lpastore.Lpa{LpaUID: "lpa-uid"}
-	signedLPA := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
+	unsignedLPA := lpadata.Lpa{LpaUID: "lpa-uid"}
+	signedLPA := lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().

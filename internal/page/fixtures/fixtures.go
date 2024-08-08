@@ -16,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -27,7 +26,7 @@ import (
 
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, donorProvided page.CertificateProviderInvite) error
-	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpastore.Lpa) error
+	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpadata.Lpa) error
 	UseTestCode(shareCode string)
 }
 

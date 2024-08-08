@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -20,7 +20,7 @@ type DashboardStore interface {
 }
 
 type LpaAndActorTasks struct {
-	Lpa                 *lpastore.Lpa
+	Lpa                 *lpadata.Lpa
 	CertificateProvider *certificateproviderdata.Provided
 	Attorney            *attorneydata.Provided
 }

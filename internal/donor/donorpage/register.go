@@ -17,7 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,11 +26,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*lpastore.Lpa, error)
+	Get(ctx context.Context) (*lpadata.Lpa, error)
 }
 
 type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error
@@ -145,7 +146,7 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error)
+	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
 	SendLpa(ctx context.Context, details *donordata.Provided) error
 }
@@ -157,7 +158,7 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpastore.Lpa) page.Progress
+	Progress(lpa *lpadata.Lpa) task.Progress
 }
 
 func Register(

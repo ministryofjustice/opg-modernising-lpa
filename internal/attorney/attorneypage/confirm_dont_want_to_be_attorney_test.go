@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -22,7 +21,7 @@ func TestGetConfirmDontWantToBeAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -51,7 +50,7 @@ func TestGetConfirmDontWantToBeAttorneyWhenLpaStoreResolvingServiceErrors(t *tes
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(mock.Anything).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com")(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
@@ -67,7 +66,7 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(mock.Anything).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -89,14 +88,14 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{
+		Return(&lpadata.Lpa{
 			LpaUID:   "lpa-uid",
 			SignedAt: time.Now(),
-			Donor: lpastore.Donor{
+			Donor: lpadata.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
-			Attorneys: lpastore.Attorneys{
-				Attorneys: []lpastore.Attorney{
+			Attorneys: lpadata.Attorneys{
+				Attorneys: []lpadata.Attorney{
 					{FirstNames: "d e", LastName: "f", UID: uid},
 				},
 			},
@@ -149,10 +148,10 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{
+		Return(&lpadata.Lpa{
 			LpaUID:   "lpa-uid",
 			SignedAt: time.Now(),
-			Donor: lpastore.Donor{
+			Donor: lpadata.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
 			Type: lpadata.LpaTypePersonalWelfare,
@@ -219,7 +218,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}, nil)
+				Return(&lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}, nil)
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().

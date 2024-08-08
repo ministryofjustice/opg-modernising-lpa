@@ -88,11 +88,11 @@ func (mr *multiReadCloser) Close() error {
 
 var _ io.WriterTo = (*multiReadCloser)(nil)
 
-// MultiReadCloser returns a io.ReadCloser that's the logical concatenation of
+// newMultiReadCloser returns a io.ReadCloser that's the logical concatenation of
 // the provided input readClosers. They're read sequentially. Once all inputs
 // have returned EOF, Read will return EOF.  If any of the readClosers return a
 // non-nil, non-EOF error, Read will return that error.
-func MultiReadCloser(readClosers ...io.ReadCloser) io.ReadCloser {
+func newMultiReadCloser(readClosers ...io.ReadCloser) io.ReadCloser {
 	r := make([]io.ReadCloser, len(readClosers))
 	copy(r, readClosers)
 	return &multiReadCloser{r}

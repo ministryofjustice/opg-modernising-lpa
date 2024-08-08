@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,34 +21,34 @@ func TestGetConfirmYourDetails(t *testing.T) {
 
 	testcases := map[string]struct {
 		appData appcontext.Data
-		donor   *lpastore.Lpa
+		donor   *lpadata.Lpa
 		data    *confirmYourDetailsData
 	}{
 		"attorney": {
 			appData: testAppData,
-			donor: &lpastore.Lpa{
-				Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid, FirstNames: "John"}}},
+			donor: &lpadata.Lpa{
+				Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, FirstNames: "John"}}},
 			},
 			data: &confirmYourDetailsData{
 				App: testAppData,
-				Lpa: &lpastore.Lpa{
-					Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{UID: uid, FirstNames: "John"}}},
+				Lpa: &lpadata.Lpa{
+					Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, FirstNames: "John"}}},
 				},
-				Attorney:                lpastore.Attorney{UID: uid, FirstNames: "John"},
+				Attorney:                lpadata.Attorney{UID: uid, FirstNames: "John"},
 				AttorneyProvidedDetails: attorneyProvidedDetails,
 			},
 		},
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			donor: &lpastore.Lpa{
-				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{Name: "company"}},
+			donor: &lpadata.Lpa{
+				Attorneys: lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "company"}},
 			},
 			data: &confirmYourDetailsData{
 				App: testTrustCorporationAppData,
-				Lpa: &lpastore.Lpa{
-					Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{Name: "company"}},
+				Lpa: &lpadata.Lpa{
+					Attorneys: lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "company"}},
 				},
-				TrustCorporation:        lpastore.TrustCorporation{Name: "company"},
+				TrustCorporation:        lpadata.TrustCorporation{Name: "company"},
 				AttorneyProvidedDetails: attorneyProvidedDetails,
 			},
 		},
@@ -82,7 +82,7 @@ func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{}
+	donor := &lpadata.Lpa{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -101,7 +101,7 @@ func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

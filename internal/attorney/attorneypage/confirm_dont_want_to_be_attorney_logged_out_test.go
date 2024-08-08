@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -24,7 +23,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -79,7 +78,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenLpaStoreResolvingServiceErro
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(mock.Anything).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
 	resp := w.Result()
@@ -100,7 +99,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenTemplateErrors(t *testing.T)
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(mock.Anything).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -148,21 +147,21 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 			w := httptest.NewRecorder()
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-			lpa := &lpastore.Lpa{
+			lpa := &lpadata.Lpa{
 				LpaUID:   "lpa-uid",
 				SignedAt: time.Now(),
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
-				Attorneys: lpastore.Attorneys{
-					TrustCorporation: lpastore.TrustCorporation{UID: trustCorporationUID, Name: "trusty"},
-					Attorneys: []lpastore.Attorney{
+				Attorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{UID: trustCorporationUID, Name: "trusty"},
+					Attorneys: []lpadata.Attorney{
 						{UID: attorneyUID, FirstNames: "d e", LastName: "f"},
 					},
 				},
-				ReplacementAttorneys: lpastore.Attorneys{
-					TrustCorporation: lpastore.TrustCorporation{UID: replacementTrustCorporationUID, Name: "untrusty"},
-					Attorneys: []lpastore.Attorney{
+				ReplacementAttorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{UID: replacementTrustCorporationUID, Name: "untrusty"},
+					Attorneys: []lpadata.Attorney{
 						{UID: replacementAttorneyUID, FirstNames: "x y", LastName: "z"},
 					},
 				},
@@ -250,10 +249,10 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(ctx).
-		Return(&lpastore.Lpa{
+		Return(&lpadata.Lpa{
 			LpaUID:   "lpa-uid",
 			SignedAt: time.Now(),
-			Donor: lpastore.Donor{
+			Donor: lpadata.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
 			},
 			Type: lpadata.LpaTypePersonalWelfare,
@@ -271,7 +270,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 
-	signedLPA := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
+	signedLPA := lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
 
 	localizer := func(t *testing.T) *mockLocalizer {
 		l := newMockLocalizer(t)
