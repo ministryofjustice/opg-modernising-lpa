@@ -28,8 +28,9 @@ help: ##@other Show this help.
 go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
-go-generate: ##@testing Runs go generate
+go-generate: ##@testing Runs go generate to install mocks and enums
 	mockery
+	go install ./cmd/enumerator
 	go generate ./...
 
 update-event-schemas: ##@testing Gets the latest event schemas from OPG event catalog that we have tests for
@@ -171,14 +172,3 @@ delete-all-from-lpa-index: ##@opensearch clears all items from the lpa index
 
 delete-lpa-index: ##@opensearch deletes the lpa index
 	curl -XDELETE "http://localhost:9200/lpas"
-
-add-enumerator-watcher:
-	echo '#!/bin/sh \n\
-\n\
-CHANGED=`git diff HEAD@{1} --stat -- ./cmd/enumerator | wc -l` \n\
-if [ $$CHANGED -gt 0 ]; \n\
-then \n\
-    echo "enumerator has changed, re-installing:" \n\
-    go install ./cmd/enumerator \n\
-fi' > .git/hooks/post-merge
-	chmod +x .git/hooks/post-merge
