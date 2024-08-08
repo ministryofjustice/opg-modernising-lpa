@@ -1113,7 +1113,7 @@
     "certificateProviderReferenceNumberOptOutContent": "<p class=\"govuk-body\">If you do not want to be a certificate provider on a lasting power of attorney (LPA), you must enter your 12-character reference number so we can match you with the right LPA.</p>",
     "enterYour12CharacterReferenceNumber": "Enter your 12-character reference number",
     "enterYour12CharacterReferenceNumberHint": "You can find your reference number in the email inviting you to be a certificate provider.",
-    "confirmYouDoNotWantToBeACertificateProvider": "Confirm you do not want to be a certificate provider",
+    "confirmYouDoNotWantToBeACertificateProvider": "Confirm you do not want to be the certificate provider",
     "confirmYouDoNotWantToBeACertificateProviderContent": "<p class=\"govuk-body\">You have told us that you do not want to be the certificate provide for {{ .DonorFullNamePossessive }} LPA :</p> <div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">LPA type:</span> {{ .LpaType }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">LPA number:</span> {{ .LpaUID }}</p> </div>",
     "whenYouSelectConfirmWeWillContactDonor": "When you select ‘Confirm’ we will contact {{ .DonorFirstNames }} to tell them what they should do next.",
     "thankYou": "Thank you",
