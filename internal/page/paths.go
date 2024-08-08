@@ -32,6 +32,7 @@ const (
 	PathSupporterOrganisationDeleted                                       = Path("/organisation-deleted")
 	PathSupporterSigningInAdvice                                           = Path("/signing-in-with-govuk-one-login")
 	PathSupporterStart                                                     = Path("/supporter-start")
+	PathVoucherStart                                                       = Path("/voucher-start")
 
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
 	PathAuthRedirect                = Path("/auth/redirect")
