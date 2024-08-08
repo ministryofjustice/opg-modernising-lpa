@@ -32,7 +32,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 		}
 
 		if r.Method == http.MethodPost {
-			attorneyFullName, err := findAttorneyFullName(lpa, attorneyProvidedDetails.UID, attorneyProvidedDetails.IsTrustCorporation, attorneyProvidedDetails.IsReplacement)
+			attorneyFullName, err := findAttorneyFullName(lpa, attorneyProvidedDetails.UID)
 			if err != nil {
 				return err
 			}

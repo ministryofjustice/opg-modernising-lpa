@@ -55,12 +55,6 @@ func init() {
 	gob.Register(&LpaDataSession{})
 }
 
-type cookieStore interface {
-	Get(r *http.Request, name string) (*sessions.Session, error)
-	New(r *http.Request, name string) (*sessions.Session, error)
-	Save(r *http.Request, w http.ResponseWriter, s *sessions.Session) error
-}
-
 type MissingSessionError string
 
 func (e MissingSessionError) Error() string {

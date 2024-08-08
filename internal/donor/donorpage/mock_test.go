@@ -14,8 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-var mockUuidString = func() string { return "123" }
-
 var (
 	testAddress = place.Address{
 		Line1:      "a",

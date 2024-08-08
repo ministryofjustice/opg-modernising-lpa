@@ -46,7 +46,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID, shareCode.IsTrustCorporation, shareCode.IsReplacementAttorney)
+			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID)
 			if err != nil {
 				return err
 			}
@@ -75,7 +75,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 	}
 }
 
-func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID, isTrustCorporation, isReplacement bool) (string, error) {
+func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID) (string, error) {
 	if t := lpa.ReplacementAttorneys.TrustCorporation; t.UID == uid {
 		return t.Name, nil
 	}

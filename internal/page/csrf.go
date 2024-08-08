@@ -12,8 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-type contextKey string
-
 var ErrCsrfInvalid = errors.New("CSRF token not valid")
 
 const csrfTokenLength = 12
