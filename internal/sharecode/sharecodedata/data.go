@@ -1,4 +1,4 @@
-package sharecode
+package sharecodedata
 
 import (
 	"time"

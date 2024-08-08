@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -25,7 +25,7 @@ import (
 
 func TestGetDonorAccess(t *testing.T) {
 	donor := &donordata.Provided{Donor: donordata.Donor{Email: "x"}}
-	shareCodeData := sharecode.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1"))}
+	shareCodeData := sharecodedata.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1"))}
 
 	testcases := map[string]struct {
 		data                *donorAccessData
@@ -103,7 +103,7 @@ func TestGetDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, expectedError)
+		Return(sharecodedata.Data{}, expectedError)
 
 	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, nil, nil)
 	assert.Equal(t, expectedError, err)
@@ -135,9 +135,9 @@ func TestPostDonorAccess(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, dynamo.NotFoundError{})
+		Return(sharecodedata.Data{}, dynamo.NotFoundError{})
 	shareCodeStore.EXPECT().
-		PutDonor(r.Context(), testRandomString, sharecode.Data{
+		PutDonor(r.Context(), testRandomString, sharecodedata.Data{
 			LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			LpaKey:       dynamo.LpaKey("lpa-id"),
 			ActorUID:     donorUID,
@@ -189,7 +189,7 @@ func TestPostDonorAccessWhenDonorUpdateErrors(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, dynamo.NotFoundError{})
+		Return(sharecodedata.Data{}, dynamo.NotFoundError{})
 
 	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "", nil)(testLpaAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	assert.Equal(t, expectedError, err)
@@ -210,7 +210,7 @@ func TestPostDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, dynamo.NotFoundError{})
+		Return(sharecodedata.Data{}, dynamo.NotFoundError{})
 	shareCodeStore.EXPECT().
 		PutDonor(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
@@ -234,7 +234,7 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, dynamo.NotFoundError{})
+		Return(sharecodedata.Data{}, dynamo.NotFoundError{})
 	shareCodeStore.EXPECT().
 		PutDonor(r.Context(), mock.Anything, mock.Anything).
 		Return(nil)
@@ -269,7 +269,7 @@ func TestPostDonorAccessWhenValidationError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(r.Context()).
-		Return(sharecode.Data{}, dynamo.NotFoundError{})
+		Return(sharecodedata.Data{}, dynamo.NotFoundError{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -292,7 +292,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := sharecode.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
+	shareCodeData := sharecodedata.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -322,7 +322,7 @@ func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := sharecode.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
+	shareCodeData := sharecodedata.Data{PK: dynamo.ShareKey(dynamo.DonorShareKey("1")), InviteSentTo: "email@example.com"}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -390,7 +390,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Data{
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
 		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
@@ -431,7 +431,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Data{
 		PK:           dynamo.ShareKey(dynamo.DonorShareKey("1")),
 		SK:           dynamo.ShareSortKey(dynamo.DonorInviteKey("donor-session-id", "lpa-id")),
 		InviteSentTo: "email@example.com",
@@ -467,7 +467,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
 		GetDonor(mock.Anything).
-		Return(sharecode.Data{}, nil)
+		Return(sharecodedata.Data{}, nil)
 
 	donor := &donordata.Provided{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id"))}
 

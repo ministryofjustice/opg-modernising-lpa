@@ -22,7 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -41,8 +41,8 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
-	PutDonor(ctx context.Context, code string, data sharecode.Data) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
+	PutDonor(ctx context.Context, code string, data sharecodedata.Data) error
 }
 
 func Supporter(
@@ -148,7 +148,7 @@ func Supporter(
 					return err
 				}
 
-				shareCodeData := sharecode.Data{
+				shareCodeData := sharecodedata.Data{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,

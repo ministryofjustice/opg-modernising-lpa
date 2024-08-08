@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,7 +22,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	uid := actoruid.New()
 	details := &certificateproviderdata.Provided{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
 
-	shareCode := sharecode.Data{
+	shareCode := sharecodedata.Data{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
@@ -59,7 +59,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 	certificateProviderStore := &Store{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, sharecode.Data{}, "")
+	_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -75,7 +75,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissingRequiredData(t *testing
 
 			certificateProviderStore := &Store{}
 
-			_, err := certificateProviderStore.Create(ctx, sharecode.Data{}, "")
+			_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -91,7 +91,7 @@ func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	_, err := certificateProviderStore.Create(ctx, sharecode.Data{
+	_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{
 		PK: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")

@@ -1,20 +1,52 @@
-package page
+package sharecode
 
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
+
+type Localizer interface {
+	Concat(list []string, joiner string) string
+	Count(messageID string, count int) string
+	Format(messageID string, data map[string]interface{}) string
+	FormatCount(messageID string, count int, data map[string]any) string
+	FormatDate(t date.TimeOrDate) string
+	FormatTime(t time.Time) string
+	FormatDateTime(t time.Time) string
+	Possessive(s string) string
+	SetShowTranslationKeys(s bool)
+	ShowTranslationKeys() bool
+	T(messageID string) string
+}
+
+type ShareCodeStore interface {
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
+}
+
+type NotifyClient interface {
+	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
+}
+
+type EventClient interface {
+	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
+	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
+}
 
 type ShareCodeSender struct {
 	testCode       string
@@ -61,12 +93,12 @@ func (s *ShareCodeSender) SendCertificateProviderInvite(ctx context.Context, app
 		CertificateProviderFullName:  invite.CertificateProviderFullName,
 		DonorFullName:                invite.DonorFullName,
 		LpaType:                      localize.LowerFirst(appData.Localizer.T(invite.Type.String())),
-		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderStart),
+		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
 		WhatLpaCovers:                appData.Localizer.T(invite.Type.WhatLPACoversTransKey()),
 		ShareCode:                    shareCode,
-		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderEnterReferenceNumberOptOut),
+		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterReferenceNumberOptOut),
 	})
 }
 
@@ -84,7 +116,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 		CertificateProviderFullName: donor.CertificateProvider.FullName(),
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
-		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, PathCertificateProviderStart),
+		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
 		ShareCode:                   shareCode,
 	})
 }
@@ -129,9 +161,9 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appc
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + PathAttorneyStart.Format(),
+			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -152,9 +184,9 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData a
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      s.appPublicURL + PathAttorneyStart.Format(),
+			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -179,9 +211,9 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appc
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, PathAttorneyStart),
+			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -206,9 +238,9 @@ func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, a
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(lpa.Donor.FirstNames),
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
-			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, PathAttorneyStart),
+			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
 			ShareCode:                 shareCode,
-			AttorneyOptOutURL:         s.appPublicURL + PathAttorneyEnterReferenceNumberOptOut.Format(),
+			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
@@ -219,7 +251,7 @@ func (s *ShareCodeSender) createShareCode(ctx context.Context, lpaKey dynamo.Lpa
 		s.testCode = ""
 	}
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Data{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
 		ActorUID:              actorUID,
