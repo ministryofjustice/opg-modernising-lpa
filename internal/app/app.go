@@ -138,6 +138,8 @@ func App(
 		page.Guidance(tmpls.Get("certificate_provider_start.gohtml")))
 	handleRoot(page.PathAttorneyStart, None,
 		page.Guidance(tmpls.Get("attorney_start.gohtml")))
+	handleRoot(page.PathVoucherStart, None,
+		page.Guidance(tmpls.Get("voucher_start.gohtml")))
 	handleRoot(page.PathDashboard, RequireSession,
 		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
 	handleRoot(page.PathLpaDeleted, RequireSession,
