@@ -28,7 +28,7 @@ help: ##@other Show this help.
 go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
-go-generate: ##@testing Runs go generate to install mocks and enums
+go-generate: ##@testing Runs go generate for mocks and enums
 	mockery
 	go install ./cmd/enumerator
 	go generate ./...
