@@ -33,7 +33,7 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 
 			setAddress := func(address place.Address) error {
 				provided.Tasks.AddCorrespondent = task.StateCompleted
-				provided.Correspondent.Address = *data.Form.Address
+				provided.Correspondent.Address = address
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

@@ -33,7 +33,7 @@ func YourIndependentWitnessAddress(logger Logger, tmpl template.Template, addres
 
 			setAddress := func(address place.Address) error {
 				provided.Tasks.ChooseYourSignatory = task.StateCompleted
-				provided.IndependentWitness.Address = *data.Form.Address
+				provided.IndependentWitness.Address = address
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

@@ -6,14 +6,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type lpaProgressData struct {
 	App      appcontext.Data
 	Donor    *donordata.Provided
-	Progress page.Progress
+	Progress task.Progress
 	Errors   validation.List
 }
 

@@ -18,7 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -26,7 +26,7 @@ import (
 	"github.com/pact-foundation/pact-go/v2/consumer"
 	"github.com/pact-foundation/pact-go/v2/matchers"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
@@ -458,10 +458,10 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendAttorney(context.Background(),
-				&Lpa{
+				&lpadata.Lpa{
 					LpaUID: "M-0000-1111-2222",
-					Attorneys: Attorneys{
-						Attorneys: []Attorney{{UID: uid}},
+					Attorneys: lpadata.Attorneys{
+						Attorneys: []lpadata.Attorney{{UID: uid}},
 					},
 				},
 				&attorneydata.Provided{
@@ -546,10 +546,10 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			err := client.SendAttorney(context.Background(),
-				&Lpa{
+				&lpadata.Lpa{
 					LpaUID: "M-0000-1111-2222",
-					Attorneys: Attorneys{
-						TrustCorporation: TrustCorporation{
+					Attorneys: lpadata.Attorneys{
+						TrustCorporation: lpadata.TrustCorporation{
 							UID:           uid,
 							Name:          "Trust us Corp.",
 							CompanyNumber: "66654321",
@@ -634,7 +634,7 @@ func TestClientServiceContract(t *testing.T) {
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 					Email:                     "a@example.com",
-				}, &Lpa{CertificateProvider: CertificateProvider{Channel: lpadata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
+				}, &lpadata.Lpa{CertificateProvider: lpadata.CertificateProvider{Channel: lpadata.ChannelPaper}, LpaUID: "M-0000-1111-2222"})
 			assert.Nil(t, err)
 			return nil
 		}))
@@ -714,8 +714,8 @@ func TestClientServiceContract(t *testing.T) {
 						Country:    "GB",
 					},
 					Email: "a@example.com",
-				}, &Lpa{
-					CertificateProvider: CertificateProvider{
+				}, &lpadata.Lpa{
+					CertificateProvider: lpadata.CertificateProvider{
 						Channel: lpadata.ChannelPaper,
 						Address: place.Address{
 							Line1:      "71 South Western Terrace",
@@ -860,10 +860,10 @@ func TestClientServiceContract(t *testing.T) {
 				return err
 			}
 
-			assert.Equal(t, &Lpa{
+			assert.Equal(t, &lpadata.Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   lpadata.LpaTypePersonalWelfare,
-				Donor: Donor{
+				Donor: lpadata.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
 					DateOfBirth: date.New("1960", "04", "06"),
@@ -875,8 +875,8 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: lpadata.ChannelOnline,
 				},
-				Attorneys: Attorneys{
-					Attorneys: []Attorney{{
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{
 						FirstNames:  "Jake",
 						LastName:    "Valler",
 						DateOfBirth: date.New("2001", "01", "17"),
@@ -888,7 +888,7 @@ func TestClientServiceContract(t *testing.T) {
 						Channel: lpadata.ChannelPaper,
 					}},
 				},
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "Some",
 					LastName:   "Provider",
 					Email:      "some@example.com",
@@ -992,10 +992,10 @@ func TestClientServiceContract(t *testing.T) {
 				return err
 			}
 
-			assert.Equal(t, []*Lpa{{
+			assert.Equal(t, []*lpadata.Lpa{{
 				LpaUID: "M-0000-1111-2222",
 				Type:   lpadata.LpaTypePersonalWelfare,
-				Donor: Donor{
+				Donor: lpadata.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
 					DateOfBirth: date.New("1960", "04", "06"),
@@ -1007,8 +1007,8 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: lpadata.ChannelOnline,
 				},
-				Attorneys: Attorneys{
-					Attorneys: []Attorney{{
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{
 						FirstNames:  "Jake",
 						LastName:    "Valler",
 						DateOfBirth: date.New("2001", "01", "17"),
@@ -1020,7 +1020,7 @@ func TestClientServiceContract(t *testing.T) {
 						Channel: lpadata.ChannelOnline,
 					}},
 				},
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "Some",
 					LastName:   "Provider",
 					Email:      "some@example.com",

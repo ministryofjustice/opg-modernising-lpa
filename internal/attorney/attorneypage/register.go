@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -28,7 +28,7 @@ type Localizer interface {
 }
 
 type LpaStoreResolvingService interface {
-	Get(ctx context.Context) (*lpastore.Lpa, error)
+	Get(ctx context.Context) (*lpadata.Lpa, error)
 }
 
 type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error
@@ -79,11 +79,11 @@ type DashboardStore interface {
 }
 
 type LpaStoreClient interface {
-	SendAttorney(context.Context, *lpastore.Lpa, *attorneydata.Provided) error
+	SendAttorney(context.Context, *lpadata.Lpa, *attorneydata.Provided) error
 }
 
 type NotifyClient interface {
-	EmailGreeting(lpa *lpastore.Lpa) string
+	EmailGreeting(lpa *lpadata.Lpa) string
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 

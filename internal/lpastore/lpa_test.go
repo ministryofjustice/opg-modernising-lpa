@@ -11,14 +11,14 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestClientSendLpa(t *testing.T) {
@@ -396,14 +396,14 @@ func TestClientLpa(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *Lpa
+		donor *lpadata.Lpa
 		json  string
 	}{
 		"minimal": {
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   lpadata.LpaTypePropertyAndAffairs,
-				Donor: Donor{
+				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -417,8 +417,8 @@ func TestClientLpa(t *testing.T) {
 					OtherNames: "JJ",
 					Channel:    lpadata.ChannelOnline,
 				},
-				Attorneys: Attorneys{
-					Attorneys: []Attorney{{
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -431,9 +431,9 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneys: Attorneys{},
+				ReplacementAttorneys: lpadata.Attorneys{},
 				WhenCanTheLpaBeUsed:  lpadata.CanBeUsedWhenCapacityLost,
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
@@ -459,10 +459,10 @@ func TestClientLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "M-0000-1111-2222",
 				Type:   lpadata.LpaTypePersonalWelfare,
-				Donor: Donor{
+				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
@@ -478,13 +478,13 @@ func TestClientLpa(t *testing.T) {
 					},
 					OtherNames: "JJ",
 					Channel:    lpadata.ChannelOnline,
-					IdentityCheck: IdentityCheck{
+					IdentityCheck: lpadata.IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 2, 12, 13, 14, 1, time.UTC),
 						Type:      "one-login",
 					},
 				},
-				Attorneys: Attorneys{
-					TrustCorporation: TrustCorporation{
+				Attorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{
 						UID:           trustCorporationUID,
 						Name:          "Trusty",
 						CompanyNumber: "55555",
@@ -499,7 +499,7 @@ func TestClientLpa(t *testing.T) {
 						},
 						Channel: lpadata.ChannelOnline,
 					},
-					Attorneys: []Attorney{{
+					Attorneys: []lpadata.Attorney{{
 						UID:         attorneyUID,
 						FirstNames:  "Adam",
 						LastName:    "Attorney",
@@ -529,11 +529,11 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				AttorneyDecisions: AttorneyDecisions{
+				AttorneyDecisions: lpadata.AttorneyDecisions{
 					How: lpadata.Jointly,
 				},
-				ReplacementAttorneys: Attorneys{
-					TrustCorporation: TrustCorporation{
+				ReplacementAttorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{
 						UID:           replacementTrustCorporationUID,
 						Name:          "UnTrusty",
 						CompanyNumber: "65555",
@@ -547,7 +547,7 @@ func TestClientLpa(t *testing.T) {
 						},
 						Channel: lpadata.ChannelPaper,
 					},
-					Attorneys: []Attorney{{
+					Attorneys: []lpadata.Attorney{{
 						UID:         replacementAttorneyUID,
 						FirstNames:  "Richard",
 						LastName:    "Attorney",
@@ -577,14 +577,14 @@ func TestClientLpa(t *testing.T) {
 						},
 					}},
 				},
-				ReplacementAttorneyDecisions: AttorneyDecisions{
+				ReplacementAttorneyDecisions: lpadata.AttorneyDecisions{
 					How:     lpadata.JointlyForSomeSeverallyForOthers,
 					Details: "umm",
 				},
 				HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 				LifeSustainingTreatmentOption:       lpadata.LifeSustainingTreatmentOptionA,
 				Restrictions:                        "do not do this",
-				CertificateProvider: CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					UID:        certificateProviderUID,
 					FirstNames: "Carol",
 					LastName:   "Cert",
@@ -599,12 +599,12 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					Channel: lpadata.ChannelOnline,
-					IdentityCheck: IdentityCheck{
+					IdentityCheck: lpadata.IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 1, 13, 14, 15, 16, time.UTC),
 						Type:      "one-login",
 					},
 				},
-				PeopleToNotify: []PersonToNotify{{
+				PeopleToNotify: []lpadata.PersonToNotify{{
 					UID:        personToNotifyUID,
 					FirstNames: "Peter",
 					LastName:   "Notify",
@@ -769,15 +769,15 @@ func TestClientLpas(t *testing.T) {
 	personToNotifyUID := actoruid.New()
 
 	testcases := map[string]struct {
-		lpas []*Lpa
+		lpas []*lpadata.Lpa
 		json string
 	}{
 		"minimal": {
-			lpas: []*Lpa{
+			lpas: []*lpadata.Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
 					Type:   lpadata.LpaTypePropertyAndAffairs,
-					Donor: Donor{
+					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
 						LastName:    "Smith",
@@ -791,8 +791,8 @@ func TestClientLpas(t *testing.T) {
 						OtherNames: "JJ",
 						Channel:    lpadata.ChannelOnline,
 					},
-					Attorneys: Attorneys{
-						Attorneys: []Attorney{{
+					Attorneys: lpadata.Attorneys{
+						Attorneys: []lpadata.Attorney{{
 							UID:         attorneyUID,
 							FirstNames:  "Adam",
 							LastName:    "Attorney",
@@ -805,9 +805,9 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					ReplacementAttorneys: Attorneys{},
+					ReplacementAttorneys: lpadata.Attorneys{},
 					WhenCanTheLpaBeUsed:  lpadata.CanBeUsedWhenCapacityLost,
-					CertificateProvider: CertificateProvider{
+					CertificateProvider: lpadata.CertificateProvider{
 						UID:        certificateProviderUID,
 						FirstNames: "Carol",
 						LastName:   "Cert",
@@ -834,11 +834,11 @@ func TestClientLpas(t *testing.T) {
 }]}`,
 		},
 		"everything": {
-			lpas: []*Lpa{
+			lpas: []*lpadata.Lpa{
 				{
 					LpaUID: "M-0000-1111-2222",
 					Type:   lpadata.LpaTypePersonalWelfare,
-					Donor: Donor{
+					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
 						LastName:    "Smith",
@@ -855,8 +855,8 @@ func TestClientLpas(t *testing.T) {
 						OtherNames: "JJ",
 						Channel:    lpadata.ChannelOnline,
 					},
-					Attorneys: Attorneys{
-						TrustCorporation: TrustCorporation{
+					Attorneys: lpadata.Attorneys{
+						TrustCorporation: lpadata.TrustCorporation{
 							UID:           trustCorporationUID,
 							Name:          "Trusty",
 							CompanyNumber: "55555",
@@ -870,7 +870,7 @@ func TestClientLpas(t *testing.T) {
 								Country:    "GB",
 							},
 						},
-						Attorneys: []Attorney{{
+						Attorneys: []lpadata.Attorney{{
 							UID:         attorneyUID,
 							FirstNames:  "Adam",
 							LastName:    "Attorney",
@@ -900,11 +900,11 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					AttorneyDecisions: AttorneyDecisions{
+					AttorneyDecisions: lpadata.AttorneyDecisions{
 						How: lpadata.Jointly,
 					},
-					ReplacementAttorneys: Attorneys{
-						TrustCorporation: TrustCorporation{
+					ReplacementAttorneys: lpadata.Attorneys{
+						TrustCorporation: lpadata.TrustCorporation{
 							UID:           replacementTrustCorporationUID,
 							Name:          "UnTrusty",
 							CompanyNumber: "65555",
@@ -918,7 +918,7 @@ func TestClientLpas(t *testing.T) {
 								Country:    "GB",
 							},
 						},
-						Attorneys: []Attorney{{
+						Attorneys: []lpadata.Attorney{{
 							UID:         replacementAttorneyUID,
 							FirstNames:  "Richard",
 							LastName:    "Attorney",
@@ -948,14 +948,14 @@ func TestClientLpas(t *testing.T) {
 							},
 						}},
 					},
-					ReplacementAttorneyDecisions: AttorneyDecisions{
+					ReplacementAttorneyDecisions: lpadata.AttorneyDecisions{
 						How:     lpadata.JointlyForSomeSeverallyForOthers,
 						Details: "umm",
 					},
 					HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 					LifeSustainingTreatmentOption:       lpadata.LifeSustainingTreatmentOptionA,
 					Restrictions:                        "do not do this",
-					CertificateProvider: CertificateProvider{
+					CertificateProvider: lpadata.CertificateProvider{
 						UID:        certificateProviderUID,
 						FirstNames: "Carol",
 						LastName:   "Cert",
@@ -971,7 +971,7 @@ func TestClientLpas(t *testing.T) {
 						},
 						Channel: lpadata.ChannelOnline,
 					},
-					PeopleToNotify: []PersonToNotify{{
+					PeopleToNotify: []lpadata.PersonToNotify{{
 						UID:        personToNotifyUID,
 						FirstNames: "Peter",
 						LastName:   "Notify",
@@ -1104,209 +1104,4 @@ func TestClientLpasWhenStatusCodeIsNotOK(t *testing.T) {
 	_, err := client.Lpas(ctx, []string{"M-0000-1111-2222"})
 
 	assert.Equal(t, responseError{name: "expected 200 response but got 400", body: "hey"}, err)
-}
-
-func TestAllAttorneysSigned(t *testing.T) {
-	attorneySigned := time.Now()
-
-	testcases := map[string]struct {
-		lpa      Lpa
-		expected bool
-	}{
-		"no attorneys": {
-			expected: false,
-		},
-		"need attorney to sign": {
-			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
-			},
-			expected: false,
-		},
-		"need replacement attorney to sign": {
-			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}, {SignedAt: attorneySigned}}},
-			},
-			expected: false,
-		},
-		"all attorneys signed": {
-			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
-			},
-			expected: true,
-		},
-		"trust corporations not signed": {
-			lpa: Lpa{
-				Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-			},
-			expected: false,
-		},
-		"trust corporations signatory not signed": {
-			lpa: Lpa{
-				Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{}}}},
-			},
-			expected: false,
-		},
-		"replacement trust corporations not signed": {
-			lpa: Lpa{
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}}}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r"}},
-			},
-			expected: false,
-		},
-		"trust corporations signed": {
-			lpa: Lpa{
-				Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "a", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}}},
-				ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "r", Signatories: []TrustCorporationSignatory{{SignedAt: attorneySigned}}}},
-			},
-			expected: true,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.AllAttorneysSigned())
-		})
-	}
-}
-
-func TestDonorFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", Donor{FirstNames: "John", LastName: "Smith"}.FullName())
-}
-
-func TestAttorneyFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", Attorney{FirstNames: "John", LastName: "Smith"}.FullName())
-}
-
-func TestCertificateProviderFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", CertificateProvider{FirstNames: "John", LastName: "Smith"}.FullName())
-}
-
-func TestPersonToNotifyFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", PersonToNotify{FirstNames: "John", LastName: "Smith"}.FullName())
-}
-
-func TestCorrespondentFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", Correspondent{FirstNames: "John", LastName: "Smith"}.FullName())
-}
-
-func TestAttorneysLen(t *testing.T) {
-	testcases := map[string]struct {
-		attorneys Attorneys
-		len       int
-	}{
-		"trust corporation": {
-			attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
-			len:       1,
-		},
-		"attorneys": {
-			attorneys: Attorneys{Attorneys: []Attorney{{}, {}}},
-			len:       2,
-		},
-		"both": {
-			attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}, Attorneys: []Attorney{{}, {}}},
-			len:       3,
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.len, tc.attorneys.Len())
-		})
-	}
-}
-
-func TestAttorneysGet(t *testing.T) {
-	uid1 := actoruid.New()
-	uid2 := actoruid.New()
-
-	testCases := map[string]struct {
-		attorneys        Attorneys
-		expectedAttorney Attorney
-		uid              actoruid.UID
-		expectedFound    bool
-	}{
-		"attorney exists": {
-			attorneys:        Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
-			expectedAttorney: Attorney{UID: uid1, FirstNames: "Bob"},
-			uid:              uid1,
-			expectedFound:    true,
-		},
-		"attorney does not exist": {
-			attorneys:        Attorneys{Attorneys: []Attorney{{UID: uid1, FirstNames: "Bob"}, {UID: uid2}}},
-			expectedAttorney: Attorney{},
-			uid:              actoruid.New(),
-			expectedFound:    false,
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			a, found := tc.attorneys.Get(tc.uid)
-
-			assert.Equal(t, tc.expectedFound, found)
-			assert.Equal(t, tc.expectedAttorney, a)
-		})
-	}
-}
-
-func TestAttorneysFullNames(t *testing.T) {
-	testcases := map[string]struct {
-		attorneys  Attorneys
-		fullNames  []string
-		firstNames []string
-	}{
-		"empty": {},
-		"attorneys": {
-			attorneys: Attorneys{
-				Attorneys: []Attorney{
-					{FirstNames: "Bob Alan George", LastName: "Jones"},
-					{FirstNames: "Samantha", LastName: "Smith"},
-					{FirstNames: "Abby Helen", LastName: "Burns-Simpson"},
-				},
-			},
-			fullNames:  []string{"Bob Alan George Jones", "Samantha Smith", "Abby Helen Burns-Simpson"},
-			firstNames: []string{"Bob Alan George", "Samantha", "Abby Helen"},
-		},
-		"trust corporation": {
-			attorneys: Attorneys{
-				TrustCorporation: TrustCorporation{Name: "Corp corp"},
-			},
-			fullNames:  []string{"Corp corp"},
-			firstNames: []string{"Corp corp"},
-		},
-		"both": {
-			attorneys: Attorneys{
-				TrustCorporation: TrustCorporation{Name: "Corp corp"},
-				Attorneys: []Attorney{
-					{FirstNames: "Bob", LastName: "Jones"},
-				},
-			},
-			fullNames:  []string{"Corp corp", "Bob Jones"},
-			firstNames: []string{"Corp corp", "Bob"},
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.fullNames, tc.attorneys.FullNames())
-		})
-	}
-}
-
-func TestLpaCorrespondentEmail(t *testing.T) {
-	lpa := &Lpa{
-		Donor: Donor{Email: "donor"},
-	}
-	assert.Equal(t, "donor", lpa.CorrespondentEmail())
-}
-
-func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
-	lpa := &Lpa{
-		Donor:         Donor{Email: "donor"},
-		Correspondent: Correspondent{Email: "correspondent"},
-	}
-	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
 }

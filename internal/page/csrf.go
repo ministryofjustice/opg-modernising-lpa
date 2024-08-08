@@ -12,8 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 )
 
-type contextKey string
-
 var ErrCsrfInvalid = errors.New("CSRF token not valid")
 
 const csrfTokenLength = 12
@@ -66,7 +64,7 @@ func csrfValid(r *http.Request, csrfSession *sesh.CsrfSession) bool {
 		lmt := io.LimitReader(part, csrfTokenLength+1)
 		value, _ := io.ReadAll(lmt)
 
-		r.Body = MultiReadCloser(io.NopCloser(&buf), r.Body)
+		r.Body = newMultiReadCloser(io.NopCloser(&buf), r.Body)
 		return string(value) == cookieValue
 	}
 

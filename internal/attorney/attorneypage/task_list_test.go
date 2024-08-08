@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,13 +18,13 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *lpastore.Lpa
+		lpa      *lpadata.Lpa
 		attorney *attorneydata.Provided
 		appData  appcontext.Data
 		expected func([]taskListItem) []taskListItem
 	}{
 		"empty": {
-			lpa:      &lpastore.Lpa{LpaID: "lpa-id"},
+			lpa:      &lpadata.Lpa{LpaID: "lpa-id"},
 			attorney: &attorneydata.Provided{},
 			appData:  testAppData,
 			expected: func(items []taskListItem) []taskListItem {
@@ -32,7 +32,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"trust corporation": {
-			lpa:      &lpastore.Lpa{LpaID: "lpa-id"},
+			lpa:      &lpadata.Lpa{LpaID: "lpa-id"},
 			attorney: &attorneydata.Provided{},
 			appData:  testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
@@ -42,10 +42,10 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"trust corporation with two signatories": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:               "lpa-id",
 				SignedAt:            time.Now(),
-				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				WouldLikeSecondSignatory: form.Yes,
@@ -69,7 +69,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"tasks completed not signed": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -88,10 +88,10 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"tasks completed and signed": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:               "lpa-id",
 				SignedAt:            time.Now(),
-				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -109,10 +109,10 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"completed": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:               "lpa-id",
 				SignedAt:            time.Now(),
-				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -132,10 +132,10 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"completed replacement": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:               "lpa-id",
 				SignedAt:            time.Now(),
-				CertificateProvider: lpastore.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -195,7 +195,7 @@ func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, nil)
 
@@ -209,7 +209,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
+		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

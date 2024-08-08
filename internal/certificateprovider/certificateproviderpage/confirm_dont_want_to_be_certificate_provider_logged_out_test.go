@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -26,7 +25,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -87,7 +86,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{}, expectedError)
+					Return(&lpadata.Lpa{}, expectedError)
 
 				return lpaStoreResolvingService
 			},
@@ -106,7 +105,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 				lpaStoreResolvingService.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{}, nil)
+					Return(&lpadata.Lpa{}, nil)
 
 				return lpaStoreResolvingService
 			},
@@ -138,19 +137,19 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 	testcases := map[string]struct {
-		lpa            lpastore.Lpa
+		lpa            lpadata.Lpa
 		lpaStoreClient func() *mockLpaStoreClient
 		donorStore     func() *mockDonorStore
 		email          notify.Email
 	}{
 		"witnessed and signed": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID:   "lpa-uid",
 				SignedAt: time.Now(),
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
-				CertificateProvider: lpastore.CertificateProvider{
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
 				Type: lpadata.LpaTypePersonalWelfare,
@@ -175,11 +174,11 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			},
 		},
 		"cannot-register": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID:   "lpa-uid",
 				SignedAt: time.Now(),
-				Donor:    lpastore.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
-				CertificateProvider: lpastore.CertificateProvider{
+				Donor:    lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
+				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
 				CannotRegister: true,
@@ -198,9 +197,9 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			},
 		},
 		"not witnessed and signed": {
-			lpa: lpastore.Lpa{
+			lpa: lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
 			},
@@ -311,8 +310,8 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 
-	unsignedLPA := lpastore.Lpa{LpaUID: "lpa-uid"}
-	signedLPA := lpastore.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
+	unsignedLPA := lpadata.Lpa{LpaUID: "lpa-uid"}
+	signedLPA := lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
 		T(mock.Anything).

@@ -6,7 +6,7 @@ import (
 	context "context"
 
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -25,23 +25,23 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // Lpa provides a mock function with given fields: ctx, lpaUID
-func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpastore.Lpa, error) {
+func (_m *mockLpaStoreClient) Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error) {
 	ret := _m.Called(ctx, lpaUID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Lpa")
 	}
 
-	var r0 *lpastore.Lpa
+	var r0 *lpadata.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpastore.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*lpadata.Lpa, error)); ok {
 		return rf(ctx, lpaUID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *lpastore.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *lpadata.Lpa); ok {
 		r0 = rf(ctx, lpaUID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*lpastore.Lpa)
+			r0 = ret.Get(0).(*lpadata.Lpa)
 		}
 	}
 
@@ -73,12 +73,12 @@ func (_c *mockLpaStoreClient_Lpa_Call) Run(run func(ctx context.Context, lpaUID 
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpastore.Lpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpadata.Lpa, _a1 error) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpastore.Lpa, error)) *mockLpaStoreClient_Lpa_Call {
+func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpadata.Lpa, error)) *mockLpaStoreClient_Lpa_Call {
 	_c.Call.Return(run)
 	return _c
 }

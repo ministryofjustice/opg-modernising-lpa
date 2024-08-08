@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -74,7 +74,7 @@ func TestPostOneLoginIdentityDetails(t *testing.T) {
 	lpaResolvingService := newMockLpaStoreResolvingService(t)
 	lpaResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
+		Return(&lpadata.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
 
 	err := OneLoginIdentityDetails(nil, certificateProviderStore, lpaResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
@@ -95,7 +95,7 @@ func TestPostOneLoginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 	lpaResolvingService := newMockLpaStoreResolvingService(t)
 	lpaResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpastore.CertificateProvider{FirstNames: "x", LastName: "y"}}, nil)
+		Return(&lpadata.Lpa{LpaUID: "lpa-uid", CertificateProvider: lpadata.CertificateProvider{FirstNames: "x", LastName: "y"}}, nil)
 
 	err := OneLoginIdentityDetails(nil, nil, lpaResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
@@ -125,7 +125,7 @@ func TestPostOneLoginIdentityDetailsErrors(t *testing.T) {
 				service := newMockLpaStoreResolvingService(t)
 				service.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{}, expectedError)
+					Return(&lpadata.Lpa{}, expectedError)
 				return service
 			},
 			certificateProviderStore: func() *mockCertificateProviderStore {
@@ -138,7 +138,7 @@ func TestPostOneLoginIdentityDetailsErrors(t *testing.T) {
 				service := newMockLpaStoreResolvingService(t)
 				service.EXPECT().
 					Get(mock.Anything).
-					Return(&lpastore.Lpa{CertificateProvider: lpastore.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
+					Return(&lpadata.Lpa{CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"}}, nil)
 				return service
 			},
 			certificateProviderStore: func() *mockCertificateProviderStore {

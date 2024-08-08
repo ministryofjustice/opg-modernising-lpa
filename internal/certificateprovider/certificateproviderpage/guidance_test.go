@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,7 @@ func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{}
+	donor := &lpadata.Lpa{}
 	certificateProvider := &certificateproviderdata.Provided{}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -58,7 +58,7 @@ func TestGuidanceWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := Guidance(nil, lpaStoreResolvingService)(testAppData, w, r, nil)
 
@@ -72,11 +72,11 @@ func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Lpa: &lpastore.Lpa{}}).
+		Execute(w, &guidanceData{App: testAppData, Lpa: &lpadata.Lpa{}}).
 		Return(expectedError)
 
 	err := Guidance(template.Execute, lpaStoreResolvingService)(testAppData, w, r, nil)

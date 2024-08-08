@@ -8,7 +8,7 @@ import (
 	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -27,7 +27,7 @@ func (_m *mockLpaStoreClient) EXPECT() *mockLpaStoreClient_Expecter {
 }
 
 // SendCertificateProvider provides a mock function with given fields: ctx, certificateProvider, lpa
-func (_m *mockLpaStoreClient) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpastore.Lpa) error {
+func (_m *mockLpaStoreClient) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 	ret := _m.Called(ctx, certificateProvider, lpa)
 
 	if len(ret) == 0 {
@@ -35,7 +35,7 @@ func (_m *mockLpaStoreClient) SendCertificateProvider(ctx context.Context, certi
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *certificateproviderdata.Provided, *lpastore.Lpa) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *certificateproviderdata.Provided, *lpadata.Lpa) error); ok {
 		r0 = rf(ctx, certificateProvider, lpa)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type mockLpaStoreClient_SendCertificateProvider_Call struct {
 // SendCertificateProvider is a helper method to define mock.On call
 //   - ctx context.Context
 //   - certificateProvider *certificateproviderdata.Provided
-//   - lpa *lpastore.Lpa
+//   - lpa *lpadata.Lpa
 func (_e *mockLpaStoreClient_Expecter) SendCertificateProvider(ctx interface{}, certificateProvider interface{}, lpa interface{}) *mockLpaStoreClient_SendCertificateProvider_Call {
 	return &mockLpaStoreClient_SendCertificateProvider_Call{Call: _e.mock.On("SendCertificateProvider", ctx, certificateProvider, lpa)}
 }
 
-func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Run(run func(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpastore.Lpa)) *mockLpaStoreClient_SendCertificateProvider_Call {
+func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Run(run func(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa)) *mockLpaStoreClient_SendCertificateProvider_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*certificateproviderdata.Provided), args[2].(*lpastore.Lpa))
+		run(args[0].(context.Context), args[1].(*certificateproviderdata.Provided), args[2].(*lpadata.Lpa))
 	})
 	return _c
 }
@@ -69,7 +69,7 @@ func (_c *mockLpaStoreClient_SendCertificateProvider_Call) Return(_a0 error) *mo
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func(context.Context, *certificateproviderdata.Provided, *lpastore.Lpa) error) *mockLpaStoreClient_SendCertificateProvider_Call {
+func (_c *mockLpaStoreClient_SendCertificateProvider_Call) RunAndReturn(run func(context.Context, *certificateproviderdata.Provided, *lpadata.Lpa) error) *mockLpaStoreClient_SendCertificateProvider_Call {
 	_c.Call.Return(run)
 	return _c
 }
