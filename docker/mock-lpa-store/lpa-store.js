@@ -77,6 +77,10 @@ switch (context.request.method) {
         case 'CERTIFICATE_PROVIDER_OPT_OUT':
           lpa.status = 'cannot-register';
           break;
+
+        case 'DONOR_WITHDRAW_LPA':
+          lpa.status = 'withdrawn';
+          break;
       }
 
       lpaStore.save(pathParts[2], JSON.stringify(lpa));
