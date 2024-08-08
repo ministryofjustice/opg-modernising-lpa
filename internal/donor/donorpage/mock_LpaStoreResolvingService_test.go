@@ -5,7 +5,7 @@ package donorpage
 import (
 	context "context"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,23 +23,23 @@ func (_m *mockLpaStoreResolvingService) EXPECT() *mockLpaStoreResolvingService_E
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *mockLpaStoreResolvingService) Get(ctx context.Context) (*lpastore.Lpa, error) {
+func (_m *mockLpaStoreResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *lpastore.Lpa
+	var r0 *lpadata.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (*lpastore.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (*lpadata.Lpa, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) *lpastore.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) *lpadata.Lpa); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*lpastore.Lpa)
+			r0 = ret.Get(0).(*lpadata.Lpa)
 		}
 	}
 
@@ -70,12 +70,12 @@ func (_c *mockLpaStoreResolvingService_Get_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_Get_Call) Return(_a0 *lpastore.Lpa, _a1 error) *mockLpaStoreResolvingService_Get_Call {
+func (_c *mockLpaStoreResolvingService_Get_Call) Return(_a0 *lpadata.Lpa, _a1 error) *mockLpaStoreResolvingService_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_Get_Call) RunAndReturn(run func(context.Context) (*lpastore.Lpa, error)) *mockLpaStoreResolvingService_Get_Call {
+func (_c *mockLpaStoreResolvingService_Get_Call) RunAndReturn(run func(context.Context) (*lpadata.Lpa, error)) *mockLpaStoreResolvingService_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -14,7 +14,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -46,12 +45,12 @@ func TestEmailGreeting(t *testing.T) {
 	client := &Client{bundle: bundle}
 
 	testcases := map[string]struct {
-		lpa      *lpastore.Lpa
+		lpa      *lpadata.Lpa
 		expected string
 	}{
 		"english donor": {
-			lpa: &lpastore.Lpa{
-				Donor: lpastore.Donor{
+			lpa: &lpadata.Lpa{
+				Donor: lpadata.Donor{
 					ContactLanguagePreference: localize.En,
 					FirstNames:                "John",
 					LastName:                  "Smith",
@@ -60,8 +59,8 @@ func TestEmailGreeting(t *testing.T) {
 			expected: "Hi John Smith",
 		},
 		"welsh donor": {
-			lpa: &lpastore.Lpa{
-				Donor: lpastore.Donor{
+			lpa: &lpadata.Lpa{
+				Donor: lpadata.Donor{
 					ContactLanguagePreference: localize.Cy,
 					FirstNames:                "John",
 					LastName:                  "Smith",
@@ -70,15 +69,15 @@ func TestEmailGreeting(t *testing.T) {
 			expected: "Hy John Smith",
 		},
 		"english donor with correspondent": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaUID: "M-FAKE-1111",
 				Type:   lpadata.LpaTypePersonalWelfare,
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					ContactLanguagePreference: localize.En,
 					FirstNames:                "John",
 					LastName:                  "Smith",
 				},
-				Correspondent: lpastore.Correspondent{
+				Correspondent: lpadata.Correspondent{
 					FirstNames: "Dave",
 					LastName:   "David",
 				},
@@ -86,15 +85,15 @@ func TestEmailGreeting(t *testing.T) {
 			expected: "Hello Dave David for John Smith’s Personal welfare LPA (M-FAKE-1111)",
 		},
 		"welsh donor with correspondent": {
-			lpa: &lpastore.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaUID: "M-FAKE-1111",
 				Type:   lpadata.LpaTypePropertyAndAffairs,
-				Donor: lpastore.Donor{
+				Donor: lpadata.Donor{
 					ContactLanguagePreference: localize.Cy,
 					FirstNames:                "John",
 					LastName:                  "Smith",
 				},
-				Correspondent: lpastore.Correspondent{
+				Correspondent: lpadata.Correspondent{
 					FirstNames: "Dave",
 					LastName:   "David",
 				},

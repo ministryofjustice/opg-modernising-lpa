@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,13 +18,13 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		donor               *lpastore.Lpa
+		donor               *lpadata.Lpa
 		certificateProvider *certificateproviderdata.Provided
 		appData             appcontext.Data
 		expected            func([]taskListItem) []taskListItem
 	}{
 		"empty": {
-			donor:               &lpastore.Lpa{LpaID: "lpa-id"},
+			donor:               &lpadata.Lpa{LpaID: "lpa-id"},
 			certificateProvider: &certificateproviderdata.Provided{},
 			appData:             testAppData,
 			expected: func(items []taskListItem) []taskListItem {
@@ -35,7 +35,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"paid": {
-			donor: &lpastore.Lpa{
+			donor: &lpadata.Lpa{
 				LpaID: "lpa-id",
 				Paid:  true,
 			},
@@ -54,7 +54,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"submitted": {
-			donor: &lpastore.Lpa{
+			donor: &lpadata.Lpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 			},
@@ -73,7 +73,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"identity confirmed": {
-			donor: &lpastore.Lpa{
+			donor: &lpadata.Lpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 				Paid:     true,
@@ -97,7 +97,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 		},
 		"all": {
-			donor: &lpastore.Lpa{
+			donor: &lpadata.Lpa{
 				LpaID:    "lpa-id",
 				SignedAt: time.Now(),
 				Paid:     true,
@@ -160,7 +160,7 @@ func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 
@@ -174,7 +174,7 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
+		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

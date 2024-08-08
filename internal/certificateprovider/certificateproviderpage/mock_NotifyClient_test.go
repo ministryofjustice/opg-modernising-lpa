@@ -5,7 +5,7 @@ package certificateproviderpage
 import (
 	context "context"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	mock "github.com/stretchr/testify/mock"
 
 	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -25,7 +25,7 @@ func (_m *mockNotifyClient) EXPECT() *mockNotifyClient_Expecter {
 }
 
 // EmailGreeting provides a mock function with given fields: lpa
-func (_m *mockNotifyClient) EmailGreeting(lpa *lpastore.Lpa) string {
+func (_m *mockNotifyClient) EmailGreeting(lpa *lpadata.Lpa) string {
 	ret := _m.Called(lpa)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *mockNotifyClient) EmailGreeting(lpa *lpastore.Lpa) string {
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(*lpastore.Lpa) string); ok {
+	if rf, ok := ret.Get(0).(func(*lpadata.Lpa) string); ok {
 		r0 = rf(lpa)
 	} else {
 		r0 = ret.Get(0).(string)
@@ -48,14 +48,14 @@ type mockNotifyClient_EmailGreeting_Call struct {
 }
 
 // EmailGreeting is a helper method to define mock.On call
-//   - lpa *lpastore.Lpa
+//   - lpa *lpadata.Lpa
 func (_e *mockNotifyClient_Expecter) EmailGreeting(lpa interface{}) *mockNotifyClient_EmailGreeting_Call {
 	return &mockNotifyClient_EmailGreeting_Call{Call: _e.mock.On("EmailGreeting", lpa)}
 }
 
-func (_c *mockNotifyClient_EmailGreeting_Call) Run(run func(lpa *lpastore.Lpa)) *mockNotifyClient_EmailGreeting_Call {
+func (_c *mockNotifyClient_EmailGreeting_Call) Run(run func(lpa *lpadata.Lpa)) *mockNotifyClient_EmailGreeting_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*lpastore.Lpa))
+		run(args[0].(*lpadata.Lpa))
 	})
 	return _c
 }
@@ -65,7 +65,7 @@ func (_c *mockNotifyClient_EmailGreeting_Call) Return(_a0 string) *mockNotifyCli
 	return _c
 }
 
-func (_c *mockNotifyClient_EmailGreeting_Call) RunAndReturn(run func(*lpastore.Lpa) string) *mockNotifyClient_EmailGreeting_Call {
+func (_c *mockNotifyClient_EmailGreeting_Call) RunAndReturn(run func(*lpadata.Lpa) string) *mockNotifyClient_EmailGreeting_Call {
 	_c.Call.Return(run)
 	return _c
 }

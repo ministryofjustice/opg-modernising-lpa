@@ -1,7 +1,7 @@
 package page
 
 import (
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -44,7 +44,7 @@ func (p Progress) ToSlice() []ProgressTask {
 	return list
 }
 
-func (pt ProgressTracker) Progress(lpa *lpastore.Lpa) Progress {
+func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 	var labels map[string]string
 
 	if lpa.IsOrganisationDonor {
