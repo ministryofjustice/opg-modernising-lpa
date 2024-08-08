@@ -106,8 +106,8 @@ func App(
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
-	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)
+	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
+	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 

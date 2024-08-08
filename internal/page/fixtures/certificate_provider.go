@@ -21,6 +21,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -122,7 +123,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecode.Data{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecodedata.Data{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {
@@ -253,7 +254,7 @@ func CertificateProvider(
 				SessionID: donorSessionID,
 				LpaID:     donorDetails.LpaID,
 				Localizer: appData.Localizer,
-			}, page.CertificateProviderInvite{
+			}, sharecode.CertificateProviderInvite{
 				LpaKey:                      donorDetails.PK,
 				LpaOwnerKey:                 donorDetails.SK,
 				LpaUID:                      donorDetails.LpaUID,

@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -65,7 +66,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
 	if !wasCompleted {
-		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
+		return n.shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
 			LpaKey:                      donor.PK,
 			LpaOwnerKey:                 donor.SK,
 			LpaUID:                      donor.LpaUID,

@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -258,7 +258,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				LpaData(r).
 				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-			shareCodeData := sharecode.Data{
+			shareCodeData := sharecodedata.Data{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			}
@@ -306,7 +306,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Data{
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 

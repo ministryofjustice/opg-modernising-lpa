@@ -16,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 const FormUrlEncoded = "application/x-www-form-urlencoded"
@@ -29,8 +29,8 @@ type Logger interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecode.Data, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecode.Data) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
 }
 
 type NotifyClient interface {

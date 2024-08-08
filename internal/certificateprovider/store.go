@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 type DynamoClient interface {
@@ -44,7 +44,7 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecode.Data, email string) (*certificateproviderdata.Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
