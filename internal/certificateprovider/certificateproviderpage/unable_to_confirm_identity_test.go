@@ -7,7 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,13 +20,13 @@ func TestGetUnableToConfirmIdentity(t *testing.T) {
 	lpaResolvingService := newMockLpaStoreResolvingService(t)
 	lpaResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{Donor: lpastore.Donor{FirstNames: "a"}}, nil)
+		Return(&lpadata.Lpa{Donor: lpadata.Donor{FirstNames: "a"}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &unableToConfirmIdentityData{
 			App:   testAppData,
-			Donor: lpastore.Donor{FirstNames: "a"},
+			Donor: lpadata.Donor{FirstNames: "a"},
 		}).
 		Return(nil)
 
@@ -60,7 +60,7 @@ func TestGetUnableToConfirmIdentityErrors(t *testing.T) {
 				service := newMockLpaStoreResolvingService(t)
 				service.EXPECT().
 					Get(r.Context()).
-					Return(&lpastore.Lpa{}, nil)
+					Return(&lpadata.Lpa{}, nil)
 				return service
 			},
 			template: func() *mockTemplate {

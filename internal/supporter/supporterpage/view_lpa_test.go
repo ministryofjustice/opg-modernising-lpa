@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -17,7 +17,7 @@ func TestGetViewLPA(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -64,7 +64,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().

@@ -17,7 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 var (
@@ -77,7 +77,7 @@ func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Do
 	}, nil
 }
 
-func (c *Client) EmailGreeting(lpa *lpastore.Lpa) string {
+func (c *Client) EmailGreeting(lpa *lpadata.Lpa) string {
 	localizer := c.bundle.For(lpa.Donor.ContactLanguagePreference)
 
 	if lpa.Correspondent.FirstNames == "" {
