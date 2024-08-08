@@ -14,7 +14,6 @@ import (
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -722,9 +721,9 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	appData := appcontext.Data{}
 	uid := actoruid.New()
 
-	lpa := &lpastore.Lpa{
-		Donor: lpastore.Donor{FirstNames: "Dave", LastName: "Smith"},
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		Donor: lpadata.Donor{FirstNames: "Dave", LastName: "Smith"},
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel:    lpadata.ChannelOnline,
 			UID:        uid,
 			FirstNames: "John",
@@ -793,8 +792,8 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
 	appData := appcontext.Data{}
 
-	lpa := &lpastore.Lpa{
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelPaper,
 		},
 	}
@@ -858,8 +857,8 @@ func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 	appData := appcontext.Data{}
 
-	lpa := &lpastore.Lpa{
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelOnline,
 		},
 	}
@@ -884,8 +883,8 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	appData := appcontext.Data{}
 
-	lpa := &lpastore.Lpa{
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelOnline,
 		},
 	}
@@ -920,8 +919,8 @@ var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
 func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	appData := appcontext.Data{}
 
-	lpa := &lpastore.Lpa{
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelPaper,
 		},
 	}
@@ -954,8 +953,8 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 }
 
 func TestHandleCertificateProviderSubmissionCompletedWhenOnline(t *testing.T) {
-	lpa := &lpastore.Lpa{
-		CertificateProvider: lpastore.CertificateProvider{
+	lpa := &lpadata.Lpa{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelOnline,
 		},
 	}
@@ -1006,8 +1005,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpastore.Lpa{
-			CertificateProvider: lpastore.CertificateProvider{
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
 				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
@@ -1037,8 +1036,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderFactoryE
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpastore.Lpa{
-			CertificateProvider: lpastore.CertificateProvider{
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
 				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
@@ -1060,8 +1059,8 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
-		Return(&lpastore.Lpa{
-			CertificateProvider: lpastore.CertificateProvider{
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
 				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)

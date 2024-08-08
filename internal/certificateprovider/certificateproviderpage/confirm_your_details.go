@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -15,7 +15,7 @@ import (
 type confirmYourDetailsData struct {
 	App                    appcontext.Data
 	Errors                 validation.List
-	Lpa                    *lpastore.Lpa
+	Lpa                    *lpadata.Lpa
 	CertificateProvider    *certificateproviderdata.Provided
 	PhoneNumberLabel       string
 	AddressLabel           string

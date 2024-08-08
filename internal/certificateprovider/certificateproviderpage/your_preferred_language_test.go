@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -37,7 +37,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 			},
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
-			Lpa:       &lpastore.Lpa{},
+			Lpa:       &lpadata.Lpa{},
 		}).
 		Return(nil)
 
@@ -56,7 +56,7 @@ func TestGetYourPreferredLanguageWhenLpaStoreResolvingServiceError(t *testing.T)
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := YourPreferredLanguage(nil, nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
 	resp := w.Result()
@@ -72,7 +72,7 @@ func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -105,7 +105,7 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.Lpa{}, nil)
+				Return(&lpadata.Lpa{}, nil)
 
 			err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
@@ -132,7 +132,7 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	err := YourPreferredLanguage(nil, certificateProviderStore, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
@@ -151,7 +151,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -164,7 +164,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 			Options:   localize.LangValues,
 			FieldName: form.FieldNames.LanguagePreference,
 			Errors:    validation.With(form.FieldNames.LanguagePreference, validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}),
-			Lpa:       &lpastore.Lpa{},
+			Lpa:       &lpadata.Lpa{},
 		}).
 		Return(nil)
 

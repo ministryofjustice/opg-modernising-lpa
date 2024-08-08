@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -90,7 +89,7 @@ func (s *ShareCodeSender) SendCertificateProviderPrompt(ctx context.Context, app
 	})
 }
 
-func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpastore.Lpa) error {
+func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpadata.Lpa) error {
 	if err := s.sendTrustCorporation(ctx, appData, donor, donor.Attorneys.TrustCorporation); err != nil {
 		return err
 	}
@@ -113,7 +112,7 @@ func (s *ShareCodeSender) SendAttorneys(ctx context.Context, appData appcontext.
 	return nil
 }
 
-func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeAttorney)
 	if err != nil {
 		return err
@@ -136,7 +135,7 @@ func (s *ShareCodeSender) sendOriginalAttorney(ctx context.Context, appData appc
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, attorney lpastore.Attorney) error {
+func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
 		return err
@@ -159,7 +158,7 @@ func (s *ShareCodeSender) sendReplacementAttorney(ctx context.Context, appData a
 		})
 }
 
-func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}
@@ -186,7 +185,7 @@ func (s *ShareCodeSender) sendTrustCorporation(ctx context.Context, appData appc
 		})
 }
 
-func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpastore.Lpa, trustCorporation lpastore.TrustCorporation) error {
+func (s *ShareCodeSender) sendReplacementTrustCorporation(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, trustCorporation lpadata.TrustCorporation) error {
 	if trustCorporation.Name == "" {
 		return nil
 	}

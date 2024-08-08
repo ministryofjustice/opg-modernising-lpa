@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -343,11 +343,11 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		RemoveTrustCorporation:  donor.PathRemoveReplacementTrustCorporation.Format("lpa-id") + "?from=/here",
 	}
 
-	lpaStoreAttorneys := []lpastore.Attorney{
+	lpaStoreAttorneys := []lpadata.Attorney{
 		{UID: uid1},
 		{UID: uid2},
 	}
-	lpaStoreTrustCorporation := lpastore.TrustCorporation{Name: "a"}
+	lpaStoreTrustCorporation := lpadata.TrustCorporation{Name: "a"}
 
 	actorAttorneys := []donordata.Attorney{
 		{UID: uid1},
@@ -361,7 +361,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 		attorneyType string
 	}{
 		"lpastore": {
-			attorneys: lpastore.Attorneys{
+			attorneys: lpadata.Attorneys{
 				Attorneys:        lpaStoreAttorneys,
 				TrustCorporation: lpaStoreTrustCorporation,
 			},
@@ -391,7 +391,7 @@ func TestListAttorneysWithAttorneys(t *testing.T) {
 			},
 		},
 		"lpastore replacement": {
-			attorneys: lpastore.Attorneys{
+			attorneys: lpadata.Attorneys{
 				Attorneys:        lpaStoreAttorneys,
 				TrustCorporation: lpaStoreTrustCorporation,
 			},
@@ -552,9 +552,9 @@ func TestLpaDecisions(t *testing.T) {
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
-		Lpa:       &lpastore.Lpa{},
+		Lpa:       &lpadata.Lpa{},
 		CanChange: true,
-	}, lpaDecisions(app, &lpastore.Lpa{}, true))
+	}, lpaDecisions(app, &lpadata.Lpa{}, true))
 }
 
 func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
@@ -562,7 +562,7 @@ func TestLpaDecisionsWithDonorProvidedDetails(t *testing.T) {
 
 	assert.Equal(t, lpaDecisionsData{
 		App:       app,
-		Lpa:       &lpastore.Lpa{},
+		Lpa:       &lpadata.Lpa{},
 		CanChange: true,
 	}, lpaDecisions(app, &donordata.Provided{}, true))
 }

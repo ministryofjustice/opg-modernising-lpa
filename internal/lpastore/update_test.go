@@ -107,9 +107,9 @@ func TestClientSendCertificateProvider(t *testing.T) {
 		Email:                     "b@example.com",
 	}
 
-	lpa := &Lpa{
+	lpa := &lpadata.Lpa{
 		LpaUID: "lpa-uid",
-		CertificateProvider: CertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			Channel: lpadata.ChannelOnline,
 			Email:   "a@example.com",
 		},
@@ -154,7 +154,7 @@ func TestClientSendAttorney(t *testing.T) {
 
 	testcases := map[string]struct {
 		attorney *attorneydata.Provided
-		donor    *Lpa
+		donor    *lpadata.Lpa
 		json     string
 	}{
 		"attorney": {
@@ -165,10 +165,10 @@ func TestClientSendAttorney(t *testing.T) {
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
 			},
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Attorneys: Attorneys{
-					Attorneys: []Attorney{
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{
 						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: lpadata.ChannelPaper},
 					},
 				},
@@ -184,15 +184,15 @@ func TestClientSendAttorney(t *testing.T) {
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
 			},
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Attorneys: Attorneys{
-					Attorneys: []Attorney{
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{
 						{UID: uid1}, {UID: uid2},
 					},
 				},
-				ReplacementAttorneys: Attorneys{
-					Attorneys: []Attorney{
+				ReplacementAttorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{
 						{UID: uid1}, {UID: uid2, Email: "a@example.com", Channel: lpadata.ChannelPaper},
 					},
 				},
@@ -218,10 +218,10 @@ func TestClientSendAttorney(t *testing.T) {
 				ContactLanguagePreference: localize.En,
 				Email:                     "a@example.com",
 			},
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Attorneys: Attorneys{
-					TrustCorporation: TrustCorporation{Channel: lpadata.ChannelPaper},
+				Attorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{Channel: lpadata.ChannelPaper},
 				},
 			},
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/0/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/0/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/0/email","old":"","new":"a@example.com"},{"key":"/trustCorporations/0/channel","old":"paper","new":"online"},{"key":"/trustCorporations/0/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/0/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/0/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"},{"key":"/trustCorporations/0/signatories/1/firstNames","old":null,"new":"Dave"},{"key":"/trustCorporations/0/signatories/1/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/0/signatories/1/professionalTitle","old":null,"new":"Assistant to the Director"},{"key":"/trustCorporations/0/signatories/1/signedAt","old":null,"new":"2000-01-02T03:04:05.000000007Z"}]}`,
@@ -240,13 +240,13 @@ func TestClientSendAttorney(t *testing.T) {
 				}},
 				ContactLanguagePreference: localize.En,
 			},
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Attorneys: Attorneys{
-					TrustCorporation: TrustCorporation{Name: "a"},
+				Attorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{Name: "a"},
 				},
-				ReplacementAttorneys: Attorneys{
-					TrustCorporation: TrustCorporation{Channel: lpadata.ChannelPaper},
+				ReplacementAttorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{Channel: lpadata.ChannelPaper},
 				},
 			},
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/1/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/1/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/1/channel","old":"paper","new":"online"},{"key":"/trustCorporations/1/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/1/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/1/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/1/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
@@ -265,9 +265,9 @@ func TestClientSendAttorney(t *testing.T) {
 				}},
 				ContactLanguagePreference: localize.En,
 			},
-			donor: &Lpa{
+			donor: &lpadata.Lpa{
 				LpaUID:    "lpa-uid",
-				Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "a"}},
+				Attorneys: lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "a"}},
 			},
 			json: `{"type":"TRUST_CORPORATION_SIGN","changes":[{"key":"/trustCorporations/1/mobile","old":null,"new":"07777"},{"key":"/trustCorporations/1/contactLanguagePreference","old":null,"new":"en"},{"key":"/trustCorporations/1/signatories/0/firstNames","old":null,"new":"John"},{"key":"/trustCorporations/1/signatories/0/lastName","old":null,"new":"Signer"},{"key":"/trustCorporations/1/signatories/0/professionalTitle","old":null,"new":"Director"},{"key":"/trustCorporations/1/signatories/0/signedAt","old":null,"new":"2000-01-02T03:04:05.000000006Z"}]}`,
 		},

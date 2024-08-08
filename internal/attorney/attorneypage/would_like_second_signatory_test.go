@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +100,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
-	donor := &lpastore.Lpa{SignedAt: time.Now()}
+	donor := &lpadata.Lpa{SignedAt: time.Now()}
 	updatedAttorney := &attorneydata.Provided{
 		LpaID:                    "lpa-id",
 		WouldLikeSecondSignatory: form.No,
@@ -142,21 +142,21 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 	testcases := map[string]struct {
 		appData appcontext.Data
-		lpa     *lpastore.Lpa
+		lpa     *lpadata.Lpa
 	}{
 		"trust corporation": {
 			appData: testTrustCorporationAppData,
-			lpa: &lpastore.Lpa{
-				Attorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
-					Signatories: []lpastore.TrustCorporationSignatory{{SignedAt: time.Now()}},
+			lpa: &lpadata.Lpa{
+				Attorneys: lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{
+					Signatories: []lpadata.TrustCorporationSignatory{{SignedAt: time.Now()}},
 				}},
 			},
 		},
 		"replacement trust corporation": {
 			appData: testReplacementTrustCorporationAppData,
-			lpa: &lpastore.Lpa{
-				ReplacementAttorneys: lpastore.Attorneys{TrustCorporation: lpastore.TrustCorporation{
-					Signatories: []lpastore.TrustCorporationSignatory{{SignedAt: time.Now()}},
+			lpa: &lpadata.Lpa{
+				ReplacementAttorneys: lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{
+					Signatories: []lpadata.TrustCorporationSignatory{{SignedAt: time.Now()}},
 				}},
 			},
 		},
@@ -200,7 +200,7 @@ func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
-	donor := &lpastore.Lpa{SignedAt: time.Now()}
+	donor := &lpadata.Lpa{SignedAt: time.Now()}
 
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},
@@ -254,7 +254,7 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().

@@ -71,7 +71,7 @@ func (c *Client) SendPerfect(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
-func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *Lpa) error {
+func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_SIGN",
 		Changes: []updateRequestChange{
@@ -115,10 +115,10 @@ func (c *Client) SendCertificateProvider(ctx context.Context, certificateProvide
 	return c.sendUpdate(ctx, lpa.LpaUID, certificateProvider.UID, body)
 }
 
-func (c *Client) SendAttorney(ctx context.Context, lpa *Lpa, attorney *attorneydata.Provided) error {
+func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *attorneydata.Provided) error {
 	var attorneyKey string
-	var lpaAttorney Attorney
-	var lpaTrustCorp TrustCorporation
+	var lpaAttorney lpadata.Attorney
+	var lpaTrustCorp lpadata.TrustCorporation
 
 	if attorney.IsTrustCorporation && attorney.IsReplacement && lpa.Attorneys.TrustCorporation.Name != "" {
 		attorneyKey = "/trustCorporations/1"
