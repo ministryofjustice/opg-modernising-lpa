@@ -1,4 +1,4 @@
-package app
+package dashboard
 
 import (
 	"context"
@@ -7,26 +7,52 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
+type DynamoClient interface {
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
+	Put(ctx context.Context, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
+	BatchPut(ctx context.Context, items []interface{}) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	OneByUID(ctx context.Context, uid string, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
+}
+
 type LpaStoreResolvingService interface {
 	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error)
 }
 
-// An lpaLink is used to join an actor to an LPA.
-type lpaLink = actor.LpaLink
-
 type dashboardStore struct {
 	dynamoClient             DynamoClient
 	lpaStoreResolvingService LpaStoreResolvingService
+}
+
+func NewStore(dynamoClient DynamoClient, lpaStoreResolvingService LpaStoreResolvingService) *dashboardStore {
+	return &dashboardStore{
+		dynamoClient:             dynamoClient,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+	}
 }
 
 func isLpaKey(k dynamo.Keys) bool {
@@ -47,7 +73,7 @@ func isAttorneyKey(k dynamo.Keys) bool {
 }
 
 func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
-	var links []lpaLink
+	var links []dashboarddata.LpaLink
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
 		return false, err
 	}
@@ -71,7 +97,7 @@ func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certifica
 		return nil, nil, nil, errors.New("donorStore.GetAll requires SessionID")
 	}
 
-	var links []lpaLink
+	var links []dashboarddata.LpaLink
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(data.SessionID), &links); err != nil {
 		return nil, nil, nil, err
 	}

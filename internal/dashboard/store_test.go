@@ -1,7 +1,9 @@
-package app
+package dashboard
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 
@@ -11,14 +13,33 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
+
+var expectedError = errors.New("err")
+
+func (m *mockDynamoClient) ExpectAllBySK(ctx, sk, data interface{}, err error) {
+	m.
+		On("AllBySK", ctx, sk, mock.Anything).
+		Return(func(ctx context.Context, sk dynamo.SK, v interface{}) error {
+			b, _ := json.Marshal(data)
+			json.Unmarshal(b, v)
+			return err
+		})
+}
+
+func (m *mockDynamoClient) ExpectAllByKeys(ctx context.Context, keys []dynamo.Keys, data []map[string]types.AttributeValue, err error) {
+	m.EXPECT().
+		AllByKeys(ctx, keys).
+		Return(data, err)
+}
 
 func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
@@ -130,7 +151,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-				[]lpaLink{
+				[]dashboarddata.LpaLink{
 					{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor},
 					{PK: dynamo.LpaKey("456"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")), ActorType: actor.TypeCertificateProvider},
 					{PK: dynamo.LpaKey("789"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("different-id")), ActorType: actor.TypeAttorney},
@@ -210,7 +231,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-		[]lpaLink{
+		[]dashboarddata.LpaLink{
 			{PK: dynamo.LpaKey("submitted"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")), ActorType: actor.TypeAttorney},
 			{PK: dynamo.LpaKey("submitted-replacement"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")), ActorType: actor.TypeAttorney},
 		}, nil)
@@ -256,7 +277,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-		[]lpaLink{
+		[]dashboarddata.LpaLink{
 			{PK: dynamo.LpaKey("0"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor},
 		}, nil)
 	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
@@ -295,7 +316,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-		[]lpaLink{}, expectedError)
+		[]dashboarddata.LpaLink{}, expectedError)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
 
@@ -308,7 +329,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-		[]lpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}}, nil)
+		[]dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}}, nil)
 	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 		{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
 	}, nil, expectedError)
@@ -324,7 +345,7 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
-		[]lpaLink{{
+		[]dashboarddata.LpaLink{{
 			PK:        dynamo.LpaKey("123"),
 			SK:        dynamo.SubKey("an-id"),
 			DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
@@ -351,17 +372,17 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 
 func TestDashboardStoreSubExists(t *testing.T) {
 	testCases := map[string]struct {
-		lpas           []lpaLink
+		lpas           []dashboarddata.LpaLink
 		expectedExists bool
 		actorType      actor.Type
 	}{
 		"lpas exist - correct actor": {
-			lpas:           []lpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			lpas:           []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
 			expectedExists: true,
 			actorType:      actor.TypeDonor,
 		},
 		"lpas exist - incorrect actor": {
-			lpas:           []lpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
+			lpas:           []dashboarddata.LpaLink{{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("a-sub-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor}},
 			expectedExists: false,
 			actorType:      actor.TypeAttorney,
 		},
@@ -388,7 +409,7 @@ func TestDashboardStoreSubExists(t *testing.T) {
 func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllBySK(context.Background(), dynamo.SubKey("a-sub-id"),
-		[]lpaLink{}, expectedError)
+		[]dashboarddata.LpaLink{}, expectedError)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
 	exists, err := dashboardStore.SubExistsForActorType(context.Background(), "a-sub-id", actor.TypeDonor)
@@ -398,6 +419,6 @@ func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 }
 
 func TestLpaLinkUserSub(t *testing.T) {
-	assert.Equal(t, "a-sub", lpaLink{SK: dynamo.SubKey("a-sub")}.UserSub())
-	assert.Equal(t, "", lpaLink{}.UserSub())
+	assert.Equal(t, "a-sub", dashboarddata.LpaLink{SK: dynamo.SubKey("a-sub")}.UserSub())
+	assert.Equal(t, "", dashboarddata.LpaLink{}.UserSub())
 }
