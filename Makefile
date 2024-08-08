@@ -28,9 +28,10 @@ help: ##@other Show this help.
 go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
-go-generate: ##@testing Runs go generate
+go-generate: ##@testing Runs go generate for mocks and enums
 	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm
 	mockery
+	go install ./cmd/enumerator
 	go generate ./...
 
 update-event-schemas: ##@testing Gets the latest event schemas from OPG event catalog that we have tests for
