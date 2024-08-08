@@ -8,7 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
 func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isReplacement bool) Handler {
@@ -56,8 +55,8 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 				if data.Form.YesNo.IsYes() {
 					updateDonor(donor)
 
-					donor.Tasks.ChooseAttorneys = page.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
-					donor.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(donor)
+					donor.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
+					donor.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(donor)
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err

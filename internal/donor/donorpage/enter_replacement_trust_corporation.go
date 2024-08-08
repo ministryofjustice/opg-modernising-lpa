@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -42,7 +41,7 @@ func EnterReplacementTrustCorporation(tmpl template.Template, donorStore DonorSt
 				trustCorporation.Email = data.Form.Email
 				provided.ReplacementAttorneys.TrustCorporation = trustCorporation
 
-				provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err

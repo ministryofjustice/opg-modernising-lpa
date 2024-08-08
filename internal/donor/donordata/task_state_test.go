@@ -1,9 +1,8 @@
-package page
+package donordata
 
 import (
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -12,50 +11,52 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testAddress = place.Address{Line1: "1"}
+
 func TestChooseAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
-		attorneys donordata.Attorneys
-		decisions donordata.AttorneyDecisions
+		attorneys Attorneys
+		decisions AttorneyDecisions
 		taskState task.State
 	}{
 		"empty": {
 			taskState: task.StateNotStarted,
 		},
 		"trust corporation": {
-			attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
+			attorneys: Attorneys{TrustCorporation: TrustCorporation{
 				Name:    "a",
 				Address: place.Address{Line1: "a"},
 			}},
 			taskState: task.StateCompleted,
 		},
 		"trust corporation incomplete": {
-			attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
+			attorneys: Attorneys{TrustCorporation: TrustCorporation{
 				Name: "a",
 			}},
 			taskState: task.StateInProgress,
 		},
 		"single with email": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}}},
 			taskState: task.StateInProgress,
 		},
 		"single with address": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    place.Address{Line1: "a"},
 			}}},
 			taskState: task.StateCompleted,
 		},
 		"single incomplete": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 			}}},
 			taskState: task.StateInProgress,
 		},
 		"multiple without decisions": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
@@ -65,24 +66,24 @@ func TestChooseAttorneysState(t *testing.T) {
 			taskState: task.StateInProgress,
 		},
 		"multiple with decisions": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			decisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			decisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState: task.StateCompleted,
 		},
 		"multiple incomplete with decisions": {
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			attorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			decisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			decisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState: task.StateInProgress,
 		},
 	}
@@ -97,10 +98,10 @@ func TestChooseAttorneysState(t *testing.T) {
 func TestChooseReplacementAttorneysState(t *testing.T) {
 	testcases := map[string]struct {
 		want                         form.YesNo
-		replacementAttorneys         donordata.Attorneys
-		attorneyDecisions            donordata.AttorneyDecisions
+		replacementAttorneys         Attorneys
+		attorneyDecisions            AttorneyDecisions
 		howReplacementsStepIn        lpadata.ReplacementAttorneysStepIn
-		replacementAttorneyDecisions donordata.AttorneyDecisions
+		replacementAttorneyDecisions AttorneyDecisions
 		taskState                    task.State
 	}{
 		"empty": {
@@ -116,7 +117,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"single with email": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Email:      "a",
 			}}},
@@ -124,7 +125,7 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"single with address": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    place.Address{Line1: "a"},
 			}}},
@@ -132,14 +133,14 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"single incomplete": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 			}}},
 			taskState: task.StateInProgress,
 		},
 		"multiple without decisions": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
@@ -150,211 +151,211 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 		},
 		"multiple jointly and severally": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:                    task.StateCompleted,
 		},
 		"multiple jointly": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"multiple jointly for some severally for others": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly and severally attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:         task.StateInProgress,
 		},
 		"jointly and severally attorneys single with step in": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:     AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             task.StateCompleted,
 		},
 		"jointly attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
 			taskState:         task.StateCompleted,
 		},
 		"jointly for some severally for others attorneys single": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:         task.StateCompleted,
 		},
 		"jointly for some severally for others attorneys multiple": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:         task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:         task.StateInProgress,
 		},
 		"jointly and severally attorneys multiple with step in": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:     AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
 			taskState:             task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:     donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:     AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			howReplacementsStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
 			taskState:             task.StateInProgress,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:            AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			howReplacementsStepIn:        lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly and severally attorneys multiple with step in when none can act jointly for some severally for others": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:            AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			howReplacementsStepIn:        lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple without decisions": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			attorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
 			taskState:         task.StateInProgress,
 		},
 		"jointly attorneys multiple jointly and severally": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			attorneyDecisions:            AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyAndSeverally},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple with jointly": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			attorneyDecisions:            AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
 			taskState:                    task.StateCompleted,
 		},
 		"jointly attorneys multiple jointly for some severally for others": {
 			want: form.Yes,
-			replacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
+			replacementAttorneys: Attorneys{Attorneys: []Attorney{{
 				FirstNames: "a",
 				Address:    testAddress,
 			}, {
 				FirstNames: "b",
 				Address:    testAddress,
 			}}},
-			attorneyDecisions:            donordata.AttorneyDecisions{How: lpadata.Jointly},
-			replacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
+			attorneyDecisions:            AttorneyDecisions{How: lpadata.Jointly},
+			replacementAttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers},
 			taskState:                    task.StateCompleted,
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&donordata.Provided{
+			assert.Equal(t, tc.taskState, ChooseReplacementAttorneysState(&Provided{
 				WantReplacementAttorneys:            tc.want,
 				AttorneyDecisions:                   tc.attorneyDecisions,
 				ReplacementAttorneys:                tc.replacementAttorneys,
@@ -367,15 +368,15 @@ func TestChooseReplacementAttorneysState(t *testing.T) {
 
 func TestLpaCost(t *testing.T) {
 	testCases := map[string]struct {
-		donor    *donordata.Provided
+		donor    *Provided
 		expected int
 	}{
 		"denied": {
-			donor:    &donordata.Provided{FeeType: pay.HalfFee, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}},
+			donor:    &Provided{FeeType: pay.HalfFee, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
 			expected: 8200,
 		},
 		"half": {
-			donor:    &donordata.Provided{FeeType: pay.HalfFee},
+			donor:    &Provided{FeeType: pay.HalfFee},
 			expected: 4100,
 		},
 	}
@@ -389,23 +390,23 @@ func TestLpaCost(t *testing.T) {
 
 func TestFeeAmount(t *testing.T) {
 	testCases := map[string]struct {
-		Donor        *donordata.Provided
+		Donor        *Provided
 		ExpectedCost pay.AmountPence
 	}{
 		"not paid": {
-			Donor:        &donordata.Provided{FeeType: pay.HalfFee},
+			Donor:        &Provided{FeeType: pay.HalfFee},
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"fully paid": {
-			Donor:        &donordata.Provided{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}}},
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 		"denied partially paid": {
-			Donor:        &donordata.Provided{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}},
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
 			ExpectedCost: pay.AmountPence(4100),
 		},
 		"denied fully paid": {
-			Donor:        &donordata.Provided{FeeType: pay.HalfFee, PaymentDetails: []donordata.Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}},
+			Donor:        &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}, {Amount: 4100}}, Tasks: Tasks{PayForLpa: task.PaymentStateDenied}},
 			ExpectedCost: pay.AmountPence(0),
 		},
 	}
@@ -510,17 +511,17 @@ func TestCertificateProviderSharesDetailsNames(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			donor := &donordata.Provided{
-				Donor:               donordata.Donor{LastName: tc.donor},
-				CertificateProvider: donordata.CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
+			donor := &Provided{
+				Donor:               Donor{LastName: tc.donor},
+				CertificateProvider: CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
 			}
 
 			for _, a := range tc.attorneys {
-				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, donordata.Attorney{LastName: a})
+				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, Attorney{LastName: a})
 			}
 
 			for _, a := range tc.replacementAttorneys {
-				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, donordata.Attorney{LastName: a})
+				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, Attorney{LastName: a})
 			}
 
 			assert.Equal(t, tc.expected, donor.CertificateProviderSharesDetails())
@@ -564,17 +565,17 @@ func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			donor := &donordata.Provided{
-				Donor:               donordata.Donor{Address: tc.donor},
-				CertificateProvider: donordata.CertificateProvider{LastName: "x", Address: tc.certificateProvider},
+			donor := &Provided{
+				Donor:               Donor{Address: tc.donor},
+				CertificateProvider: CertificateProvider{LastName: "x", Address: tc.certificateProvider},
 			}
 
 			for _, attorney := range tc.attorneys {
-				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, donordata.Attorney{Address: attorney})
+				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, Attorney{Address: attorney})
 			}
 
 			for _, attorney := range tc.replacementAttorneys {
-				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, donordata.Attorney{Address: attorney})
+				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, Attorney{Address: attorney})
 			}
 
 			assert.Equal(t, tc.expected, donor.CertificateProviderSharesDetails())
