@@ -23,7 +23,7 @@ func TestMultiReadCloser(t *testing.T) {
 		r1 := io.NopCloser(strings.NewReader("foo "))
 		r2 := io.NopCloser(strings.NewReader(""))
 		r3 := io.NopCloser(strings.NewReader("bar"))
-		mr = MultiReadCloser(r1, r2, r3)
+		mr = newMultiReadCloser(r1, r2, r3)
 		buf = make([]byte, 20)
 		tests()
 	}
@@ -63,9 +63,9 @@ func TestMultiReadCloser(t *testing.T) {
 }
 
 func TestMultiReadCloserAsWriterTo(t *testing.T) {
-	mr := MultiReadCloser(
+	mr := newMultiReadCloser(
 		io.NopCloser(strings.NewReader("foo ")),
-		MultiReadCloser( // Tickle the buffer reusing codepath
+		newMultiReadCloser( // Tickle the buffer reusing codepath
 			io.NopCloser(strings.NewReader("")),
 			io.NopCloser(strings.NewReader("bar")),
 		),
@@ -115,7 +115,7 @@ func TestMultiReadCloserFlatten(t *testing.T) {
 	n := runtime.Callers(0, pc)
 	var myDepth = callDepth(pc[:n])
 	var readDepth int // will contain the depth from which fakeReader.Read was called
-	var r io.ReadCloser = MultiReadCloser(readerFunc(func(p []byte) (int, error) {
+	var r io.ReadCloser = newMultiReadCloser(readerFunc(func(p []byte) (int, error) {
 		n := runtime.Callers(1, pc)
 		readDepth = callDepth(pc[:n])
 		return 0, errors.New("irrelevant")
@@ -123,7 +123,7 @@ func TestMultiReadCloserFlatten(t *testing.T) {
 
 	// chain a bunch of multiReaders
 	for i := 0; i < 100; i++ {
-		r = MultiReadCloser(r)
+		r = newMultiReadCloser(r)
 	}
 
 	r.Read(nil) // don't care about errors, just want to check the call-depth for Read
@@ -150,7 +150,7 @@ func (b byteAndEOFReader) Read(p []byte) (n int, err error) {
 
 // This used to yield bytes forever; issue 16795.
 func TestMultiReadCloserSingleByteWithEOF(t *testing.T) {
-	got, err := io.ReadAll(io.LimitReader(MultiReadCloser(io.NopCloser(byteAndEOFReader('a')), io.NopCloser(byteAndEOFReader('b'))), 10))
+	got, err := io.ReadAll(io.LimitReader(newMultiReadCloser(io.NopCloser(byteAndEOFReader('a')), io.NopCloser(byteAndEOFReader('b'))), 10))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func TestMultiReadCloserSingleByteWithEOF(t *testing.T) {
 // chain continues to return EOF on its final read, rather than
 // yielding a (0, EOF).
 func TestMultiReadCloserFinalEOF(t *testing.T) {
-	r := MultiReadCloser(io.NopCloser(bytes.NewReader(nil)), io.NopCloser(byteAndEOFReader('a')))
+	r := newMultiReadCloser(io.NopCloser(bytes.NewReader(nil)), io.NopCloser(byteAndEOFReader('a')))
 	buf := make([]byte, 2)
 	n, err := r.Read(buf)
 	if n != 1 || err != io.EOF {
@@ -176,8 +176,8 @@ func TestInterleavedMultiReadCloser(t *testing.T) {
 	r1 := io.NopCloser(strings.NewReader("123"))
 	r2 := io.NopCloser(strings.NewReader("45678"))
 
-	mr1 := MultiReadCloser(r1, r2)
-	mr2 := MultiReadCloser(mr1)
+	mr1 := newMultiReadCloser(r1, r2)
+	mr2 := newMultiReadCloser(mr1)
 
 	buf := make([]byte, 4)
 
@@ -214,7 +214,7 @@ func TestMultiReadCloserClose(t *testing.T) {
 	rc1 := &rc{}
 	rc2 := &rc{}
 
-	mr := MultiReadCloser(rc1, rc2)
+	mr := newMultiReadCloser(rc1, rc2)
 	if err := mr.Close(); err != nil {
 		t.Errorf(`Close() = %v, want nil`, err)
 	}
@@ -234,7 +234,7 @@ func TestMultiReadCloserCloseWhenErrors(t *testing.T) {
 	rc1 := &rc{err: err1}
 	rc2 := &rc{err: err2}
 
-	mr := MultiReadCloser(rc1, rc2)
+	mr := newMultiReadCloser(rc1, rc2)
 	if err := mr.Close(); err.Error() != expected.Error() {
 		t.Errorf(`Close() = %v, want %v`, err, expected)
 	}
