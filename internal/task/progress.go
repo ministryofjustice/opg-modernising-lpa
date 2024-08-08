@@ -1,16 +1,32 @@
-package page
+package task
 
 import (
+	"time"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
+
+type Localizer interface {
+	Concat(list []string, joiner string) string
+	Count(messageID string, count int) string
+	Format(messageID string, data map[string]interface{}) string
+	FormatCount(messageID string, count int, data map[string]any) string
+	FormatDate(t date.TimeOrDate) string
+	FormatTime(t time.Time) string
+	FormatDateTime(t time.Time) string
+	Possessive(s string) string
+	SetShowTranslationKeys(s bool)
+	ShowTranslationKeys() bool
+	T(messageID string) string
+}
 
 type ProgressTracker struct {
 	Localizer Localizer
 }
 
 type ProgressTask struct {
-	State task.State
+	State State
 	Label string
 }
 
@@ -91,90 +107,90 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 	progress := Progress{
 		isOrganisation: lpa.IsOrganisationDonor,
 		Paid: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["paid"],
 		},
 		ConfirmedID: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["confirmedID"],
 		},
 		DonorSigned: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["donorSigned"],
 		},
 		CertificateProviderSigned: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["certificateProviderSigned"],
 		},
 		AttorneysSigned: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["attorneysSigned"],
 		},
 		LpaSubmitted: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["lpaSubmitted"],
 		},
 		NoticesOfIntentSent: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 		},
 		StatutoryWaitingPeriod: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["statutoryWaitingPeriod"],
 		},
 		LpaRegistered: ProgressTask{
-			State: task.StateNotStarted,
+			State: StateNotStarted,
 			Label: labels["lpaRegistered"],
 		},
 	}
 
 	if lpa.IsOrganisationDonor {
-		progress.Paid.State = task.StateInProgress
+		progress.Paid.State = StateInProgress
 		if !lpa.Paid {
 			return progress
 		}
 
-		progress.Paid.State = task.StateCompleted
-		progress.ConfirmedID.State = task.StateInProgress
+		progress.Paid.State = StateCompleted
+		progress.ConfirmedID.State = StateInProgress
 
 		if lpa.Donor.IdentityCheck.CheckedAt.IsZero() {
 			return progress
 		}
 
-		progress.ConfirmedID.State = task.StateCompleted
-		progress.DonorSigned.State = task.StateInProgress
+		progress.ConfirmedID.State = StateCompleted
+		progress.DonorSigned.State = StateInProgress
 
 		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	} else {
-		progress.DonorSigned.State = task.StateInProgress
+		progress.DonorSigned.State = StateInProgress
 		if lpa.SignedAt.IsZero() {
 			return progress
 		}
 	}
 
-	progress.DonorSigned.State = task.StateCompleted
-	progress.CertificateProviderSigned.State = task.StateInProgress
+	progress.DonorSigned.State = StateCompleted
+	progress.CertificateProviderSigned.State = StateInProgress
 
 	if lpa.CertificateProvider.SignedAt.IsZero() {
 		return progress
 	}
 
-	progress.CertificateProviderSigned.State = task.StateCompleted
-	progress.AttorneysSigned.State = task.StateInProgress
+	progress.CertificateProviderSigned.State = StateCompleted
+	progress.AttorneysSigned.State = StateInProgress
 
 	if !lpa.AllAttorneysSigned() {
 		return progress
 	}
 
-	progress.AttorneysSigned.State = task.StateCompleted
-	progress.LpaSubmitted.State = task.StateInProgress
+	progress.AttorneysSigned.State = StateCompleted
+	progress.LpaSubmitted.State = StateInProgress
 
 	if !lpa.Submitted {
 		return progress
 	}
 
-	progress.LpaSubmitted.State = task.StateCompleted
+	progress.LpaSubmitted.State = StateCompleted
 
 	if lpa.PerfectAt.IsZero() {
 		return progress
@@ -183,15 +199,15 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 	progress.NoticesOfIntentSent.Label = pt.Localizer.Format(labels["noticesOfIntentSent"], map[string]any{
 		"SentOn": pt.Localizer.FormatDate(lpa.PerfectAt),
 	})
-	progress.NoticesOfIntentSent.State = task.StateCompleted
-	progress.StatutoryWaitingPeriod.State = task.StateInProgress
+	progress.NoticesOfIntentSent.State = StateCompleted
+	progress.StatutoryWaitingPeriod.State = StateInProgress
 
 	if lpa.RegisteredAt.IsZero() {
 		return progress
 	}
 
-	progress.StatutoryWaitingPeriod.State = task.StateCompleted
-	progress.LpaRegistered.State = task.StateCompleted
+	progress.StatutoryWaitingPeriod.State = StateCompleted
+	progress.LpaRegistered.State = StateCompleted
 
 	return progress
 }

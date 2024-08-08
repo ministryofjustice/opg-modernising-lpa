@@ -7,7 +7,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,14 +26,14 @@ func TestGetLpaProgress(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(page.Progress{DonorSigned: page.ProgressTask{State: task.StateInProgress}})
+		Return(task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &lpaProgressData{
 			App:      testAppData,
 			Donor:    &donordata.Provided{LpaUID: "lpa-uid"},
-			Progress: page.Progress{DonorSigned: page.ProgressTask{State: task.StateInProgress}},
+			Progress: task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 
@@ -70,7 +69,7 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(mock.Anything).
-		Return(page.Progress{})
+		Return(task.Progress{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
