@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -48,8 +47,8 @@ func RemoveAttorney(tmpl template.Template, donorStore DonorStore) Handler {
 						provided.AttorneyDecisions = donordata.AttorneyDecisions{}
 					}
 
-					provided.Tasks.ChooseAttorneys = page.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
-					provided.Tasks.ChooseReplacementAttorneys = page.ChooseReplacementAttorneysState(provided)
+					provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
+					provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return fmt.Errorf("error removing Attorney from LPA: %w", err)

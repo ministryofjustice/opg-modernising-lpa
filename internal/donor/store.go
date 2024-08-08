@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -132,7 +133,7 @@ func (s *donorStore) Create(ctx context.Context) (*donordata.Provided, error) {
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, actor.LpaLink{
+	if err := s.dynamoClient.Create(ctx, dashboarddata.LpaLink{
 		PK:        dynamo.LpaKey(lpaID),
 		SK:        dynamo.SubKey(data.SessionID),
 		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
@@ -176,7 +177,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 		return errors.New("donorStore.Link requires SessionID")
 	}
 
-	var link actor.LpaLink
+	var link dashboarddata.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
 	} else if link.ActorType == actor.TypeDonor {
@@ -192,7 +193,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEm
 			SK:           dynamo.DonorKey(data.SessionID),
 			ReferencedSK: organisationKey,
 		}).
-		Create(actor.LpaLink{
+		Create(dashboarddata.LpaLink{
 			PK:        shareCode.LpaKey,
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
@@ -418,7 +419,7 @@ func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharec
 		return errors.New("cannot remove access to another organisations LPA")
 	}
 
-	var link actor.LpaLink
+	var link dashboarddata.LpaLink
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
 		return err
 	}

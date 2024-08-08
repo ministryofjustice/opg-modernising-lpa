@@ -1,9 +1,10 @@
-package actor
+package dashboarddata
 
 import (
 	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -16,7 +17,7 @@ type LpaLink struct {
 	// DonorKey is the donorKey for the donor
 	DonorKey dynamo.LpaOwnerKeyType
 	// ActorType is the type for the current user
-	ActorType Type
+	ActorType actor.Type
 	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex
 	UpdatedAt time.Time
 }
