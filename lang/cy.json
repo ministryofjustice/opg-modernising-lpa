@@ -1310,5 +1310,7 @@
     "someOfTheseDetailsCanNoLongerBeChanged": "Welsh",
     "whichFeeTypeYouAreApplyingFor": "pa fath o ffi yr ydych yn gwneud cais amdano",
     "emailGreetingDonor": "Welsh {{.DonorFullName}},",
-    "emailGreetingCorrespondent": "Welsh: {{.LpaUID}} {{.CorrespondentFullName}} {{.DonorFullNamePossessive}} {{.LpaType}}"
+    "emailGreetingCorrespondent": "Welsh: {{.LpaUID}} {{.CorrespondentFullName}} {{.DonorFullNamePossessive}} {{.LpaType}}",
+    "whatIsVouching": "Welsh",
+    "whatIsVouchingContent": "<p class=\"govuk-body\">Welsh</p>"
 }
