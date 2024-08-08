@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -28,6 +29,51 @@ func TestAwsRegion(t *testing.T) {
 	assert.Equal(t, "us-west-2", region)
 }
 
+func TestLanguageFilesUniqueKeys(t *testing.T) {
+	for _, path := range []string{"lang/en.json", "lang/cy.json"} {
+		data, err := os.ReadFile("../../" + path)
+		if err != nil {
+			panic(err)
+		}
+
+		keys := map[json.Token]struct{}{}
+		dec := json.NewDecoder(bytes.NewReader(data))
+
+		// skip opening {
+		_, _ = dec.Token()
+
+		for {
+			tok, err := dec.Token()
+			if err != nil {
+				panic(err)
+			}
+
+			if tok == json.Delim('}') {
+				break
+			}
+
+			// skip value
+			valTok, _ := dec.Token()
+
+			if _, found := keys[tok]; found {
+				t.Fail()
+				t.Log(path, "duplicate:", tok)
+			}
+
+			keys[tok] = struct{}{}
+
+			if valTok == json.Delim('{') {
+				for dec.More() {
+					_, _ = dec.Token()
+				}
+
+				// skip closing {
+				_, _ = dec.Token()
+			}
+		}
+	}
+}
+
 func TestLanguageFilesMatch(t *testing.T) {
 	en := loadTranslations("../../lang/en.json")
 	cy := loadTranslations("../../lang/cy.json")
@@ -35,14 +81,14 @@ func TestLanguageFilesMatch(t *testing.T) {
 	for k := range en {
 		if _, ok := cy[k]; !ok {
 			t.Fail()
-			t.Log("lang/cy.json missing: ", k)
+			t.Log("lang/cy.json missing:", k)
 		}
 	}
 
 	for k := range cy {
 		if _, ok := en[k]; !ok {
 			t.Fail()
-			t.Log("lang/en.json missing: ", k)
+			t.Log("lang/en.json missing:", k)
 		}
 	}
 }
@@ -61,7 +107,7 @@ func TestApostrophesAreCurly(t *testing.T) {
 	for k, v := range cy {
 		if strings.Contains(v, "'") {
 			t.Fail()
-			t.Log("lang/cy.json: ", k)
+			t.Log("lang/cy.json:", k)
 		}
 	}
 }
