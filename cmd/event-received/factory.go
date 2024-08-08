@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -31,7 +32,7 @@ type LambdaClient interface {
 
 type LpaStoreClient interface {
 	SendLpa(ctx context.Context, donor *donordata.Provided) error
-	Lpa(ctx context.Context, uid string) (*lpastore.Lpa, error)
+	Lpa(ctx context.Context, uid string) (*lpadata.Lpa, error)
 }
 
 type SecretsClient interface {
@@ -41,7 +42,7 @@ type SecretsClient interface {
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
-	SendAttorneys(context.Context, appcontext.Data, *lpastore.Lpa) error
+	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
 
 type UidStore interface {

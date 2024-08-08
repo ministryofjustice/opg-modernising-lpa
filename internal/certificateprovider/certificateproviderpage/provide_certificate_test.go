@@ -11,7 +11,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -25,7 +24,7 @@ func TestGetProvideCertificate(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{SignedAt: time.Now()}
+	donor := &lpadata.Lpa{SignedAt: time.Now()}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -56,7 +55,7 @@ func TestGetProvideCertificateRedirectsToStartOnLpaNotSubmitted(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
+		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
@@ -70,7 +69,7 @@ func TestGetProvideCertificateWhenAlreadyAgreed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{LpaID: "lpa-id", SignedAt: time.Now()}
+	donor := &lpadata.Lpa{LpaID: "lpa-id", SignedAt: time.Now()}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -94,7 +93,7 @@ func TestGetProvideCertificateWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := ProvideCertificate(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r, nil)
 	resp := w.Result()
@@ -115,15 +114,15 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	now := time.Now()
 
-	lpa := &lpastore.Lpa{
+	lpa := &lpadata.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: lpastore.CertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
@@ -204,16 +203,16 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 	now := time.Now()
 	signedAt := time.Now().Add(-5 * time.Minute)
 
-	lpa := &lpastore.Lpa{
+	lpa := &lpadata.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: lpastore.CertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 			SignedAt:   signedAt,
 		},
-		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
@@ -288,15 +287,15 @@ func TestPostProvideCertificateWhenCannotSubmit(t *testing.T) {
 
 	now := time.Now()
 
-	lpa := &lpastore.Lpa{
+	lpa := &lpadata.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: lpastore.CertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
@@ -328,7 +327,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{SignedAt: now}, nil)
+		Return(&lpadata.Lpa{SignedAt: now}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -385,15 +384,15 @@ func TestPostProvideCertificateWhenLpaStoreClientError(t *testing.T) {
 
 	now := time.Now()
 
-	donor := &lpastore.Lpa{
+	donor := &lpadata.Lpa{
 		LpaUID:   "lpa-uid",
 		SignedAt: now,
-		CertificateProvider: lpastore.CertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
 		},
-		Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
+		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,
 	}
 
@@ -426,14 +425,14 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{
+		Return(&lpadata.Lpa{
 			SignedAt: now,
-			CertificateProvider: lpastore.CertificateProvider{
+			CertificateProvider: lpadata.CertificateProvider{
 				Email:      "cp@example.org",
 				FirstNames: "a",
 				LastName:   "b",
 			},
-			Donor: lpastore.Donor{FirstNames: "c", LastName: "d"},
+			Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 			Type:  lpadata.LpaTypePropertyAndAffairs,
 		}, nil)
 
@@ -485,9 +484,9 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{
+		Return(&lpadata.Lpa{
 			SignedAt: now,
-			Donor:    lpastore.Donor{FirstNames: "c", LastName: "d"},
+			Donor:    lpadata.Donor{FirstNames: "c", LastName: "d"},
 			Type:     lpadata.LpaTypePropertyAndAffairs,
 		}, nil)
 
@@ -541,7 +540,7 @@ func TestPostProvideCertificateWhenValidationErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{SignedAt: now}, nil)
+		Return(&lpadata.Lpa{SignedAt: now}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

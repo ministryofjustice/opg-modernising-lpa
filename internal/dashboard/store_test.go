@@ -16,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -45,7 +45,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpa0 := &lpastore.Lpa{LpaID: "0", LpaUID: "M", UpdatedAt: aTime}
+	lpa0 := &lpadata.Lpa{LpaID: "0", LpaUID: "M", UpdatedAt: aTime}
 	lpa0Donor := &donordata.Provided{
 		PK:        dynamo.LpaKey("0"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)),
@@ -53,7 +53,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaUID:    "M",
 		UpdatedAt: aTime,
 	}
-	lpa123 := &lpastore.Lpa{LpaID: "123", LpaUID: "M", UpdatedAt: aTime}
+	lpa123 := &lpadata.Lpa{LpaID: "123", LpaUID: "M", UpdatedAt: aTime}
 	lpa123Donor := &donordata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)),
@@ -61,7 +61,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaUID:    "M",
 		UpdatedAt: aTime,
 	}
-	lpa456 := &lpastore.Lpa{LpaID: "456", LpaUID: "M"}
+	lpa456 := &lpadata.Lpa{LpaID: "456", LpaUID: "M"}
 	lpa456Donor := &donordata.Provided{
 		PK:     dynamo.LpaKey("456"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
@@ -74,7 +74,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID: "456",
 		Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: task.StateCompleted},
 	}
-	lpa789 := &lpastore.Lpa{LpaID: "789", LpaUID: "M"}
+	lpa789 := &lpadata.Lpa{LpaID: "789", LpaUID: "M"}
 	lpa789Donor := &donordata.Provided{
 		PK:     dynamo.LpaKey("789"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("different-id")),
@@ -93,7 +93,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:     "999",
 		UpdatedAt: aTime,
 	}
-	lpaCertified := &lpastore.Lpa{LpaID: "signed-by-cp", LpaUID: "M"}
+	lpaCertified := &lpadata.Lpa{LpaID: "signed-by-cp", LpaUID: "M"}
 	lpaCertifiedDonor := &donordata.Provided{
 		PK:     dynamo.LpaKey("signed-by-cp"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
@@ -106,7 +106,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:    "signed-by-cp",
 		SignedAt: time.Now(),
 	}
-	lpaReferenced := &lpastore.Lpa{LpaID: "referenced", LpaUID: "X"}
+	lpaReferenced := &lpadata.Lpa{LpaID: "referenced", LpaUID: "X"}
 	lpaReferencedLink := map[string]any{
 		"PK":           dynamo.LpaKey("referenced"),
 		"SK":           dynamo.DonorKey(sessionID),
@@ -181,7 +181,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				ResolveList(ctx, []*donordata.Provided{lpa123Donor, lpa456Donor, lpa789Donor, lpa0Donor, lpaCertifiedDonor, lpaReferencedDonor}).
-				Return([]*lpastore.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified, lpaReferenced}, nil)
+				Return([]*lpadata.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified, lpaReferenced}, nil)
 
 			dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
@@ -199,7 +199,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpaSubmitted := &lpastore.Lpa{LpaID: "submitted", LpaUID: "M", Submitted: true}
+	lpaSubmitted := &lpadata.Lpa{LpaID: "submitted", LpaUID: "M", Submitted: true}
 	lpaSubmittedDonor := &donordata.Provided{
 		PK:          dynamo.LpaKey("submitted"),
 		SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
@@ -212,7 +212,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		SK:    dynamo.AttorneyKey(sessionID),
 		LpaID: "submitted",
 	}
-	lpaSubmittedReplacement := &lpastore.Lpa{LpaID: "submitted-replacement", LpaUID: "M", Submitted: true}
+	lpaSubmittedReplacement := &lpadata.Lpa{LpaID: "submitted-replacement", LpaUID: "M", Submitted: true}
 	lpaSubmittedReplacementDonor := &donordata.Provided{
 		PK:          dynamo.LpaKey("submitted-replacement"),
 		SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
@@ -250,7 +250,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		ResolveList(ctx, []*donordata.Provided{lpaSubmittedDonor, lpaSubmittedReplacementDonor}).
-		Return([]*lpastore.Lpa{lpaSubmitted, lpaSubmittedReplacement}, nil)
+		Return([]*lpadata.Lpa{lpaSubmitted, lpaSubmittedReplacement}, nil)
 
 	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 

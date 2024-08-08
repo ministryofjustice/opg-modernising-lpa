@@ -6,7 +6,7 @@ import (
 	context "context"
 
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -25,23 +25,23 @@ func (_m *mockLpaStoreResolvingService) EXPECT() *mockLpaStoreResolvingService_E
 }
 
 // ResolveList provides a mock function with given fields: ctx, donors
-func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error) {
+func (_m *mockLpaStoreResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpadata.Lpa, error) {
 	ret := _m.Called(ctx, donors)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ResolveList")
 	}
 
-	var r0 []*lpastore.Lpa
+	var r0 []*lpadata.Lpa
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) ([]*lpastore.Lpa, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) ([]*lpadata.Lpa, error)); ok {
 		return rf(ctx, donors)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) []*lpastore.Lpa); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []*donordata.Provided) []*lpadata.Lpa); ok {
 		r0 = rf(ctx, donors)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*lpastore.Lpa)
+			r0 = ret.Get(0).([]*lpadata.Lpa)
 		}
 	}
 
@@ -73,12 +73,12 @@ func (_c *mockLpaStoreResolvingService_ResolveList_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_ResolveList_Call) Return(_a0 []*lpastore.Lpa, _a1 error) *mockLpaStoreResolvingService_ResolveList_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) Return(_a0 []*lpadata.Lpa, _a1 error) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockLpaStoreResolvingService_ResolveList_Call) RunAndReturn(run func(context.Context, []*donordata.Provided) ([]*lpastore.Lpa, error)) *mockLpaStoreResolvingService_ResolveList_Call {
+func (_c *mockLpaStoreResolvingService_ResolveList_Call) RunAndReturn(run func(context.Context, []*donordata.Provided) ([]*lpadata.Lpa, error)) *mockLpaStoreResolvingService_ResolveList_Call {
 	_c.Call.Return(run)
 	return _c
 }

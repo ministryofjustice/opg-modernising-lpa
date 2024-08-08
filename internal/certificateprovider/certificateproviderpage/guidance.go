@@ -6,14 +6,14 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type guidanceData struct {
 	App                 appcontext.Data
 	Errors              validation.List
-	Lpa                 *lpastore.Lpa
+	Lpa                 *lpadata.Lpa
 	CertificateProvider *certificateproviderdata.Provided
 }
 

@@ -11,7 +11,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -583,14 +582,14 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 	replacement1UID := actoruid.New()
 	replacement2UID := actoruid.New()
 
-	donor := &lpastore.Lpa{
-		Attorneys: lpastore.Attorneys{
-			TrustCorporation: lpastore.TrustCorporation{
+	donor := &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{
+			TrustCorporation: lpadata.TrustCorporation{
 				UID:   trustCorporationUID,
 				Name:  "Trusty",
 				Email: "trusted@example.com",
 			},
-			Attorneys: []lpastore.Attorney{
+			Attorneys: []lpadata.Attorney{
 				{
 					UID:        attorney1UID,
 					FirstNames: "Joanna",
@@ -610,13 +609,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 				},
 			},
 		},
-		ReplacementAttorneys: lpastore.Attorneys{
-			TrustCorporation: lpastore.TrustCorporation{
+		ReplacementAttorneys: lpadata.Attorneys{
+			TrustCorporation: lpadata.TrustCorporation{
 				UID:   replacementTrustCorporationUID,
 				Name:  "Untrusty",
 				Email: "untrusted@example.com",
 			},
-			Attorneys: []lpastore.Attorney{
+			Attorneys: []lpadata.Attorney{
 				{
 					UID:        replacement1UID,
 					FirstNames: "Dave",
@@ -630,7 +629,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 				},
 			},
 		},
-		Donor: lpastore.Donor{
+		Donor: lpadata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -765,20 +764,20 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
 
-	donor := &lpastore.Lpa{
-		Attorneys: lpastore.Attorneys{
-			TrustCorporation: lpastore.TrustCorporation{
+	donor := &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{
+			TrustCorporation: lpadata.TrustCorporation{
 				UID:  uid1,
 				Name: "Trusty",
 			},
 		},
-		ReplacementAttorneys: lpastore.Attorneys{
-			TrustCorporation: lpastore.TrustCorporation{
+		ReplacementAttorneys: lpadata.Attorneys{
+			TrustCorporation: lpadata.TrustCorporation{
 				UID:  uid2,
 				Name: "Untrusty",
 			},
 		},
-		Donor: lpastore.Donor{
+		Donor: lpadata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -847,15 +846,15 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 		},
 	}
 
-	donor := &lpastore.Lpa{
-		Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
+	donor := &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{
 			{
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
 			},
 		}},
-		Donor: lpastore.Donor{
+		Donor: lpadata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -931,15 +930,15 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
 
-	donor := &lpastore.Lpa{
-		Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{
+	donor := &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{
 			{
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
 			},
 		}},
-		Donor: lpastore.Donor{
+		Donor: lpadata.Donor{
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
@@ -980,8 +979,8 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 		Return(expectedError)
 
 	sender := NewShareCodeSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
-	err := sender.SendAttorneys(ctx, TestAppData, &lpastore.Lpa{
-		Attorneys: lpastore.Attorneys{Attorneys: []lpastore.Attorney{{Email: "hey@example.com"}}},
+	err := sender.SendAttorneys(ctx, TestAppData, &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{Email: "hey@example.com"}}},
 	})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))

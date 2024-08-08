@@ -44,7 +44,7 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 			data.Errors = data.Form.Validate(false)
 
 			setAddress := func(address place.Address) error {
-				provided.CertificateProvider.Address = *data.Form.Address
+				provided.CertificateProvider.Address = address
 				provided.Tasks.CertificateProvider = task.StateCompleted
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
