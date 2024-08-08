@@ -36,5 +36,6 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage:
   github.com/ministryofjustice/opg-modernising-lpa/internal/supporter:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/task:
   github.com/ministryofjustice/opg-modernising-lpa/internal/uid:
   github.com/ministryofjustice/opg-modernising-lpa/internal/validation:
