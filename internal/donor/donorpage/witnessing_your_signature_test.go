@@ -60,7 +60,7 @@ func TestPostWitnessingYourSignature(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(r.Context(), provided, mock.Anything).
+		SendToCertificateProvider(r.Context(), provided).
 		Return(nil)
 
 	err := WitnessingYourSignature(nil, witnessCodeSender, nil)(testAppData, w, r, provided)
@@ -84,7 +84,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(r.Context(), provided, mock.Anything).
+		SendToCertificateProvider(r.Context(), provided).
 		Return(nil)
 	witnessCodeSender.EXPECT().
 		SendToIndependentWitness(r.Context(), &donordata.Provided{
@@ -92,7 +92,7 @@ func TestPostWitnessingYourSignatureCannotSign(t *testing.T) {
 			Donor:                 donordata.Donor{CanSign: form.No},
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			CertificateProvider:   donordata.CertificateProvider{Mobile: "07535111111"},
-		}, mock.Anything).
+		}).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -123,7 +123,7 @@ func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 		"SendToCertificateProvider": {
 			setupWitnessCodeSender: func(witnessCodeSender *mockWitnessCodeSender) {
 				witnessCodeSender.EXPECT().
-					SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
+					SendToCertificateProvider(mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 			setupDonorStore: func(donorStore *mockDonorStore) {},
@@ -131,10 +131,10 @@ func TestPostWitnessingYourSignatureWhenWitnessCodeSenderErrors(t *testing.T) {
 		"SendToIndependentWitness": {
 			setupWitnessCodeSender: func(witnessCodeSender *mockWitnessCodeSender) {
 				witnessCodeSender.EXPECT().
-					SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
+					SendToCertificateProvider(mock.Anything, mock.Anything).
 					Return(nil)
 				witnessCodeSender.EXPECT().
-					SendToIndependentWitness(mock.Anything, mock.Anything, mock.Anything).
+					SendToIndependentWitness(mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 			setupDonorStore: func(donorStore *mockDonorStore) {

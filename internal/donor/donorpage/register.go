@@ -108,8 +108,8 @@ type SessionStore interface {
 }
 
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *donordata.Provided, page.Localizer) error
-	SendToIndependentWitness(context.Context, *donordata.Provided, page.Localizer) error
+	SendToCertificateProvider(context.Context, *donordata.Provided) error
+	SendToIndependentWitness(context.Context, *donordata.Provided) error
 }
 
 type UidClient interface {

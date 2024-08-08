@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
@@ -164,7 +165,7 @@ func Donor(
 			data.Redirect = "/lpa/" + donorDetails.LpaID + data.Redirect
 		}
 
-		page.UseTestWitnessCode = true
+		donor.UseTestWitnessCode = true
 
 		http.Redirect(w, r, data.Redirect, http.StatusFound)
 		return nil

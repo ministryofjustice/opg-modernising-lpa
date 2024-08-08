@@ -23,7 +23,7 @@ type changeMobileNumberData struct {
 }
 
 func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSender, actorType actor.Type) Handler {
-	var send func(context.Context, *donordata.Provided, page.Localizer) error
+	var send func(context.Context, *donordata.Provided) error
 	var redirect donor.Path
 	switch actorType {
 	case actor.TypeIndependentWitness:
@@ -36,16 +36,16 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 		panic("ChangeMobileNumber only supports IndependentWitness or CertificateProvider actors")
 	}
 
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &changeMobileNumberData{
 			App:        appData,
 			Form:       &changeMobileNumberForm{},
 			ActorType:  actorType,
-			FirstNames: donor.CertificateProvider.FirstNames,
+			FirstNames: provided.CertificateProvider.FirstNames,
 		}
 
 		if actorType == actor.TypeIndependentWitness {
-			data.FirstNames = donor.IndependentWitness.FirstNames
+			data.FirstNames = provided.IndependentWitness.FirstNames
 		}
 
 		if r.Method == http.MethodPost {
@@ -54,23 +54,23 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 
 			if data.Errors.None() {
 				if actorType == actor.TypeIndependentWitness {
-					donor.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
+					provided.IndependentWitness.HasNonUKMobile = data.Form.HasNonUKMobile
 					if data.Form.HasNonUKMobile {
-						donor.IndependentWitness.Mobile = data.Form.NonUKMobile
+						provided.IndependentWitness.Mobile = data.Form.NonUKMobile
 					} else {
-						donor.IndependentWitness.Mobile = data.Form.Mobile
+						provided.IndependentWitness.Mobile = data.Form.Mobile
 					}
 				} else {
-					donor.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
+					provided.CertificateProvider.HasNonUKMobile = data.Form.HasNonUKMobile
 					if data.Form.HasNonUKMobile {
-						donor.CertificateProvider.Mobile = data.Form.NonUKMobile
+						provided.CertificateProvider.Mobile = data.Form.NonUKMobile
 					} else {
-						donor.CertificateProvider.Mobile = data.Form.Mobile
+						provided.CertificateProvider.Mobile = data.Form.Mobile
 					}
 				}
 
-				if err := send(r.Context(), donor, appData.Localizer); err != nil {
-					if errors.Is(err, page.ErrTooManyWitnessCodeRequests) {
+				if err := send(r.Context(), provided); err != nil {
+					if errors.Is(err, donor.ErrTooManyWitnessCodeRequests) {
 						data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
 						return tmpl(w, data)
 					}
@@ -78,7 +78,7 @@ func ChangeMobileNumber(tmpl template.Template, witnessCodeSender WitnessCodeSen
 					return err
 				}
 
-				return redirect.Redirect(w, r, appData, donor)
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 

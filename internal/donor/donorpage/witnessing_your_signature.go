@@ -19,7 +19,7 @@ type witnessingYourSignatureData struct {
 func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCodeSender, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
-			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), provided, appData.Localizer); err != nil {
+			if err := witnessCodeSender.SendToCertificateProvider(r.Context(), provided); err != nil {
 				return err
 			}
 
@@ -31,7 +31,7 @@ func WitnessingYourSignature(tmpl template.Template, witnessCodeSender WitnessCo
 					return err
 				}
 
-				if err := witnessCodeSender.SendToIndependentWitness(r.Context(), lpa, appData.Localizer); err != nil {
+				if err := witnessCodeSender.SendToIndependentWitness(r.Context(), lpa); err != nil {
 					return err
 				}
 
