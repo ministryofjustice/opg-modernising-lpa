@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -18,8 +18,8 @@ type signData struct {
 	App                         appcontext.Data
 	Errors                      validation.List
 	LpaID                       string
-	Attorney                    lpastore.Attorney
-	TrustCorporation            lpastore.TrustCorporation
+	Attorney                    lpadata.Attorney
+	TrustCorporation            lpadata.TrustCorporation
 	IsReplacement               bool
 	IsSecondSignatory           bool
 	LpaCanBeUsedWhenHasCapacity bool
@@ -33,7 +33,7 @@ func Sign(
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
 ) Handler {
-	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
+	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &signData{
 			App:                         appData,
 			LpaID:                       lpa.LpaID,
@@ -83,7 +83,7 @@ func Sign(
 		return tmpl(w, data)
 	}
 
-	signTrustCorporation := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpastore.Lpa) error {
+	signTrustCorporation := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		signatoryIndex := 0
 		if r.URL.Query().Has("second") {
 			signatoryIndex = 1

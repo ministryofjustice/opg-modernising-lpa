@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -25,7 +24,7 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{
+	donor := &lpadata.Lpa{
 		LpaID: "lpa-id",
 	}
 
@@ -57,13 +56,13 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
 			App: testAppData,
-			Lpa: &lpastore.Lpa{},
+			Lpa: &lpadata.Lpa{},
 			Form: &dateOfBirthForm{
 				Dob: date.New("1997", "1", "2"),
 			},
@@ -84,7 +83,7 @@ func TestGetEnterDateOfBirthWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := EnterDateOfBirth(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 	resp := w.Result()
@@ -97,7 +96,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpastore.Lpa{
+	donor := &lpadata.Lpa{
 		LpaID: "lpa-id",
 	}
 
@@ -193,7 +192,7 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
+				Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
@@ -225,7 +224,7 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{LpaID: "lpa-id", CertificateProvider: lpastore.CertificateProvider{Relationship: lpadata.Professionally}}, nil)
+		Return(&lpadata.Lpa{LpaID: "lpa-id", CertificateProvider: lpadata.CertificateProvider{Relationship: lpadata.Professionally}}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
@@ -285,7 +284,7 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpastore.Lpa{LpaID: "lpa-id"}, nil)
+				Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -318,7 +317,7 @@ func TestPostYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, expectedError)
+		Return(&lpadata.Lpa{}, expectedError)
 
 	err := EnterDateOfBirth(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 	resp := w.Result()

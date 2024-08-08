@@ -13,14 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
-type tokenRequestBody struct {
-	GrantType           string `json:"grant_type"`
-	AuthorizationCode   string `json:"code"`
-	RedirectUri         string `json:"redirect_uri"`
-	ClientAssertionType string `json:"client_assertion_type"`
-	ClientAssertion     string `json:"client_assertion"`
-}
-
 type tokenResponseBody struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`

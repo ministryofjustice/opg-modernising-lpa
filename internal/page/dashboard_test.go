@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,12 +20,12 @@ func TestGetDashboard(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &lpastore.Lpa{LpaID: "123"}},
-		{Lpa: &lpastore.Lpa{LpaID: "456"}},
+		{Lpa: &lpadata.Lpa{LpaID: "123"}},
+		{Lpa: &lpadata.Lpa{LpaID: "456"}},
 	}
 
-	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &lpastore.Lpa{LpaID: "abc"}}}
-	attorneyLpas := []LpaAndActorTasks{{Lpa: &lpastore.Lpa{LpaID: "def"}}}
+	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &lpadata.Lpa{LpaID: "abc"}}}
+	attorneyLpas := []LpaAndActorTasks{{Lpa: &lpadata.Lpa{LpaID: "def"}}}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
@@ -55,8 +55,8 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donorLpas := []LpaAndActorTasks{
-		{Lpa: &lpastore.Lpa{LpaID: "123"}},
-		{Lpa: &lpastore.Lpa{LpaID: "456"}},
+		{Lpa: &lpadata.Lpa{LpaID: "123"}},
+		{Lpa: &lpadata.Lpa{LpaID: "456"}},
 	}
 
 	dashboardStore := newMockDashboardStore(t)

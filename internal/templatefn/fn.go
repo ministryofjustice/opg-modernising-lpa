@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -333,8 +334,8 @@ func formatPhone(s string) string {
 type attorneySummaryData struct {
 	App              appcontext.Data
 	CanChange        bool
-	TrustCorporation lpastore.TrustCorporation
-	Attorneys        []lpastore.Attorney
+	TrustCorporation lpadata.TrustCorporation
+	Attorneys        []lpadata.Attorney
 	Link             attorneySummaryDataLinks
 	HeadingLevel     int
 }
@@ -352,12 +353,12 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 	}
 
 	switch v := attorneys.(type) {
-	case lpastore.Attorneys:
+	case lpadata.Attorneys:
 		data.Attorneys = v.Attorneys
 		data.TrustCorporation = v.TrustCorporation
 	case donordata.Attorneys:
 		for _, a := range v.Attorneys {
-			data.Attorneys = append(data.Attorneys, lpastore.Attorney{
+			data.Attorneys = append(data.Attorneys, lpadata.Attorney{
 				UID:         a.UID,
 				FirstNames:  a.FirstNames,
 				LastName:    a.LastName,
@@ -368,7 +369,7 @@ func listAttorneys(app appcontext.Data, attorneys any, attorneyType string, head
 		}
 
 		if t := v.TrustCorporation; t.Name != "" {
-			data.TrustCorporation = lpastore.TrustCorporation{
+			data.TrustCorporation = lpadata.TrustCorporation{
 				UID:           t.UID,
 				Name:          t.Name,
 				CompanyNumber: t.CompanyNumber,
@@ -478,7 +479,7 @@ func notificationBanner(app appcontext.Data, title string, content template.HTML
 
 type lpaDecisionsData struct {
 	App       appcontext.Data
-	Lpa       *lpastore.Lpa
+	Lpa       *lpadata.Lpa
 	CanChange bool
 }
 
@@ -489,7 +490,7 @@ func lpaDecisions(app appcontext.Data, lpa any, canChange bool) lpaDecisionsData
 	}
 
 	switch v := lpa.(type) {
-	case *lpastore.Lpa:
+	case *lpadata.Lpa:
 		data.Lpa = v
 	case *donordata.Provided:
 		data.Lpa = lpastore.FromDonorProvidedDetails(v)

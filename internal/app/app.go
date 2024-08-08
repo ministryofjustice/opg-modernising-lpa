@@ -34,6 +34,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -103,7 +104,7 @@ func App(
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
-	progressTracker := page.ProgressTracker{Localizer: localizer}
+	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := page.NewShareCodeSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := page.NewWitnessCodeSender(donorStore, notifyClient)

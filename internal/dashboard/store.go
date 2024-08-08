@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
@@ -40,7 +40,7 @@ type DynamoClient interface {
 }
 
 type LpaStoreResolvingService interface {
-	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpastore.Lpa, error)
+	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpadata.Lpa, error)
 }
 
 type dashboardStore struct {

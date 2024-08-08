@@ -5,8 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestGetViewLPA(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := &lpastore.Lpa{LpaUID: "lpa-uid"}
+	lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -27,14 +26,14 @@ func TestGetViewLPA(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(page.Progress{Paid: page.ProgressTask{State: task.StateInProgress}})
+		Return(task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &viewLPAData{
 			App:      testAppData,
 			Lpa:      lpa,
-			Progress: page.Progress{Paid: page.ProgressTask{State: task.StateInProgress}},
+			Progress: task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 
@@ -64,12 +63,12 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpastore.Lpa{}, nil)
+		Return(&lpadata.Lpa{}, nil)
 
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(mock.Anything).
-		Return(page.Progress{})
+		Return(task.Progress{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
