@@ -1115,8 +1115,6 @@
     "enterYour12CharacterReferenceNumberHint": "You can find your reference number in the email inviting you to be a certificate provider.",
     "confirmYouDoNotWantToBeACertificateProvider": "Confirm you do not want to be a certificate provider",
     "confirmYouDoNotWantToBeACertificateProviderContent": "<p class=\"govuk-body\">You have told us that you do not want to be the certificate provide for {{ .DonorFullNamePossessive }} LPA :</p> <div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">LPA type:</span> {{ .LpaType }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">LPA number:</span> {{ .LpaUID }}</p> </div>",
-    "ifYouHaveConcernsAboutThisLPA": "If you have concerns about this LPA",
-    "ifYouHaveConcernsAboutThisLPAContent": "Placeholder",
     "whenYouSelectConfirmWeWillContactDonor": "When you select ‘Confirm’ we will contact {{ .DonorFirstNames }} to tell them what they should do next.",
     "thankYou": "Thank you",
     "weHaveContactedDonorToLetThemKnowYourDecision": "We have contacted {{ .DonorFullName }} to let them know of your decision to not be their certificate provider",

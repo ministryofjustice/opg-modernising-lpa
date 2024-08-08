@@ -1183,8 +1183,6 @@
     "enterYour12CharacterReferenceNumberHint": "Welsh",
     "confirmYouDoNotWantToBeACertificateProvider": "Welsh",
     "confirmYouDoNotWantToBeACertificateProviderContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} Welsh :</p> <div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .LpaType }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .LpaUID }}</p> </div>",
-    "ifYouHaveConcernsAboutThisLPA": "Welsh",
-    "ifYouHaveConcernsAboutThisLPAContent": "Welsh",
     "whenYouSelectConfirmWeWillContactDonor": "Welsh {{ .DonorFirstNames }} Welsh",
     "thankYou": "Welsh",
     "weHaveContactedDonorToLetThemKnowYourDecision": "Welsh {{ .DonorFullName }} Welsh",
