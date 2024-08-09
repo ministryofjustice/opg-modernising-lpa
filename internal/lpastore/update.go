@@ -18,6 +18,7 @@ import (
 type updateRequest struct {
 	Type    string                `json:"type"`
 	Changes []updateRequestChange `json:"changes"`
+	Subject string                `json:"subject"`
 }
 
 type updateRequestChange struct {
@@ -191,12 +192,12 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 	return c.sendUpdate(ctx, lpa.LpaUID, attorney.UID, body)
 }
 
-func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
+func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID string, certificateProviderUid actoruid.UID) error {
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_OPT_OUT",
 	}
 
-	return c.sendUpdate(ctx, lpaUID, actorUID, body)
+	return c.sendUpdate(ctx, lpaUID, certificateProviderUid, body)
 }
 
 func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error {
@@ -221,4 +222,13 @@ func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpa
 	}
 
 	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
+}
+
+func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorney *attorneydata.Provided) error {
+	body := updateRequest{
+		Type:    "ATTORNEY_OPT_OUT",
+		Subject: attorney.UID.String(),
+	}
+
+	return c.sendUpdate(ctx, lpaUID, attorney.UID, body)
 }
