@@ -18,7 +18,7 @@ import (
 type updateRequest struct {
 	Type    string                `json:"type"`
 	Changes []updateRequestChange `json:"changes"`
-	Subject string                `json:"subject"`
+	Subject string                `json:"subject,omitempty"`
 }
 
 type updateRequestChange struct {
