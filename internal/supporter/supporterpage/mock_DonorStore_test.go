@@ -51,7 +51,7 @@ type mockDonorStore_DeleteDonorAccess_Call struct {
 
 // DeleteDonorAccess is a helper method to define mock.On call
 //   - ctx context.Context
-//   - shareCodeData sharecodedata.Data
+//   - shareCodeData sharecodedata.Link
 func (_e *mockDonorStore_Expecter) DeleteDonorAccess(ctx interface{}, shareCodeData interface{}) *mockDonorStore_DeleteDonorAccess_Call {
 	return &mockDonorStore_DeleteDonorAccess_Call{Call: _e.mock.On("DeleteDonorAccess", ctx, shareCodeData)}
 }
