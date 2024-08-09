@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -40,7 +39,7 @@ type SecretsClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
@@ -163,7 +162,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = page.NewShareCodeSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
+		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
 	}
 
 	return f.shareCodeSender, nil
