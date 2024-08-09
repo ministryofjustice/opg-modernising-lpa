@@ -2,11 +2,27 @@ console.log(`Request - ${context.request.method} ${context.request.path}`);
 
 const lpaStore = stores.open('lpa');
 const pathParts = context.request.path.split('/');
+const lpaUID = pathParts[2]
+
+const optOutStatus = function(lpa) {
+    const activeAttorneys = lpa.attorneys.find(a => a.status === 'active')
+    const activeTrustCorporations = lpa.trustCorporations.find(tc => tc.status === 'active')
+
+    if ((activeAttorneys.length + activeTrustCorporations.length) < 2) {
+        return 'cannot-register'
+    }
+
+    if (['jointly', 'jointly-for-some-severally-for-others'].includes(lpa.HowAttorneysMakeDecisions)) {
+        return 'cannot-register'
+    }
+
+    return 'in-progress'
+}
 
 switch (context.request.method) {
   case 'GET': {
     if (pathParts.length == 3 && pathParts[1] == 'lpas') {
-      const lpa = lpaStore.load(pathParts[2]);
+      const lpa = lpaStore.load(lpaUID);
       if (lpa) {
         respond().withContent(lpa);
       } else {
@@ -19,9 +35,9 @@ switch (context.request.method) {
   }
   case 'PUT': {
     let lpa = JSON.parse(context.request.body);
-    lpa.uid = pathParts[2];
+    lpa.uid = lpaUID;
     lpa.updatedAt = new Date(Date.now()).toISOString();
-    lpaStore.save(pathParts[2], JSON.stringify(lpa));
+    lpaStore.save(lpaUID, JSON.stringify(lpa));
     respond();
     break;
   }
@@ -33,7 +49,7 @@ switch (context.request.method) {
       respond().withContent(JSON.stringify({ lpas: lpas }));
     } else {
       let update = JSON.parse(context.request.body);
-      let lpa = JSON.parse(lpaStore.load(pathParts[2]));
+      let lpa = JSON.parse(lpaStore.load(lpaUID));
       if (!lpa) {
         respond().withStatusCode(404);
         break;
@@ -81,9 +97,19 @@ switch (context.request.method) {
         case 'DONOR_WITHDRAW_LPA':
           lpa.status = 'withdrawn';
           break;
+
+        case 'ATTORNEY_OPT_OUT':
+          const idx = lpa.attorneys.findIndex(item => item.uid === update.subject)
+
+          if (idx >= 0 && lpa.attorneys[idx].signedAt != '') {
+              lpa.attorneys[idx].status = 'removed'
+              lpa.status = optOutStatus(lpa)
+          }
+          break;
+
       }
 
-      lpaStore.save(pathParts[2], JSON.stringify(lpa));
+      lpaStore.save(lpaUID, JSON.stringify(lpa));
       respond();
     }
     break;
