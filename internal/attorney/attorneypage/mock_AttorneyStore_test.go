@@ -62,7 +62,7 @@ type mockAttorneyStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - shareCode sharecodedata.Data
+//   - shareCode sharecodedata.Link
 //   - email string
 func (_e *mockAttorneyStore_Expecter) Create(ctx interface{}, shareCode interface{}, email interface{}) *mockAttorneyStore_Create_Call {
 	return &mockAttorneyStore_Create_Call{Call: _e.mock.On("Create", ctx, shareCode, email)}
