@@ -91,10 +91,15 @@ type supporterPaths struct {
 	DonorAccess supporter.LpaPath
 }
 
+type voucherPaths struct {
+	Login page.Path
+}
+
 type appPaths struct {
 	Attorney            attorneyPaths
 	CertificateProvider certificateProviderPaths
 	Supporter           supporterPaths
+	Voucher             voucherPaths
 	HealthCheck         healthCheckPaths
 
 	AttorneyFixtures            page.Path
@@ -114,6 +119,7 @@ type appPaths struct {
 	SignOut                     page.Path
 	Start                       page.Path
 	SupporterFixtures           page.Path
+	VoucherFixtures             page.Path
 	VoucherStart                page.Path
 
 	AboutPayment                                         donor.Path
@@ -308,6 +314,10 @@ var paths = appPaths{
 		DonorAccess:                   supporter.PathDonorAccess,
 	},
 
+	Voucher: voucherPaths{
+		Login: page.PathVoucherLogin,
+	},
+
 	HealthCheck: healthCheckPaths{
 		Service:    page.PathHealthCheckService,
 		Dependency: page.PathHealthCheckDependency,
@@ -330,6 +340,7 @@ var paths = appPaths{
 	SignOut:                     page.PathSignOut,
 	Start:                       page.PathStart,
 	SupporterFixtures:           page.PathSupporterFixtures,
+	VoucherFixtures:             page.PathVoucherFixtures,
 	VoucherStart:                page.PathVoucherStart,
 
 	AboutPayment:                                         donor.PathAboutPayment,

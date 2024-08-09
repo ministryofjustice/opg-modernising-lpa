@@ -101,6 +101,8 @@ func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.ShareKeyTyp
 		return dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)), nil
 	case actor.TypeCertificateProvider:
 		return dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)), nil
+	case actor.TypeVoucher:
+		return dynamo.ShareKey(dynamo.VoucherShareKey(shareCode)), nil
 	default:
 		return dynamo.ShareKey(nil), fmt.Errorf("cannot have share code for actorType=%v", actorType)
 	}

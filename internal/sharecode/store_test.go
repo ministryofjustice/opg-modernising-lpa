@@ -59,6 +59,10 @@ func TestShareCodeStoreGet(t *testing.T) {
 			t:  actor.TypeCertificateProvider,
 			pk: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
 		},
+		"voucher": {
+			t:  actor.TypeVoucher,
+			pk: dynamo.ShareKey(dynamo.VoucherShareKey("123")),
+		},
 	}
 
 	for name, tc := range testcases {
@@ -134,6 +138,10 @@ func TestShareCodeStorePut(t *testing.T) {
 		"certificate provider": {
 			actor: actor.TypeCertificateProvider,
 			pk:    dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+		},
+		"voucher": {
+			actor: actor.TypeVoucher,
+			pk:    dynamo.ShareKey(dynamo.VoucherShareKey("123")),
 		},
 	}
 
@@ -279,6 +287,7 @@ func TestShareCodeKey(t *testing.T) {
 		actor.TypeTrustCorporation:            dynamo.ShareKey(dynamo.AttorneyShareKey("S")),
 		actor.TypeReplacementTrustCorporation: dynamo.ShareKey(dynamo.AttorneyShareKey("S")),
 		actor.TypeCertificateProvider:         dynamo.ShareKey(dynamo.CertificateProviderShareKey("S")),
+		actor.TypeVoucher:                     dynamo.ShareKey(dynamo.VoucherShareKey("S")),
 	}
 
 	for actorType, prefix := range testcases {

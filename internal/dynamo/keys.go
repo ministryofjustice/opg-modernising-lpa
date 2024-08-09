@@ -24,6 +24,7 @@ const (
 	donorInvitePrefix              = "DONORINVITE"
 	certificateProviderSharePrefix = "CERTIFICATEPROVIDERSHARE"
 	attorneySharePrefix            = "ATTORNEYSHARE"
+	voucherSharePrefix             = "VOUCHERSHARE"
 )
 
 func readKey(s string) (any, error) {
@@ -41,6 +42,8 @@ func readKey(s string) (any, error) {
 		return CertificateProviderShareKeyType(s), nil
 	case attorneySharePrefix:
 		return AttorneyShareKeyType(s), nil
+	case voucherSharePrefix:
+		return VoucherShareKeyType(s), nil
 	case donorPrefix:
 		return DonorKeyType(s), nil
 	case subPrefix:
@@ -240,4 +243,14 @@ func (t AttorneyShareKeyType) share()     {} // mark as usable with ShareKey
 // AttorneyShareKey is used as the PK for sharing an Lpa with a donor.
 func AttorneyShareKey(code string) AttorneyShareKeyType {
 	return AttorneyShareKeyType(attorneySharePrefix + "#" + code)
+}
+
+type VoucherShareKeyType string
+
+func (t VoucherShareKeyType) PK() string { return string(t) }
+func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
+
+// VoucherShareKey is used as the PK for sharing an Lpa with a donor.
+func VoucherShareKey(code string) VoucherShareKeyType {
+	return VoucherShareKeyType(voucherSharePrefix + "#" + code)
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -18,7 +19,7 @@ type enterVoucherData struct {
 	Form   *enterVoucherForm
 }
 
-func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
+func EnterVoucher(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterVoucherData{
 			App: appData,
@@ -34,6 +35,10 @@ func EnterVoucher(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				if provided.Voucher.UID.IsZero() {
+					provided.Voucher.UID = newUID()
+				}
+
 				if provided.Voucher.FirstNames != data.Form.FirstNames || provided.Voucher.LastName != data.Form.LastName {
 					provided.Voucher.FirstNames = data.Form.FirstNames
 					provided.Voucher.LastName = data.Form.LastName
