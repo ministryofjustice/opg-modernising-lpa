@@ -19,7 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -58,7 +58,7 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error
+	DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error
 	Get(ctx context.Context) (*donordata.Provided, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -91,9 +91,9 @@ type NotifyClient interface {
 }
 
 type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode string, data sharecode.Data) error
-	GetDonor(ctx context.Context) (sharecode.Data, error)
-	Delete(ctx context.Context, data sharecode.Data) error
+	PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error
+	GetDonor(ctx context.Context) (sharecodedata.Link, error)
+	Delete(ctx context.Context, data sharecodedata.Link) error
 }
 
 type Template func(w io.Writer, data interface{}) error

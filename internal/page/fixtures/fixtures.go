@@ -17,15 +17,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, donorProvided page.CertificateProviderInvite) error
+	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, invite sharecode.CertificateProviderInvite) error
 	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpadata.Lpa) error
 	UseTestCode(shareCode string)
 }
@@ -221,7 +221,7 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 
 func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Link{
 		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
 		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:              actorUID,
@@ -245,7 +245,7 @@ func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorney
 
 func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStore, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
 	shareCode := random.String(16)
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Link{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:    actorUID,

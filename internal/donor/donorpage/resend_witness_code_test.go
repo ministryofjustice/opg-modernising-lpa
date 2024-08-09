@@ -83,7 +83,7 @@ func TestPostResendWitnessCode(t *testing.T) {
 
 			witnessCodeSender := newMockWitnessCodeSender(t)
 			witnessCodeSender.
-				On(tc.method, r.Context(), donor, testAppData.Localizer).
+				On(tc.method, r.Context(), donor).
 				Return(nil)
 
 			err := ResendWitnessCode(nil, witnessCodeSender, actorType)(testAppData, w, r, donor)
@@ -105,7 +105,7 @@ func TestPostResendWitnessCodeWhenSendErrors(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(r.Context(), donor, mock.Anything).
+		SendToCertificateProvider(r.Context(), donor).
 		Return(expectedError)
 
 	err := ResendWitnessCode(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, donor)
@@ -142,8 +142,8 @@ func TestPostResendWitnessCodeWhenTooRecentlySent(t *testing.T) {
 
 			witnessCodeSender := newMockWitnessCodeSender(t)
 			witnessCodeSender.
-				On(tc.send, r.Context(), tc.donor, testAppData.Localizer).
-				Return(page.ErrTooManyWitnessCodeRequests)
+				On(tc.send, r.Context(), tc.donor).
+				Return(donor.ErrTooManyWitnessCodeRequests)
 
 			template := newMockTemplate(t)
 			template.EXPECT().

@@ -210,7 +210,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 
 			witnessCodeSender := newMockWitnessCodeSender(t)
 			witnessCodeSender.
-				On(tc.send, r.Context(), tc.donor, testAppData.Localizer).
+				On(tc.send, r.Context(), tc.donor).
 				Return(nil)
 
 			err := ChangeMobileNumber(nil, witnessCodeSender, tc.actorType)(testAppData, w, r, &donordata.Provided{
@@ -237,7 +237,7 @@ func TestPostChangeMobileNumberWhenSendErrors(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
+		SendToCertificateProvider(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ChangeMobileNumber(nil, witnessCodeSender, actor.TypeCertificateProvider)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
@@ -255,8 +255,8 @@ func TestPostChangeMobileNumberWhenSendErrorsWithTooManyRequests(t *testing.T) {
 
 	witnessCodeSender := newMockWitnessCodeSender(t)
 	witnessCodeSender.EXPECT().
-		SendToCertificateProvider(mock.Anything, mock.Anything, mock.Anything).
-		Return(page.ErrTooManyWitnessCodeRequests)
+		SendToCertificateProvider(mock.Anything, mock.Anything).
+		Return(donor.ErrTooManyWitnessCodeRequests)
 
 	template := newMockTemplate(t)
 	template.EXPECT().

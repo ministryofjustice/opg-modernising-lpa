@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,7 +45,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 				Email:              "a@example.com",
 			}
 
-			shareCode := sharecode.Data{
+			shareCode := sharecodedata.Link{
 				PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
 				SK:                    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 				ActorUID:              uid,
@@ -93,7 +93,7 @@ func TestAttorneyStoreCreateWhenSessionMissing(t *testing.T) {
 
 	attorneyStore := &Store{dynamoClient: nil, now: nil}
 
-	_, err := attorneyStore.Create(ctx, sharecode.Data{}, "")
+	_, err := attorneyStore.Create(ctx, sharecodedata.Link{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -109,7 +109,7 @@ func TestAttorneyStoreCreateWhenSessionMissingRequiredData(t *testing.T) {
 
 			attorneyStore := &Store{}
 
-			_, err := attorneyStore.Create(ctx, sharecode.Data{}, "")
+			_, err := attorneyStore.Create(ctx, sharecodedata.Link{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -126,7 +126,7 @@ func TestAttorneyStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	attorneyStore := &Store{dynamoClient: dynamoClient, now: func() time.Time { return now }}
 
-	_, err := attorneyStore.Create(ctx, sharecode.Data{
+	_, err := attorneyStore.Create(ctx, sharecodedata.Link{
 		PK: dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")

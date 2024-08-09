@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -27,14 +26,14 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 		redirect = donor.PathWitnessingAsIndependentWitness
 	}
 
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &resendWitnessCodeData{
 			App: appData,
 		}
 
 		if r.Method == http.MethodPost {
-			if err := send(r.Context(), donor, appData.Localizer); err != nil {
-				if errors.Is(err, page.ErrTooManyWitnessCodeRequests) {
+			if err := send(r.Context(), provided); err != nil {
+				if errors.Is(err, donor.ErrTooManyWitnessCodeRequests) {
 					data.Errors.Add("request", validation.CustomError{Label: "pleaseWaitOneMinute"})
 					return tmpl(w, data)
 				}
@@ -42,7 +41,7 @@ func ResendWitnessCode(tmpl template.Template, witnessCodeSender WitnessCodeSend
 				return err
 			}
 
-			return redirect.Redirect(w, r, appData, donor)
+			return redirect.Redirect(w, r, appData, provided)
 		}
 
 		return tmpl(w, data)

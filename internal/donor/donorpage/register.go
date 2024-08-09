@@ -26,6 +26,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -49,7 +50,7 @@ type DonorStore interface {
 	Latest(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
-	Link(ctx context.Context, data sharecode.Data, donorEmail string) error
+	Link(ctx context.Context, data sharecodedata.Link, donorEmail string) error
 }
 
 type GetDonorStore interface {
@@ -80,7 +81,7 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, page.CertificateProviderInvite) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 }
 
@@ -107,8 +108,8 @@ type SessionStore interface {
 }
 
 type WitnessCodeSender interface {
-	SendToCertificateProvider(context.Context, *donordata.Provided, page.Localizer) error
-	SendToIndependentWitness(context.Context, *donordata.Provided, page.Localizer) error
+	SendToCertificateProvider(context.Context, *donordata.Provided) error
+	SendToIndependentWitness(context.Context, *donordata.Provided) error
 }
 
 type UidClient interface {
@@ -153,7 +154,7 @@ type LpaStoreClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, code string) (sharecode.Data, error)
+	Get(ctx context.Context, actorType actor.Type, code string) (sharecodedata.Link, error)
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)

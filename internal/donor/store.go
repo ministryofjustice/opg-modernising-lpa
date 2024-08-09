@@ -18,7 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -162,7 +162,7 @@ type lpaReference struct {
 //     for the organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows
 //     the Lpa to be shown on the donor's dashboard.
-func (s *donorStore) Link(ctx context.Context, shareCode sharecode.Data, donorEmail string) error {
+func (s *donorStore) Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error {
 	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
@@ -400,7 +400,7 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecode.Data) error {
+func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error {
 	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")
