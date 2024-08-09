@@ -44,7 +44,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*attorneydata.Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err

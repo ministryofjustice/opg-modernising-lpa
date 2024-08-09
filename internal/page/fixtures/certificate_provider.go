@@ -123,7 +123,7 @@ func CertificateProvider(
 				return err
 			}
 
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecodedata.Data{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), orgSession), sharecodedata.Link{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {

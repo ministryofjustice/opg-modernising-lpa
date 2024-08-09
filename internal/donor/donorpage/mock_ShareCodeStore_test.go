@@ -26,22 +26,22 @@ func (_m *mockShareCodeStore) EXPECT() *mockShareCodeStore_Expecter {
 }
 
 // Get provides a mock function with given fields: ctx, actorType, code
-func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, code string) (sharecodedata.Data, error) {
+func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, code string) (sharecodedata.Link, error) {
 	ret := _m.Called(ctx, actorType, code)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 sharecodedata.Data
+	var r0 sharecodedata.Link
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) (sharecodedata.Data, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) (sharecodedata.Link, error)); ok {
 		return rf(ctx, actorType, code)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) sharecodedata.Data); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) sharecodedata.Link); ok {
 		r0 = rf(ctx, actorType, code)
 	} else {
-		r0 = ret.Get(0).(sharecodedata.Data)
+		r0 = ret.Get(0).(sharecodedata.Link)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, actor.Type, string) error); ok {
@@ -73,12 +73,12 @@ func (_c *mockShareCodeStore_Get_Call) Run(run func(ctx context.Context, actorTy
 	return _c
 }
 
-func (_c *mockShareCodeStore_Get_Call) Return(_a0 sharecodedata.Data, _a1 error) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) Return(_a0 sharecodedata.Link, _a1 error) *mockShareCodeStore_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, actor.Type, string) (sharecodedata.Data, error)) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, actor.Type, string) (sharecodedata.Link, error)) *mockShareCodeStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }

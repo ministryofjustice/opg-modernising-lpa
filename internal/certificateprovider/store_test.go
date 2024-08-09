@@ -22,7 +22,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 	uid := actoruid.New()
 	details := &certificateproviderdata.Provided{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.CertificateProviderKey("session-id"), LpaID: "lpa-id", UpdatedAt: testNow, UID: uid, Email: "a@b.com"}
 
-	shareCode := sharecodedata.Data{
+	shareCode := sharecodedata.Link{
 		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey("share-key")),
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey("share-key")),
 		ActorUID:    uid,
@@ -59,7 +59,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 func TestCertificateProviderStoreCreateWhenSessionMissing(t *testing.T) {
 	certificateProviderStore := &Store{dynamoClient: nil, now: nil}
 
-	_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{}, "")
+	_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{}, "")
 	assert.Equal(t, appcontext.SessionMissingError{}, err)
 }
 
@@ -75,7 +75,7 @@ func TestCertificateProviderStoreCreateWhenSessionMissingRequiredData(t *testing
 
 			certificateProviderStore := &Store{}
 
-			_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{}, "")
+			_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{}, "")
 			assert.NotNil(t, err)
 		})
 	}
@@ -91,7 +91,7 @@ func TestCertificateProviderStoreCreateWhenWriteTransactionError(t *testing.T) {
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	_, err := certificateProviderStore.Create(ctx, sharecodedata.Data{
+	_, err := certificateProviderStore.Create(ctx, sharecodedata.Link{
 		PK: dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
 		SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 	}, "")

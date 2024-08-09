@@ -57,13 +57,13 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
-	Delete(ctx context.Context, shareCode sharecodedata.Data) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
+	Delete(ctx context.Context, shareCode sharecodedata.Link) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error)
 	Get(ctx context.Context) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 	Delete(ctx context.Context) error

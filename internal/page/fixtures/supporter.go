@@ -41,8 +41,8 @@ type MemberStore interface {
 }
 
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
-	PutDonor(ctx context.Context, code string, data sharecodedata.Data) error
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
+	PutDonor(ctx context.Context, code string, data sharecodedata.Link) error
 }
 
 func Supporter(
@@ -148,7 +148,7 @@ func Supporter(
 					return err
 				}
 
-				shareCodeData := sharecodedata.Data{
+				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(org.PK),
 					LpaKey:       donor.PK,
 					ActorUID:     donor.Donor.UID,

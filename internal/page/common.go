@@ -29,8 +29,8 @@ type Logger interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
 }
 
 type NotifyClient interface {

@@ -258,7 +258,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				LpaData(r).
 				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-			shareCodeData := sharecodedata.Data{
+			shareCodeData := sharecodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 			}
@@ -306,7 +306,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-	shareCodeData := sharecodedata.Data{
+	shareCodeData := sharecodedata.Link{
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 

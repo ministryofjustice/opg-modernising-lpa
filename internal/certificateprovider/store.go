@@ -44,7 +44,7 @@ type Store struct {
 	now          func() time.Time
 }
 
-func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*certificateproviderdata.Provided, error) {
+func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err

@@ -29,8 +29,8 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error) {
-	var data sharecodedata.Data
+func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error) {
+	var data sharecodedata.Link
 
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
@@ -38,17 +38,17 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode string)
 	}
 
 	if err := s.dynamoClient.OneByPK(ctx, pk, &data); err != nil {
-		return sharecodedata.Data{}, err
+		return sharecodedata.Link{}, err
 	}
 
 	if !data.LpaLinkedAt.IsZero() {
-		return sharecodedata.Data{}, dynamo.NotFoundError{}
+		return sharecodedata.Link{}, dynamo.NotFoundError{}
 	}
 
 	return data, err
 }
 
-func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error {
+func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error {
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
@@ -60,7 +60,7 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string,
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodedata.Data) error {
+func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
@@ -73,8 +73,8 @@ func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodeda
 	return s.dynamoClient.Put(ctx, data)
 }
 
-func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Data, error) {
-	var data sharecodedata.Data
+func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Link, error) {
+	var data sharecodedata.Link
 
 	sessionData, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Data, error) {
 	return data, err
 }
 
-func (s *Store) Delete(ctx context.Context, shareCode sharecodedata.Data) error {
+func (s *Store) Delete(ctx context.Context, shareCode sharecodedata.Link) error {
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 

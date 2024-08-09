@@ -24,7 +24,7 @@ type donorAccessData struct {
 	Errors    validation.List
 	Form      *donorAccessForm
 	Donor     *donordata.Provided
-	ShareCode *sharecodedata.Data
+	ShareCode *sharecodedata.Link
 }
 
 func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
@@ -91,7 +91,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 				}
 
 				shareCode := randomString(12)
-				shareCodeData := sharecodedata.Data{
+				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
 					ActorUID:     donor.Donor.UID,

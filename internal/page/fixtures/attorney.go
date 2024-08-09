@@ -30,17 +30,17 @@ import (
 
 type DonorStore interface {
 	Create(ctx context.Context) (*donordata.Provided, error)
-	Link(ctx context.Context, shareCode sharecodedata.Data, donorEmail string) error
+	Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error
 	Put(ctx context.Context, donorProvidedDetails *donordata.Provided) error
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type AttorneyStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*attorneydata.Provided, error)
+	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*attorneydata.Provided, error)
 	Put(ctx context.Context, attorney *attorneydata.Provided) error
 }
 
@@ -133,7 +133,7 @@ func Attorney(
 		}
 
 		if isSupported {
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Data{
+			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Link{
 				LpaKey:      donorDetails.PK,
 				LpaOwnerKey: donorDetails.SK,
 			}, donorDetails.Donor.Email); err != nil {

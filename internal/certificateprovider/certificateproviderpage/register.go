@@ -39,7 +39,7 @@ type Logger interface {
 }
 
 type CertificateProviderStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Data, email string) (*certificateproviderdata.Provided, error)
+	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*certificateproviderdata.Provided, error)
 	Delete(ctx context.Context) error
 	Get(ctx context.Context) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
@@ -53,9 +53,9 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData sharecodedata.Data) error
-	Delete(ctx context.Context, shareCode sharecodedata.Data) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, shareCodeData sharecodedata.Link) error
+	Delete(ctx context.Context, shareCode sharecodedata.Link) error
 }
 
 type Template func(io.Writer, interface{}) error

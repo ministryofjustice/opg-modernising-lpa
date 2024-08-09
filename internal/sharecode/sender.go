@@ -34,8 +34,8 @@ type Localizer interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Data, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Data) error
+	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
 }
 
 type NotifyClient interface {
@@ -251,7 +251,7 @@ func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, 
 		s.testCode = ""
 	}
 
-	shareCodeData := sharecodedata.Data{
+	shareCodeData := sharecodedata.Link{
 		LpaKey:                lpaKey,
 		LpaOwnerKey:           lpaOwnerKey,
 		ActorUID:              actorUID,

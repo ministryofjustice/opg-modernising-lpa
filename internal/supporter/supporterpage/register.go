@@ -58,7 +58,7 @@ type MemberStore interface {
 }
 
 type DonorStore interface {
-	DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Data) error
+	DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error
 	Get(ctx context.Context) (*donordata.Provided, error)
 	GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -91,9 +91,9 @@ type NotifyClient interface {
 }
 
 type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode string, data sharecodedata.Data) error
-	GetDonor(ctx context.Context) (sharecodedata.Data, error)
-	Delete(ctx context.Context, data sharecodedata.Data) error
+	PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error
+	GetDonor(ctx context.Context) (sharecodedata.Link, error)
+	Delete(ctx context.Context, data sharecodedata.Link) error
 }
 
 type Template func(w io.Writer, data interface{}) error
