@@ -50,7 +50,7 @@ type mockShareCodeStore_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - shareCode sharecodedata.Data
+//   - shareCode sharecodedata.Link
 func (_e *mockShareCodeStore_Expecter) Delete(ctx interface{}, shareCode interface{}) *mockShareCodeStore_Delete_Call {
 	return &mockShareCodeStore_Delete_Call{Call: _e.mock.On("Delete", ctx, shareCode)}
 }
@@ -157,7 +157,7 @@ type mockShareCodeStore_Put_Call struct {
 //   - ctx context.Context
 //   - actorType actor.Type
 //   - shareCode string
-//   - data sharecodedata.Data
+//   - data sharecodedata.Link
 func (_e *mockShareCodeStore_Expecter) Put(ctx interface{}, actorType interface{}, shareCode interface{}, data interface{}) *mockShareCodeStore_Put_Call {
 	return &mockShareCodeStore_Put_Call{Call: _e.mock.On("Put", ctx, actorType, shareCode, data)}
 }
