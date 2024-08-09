@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
-	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -173,7 +173,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				LpaData(r).
 				Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-			shareCodeData := sharecode.Data{
+			shareCodeData := sharecodedata.Link{
 				LpaKey:      dynamo.LpaKey("lpa-id"),
 				LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 				ActorUID:    tc.uid,
@@ -235,7 +235,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 		LpaData(r).
 		Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Link{
 		LpaKey:      dynamo.LpaKey("lpa-id"),
 		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
 		ActorUID:    actoruid.New(),
@@ -266,7 +266,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
-	shareCodeData := sharecode.Data{
+	shareCodeData := sharecodedata.Link{
 		LpaKey: dynamo.LpaKey("lpa-id"),
 	}
 

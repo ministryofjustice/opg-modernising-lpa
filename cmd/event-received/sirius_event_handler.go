@@ -12,8 +12,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -228,7 +228,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 	}
 
 	if lpa.CertificateProvider.Channel.IsOnline() {
-		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, page.CertificateProviderInvite{
+		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
 			LpaKey:                      lpa.LpaKey,
 			LpaOwnerKey:                 lpa.LpaOwnerKey,
 			LpaUID:                      lpa.LpaUID,
