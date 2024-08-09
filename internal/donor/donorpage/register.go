@@ -388,7 +388,7 @@ func Register(
 	handleWithDonor(donor.PathWhatIsVouching, page.CanGoBack,
 		WhatIsVouching(tmpls.Get("what_is_vouching.gohtml"), donorStore))
 	handleWithDonor(donor.PathEnterVoucher, page.CanGoBack,
-		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore))
+		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
