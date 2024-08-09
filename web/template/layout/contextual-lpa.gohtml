@@ -292,7 +292,14 @@
             {{ $label = "youHaveChosenNotToFormallyNotifyAnyone" }}
         {{ end }}
 
-        <p class="govuk-body">{{ tr .App $label }}</p>
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <p class="govuk-body">{{ tr .App $label }}</p>
+            </div>
+        </div>
     {{ end }}
 
     {{ if .Donor.AuthorisedSignatory.FirstNames }}
