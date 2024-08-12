@@ -19,7 +19,7 @@ type confirmDontWantToBeAttorneyData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string) Handler {
+func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -44,6 +44,10 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+			}
+
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails); err != nil {
+				return err
 			}
 
 			if err := attorneyStore.Delete(r.Context()); err != nil {

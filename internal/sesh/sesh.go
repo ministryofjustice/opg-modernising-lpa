@@ -67,8 +67,12 @@ func (e InvalidSessionError) Error() string {
 	return fmt.Sprintf("%s session invalid", string(e))
 }
 
+type cookieStore interface {
+	sessions.Store
+}
+
 type Store struct {
-	s sessions.Store
+	s cookieStore
 }
 
 func NewStore(keyPairs [][]byte) *Store {
