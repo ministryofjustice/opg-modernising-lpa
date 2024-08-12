@@ -46,15 +46,15 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
-			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails); err != nil {
+			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+				return err
+			}
+
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID); err != nil {
 				return err
 			}
 
 			if err := attorneyStore.Delete(r.Context()); err != nil {
-				return err
-			}
-
-			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 

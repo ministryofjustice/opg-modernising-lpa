@@ -496,8 +496,7 @@ func TestClientSendAttorneyOptOut(t *testing.T) {
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	uid, _ := actoruid.Parse("dc487ebb-b39d-45ed-bb6a-7f950fd355c9")
-	attorney := attorneydata.Provided{UID: uid}
-	err := client.SendAttorneyOptOut(ctx, "lpa-uid", &attorney)
+	err := client.SendAttorneyOptOut(ctx, "lpa-uid", uid)
 
 	assert.Nil(t, err)
 }

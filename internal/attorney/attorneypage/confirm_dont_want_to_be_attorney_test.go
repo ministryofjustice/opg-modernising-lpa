@@ -131,9 +131,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendAttorneyOptOut(r.Context(), "lpa-uid", &attorneydata.Provided{
-			UID: uid,
-		}).
+		SendAttorneyOptOut(r.Context(), "lpa-uid", uid).
 		Return(nil)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
@@ -178,6 +176,19 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 		notifyClient   func(*testing.T) *mockNotifyClient
 		lpaStoreClient func(*testing.T) *mockLpaStoreClient
 	}{
+		"when notifyClient.SendActorEmail() error": {
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("")
+				client.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return client
+			},
+		},
 		"when lpaStoreClient.SendAttorneyOptOut() error": {
 			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				client := newMockLpaStoreClient(t)
@@ -186,14 +197,14 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					Return(expectedError)
 				return client
 			},
-			attorneyStore: func(t *testing.T) *mockAttorneyStore {
-				return newMockAttorneyStore(t)
-			},
 			notifyClient: func(t *testing.T) *mockNotifyClient {
 				client := newMockNotifyClient(t)
 				client.EXPECT().
 					EmailGreeting(mock.Anything).
 					Return("")
+				client.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
 
 				return client
 			},
@@ -219,34 +230,9 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 				client.EXPECT().
 					EmailGreeting(mock.Anything).
 					Return("")
-
-				return client
-			},
-		},
-		"when notifyClient.SendActorEmail() error": {
-			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
-				client := newMockLpaStoreClient(t)
-				client.EXPECT().
-					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
-					Return(nil)
-				return client
-			},
-			attorneyStore: func(t *testing.T) *mockAttorneyStore {
-				attorneyStore := newMockAttorneyStore(t)
-				attorneyStore.EXPECT().
-					Delete(mock.Anything).
-					Return(nil)
-
-				return attorneyStore
-			},
-			notifyClient: func(t *testing.T) *mockNotifyClient {
-				client := newMockNotifyClient(t)
-				client.EXPECT().
-					EmailGreeting(mock.Anything).
-					Return("")
 				client.EXPECT().
 					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-					Return(expectedError)
+					Return(nil)
 
 				return client
 			},
@@ -269,7 +255,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), "example.com", tc.lpaStoreClient(t))(testAppData, w, r, &attorneydata.Provided{})
+			err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{})
 
 			resp := w.Result()
 
