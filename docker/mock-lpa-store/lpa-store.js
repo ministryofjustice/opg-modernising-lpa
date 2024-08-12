@@ -8,7 +8,16 @@ const optOutStatus = function(lpa) {
     const activeAttorneys = lpa.attorneys.find(a => a.status === 'active')
     const activeTrustCorporations = lpa.trustCorporations.find(tc => tc.status === 'active')
 
-    if ((activeAttorneys.length + activeTrustCorporations.length) < 2) {
+    let attorneysCount = 0
+    if (activeAttorneys) {
+        attorneysCount += activeAttorneys.length
+    }
+
+    if (activeTrustCorporations) {
+        attorneysCount += activeTrustCorporations.length
+    }
+
+    if (attorneysCount === 0) {
         return 'cannot-register'
     }
 
