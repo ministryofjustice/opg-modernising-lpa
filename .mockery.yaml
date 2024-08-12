@@ -39,3 +39,5 @@ packages:
   github.com/ministryofjustice/opg-modernising-lpa/internal/task:
   github.com/ministryofjustice/opg-modernising-lpa/internal/uid:
   github.com/ministryofjustice/opg-modernising-lpa/internal/validation:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherpage:
+  github.com/ministryofjustice/opg-modernising-lpa/internal/voucher:

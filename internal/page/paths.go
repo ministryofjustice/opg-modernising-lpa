@@ -33,6 +33,9 @@ const (
 	PathSupporterSigningInAdvice                                           = Path("/signing-in-with-govuk-one-login")
 	PathSupporterStart                                                     = Path("/supporter-start")
 	PathVoucherStart                                                       = Path("/voucher-start")
+	PathVoucherLogin                                                       = Path("/voucher-login")
+	PathVoucherLoginCallback                                               = Path("/voucher-login-callback")
+	PathVoucherEnterReferenceNumber                                        = Path("/voucher-enter-reference-number")
 
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
 	PathAuthRedirect                = Path("/auth/redirect")
@@ -51,6 +54,7 @@ const (
 	PathSignOut                     = Path("/sign-out")
 	PathStart                       = Path("/start")
 	PathSupporterFixtures           = Path("/fixtures/supporter")
+	PathVoucherFixtures             = Path("/fixtures/voucher")
 )
 
 type Path string

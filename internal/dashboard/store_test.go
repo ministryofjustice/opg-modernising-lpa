@@ -183,7 +183,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				ResolveList(ctx, []*donordata.Provided{lpa123Donor, lpa456Donor, lpa789Donor, lpa0Donor, lpaCertifiedDonor, lpaReferencedDonor}).
 				Return([]*lpadata.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified, lpaReferenced}, nil)
 
-			dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
+			dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
 			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
@@ -252,7 +252,7 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 		ResolveList(ctx, []*donordata.Provided{lpaSubmittedDonor, lpaSubmittedReplacementDonor}).
 		Return([]*lpadata.Lpa{lpaSubmitted, lpaSubmittedReplacement}, nil)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
+	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
 	_, attorney, _, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -287,7 +287,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().ResolveList(ctx, mock.Anything).Return(nil, expectedError)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
+	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
 	_, _, _, err := dashboardStore.GetAll(ctx)
 	if !assert.Equal(t, expectedError, err) {
@@ -302,7 +302,7 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
 		[]map[string]any{}, nil)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	dashboardStore := &Store{dynamoClient: dynamoClient}
 
 	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
@@ -318,7 +318,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
 		[]dashboarddata.LpaLink{}, expectedError)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	dashboardStore := &Store{dynamoClient: dynamoClient}
 
 	_, _, _, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, err, expectedError)
@@ -334,7 +334,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 		{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
 	}, nil, expectedError)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	dashboardStore := &Store{dynamoClient: dynamoClient}
 
 	_, _, _, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
@@ -364,7 +364,7 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 		{PK: dynamo.LpaKey("123"), SK: dynamo.OrganisationKey("org-id")},
 	}, nil, expectedError)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	dashboardStore := &Store{dynamoClient: dynamoClient}
 
 	_, _, _, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
@@ -397,7 +397,7 @@ func TestDashboardStoreSubExists(t *testing.T) {
 			dynamoClient.ExpectAllBySK(context.Background(), dynamo.SubKey("a-sub-id"),
 				tc.lpas, nil)
 
-			dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+			dashboardStore := &Store{dynamoClient: dynamoClient}
 			exists, err := dashboardStore.SubExistsForActorType(context.Background(), "a-sub-id", tc.actorType)
 
 			assert.Nil(t, err)
@@ -411,7 +411,7 @@ func TestDashboardStoreSubExistsWhenDynamoError(t *testing.T) {
 	dynamoClient.ExpectAllBySK(context.Background(), dynamo.SubKey("a-sub-id"),
 		[]dashboarddata.LpaLink{}, expectedError)
 
-	dashboardStore := &dashboardStore{dynamoClient: dynamoClient}
+	dashboardStore := &Store{dynamoClient: dynamoClient}
 	exists, err := dashboardStore.SubExistsForActorType(context.Background(), "a-sub-id", actor.TypeDonor)
 
 	assert.Equal(t, expectedError, err)
