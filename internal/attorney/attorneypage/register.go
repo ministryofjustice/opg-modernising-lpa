@@ -80,6 +80,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendAttorney(context.Context, *lpadata.Lpa, *attorneydata.Provided) error
+	SendAttorneyOptOut(ctx context.Context, lpaUID string, attorney *attorneydata.Provided) error
 }
 
 type NotifyClient interface {
@@ -147,7 +148,7 @@ func Register(
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
 
 	handleAttorney(attorney.PathConfirmDontWantToBeAttorney, CanGoBack,
-		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, attorneyStore, notifyClient, appPublicURL))
+		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, attorneyStore, notifyClient, appPublicURL, lpaStoreClient))
 }
 
 type handleOpt byte
