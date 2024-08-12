@@ -1311,5 +1311,8 @@
     "whichFeeTypeYouAreApplyingFor": "pa fath o ffi yr ydych yn gwneud cais amdano",
     "emailGreetingDonor": "Welsh {{.DonorFullName}},",
     "emailGreetingCorrespondent": "Welsh: {{.LpaUID}} {{.CorrespondentFullName}} {{.DonorFullNamePossessive}} {{.LpaType}}",
-    "voucherStartContent": "<p class=\"govuk-body\">Welsh</p>"
+    "voucherStartContent": "<p class=\"govuk-body\">Welsh</p>",
+    "enterYourVouchingReferenceNumber": "Welsh",
+    "vouchingReferenceNumberContent": "<p class=\"govuk-body\">Welsh</p>",
+    "vouchingReferenceNumber": "Welsh"
 }

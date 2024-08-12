@@ -20,36 +20,21 @@ import (
 )
 
 type DynamoClient interface {
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
-	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
-	Put(ctx context.Context, v interface{}) error
-	Create(ctx context.Context, v interface{}) error
-	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
-	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
-	BatchPut(ctx context.Context, items []interface{}) error
-	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
-	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type LpaStoreResolvingService interface {
 	ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpadata.Lpa, error)
 }
 
-type dashboardStore struct {
+type Store struct {
 	dynamoClient             DynamoClient
 	lpaStoreResolvingService LpaStoreResolvingService
 }
 
-func NewStore(dynamoClient DynamoClient, lpaStoreResolvingService LpaStoreResolvingService) *dashboardStore {
-	return &dashboardStore{
+func NewStore(dynamoClient DynamoClient, lpaStoreResolvingService LpaStoreResolvingService) *Store {
+	return &Store{
 		dynamoClient:             dynamoClient,
 		lpaStoreResolvingService: lpaStoreResolvingService,
 	}
@@ -72,7 +57,7 @@ func isAttorneyKey(k dynamo.Keys) bool {
 	return ok
 }
 
-func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
+func (s *Store) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	var links []dashboarddata.LpaLink
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
 		return false, err
@@ -87,7 +72,7 @@ func (s *dashboardStore) SubExistsForActorType(ctx context.Context, sub string, 
 	return false, nil
 }
 
-func (s *dashboardStore) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
+func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, nil, nil, err

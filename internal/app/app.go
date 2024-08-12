@@ -35,6 +35,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherpage"
 )
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -81,7 +83,7 @@ func App(
 	logger *slog.Logger,
 	localizer page.Localizer,
 	lang localize.Lang,
-	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls template.Templates,
+	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls template.Templates,
 	sessionStore *sesh.Store,
 	lpaDynamoClient DynamoClient,
 	appPublicURL string,
@@ -104,6 +106,7 @@ func App(
 	evidenceReceivedStore := &evidenceReceivedStore{dynamoClient: lpaDynamoClient}
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
+	voucherStore := voucher.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
@@ -126,6 +129,8 @@ func App(
 			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore))
 		handleRoot(page.PathSupporterFixtures, None,
 			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient))
+		handleRoot(page.PathVoucherFixtures, None,
+			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), shareCodeStore, donorStore))
 		handleRoot(page.PathDashboardFixtures, None,
 			fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, shareCodeStore))
 	}
@@ -148,6 +153,18 @@ func App(
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
+
+	voucherpage.Register(
+		rootMux,
+		logger,
+		voucherTmpls,
+		sessionStore,
+		voucherStore,
+		oneLoginClient,
+		shareCodeStore,
+		dashboardStore,
+		errorHandler,
+	)
 
 	supporterpage.Register(
 		rootMux,
