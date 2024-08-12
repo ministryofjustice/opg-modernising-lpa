@@ -97,6 +97,11 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
 		lpa.Donor.Channel = lpadata.ChannelOnline
+		lpa.Correspondent = lpadata.Correspondent{
+			FirstNames: donor.Correspondent.FirstNames,
+			LastName:   donor.Correspondent.LastName,
+			Email:      donor.Correspondent.Email,
+		}
 
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
