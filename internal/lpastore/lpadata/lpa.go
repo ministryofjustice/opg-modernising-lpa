@@ -33,12 +33,31 @@ type Lpa struct {
 	// witnessed by their CertificateProvider)
 	SignedAt                                 time.Time
 	CertificateProviderNotRelatedConfirmedAt time.Time
-	Submitted                                bool
-	Paid                                     bool
-	IsOrganisationDonor                      bool
-	Drafted                                  bool
-	CannotRegister                           bool
-	Correspondent                            Correspondent
+
+	// Submitted is set if SubmittedAt is non-zero for online applications, or set
+	// to true for paper applications.
+	Submitted bool
+
+	// Paid is set if the PayForLpa task has been completed for online
+	// applications, or set to true for paper applications as to be in the
+	// lpa-store the application payment must be complete.
+	Paid bool
+
+	// IsOrganisationDonor is set to true when the Lpa is being made by a
+	// supporter working for an organisation.
+	IsOrganisationDonor bool
+
+	// Drafted is set if the CheckYourLpa task has been completed for online
+	// applications, or set to true for paper applications.
+	Drafted bool
+
+	// CannotRegister is set to true if the status in the lpa-store is
+	// cannot-register.
+	CannotRegister bool
+
+	// Correspondent is set using the data set by the donor for online
+	// applications, but is not set for paper applications.
+	Correspondent Correspondent
 }
 
 func (l *Lpa) CorrespondentEmail() string {
