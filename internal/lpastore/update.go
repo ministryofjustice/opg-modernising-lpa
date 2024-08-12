@@ -18,7 +18,6 @@ import (
 type updateRequest struct {
 	Type    string                `json:"type"`
 	Changes []updateRequestChange `json:"changes"`
-	Subject string                `json:"subject,omitempty"`
 }
 
 type updateRequestChange struct {
@@ -226,8 +225,7 @@ func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpa
 
 func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorney *attorneydata.Provided) error {
 	body := updateRequest{
-		Type:    "ATTORNEY_OPT_OUT",
-		Subject: attorney.UID.String(),
+		Type: "ATTORNEY_OPT_OUT",
 	}
 
 	return c.sendUpdate(ctx, lpaUID, attorney.UID, body)

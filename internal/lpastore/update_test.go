@@ -466,7 +466,7 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 }
 
 func TestClientSendAttorneyOptOut(t *testing.T) {
-	json := `{"type":"ATTORNEY_OPT_OUT","changes":null,"subject":"dc487ebb-b39d-45ed-bb6a-7f950fd355c9"}`
+	json := `{"type":"ATTORNEY_OPT_OUT","changes":null}`
 
 	ctx := context.Background()
 
