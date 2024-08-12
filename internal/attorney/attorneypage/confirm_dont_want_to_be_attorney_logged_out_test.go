@@ -43,7 +43,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -59,7 +59,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenSessionStoreErrors(t *testin
 		LpaData(r).
 		Return(&sesh.LpaDataSession{}, expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, nil, sessionStore, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, nil, sessionStore, nil, "example.com", nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -80,7 +80,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenLpaStoreResolvingServiceErro
 		Get(mock.Anything).
 		Return(&lpadata.Lpa{}, expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -106,7 +106,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenTemplateErrors(t *testing.T)
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -214,7 +214,12 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, "example.com")(testAppData, w, r)
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				SendAttorneyOptOut(r.Context(), "lpa-uid", tc.uid).
+				Return(nil)
+
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -258,7 +263,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, "example.com")(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
 	assert.EqualError(t, err, "attorney not found")
 }
 
@@ -287,6 +292,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 		localizer                func(*testing.T) *mockLocalizer
 		shareCodeStore           func(*testing.T) *mockShareCodeStore
 		notifyClient             func(*testing.T) *mockNotifyClient
+		lpaStoreClient           func(*testing.T) *mockLpaStoreClient
 	}{
 		"when shareCodeStore.Get() error": {
 			sessionStore: func(t *testing.T) *mockSessionStore {
@@ -312,6 +318,89 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 					Return(shareCodeData, expectedError)
 
 				return shareCodeStore
+			},
+		},
+		"when notifyClient.SendActorEmail() error": {
+			sessionStore: func(t *testing.T) *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&signedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
+			localizer: localizer,
+			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, nil)
+
+				return shareCodeStore
+			},
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+				client.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return client
+			},
+		},
+		"when lpaStoreClient.SendAttorneyOptOut() error": {
+			sessionStore: func(t *testing.T) *mockSessionStore {
+				sessionStore := newMockSessionStore(t)
+				sessionStore.EXPECT().
+					LpaData(r).
+					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
+
+				return sessionStore
+			},
+			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
+				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+				lpaStoreResolvingService.EXPECT().
+					Get(ctx).
+					Return(&signedLPA, nil)
+
+				return lpaStoreResolvingService
+			},
+			localizer: localizer,
+			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
+				shareCodeStore := newMockShareCodeStore(t)
+				shareCodeStore.EXPECT().
+					Get(mock.Anything, mock.Anything, mock.Anything).
+					Return(shareCodeData, nil)
+
+				return shareCodeStore
+			},
+			notifyClient: func(t *testing.T) *mockNotifyClient {
+				client := newMockNotifyClient(t)
+				client.EXPECT().
+					EmailGreeting(mock.Anything).
+					Return("Dear donor")
+				client.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
+
+				return client
+			},
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				client := newMockLpaStoreClient(t)
+				client.EXPECT().
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+				return client
 			},
 		},
 		"when shareCodeStore.Delete() error": {
@@ -354,42 +443,11 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 
 				return client
 			},
-		},
-		"when notifyClient.SendActorEmail() error": {
-			sessionStore: func(t *testing.T) *mockSessionStore {
-				sessionStore := newMockSessionStore(t)
-				sessionStore.EXPECT().
-					LpaData(r).
-					Return(&sesh.LpaDataSession{LpaID: "lpa-id"}, nil)
-
-				return sessionStore
-			},
-			lpaStoreResolvingService: func(t *testing.T) *mockLpaStoreResolvingService {
-				lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-				lpaStoreResolvingService.EXPECT().
-					Get(ctx).
-					Return(&signedLPA, nil)
-
-				return lpaStoreResolvingService
-			},
-			localizer: localizer,
-			shareCodeStore: func(t *testing.T) *mockShareCodeStore {
-				shareCodeStore := newMockShareCodeStore(t)
-				shareCodeStore.EXPECT().
-					Get(mock.Anything, mock.Anything, mock.Anything).
-					Return(shareCodeData, nil)
-
-				return shareCodeStore
-			},
-			notifyClient: func(t *testing.T) *mockNotifyClient {
-				client := newMockNotifyClient(t)
+			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				client := newMockLpaStoreClient(t)
 				client.EXPECT().
-					EmailGreeting(mock.Anything).
-					Return("Dear donor")
-				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-					Return(expectedError)
-
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
 				return client
 			},
 		},
@@ -401,7 +459,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 
 			testAppData.Localizer = evalT(tc.localizer, t)
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.shareCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), "example.com")(testAppData, w, r)
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.shareCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r)
 
 			resp := w.Result()
 
