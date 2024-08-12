@@ -211,7 +211,7 @@ type mockDonorStore_Link_Call struct {
 
 // Link is a helper method to define mock.On call
 //   - ctx context.Context
-//   - data sharecodedata.Data
+//   - data sharecodedata.Link
 //   - donorEmail string
 func (_e *mockDonorStore_Expecter) Link(ctx interface{}, data interface{}, donorEmail interface{}) *mockDonorStore_Link_Call {
 	return &mockDonorStore_Link_Call{Call: _e.mock.On("Link", ctx, data, donorEmail)}

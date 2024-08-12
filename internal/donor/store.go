@@ -65,7 +65,7 @@ type SearchClient interface {
 	Index(ctx context.Context, lpa search.Lpa) error
 }
 
-type donorStore struct {
+type Store struct {
 	dynamoClient DynamoClient
 	eventClient  EventClient
 	logger       Logger
@@ -75,8 +75,8 @@ type donorStore struct {
 	searchClient SearchClient
 }
 
-func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger, searchClient SearchClient) *donorStore {
-	return &donorStore{
+func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger, searchClient SearchClient) *Store {
+	return &Store{
 		dynamoClient: dynamoClient,
 		eventClient:  eventClient,
 		logger:       logger,
@@ -87,7 +87,7 @@ func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger,
 	}
 }
 
-func (s *donorStore) Create(ctx context.Context) (*donordata.Provided, error) {
+func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ type lpaReference struct {
 //     for the organisation ID that holds the Lpa data;
 //  2. an lpaLink which allows
 //     the Lpa to be shown on the donor's dashboard.
-func (s *donorStore) Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error {
+func (s *Store) Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error {
 	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.Link can only be used with organisations")
@@ -205,7 +205,7 @@ func (s *donorStore) Link(ctx context.Context, shareCode sharecodedata.Link, don
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
 
-func (s *donorStore) GetAny(ctx context.Context) (*donordata.Provided, error) {
+func (s *Store) GetAny(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -235,7 +235,7 @@ func (s *donorStore) GetAny(ctx context.Context) (*donordata.Provided, error) {
 	return &donor.Provided, err
 }
 
-func (s *donorStore) Get(ctx context.Context) (*donordata.Provided, error) {
+func (s *Store) Get(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -265,7 +265,7 @@ func (s *donorStore) Get(ctx context.Context) (*donordata.Provided, error) {
 	return &donor.Provided, err
 }
 
-func (s *donorStore) Latest(ctx context.Context) (*donordata.Provided, error) {
+func (s *Store) Latest(ctx context.Context) (*donordata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -283,7 +283,7 @@ func (s *donorStore) Latest(ctx context.Context) (*donordata.Provided, error) {
 	return donor, nil
 }
 
-func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error) {
+func (s *Store) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.Provided, error) {
 	if len(keys) == 0 {
 		return nil, nil
 	}
@@ -309,7 +309,7 @@ func (s *donorStore) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donor
 	return donors, err
 }
 
-func (s *donorStore) Put(ctx context.Context, donor *donordata.Provided) error {
+func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 	if !donor.HashChanged() {
 		return nil
 	}
@@ -361,7 +361,7 @@ func (s *donorStore) Put(ctx context.Context, donor *donordata.Provided) error {
 	return s.dynamoClient.Put(ctx, donor)
 }
 
-func (s *donorStore) Delete(ctx context.Context) error {
+func (s *Store) Delete(ctx context.Context) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err
@@ -400,7 +400,7 @@ func (s *donorStore) Delete(ctx context.Context) error {
 	return s.dynamoClient.DeleteKeys(ctx, keys)
 }
 
-func (s *donorStore) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error {
+func (s *Store) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodedata.Link) error {
 	organisationKey, ok := shareCodeData.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("donorStore.DeleteDonorAccess can only be used with organisations")

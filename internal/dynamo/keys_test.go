@@ -34,6 +34,7 @@ func TestPK(t *testing.T) {
 		"DonorShareKey":               {DonorShareKey("S"), "DONORSHARE#S"},
 		"CertificateProviderShareKey": {CertificateProviderShareKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
 		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
+		"VoucherShareKey":             {VoucherShareKey("S"), "VOUCHERSHARE#S"},
 	}
 
 	for name, tc := range testcases {
