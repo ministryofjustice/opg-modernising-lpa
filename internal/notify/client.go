@@ -18,6 +18,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -136,6 +139,12 @@ type emailWrapper struct {
 }
 
 func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
+	ctx, span := tracer.Start(ctx, "Email",
+		trace.WithSpanKind(trace.SpanKindInternal))
+	span.SetAttributes(attribute.KeyValue{Key: "Template ID", Value: attribute.StringValue(email.emailID(c.isProduction))})
+	defer span.End()
+
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
 		EmailAddress:    to,
 		TemplateID:      email.emailID(c.isProduction),
@@ -145,16 +154,23 @@ func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
 		return err
 	}
 
-	_, err = c.do(req)
+	resp, err := c.do(req)
 	if err != nil {
 		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
+	span.SetAttributes(attribute.KeyValue{Key: "Notify ID", Value: attribute.StringValue(resp.ID)})
 
 	return nil
 }
 
 func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Email) error {
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
+	ctx, span := tracer.Start(ctx, "Email",
+		trace.WithSpanKind(trace.SpanKindInternal))
+	span.SetAttributes(attribute.KeyValue{Key: "Template ID", Value: attribute.StringValue(email.emailID(c.isProduction))})
+	defer span.End()
+
 	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, to, email)); err != nil || ok {
 		return err
 	}
@@ -174,6 +190,7 @@ func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Em
 		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
+	span.SetAttributes(attribute.KeyValue{Key: "Notify ID", Value: attribute.StringValue(resp.ID)})
 
 	if !slices.Contains(simulatedEmails, to) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
@@ -194,6 +211,12 @@ type smsWrapper struct {
 }
 
 func (c *Client) SendActorSMS(ctx context.Context, to, lpaUID string, sms SMS) error {
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
+	ctx, span := tracer.Start(ctx, "SMS",
+		trace.WithSpanKind(trace.SpanKindInternal))
+	span.SetAttributes(attribute.KeyValue{Key: "Template ID", Value: attribute.StringValue(email.emailID(c.isProduction))})
+	defer span.End()
+
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/sms", smsWrapper{
 		PhoneNumber:     to,
 		TemplateID:      sms.smsID(c.isProduction),
@@ -207,6 +230,7 @@ func (c *Client) SendActorSMS(ctx context.Context, to, lpaUID string, sms SMS) e
 	if err != nil {
 		return err
 	}
+	span.SetAttributes(attribute.KeyValue{Key: "Notify ID", Value: attribute.StringValue(resp.ID)})
 
 	if !slices.Contains(simulatedPhones, to) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
