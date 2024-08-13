@@ -1,16 +1,17 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "thankYou" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "youHaveConfirmedYouDoNotWantToBeACertificateProvider"}}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
-                <h1 class="govuk-panel__title">{{ tr .App "thankYou" }}</h1>
-                <div class="govuk-panel__body">
-                    {{ trFormat .App "weHaveContactedDonorToLetThemKnowYourDecision" "DonorFullName" (.App.Query.Get "donorFullName") }}
-                </div>
+                <h1 class="govuk-panel__title">
+                    {{ trFormat .App "youHaveConfirmedYouDoNotWantToBeDonorsCertificateProvider" "DonorFullNamePossessive" (.App.Query.Get "donorFullNamePossessive") }}
+                </h1>
             </div>
+
+            {{ trFormatHtml .App "weHaveLetDonorKnowAboutYourDecision" "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
 
             {{ trHtml .App "reportAConcernContent" }}
         </div>
