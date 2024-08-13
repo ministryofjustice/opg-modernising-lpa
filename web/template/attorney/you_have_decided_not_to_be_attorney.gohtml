@@ -9,7 +9,7 @@
                 <h1 class="govuk-panel__title">{{ trFormat .App "youHaveConfirmedYouDoNotWantToBeDonorsAttorney" "DonorFullNamePossessive" (possessive .App (.App.Query.Get "donorFullName")) }}</h1>
             </div>
 
-            {{ trFormatHtml .App "youHaveConfirmedYouDoNotWantToBeAttorneyContent" "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
+            {{ trFormatHtml .App "weHaveLetDonorKnowAboutYourDecision" "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
         </div>
     </div>
 {{ end }}

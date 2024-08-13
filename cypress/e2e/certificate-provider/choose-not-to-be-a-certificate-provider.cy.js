@@ -21,7 +21,8 @@ describe('Choose not to be a certificate provider', () => {
             cy.url().should('contain', '/you-have-decided-not-to-be-a-certificate-provider')
             cy.checkA11yApp();
 
-            cy.contains('We have contacted Sam Smith')
+            cy.contains('You have confirmed that you do not want to be Sam Smith’s certificate provider')
+            cy.contains('We have let Sam know about your decision.')
         });
 
         it('when LPA has not been signed and witnessed', () => {
@@ -43,7 +44,8 @@ describe('Choose not to be a certificate provider', () => {
             cy.url().should('contain', '/you-have-decided-not-to-be-a-certificate-provider')
             cy.checkA11yApp();
 
-            cy.contains('We have contacted Sam Smith')
+            cy.contains('You have confirmed that you do not want to be Sam Smith’s certificate provider')
+            cy.contains('We have let Sam know about your decision.')
         });
     })
 })
