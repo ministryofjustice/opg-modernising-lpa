@@ -1183,7 +1183,9 @@
     "enterYour12CharacterReferenceNumberHint": "Welsh",
     "confirmYouDoNotWantToBeACertificateProvider": "Cadarnhewch nad ydych am fod yn ddarparwr tystysgrif",
     "confirmYouDoNotWantToBeACertificateProviderContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullNamePossessive }} Welsh :</p> <div class=\"govuk-inset-text\"> <p class=\"govuk-!-margin-bottom-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .LpaType }}</p> <p class=\"govuk-!-margin-bottom-1 govuk-!-margin-top-1\"><span class=\"govuk-!-font-weight-bold\">Welsh:</span> {{ .LpaUID }}</p> </div>",
-    "whenYouSelectConfirmWeWillContactDonor": "Welsh {{ .DonorFirstNames }} Welsh",
+    "ifYouHaveConcernsAboutThisLPA": "Welsh",
+    "ifYouHaveConcernsAboutThisLPAContent": "Welsh",
+    "whenYouSelectConfirmWeWillContactDonor": "Pan fyddwch yn cadarnhau, byddwn yn cysylltu â {{.DonorFirstNames }} i egluro beth ddylent ei wneud nesaf.",
     "thankYou": "Welsh",
     "weHaveContactedDonorToLetThemKnowYourDecision": "Welsh {{ .DonorFullName }} Welsh",
     "reportAConcernContent": "<h2 class=\"govuk-heading-m\">Welsh</h2> <p class=\"govuk-body\">Welsh:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>Welsh: 0115 934 2777</li> <li>Welsh: <a class=\"govuk-link\" href=\"mailto:opg.safeguardingunit@publicguardian.gov.uk\">opg.safeguardingunit@publicguardian.gov.uk</a> </li> </ul> <p class=\"govuk-body\">Welsh <a class=\"govuk-link\" href=\"#\">Welsh</a> Welsh</p>",
@@ -1310,9 +1312,5 @@
     "someOfTheseDetailsCanNoLongerBeChanged": "Welsh",
     "whichFeeTypeYouAreApplyingFor": "pa fath o ffi yr ydych yn gwneud cais amdano",
     "emailGreetingDonor": "Welsh {{.DonorFullName}},",
-    "emailGreetingCorrespondent": "Welsh: {{.LpaUID}} {{.CorrespondentFullName}} {{.DonorFullNamePossessive}} {{.LpaType}}",
-    "voucherStartContent": "<p class=\"govuk-body\">Welsh</p>",
-    "enterYourVouchingReferenceNumber": "Welsh",
-    "vouchingReferenceNumberContent": "<p class=\"govuk-body\">Welsh</p>",
-    "vouchingReferenceNumber": "Welsh"
+    "emailGreetingCorrespondent": "Welsh: {{.LpaUID}} {{.CorrespondentFullName}} {{.DonorFullNamePossessive}} {{.LpaType}}"
 }
