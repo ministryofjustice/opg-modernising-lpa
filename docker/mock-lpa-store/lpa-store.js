@@ -4,30 +4,6 @@ const lpaStore = stores.open('lpa');
 const pathParts = context.request.path.split('/');
 const lpaUID = pathParts[2]
 
-const optOutStatus = function(lpa) {
-    const activeAttorneys = lpa.attorneys.find(a => a.status === 'active')
-    const activeTrustCorporations = lpa.trustCorporations.find(tc => tc.status === 'active')
-
-    let attorneysCount = 0
-    if (activeAttorneys) {
-        attorneysCount += activeAttorneys.length
-    }
-
-    if (activeTrustCorporations) {
-        attorneysCount += activeTrustCorporations.length
-    }
-
-    if (attorneysCount === 0) {
-        return 'cannot-register'
-    }
-
-    if (['jointly', 'jointly-for-some-severally-for-others'].includes(lpa.HowAttorneysMakeDecisions)) {
-        return 'cannot-register'
-    }
-
-    return 'in-progress'
-}
-
 switch (context.request.method) {
   case 'GET': {
     if (pathParts.length == 3 && pathParts[1] == 'lpas') {
@@ -112,7 +88,6 @@ switch (context.request.method) {
 
           if (idx >= 0 && lpa.attorneys[idx].signedAt != '') {
               lpa.attorneys[idx].status = 'removed'
-              lpa.status = optOutStatus(lpa)
           }
           break;
 
