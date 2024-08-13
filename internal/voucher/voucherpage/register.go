@@ -9,19 +9,29 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
-type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
+type Localizer interface {
+	page.Localizer
+}
+
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpadata.Lpa, error)
+}
 
 type Logger interface {
 	InfoContext(ctx context.Context, msg string, args ...any)
@@ -69,6 +79,7 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	dashboardStore DashboardStore,
 	errorHandler page.ErrorHandler,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -82,7 +93,7 @@ func Register(
 	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler)
 
 	handleVoucher(voucher.PathTaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml")))
+		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte
@@ -147,7 +158,7 @@ func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
-			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), &voucherdata.Provided{}); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
