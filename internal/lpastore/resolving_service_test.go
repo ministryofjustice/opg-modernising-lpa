@@ -39,6 +39,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					Status:      identity.StatusConfirmed,
 					RetrievedAt: time.Now(),
 				},
+				Correspondent: donordata.Correspondent{Email: "x"},
 			},
 			resolved: &lpadata.Lpa{
 				LpaID: "1",
@@ -58,7 +59,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: lpadata.Personally,
 				},
-				Donor: lpadata.Donor{Channel: lpadata.ChannelOnline},
+				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
+				Correspondent: lpadata.Correspondent{Email: "x"},
 			},
 		},
 		"online with no lpastore record": {
