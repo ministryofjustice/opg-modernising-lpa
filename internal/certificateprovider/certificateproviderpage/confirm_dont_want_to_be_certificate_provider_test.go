@@ -231,6 +231,9 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			localizer.EXPECT().
 				T("personal-welfare").
 				Return("Personal welfare")
+			localizer.EXPECT().
+				Possessive("a b c").
+				Return("full name possessive")
 
 			testAppData.Localizer = localizer
 
@@ -247,7 +250,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 			resp := w.Result()
 
 			assert.Nil(t, err)
-			assert.Equal(t, page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.Format()+"?donorFullName=a+b+c", resp.Header.Get("Location"))
+			assert.Equal(t, page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.Format()+"?donorFirstNames=a+b&donorFullNamePossessive=full+name+possessive", resp.Header.Get("Location"))
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
 		})
 	}
