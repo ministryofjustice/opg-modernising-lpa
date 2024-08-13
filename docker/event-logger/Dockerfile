@@ -1,4 +1,4 @@
-FROM golang:1.22.5-alpine as base
+FROM golang:1.22.5-alpine AS base
 
 ARG ARCH=amd64
 
@@ -11,7 +11,7 @@ COPY cmd/event-logger ./cmd/event-logger
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /go/bin/event-logger ./cmd/event-logger
 
-FROM scratch as production
+FROM scratch AS production
 
 COPY --from=base /go/bin/event-logger event-logger
 

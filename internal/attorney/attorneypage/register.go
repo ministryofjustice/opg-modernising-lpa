@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -80,6 +81,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendAttorney(context.Context, *lpadata.Lpa, *attorneydata.Provided) error
+	SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID) error
 }
 
 type NotifyClient interface {
@@ -115,7 +117,7 @@ func Register(
 	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
-		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, appPublicURL))
+		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, appPublicURL, lpaStoreClient))
 	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 
@@ -147,7 +149,7 @@ func Register(
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService))
 
 	handleAttorney(attorney.PathConfirmDontWantToBeAttorney, CanGoBack,
-		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, attorneyStore, notifyClient, appPublicURL))
+		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), lpaStoreResolvingService, attorneyStore, notifyClient, appPublicURL, lpaStoreClient))
 }
 
 type handleOpt byte
