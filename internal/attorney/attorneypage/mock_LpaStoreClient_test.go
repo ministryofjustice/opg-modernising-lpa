@@ -3,9 +3,10 @@
 package attorneypage
 
 import (
-	context "context"
-
+	actoruid "github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	attorneydata "github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+
+	context "context"
 
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 
@@ -69,6 +70,54 @@ func (_c *mockLpaStoreClient_SendAttorney_Call) Return(_a0 error) *mockLpaStoreC
 }
 
 func (_c *mockLpaStoreClient_SendAttorney_Call) RunAndReturn(run func(context.Context, *lpadata.Lpa, *attorneydata.Provided) error) *mockLpaStoreClient_SendAttorney_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendAttorneyOptOut provides a mock function with given fields: ctx, lpaUID, attorneyUID
+func (_m *mockLpaStoreClient) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID) error {
+	ret := _m.Called(ctx, lpaUID, attorneyUID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendAttorneyOptOut")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, actoruid.UID) error); ok {
+		r0 = rf(ctx, lpaUID, attorneyUID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendAttorneyOptOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAttorneyOptOut'
+type mockLpaStoreClient_SendAttorneyOptOut_Call struct {
+	*mock.Call
+}
+
+// SendAttorneyOptOut is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+//   - attorneyUID actoruid.UID
+func (_e *mockLpaStoreClient_Expecter) SendAttorneyOptOut(ctx interface{}, lpaUID interface{}, attorneyUID interface{}) *mockLpaStoreClient_SendAttorneyOptOut_Call {
+	return &mockLpaStoreClient_SendAttorneyOptOut_Call{Call: _e.mock.On("SendAttorneyOptOut", ctx, lpaUID, attorneyUID)}
+}
+
+func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) Run(run func(ctx context.Context, lpaUID string, attorneyUID actoruid.UID)) *mockLpaStoreClient_SendAttorneyOptOut_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(actoruid.UID))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) Return(_a0 error) *mockLpaStoreClient_SendAttorneyOptOut_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendAttorneyOptOut_Call) RunAndReturn(run func(context.Context, string, actoruid.UID) error) *mockLpaStoreClient_SendAttorneyOptOut_Call {
 	_c.Call.Return(run)
 	return _c
 }

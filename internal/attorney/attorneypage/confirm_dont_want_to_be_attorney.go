@@ -19,7 +19,7 @@ type confirmDontWantToBeAttorneyData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string) Handler {
+func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -46,11 +46,15 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
-			if err := attorneyStore.Delete(r.Context()); err != nil {
+			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 
-			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID); err != nil {
+				return err
+			}
+
+			if err := attorneyStore.Delete(r.Context()); err != nil {
 				return err
 			}
 
