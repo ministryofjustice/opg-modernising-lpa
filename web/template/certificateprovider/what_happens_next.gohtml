@@ -9,10 +9,6 @@
 
       {{ trFormatHtml .App "whatHappensNextContent" "DonorFirstNames" .Lpa.Donor.FirstNames "DonorFullName" .Lpa.Donor.FullName }}
 
-      <p class="govuk-inset-text">
-        {{ tr .App "ifYouHaveConcerns" }}
-      </p>
-
       {{ template "buttons" (button .App "continue" "link" (global.Paths.CertificateProvider.ProvideCertificate.Format .App.LpaID)) }}
     </div>
   </div>
