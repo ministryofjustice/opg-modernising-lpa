@@ -2,8 +2,10 @@ package voucher
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 const (
@@ -28,4 +30,25 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 
 	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	return nil
+}
+
+func (p Path) canVisit(provided *voucherdata.Provided) bool {
+	switch p {
+	default:
+		return true
+	}
+}
+
+func CanGoTo(provided *voucherdata.Provided, url string) bool {
+	path, _, _ := strings.Cut(url, "?")
+	if path == "" {
+		return false
+	}
+
+	if strings.HasPrefix(path, "/voucher/") {
+		_, voucherPath, _ := strings.Cut(strings.TrimPrefix(path, "/voucher/"), "/")
+		return Path("/" + voucherPath).canVisit(provided)
+	}
+
+	return true
 }

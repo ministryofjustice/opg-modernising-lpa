@@ -6,6 +6,7 @@ import (
 	context "context"
 
 	sharecodedata "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
+	voucherdata "github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,23 +24,23 @@ func (_m *mockVoucherStore) EXPECT() *mockVoucherStore_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, shareCode, email
-func (_m *mockVoucherStore) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (interface{}, error) {
+func (_m *mockVoucherStore) Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*voucherdata.Provided, error) {
 	ret := _m.Called(ctx, shareCode, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 interface{}
+	var r0 *voucherdata.Provided
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, sharecodedata.Link, string) (interface{}, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecodedata.Link, string) (*voucherdata.Provided, error)); ok {
 		return rf(ctx, shareCode, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, sharecodedata.Link, string) interface{}); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecodedata.Link, string) *voucherdata.Provided); ok {
 		r0 = rf(ctx, shareCode, email)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
+			r0 = ret.Get(0).(*voucherdata.Provided)
 		}
 	}
 
@@ -72,12 +73,70 @@ func (_c *mockVoucherStore_Create_Call) Run(run func(ctx context.Context, shareC
 	return _c
 }
 
-func (_c *mockVoucherStore_Create_Call) Return(_a0 interface{}, _a1 error) *mockVoucherStore_Create_Call {
+func (_c *mockVoucherStore_Create_Call) Return(_a0 *voucherdata.Provided, _a1 error) *mockVoucherStore_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *mockVoucherStore_Create_Call) RunAndReturn(run func(context.Context, sharecodedata.Link, string) (interface{}, error)) *mockVoucherStore_Create_Call {
+func (_c *mockVoucherStore_Create_Call) RunAndReturn(run func(context.Context, sharecodedata.Link, string) (*voucherdata.Provided, error)) *mockVoucherStore_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function with given fields: ctx
+func (_m *mockVoucherStore) Get(ctx context.Context) (*voucherdata.Provided, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 *voucherdata.Provided
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*voucherdata.Provided, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *voucherdata.Provided); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*voucherdata.Provided)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockVoucherStore_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type mockVoucherStore_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockVoucherStore_Expecter) Get(ctx interface{}) *mockVoucherStore_Get_Call {
+	return &mockVoucherStore_Get_Call{Call: _e.mock.On("Get", ctx)}
+}
+
+func (_c *mockVoucherStore_Get_Call) Run(run func(ctx context.Context)) *mockVoucherStore_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockVoucherStore_Get_Call) Return(_a0 *voucherdata.Provided, _a1 error) *mockVoucherStore_Get_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockVoucherStore_Get_Call) RunAndReturn(run func(context.Context) (*voucherdata.Provided, error)) *mockVoucherStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
