@@ -98,8 +98,8 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 			}
 
 			return page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{
-				"donorFullName":             {lpa.Donor.FullName()},
-				"donorFirstNamesPossessive": {appData.Localizer.Possessive(lpa.Donor.FirstNames)},
+				"donorFullNamePossessive": {appData.Localizer.Possessive(lpa.Donor.FullName())},
+				"donorFirstNames":         {lpa.Donor.FirstNames},
 			})
 		}
 
