@@ -10,12 +10,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &mockLogger{}, template.Templates{}, &mockSessionStore{}, &mockVoucherStore{}, &mockOneLoginClient{}, &mockShareCodeStore{}, &mockDashboardStore{}, nil)
+	Register(mux, &mockLogger{}, template.Templates{}, &mockSessionStore{}, &mockVoucherStore{}, &mockOneLoginClient{}, &mockShareCodeStore{}, &mockDashboardStore{}, nil, &mockLpaStoreResolvingService{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
@@ -153,7 +154,7 @@ func TestMakeVoucherHandleExistingSession(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeVoucherHandle(mux, sessionStore, nil)
-	handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
+	handle("/path", CanGoBack, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request, provided *voucherdata.Provided) error {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/voucher/lpa-id/path",
 			CanGoBack: true,
@@ -190,7 +191,7 @@ func TestMakeVoucherHandleErrors(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeVoucherHandle(mux, sessionStore, errorHandler.Execute)
-	handle("/path", None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request) error {
+	handle("/path", None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *voucherdata.Provided) error {
 		return expectedError
 	})
 
@@ -208,7 +209,7 @@ func TestMakeVoucherHandleSessionError(t *testing.T) {
 
 	mux := http.NewServeMux()
 	handle := makeVoucherHandle(mux, sessionStore, nil)
-	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request) error {
+	handle("/path", RequireSession, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *voucherdata.Provided) error {
 		return nil
 	})
 

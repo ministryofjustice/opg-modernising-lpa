@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 const (
@@ -28,4 +29,8 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 
 	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	return nil
+}
+
+func CanGoTo(provided *voucherdata.Provided, url string) bool {
+	return false
 }
