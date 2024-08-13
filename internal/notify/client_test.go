@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.opentelemetry.io/otel"
 )
 
 var expectedError = errors.New("err")
@@ -120,6 +121,7 @@ func (e testEmail) emailID(bool) string { return "template-id" }
 func TestSendEmail(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
+	innerCtx, _ := otel.GetTracerProvider().Tracer("mlpab").Start(ctx, "")
 
 	doer := newMockDoer(t)
 	doer.EXPECT().
@@ -131,7 +133,7 @@ func TestSendEmail(t *testing.T) {
 			var v map[string]any
 			json.Unmarshal(readBody(req).Bytes(), &v)
 
-			return assert.Equal(ctx, req.Context()) &&
+			return assert.Equal(innerCtx, req.Context()) &&
 				assert.Equal("me@example.com", v["email_address"].(string)) &&
 				assert.Equal("template-id", v["template_id"].(string)) &&
 				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
@@ -151,10 +153,11 @@ func TestSendEmail(t *testing.T) {
 func TestSendEmailWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
+	innerCtx, _ := otel.GetTracerProvider().Tracer("mlpab").Start(ctx, "")
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "email send failed", slog.String("to", "me@example.com"))
+		ErrorContext(innerCtx, "email send failed", slog.String("to", "me@example.com"))
 
 	doer := newMockDoer(t)
 	doer.EXPECT().
@@ -181,6 +184,7 @@ func TestSendActorEmail(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			ctx := context.Background()
+			innerCtx, _ := otel.GetTracerProvider().Tracer("mlpab").Start(ctx, "")
 
 			doer := newMockDoer(t)
 			doer.EXPECT().
@@ -189,7 +193,7 @@ func TestSendActorEmail(t *testing.T) {
 						return false
 					}
 
-					return assert.Equal(ctx, req.Context()) &&
+					return assert.Equal(innerCtx, req.Context()) &&
 						assert.Equal("/v2/notifications?reference=7mHebbumP4dq7lwL0a0GKXrf4Y6AzVKyY6PPfyG+4Kk", req.URL.String()) &&
 						assert.Equal("", readBody(req).String())
 				})).
@@ -218,7 +222,7 @@ func TestSendActorEmail(t *testing.T) {
 
 			eventClient := newMockEventClient(t)
 			eventClient.EXPECT().
-				SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+				SendNotificationSent(innerCtx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 				Return(nil)
 
 			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
@@ -267,6 +271,7 @@ func TestSendActorEmailWhenAlreadyRecentlyCreated(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := assert.New(t)
 			ctx := context.Background()
+			innerCtx, _ := otel.GetTracerProvider().Tracer("mlpab").Start(ctx, "")
 
 			doer := newMockDoer(t)
 			doer.EXPECT().
@@ -275,7 +280,7 @@ func TestSendActorEmailWhenAlreadyRecentlyCreated(t *testing.T) {
 						return false
 					}
 
-					return assert.Equal(ctx, req.Context()) &&
+					return assert.Equal(innerCtx, req.Context()) &&
 						assert.Equal("/v2/notifications?reference=7mHebbumP4dq7lwL0a0GKXrf4Y6AzVKyY6PPfyG+4Kk", req.URL.String()) &&
 						assert.Equal("", readBody(req).String())
 				})).
@@ -306,12 +311,9 @@ func TestSendActorEmailWhenReferenceExistsError(t *testing.T) {
 }
 
 func TestSendActorEmailWhenError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "email send failed", slog.String("to", "me@example.com"))
+		ErrorContext(mock.Anything, "email send failed", slog.String("to", "me@example.com"))
 
 	doer := newMockDoer(t)
 	doer.EXPECT().
@@ -329,14 +331,11 @@ func TestSendActorEmailWhenError(t *testing.T) {
 
 	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{})
-	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+	err := client.SendActorEmail(context.Background(), "me@example.com", "lpa-uid", testEmail{})
+	assert.Equal(t, "error sending message: This happened: Plus this", err.Error())
 }
 
 func TestSendActorEmailWhenEventError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
@@ -353,14 +352,14 @@ func TestSendActorEmailWhenEventError(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		SendNotificationSent(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendActorEmail(ctx, "me@example.com", "lpa-uid", testEmail{A: "value"})
-	assert.Equal(expectedError, err)
+	err := client.SendActorEmail(context.Background(), "me@example.com", "lpa-uid", testEmail{A: "value"})
+	assert.Equal(t, expectedError, err)
 }
 
 func TestNewRequest(t *testing.T) {
@@ -393,8 +392,6 @@ func TestNewRequestWhenNewRequestError(t *testing.T) {
 }
 
 func TestDo(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400}`
 
 	doer := newMockDoer(t)
@@ -410,18 +407,16 @@ func TestDo(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
+	req, _ := client.newRequest(context.Background(), http.MethodPost, "/an/url", &jsonBody)
 
 	response, err := client.do(req)
 
-	assert.Nil(err)
-	assert.Equal(response.ID, "123")
-	assert.Equal(response.StatusCode, 400)
+	assert.Nil(t, err)
+	assert.Equal(t, response.ID, "123")
+	assert.Equal(t, response.StatusCode, 400)
 }
 
 func TestDoWhenContainsErrorList(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
 	jsonString := `{"id": "123", "status_code": 400, "errors": [{"error":"SomeError","message":"This happened"}, {"error":"AndError","message":"Plus this"}]}`
 
 	doer := newMockDoer(t)
@@ -437,11 +432,11 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
+	req, _ := client.newRequest(context.Background(), http.MethodPost, "/an/url", &jsonBody)
 
 	response, err := client.do(req)
 
-	assert.Equal(errorsList{
+	assert.Equal(t, errorsList{
 		errorItem{
 			Error:   "SomeError",
 			Message: "This happened",
@@ -451,9 +446,9 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 			Message: "Plus this",
 		},
 	}, err)
-	assert.Equal("123", response.ID)
-	assert.Equal(400, response.StatusCode)
-	assert.Equal(errorsList{
+	assert.Equal(t, "123", response.ID)
+	assert.Equal(t, 400, response.StatusCode)
+	assert.Equal(t, errorsList{
 		errorItem{
 			Error:   "SomeError",
 			Message: "This happened",
@@ -466,9 +461,6 @@ func TestDoWhenContainsErrorList(t *testing.T) {
 }
 
 func TestDoRequestWhenRequestError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
@@ -480,18 +472,15 @@ func TestDoRequestWhenRequestError(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
+	req, _ := client.newRequest(context.Background(), http.MethodPost, "/an/url", &jsonBody)
 
 	resp, err := client.do(req)
 
-	assert.Equal(expectedError, err)
-	assert.Equal(response{}, resp)
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, response{}, resp)
 }
 
 func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
@@ -505,12 +494,12 @@ func TestDoRequestWhenJsonDecodeFails(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	req, _ := client.newRequest(ctx, http.MethodPost, "/an/url", &jsonBody)
+	req, _ := client.newRequest(context.Background(), http.MethodPost, "/an/url", &jsonBody)
 
 	resp, err := client.do(req)
 
-	assert.IsType(&json.SyntaxError{}, err)
-	assert.Equal(response{}, resp)
+	assert.IsType(t, &json.SyntaxError{}, err)
+	assert.Equal(t, response{}, resp)
 }
 
 type testSMS struct {
@@ -522,6 +511,7 @@ func (e testSMS) smsID(bool) string { return "template-id" }
 func TestSendActorSMS(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
+	innerCtx, _ := otel.GetTracerProvider().Tracer("mlpab").Start(ctx, "")
 
 	doer := newMockDoer(t)
 	doer.EXPECT().
@@ -540,7 +530,7 @@ func TestSendActorSMS(t *testing.T) {
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		SendNotificationSent(innerCtx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
 		Return(nil)
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
@@ -551,9 +541,6 @@ func TestSendActorSMS(t *testing.T) {
 }
 
 func TestSendActorSMSWhenToSimulated(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	for _, phone := range simulatedPhones {
 		doer := newMockDoer(t)
 		doer.EXPECT().
@@ -565,15 +552,12 @@ func TestSendActorSMSWhenToSimulated(t *testing.T) {
 		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-		err := client.SendActorSMS(ctx, phone, "lpa-uid", testSMS{A: "value"})
-		assert.Nil(err)
+		err := client.SendActorSMS(context.Background(), phone, "lpa-uid", testSMS{A: "value"})
+		assert.Nil(t, err)
 	}
 }
 
 func TestSendActorSMSWhenError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
@@ -583,39 +567,26 @@ func TestSendActorSMSWhenError(t *testing.T) {
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{})
-	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
+	err := client.SendActorSMS(context.Background(), "+447535111111", "lpa-uid", testSMS{})
+	assert.Equal(t, "error sending message: This happened: Plus this", err.Error())
 }
 
 func TestSendActorSMSWhenEventError(t *testing.T) {
-	assert := assert.New(t)
-	ctx := context.Background()
-
 	doer := newMockDoer(t)
 	doer.EXPECT().
-		Do(mock.MatchedBy(func(req *http.Request) bool {
-			var v map[string]any
-			json.Unmarshal(readBody(req).Bytes(), &v)
-
-			return assert.Equal("+447535111111", v["phone_number"].(string)) &&
-				assert.Equal("template-id", v["template_id"].(string)) &&
-				assert.Equal(map[string]any{"A": "value"}, v["personalisation"].(map[string]any))
-
-		})).
-		Return(&http.Response{
-			Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`)),
-		}, nil)
+		Do(mock.Anything).
+		Return(&http.Response{Body: io.NopCloser(strings.NewReader(`{"id":"xyz"}`))}, nil)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
-		SendNotificationSent(ctx, event.NotificationSent{UID: "lpa-uid", NotificationID: "xyz"}).
+		SendNotificationSent(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendActorSMS(ctx, "+447535111111", "lpa-uid", testSMS{A: "value"})
-	assert.Equal(expectedError, err)
+	err := client.SendActorSMS(context.Background(), "+447535111111", "lpa-uid", testSMS{A: "value"})
+	assert.Equal(t, expectedError, err)
 }
 
 func readBody(req *http.Request) *bytes.Buffer {
