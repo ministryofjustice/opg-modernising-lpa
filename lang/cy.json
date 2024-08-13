@@ -1178,7 +1178,6 @@
     "weSentAnEmailTheLpaIsReadyToRegister": "Welsh {{.SentOn}}",
     "drafting": "Drafftio",
     "waitingPeriod": "Cyfnod aros",
-    "certificateProviderReferenceNumberOptOutContent": "<p class=\"govuk-body\">Welsh</p>",
     "enterYour12CharacterReferenceNumber": "Welsh",
     "enterYour12CharacterReferenceNumberHint": "Welsh",
     "confirmYouDoNotWantToBeACertificateProvider": "Cadarnhewch nad ydych am fod yn ddarparwr tystysgrif",
