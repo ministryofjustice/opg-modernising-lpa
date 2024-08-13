@@ -1,13 +1,13 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "thankYou" }}{{ end }}
+{{ define "pageTitle" }}{{ trFormat .App "youHaveConfirmedYouDoNotWantToBeCertificateProvider" "DonorFullNamePossessive" (.App.Query.Get "donorFullNamePossessive") }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">
-                    {{ trFormat .App "youHaveConfirmedYouDoNotWantToBeCertificateProvider" "DonorFullNamePossessive" (.App.Query.Get "donorFullNamePossessive") }}
+                    {{ template "pageTitle" . }}
                 </h1>
             </div>
 
