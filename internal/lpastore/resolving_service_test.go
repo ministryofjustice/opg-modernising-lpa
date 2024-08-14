@@ -40,6 +40,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					RetrievedAt: time.Now(),
 				},
 				Correspondent: donordata.Correspondent{Email: "x"},
+				Voucher:       donordata.Voucher{Allowed: true, Email: "y"},
 			},
 			resolved: &lpadata.Lpa{
 				LpaID: "1",
@@ -61,6 +62,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
 				Correspondent: lpadata.Correspondent{Email: "x"},
+				Voucher:       lpadata.Voucher{Email: "y"},
 			},
 		},
 		"online with no lpastore record": {
@@ -84,6 +86,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					Status:      identity.StatusConfirmed,
 					RetrievedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 				},
+				Correspondent: donordata.Correspondent{Email: "x"},
+				Voucher:       donordata.Voucher{Allowed: true, Email: "y"},
 			},
 			error: ErrNotFound,
 			expected: &lpadata.Lpa{
@@ -108,6 +112,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					Attorneys:        []lpadata.Attorney{{FirstNames: "c"}},
 					TrustCorporation: lpadata.TrustCorporation{Name: "d"},
 				},
+				Correspondent: lpadata.Correspondent{Email: "x"},
+				Voucher:       lpadata.Voucher{Email: "y"},
 			},
 		},
 		"online with all false": {
@@ -142,6 +148,24 @@ func TestResolvingServiceGet(t *testing.T) {
 					Relationship: lpadata.Professionally,
 				},
 				Donor: lpadata.Donor{Channel: lpadata.ChannelPaper},
+			},
+		},
+		"voucher not allowed": {
+			donor: &donordata.Provided{
+				SK:      dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
+				LpaID:   "1",
+				LpaUID:  "M-1111",
+				Voucher: donordata.Voucher{Email: "y"},
+			},
+			resolved: &lpadata.Lpa{
+				LpaID: "1",
+			},
+			expected: &lpadata.Lpa{
+				LpaOwnerKey:         dynamo.LpaOwnerKey(dynamo.OrganisationKey("S")),
+				LpaID:               "1",
+				LpaUID:              "M-1111",
+				IsOrganisationDonor: true,
+				Donor:               lpadata.Donor{Channel: lpadata.ChannelOnline},
 			},
 		},
 	}
