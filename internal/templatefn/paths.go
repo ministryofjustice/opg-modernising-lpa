@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
 
 type attorneyPaths struct {
@@ -92,7 +93,10 @@ type supporterPaths struct {
 }
 
 type voucherPaths struct {
-	Login page.Path
+	Login    page.Path
+	Start    page.Path
+	TaskList voucher.Path
+	YourName voucher.Path
 }
 
 type appPaths struct {
@@ -315,7 +319,10 @@ var paths = appPaths{
 	},
 
 	Voucher: voucherPaths{
-		Login: page.PathVoucherLogin,
+		Login:    page.PathVoucherLogin,
+		Start:    page.PathVoucherStart,
+		TaskList: voucher.PathTaskList,
+		YourName: voucher.PathYourName,
 	},
 
 	HealthCheck: healthCheckPaths{

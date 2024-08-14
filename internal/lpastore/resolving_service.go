@@ -103,6 +103,15 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 			Email:      donor.Correspondent.Email,
 		}
 
+		if donor.Voucher.Allowed {
+			lpa.Voucher = lpadata.Voucher{
+				UID:        donor.Voucher.UID,
+				FirstNames: donor.Voucher.FirstNames,
+				LastName:   donor.Voucher.LastName,
+				Email:      donor.Voucher.Email,
+			}
+		}
+
 		// copy the relationship as it isn't stored in the lpastore.
 		lpa.CertificateProvider.Relationship = donor.CertificateProvider.Relationship
 

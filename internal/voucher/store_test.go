@@ -192,3 +192,21 @@ func TestVoucherStoreGetOnError(t *testing.T) {
 	_, err := store.Get(ctx)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestVoucherStorePut(t *testing.T) {
+	ctx := context.Background()
+	now := time.Now()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, &voucherdata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.VoucherKey("456"), LpaID: "123", UpdatedAt: now}).
+		Return(expectedError)
+
+	store := &Store{
+		dynamoClient: dynamoClient,
+		now:          func() time.Time { return now },
+	}
+
+	err := store.Put(ctx, &voucherdata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.VoucherKey("456"), LpaID: "123"})
+	assert.Equal(t, expectedError, err)
+}

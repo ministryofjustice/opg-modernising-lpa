@@ -16,6 +16,10 @@ const (
 	TypeVoucher
 )
 
+func (t Type) IsVoucher() bool {
+	return t == TypeVoucher
+}
+
 func (t Type) String() string {
 	switch t {
 	case TypeDonor:

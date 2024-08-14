@@ -474,6 +474,16 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 		})
 	}
 
+	var voucher lpadata.Voucher
+	if v := l.Voucher; v.Allowed {
+		voucher = lpadata.Voucher{
+			UID:        v.UID,
+			FirstNames: v.FirstNames,
+			LastName:   v.LastName,
+			Email:      v.Email,
+		}
+	}
+
 	return &lpadata.Lpa{
 		LpaID:     l.LpaID,
 		LpaUID:    l.LpaUID,
@@ -523,6 +533,7 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 			LastName:   l.Correspondent.LastName,
 			Email:      l.Correspondent.Email,
 		},
+		Voucher: voucher,
 	}
 }
 

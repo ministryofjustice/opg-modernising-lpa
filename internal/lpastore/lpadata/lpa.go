@@ -55,9 +55,13 @@ type Lpa struct {
 	// cannot-register.
 	CannotRegister bool
 
-	// Correspondent is set using the data set by the donor for online
+	// Correspondent is set using the data provided by the donor for online
 	// applications, but is not set for paper applications.
 	Correspondent Correspondent
+
+	// Voucher is set using the data provided by the donor for online
+	// applications, but is not set for paper applications.
+	Voucher Voucher
 }
 
 func (l *Lpa) CorrespondentEmail() string {
