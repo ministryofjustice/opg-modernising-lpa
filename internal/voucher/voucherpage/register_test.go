@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -38,6 +39,7 @@ func TestMakeHandle(t *testing.T) {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			CanGoBack: false,
+			ActorType: actor.TypeVoucher,
 			SessionID: "cmFuZG9t",
 		}, appData)
 		assert.Equal(t, w, hw)
@@ -68,6 +70,7 @@ func TestMakeHandleRequireSessionExistingSession(t *testing.T) {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/path",
 			CanGoBack: true,
+			ActorType: actor.TypeVoucher,
 			SessionID: "cmFuZG9t",
 		}, appData)
 		assert.Equal(t, w, hw)
@@ -130,10 +133,11 @@ func TestMakeHandleNoSessionRequired(t *testing.T) {
 	handle := makeHandle(mux, nil, nil)
 	handle("/path", None, func(appData appcontext.Data, hw http.ResponseWriter, hr *http.Request) error {
 		assert.Equal(t, appcontext.Data{
-			Page: "/path",
+			Page:      "/path",
+			ActorType: actor.TypeVoucher,
 		}, appData)
 		assert.Equal(t, w, hw)
-		assert.Equal(t, r.WithContext(appcontext.ContextWithData(r.Context(), appcontext.Data{Page: "/path"})), hr)
+		assert.Equal(t, r.WithContext(appcontext.ContextWithData(r.Context(), appcontext.Data{Page: "/path", ActorType: actor.TypeVoucher})), hr)
 		hw.WriteHeader(http.StatusTeapot)
 		return nil
 	})
@@ -167,6 +171,7 @@ func TestMakeVoucherHandleExistingSession(t *testing.T) {
 		assert.Equal(t, appcontext.Data{
 			Page:      "/voucher/lpa-id/task-list",
 			CanGoBack: true,
+			ActorType: actor.TypeVoucher,
 			SessionID: "cmFuZG9t",
 			LpaID:     "lpa-id",
 		}, appData)
