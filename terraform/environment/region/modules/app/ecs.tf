@@ -136,7 +136,7 @@ data "aws_kms_alias" "opensearch_encryption_key" {
 }
 
 data "aws_kms_alias" "jwt_key" {
-  name     = "alias/opg-data-lpa-store/${data.aws_default_tags.default.tags.account}/jwt-key"
+  name     = "alias/opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
   provider = aws.management
 }
 
