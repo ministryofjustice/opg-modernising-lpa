@@ -86,7 +86,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 
 	var sms notify.SMS
 
-	if certificateProvider.Tasks.ConfirmYourDetails.NotStarted() {
+	if certificateProvider.Tasks.ConfirmYourDetails.IsNotStarted() {
 		sms = notify.CertificateProviderActingDigitallyHasNotConfirmedPersonalDetailsLPADetailsChangedPromptSMS{
 			LpaType:       localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 			DonorFullName: donor.Donor.FullName(),

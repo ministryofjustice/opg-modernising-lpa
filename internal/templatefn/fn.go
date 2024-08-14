@@ -30,7 +30,7 @@ type Globals struct {
 	OneloginURL string
 	StaticHash  string
 	RumConfig   RumConfig
-	ActorTypes  actor.Types
+	ActorTypes  actor.TypeOptions
 	Paths       appPaths
 }
 
