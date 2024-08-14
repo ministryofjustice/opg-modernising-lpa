@@ -156,7 +156,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		OneloginURL: oneloginURL,
 		StaticHash:  staticHash,
 		RumConfig:   rumConfig,
-		ActorTypes:  actor.ActorTypes,
+		ActorTypes:  actor.TypeValues,
 	}))
 	if err != nil {
 		return err
