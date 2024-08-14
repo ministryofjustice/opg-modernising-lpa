@@ -79,6 +79,7 @@ func TestSK(t *testing.T) {
 		"OrganisationKey":        {OrganisationKey("S"), "ORGANISATION#S"},
 		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
+		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
 	}
 
 	for name, tc := range testcases {

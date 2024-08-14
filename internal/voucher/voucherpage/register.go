@@ -9,19 +9,29 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
-type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request) error
+type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error
 
 type Template func(io.Writer, interface{}) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
+
+type Localizer interface {
+	page.Localizer
+}
+
+type LpaStoreResolvingService interface {
+	Get(ctx context.Context) (*lpadata.Lpa, error)
+}
 
 type Logger interface {
 	InfoContext(ctx context.Context, msg string, args ...any)
@@ -51,7 +61,8 @@ type ShareCodeStore interface {
 }
 
 type VoucherStore interface {
-	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (any, error)
+	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*voucherdata.Provided, error)
+	Get(ctx context.Context) (*voucherdata.Provided, error)
 }
 
 type DashboardStore interface {
@@ -69,6 +80,7 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	dashboardStore DashboardStore,
 	errorHandler page.ErrorHandler,
+	lpaStoreResolvingService LpaStoreResolvingService,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -79,10 +91,10 @@ func Register(
 	handleRoot(page.PathVoucherEnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, voucherStore))
 
-	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler)
+	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler, voucherStore)
 
 	handleVoucher(voucher.PathTaskList, None,
-		TaskList(tmpls.Get("task_list.gohtml")))
+		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte
@@ -120,7 +132,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 	}
 }
 
-func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(voucher.Path, handleOpt, Handler) {
+func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler, voucherStore VoucherStore) func(voucher.Path, handleOpt, Handler) {
 	return func(path voucher.Path, opt handleOpt, h Handler) {
 		mux.HandleFunc(path.String(), func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -147,7 +159,18 @@ func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page
 				ctx = appcontext.ContextWithSession(ctx, &appcontext.Session{SessionID: appData.SessionID, LpaID: appData.LpaID})
 			}
 
-			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData))); err != nil {
+			provided, err := voucherStore.Get(ctx)
+			if err != nil {
+				errorHandler(w, r, err)
+				return
+			}
+
+			if !voucher.CanGoTo(provided, r.URL.String()) {
+				voucher.PathTaskList.Redirect(w, r, appData, provided.LpaID)
+				return
+			}
+
+			if err := h(appData, w, r.WithContext(appcontext.ContextWithData(ctx, appData)), provided); err != nil {
 				errorHandler(w, r, err)
 			}
 		})
