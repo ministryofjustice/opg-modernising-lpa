@@ -69,7 +69,7 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 					provided.CertificateProvider.Mobile = data.Form.Mobile
 				}
 
-				if !provided.Tasks.CertificateProvider.Completed() {
+				if !provided.Tasks.CertificateProvider.IsCompleted() {
 					provided.Tasks.CertificateProvider = task.StateInProgress
 				}
 

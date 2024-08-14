@@ -75,7 +75,7 @@ func ChoosePeopleToNotify(tmpl template.Template, donorStore DonorStore, newUID 
 					provided.PeopleToNotify.Put(personToNotify)
 				}
 
-				if !provided.Tasks.PeopleToNotify.Completed() {
+				if !provided.Tasks.PeopleToNotify.IsCompleted() {
 					provided.Tasks.PeopleToNotify = task.StateInProgress
 				}
 

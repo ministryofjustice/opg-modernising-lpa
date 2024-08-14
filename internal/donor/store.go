@@ -315,7 +315,7 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	// Enforces donor to send notifications to certificate provider when LPA data has changed
-	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.Completed() {
+	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.IsCompleted() {
 		donor.Tasks.CheckYourLpa = task.StateInProgress
 	}
 

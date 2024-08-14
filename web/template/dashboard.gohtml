@@ -151,7 +151,7 @@
                 <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
             </h3>
             <div>
-                {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.Completed (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
+                {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.IsCompleted (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
                     <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
                 {{ else }}
                     <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>

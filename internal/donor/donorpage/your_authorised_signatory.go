@@ -50,7 +50,7 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 				provided.AuthorisedSignatory.FirstNames = data.Form.FirstNames
 				provided.AuthorisedSignatory.LastName = data.Form.LastName
 
-				if !provided.Tasks.ChooseYourSignatory.Completed() {
+				if !provided.Tasks.ChooseYourSignatory.IsCompleted() {
 					provided.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 

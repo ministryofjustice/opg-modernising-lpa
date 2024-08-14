@@ -50,7 +50,7 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 				provided.IndependentWitness.FirstNames = data.Form.FirstNames
 				provided.IndependentWitness.LastName = data.Form.LastName
 
-				if !provided.Tasks.ChooseYourSignatory.Completed() {
+				if !provided.Tasks.ChooseYourSignatory.IsCompleted() {
 					provided.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
