@@ -51,7 +51,7 @@ func (p Progress) ToSlice() []ProgressTask {
 
 	list = append(list, p.DonorSigned, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
 
-	if p.NoticesOfIntentSent.State.Completed() {
+	if p.NoticesOfIntentSent.State.IsCompleted() {
 		list = append(list, p.NoticesOfIntentSent)
 	}
 

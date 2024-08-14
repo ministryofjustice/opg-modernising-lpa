@@ -48,13 +48,13 @@ func (p Path) canVisit(certificateProvider *certificateproviderdata.Provided) bo
 	case PathProveYourIdentity,
 		PathIdentityWithOneLogin,
 		PathIdentityWithOneLoginCallback:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed()
+		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted()
 
 	case PathWhatHappensNext,
 		PathProvideCertificate,
 		PathConfirmDontWantToBeCertificateProvider,
 		PathCertificateProvided:
-		return certificateProvider.Tasks.ConfirmYourDetails.Completed() && certificateProvider.Tasks.ConfirmYourIdentity.Completed()
+		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() && certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted()
 
 	default:
 		return true

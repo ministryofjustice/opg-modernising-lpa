@@ -48,9 +48,9 @@
             <div class="govuk-task-list__status">
               {{ if not .Path }}
                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
-              {{ else if .State.Completed }}
+              {{ else if .State.IsCompleted }}
                 {{ tr $.App "completed" }}
-              {{ else if .State.InProgress }}
+              {{ else if .State.IsInProgress }}
                 <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
               {{ else }}
                 <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>

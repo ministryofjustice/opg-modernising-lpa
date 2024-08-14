@@ -2,8 +2,8 @@
   <div id="progress" class="app-progress-bar" aria-label="progress-label">
     <ol class="app-progress-bar__list">
       {{ range .Progress.ToSlice }}
-        <li class="app-progress-bar__item" {{ if .State.InProgress }}aria-current="step"{{ end }}>
-          <span class="app-progress-bar__icon {{ if .State.Completed }}app-progress-bar__icon--complete{{ end }}"></span>
+        <li class="app-progress-bar__item" {{ if .State.IsInProgress }}aria-current="step"{{ end }}>
+          <span class="app-progress-bar__icon {{ if .State.IsCompleted }}app-progress-bar__icon--complete{{ end }}"></span>
           <span class="app-progress-bar__label">
             {{ .Label }}<span class="govuk-visually-hidden"> {{tr $.App .State.String }}</span>
           </span>
