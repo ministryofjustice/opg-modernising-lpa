@@ -15,6 +15,7 @@ import (
 
 type DynamoClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	Put(ctx context.Context, v interface{}) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -77,4 +78,9 @@ func (s *Store) Get(ctx context.Context) (*voucherdata.Provided, error) {
 	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(data.SessionID), &provided)
 
 	return &provided, err
+}
+
+func (s *Store) Put(ctx context.Context, provided *voucherdata.Provided) error {
+	provided.UpdatedAt = s.now()
+	return s.dynamoClient.Put(ctx, provided)
 }
