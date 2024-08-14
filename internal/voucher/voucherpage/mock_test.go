@@ -8,5 +8,5 @@ import (
 
 var (
 	expectedError = errors.New("err")
-	testAppData   = appcontext.Data{}
+	testAppData   = appcontext.Data{LpaID: "lpa-id"}
 )

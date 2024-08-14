@@ -19,6 +19,7 @@ const (
 	memberPrefix                   = "MEMBER"
 	memberInvitePrefix             = "MEMBERINVITE"
 	memberIDPrefix                 = "MEMBERID"
+	voucherPrefix                  = "VOUCHER"
 	metadataPrefix                 = "METADATA"
 	donorSharePrefix               = "DONORSHARE"
 	donorInvitePrefix              = "DONORINVITE"
@@ -68,6 +69,8 @@ func readKey(s string) (any, error) {
 		return MetadataKeyType(s), nil
 	case donorInvitePrefix:
 		return DonorInviteKeyType(s), nil
+	case voucherPrefix:
+		return VoucherKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -192,6 +195,16 @@ func (t MemberIDKeyType) SK() string { return string(t) }
 // retrieving a member using their ID instead of their OneLogin sub.
 func MemberIDKey(memberID string) MemberIDKeyType {
 	return MemberIDKeyType(memberIDPrefix + "#" + memberID)
+}
+
+type VoucherKeyType string
+
+func (t VoucherKeyType) SK() string { return string(t) }
+
+// VoucherKey is used as the SK (with LpaKey as PK) for voucher entered
+// information.
+func VoucherKey(s string) VoucherKeyType {
+	return VoucherKeyType(voucherPrefix + "#" + s)
 }
 
 type MetadataKeyType string
