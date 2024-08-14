@@ -53,7 +53,7 @@ func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreR
 
 			if data.Errors.None() && data.DobWarning == "" {
 				certificateProvider.DateOfBirth = data.Form.Dob
-				if !certificateProvider.Tasks.ConfirmYourDetails.Completed() {
+				if !certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() {
 					certificateProvider.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
 
