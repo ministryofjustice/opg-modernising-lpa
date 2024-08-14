@@ -7,6 +7,8 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,4 +44,86 @@ func TestPathRedirectWhenFrom(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, "/x", resp.Header.Get("Location"))
+}
+
+func TestCanGoTo(t *testing.T) {
+	testcases := map[string]struct {
+		provided *voucherdata.Provided
+		url      string
+		expected bool
+	}{
+		"empty path": {
+			provided: &voucherdata.Provided{},
+			url:      "",
+			expected: false,
+		},
+		"unexpected path": {
+			provided: &voucherdata.Provided{},
+			url:      "/whatever",
+			expected: true,
+		},
+		"unrestricted path": {
+			provided: &voucherdata.Provided{},
+			url:      PathTaskList.Format("123"),
+			expected: true,
+		},
+		"verify donor details": {
+			provided: &voucherdata.Provided{},
+			url:      PathVerifyDonorDetails.Format("123"),
+			expected: false,
+		},
+		"verify donor details when previous task completed": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
+			},
+			url:      PathVerifyDonorDetails.Format("123"),
+			expected: true,
+		},
+		"confirm your identity": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName: task.StateCompleted,
+				},
+			},
+			url:      PathConfirmYourIdentity.Format("123"),
+			expected: false,
+		},
+		"confirm your identity when previous task completed": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName:    task.StateCompleted,
+					VerifyDonorDetails: task.StateCompleted,
+				},
+			},
+			url:      PathConfirmYourIdentity.Format("123"),
+			expected: true,
+		},
+		"sign the declaration": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName:    task.StateCompleted,
+					VerifyDonorDetails: task.StateCompleted,
+				},
+			},
+			url:      PathSignTheDeclaration.Format("123"),
+			expected: false,
+		},
+		"sign the declaration when previous task completed": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName:     task.StateCompleted,
+					VerifyDonorDetails:  task.StateCompleted,
+					ConfirmYourIdentity: task.StateCompleted,
+				},
+			},
+			url:      PathSignTheDeclaration.Format("123"),
+			expected: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, CanGoTo(tc.provided, tc.url))
+		})
+	}
 }
