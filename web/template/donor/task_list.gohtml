@@ -85,9 +85,9 @@
                 </span>
 
                 <div class="govuk-task-list__status">
-                  {{ if or .State.Completed .PaymentState.IsCompleted .IdentityState.IsCompleted }}
+                  {{ if or .State.IsCompleted .PaymentState.IsCompleted .IdentityState.IsCompleted }}
                     {{ tr $.App "completed" }}
-                  {{ else if or .State.InProgress .PaymentState.IsInProgress .PaymentState.IsApproved .IdentityState.IsInProgress }}
+                  {{ else if or .State.IsInProgress .PaymentState.IsInProgress .PaymentState.IsApproved .IdentityState.IsInProgress }}
                     <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
                   {{ else if .PaymentState.IsPending }}
                     <strong class="app-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>

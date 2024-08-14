@@ -51,10 +51,10 @@ func (p Path) canVisit(attorney *attorneydata.Provided) bool {
 		PathWhatHappensWhenYouSign,
 		PathSign,
 		PathWhatHappensNext:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed()
+		return attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted()
 
 	case PathWouldLikeSecondSignatory:
-		return attorney.Tasks.ConfirmYourDetails.Completed() && attorney.Tasks.ReadTheLpa.Completed() && attorney.IsTrustCorporation
+		return attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted() && attorney.IsTrustCorporation
 
 	default:
 		return true

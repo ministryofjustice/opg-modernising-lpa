@@ -30,7 +30,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 
 		// To prevent going back from 'choose-new' and submitting without having
 		// picked a new certificate provider
-		if !provided.Tasks.CertificateProvider.Completed() {
+		if !provided.Tasks.CertificateProvider.IsCompleted() {
 			return donor.PathTaskList.Redirect(w, r, appData, provided)
 		}
 

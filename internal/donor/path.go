@@ -155,15 +155,15 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 }
 
 func (p Path) canVisit(donor *donordata.Provided) bool {
-	section1Completed := donor.Tasks.YourDetails.Completed() &&
-		donor.Tasks.ChooseAttorneys.Completed() &&
-		donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-		(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Type.IsPropertyAndAffairs() && donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-		donor.Tasks.Restrictions.Completed() &&
-		donor.Tasks.CertificateProvider.Completed() &&
-		donor.Tasks.PeopleToNotify.Completed() &&
-		(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed()) &&
-		donor.Tasks.CheckYourLpa.Completed()
+	section1Completed := donor.Tasks.YourDetails.IsCompleted() &&
+		donor.Tasks.ChooseAttorneys.IsCompleted() &&
+		donor.Tasks.ChooseReplacementAttorneys.IsCompleted() &&
+		(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.IsCompleted() || donor.Type.IsPropertyAndAffairs() && donor.Tasks.WhenCanTheLpaBeUsed.IsCompleted()) &&
+		donor.Tasks.Restrictions.IsCompleted() &&
+		donor.Tasks.CertificateProvider.IsCompleted() &&
+		donor.Tasks.PeopleToNotify.IsCompleted() &&
+		(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.IsCompleted()) &&
+		donor.Tasks.CheckYourLpa.IsCompleted()
 
 	switch p {
 	case PathWhenCanTheLpaBeUsed,
@@ -172,10 +172,10 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 		PathWhatACertificateProviderDoes,
 		PathDoYouWantToNotifyPeople,
 		PathDoYouWantReplacementAttorneys:
-		return donor.Tasks.YourDetails.Completed() && donor.Tasks.ChooseAttorneys.Completed()
+		return donor.Tasks.YourDetails.IsCompleted() && donor.Tasks.ChooseAttorneys.IsCompleted()
 
 	case PathGettingHelpSigning:
-		return donor.Tasks.CertificateProvider.Completed()
+		return donor.Tasks.CertificateProvider.IsCompleted()
 
 	case PathReadYourLpa,
 		PathSignYourLpa,
@@ -189,15 +189,15 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 
 	case PathConfirmYourCertificateProviderIsNotRelated,
 		PathCheckYourLpa:
-		return donor.Tasks.YourDetails.Completed() &&
-			donor.Tasks.ChooseAttorneys.Completed() &&
-			donor.Tasks.ChooseReplacementAttorneys.Completed() &&
-			(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.Completed() || donor.Tasks.WhenCanTheLpaBeUsed.Completed()) &&
-			donor.Tasks.Restrictions.Completed() &&
-			donor.Tasks.CertificateProvider.Completed() &&
-			donor.Tasks.PeopleToNotify.Completed() &&
-			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.Completed()) &&
-			donor.Tasks.AddCorrespondent.Completed()
+		return donor.Tasks.YourDetails.IsCompleted() &&
+			donor.Tasks.ChooseAttorneys.IsCompleted() &&
+			donor.Tasks.ChooseReplacementAttorneys.IsCompleted() &&
+			(donor.Type.IsPersonalWelfare() && donor.Tasks.LifeSustainingTreatment.IsCompleted() || donor.Tasks.WhenCanTheLpaBeUsed.IsCompleted()) &&
+			donor.Tasks.Restrictions.IsCompleted() &&
+			donor.Tasks.CertificateProvider.IsCompleted() &&
+			donor.Tasks.PeopleToNotify.IsCompleted() &&
+			(donor.Donor.CanSign.IsYes() || donor.Tasks.ChooseYourSignatory.IsCompleted()) &&
+			donor.Tasks.AddCorrespondent.IsCompleted()
 
 	case PathAboutPayment:
 		return section1Completed

@@ -54,7 +54,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 					provided.Tasks.AddCorrespondent = task.StateCompleted
 					redirect = donor.PathTaskList
 				} else {
-					if !provided.Tasks.AddCorrespondent.Completed() && provided.Correspondent.Address.Line1 == "" {
+					if !provided.Tasks.AddCorrespondent.IsCompleted() && provided.Correspondent.Address.Line1 == "" {
 						provided.Tasks.AddCorrespondent = task.StateInProgress
 					}
 					redirect = donor.PathEnterCorrespondentAddress
