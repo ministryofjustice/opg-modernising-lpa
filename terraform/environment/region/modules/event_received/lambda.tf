@@ -14,6 +14,7 @@ module "event_received" {
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
     EVENT_BUS_NAME             = var.event_bus_name
+    JWT_KEY_SECRET_ARN         = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role
