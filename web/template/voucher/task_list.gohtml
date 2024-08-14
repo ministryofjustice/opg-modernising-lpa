@@ -1,13 +1,40 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "taskList" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "yourTaskList" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "taskList" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-xl">{{ tr .App "vouchForSomeonesIdentity" }}</span>
+            <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
-      <p>TODO</p>
+            <ul class="govuk-task-list">
+                {{ range .Items }}
+                    {{ $hasLink := voucherCanGoTo $.Voucher .Path }}
+                    
+                    <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
+                        <span class="govuk-task-list__name-and-hint">
+                            {{ if $hasLink }}
+                                <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
+                            {{ else }}
+                                <div>{{ tr $.App .Name }}</div>
+                            {{ end }}
+                        </span>
+
+                        <div class="govuk-task-list__status">
+                            {{ if or .State.Completed }}
+                                {{ tr $.App "completed" }}
+                            {{ else if or .State.InProgress }}
+                                <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                            {{ else if not $hasLink }}
+                                <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
+                            {{ else }}
+                                <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
+                            {{ end }}
+                        </div>
+                    </li>
+                {{ end }}
+            </ul>
+        </div>
     </div>
-  </div>
 {{ end }}
