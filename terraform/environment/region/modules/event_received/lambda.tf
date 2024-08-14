@@ -206,6 +206,7 @@ data "aws_iam_policy_document" "event_received" {
     resources = [
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
       data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
+      data.aws_secretsmanager_secret.lpa_store_jwt_key.arn,
     ]
   }
 
@@ -215,6 +216,7 @@ data "aws_iam_policy_document" "event_received" {
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
       data.aws_kms_alias.aws_lambda.target_key_arn,
+      data.aws_kms_alias.jwt_key.target_key_arn,
     ]
 
     actions = [

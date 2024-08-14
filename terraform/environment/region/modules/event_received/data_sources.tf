@@ -24,3 +24,13 @@ data "aws_secretsmanager_secret" "lpa_store_jwt_secret_key" {
   name     = "lpa-store-jwt-secret-key"
   provider = aws.region
 }
+
+data "aws_kms_alias" "jwt_key" {
+  name     = "alias/opg-data-lpa-store/${data.aws_default_tags.default.tags.account}/jwt-key"
+  provider = aws.management
+}
+
+data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
+  name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
