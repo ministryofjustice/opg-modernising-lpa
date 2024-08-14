@@ -164,6 +164,7 @@ func App(
 		shareCodeStore,
 		dashboardStore,
 		errorHandler,
+		lpaStoreResolvingService,
 	)
 
 	supporterpage.Register(
