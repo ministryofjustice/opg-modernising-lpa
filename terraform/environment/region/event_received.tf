@@ -34,6 +34,7 @@ module "event_received" {
   }
 
   providers = {
-    aws.region = aws.region
+    aws.region     = aws.region
+    aws.management = aws.management
   }
 }
