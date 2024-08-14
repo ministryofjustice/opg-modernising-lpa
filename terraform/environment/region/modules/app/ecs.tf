@@ -135,6 +135,11 @@ data "aws_kms_alias" "opensearch_encryption_key" {
   provider = aws.region
 }
 
+data "aws_kms_alias" "jwt_key" {
+  name     = "alias/opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
+
 data "aws_secretsmanager_secret" "private_jwt_key" {
   name     = "private-jwt-key-base64"
   provider = aws.region
@@ -209,6 +214,7 @@ data "aws_iam_policy_document" "task_role_access_policy" {
 
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
+      data.aws_kms_alias.jwt_key.target_key_arn,
     ]
   }
 
@@ -486,6 +492,10 @@ locals {
         {
           name  = "SEARCH_INDEXING_DISABLED",
           value = "1"
+        },
+        {
+          name  = "JWT_KEY_SECRET_ARN",
+          value = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
         }
       ]
     }
