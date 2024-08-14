@@ -141,6 +141,53 @@ func (_c *mockVoucherStore_Get_Call) RunAndReturn(run func(context.Context) (*vo
 	return _c
 }
 
+// Put provides a mock function with given fields: ctx, provided
+func (_m *mockVoucherStore) Put(ctx context.Context, provided *voucherdata.Provided) error {
+	ret := _m.Called(ctx, provided)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Put")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *voucherdata.Provided) error); ok {
+		r0 = rf(ctx, provided)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockVoucherStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
+type mockVoucherStore_Put_Call struct {
+	*mock.Call
+}
+
+// Put is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provided *voucherdata.Provided
+func (_e *mockVoucherStore_Expecter) Put(ctx interface{}, provided interface{}) *mockVoucherStore_Put_Call {
+	return &mockVoucherStore_Put_Call{Call: _e.mock.On("Put", ctx, provided)}
+}
+
+func (_c *mockVoucherStore_Put_Call) Run(run func(ctx context.Context, provided *voucherdata.Provided)) *mockVoucherStore_Put_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*voucherdata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockVoucherStore_Put_Call) Return(_a0 error) *mockVoucherStore_Put_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockVoucherStore_Put_Call) RunAndReturn(run func(context.Context, *voucherdata.Provided) error) *mockVoucherStore_Put_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockVoucherStore creates a new instance of mockVoucherStore. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockVoucherStore(t interface {

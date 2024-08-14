@@ -1,0 +1,32 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "confirmYourName" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "confirmYourName" }}</h1>
+
+            <p class="govuk-body">{{ trFormat .App "thisIsTheNameDonorProvidedForYou" "DonorFullName" .Lpa.Donor.FullName }}</p>
+
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "firstNames"
+                    .Lpa.Voucher.FirstNames
+                    (fromLink .App global.Paths.Voucher.YourName "#f-first-names")
+                    "" true true) }}
+
+                {{ template "summary-row" (summaryRow .App "lastName"
+                    .Lpa.Voucher.LastName
+                    (fromLink .App global.Paths.Voucher.YourName "#f-last-name")
+                    "" true true) }}
+            </dl>
+
+            {{ template "warning" (content .App "thisNameMustMatchYourConfirmIdentityDetailsWarning") }}
+
+            <form novalidate method="post">
+                {{ template "buttons" (button .App "continue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

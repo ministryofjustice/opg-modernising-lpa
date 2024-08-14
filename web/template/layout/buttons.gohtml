@@ -4,6 +4,8 @@
         {{ $path = global.Paths.CertificateProvider.TaskList }}
     {{ else if or .app.IsAttorneyType }}
         {{ $path = global.Paths.Attorney.TaskList }}
+    {{ else if .app.ActorType.IsVoucher }}
+        {{ $path = global.Paths.Voucher.TaskList }}
     {{ end }}
 
     {{ if .link }}

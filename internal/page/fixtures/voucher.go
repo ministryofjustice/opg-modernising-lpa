@@ -56,7 +56,11 @@ func Voucher(tmpl template.Template, shareCodeStore *sharecode.Store, donorStore
 			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 		}
 		donorDetails.Voucher = donordata.Voucher{
-			UID: actoruid.New(),
+			UID:        actoruid.New(),
+			FirstNames: "Vivian",
+			LastName:   "Vaughn",
+			Email:      testEmail,
+			Allowed:    true,
 		}
 
 		if shareCode != "" {
@@ -67,6 +71,10 @@ func Voucher(tmpl template.Template, shareCodeStore *sharecode.Store, donorStore
 			}); err != nil {
 				return err
 			}
+		}
+
+		if err := donorStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donorDetails.LpaID}), donorDetails); err != nil {
+			return err
 		}
 
 		http.Redirect(w, r, page.PathVoucherStart.Format(), http.StatusFound)
