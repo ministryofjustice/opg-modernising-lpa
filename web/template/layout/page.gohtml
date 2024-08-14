@@ -3,7 +3,7 @@
   <html lang="{{ .App.Lang.String }}" class="govuk-template app-html-class">
     <head>
       <meta charset="utf-8">
-      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page global.Paths.Start global.Paths.CertificateProviderStart global.Paths.Attorney.Start global.Paths.Supporter.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
+      <title>{{ if .Errors }}Error: {{ end }} {{ if not (eq .App.Page global.Paths.Start global.Paths.CertificateProviderStart global.Paths.Attorney.Start global.Paths.Supporter.Start global.Paths.Voucher.Start) }}{{ block "pageTitle" . }}{{ end }} - {{ end }}{{ tr .App "serviceName" }}</title>
       <link rel="preload" href="/static/stylesheets/all.css?{{ global.StaticHash }}" as="style">
       <link rel="preload" href="/static/javascript/main.js?{{ global.StaticHash }}" as="script">
       <link rel="preconnect" href="//dataplane.rum.eu-west-1.amazonaws.com">

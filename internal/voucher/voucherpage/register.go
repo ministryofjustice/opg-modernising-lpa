@@ -63,6 +63,7 @@ type ShareCodeStore interface {
 type VoucherStore interface {
 	Create(ctx context.Context, shareCode sharecodedata.Link, email string) (*voucherdata.Provided, error)
 	Get(ctx context.Context) (*voucherdata.Provided, error)
+	Put(ctx context.Context, provided *voucherdata.Provided) error
 }
 
 type DashboardStore interface {
@@ -95,6 +96,8 @@ func Register(
 
 	handleVoucher(voucher.PathTaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
+	handleVoucher(voucher.PathConfirmYourName, None,
+		ConfirmYourName(tmpls.Get("confirm_your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 }
 
 type handleOpt byte
@@ -113,6 +116,7 @@ func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorH
 			appData := appcontext.DataFromContext(ctx)
 			appData.Page = path.Format()
 			appData.CanGoBack = opt&CanGoBack != 0
+			appData.ActorType = actor.TypeVoucher
 
 			if opt&RequireSession != 0 {
 				session, err := store.Login(r)
@@ -139,6 +143,7 @@ func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page
 
 			appData := appcontext.DataFromContext(ctx)
 			appData.CanGoBack = opt&CanGoBack != 0
+			appData.ActorType = actor.TypeVoucher
 			appData.LpaID = r.PathValue("id")
 			appData.Page = path.Format(appData.LpaID)
 
