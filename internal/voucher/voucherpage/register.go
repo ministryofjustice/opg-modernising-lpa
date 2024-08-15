@@ -100,6 +100,8 @@ func Register(
 		ConfirmYourName(tmpls.Get("confirm_your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathYourName, None,
 		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
+	handleVoucher(voucher.PathConfirmAllowedToVouch, None,
+		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore))
 }
 
 type handleOpt byte
