@@ -13,9 +13,11 @@ import (
 )
 
 type confirmYourNameData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
+	App        appcontext.Data
+	Errors     validation.List
+	Lpa        *lpadata.Lpa
+	FirstNames string
+	LastName   string
 }
 
 func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore) Handler {
@@ -37,9 +39,21 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			return err
 		}
 
+		firstNames := provided.FirstNames
+		if firstNames == "" {
+			firstNames = lpa.Voucher.FirstNames
+		}
+
+		lastName := provided.LastName
+		if lastName == "" {
+			lastName = lpa.Voucher.LastName
+		}
+
 		return tmpl(w, &confirmYourNameData{
-			App: appData,
-			Lpa: lpa,
+			App:        appData,
+			Lpa:        lpa,
+			FirstNames: firstNames,
+			LastName:   lastName,
 		})
 	}
 }
