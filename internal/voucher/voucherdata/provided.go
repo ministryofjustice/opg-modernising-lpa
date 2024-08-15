@@ -19,6 +19,12 @@ type Provided struct {
 	Tasks Tasks
 	// Email is the email address of the voucher
 	Email string
+	// FirstNames is the first names provided by the voucher. If set it overrides
+	// that provided by the donor.
+	FirstNames string
+	// LastName is a last name provided by the voucher. If set it overrides that
+	// provided by the donor.
+	LastName string
 }
 
 type Tasks struct {

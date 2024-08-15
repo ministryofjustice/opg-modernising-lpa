@@ -130,7 +130,7 @@ func App(
 		handleRoot(page.PathSupporterFixtures, None,
 			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient))
 		handleRoot(page.PathVoucherFixtures, None,
-			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), shareCodeStore, donorStore))
+			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), sessionStore, shareCodeStore, donorStore, voucherStore))
 		handleRoot(page.PathDashboardFixtures, None,
 			fixtures.Dashboard(tmpls.Get("dashboard_fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, shareCodeStore))
 	}
