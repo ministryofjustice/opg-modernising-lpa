@@ -3,9 +3,13 @@ package voucherpage
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -13,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetConfirmYourName(t *testing.T) {
+func TestGetConfirmAllowedToVouch(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -26,58 +30,23 @@ func TestGetConfirmYourName(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &confirmYourNameData{
+		Execute(w, &confirmAllowedToVouchData{
 			App: testAppData,
 			Lpa: &lpadata.Lpa{
 				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 			},
-			FirstNames: "V",
-			LastName:   "W",
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 		}).
 		Return(nil)
 
-	err := ConfirmYourName(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetConfirmYourNameWhenChanged(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmYourNameData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{
-				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
-			},
-			FirstNames: "A",
-			LastName:   "B",
-		}).
-		Return(nil)
-
-	err := ConfirmYourName(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{
-		LpaID:      "lpa-id",
-		FirstNames: "A",
-		LastName:   "B",
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetConfirmYourNameWhenLpaStoreResolvingServiceErrors(t *testing.T) {
+func TestGetConfirmAllowedToVouchWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -88,12 +57,12 @@ func TestGetConfirmYourNameWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := ConfirmYourName(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetConfirmYourNameWhenTemplateErrors(t *testing.T) {
+func TestGetConfirmAllowedToVouchWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -107,14 +76,19 @@ func TestGetConfirmYourNameWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourName(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostConfirmYourName(t *testing.T) {
+func TestPostConfirmAllowedToVouch(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -129,7 +103,7 @@ func TestPostConfirmYourName(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmYourName(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -137,38 +111,32 @@ func TestPostConfirmYourName(t *testing.T) {
 	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostConfirmYourNameWhenDonorLastNameMatch(t *testing.T) {
+func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
+	}
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
 
-	voucherStore := newMockVoucherStore(t)
-	voucherStore.EXPECT().
-		Put(r.Context(), &voucherdata.Provided{
-			LpaID:    "lpa-id",
-			LastName: "Smith",
-			Tasks:    voucherdata.Tasks{ConfirmYourName: task.StateInProgress},
-		}).
-		Return(nil)
-
-	err := ConfirmYourName(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{
-		LpaID:    "lpa-id",
-		LastName: "Smith",
-	})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathConfirmAllowedToVouch.Format("lpa-id"), resp.Header.Get("Location"))
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	assert.Error(t, err)
 }
 
-func TestPostConfirmYourNameWhenStoreErrors(t *testing.T) {
+func TestPostConfirmAllowedToVouchWhenStoreErrors(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
+	}
+
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
@@ -180,6 +148,6 @@ func TestPostConfirmYourNameWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourName(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
