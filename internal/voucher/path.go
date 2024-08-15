@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	PathTaskList            = Path("/task-list")
-	PathConfirmYourName     = Path("/confirm-your-name")
-	PathYourName            = Path("/your-name")
-	PathVerifyDonorDetails  = Path("/verify-donor-details")
-	PathConfirmYourIdentity = Path("/confirm-your-identity")
-	PathSignTheDeclaration  = Path("/sign-the-declaration")
+	PathTaskList              = Path("/task-list")
+	PathConfirmAllowedToVouch = Path("/confirm-allowed-to-vouch")
+	PathConfirmYourName       = Path("/confirm-your-name")
+	PathYourName              = Path("/your-name")
+	PathVerifyDonorDetails    = Path("/verify-donor-details")
+	PathConfirmYourIdentity   = Path("/confirm-your-identity")
+	PathSignTheDeclaration    = Path("/sign-the-declaration")
 )
 
 type Path string
