@@ -98,6 +98,8 @@ func Register(
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathConfirmYourName, None,
 		ConfirmYourName(tmpls.Get("confirm_your_name.gohtml"), lpaStoreResolvingService, voucherStore))
+	handleVoucher(voucher.PathYourName, None,
+		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 }
 
 type handleOpt byte
