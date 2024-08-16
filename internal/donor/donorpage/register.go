@@ -142,7 +142,7 @@ type EventClient interface {
 }
 
 type DashboardStore interface {
-	GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error)
+	GetAll(ctx context.Context) (results page.DashboardResults, err error)
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 

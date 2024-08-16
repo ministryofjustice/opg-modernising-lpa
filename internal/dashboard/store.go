@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type DynamoClient interface {
@@ -40,23 +41,6 @@ func NewStore(dynamoClient DynamoClient, lpaStoreResolvingService LpaStoreResolv
 	}
 }
 
-func isLpaKey(k dynamo.Keys) bool {
-	_, donorOK := k.SK.(dynamo.DonorKeyType)
-	_, orgOK := k.SK.(dynamo.OrganisationKeyType)
-
-	return donorOK || orgOK
-}
-
-func isCertificateProviderKey(k dynamo.Keys) bool {
-	_, ok := k.SK.(dynamo.CertificateProviderKeyType)
-	return ok
-}
-
-func isAttorneyKey(k dynamo.Keys) bool {
-	_, ok := k.SK.(dynamo.AttorneyKeyType)
-	return ok
-}
-
 func (s *Store) SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error) {
 	var links []dashboarddata.LpaLink
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(sub), &links); err != nil {
@@ -72,19 +56,19 @@ func (s *Store) SubExistsForActorType(ctx context.Context, sub string, actorType
 	return false, nil
 }
 
-func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvider []page.LpaAndActorTasks, err error) {
+func (s *Store) GetAll(ctx context.Context) (results page.DashboardResults, err error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
-		return nil, nil, nil, err
+		return results, err
 	}
 
 	if data.SessionID == "" {
-		return nil, nil, nil, errors.New("donorStore.GetAll requires SessionID")
+		return results, errors.New("donorStore.GetAll requires SessionID")
 	}
 
 	var links []dashboarddata.LpaLink
 	if err := s.dynamoClient.AllBySK(ctx, dynamo.SubKey(data.SessionID), &links); err != nil {
-		return nil, nil, nil, err
+		return results, err
 	}
 
 	var searchKeys []dynamo.Keys
@@ -100,17 +84,21 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.CertificateProviderKey(data.SessionID)})
 		}
 
+		if key.ActorType == actor.TypeVoucher {
+			searchKeys = append(searchKeys, dynamo.Keys{PK: key.PK, SK: dynamo.VoucherKey(data.SessionID)})
+		}
+
 		_, id, _ := strings.Cut(key.PK.PK(), "#")
 		keyMap[id] = key.ActorType
 	}
 
 	if len(searchKeys) == 0 {
-		return nil, nil, nil, nil
+		return results, nil
 	}
 
 	lpasOrProvidedDetails, err := s.dynamoClient.AllByKeys(ctx, searchKeys)
 	if err != nil {
-		return nil, nil, nil, err
+		return results, err
 	}
 
 	var (
@@ -120,16 +108,17 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 	for _, item := range lpasOrProvidedDetails {
 		var ks dynamo.Keys
 		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
-			return nil, nil, nil, err
+			return results, err
 		}
 
-		if isLpaKey(ks) {
+		switch ks.SK.(type) {
+		case dynamo.DonorKeyType, dynamo.OrganisationKeyType:
 			var donorDetails struct {
 				donordata.Provided
 				ReferencedSK dynamo.OrganisationKeyType
 			}
 			if err := attributevalue.UnmarshalMap(item, &donorDetails); err != nil {
-				return nil, nil, nil, err
+				return results, err
 			}
 
 			if donorDetails.ReferencedSK != "" {
@@ -143,13 +132,13 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 	if len(referencedKeys) > 0 {
 		referencedLpas, err := s.dynamoClient.AllByKeys(ctx, referencedKeys)
 		if err != nil {
-			return nil, nil, nil, err
+			return results, err
 		}
 
 		for _, item := range referencedLpas {
 			donorDetails := &donordata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, donorDetails); err != nil {
-				return nil, nil, nil, err
+				return results, err
 			}
 
 			if donorDetails.LpaUID != "" {
@@ -160,33 +149,37 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 
 	resolvedLpas, err := s.lpaStoreResolvingService.ResolveList(ctx, donorsDetails)
 	if err != nil {
-		return nil, nil, nil, err
+		return results, err
 	}
 
 	certificateProviderMap := map[string]page.LpaAndActorTasks{}
 	attorneyMap := map[string]page.LpaAndActorTasks{}
+	voucherMap := map[string]page.LpaAndActorTasks{}
 
 	for _, lpa := range resolvedLpas {
 		switch keyMap[lpa.LpaID] {
 		case actor.TypeDonor:
-			donor = append(donor, page.LpaAndActorTasks{Lpa: lpa})
+			results.Donor = append(results.Donor, page.LpaAndActorTasks{Lpa: lpa})
 		case actor.TypeAttorney:
 			attorneyMap[lpa.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
 		case actor.TypeCertificateProvider:
 			certificateProviderMap[lpa.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
+		case actor.TypeVoucher:
+			voucherMap[lpa.LpaID] = page.LpaAndActorTasks{Lpa: lpa}
 		}
 	}
 
 	for _, item := range lpasOrProvidedDetails {
 		var ks dynamo.Keys
 		if err = attributevalue.UnmarshalMap(item, &ks); err != nil {
-			return nil, nil, nil, err
+			return results, err
 		}
 
-		if isAttorneyKey(ks) {
+		switch ks.SK.(type) {
+		case dynamo.AttorneyKeyType:
 			attorneyProvidedDetails := &attorneydata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, attorneyProvidedDetails); err != nil {
-				return nil, nil, nil, err
+				return results, err
 			}
 
 			lpaID := attorneyProvidedDetails.LpaID
@@ -201,12 +194,11 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 				attorneyMap[lpaID] = entry
 				continue
 			}
-		}
 
-		if isCertificateProviderKey(ks) {
+		case dynamo.CertificateProviderKeyType:
 			certificateProviderProvidedDetails := &certificateproviderdata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, certificateProviderProvidedDetails); err != nil {
-				return nil, nil, nil, err
+				return results, err
 			}
 
 			lpaID := certificateProviderProvidedDetails.LpaID
@@ -219,24 +211,47 @@ func (s *Store) GetAll(ctx context.Context) (donor, attorney, certificateProvide
 				entry.CertificateProvider = certificateProviderProvidedDetails
 				certificateProviderMap[lpaID] = entry
 			}
+
+		case dynamo.VoucherKeyType:
+			voucherProvidedDetails := &voucherdata.Provided{}
+			if err := attributevalue.UnmarshalMap(item, voucherProvidedDetails); err != nil {
+				return results, err
+			}
+
+			lpaID := voucherProvidedDetails.LpaID
+
+			if voucherProvidedDetails.Tasks.SignTheDeclaration.IsCompleted() {
+				delete(voucherMap, lpaID)
+			}
+
+			if entry, ok := voucherMap[lpaID]; ok {
+				entry.Voucher = voucherProvidedDetails
+				voucherMap[lpaID] = entry
+			}
 		}
 	}
 
-	certificateProvider = mapValues(certificateProviderMap)
-	attorney = mapValues(attorneyMap)
+	results.CertificateProvider = mapValues(certificateProviderMap)
+	results.Attorney = mapValues(attorneyMap)
+	results.Voucher = mapValues(voucherMap)
 
 	byUpdatedAt := func(a, b page.LpaAndActorTasks) int {
 		return b.Lpa.UpdatedAt.Compare(a.Lpa.UpdatedAt)
 	}
 
-	slices.SortFunc(donor, byUpdatedAt)
-	slices.SortFunc(attorney, byUpdatedAt)
-	slices.SortFunc(certificateProvider, byUpdatedAt)
+	slices.SortFunc(results.Donor, byUpdatedAt)
+	slices.SortFunc(results.Attorney, byUpdatedAt)
+	slices.SortFunc(results.CertificateProvider, byUpdatedAt)
+	slices.SortFunc(results.Voucher, byUpdatedAt)
 
-	return donor, attorney, certificateProvider, nil
+	return results, nil
 }
 
 func mapValues[M ~map[K]V, K comparable, V any](m M) []V {
+	if len(m) == 0 {
+		return nil
+	}
+
 	r := make([]V, 0, len(m))
 	for _, v := range m {
 		r = append(r, v)
