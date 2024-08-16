@@ -11,12 +11,12 @@
 
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "firstNames"
-                    .Lpa.Voucher.FirstNames
+                    .FirstNames
                     (fromLink .App global.Paths.Voucher.YourName "#f-first-names")
                     "" true true) }}
 
                 {{ template "summary-row" (summaryRow .App "lastName"
-                    .Lpa.Voucher.LastName
+                    .LastName
                     (fromLink .App global.Paths.Voucher.YourName "#f-last-name")
                     "" true true) }}
             </dl>
