@@ -79,6 +79,13 @@ func TestCanGoTo(t *testing.T) {
 			url:      PathVerifyDonorDetails.Format("123"),
 			expected: true,
 		},
+		"verify donor details when already verified": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted, VerifyDonorDetails: task.StateCompleted},
+			},
+			url:      PathVerifyDonorDetails.Format("123"),
+			expected: false,
+		},
 		"confirm your identity": {
 			provided: &voucherdata.Provided{
 				Tasks: voucherdata.Tasks{

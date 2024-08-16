@@ -41,7 +41,8 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 func (p Path) canVisit(provided *voucherdata.Provided) bool {
 	switch p {
 	case PathVerifyDonorDetails:
-		return provided.Tasks.ConfirmYourName.IsCompleted()
+		return provided.Tasks.ConfirmYourName.IsCompleted() &&
+			!provided.Tasks.VerifyDonorDetails.IsCompleted()
 
 	case PathConfirmYourIdentity:
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&
