@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	PathTaskList            = Path("/task-list")
-	PathConfirmYourName     = Path("/confirm-your-name")
-	PathYourName            = Path("/your-name")
-	PathVerifyDonorDetails  = Path("/verify-donor-details")
-	PathConfirmYourIdentity = Path("/confirm-your-identity")
-	PathSignTheDeclaration  = Path("/sign-the-declaration")
+	PathTaskList              = Path("/task-list")
+	PathConfirmAllowedToVouch = Path("/confirm-allowed-to-vouch")
+	PathConfirmYourName       = Path("/confirm-your-name")
+	PathYourName              = Path("/your-name")
+	PathVerifyDonorDetails    = Path("/verify-donor-details")
+	PathConfirmYourIdentity   = Path("/confirm-your-identity")
+	PathSignTheDeclaration    = Path("/sign-the-declaration")
 )
 
 type Path string
@@ -40,7 +41,8 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 func (p Path) canVisit(provided *voucherdata.Provided) bool {
 	switch p {
 	case PathVerifyDonorDetails:
-		return provided.Tasks.ConfirmYourName.IsCompleted()
+		return provided.Tasks.ConfirmYourName.IsCompleted() &&
+			!provided.Tasks.VerifyDonorDetails.IsCompleted()
 
 	case PathConfirmYourIdentity:
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&
