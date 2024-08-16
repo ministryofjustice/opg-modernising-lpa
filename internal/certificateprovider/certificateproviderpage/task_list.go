@@ -34,7 +34,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		identityTaskPage := certificateprovider.PathProveYourIdentity
-		if certificateProvider.Tasks.ConfirmYourIdentity.Completed() {
+		if certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() {
 			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
 
@@ -59,7 +59,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Name:     "provideYourCertificate",
 					Path:     certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
 					State:    tasks.ProvideTheCertificate,
-					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.Completed() || !tasks.ConfirmYourIdentity.Completed(),
+					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.IsCompleted() || !tasks.ConfirmYourIdentity.IsCompleted(),
 				},
 			},
 		}

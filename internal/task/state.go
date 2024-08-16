@@ -2,29 +2,14 @@
 // can be in.
 package task
 
+//go:generate enumerator -type State -linecomment -trimprefix
 type State uint8
 
 const (
-	StateNotStarted State = iota
-	StateInProgress
-	StateCompleted
+	StateNotStarted State = iota // notStarted
+	StateInProgress              // inProgress
+	StateCompleted               // completed
 )
-
-func (t State) NotStarted() bool { return t == StateNotStarted }
-func (t State) InProgress() bool { return t == StateInProgress }
-func (t State) Completed() bool  { return t == StateCompleted }
-
-func (t State) String() string {
-	switch t {
-	case StateNotStarted:
-		return "notStarted"
-	case StateInProgress:
-		return "inProgress"
-	case StateCompleted:
-		return "completed"
-	}
-	return ""
-}
 
 //go:generate enumerator -type PaymentState -trimprefix
 type PaymentState uint8
