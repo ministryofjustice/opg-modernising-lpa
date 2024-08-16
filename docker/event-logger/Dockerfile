@@ -1,4 +1,4 @@
-FROM golang:1.22.5-alpine AS base
+FROM golang:1.22.6-alpine AS base
 
 ARG ARCH=amd64
 
