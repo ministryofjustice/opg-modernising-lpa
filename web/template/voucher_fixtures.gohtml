@@ -3,5 +3,22 @@
 {{ define "pageTitle" }}Voucher fixtures{{ end }}
 
 {{ define "fixtures-main" }}
-    <input type="hidden" name="withShareCode" value="abcdef123456" />
+    <p class="govuk-body">Enter a share code to redirect to the start page and
+        enter that code instead (because we aren't sending this code by email yet...)</p>
+    {{ template "input" (input . "withShareCode" "Share code" ""
+        "classes" "govuk-input--width-20") }}
+
+    <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">Progress</legend>
+
+            {{ template "radios" (items . "progress" ""
+                (item "" "...")
+                (item "confirmYourName" "Confirm your name")
+                (item "verifyDonorDetails" "Verify donor details")) }}
+        </fieldset>
+    </div>
+
+    <!-- TODO: remove when we do the dashboard work -->
+    <input type="hidden" name="redirect" value="/task-list" />
 {{ end }}
