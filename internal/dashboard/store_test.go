@@ -185,12 +185,14 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 			dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
+			results, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
 
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}}, certificateProvider)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789Attorney}}, attorney)
+			assert.Equal(t, page.DashboardResults{
+				Donor:               []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}},
+				CertificateProvider: []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}},
+				Attorney:            []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789Attorney}},
+			}, results)
 		})
 	}
 }
@@ -254,12 +256,14 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-	_, attorney, _, err := dashboardStore.GetAll(ctx)
+	results, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
 
-	assert.Equal(t, []page.LpaAndActorTasks{
-		{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorney},
-	}, attorney)
+	assert.Equal(t, page.DashboardResults{
+		Attorney: []page.LpaAndActorTasks{
+			{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorney},
+		},
+	}, results)
 }
 
 func makeAttributeValueMap(i interface{}) map[string]types.AttributeValue {
@@ -289,7 +293,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	if !assert.Equal(t, expectedError, err) {
 		t.Log(err.Error())
 	}
@@ -304,11 +308,9 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
+	results, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Nil(t, donor)
-	assert.Nil(t, attorney)
-	assert.Nil(t, certificateProvider)
+	assert.Equal(t, page.DashboardResults{}, results)
 }
 
 func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
@@ -320,7 +322,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, err, expectedError)
 }
 
@@ -336,7 +338,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -366,7 +368,7 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
