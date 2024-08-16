@@ -3,6 +3,7 @@ package fixtures
 import (
 	"encoding/base64"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -18,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
@@ -29,6 +31,11 @@ func Voucher(
 	donorStore *donor.Store,
 	voucherStore *voucher.Store,
 ) page.Handler {
+	progressValues := []string{
+		"confirmYourName",
+		"verifyDonorDetails",
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
 
@@ -36,6 +43,7 @@ func Voucher(
 			voucherSub = r.FormValue("voucherSub")
 			shareCode  = r.FormValue("withShareCode")
 			redirect   = r.FormValue("redirect")
+			progress   = slices.Index(progressValues, r.FormValue("progress"))
 		)
 
 		if voucherSub == "" {
@@ -106,6 +114,14 @@ func Voucher(
 			SK:    dynamo.VoucherKey(voucherSessionID),
 			LpaID: donorDetails.LpaID,
 			Email: testEmail,
+		}
+
+		if progress >= slices.Index(progressValues, "confirmYourName") {
+			voucherDetails.Tasks.ConfirmYourName = task.StateCompleted
+		}
+
+		if progress >= slices.Index(progressValues, "verifyDonorDetails") {
+			voucherDetails.Tasks.VerifyDonorDetails = task.StateCompleted
 		}
 
 		if err := voucherStore.Put(voucherCtx, voucherDetails); err != nil {
