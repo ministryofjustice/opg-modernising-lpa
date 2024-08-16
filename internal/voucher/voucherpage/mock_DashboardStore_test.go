@@ -26,51 +26,31 @@ func (_m *mockDashboardStore) EXPECT() *mockDashboardStore_Expecter {
 }
 
 // GetAll provides a mock function with given fields: ctx
-func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]page.LpaAndActorTasks, []page.LpaAndActorTasks, []page.LpaAndActorTasks, error) {
+func (_m *mockDashboardStore) GetAll(ctx context.Context) (page.DashboardResults, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAll")
 	}
 
-	var r0 []page.LpaAndActorTasks
-	var r1 []page.LpaAndActorTasks
-	var r2 []page.LpaAndActorTasks
-	var r3 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]page.LpaAndActorTasks, []page.LpaAndActorTasks, []page.LpaAndActorTasks, error)); ok {
+	var r0 page.DashboardResults
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (page.DashboardResults, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []page.LpaAndActorTasks); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) page.DashboardResults); ok {
 		r0 = rf(ctx)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]page.LpaAndActorTasks)
-		}
+		r0 = ret.Get(0).(page.DashboardResults)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) []page.LpaAndActorTasks); ok {
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
 		r1 = rf(ctx)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]page.LpaAndActorTasks)
-		}
+		r1 = ret.Error(1)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context) []page.LpaAndActorTasks); ok {
-		r2 = rf(ctx)
-	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).([]page.LpaAndActorTasks)
-		}
-	}
-
-	if rf, ok := ret.Get(3).(func(context.Context) error); ok {
-		r3 = rf(ctx)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1
 }
 
 // mockDashboardStore_GetAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAll'
@@ -91,12 +71,12 @@ func (_c *mockDashboardStore_GetAll_Call) Run(run func(ctx context.Context)) *mo
 	return _c
 }
 
-func (_c *mockDashboardStore_GetAll_Call) Return(donor []page.LpaAndActorTasks, attorney []page.LpaAndActorTasks, certificateProvider []page.LpaAndActorTasks, err error) *mockDashboardStore_GetAll_Call {
-	_c.Call.Return(donor, attorney, certificateProvider, err)
+func (_c *mockDashboardStore_GetAll_Call) Return(results page.DashboardResults, err error) *mockDashboardStore_GetAll_Call {
+	_c.Call.Return(results, err)
 	return _c
 }
 
-func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]page.LpaAndActorTasks, []page.LpaAndActorTasks, []page.LpaAndActorTasks, error)) *mockDashboardStore_GetAll_Call {
+func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context) (page.DashboardResults, error)) *mockDashboardStore_GetAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
