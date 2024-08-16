@@ -12,17 +12,26 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type DashboardStore interface {
-	GetAll(ctx context.Context) (donor, attorney, certificateProvider []LpaAndActorTasks, err error)
+	GetAll(ctx context.Context) (results DashboardResults, err error)
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
+}
+
+type DashboardResults struct {
+	Donor               []LpaAndActorTasks
+	CertificateProvider []LpaAndActorTasks
+	Attorney            []LpaAndActorTasks
+	Voucher             []LpaAndActorTasks
 }
 
 type LpaAndActorTasks struct {
 	Lpa                 *lpadata.Lpa
 	CertificateProvider *certificateproviderdata.Provided
 	Attorney            *attorneydata.Provided
+	Voucher             *voucherdata.Provided
 }
 
 type dashboardForm struct {
@@ -36,6 +45,7 @@ type dashboardData struct {
 	DonorLpas               []LpaAndActorTasks
 	CertificateProviderLpas []LpaAndActorTasks
 	AttorneyLpas            []LpaAndActorTasks
+	VoucherLpas             []LpaAndActorTasks
 }
 
 func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
@@ -56,25 +66,29 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			return path.Redirect(w, r, appData, lpa)
 		}
 
-		donorLpas, attorneyLpas, certificateProviderLpas, err := dashboardStore.GetAll(r.Context())
+		results, err := dashboardStore.GetAll(r.Context())
 		if err != nil {
 			return err
 		}
 
 		tabCount := 1
-		if len(certificateProviderLpas) > 0 {
+		if len(results.CertificateProvider) > 0 {
 			tabCount++
 		}
-		if len(attorneyLpas) > 0 {
+		if len(results.Attorney) > 0 {
+			tabCount++
+		}
+		if len(results.Voucher) > 0 {
 			tabCount++
 		}
 
 		data := &dashboardData{
 			App:                     appData,
 			UseTabs:                 tabCount > 1,
-			DonorLpas:               donorLpas,
-			CertificateProviderLpas: certificateProviderLpas,
-			AttorneyLpas:            attorneyLpas,
+			DonorLpas:               results.Donor,
+			CertificateProviderLpas: results.CertificateProvider,
+			AttorneyLpas:            results.Attorney,
+			VoucherLpas:             results.Voucher,
 		}
 
 		return tmpl(w, data)

@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -21,7 +20,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 func Voucher(
@@ -96,24 +94,34 @@ func Voucher(
 			return err
 		}
 
-		if shareCode != "" {
-			if err := shareCodeStore.Put(r.Context(), actor.TypeVoucher, shareCode, sharecodedata.Link{
-				LpaKey:      donorDetails.PK,
-				LpaOwnerKey: donorDetails.SK,
-				ActorUID:    donorDetails.Voucher.UID,
-			}); err != nil {
-				return err
-			}
+		hasShareCode := shareCode != ""
+		if !hasShareCode {
+			shareCode = random.String(12)
+		}
 
+		link := sharecodedata.Link{
+			LpaKey:      donorDetails.PK,
+			LpaOwnerKey: donorDetails.SK,
+			ActorUID:    donorDetails.Voucher.UID,
+		}
+
+		if err := shareCodeStore.Put(voucherCtx, actor.TypeVoucher, shareCode, link); err != nil {
+			return err
+		}
+
+		if hasShareCode {
 			http.Redirect(w, r, page.PathVoucherStart.Format(), http.StatusFound)
 			return nil
 		}
 
-		voucherDetails := &voucherdata.Provided{
-			PK:    donorDetails.PK,
-			SK:    dynamo.VoucherKey(voucherSessionID),
-			LpaID: donorDetails.LpaID,
-			Email: testEmail,
+		shareLink, err := shareCodeStore.Get(voucherCtx, actor.TypeVoucher, shareCode)
+		if err != nil {
+			return err
+		}
+
+		voucherDetails, err := voucherStore.Create(voucherCtx, shareLink, testEmail)
+		if err != nil {
+			return err
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourName") {
