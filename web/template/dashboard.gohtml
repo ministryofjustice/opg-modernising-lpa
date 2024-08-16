@@ -170,6 +170,29 @@
     </div>
 {{ end }}
 
+{{ define "voucherCard" }}
+    <div class="app-dashboard-card">
+        <div class="app-dashboard-row">
+            <h3 class="govuk-heading-m">
+                {{ tr .App "vouchFor" }}:
+                <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
+            </h3>
+            <div>
+                <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
+            </div>
+        </div>
+        <div class="app-dashboard-row">
+            <p class="govuk-body-s"><strong>{{ tr .App "lpaType" }}:</strong> {{ tr .App .Item.Lpa.Type.String }}</p>
+            <p class="govuk-body-s"><strong>{{ tr .App "lastUpdated" }}:</strong> {{ formatDateTime .App .Item.Lpa.UpdatedAt }}</p>
+        </div>
+        <div class="app-dashboard-row">
+            <div class="govuk-button-group">
+                <a class="govuk-button" href="{{ link .App (global.Paths.Voucher.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+            </div>
+        </div>
+    </div>
+{{ end }}
+
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -202,6 +225,11 @@
                         {{ if .CertificateProviderLpas }}
                             <li class="govuk-tabs__list-item">
                                 <a class="govuk-tabs__tab" href="#certificate-provider">{{ tr .App "imACertificateProvider" }}</a>
+                            </li>
+                        {{ end }}
+                        {{ if .VoucherLpas }}
+                            <li class="govuk-tabs__list-item">
+                                <a class="govuk-tabs__tab" href="#voucher">{{ tr .App "imVouchingForSomeone" }}</a>
                             </li>
                         {{ end }}
                     </ul>
@@ -293,6 +321,22 @@
                         {{ if .UseTabs }}</div>{{ end }}
                 {{ end }}
 
+                {{ if .VoucherLpas }}
+                    {{ if .UseTabs }}<div class="govuk-tabs__panel" id="voucher">{{ end }}
+                        <h2 class="govuk-heading-l">{{ tr .App "imVouchingForSomeone" }}</h2>
+
+                        <div class="app-dashboard-card app-dashboard-card--dashed">
+                            <p class="govuk-body">{{ tr .App "addAnotherLpaIfInvited:voucher" }}</p>
+                            <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Voucher.EnterReferenceNumber.Format ) }}" data-module="govuk-button">{{ tr .App "addReferenceNumber" }}</a>
+                        </div>
+
+                        <p class="govuk-body">{{ tr .App "viewAndManageVouchingForSomeonesIdentity" }}</p>
+                        {{ range .VoucherLpas }}
+                            {{ template "voucherCard" (card $.App .) }}
+                        {{ end }}
+                        {{ if .UseTabs }}</div>{{ end }}                    
+                {{ end }}
+                
                 {{ if .UseTabs }}</div>{{ end }}
         </div>
     </div>

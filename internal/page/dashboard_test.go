@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -19,18 +20,21 @@ func TestGetDashboard(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorLpas := []LpaAndActorTasks{
+	donorLpas := []dashboarddata.Actor{
 		{Lpa: &lpadata.Lpa{LpaID: "123"}},
 		{Lpa: &lpadata.Lpa{LpaID: "456"}},
 	}
 
-	certificateProviderLpas := []LpaAndActorTasks{{Lpa: &lpadata.Lpa{LpaID: "abc"}}}
-	attorneyLpas := []LpaAndActorTasks{{Lpa: &lpadata.Lpa{LpaID: "def"}}}
+	certificateProviderLpas := []dashboarddata.Actor{{Lpa: &lpadata.Lpa{LpaID: "abc"}}}
+	attorneyLpas := []dashboarddata.Actor{{Lpa: &lpadata.Lpa{LpaID: "def"}}}
+	voucherLpas := []dashboarddata.Actor{{Lpa: &lpadata.Lpa{LpaID: "def"}}}
+
+	results := dashboarddata.Results{Donor: donorLpas, CertificateProvider: certificateProviderLpas, Attorney: attorneyLpas, Voucher: voucherLpas}
 
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
-		Return(donorLpas, attorneyLpas, certificateProviderLpas, nil)
+		Return(results, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -40,6 +44,7 @@ func TestGetDashboard(t *testing.T) {
 			DonorLpas:               donorLpas,
 			AttorneyLpas:            attorneyLpas,
 			CertificateProviderLpas: certificateProviderLpas,
+			VoucherLpas:             voucherLpas,
 		}).
 		Return(nil)
 
@@ -54,7 +59,7 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donorLpas := []LpaAndActorTasks{
+	donorLpas := []dashboarddata.Actor{
 		{Lpa: &lpadata.Lpa{LpaID: "123"}},
 		{Lpa: &lpadata.Lpa{LpaID: "456"}},
 	}
@@ -62,7 +67,7 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
-		Return(donorLpas, nil, nil, nil)
+		Return(dashboarddata.Results{Donor: donorLpas}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -86,7 +91,7 @@ func TestGetDashboardWhenDashboardStoreErrors(t *testing.T) {
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
-		Return(nil, nil, nil, expectedError)
+		Return(dashboarddata.Results{}, expectedError)
 
 	err := Dashboard(nil, nil, dashboardStore)(appcontext.Data{}, w, r)
 	resp := w.Result()
@@ -102,7 +107,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 	dashboardStore := newMockDashboardStore(t)
 	dashboardStore.EXPECT().
 		GetAll(r.Context()).
-		Return(nil, nil, nil, nil)
+		Return(dashboarddata.Results{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
