@@ -7,6 +7,8 @@ import (
 
 	actor "github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 
+	dashboarddata "github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,51 +26,31 @@ func (_m *mockDashboardStore) EXPECT() *mockDashboardStore_Expecter {
 }
 
 // GetAll provides a mock function with given fields: ctx
-func (_m *mockDashboardStore) GetAll(ctx context.Context) ([]LpaAndActorTasks, []LpaAndActorTasks, []LpaAndActorTasks, error) {
+func (_m *mockDashboardStore) GetAll(ctx context.Context) (dashboarddata.Results, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAll")
 	}
 
-	var r0 []LpaAndActorTasks
-	var r1 []LpaAndActorTasks
-	var r2 []LpaAndActorTasks
-	var r3 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]LpaAndActorTasks, []LpaAndActorTasks, []LpaAndActorTasks, error)); ok {
+	var r0 dashboarddata.Results
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (dashboarddata.Results, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []LpaAndActorTasks); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) dashboarddata.Results); ok {
 		r0 = rf(ctx)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]LpaAndActorTasks)
-		}
+		r0 = ret.Get(0).(dashboarddata.Results)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) []LpaAndActorTasks); ok {
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
 		r1 = rf(ctx)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]LpaAndActorTasks)
-		}
+		r1 = ret.Error(1)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context) []LpaAndActorTasks); ok {
-		r2 = rf(ctx)
-	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).([]LpaAndActorTasks)
-		}
-	}
-
-	if rf, ok := ret.Get(3).(func(context.Context) error); ok {
-		r3 = rf(ctx)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1
 }
 
 // mockDashboardStore_GetAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAll'
@@ -89,12 +71,12 @@ func (_c *mockDashboardStore_GetAll_Call) Run(run func(ctx context.Context)) *mo
 	return _c
 }
 
-func (_c *mockDashboardStore_GetAll_Call) Return(donor []LpaAndActorTasks, attorney []LpaAndActorTasks, certificateProvider []LpaAndActorTasks, err error) *mockDashboardStore_GetAll_Call {
-	_c.Call.Return(donor, attorney, certificateProvider, err)
+func (_c *mockDashboardStore_GetAll_Call) Return(results dashboarddata.Results, err error) *mockDashboardStore_GetAll_Call {
+	_c.Call.Return(results, err)
 	return _c
 }
 
-func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context) ([]LpaAndActorTasks, []LpaAndActorTasks, []LpaAndActorTasks, error)) *mockDashboardStore_GetAll_Call {
+func (_c *mockDashboardStore_GetAll_Call) RunAndReturn(run func(context.Context) (dashboarddata.Results, error)) *mockDashboardStore_GetAll_Call {
 	_c.Call.Return(run)
 	return _c
 }
