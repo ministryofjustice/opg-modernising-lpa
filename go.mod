@@ -11,10 +11,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.14.10
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.4
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.33.3
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.58.2
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.58.3
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.32.4
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.3
-	github.com/aws/smithy-go v1.20.3
+	github.com/aws/smithy-go v1.20.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/gabriel-vasile/mimetype v1.4.5
@@ -39,7 +39,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.28.0
 	golang.org/x/mod v0.20.0
 	golang.org/x/time v0.6.0
-	golang.org/x/tools v0.23.0
+	golang.org/x/tools v0.24.0
 )
 
 require (
@@ -102,11 +102,11 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
-	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
