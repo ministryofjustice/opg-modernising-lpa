@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.61.0"
+      version = "~> 5.62.0"
       configuration_aliases = [
         aws.region,
         aws.global,
@@ -14,7 +14,7 @@ terraform {
     }
     pagerduty = {
       source  = "PagerDuty/pagerduty"
-      version = "3.15.1"
+      version = "3.15.3"
     }
   }
 }
