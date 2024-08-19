@@ -165,6 +165,8 @@ func App(
 		dashboardStore,
 		errorHandler,
 		lpaStoreResolvingService,
+		notifyClient,
+		appPublicURL,
 	)
 
 	supporterpage.Register(

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -29,6 +30,12 @@ type Provided struct {
 	// DonorDetailsMatch records whether the voucher confirms that the details
 	// presented to them match the donor they expected to vouch for.
 	DonorDetailsMatch form.YesNo
+	// IdentityUserData records the results of the identity check taken by the
+	// voucher.
+	IdentityUserData identity.UserData
+	// IdentityConfirmed is true when the identity has been retrieved and matches
+	// what ws expected.
+	IdentityConfirmed bool
 }
 
 type Tasks struct {

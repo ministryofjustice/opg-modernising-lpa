@@ -46,6 +46,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
+				items[2].Path = voucher.PathOneLoginIdentityDetails.Format("lpa-id")
 				items[3].State = task.StateCompleted
 				return items
 			},
