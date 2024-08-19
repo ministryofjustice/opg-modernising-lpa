@@ -33,7 +33,7 @@
                 <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                            {{ tr .App "doTheseDetailsMatchDonorIdentity" }}
+                            {{ trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
                         </legend>
 
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}
