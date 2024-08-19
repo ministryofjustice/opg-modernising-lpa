@@ -46,6 +46,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
+				items[2].Path = voucher.PathOneLoginIdentityDetails
 				items[3].State = task.StateCompleted
 				return items
 			},
@@ -79,10 +80,10 @@ func TestGetTaskList(t *testing.T) {
 					App:     appData,
 					Voucher: tc.voucher,
 					Items: tc.expected([]taskListItem{
-						{Name: "confirmYourName", Path: voucher.PathConfirmYourName.Format("lpa-id")},
-						{Name: "verifyJohnSmithsDetails", Path: voucher.PathVerifyDonorDetails.Format("lpa-id")},
-						{Name: "confirmYourIdentity", Path: voucher.PathConfirmYourIdentity.Format("lpa-id")},
-						{Name: "signTheDeclaration", Path: voucher.PathSignTheDeclaration.Format("lpa-id")},
+						{Name: "confirmYourName", Path: voucher.PathConfirmYourName},
+						{Name: "verifyJohnSmithsDetails", Path: voucher.PathVerifyDonorDetails},
+						{Name: "confirmYourIdentity", Path: voucher.PathConfirmYourIdentity},
+						{Name: "signTheDeclaration", Path: voucher.PathSignTheDeclaration},
 					}),
 				}).
 				Return(nil)
