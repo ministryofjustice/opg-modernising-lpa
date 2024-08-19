@@ -109,6 +109,9 @@ func Register(
 		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathDonorDetailsDoNotMatch, None,
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
+
+	handleVoucher(voucher.PathConfirmYourIdentity, None,
+		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte
