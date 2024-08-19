@@ -151,7 +151,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 		return err
 	}
 
-	if err := s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{UID: attorney.UID.String()}); err != nil {
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, attorney.UID); err != nil {
 		return err
 	}
 
@@ -178,7 +178,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 		return err
 	}
 
-	if err := s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{UID: attorney.UID.String()}); err != nil {
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, attorney.UID); err != nil {
 		return err
 	}
 
@@ -209,7 +209,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 		return err
 	}
 
-	if err := s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{UID: trustCorporation.UID.String()}); err != nil {
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, trustCorporation.UID); err != nil {
 		return err
 	}
 
@@ -240,7 +240,7 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 		return err
 	}
 
-	if err := s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{UID: trustCorporation.UID.String()}); err != nil {
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, trustCorporation.UID); err != nil {
 		return err
 	}
 
@@ -297,5 +297,12 @@ func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType act
 		ActorType:  actorType.String(),
 		ActorUID:   actorUID,
 		AccessCode: shareCode,
+	})
+}
+
+func (s *Sender) sendAttorneyStarted(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
+	return s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{
+		LpaUID:   lpaUID,
+		ActorUID: actorUID,
 	})
 }

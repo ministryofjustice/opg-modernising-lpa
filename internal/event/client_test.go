@@ -19,6 +19,7 @@ var expectedError = errors.New("err")
 
 func TestClientSendEvents(t *testing.T) {
 	ctx := context.Background()
+	uid := actoruid.New()
 
 	testcases := map[string]func() (func(*Client) error, any){
 		"uid-requested": func() (func(*Client) error, any) {
@@ -67,7 +68,7 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendCertificateProviderStarted(ctx, event) }, event
 		},
 		"attorney-started": func() (func(*Client) error, any) {
-			event := AttorneyStarted{UID: "a"}
+			event := AttorneyStarted{LpaUID: "a", ActorUID: uid}
 
 			return func(client *Client) error { return client.SendAttorneyStarted(ctx, event) }, event
 		},

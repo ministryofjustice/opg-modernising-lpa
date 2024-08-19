@@ -75,5 +75,6 @@ type CertificateProviderStarted struct {
 }
 
 type AttorneyStarted struct {
-	UID string `json:"uid"`
+	LpaUID   string       `json:"uid"`
+	ActorUID actoruid.UID `json:"actorUID"`
 }

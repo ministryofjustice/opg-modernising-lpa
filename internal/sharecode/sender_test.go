@@ -769,37 +769,44 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: attorney1UID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney1UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: attorney2UID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney2UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: attorney3UID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney3UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: trustCorporationUID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: trustCorporationUID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: replacementTrustCorporationUID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacementTrustCorporationUID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: replacement1UID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacement1UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: replacement2UID.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacement2UID,
 		}).
 		Return(nil)
 
@@ -875,12 +882,14 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: uid1.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: uid1,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
-			UID: uid2.String(),
+			LpaUID:   donor.LpaUID,
+			ActorUID: uid2,
 		}).
 		Return(nil)
 
@@ -983,12 +992,14 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			eventClient := newMockEventClient(t)
 			eventClient.EXPECT().
 				SendAttorneyStarted(ctx, event.AttorneyStarted{
-					UID: uid.String(),
+					LpaUID:   donor.LpaUID,
+					ActorUID: uid,
 				}).
 				Return(nil)
 			eventClient.EXPECT().
 				SendAttorneyStarted(ctx, event.AttorneyStarted{
-					UID: uid.String(),
+					LpaUID:   donor.LpaUID,
+					ActorUID: uid,
 				}).
 				Return(nil)
 
