@@ -1,0 +1,16 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "confirmYourIdentity" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "confirmYourIdentity" }}</h1>
+
+            {{ trFormatHtml .App "voucherConfirmYourIdentityContent"
+                "DonorFullName" .Lpa.Donor.FullName }}
+
+            {{ template "button" (button .App "continue" "link" (global.Paths.Voucher.TaskList.Format .App.LpaID)) }}
+        </div>
+    </div>
+{{ end }}
