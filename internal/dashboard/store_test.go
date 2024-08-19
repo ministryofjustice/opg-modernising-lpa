@@ -17,8 +17,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -118,6 +118,32 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:  "referenced",
 		LpaUID: "X",
 	}
+	lpaVouched := &lpadata.Lpa{LpaID: "vouched", LpaUID: "V"}
+	lpaVouchedDonor := &donordata.Provided{
+		PK:     dynamo.LpaKey("vouched"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("vouched-id")),
+		LpaID:  "vouched",
+		LpaUID: "V",
+	}
+	lpaVouchedVoucher := &voucherdata.Provided{
+		PK:    dynamo.LpaKey("vouched"),
+		SK:    dynamo.VoucherKey(sessionID),
+		LpaID: "vouched",
+		Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
+	}
+	lpaVouchCompleted := &lpadata.Lpa{LpaID: "vouch-completed", LpaUID: "V"}
+	lpaVouchCompletedDonor := &donordata.Provided{
+		PK:     dynamo.LpaKey("vouch-completed"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("vouch-completed-id")),
+		LpaID:  "vouch-completed",
+		LpaUID: "V",
+	}
+	lpaVouchCompletedVoucher := &voucherdata.Provided{
+		PK:    dynamo.LpaKey("vouch-completed"),
+		SK:    dynamo.VoucherKey(sessionID),
+		LpaID: "vouch-completed",
+		Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted, SignTheDeclaration: task.StateCompleted},
+	}
 
 	testCases := map[string][]map[string]types.AttributeValue{
 		"details returned after lpas": {
@@ -130,6 +156,10 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpaCertifiedDonor),
 			makeAttributeValueMap(lpaCertifiedCertificateProvider),
 			makeAttributeValueMap(lpaReferencedLink),
+			makeAttributeValueMap(lpaVouchedDonor),
+			makeAttributeValueMap(lpaVouchedVoucher),
+			makeAttributeValueMap(lpaVouchCompletedDonor),
+			makeAttributeValueMap(lpaVouchCompletedVoucher),
 		},
 		"details returned before lpas": {
 			makeAttributeValueMap(lpaNoUIDDonor),
@@ -142,6 +172,10 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			makeAttributeValueMap(lpa0Donor),
 			makeAttributeValueMap(lpaCertifiedDonor),
 			makeAttributeValueMap(lpaReferencedLink),
+			makeAttributeValueMap(lpaVouchedVoucher),
+			makeAttributeValueMap(lpaVouchedDonor),
+			makeAttributeValueMap(lpaVouchCompletedVoucher),
+			makeAttributeValueMap(lpaVouchCompletedDonor),
 		},
 	}
 
@@ -159,6 +193,8 @@ func TestDashboardStoreGetAll(t *testing.T) {
 					{PK: dynamo.LpaKey("999"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor},
 					{PK: dynamo.LpaKey("signed-by-cp"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")), ActorType: actor.TypeCertificateProvider},
 					{PK: dynamo.LpaKey("referenced"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor},
+					{PK: dynamo.LpaKey("vouched"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeVoucher},
+					{PK: dynamo.LpaKey("vouch-completed"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeVoucher},
 				}, nil)
 			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 				{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
@@ -171,6 +207,10 @@ func TestDashboardStoreGetAll(t *testing.T) {
 				{PK: dynamo.LpaKey("signed-by-cp"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("another-id"))},
 				{PK: dynamo.LpaKey("signed-by-cp"), SK: dynamo.CertificateProviderKey("an-id")},
 				{PK: dynamo.LpaKey("referenced"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
+				{PK: dynamo.LpaKey("vouched"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
+				{PK: dynamo.LpaKey("vouched"), SK: dynamo.VoucherKey("an-id")},
+				{PK: dynamo.LpaKey("vouch-completed"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id"))},
+				{PK: dynamo.LpaKey("vouch-completed"), SK: dynamo.VoucherKey("an-id")},
 			}, attributeValues, nil)
 			dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{
 				{PK: dynamo.LpaKey("referenced"), SK: dynamo.OrganisationKey("org-id")},
@@ -180,17 +220,20 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
-				ResolveList(ctx, []*donordata.Provided{lpa123Donor, lpa456Donor, lpa789Donor, lpa0Donor, lpaCertifiedDonor, lpaReferencedDonor}).
-				Return([]*lpadata.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified, lpaReferenced}, nil)
+				ResolveList(ctx, []*donordata.Provided{lpa123Donor, lpa456Donor, lpa789Donor, lpa0Donor, lpaCertifiedDonor, lpaVouchedDonor, lpaVouchCompletedDonor, lpaReferencedDonor}).
+				Return([]*lpadata.Lpa{lpa123, lpa456, lpa789, lpa0, lpaCertified, lpaVouched, lpaVouchCompleted, lpaReferenced}, nil)
 
 			dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-			donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
+			results, err := dashboardStore.GetAll(ctx)
 			assert.Nil(t, err)
 
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}}, donor)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}}, certificateProvider)
-			assert.Equal(t, []page.LpaAndActorTasks{{Lpa: lpa789, Attorney: lpa789Attorney}}, attorney)
+			assert.Equal(t, dashboarddata.Results{
+				Donor:               []dashboarddata.Actor{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}},
+				CertificateProvider: []dashboarddata.Actor{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}},
+				Attorney:            []dashboarddata.Actor{{Lpa: lpa789, Attorney: lpa789Attorney}},
+				Voucher:             []dashboarddata.Actor{{Lpa: lpaVouched, Voucher: lpaVouchedVoucher}},
+			}, results)
 		})
 	}
 }
@@ -254,12 +297,14 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-	_, attorney, _, err := dashboardStore.GetAll(ctx)
+	results, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
 
-	assert.Equal(t, []page.LpaAndActorTasks{
-		{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorney},
-	}, attorney)
+	assert.Equal(t, dashboarddata.Results{
+		Attorney: []dashboarddata.Actor{
+			{Lpa: lpaSubmitted, Attorney: lpaSubmittedAttorney},
+		},
+	}, results)
 }
 
 func makeAttributeValueMap(i interface{}) map[string]types.AttributeValue {
@@ -289,7 +334,7 @@ func TestDashboardStoreGetAllWhenResolveErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient, lpaStoreResolvingService: lpaStoreResolvingService}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	if !assert.Equal(t, expectedError, err) {
 		t.Log(err.Error())
 	}
@@ -304,11 +349,9 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	donor, attorney, certificateProvider, err := dashboardStore.GetAll(ctx)
+	results, err := dashboardStore.GetAll(ctx)
 	assert.Nil(t, err)
-	assert.Nil(t, donor)
-	assert.Nil(t, attorney)
-	assert.Nil(t, certificateProvider)
+	assert.Equal(t, dashboarddata.Results{}, results)
 }
 
 func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
@@ -320,7 +363,7 @@ func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, err, expectedError)
 }
 
@@ -336,7 +379,7 @@ func TestDashboardStoreGetAllWhenAllByKeysErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -366,7 +409,7 @@ func TestDashboardStoreGetAllWhenReferenceGetErrors(t *testing.T) {
 
 	dashboardStore := &Store{dynamoClient: dynamoClient}
 
-	_, _, _, err := dashboardStore.GetAll(ctx)
+	_, err := dashboardStore.GetAll(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
