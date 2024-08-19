@@ -14,6 +14,7 @@ module "event_received" {
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
     EVENT_BUS_NAME             = var.event_bus_name
+    JWT_KEY_SECRET_ARN         = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role
@@ -206,6 +207,7 @@ data "aws_iam_policy_document" "event_received" {
     resources = [
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
       data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
+      data.aws_secretsmanager_secret.lpa_store_jwt_key.arn,
     ]
   }
 
@@ -215,6 +217,7 @@ data "aws_iam_policy_document" "event_received" {
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
       data.aws_kms_alias.aws_lambda.target_key_arn,
+      data.aws_kms_alias.jwt_key.target_key_arn,
     ]
 
     actions = [
