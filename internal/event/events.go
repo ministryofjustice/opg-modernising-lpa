@@ -73,3 +73,7 @@ type PaymentReceived struct {
 type CertificateProviderStarted struct {
 	UID string `json:"uid"`
 }
+
+type AttorneyStarted struct {
+	UID string `json:"uid"`
+}
