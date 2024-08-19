@@ -1,7 +1,6 @@
 package voucherpage
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -39,13 +38,14 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				if data.Form.YesNo.IsNo() {
-					return errors.New("// TODO there should be a page here but it hasn't been built yet")
-				}
-
+				provided.DonorDetailsMatch = data.Form.YesNo
 				provided.Tasks.VerifyDonorDetails = task.StateCompleted
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
 					return err
+				}
+
+				if data.Form.YesNo.IsNo() {
+					return voucher.PathDonorDetailsDoNotMatch.Redirect(w, r, appData, appData.LpaID)
 				}
 
 				return voucher.PathTaskList.Redirect(w, r, appData, appData.LpaID)
