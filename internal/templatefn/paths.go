@@ -93,8 +93,10 @@ type supporterPaths struct {
 }
 
 type voucherPaths struct {
-	Login    page.Path
-	Start    page.Path
+	EnterReferenceNumber page.Path
+	Login                page.Path
+	Start                page.Path
+
 	TaskList voucher.Path
 	YourName voucher.Path
 }
@@ -319,8 +321,10 @@ var paths = appPaths{
 	},
 
 	Voucher: voucherPaths{
-		Login:    page.PathVoucherLogin,
-		Start:    page.PathVoucherStart,
+		EnterReferenceNumber: page.PathVoucherEnterReferenceNumber,
+		Login:                page.PathVoucherLogin,
+		Start:                page.PathVoucherStart,
+
 		TaskList: voucher.PathTaskList,
 		YourName: voucher.PathYourName,
 	},
