@@ -1336,5 +1336,6 @@
     "addReferenceNumber": "Welsh",
     "youHaveToldUsThatTheDetailsDoNotMatch": "Welsh",
     "youHaveToldUsDetailsDoNotMatchIdentity": "Welsh {{.DonorFullNamePossessive}}",
-    "youHaveToldUsDetailsDoNotMatchIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>"
+    "youHaveToldUsDetailsDoNotMatchIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
+    "voucherConfirmYourIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>"
 }
