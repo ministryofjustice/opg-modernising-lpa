@@ -767,6 +767,48 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney1UID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney2UID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: attorney3UID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: trustCorporationUID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacementTrustCorporationUID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacement1UID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: replacement2UID,
+		}).
+		Return(nil)
 
 	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, eventClient)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
@@ -838,6 +880,18 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: uid1,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendAttorneyStarted(ctx, event.AttorneyStarted{
+			LpaUID:   donor.LpaUID,
+			ActorUID: uid2,
+		}).
+		Return(nil)
 
 	sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, eventClient)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
@@ -846,6 +900,8 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 }
 
 func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
+	uid := actoruid.New()
+
 	testcases := map[string]struct {
 		useTestCode      bool
 		expectedTestCode string
@@ -866,6 +922,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
+				UID:        uid,
 			},
 		}},
 		Donor: lpadata.Donor{
@@ -894,10 +951,16 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
+				Put(ctx, actor.TypeAttorney, tc.expectedTestCode, sharecodedata.Link{
+					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"),
+					ActorUID: uid,
+				}).
 				Return(nil)
 			shareCodeStore.EXPECT().
-				Put(ctx, actor.TypeAttorney, testRandomString, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa")}).
+				Put(ctx, actor.TypeAttorney, testRandomString, sharecodedata.Link{
+					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")), LpaKey: dynamo.LpaKey("lpa"),
+					ActorUID: uid,
+				}).
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
@@ -926,7 +989,21 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				}).
 				Return(nil)
 
-			sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil)
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendAttorneyStarted(ctx, event.AttorneyStarted{
+					LpaUID:   donor.LpaUID,
+					ActorUID: uid,
+				}).
+				Return(nil)
+			eventClient.EXPECT().
+				SendAttorneyStarted(ctx, event.AttorneyStarted{
+					LpaUID:   donor.LpaUID,
+					ActorUID: uid,
+				}).
+				Return(nil)
+
+			sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, eventClient)
 
 			if tc.useTestCode {
 				sender.UseTestCode("abcdef123456")
@@ -943,6 +1020,7 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 
 func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 	ctx := context.Background()
+	uid := actoruid.New()
 
 	donor := &lpadata.Lpa{
 		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{
@@ -950,6 +1028,7 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 				FirstNames: "Joanna",
 				LastName:   "Jones",
 				Email:      "name@example.org",
+				UID:        uid,
 			},
 		}},
 		Donor: lpadata.Donor{
@@ -978,7 +1057,12 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil)
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendAttorneyStarted(mock.Anything, mock.Anything).
+		Return(nil)
+
+	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, eventClient)
 	err := sender.SendAttorneys(ctx, TestAppData, donor)
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
@@ -998,4 +1082,26 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 	})
 
 	assert.Equal(t, expectedError, errors.Unwrap(err))
+}
+
+func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendAttorneyStarted(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, eventClient)
+	err := sender.SendAttorneys(ctx, TestAppData, &lpadata.Lpa{
+		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{Email: "hey@example.com", UID: uid}}},
+	})
+
+	assert.Equal(t, expectedError, err)
 }
