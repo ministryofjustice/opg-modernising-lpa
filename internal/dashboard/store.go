@@ -219,7 +219,8 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 
 			lpaID := voucherProvidedDetails.LpaID
 
-			if voucherProvidedDetails.Tasks.SignTheDeclaration.IsCompleted() {
+			if voucherProvidedDetails.Tasks.SignTheDeclaration.IsCompleted() ||
+				(voucherProvidedDetails.Tasks.ConfirmYourIdentity.IsCompleted() && !voucherProvidedDetails.IdentityConfirmed()) {
 				delete(voucherMap, lpaID)
 			}
 

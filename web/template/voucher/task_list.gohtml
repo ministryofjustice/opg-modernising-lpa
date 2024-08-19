@@ -10,12 +10,12 @@
 
             <ul class="govuk-task-list">
                 {{ range .Items }}
-                    {{ $hasLink := voucherCanGoTo $.Voucher .Path }}
+                    {{ $hasLink := .Path.CanGoTo $.Voucher }}
                     
                     <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                         <span class="govuk-task-list__name-and-hint">
                             {{ if $hasLink }}
-                                <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
+                                <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
                             {{ else }}
                                 <div>{{ tr $.App .Name }}</div>
                             {{ end }}

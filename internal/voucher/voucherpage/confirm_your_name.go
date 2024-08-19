@@ -16,6 +16,7 @@ type confirmYourNameData struct {
 	App        appcontext.Data
 	Errors     validation.List
 	Lpa        *lpadata.Lpa
+	Tasks      voucherdata.Tasks
 	FirstNames string
 	LastName   string
 }
@@ -41,6 +42,9 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			redirect := voucher.PathTaskList
 			state := task.StateCompleted
 
+			provided.FirstNames = firstNames
+			provided.LastName = lastName
+
 			if lastName == lpa.Donor.LastName {
 				redirect = voucher.PathConfirmAllowedToVouch
 				state = task.StateInProgress
@@ -57,6 +61,7 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 		return tmpl(w, &confirmYourNameData{
 			App:        appData,
 			Lpa:        lpa,
+			Tasks:      provided.Tasks,
 			FirstNames: firstNames,
 			LastName:   lastName,
 		})
