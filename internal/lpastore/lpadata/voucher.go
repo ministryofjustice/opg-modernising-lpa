@@ -8,3 +8,7 @@ type Voucher struct {
 	LastName   string
 	Email      string
 }
+
+func (v Voucher) FullName() string {
+	return v.FirstNames + " " + v.LastName
+}
