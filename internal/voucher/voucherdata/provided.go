@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -25,6 +26,9 @@ type Provided struct {
 	// LastName is a last name provided by the voucher. If set it overrides that
 	// provided by the donor.
 	LastName string
+	// DonorDetailsMatch records whether the voucher confirms that the details
+	// presented to them match the donor they expected to vouch for.
+	DonorDetailsMatch form.YesNo
 }
 
 type Tasks struct {
