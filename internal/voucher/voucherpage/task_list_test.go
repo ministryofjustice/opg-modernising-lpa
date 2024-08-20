@@ -67,7 +67,7 @@ func TestGetTaskList(t *testing.T) {
 				Possessive("John Smith").
 				Return("John Smith's")
 			localizer.EXPECT().
-				Format("verifyDonorDetails", map[string]any{"DonorFullNamePossessive": "John Smith's"}).
+				Format("verifyPersonDetails", map[string]any{"DonorFullNamePossessive": "John Smith's"}).
 				Return("verifyJohnSmithsDetails")
 
 			appData := testAppData
