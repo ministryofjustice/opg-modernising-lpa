@@ -67,6 +67,18 @@ func TestCanGoTo(t *testing.T) {
 			url:      PathTaskList.Format("123"),
 			expected: true,
 		},
+		"your name": {
+			provided: &voucherdata.Provided{},
+			url:      PathYourName.Format("123"),
+			expected: true,
+		},
+		"your name when identity completed": {
+			provided: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+			},
+			url:      PathYourName.Format("123"),
+			expected: false,
+		},
 		"verify donor details": {
 			provided: &voucherdata.Provided{},
 			url:      PathVerifyDonorDetails.Format("123"),

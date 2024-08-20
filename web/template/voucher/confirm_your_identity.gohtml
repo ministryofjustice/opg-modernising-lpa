@@ -10,7 +10,7 @@
             {{ trFormatHtml .App "voucherConfirmYourIdentityContent"
                 "DonorFullName" .Lpa.Donor.FullName }}
 
-            {{ template "button" (button .App "continue" "link" (global.Paths.Voucher.TaskList.Format .App.LpaID)) }}
+            {{ template "button" (button .App "continue" "link" (global.Paths.Voucher.IdentityWithOneLogin.Format .App.LpaID)) }}
         </div>
     </div>
 {{ end }}

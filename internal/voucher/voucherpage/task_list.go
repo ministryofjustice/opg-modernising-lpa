@@ -20,7 +20,7 @@ type taskListData struct {
 
 type taskListItem struct {
 	Name  string
-	Path  string
+	Path  voucher.Path
 	State task.State
 }
 
@@ -31,27 +31,32 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
+		confirmYourIdentityPath := voucher.PathConfirmYourIdentity
+		if provided.Tasks.ConfirmYourIdentity.IsCompleted() {
+			confirmYourIdentityPath = voucher.PathOneLoginIdentityDetails
+		}
+
 		items := []taskListItem{
 			{
 				Name:  "confirmYourName",
-				Path:  voucher.PathConfirmYourName.Format(appData.LpaID),
+				Path:  voucher.PathConfirmYourName,
 				State: provided.Tasks.ConfirmYourName,
 			},
 			{
 				Name: appData.Localizer.Format("verifyPersonDetails", map[string]any{
 					"DonorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
 				}),
-				Path:  voucher.PathVerifyDonorDetails.Format(appData.LpaID),
+				Path:  voucher.PathVerifyDonorDetails,
 				State: provided.Tasks.VerifyDonorDetails,
 			},
 			{
 				Name:  "confirmYourIdentity",
-				Path:  voucher.PathConfirmYourIdentity.Format(appData.LpaID),
+				Path:  confirmYourIdentityPath,
 				State: provided.Tasks.ConfirmYourIdentity,
 			},
 			{
 				Name:  "signTheDeclaration",
-				Path:  voucher.PathSignTheDeclaration.Format(appData.LpaID),
+				Path:  voucher.PathSignTheDeclaration,
 				State: provided.Tasks.SignTheDeclaration,
 			},
 		}
