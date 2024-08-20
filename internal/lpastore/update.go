@@ -145,7 +145,7 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 	body := updateRequest{
 		Type: "ATTORNEY_SIGN",
 		Changes: []updateRequestChange{
-			{Key: attorneyKey + "/mobile", New: attorney.Mobile},
+			{Key: attorneyKey + "/mobile", New: attorney.Telephone},
 			{Key: attorneyKey + "/contactLanguagePreference", New: attorney.ContactLanguagePreference.String()},
 		},
 	}

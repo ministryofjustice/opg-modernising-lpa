@@ -13,32 +13,32 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type mobileNumberData struct {
+type phoneNumberData struct {
 	App    appcontext.Data
 	Donor  *lpadata.Lpa
-	Form   *mobileNumberForm
+	Form   *phoneNumberForm
 	Errors validation.List
 }
 
-type mobileNumberForm struct {
-	Mobile string
+type phoneNumberForm struct {
+	Phone string
 }
 
-func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
-		data := &mobileNumberData{
+		data := &phoneNumberData{
 			App: appData,
-			Form: &mobileNumberForm{
-				Mobile: attorneyProvidedDetails.Mobile,
+			Form: &phoneNumberForm{
+				Phone: attorneyProvidedDetails.Telephone,
 			},
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readMobileNumberForm(r)
+			data.Form = readPhoneNumberForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Mobile = data.Form.Mobile
+				attorneyProvidedDetails.Telephone = data.Form.Phone
 				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == task.StateNotStarted {
 					attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
@@ -55,17 +55,17 @@ func MobileNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 	}
 }
 
-func readMobileNumberForm(r *http.Request) *mobileNumberForm {
-	return &mobileNumberForm{
-		Mobile: page.PostFormString(r, "mobile"),
+func readPhoneNumberForm(r *http.Request) *phoneNumberForm {
+	return &phoneNumberForm{
+		Phone: page.PostFormString(r, "phone"),
 	}
 }
 
-func (f *mobileNumberForm) Validate() validation.List {
+func (f *phoneNumberForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("mobile", "mobile", f.Mobile,
-		validation.Mobile())
+	errors.String("phone", "phone", f.Phone,
+		validation.Telephone())
 
 	return errors
 }

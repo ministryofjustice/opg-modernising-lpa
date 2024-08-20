@@ -466,7 +466,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				&attorneydata.Provided{
 					UID:                       uid,
-					Mobile:                    "07777777",
+					Telephone:                 "07777777",
 					SignedAt:                  time.Date(2020, time.January, 1, 12, 13, 14, 0, time.UTC),
 					ContactLanguagePreference: localize.Cy,
 				})
@@ -559,7 +559,7 @@ func TestClientServiceContract(t *testing.T) {
 				},
 				&attorneydata.Provided{
 					UID:                       uid,
-					Mobile:                    "07777777",
+					Telephone:                 "07777777",
 					ContactLanguagePreference: localize.Cy,
 					AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{
 						{

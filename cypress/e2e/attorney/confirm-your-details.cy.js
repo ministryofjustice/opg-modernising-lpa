@@ -2,9 +2,9 @@ import { TestMobile } from '../../support/e2e';
 
 describe('Confirm your details', () => {
   beforeEach(() => {
-    cy.visit('/fixtures/attorney?redirect=/mobile-number');
+    cy.visit('/fixtures/attorney?redirect=/phone-number');
 
-    cy.get('#f-mobile').type(TestMobile);
+    cy.get('#f-phone').type(TestMobile);
     cy.contains('button', 'Save and continue').click();
 
     cy.get('[name="language-preference"]').check('cy', { force: true })

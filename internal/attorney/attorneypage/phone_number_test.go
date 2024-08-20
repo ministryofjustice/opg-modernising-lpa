@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetMobileNumber(t *testing.T) {
+func TestGetPhoneNumber(t *testing.T) {
 	testcases := map[string]struct {
 		appData appcontext.Data
 	}{
@@ -36,13 +36,13 @@ func TestGetMobileNumber(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &mobileNumberData{
+				Execute(w, &phoneNumberData{
 					App:  tc.appData,
-					Form: &mobileNumberForm{},
+					Form: &phoneNumberForm{},
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -51,7 +51,7 @@ func TestGetMobileNumber(t *testing.T) {
 	}
 }
 
-func TestGetMobileNumberFromStore(t *testing.T) {
+func TestGetPhoneNumberFromStore(t *testing.T) {
 	testcases := map[string]struct {
 		appData  appcontext.Data
 		attorney *attorneydata.Provided
@@ -71,15 +71,15 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &mobileNumberData{
+				Execute(w, &phoneNumberData{
 					App: tc.appData,
-					Form: &mobileNumberForm{
-						Mobile: "07535111222",
+					Form: &phoneNumberForm{
+						Phone: "07535111222",
 					},
 				}).
 				Return(nil)
 
-			err := MobileNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{Mobile: "07535111222"})
+			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{Telephone: "07535111222"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -88,7 +88,7 @@ func TestGetMobileNumberFromStore(t *testing.T) {
 	}
 }
 
-func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
+func TestGetPhoneNumberWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -97,14 +97,14 @@ func TestGetMobileNumberWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostMobileNumber(t *testing.T) {
+func TestPostPhoneNumber(t *testing.T) {
 	testCases := map[string]struct {
 		form            url.Values
 		attorney        *attorneydata.Provided
@@ -113,12 +113,12 @@ func TestPostMobileNumber(t *testing.T) {
 	}{
 		"attorney": {
 			form: url.Values{
-				"mobile": {"07535111222"},
+				"phone": {"07535111222"},
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID:  "lpa-id",
-				Mobile: "07535111222",
+				LpaID:     "lpa-id",
+				Telephone: "07535111222",
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -142,12 +142,12 @@ func TestPostMobileNumber(t *testing.T) {
 		},
 		"replacement attorney": {
 			form: url.Values{
-				"mobile": {"07535111222"},
+				"phone": {"07535111222"},
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID:  "lpa-id",
-				Mobile: "07535111222",
+				LpaID:     "lpa-id",
+				Telephone: "07535111222",
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -177,7 +177,7 @@ func TestPostMobileNumber(t *testing.T) {
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := MobileNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney)
+			err := PhoneNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -187,36 +187,36 @@ func TestPostMobileNumber(t *testing.T) {
 	}
 }
 
-func TestPostMobileNumberWhenValidationError(t *testing.T) {
+func TestPostPhoneNumberWhenValidationError(t *testing.T) {
 	w := httptest.NewRecorder()
 	form := url.Values{
-		"mobile": {"0123456"},
+		"phone": {"abcd"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	dataMatcher := func(t *testing.T, data *mobileNumberData) bool {
-		return assert.Equal(t, validation.With("mobile", validation.PhoneError{Tmpl: "errorMobile", Label: "mobile"}), data.Errors)
+	dataMatcher := func(t *testing.T, data *phoneNumberData) bool {
+		return assert.Equal(t, validation.With("phone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phone"}), data.Errors)
 	}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *mobileNumberData) bool {
+		Execute(w, mock.MatchedBy(func(data *phoneNumberData) bool {
 			return dataMatcher(t, data)
 		})).
 		Return(nil)
 
-	err := MobileNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
+func TestPostPhoneNumberWhenAttorneyStoreErrors(t *testing.T) {
 	form := url.Values{
-		"mobile": {"07535111222"},
+		"phone": {"07535111222"},
 	}
 
 	w := httptest.NewRecorder()
@@ -229,46 +229,46 @@ func TestPostMobileNumberWhenAttorneyStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := MobileNumber(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestReadMobileNumberForm(t *testing.T) {
+func TestReadPhoneNumberForm(t *testing.T) {
 	assert := assert.New(t)
 
 	form := url.Values{
-		"mobile": {"07535111222"},
+		"phone": {"07535111222"},
 	}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readMobileNumberForm(r)
+	result := readPhoneNumberForm(r)
 
-	assert.Equal("07535111222", result.Mobile)
+	assert.Equal("07535111222", result.Phone)
 }
 
-func TestMobileNumberFormValidate(t *testing.T) {
+func TestPhoneNumberFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *mobileNumberForm
+		form   *phoneNumberForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &mobileNumberForm{
-				Mobile: "07535999222",
+			form: &phoneNumberForm{
+				Phone: "07535999222",
 			},
 		},
 		"missing": {
-			form: &mobileNumberForm{},
+			form: &phoneNumberForm{},
 		},
-		"invalid-mobile-format": {
-			form: &mobileNumberForm{
-				Mobile: "123",
+		"invalid-phone-format": {
+			form: &phoneNumberForm{
+				Phone: "123",
 			},
-			errors: validation.With("mobile", validation.PhoneError{Tmpl: "errorMobile", Label: "mobile"}),
+			errors: validation.With("phone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phone"}),
 		},
 	}
 
