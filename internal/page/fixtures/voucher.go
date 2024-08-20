@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -32,6 +33,7 @@ func Voucher(
 	progressValues := []string{
 		"confirmYourName",
 		"verifyDonorDetails",
+		"confirmYourIdentity",
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
@@ -125,11 +127,22 @@ func Voucher(
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourName") {
+			voucherDetails.FirstNames = donorDetails.Voucher.FirstNames
+			voucherDetails.LastName = donorDetails.Voucher.LastName
 			voucherDetails.Tasks.ConfirmYourName = task.StateCompleted
 		}
 
 		if progress >= slices.Index(progressValues, "verifyDonorDetails") {
 			voucherDetails.Tasks.VerifyDonorDetails = task.StateCompleted
+		}
+
+		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
+			voucherDetails.IdentityUserData = identity.UserData{
+				Status:     identity.StatusConfirmed,
+				FirstNames: voucherDetails.FirstNames,
+				LastName:   voucherDetails.LastName,
+			}
+			voucherDetails.Tasks.ConfirmYourIdentity = task.StateCompleted
 		}
 
 		if err := voucherStore.Put(voucherCtx, voucherDetails); err != nil {

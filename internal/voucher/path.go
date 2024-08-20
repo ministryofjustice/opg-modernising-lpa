@@ -9,14 +9,18 @@ import (
 )
 
 const (
-	PathTaskList               = Path("/task-list")
-	PathConfirmAllowedToVouch  = Path("/confirm-allowed-to-vouch")
-	PathConfirmYourName        = Path("/confirm-your-name")
-	PathYourName               = Path("/your-name")
-	PathVerifyDonorDetails     = Path("/verify-donor-details")
-	PathDonorDetailsDoNotMatch = Path("/donor-details-do-not-match")
-	PathConfirmYourIdentity    = Path("/confirm-your-identity")
-	PathSignTheDeclaration     = Path("/sign-the-declaration")
+	PathTaskList                     = Path("/task-list")
+	PathConfirmAllowedToVouch        = Path("/confirm-allowed-to-vouch")
+	PathConfirmYourName              = Path("/confirm-your-name")
+	PathYourName                     = Path("/your-name")
+	PathVerifyDonorDetails           = Path("/verify-donor-details")
+	PathDonorDetailsDoNotMatch       = Path("/donor-details-do-not-match")
+	PathConfirmYourIdentity          = Path("/confirm-your-identity")
+	PathSignTheDeclaration           = Path("/sign-the-declaration")
+	PathIdentityWithOneLogin         = Path("/identity-with-one-login")
+	PathIdentityWithOneLoginCallback = Path("/identity-with-one-login-callback")
+	PathOneLoginIdentityDetails      = Path("/one-login-identity-details")
+	PathUnableToConfirmIdentity      = Path("/unable-to-confirm-identity")
 )
 
 type Path string
@@ -39,8 +43,11 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 	return nil
 }
 
-func (p Path) canVisit(provided *voucherdata.Provided) bool {
+func (p Path) CanGoTo(provided *voucherdata.Provided) bool {
 	switch p {
+	case PathYourName:
+		return !provided.Tasks.ConfirmYourIdentity.IsCompleted()
+
 	case PathVerifyDonorDetails:
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&
 			!provided.Tasks.VerifyDonorDetails.IsCompleted()
@@ -67,7 +74,7 @@ func CanGoTo(provided *voucherdata.Provided, url string) bool {
 
 	if strings.HasPrefix(path, "/voucher/") {
 		_, voucherPath, _ := strings.Cut(strings.TrimPrefix(path, "/voucher/"), "/")
-		return Path("/" + voucherPath).canVisit(provided)
+		return Path("/" + voucherPath).CanGoTo(provided)
 	}
 
 	return true

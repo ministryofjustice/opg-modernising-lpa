@@ -1,0 +1,27 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithOneLogin" }}</h1>
+
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "firstNames"
+                    .Voucher.IdentityUserData.FirstNames
+                    "" "" false false) }}
+                {{ template "summary-row" (summaryRow .App "lastName"
+                    .Voucher.IdentityUserData.LastName
+                    "" "" false false) }}
+           </dl>
+
+            <form novalidate method="post">
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.Voucher.TaskList.Format .App.LpaID)) }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
