@@ -10,7 +10,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -34,6 +36,11 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
 }
 
+type NotifyClient interface {
+	EmailGreeting(lpa *lpadata.Lpa) string
+	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
+}
+
 type Logger interface {
 	InfoContext(ctx context.Context, msg string, args ...any)
 	WarnContext(ctx context.Context, msg string, args ...any)
@@ -53,6 +60,7 @@ type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
+	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
 type ShareCodeStore interface {
@@ -83,6 +91,8 @@ func Register(
 	dashboardStore DashboardStore,
 	errorHandler page.ErrorHandler,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	notifyClient NotifyClient,
+	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -112,6 +122,14 @@ func Register(
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
 		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
+	handleVoucher(voucher.PathIdentityWithOneLogin, None,
+		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
+	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, appPublicURL))
+	handleVoucher(voucher.PathOneLoginIdentityDetails, None,
+		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
+	handleVoucher(voucher.PathUnableToConfirmIdentity, None,
+		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte

@@ -31,6 +31,11 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
+		confirmYourIdentityPath := voucher.PathConfirmYourIdentity
+		if provided.Tasks.ConfirmYourIdentity.IsCompleted() {
+			confirmYourIdentityPath = voucher.PathOneLoginIdentityDetails
+		}
+
 		items := []taskListItem{
 			{
 				Name:  "confirmYourName",
@@ -46,7 +51,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			},
 			{
 				Name:  "confirmYourIdentity",
-				Path:  voucher.PathConfirmYourIdentity.Format(appData.LpaID),
+				Path:  confirmYourIdentityPath.Format(appData.LpaID),
 				State: provided.Tasks.ConfirmYourIdentity,
 			},
 			{
