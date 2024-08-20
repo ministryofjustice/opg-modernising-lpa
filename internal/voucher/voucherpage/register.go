@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -130,6 +131,9 @@ func Register(
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathUnableToConfirmIdentity, None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService))
+
+	handleVoucher(voucher.PathSignTheDeclaration, None,
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, time.Now))
 }
 
 type handleOpt byte
