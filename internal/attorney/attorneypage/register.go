@@ -128,8 +128,8 @@ func Register(
 		Guidance(tmpls.Get("code_of_conduct.gohtml"), lpaStoreResolvingService))
 	handleAttorney(attorney.PathTaskList, None,
 		TaskList(tmpls.Get("task_list.gohtml"), lpaStoreResolvingService))
-	handleAttorney(attorney.PathMobileNumber, None,
-		MobileNumber(tmpls.Get("mobile_number.gohtml"), attorneyStore))
+	handleAttorney(attorney.PathPhoneNumber, None,
+		PhoneNumber(tmpls.Get("phone_number.gohtml"), attorneyStore))
 	handleAttorney(attorney.PathYourPreferredLanguage, CanGoBack,
 		YourPreferredLanguage(commonTmpls.Get("your_preferred_language.gohtml"), attorneyStore, lpaStoreResolvingService))
 	handleAttorney(attorney.PathConfirmYourDetails, None,

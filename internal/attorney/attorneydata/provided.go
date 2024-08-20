@@ -28,8 +28,8 @@ type Provided struct {
 	IsReplacement bool
 	// IsTrustCorporation is true when the details relate to a trust corporation
 	IsTrustCorporation bool
-	// Mobile number of the attorney or replacement attorney
-	Mobile string
+	// Telephone number of the attorney or replacement attorney (mobile or landline)
+	Telephone string
 	// SignedAt is when the attorney or replacement attorney submitted their
 	// signature
 	SignedAt time.Time
