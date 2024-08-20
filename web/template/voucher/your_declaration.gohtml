@@ -1,0 +1,47 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "yourDeclaration" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourDeclaration" }}</h1>
+
+            {{ trFormatHtml .App "yourDeclarationContent"
+                "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
+                "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames)
+                "DonorFirstNames" .Lpa.Donor.FirstNames }}
+
+            <form novalidate method="post">
+                <div class="govuk-summary-card">
+                    <div class="govuk-summary-card__title-wrapper">
+                        <span class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
+                    </div>
+                    <div class="govuk-summary-card__content">
+                        <p class="govuk-body govuk-!-font-weight-bold">
+                            {{ trFormat .App "iAmVouchingThat" "VoucherFullName" .Voucher.FullName }}
+                        </p>
+                        
+                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
+                            {{ template "error-message" (errorMessage . "confirm") }}
+
+                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
+                                    <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+                                        {{ trFormat .App "toTheBestOfMyKnowledgeDeclaration" "DonorFullName" .Lpa.Donor.FullName }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureDeclarationContent" false) }}
+                
+                {{ template "buttons" (button .App "submitMySignature") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
