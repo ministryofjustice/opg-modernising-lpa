@@ -44,6 +44,7 @@ type NotifyClient interface {
 }
 
 type EventClient interface {
+	SendAttorneyStarted(ctx context.Context, event event.AttorneyStarted) error
 	SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error
 	SendPaperFormRequested(ctx context.Context, paperFormRequestedEvent event.PaperFormRequested) error
 }
@@ -150,6 +151,10 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 		return err
 	}
 
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, attorney.UID); err != nil {
+		return err
+	}
+
 	if attorney.Email == "" {
 		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeAttorney, attorney.UID, shareCode)
 	}
@@ -170,6 +175,10 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa, attorney lpadata.Attorney) error {
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, attorney.UID, actor.TypeReplacementAttorney)
 	if err != nil {
+		return err
+	}
+
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, attorney.UID); err != nil {
 		return err
 	}
 
@@ -200,6 +209,10 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 		return err
 	}
 
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, trustCorporation.UID); err != nil {
+		return err
+	}
+
 	if trustCorporation.Email == "" {
 		return s.sendPaperForm(ctx, lpa.LpaUID, actor.TypeTrustCorporation, trustCorporation.UID, shareCode)
 	}
@@ -224,6 +237,10 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 
 	shareCode, err := s.createShareCode(ctx, lpa.LpaKey, lpa.LpaOwnerKey, trustCorporation.UID, actor.TypeReplacementTrustCorporation)
 	if err != nil {
+		return err
+	}
+
+	if err := s.sendAttorneyStarted(ctx, lpa.LpaUID, trustCorporation.UID); err != nil {
 		return err
 	}
 
@@ -280,5 +297,12 @@ func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType act
 		ActorType:  actorType.String(),
 		ActorUID:   actorUID,
 		AccessCode: shareCode,
+	})
+}
+
+func (s *Sender) sendAttorneyStarted(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
+	return s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{
+		LpaUID:   lpaUID,
+		ActorUID: actorUID,
 	})
 }
