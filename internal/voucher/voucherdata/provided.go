@@ -31,6 +31,12 @@ type Provided struct {
 	// IdentityUserData records the results of the identity check taken by the
 	// voucher.
 	IdentityUserData identity.UserData
+	// SignedAt is the time the declaration was signed.
+	SignedAt time.Time
+}
+
+func (p Provided) FullName() string {
+	return p.FirstNames + " " + p.LastName
 }
 
 func (p Provided) IdentityConfirmed() bool {
