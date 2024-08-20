@@ -97,8 +97,9 @@ type voucherPaths struct {
 	Login                page.Path
 	Start                page.Path
 
-	TaskList voucher.Path
-	YourName voucher.Path
+	TaskList             voucher.Path
+	YourName             voucher.Path
+	IdentityWithOneLogin voucher.Path
 }
 
 type appPaths struct {
@@ -325,8 +326,9 @@ var paths = appPaths{
 		Login:                page.PathVoucherLogin,
 		Start:                page.PathVoucherStart,
 
-		TaskList: voucher.PathTaskList,
-		YourName: voucher.PathYourName,
+		TaskList:             voucher.PathTaskList,
+		YourName:             voucher.PathYourName,
+		IdentityWithOneLogin: voucher.PathIdentityWithOneLogin,
 	},
 
 	HealthCheck: healthCheckPaths{

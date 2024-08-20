@@ -1337,5 +1337,6 @@
     "youHaveToldUsThatTheDetailsDoNotMatch": "Welsh",
     "youHaveToldUsDetailsDoNotMatchIdentity": "Welsh {{.DonorFullNamePossessive}}",
     "youHaveToldUsDetailsDoNotMatchIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}}</p>",
-    "voucherConfirmYourIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>"
+    "voucherConfirmYourIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
+    "voucherUnableToConfirmIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}} {{.DonorFirstNames}}</p>"
 }
