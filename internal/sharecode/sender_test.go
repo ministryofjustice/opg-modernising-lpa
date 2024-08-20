@@ -1085,23 +1085,49 @@ func TestShareCodeSenderSendAttorneysWhenShareCodeStoreErrors(t *testing.T) {
 }
 
 func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
-	ctx := context.Background()
 	uid := actoruid.New()
 
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil)
+	testcases := map[string]*lpadata.Lpa{
+		"original attorneys": {
+			Attorneys: lpadata.Attorneys{
+				Attorneys: []lpadata.Attorney{{UID: uid}},
+			},
+		},
+		"replacement attorneys": {
+			ReplacementAttorneys: lpadata.Attorneys{
+				Attorneys: []lpadata.Attorney{{UID: uid}},
+			},
+		},
+		"original trust corporation": {
+			Attorneys: lpadata.Attorneys{
+				TrustCorporation: lpadata.TrustCorporation{UID: uid, Name: "a"},
+			},
+		},
+		"replacement trust corporation": {
+			ReplacementAttorneys: lpadata.Attorneys{
+				TrustCorporation: lpadata.TrustCorporation{UID: uid, Name: "a"},
+			},
+		},
+	}
 
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendAttorneyStarted(mock.Anything, mock.Anything).
-		Return(expectedError)
+	ctx := context.Background()
 
-	sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, eventClient)
-	err := sender.SendAttorneys(ctx, TestAppData, &lpadata.Lpa{
-		Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{Email: "hey@example.com", UID: uid}}},
-	})
+	for name, lpa := range testcases {
+		t.Run(name, func(t *testing.T) {
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.EXPECT().
+				Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil)
 
-	assert.Equal(t, expectedError, err)
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendAttorneyStarted(mock.Anything, mock.Anything).
+				Return(expectedError)
+
+			sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, eventClient)
+			err := sender.SendAttorneys(ctx, TestAppData, lpa)
+
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
