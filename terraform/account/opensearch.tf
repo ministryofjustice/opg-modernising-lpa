@@ -6,7 +6,7 @@ data "aws_vpc_endpoint" "opensearch" {
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_policy" {
-  name        = "policy-shared-${local.account_name}"
+  name        = "shared-encrypt-${local.account_name}"
   type        = "encryption"
   description = "encryption policy for collection"
   policy = jsonencode({
@@ -30,7 +30,7 @@ resource "aws_opensearchserverless_collection" "lpas_collection" {
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
-  name        = "policy-shared-${local.account_name}"
+  name        = "shared-network-${local.account_name}"
   type        = "network"
   description = "VPC access for collection endpoint"
   policy = jsonencode([
