@@ -22,6 +22,53 @@ func (_m *mockEventClient) EXPECT() *mockEventClient_Expecter {
 	return &mockEventClient_Expecter{mock: &_m.Mock}
 }
 
+// SendAttorneyStarted provides a mock function with given fields: ctx, _a1
+func (_m *mockEventClient) SendAttorneyStarted(ctx context.Context, _a1 event.AttorneyStarted) error {
+	ret := _m.Called(ctx, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendAttorneyStarted")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.AttorneyStarted) error); ok {
+		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendAttorneyStarted_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAttorneyStarted'
+type mockEventClient_SendAttorneyStarted_Call struct {
+	*mock.Call
+}
+
+// SendAttorneyStarted is a helper method to define mock.On call
+//   - ctx context.Context
+//   - _a1 event.AttorneyStarted
+func (_e *mockEventClient_Expecter) SendAttorneyStarted(ctx interface{}, _a1 interface{}) *mockEventClient_SendAttorneyStarted_Call {
+	return &mockEventClient_SendAttorneyStarted_Call{Call: _e.mock.On("SendAttorneyStarted", ctx, _a1)}
+}
+
+func (_c *mockEventClient_SendAttorneyStarted_Call) Run(run func(ctx context.Context, _a1 event.AttorneyStarted)) *mockEventClient_SendAttorneyStarted_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.AttorneyStarted))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendAttorneyStarted_Call) Return(_a0 error) *mockEventClient_SendAttorneyStarted_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendAttorneyStarted_Call) RunAndReturn(run func(context.Context, event.AttorneyStarted) error) *mockEventClient_SendAttorneyStarted_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendNotificationSent provides a mock function with given fields: ctx, notificationSentEvent
 func (_m *mockEventClient) SendNotificationSent(ctx context.Context, notificationSentEvent event.NotificationSent) error {
 	ret := _m.Called(ctx, notificationSentEvent)
