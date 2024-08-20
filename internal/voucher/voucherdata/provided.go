@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -20,15 +21,20 @@ type Provided struct {
 	Tasks Tasks
 	// Email is the email address of the voucher
 	Email string
-	// FirstNames is the first names provided by the voucher. If set it overrides
-	// that provided by the donor.
+	// FirstNames is the first names confirmed by the voucher.
 	FirstNames string
-	// LastName is a last name provided by the voucher. If set it overrides that
-	// provided by the donor.
+	// LastName is the last name confirmed by the voucher.
 	LastName string
 	// DonorDetailsMatch records whether the voucher confirms that the details
 	// presented to them match the donor they expected to vouch for.
 	DonorDetailsMatch form.YesNo
+	// IdentityUserData records the results of the identity check taken by the
+	// voucher.
+	IdentityUserData identity.UserData
+}
+
+func (p Provided) IdentityConfirmed() bool {
+	return p.IdentityUserData.Status.IsConfirmed() && p.IdentityUserData.MatchName(p.FirstNames, p.LastName)
 }
 
 type Tasks struct {
