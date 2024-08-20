@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
 
 // Globals contains values that are used in templates and do not change as the
@@ -88,7 +87,6 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
-		"voucherCanGoTo":     voucher.CanGoTo,
 	}
 }
 
