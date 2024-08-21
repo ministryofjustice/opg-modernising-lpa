@@ -65,7 +65,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  attorney.PathMobileNumber.Format(lpa.LpaID),
+					Path:  attorney.PathPhoneNumber.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{

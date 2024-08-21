@@ -21,7 +21,7 @@ type attorneyPaths struct {
 	CodeOfConduct               attorney.Path
 	ConfirmDontWantToBeAttorney attorney.Path
 	ConfirmYourDetails          attorney.Path
-	MobileNumber                attorney.Path
+	PhoneNumber                 attorney.Path
 	Progress                    attorney.Path
 	ReadTheLpa                  attorney.Path
 	RightsAndResponsibilities   attorney.Path
@@ -283,7 +283,7 @@ var paths = appPaths{
 		CodeOfConduct:               attorney.PathCodeOfConduct,
 		ConfirmDontWantToBeAttorney: attorney.PathConfirmDontWantToBeAttorney,
 		ConfirmYourDetails:          attorney.PathConfirmYourDetails,
-		MobileNumber:                attorney.PathMobileNumber,
+		PhoneNumber:                 attorney.PathPhoneNumber,
 		Progress:                    attorney.PathProgress,
 		ReadTheLpa:                  attorney.PathReadTheLpa,
 		RightsAndResponsibilities:   attorney.PathRightsAndResponsibilities,

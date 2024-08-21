@@ -36,7 +36,7 @@ func TestGetTaskList(t *testing.T) {
 			attorney: &attorneydata.Provided{},
 			appData:  testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[0].Path = attorney.PathMobileNumber.Format("lpa-id")
+				items[0].Path = attorney.PathPhoneNumber.Format("lpa-id")
 
 				return items
 			},
@@ -57,7 +57,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[0].Path = attorney.PathMobileNumber.Format("lpa-id")
+				items[0].Path = attorney.PathPhoneNumber.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].Name = "signTheLpaSignatory1"
 				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
@@ -172,7 +172,7 @@ func TestGetTaskList(t *testing.T) {
 					App: tc.appData,
 					Lpa: tc.lpa,
 					Items: tc.expected([]taskListItem{
-						{Name: "confirmYourDetails", Path: attorney.PathMobileNumber.Format("lpa-id")},
+						{Name: "confirmYourDetails", Path: attorney.PathPhoneNumber.Format("lpa-id")},
 						{Name: "readTheLpa", Path: attorney.PathReadTheLpa.Format("lpa-id")},
 						{Name: "signTheLpa"},
 					}),

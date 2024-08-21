@@ -14,7 +14,7 @@ import (
 var (
 	mobileRegex      = regexp.MustCompile(`^(?:07|\+?447)\d{9}$`)
 	nonUKMobileRegex = regexp.MustCompile(`^\+\d{4,15}$`)
-	telephoneRegex   = regexp.MustCompile(`^\+?\d{4,15}$`)
+	phoneRegex       = regexp.MustCompile(`^\+?\d{4,15}$`)
 	postcodeRegex    = regexp.MustCompile("^[A-Z0-9 ]{1,9}$")
 )
 
@@ -270,8 +270,8 @@ func NonUKMobile() PhoneCheck {
 	return PhoneCheck{re: nonUKMobileRegex, tmpl: "errorMobile"}
 }
 
-func Telephone() PhoneCheck {
-	return PhoneCheck{re: telephoneRegex, tmpl: "errorTelephone"}
+func Phone() PhoneCheck {
+	return PhoneCheck{re: phoneRegex, tmpl: "errorPhone"}
 }
 
 type PostcodeCheck struct{}
