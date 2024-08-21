@@ -134,6 +134,8 @@ func Register(
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
 		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, time.Now))
+	handleVoucher(voucher.PathThankYou, None,
+		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }
 
 type handleOpt byte
