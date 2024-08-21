@@ -154,6 +154,10 @@ data "aws_ip_ranges" "route53_healthchecks" {
   provider = aws.region
 }
 
+resource "terraform_data" "ingress_allow_list_cidr" {
+  input = var.ingress_allow_list_cidr
+}
+
 resource "aws_security_group_rule" "app_loadbalancer_port_80_redirect_ingress" {
   count             = var.public_access_enabled ? 0 : 1
   description       = "Port 80 ingress for redirection to port 443"
@@ -163,7 +167,12 @@ resource "aws_security_group_rule" "app_loadbalancer_port_80_redirect_ingress" {
   protocol          = "tcp"
   cidr_blocks       = var.ingress_allow_list_cidr #tfsec:ignore:aws-vpc-no-public-ingress-sgr
   security_group_id = aws_security_group.app_loadbalancer.id
-  provider          = aws.region
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.ingress_allow_list_cidr
+    ]
+  }
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "app_loadbalancer_ingress" {
@@ -175,7 +184,12 @@ resource "aws_security_group_rule" "app_loadbalancer_ingress" {
   protocol          = "tcp"
   cidr_blocks       = var.ingress_allow_list_cidr #tfsec:ignore:aws-vpc-no-public-ingress-sgr
   security_group_id = aws_security_group.app_loadbalancer.id
-  provider          = aws.region
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.ingress_allow_list_cidr
+    ]
+  }
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
