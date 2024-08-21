@@ -1,12 +1,14 @@
 package voucherdata
 
 import (
+	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 // Provided contains the information a voucher has given
@@ -35,17 +37,25 @@ type Provided struct {
 	SignedAt time.Time
 }
 
-func (p Provided) FullName() string {
+func (p *Provided) FullName() string {
 	return p.FirstNames + " " + p.LastName
 }
 
-func (p Provided) IdentityConfirmed() bool {
+func (p *Provided) IdentityConfirmed() bool {
 	return p.IdentityUserData.Status.IsConfirmed() && p.IdentityUserData.MatchName(p.FirstNames, p.LastName)
 }
 
-type Tasks struct {
-	ConfirmYourName     task.State
-	VerifyDonorDetails  task.State
-	ConfirmYourIdentity task.State
-	SignTheDeclaration  task.State
+func (p *Provided) NameMatches(lpa *lpadata.Lpa) actor.Type {
+	if p.FirstNames == "" && p.LastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range lpa.Actors() {
+		if strings.EqualFold(person.FirstNames, p.FirstNames) &&
+			strings.EqualFold(person.LastName, p.LastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
 }
