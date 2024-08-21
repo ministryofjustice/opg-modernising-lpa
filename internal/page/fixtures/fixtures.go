@@ -202,7 +202,7 @@ func makeCorrespondent(name Name) donordata.Correspondent {
 		Organisation: "Ashfurlong and partners",
 		WantAddress:  form.Yes,
 		Email:        testEmail,
-		Telephone:    testMobile,
+		Phone:        testMobile,
 	}
 }
 

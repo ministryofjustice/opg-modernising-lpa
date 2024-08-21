@@ -164,27 +164,27 @@ func TestCheckString(t *testing.T) {
 			checks:   []StringChecker{NonUKMobile()},
 			expected: With(name, PhoneError{Tmpl: "errorMobile", Label: label}),
 		},
-		"telephone": {
+		"phone": {
 			input:  "+337777777777",
-			checks: []StringChecker{Telephone()},
+			checks: []StringChecker{Phone()},
 		},
-		"telephone with spaces": {
+		"phone with spaces": {
 			input:  " + 3 3 7 7 7 7 7 7 7 7 7 7 ",
-			checks: []StringChecker{Telephone()},
+			checks: []StringChecker{Phone()},
 		},
-		"telephone no prefix": {
+		"phone no prefix": {
 			input:  "337777777777",
-			checks: []StringChecker{Telephone()},
+			checks: []StringChecker{Phone()},
 		},
-		"telephone too long": {
+		"phone too long": {
 			input:    "+3377777777777777",
-			checks:   []StringChecker{Telephone()},
-			expected: With(name, PhoneError{Tmpl: "errorTelephone", Label: label}),
+			checks:   []StringChecker{Phone()},
+			expected: With(name, PhoneError{Tmpl: "errorPhone", Label: label}),
 		},
-		"telephone too short": {
+		"phone too short": {
 			input:    "+337",
-			checks:   []StringChecker{Telephone()},
-			expected: With(name, PhoneError{Tmpl: "errorTelephone", Label: label}),
+			checks:   []StringChecker{Phone()},
+			expected: With(name, PhoneError{Tmpl: "errorPhone", Label: label}),
 		},
 		"postcode": {
 			input:  "B14 7ET",

@@ -31,7 +31,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				LastName:     provided.Correspondent.LastName,
 				Email:        provided.Correspondent.Email,
 				Organisation: provided.Correspondent.Organisation,
-				Telephone:    provided.Correspondent.Telephone,
+				Phone:        provided.Correspondent.Phone,
 				WantAddress:  form.NewYesNoForm(provided.Correspondent.WantAddress),
 			},
 		}
@@ -45,7 +45,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				provided.Correspondent.LastName = data.Form.LastName
 				provided.Correspondent.Email = data.Form.Email
 				provided.Correspondent.Organisation = data.Form.Organisation
-				provided.Correspondent.Telephone = data.Form.Telephone
+				provided.Correspondent.Phone = data.Form.Phone
 				provided.Correspondent.WantAddress = data.Form.WantAddress.YesNo
 
 				var redirect donor.Path
@@ -77,7 +77,7 @@ type enterCorrespondentDetailsForm struct {
 	LastName        string
 	Email           string
 	Organisation    string
-	Telephone       string
+	Phone           string
 	WantAddress     *form.YesNoForm
 	DonorEmailMatch bool
 	DonorFullName   string
@@ -91,7 +91,7 @@ func readEnterCorrespondentDetailsForm(r *http.Request, donor donordata.Donor) *
 		LastName:        page.PostFormString(r, "last-name"),
 		Email:           page.PostFormString(r, "email"),
 		Organisation:    page.PostFormString(r, "organisation"),
-		Telephone:       page.PostFormString(r, "telephone"),
+		Phone:           page.PostFormString(r, "phone"),
 		WantAddress:     form.ReadYesNoForm(r, "yesToAddAnAddress"),
 		DonorEmailMatch: email == donor.Email,
 		DonorFullName:   donor.FullName(),
@@ -120,8 +120,8 @@ func (f *enterCorrespondentDetailsForm) Validate() validation.List {
 		})
 	}
 
-	errors.String("telephone", "phoneNumber", f.Telephone,
-		validation.Telephone())
+	errors.String("phone", "phoneNumber", f.Phone,
+		validation.Phone())
 
 	return errors.Append(f.WantAddress.Validate())
 }

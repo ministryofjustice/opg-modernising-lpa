@@ -20,8 +20,8 @@ describe('As a trust corporation', () => {
         // task list
         cy.contains('a', 'Confirm your details').click();
 
-        // mobile number
-        cy.get('#f-mobile').type(TestMobile);
+        // phone number
+        cy.get('#f-phone').type(TestMobile);
         cy.contains('button', 'Save and continue').click();
 
         // language preferences
