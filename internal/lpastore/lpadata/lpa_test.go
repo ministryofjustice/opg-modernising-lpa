@@ -1,9 +1,12 @@
 package lpadata
 
 import (
+	"slices"
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -86,4 +89,33 @@ func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
 		Correspondent: Correspondent{Email: "correspondent"},
 	}
 	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
+}
+
+func TestLpaActors(t *testing.T) {
+	lpa := &Lpa{
+		Donor: Donor{
+			UID:        actoruid.New(),
+			FirstNames: "Sam",
+			LastName:   "Smith",
+		},
+		CertificateProvider: CertificateProvider{
+			UID:        actoruid.New(),
+			FirstNames: "Charlie",
+			LastName:   "Cooper",
+		},
+	}
+
+	actors := slices.Collect(lpa.Actors())
+
+	assert.Equal(t, []Actor{{
+		Type:       actor.TypeDonor,
+		UID:        lpa.Donor.UID,
+		FirstNames: "Sam",
+		LastName:   "Smith",
+	}, {
+		Type:       actor.TypeCertificateProvider,
+		UID:        lpa.CertificateProvider.UID,
+		FirstNames: "Charlie",
+		LastName:   "Cooper",
+	}}, actors)
 }
