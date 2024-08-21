@@ -21,6 +21,7 @@ const (
 	PathIdentityWithOneLoginCallback = Path("/identity-with-one-login-callback")
 	PathOneLoginIdentityDetails      = Path("/one-login-identity-details")
 	PathUnableToConfirmIdentity      = Path("/unable-to-confirm-identity")
+	PathThankYou                     = Path("/thank-you")
 )
 
 type Path string

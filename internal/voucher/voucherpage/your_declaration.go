@@ -25,7 +25,7 @@ type yourDeclarationData struct {
 func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, now func() time.Time) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		if !provided.SignedAt.IsZero() {
-			return voucher.PathTaskList.Redirect(w, r, appData, appData.LpaID)
+			return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
 		}
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
@@ -51,7 +51,7 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 					return err
 				}
 
-				return voucher.PathTaskList.Redirect(w, r, appData, appData.LpaID)
+				return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
 			}
 		}
 
