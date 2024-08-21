@@ -241,7 +241,7 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
-			attorney.Telephone = testMobile
+			attorney.Phone = testMobile
 			attorney.ContactLanguagePreference = localize.En
 			attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 		}
@@ -286,7 +286,7 @@ func Attorney(
 						return err
 					}
 
-					attorney.Telephone = testMobile
+					attorney.Phone = testMobile
 					attorney.ContactLanguagePreference = localize.En
 					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 					attorney.Tasks.ReadTheLpa = task.StateCompleted
@@ -317,7 +317,7 @@ func Attorney(
 						return err
 					}
 
-					attorney.Telephone = testMobile
+					attorney.Phone = testMobile
 					attorney.ContactLanguagePreference = localize.En
 					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 					attorney.Tasks.ReadTheLpa = task.StateCompleted

@@ -491,7 +491,7 @@ func updateLPAProgress(
 					return nil, nil, err
 				}
 
-				attorney.Telephone = testMobile
+				attorney.Phone = testMobile
 				attorney.ContactLanguagePreference = localize.En
 				attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 				attorney.Tasks.ReadTheLpa = task.StateCompleted
@@ -524,7 +524,7 @@ func updateLPAProgress(
 					return nil, nil, err
 				}
 
-				attorney.Telephone = testMobile
+				attorney.Phone = testMobile
 				attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 				attorney.Tasks.ReadTheLpa = task.StateCompleted
 				attorney.Tasks.SignTheLpa = task.StateCompleted

@@ -36,12 +36,22 @@ func (p Path) Format(id string) string {
 }
 
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID)), http.StatusFound)
+	rurl := p.Format(lpaID)
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	http.Redirect(w, r, appData.Lang.URL(rurl), http.StatusFound)
 	return nil
 }
 
 func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string, query url.Values) error {
-	http.Redirect(w, r, appData.Lang.URL(p.Format(lpaID))+"?"+query.Encode(), http.StatusFound)
+	rurl := p.Format(lpaID)
+	if fromURL := r.FormValue("from"); fromURL != "" {
+		rurl = fromURL
+	}
+
+	http.Redirect(w, r, appData.Lang.URL(rurl)+"?"+query.Encode(), http.StatusFound)
 	return nil
 }
 

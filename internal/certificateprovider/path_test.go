@@ -21,16 +21,24 @@ func TestCertificateProviderPathFormat(t *testing.T) {
 }
 
 func TestCertificateProviderPathRedirect(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-	p := Path("/something")
+	testcases := map[Path]string{
+		Path("/something"):                "/certificate-provider/lpa-id/something",
+		Path("/something?from=somewhere"): "/certificate-provider/lpa-id/somewhere",
+	}
 
-	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
-	resp := w.Result()
+	for path, expectedURL := range testcases {
+		t.Run(path.String(), func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, path.Format("lpa-id"), nil)
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, p.Format("lpa-id"), resp.Header.Get("Location"))
+			err := path.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestCertificateProviderCanGoTo(t *testing.T) {

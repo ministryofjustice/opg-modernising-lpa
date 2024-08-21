@@ -10,7 +10,7 @@
         <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
       {{ else }}
         <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourTelephoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
+        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourPhoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
       {{ end }}
 
       <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
@@ -18,8 +18,8 @@
         {{ $attorneyFullName := .Attorney.FullName }}
         {{ if .TrustCorporation.Name }}{{ $attorneyFullName = .TrustCorporation.Name }}{{ end }}
 
-        {{ $phoneChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.Attorney.PhoneNumber.Format .Lpa.LpaID)) .App.Page }}
-        {{ template "summary-row" (summaryRow .App "phoneNumber" (formatPhone .AttorneyProvidedDetails.Telephone) $phoneChangeLink $attorneyFullName true true ) }}
+        {{ $phoneChangeLink := fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth" }}
+        {{ template "summary-row" (summaryRow .App "phoneNumber" (formatPhone .AttorneyProvidedDetails.Phone) $phoneChangeLink $attorneyFullName true true ) }}
 
         {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.Attorney.YourPreferredLanguage.Format .Lpa.LpaID)) }}
         {{ $contactLanguageValue := tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }}

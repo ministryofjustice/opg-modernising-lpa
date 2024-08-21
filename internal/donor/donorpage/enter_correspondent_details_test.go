@@ -279,12 +279,12 @@ func TestEnterCorrespondentDetailsFormValidate(t *testing.T) {
 				FirstNames:  "A",
 				LastName:    "B",
 				Email:       "email",
-				Telephone:   "phone",
+				Phone:       "phone",
 				WantAddress: form.NewYesNoForm(form.Yes),
 			},
 			errors: validation.
 				With("email", validation.EmailError{Label: "email"}).
-				With("telephone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phoneNumber"}),
+				With("phone", validation.PhoneError{Tmpl: "errorPhone", Label: "phoneNumber"}),
 		},
 		"matching donor email": {
 			form: &enterCorrespondentDetailsForm{

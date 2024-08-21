@@ -22,29 +22,45 @@ func TestAttorneyPathFormat(t *testing.T) {
 }
 
 func TestAttorneyPathRedirect(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-	p := Path("/something")
+	testcases := map[Path]string{
+		Path("/something"):                "/attorney/lpa-id/something",
+		Path("/something?from=somewhere"): "/attorney/lpa-id/somewhere",
+	}
 
-	err := p.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
-	resp := w.Result()
+	for path, expectedURL := range testcases {
+		t.Run(path.String(), func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, path.Format("lpa-id"), nil)
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, p.Format("lpa-id"), resp.Header.Get("Location"))
+			err := path.Redirect(w, r, appcontext.Data{Lang: localize.En}, "lpa-id")
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestAttorneyPathRedirectQuery(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-	p := Path("/something")
+	testcases := map[Path]string{
+		Path("/something"):                "/attorney/lpa-id/something",
+		Path("/something?from=somewhere"): "/attorney/lpa-id/somewhere",
+	}
 
-	err := p.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, "lpa-id", url.Values{"q": {"1"}})
-	resp := w.Result()
+	for path, expectedURL := range testcases {
+		t.Run(path.String(), func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, path.Format("lpa-id"), nil)
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, p.Format("lpa-id")+"?q=1", resp.Header.Get("Location"))
+			err := path.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, "lpa-id", url.Values{"q": {"1"}})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, expectedURL+"?q=1", resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestAttorneyCanGoTo(t *testing.T) {

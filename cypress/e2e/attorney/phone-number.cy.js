@@ -26,9 +26,9 @@ describe('Phone number', () => {
     cy.contains('button', 'Save and continue').click();
 
     cy.get('.govuk-error-summary').within(() => {
-      cy.contains('Phone must be a telephone number');
+      cy.contains('Phone must be a phone number');
     });
 
-    cy.contains('[for=f-phone] ~ .govuk-error-message', 'Phone must be a telephone number');
+    cy.contains('[for=f-phone] ~ .govuk-error-message', 'Phone must be a phone number');
   });
 });

@@ -194,7 +194,7 @@ func TestClientSendAttorney(t *testing.T) {
 		"attorney": {
 			attorney: &attorneydata.Provided{
 				UID:                       uid2,
-				Telephone:                 "07777",
+				Phone:                     "07777",
 				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
@@ -213,7 +213,7 @@ func TestClientSendAttorney(t *testing.T) {
 			attorney: &attorneydata.Provided{
 				UID:                       uid2,
 				IsReplacement:             true,
-				Telephone:                 "07777",
+				Phone:                     "07777",
 				SignedAt:                  time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				ContactLanguagePreference: localize.Cy,
 				Email:                     "b@example.com",
@@ -237,7 +237,7 @@ func TestClientSendAttorney(t *testing.T) {
 			attorney: &attorneydata.Provided{
 				UID:                uid2,
 				IsTrustCorporation: true,
-				Telephone:          "07777",
+				Phone:              "07777",
 				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",
@@ -265,7 +265,7 @@ func TestClientSendAttorney(t *testing.T) {
 				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
-				Telephone:          "07777",
+				Phone:              "07777",
 				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",
@@ -290,7 +290,7 @@ func TestClientSendAttorney(t *testing.T) {
 				UID:                uid2,
 				IsTrustCorporation: true,
 				IsReplacement:      true,
-				Telephone:          "07777",
+				Phone:              "07777",
 				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{
 					FirstNames:        "John",
 					LastName:          "Signer",

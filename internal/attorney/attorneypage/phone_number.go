@@ -29,7 +29,7 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 		data := &phoneNumberData{
 			App: appData,
 			Form: &phoneNumberForm{
-				Phone: attorneyProvidedDetails.Telephone,
+				Phone: attorneyProvidedDetails.Phone,
 			},
 		}
 
@@ -38,7 +38,7 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Telephone = data.Form.Phone
+				attorneyProvidedDetails.Phone = data.Form.Phone
 				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == task.StateNotStarted {
 					attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
@@ -65,7 +65,7 @@ func (f *phoneNumberForm) Validate() validation.List {
 	var errors validation.List
 
 	errors.String("phone", "phone", f.Phone,
-		validation.Telephone())
+		validation.Phone())
 
 	return errors
 }

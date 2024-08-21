@@ -79,7 +79,7 @@ func TestGetPhoneNumberFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{Telephone: "07535111222"})
+			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{Phone: "07535111222"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -117,8 +117,8 @@ func TestPostPhoneNumber(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID:     "lpa-id",
-				Telephone: "07535111222",
+				LpaID: "lpa-id",
+				Phone: "07535111222",
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -146,8 +146,8 @@ func TestPostPhoneNumber(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID:     "lpa-id",
-				Telephone: "07535111222",
+				LpaID: "lpa-id",
+				Phone: "07535111222",
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -197,7 +197,7 @@ func TestPostPhoneNumberWhenValidationError(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	dataMatcher := func(t *testing.T, data *phoneNumberData) bool {
-		return assert.Equal(t, validation.With("phone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phone"}), data.Errors)
+		return assert.Equal(t, validation.With("phone", validation.PhoneError{Tmpl: "errorPhone", Label: "phone"}), data.Errors)
 	}
 
 	template := newMockTemplate(t)
@@ -268,7 +268,7 @@ func TestPhoneNumberFormValidate(t *testing.T) {
 			form: &phoneNumberForm{
 				Phone: "123",
 			},
-			errors: validation.With("phone", validation.PhoneError{Tmpl: "errorTelephone", Label: "phone"}),
+			errors: validation.With("phone", validation.PhoneError{Tmpl: "errorPhone", Label: "phone"}),
 		},
 	}
 
