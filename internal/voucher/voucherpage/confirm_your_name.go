@@ -45,7 +45,7 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			provided.FirstNames = firstNames
 			provided.LastName = lastName
 
-			if lastName == lpa.Donor.LastName {
+			if lastName == lpa.Donor.LastName || !provided.NameMatches(lpa).IsNone() {
 				redirect = voucher.PathConfirmAllowedToVouch
 				state = task.StateInProgress
 			}

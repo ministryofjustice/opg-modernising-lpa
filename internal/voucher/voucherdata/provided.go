@@ -1,11 +1,14 @@
 package voucherdata
 
 import (
+	"strings"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -41,6 +44,22 @@ func (p Provided) FullName() string {
 
 func (p Provided) IdentityConfirmed() bool {
 	return p.IdentityUserData.Status.IsConfirmed() && p.IdentityUserData.MatchName(p.FirstNames, p.LastName)
+}
+
+func (p Provided) NameMatches(lpa *lpadata.Lpa) actor.Type {
+	if p.FirstNames == "" && p.LastName == "" {
+		return actor.TypeNone
+	}
+
+	for person := range lpa.Actors() {
+		if person.Type != actor.TypeVoucher &&
+			strings.EqualFold(person.FirstNames, p.FirstNames) &&
+			strings.EqualFold(person.LastName, p.LastName) {
+			return person.Type
+		}
+	}
+
+	return actor.TypeNone
 }
 
 type Tasks struct {

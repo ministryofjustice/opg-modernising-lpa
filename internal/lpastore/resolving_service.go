@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -102,13 +103,30 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 			LastName:   donor.Correspondent.LastName,
 			Email:      donor.Correspondent.Email,
 		}
-
 		if donor.Voucher.Allowed {
 			lpa.Voucher = lpadata.Voucher{
 				UID:        donor.Voucher.UID,
 				FirstNames: donor.Voucher.FirstNames,
 				LastName:   donor.Voucher.LastName,
 				Email:      donor.Voucher.Email,
+			}
+		}
+
+		// TODO: remove this once authorised signatory is in lpa-store
+		if lpa.AuthorisedSignatory.FirstNames == "" && donor.AuthorisedSignatory.FirstNames != "" {
+			lpa.AuthorisedSignatory = lpadata.Actor{
+				Type:       actor.TypeAuthorisedSignatory,
+				FirstNames: donor.AuthorisedSignatory.FirstNames,
+				LastName:   donor.AuthorisedSignatory.LastName,
+			}
+		}
+
+		// TODO: remove this once independent witness is in lpa-store
+		if lpa.IndependentWitness.FirstNames == "" && donor.IndependentWitness.FirstNames != "" {
+			lpa.IndependentWitness = lpadata.Actor{
+				Type:       actor.TypeIndependentWitness,
+				FirstNames: donor.IndependentWitness.FirstNames,
+				LastName:   donor.IndependentWitness.LastName,
 			}
 		}
 

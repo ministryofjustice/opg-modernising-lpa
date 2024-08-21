@@ -1276,5 +1276,6 @@
     "toTheBestOfMyKnowledgeDeclaration": "To the best of my knowledge, the person who asked me to vouch for them is {{.DonorFullName}} and I have known them for at least 2 years.",
     "thankYou": "Thank you",
     "youHaveVouchedFor": "You have vouched for {{.DonorFullNamePossessive}} identity.",
-    "voucherThankYouContent": "<p class=\"govuk-body\">You do not need to do anything else.</p><p class=\"govuk-body\">{{.DonorFirstNamesPossessive}} vouching request will no longer appear on your dashboard.</p><p class=\"govuk-body\">You can print this page out for your records if you wish, or close this browsing window.</p>"
+    "voucherThankYouContent": "<p class=\"govuk-body\">You do not need to do anything else.</p><p class=\"govuk-body\">{{.DonorFirstNamesPossessive}} vouching request will no longer appear on your dashboard.</p><p class=\"govuk-body\">You can print this page out for your records if you wish, or close this browsing window.</p>",
+    "youHaveEnteredNameWhichMatchesSomeone": "You have entered a name that matches someone named on {{.DonorFullNamePossessive}} lasting power of attorney (LPA)."
 }
