@@ -1347,5 +1347,8 @@
     "yourDeclarationContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh {{.DonorFullNamePossessive}} {{.DonorFirstNames}} {{.DonorFirstNamesPossessive}}</p>",
     "youMustSelectTheBoxToVouch": "Welsh",
     "iAmVouchingThat": "Welsh {{.VoucherFullName}}",
-    "toTheBestOfMyKnowledgeDeclaration": "Welsh {{.DonorFullName}}"
+    "toTheBestOfMyKnowledgeDeclaration": "Welsh {{.DonorFullName}}",
+    "thankYou": "Welsh",
+    "youHaveVouchedFor": "Welsh {{.DonorFullNamePossessive}}",
+    "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>"
 }

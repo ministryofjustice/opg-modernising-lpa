@@ -1276,5 +1276,8 @@
     "yourDeclarationContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Sign your declaration to vouch for {{.DonorFullNamePossessive}} identity.</p><p class=\"govuk-body\">By signing this declaration, I confirm all of the following:</p><ul class=\"govuk-list govuk-list--bullet\"><li>I am over 18</li><li>I am allowed to vouch for {{.DonorFirstNames}}</li><li>I am not a person named on {{.DonorFirstNamesPossessive}} LPA</li><li>the identity details match my understanding of the person who asked me to vouch for them</li></ul>",
     "youMustSelectTheBoxToVouch": "You must select the box to vouch",
     "iAmVouchingThat": "I, {{.VoucherFullName}}, am vouching that:",
-    "toTheBestOfMyKnowledgeDeclaration": "To the best of my knowledge, the person who asked me to vouch for them is {{.DonorFullName}} and I have known them for at least 2 years."
+    "toTheBestOfMyKnowledgeDeclaration": "To the best of my knowledge, the person who asked me to vouch for them is {{.DonorFullName}} and I have known them for at least 2 years.",
+    "thankYou": "Thank you",
+    "youHaveVouchedFor": "You have vouched for {{.DonorFullNamePossessive}} identity.",
+    "voucherThankYouContent": "<p class=\"govuk-body\">You do not need to do anything else.</p><p class=\"govuk-body\">{{.DonorFirstNamesPossessive}} vouching request will no longer appear on your dashboard.</p><p class=\"govuk-body\">You can print this page out for your records if you wish, or close this browsing window.</p>"
 }

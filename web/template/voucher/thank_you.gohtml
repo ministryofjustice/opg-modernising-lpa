@@ -1,0 +1,22 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "thankYou" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">
+                    {{ tr .App "thankYou" }}
+                </h1>
+                <div class="govuk-panel__body">
+                    {{ trFormat .App "youHaveVouchedFor"
+                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                </div>
+            </div>
+
+            {{ trFormatHtml .App "voucherThankYouContent"
+                "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+        </div>
+    </div>
+{{ end }}

@@ -90,6 +90,10 @@ data "aws_ip_ranges" "route53_healthchecks" {
   provider = aws.region
 }
 
+resource "terraform_data" "ingress_allow_list_cidr" {
+  input = var.ingress_allow_list_cidr
+}
+
 resource "aws_security_group_rule" "mock_pay_loadbalancer_port_80_redirect_ingress" {
   description       = "Port 80 ingress for redirection to port 443"
   type              = "ingress"
@@ -98,7 +102,12 @@ resource "aws_security_group_rule" "mock_pay_loadbalancer_port_80_redirect_ingre
   protocol          = "tcp"
   cidr_blocks       = var.ingress_allow_list_cidr #tfsec:ignore:aws-vpc-no-public-ingress-sgr
   security_group_id = aws_security_group.mock_pay_loadbalancer.id
-  provider          = aws.region
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.ingress_allow_list_cidr
+    ]
+  }
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "mock_pay_loadbalancer_ingress" {
@@ -109,7 +118,12 @@ resource "aws_security_group_rule" "mock_pay_loadbalancer_ingress" {
   protocol          = "tcp"
   cidr_blocks       = var.ingress_allow_list_cidr #tfsec:ignore:aws-vpc-no-public-ingress-sgr
   security_group_id = aws_security_group.mock_pay_loadbalancer.id
-  provider          = aws.region
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.ingress_allow_list_cidr
+    ]
+  }
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {

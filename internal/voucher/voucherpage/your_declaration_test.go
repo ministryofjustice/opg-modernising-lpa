@@ -61,7 +61,7 @@ func TestGetYourDeclarationWhenSigned(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, voucher.PathThankYou.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetYourDeclarationWhenLpaStoreResolvingServiceErrors(t *testing.T) {
@@ -125,7 +125,7 @@ func TestPostYourDeclaration(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, voucher.PathThankYou.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostYourDeclarationWhenValidationError(t *testing.T) {
