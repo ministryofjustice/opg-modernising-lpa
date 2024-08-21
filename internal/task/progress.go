@@ -26,12 +26,17 @@ type ProgressTracker struct {
 }
 
 type ProgressTask struct {
-	State State
-	Label string
+	State             State
+	Label             string
+	NotificationLabel string
+	Completed         time.Time
 }
 
 type Progress struct {
 	isOrganisation            bool
+	FeeEvidenceSubmitted      ProgressTask
+	FeeEvidenceNotification   ProgressTask
+	FeeEvidenceApproved       ProgressTask
 	Paid                      ProgressTask
 	ConfirmedID               ProgressTask
 	DonorSigned               ProgressTask
@@ -45,11 +50,34 @@ type Progress struct {
 
 func (p Progress) ToSlice() []ProgressTask {
 	var list []ProgressTask
+
+	if !p.FeeEvidenceSubmitted.State.IsNotStarted() {
+		list = append(list, p.FeeEvidenceSubmitted)
+
+		if p.FeeEvidenceNotification.State.IsNotStarted() {
+			list = append(list, p.FeeEvidenceApproved, p.DonorSigned)
+		} else {
+			if !p.DonorSigned.State.IsCompleted() {
+				list = append(list, p.FeeEvidenceNotification, p.FeeEvidenceApproved, p.DonorSigned)
+			} else {
+				if p.FeeEvidenceNotification.Completed.Before(p.DonorSigned.Completed) {
+					list = append(list, p.FeeEvidenceNotification, p.DonorSigned, p.FeeEvidenceApproved)
+				} else {
+					list = append(list, p.DonorSigned, p.FeeEvidenceNotification, p.FeeEvidenceApproved)
+				}
+			}
+		}
+	}
+
 	if p.isOrganisation {
 		list = append(list, p.Paid, p.ConfirmedID)
 	}
 
-	list = append(list, p.DonorSigned, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
+	if p.FeeEvidenceSubmitted.State.IsNotStarted() {
+		list = append(list, p.DonorSigned)
+	}
+
+	list = append(list, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
 
 	if p.NoticesOfIntentSent.State.IsCompleted() {
 		list = append(list, p.NoticesOfIntentSent)

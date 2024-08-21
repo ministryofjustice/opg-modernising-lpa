@@ -65,11 +65,67 @@ func TestProgressToSlice(t *testing.T) {
 				p.LpaRegistered,
 			}
 		},
+		"donor with fee evidence pre signing": func(p Progress) (Progress, []ProgressTask) {
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceApproved,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"donor with fee evidence pre signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"donor with fee evidence post signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.DonorSigned.State = StateCompleted
+			p.DonorSigned.Completed = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.DonorSigned,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
 	}
 
 	for name, fn := range testcases {
 		t.Run(name, func(t *testing.T) {
 			progress, slice := fn(Progress{
+				FeeEvidenceSubmitted:      ProgressTask{State: StateNotStarted, Label: "Fee evidence submitted translation"},
+				FeeEvidenceNotification:   ProgressTask{State: StateNotStarted, Label: "Fee evidence notification translation"},
+				FeeEvidenceApproved:       ProgressTask{State: StateNotStarted, Label: "Fee evidence approved translation"},
 				Paid:                      ProgressTask{State: StateNotStarted, Label: "Paid translation"},
 				ConfirmedID:               ProgressTask{State: StateNotStarted, Label: "ConfirmedID translation"},
 				DonorSigned:               ProgressTask{State: StateInProgress, Label: "DonorSigned translation"},
