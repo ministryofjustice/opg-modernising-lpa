@@ -10,7 +10,7 @@ type Correspondent struct {
 	LastName     string
 	Email        string
 	Organisation string
-	Telephone    string
+	Phone        string
 	WantAddress  form.YesNo
 	Address      place.Address
 }

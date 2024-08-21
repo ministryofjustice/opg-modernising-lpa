@@ -12,7 +12,7 @@
         {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
         {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-25" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
         {{ template "input" (input . "organisation" "organisationOptional" .Form.Organisation "classes" "govuk-input--width-25") }}
-        {{ template "input" (input . "telephone" "phoneNumberOptional" .Form.Telephone "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+        {{ template "input" (input . "phone" "phoneNumberOptional" .Form.Phone "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
 
         <div class="govuk-form-group {{ if .Errors.Has .Form.WantAddress.FieldName }}govuk-form-group--error{{ end }}">
           <fieldset class="govuk-fieldset" aria-describedby="address-hint">
@@ -30,7 +30,7 @@
             ) }}
           </fieldset>
         </div>
-        
+
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
       </form>
