@@ -1,8 +1,11 @@
 package lpadata
 
 import (
+	"iter"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -28,6 +31,8 @@ type Lpa struct {
 	Restrictions                               string
 	WhenCanTheLpaBeUsed                        CanBeUsedWhen
 	LifeSustainingTreatmentOption              LifeSustainingTreatment
+	AuthorisedSignatory                        Actor
+	IndependentWitness                         Actor
 
 	// SignedAt is the date the Donor signed their LPA (and signifies it has been
 	// witnessed by their CertificateProvider)
@@ -98,4 +103,80 @@ func (l Lpa) AllAttorneysSigned() bool {
 	}
 
 	return true
+}
+
+type Actor struct {
+	Type       actor.Type
+	UID        actoruid.UID
+	FirstNames string
+	LastName   string
+}
+
+// Actors returns an iterator over all human actors named on the LPA (i.e. this
+// excludes trust corporations, the correspondent, and the voucher).
+func (l Lpa) Actors() iter.Seq[Actor] {
+	return func(yield func(Actor) bool) {
+		if !yield(Actor{
+			Type:       actor.TypeDonor,
+			UID:        l.Donor.UID,
+			FirstNames: l.Donor.FirstNames,
+			LastName:   l.Donor.LastName,
+		}) {
+			return
+		}
+
+		if !yield(Actor{
+			Type:       actor.TypeCertificateProvider,
+			UID:        l.CertificateProvider.UID,
+			FirstNames: l.CertificateProvider.FirstNames,
+			LastName:   l.CertificateProvider.LastName,
+		}) {
+			return
+		}
+
+		for _, attorney := range l.Attorneys.Attorneys {
+			if !yield(Actor{
+				Type:       actor.TypeAttorney,
+				UID:        attorney.UID,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+			}) {
+				return
+			}
+		}
+
+		for _, attorney := range l.ReplacementAttorneys.Attorneys {
+			if !yield(Actor{
+				Type:       actor.TypeReplacementAttorney,
+				UID:        attorney.UID,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+			}) {
+				return
+			}
+		}
+
+		for _, person := range l.PeopleToNotify {
+			if !yield(Actor{
+				Type:       actor.TypePersonToNotify,
+				UID:        person.UID,
+				FirstNames: person.FirstNames,
+				LastName:   person.LastName,
+			}) {
+				return
+			}
+		}
+
+		if l.AuthorisedSignatory.FirstNames != "" {
+			if !yield(l.AuthorisedSignatory) {
+				return
+			}
+		}
+
+		if l.IndependentWitness.FirstNames != "" {
+			if !yield(l.IndependentWitness) {
+				return
+			}
+		}
+	}
 }
