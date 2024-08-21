@@ -145,7 +145,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if metadataURL != "" {
 		region, err = awsRegion(metadataURL)
 		if err != nil {
-			logger.Warn("error getting region:", err)
+			logger.Warn("error getting region:", slog.Any("err", err))
 		}
 	}
 

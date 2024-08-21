@@ -1347,5 +1347,6 @@
     "toTheBestOfMyKnowledgeDeclaration": "Welsh {{.DonorFullName}}",
     "thankYou": "Welsh",
     "youHaveVouchedFor": "Welsh {{.DonorFullNamePossessive}}",
-    "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>"
+    "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>",
+    "youHaveEnteredNameWhichMatchesSomeone": "Welsh {{.DonorFullNamePossessive}}"
 }

@@ -1,9 +1,12 @@
 package lpadata
 
 import (
+	"slices"
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -86,4 +89,97 @@ func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
 		Correspondent: Correspondent{Email: "correspondent"},
 	}
 	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
+}
+
+func TestLpaActors(t *testing.T) {
+	authorisedSignatory := Actor{UID: actoruid.New()}
+	independentWitness := Actor{UID: actoruid.New()}
+
+	lpa := &Lpa{
+		Donor: Donor{
+			UID:        actoruid.New(),
+			FirstNames: "Sam",
+			LastName:   "Smith",
+		},
+		CertificateProvider: CertificateProvider{
+			UID:        actoruid.New(),
+			FirstNames: "Charlie",
+			LastName:   "Cooper",
+		},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{
+				UID:        actoruid.New(),
+				FirstNames: "Alan",
+				LastName:   "Attorney",
+			}, {
+				UID:        actoruid.New(),
+				FirstNames: "Angela",
+				LastName:   "Attorney",
+			}},
+			TrustCorporation: TrustCorporation{Name: "Trusty"},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys: []Attorney{{
+				UID:        actoruid.New(),
+				FirstNames: "Richard",
+				LastName:   "Replacement",
+			}, {
+				UID:        actoruid.New(),
+				FirstNames: "Rachel",
+				LastName:   "Replacement",
+			}},
+			TrustCorporation: TrustCorporation{Name: "Untrusty"},
+		},
+		PeopleToNotify: []PersonToNotify{{
+			UID:        actoruid.New(),
+			FirstNames: "Peter",
+			LastName:   "Person",
+		}},
+		AuthorisedSignatory: authorisedSignatory,
+		IndependentWitness:  independentWitness,
+		Correspondent:       Correspondent{FirstNames: "Nope"},
+		Voucher:             Voucher{FirstNames: "Nada"},
+	}
+
+	actors := slices.Collect(lpa.Actors())
+
+	assert.Equal(t, []Actor{{
+		Type:       actor.TypeDonor,
+		UID:        lpa.Donor.UID,
+		FirstNames: "Sam",
+		LastName:   "Smith",
+	}, {
+		Type:       actor.TypeCertificateProvider,
+		UID:        lpa.CertificateProvider.UID,
+		FirstNames: "Charlie",
+		LastName:   "Cooper",
+	}, {
+		Type:       actor.TypeAttorney,
+		UID:        lpa.Attorneys.Attorneys[0].UID,
+		FirstNames: "Alan",
+		LastName:   "Attorney",
+	}, {
+		Type:       actor.TypeAttorney,
+		UID:        lpa.Attorneys.Attorneys[1].UID,
+		FirstNames: "Angela",
+		LastName:   "Attorney",
+	}, {
+		Type:       actor.TypeReplacementAttorney,
+		UID:        lpa.ReplacementAttorneys.Attorneys[0].UID,
+		FirstNames: "Richard",
+		LastName:   "Replacement",
+	}, {
+		Type:       actor.TypeReplacementAttorney,
+		UID:        lpa.ReplacementAttorneys.Attorneys[1].UID,
+		FirstNames: "Rachel",
+		LastName:   "Replacement",
+	}, {
+		Type:       actor.TypePersonToNotify,
+		UID:        lpa.PeopleToNotify[0].UID,
+		FirstNames: "Peter",
+		LastName:   "Person",
+	},
+		authorisedSignatory,
+		independentWitness,
+	}, actors)
 }
