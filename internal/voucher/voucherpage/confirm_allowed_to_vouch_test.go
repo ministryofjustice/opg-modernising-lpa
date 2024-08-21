@@ -31,11 +31,12 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &confirmAllowedToVouchData{
-			App: testAppData,
+			App:  testAppData,
+			Form: form.NewYesNoForm(form.YesNoUnknown),
 			Lpa: &lpadata.Lpa{
 				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 			},
-			Form: form.NewYesNoForm(form.YesNoUnknown),
+			SurnameMatchesDonor: true,
 		}).
 		Return(nil)
 
