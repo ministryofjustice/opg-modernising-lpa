@@ -3,16 +3,20 @@ package voucherdata
 import (
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestProvidedFullName(t *testing.T) {
-	assert.Equal(t, "John Smith", Provided{FirstNames: "John", LastName: "Smith"}.FullName())
+	provided := &Provided{FirstNames: "John", LastName: "Smith"}
+
+	assert.Equal(t, "John Smith", provided.FullName())
 }
 
 func TestProvidedIdentityConfirmed(t *testing.T) {
-	assert.True(t, Provided{
+	provided := &Provided{
 		FirstNames: "X",
 		LastName:   "Y",
 		IdentityUserData: identity.UserData{
@@ -20,11 +24,13 @@ func TestProvidedIdentityConfirmed(t *testing.T) {
 			FirstNames: "X",
 			LastName:   "Y",
 		},
-	}.IdentityConfirmed())
+	}
+
+	assert.True(t, provided.IdentityConfirmed())
 }
 
 func TestProvidedIdentityConfirmedWhenNameNotMatch(t *testing.T) {
-	assert.False(t, Provided{
+	provided := &Provided{
 		FirstNames: "A",
 		LastName:   "Y",
 		IdentityUserData: identity.UserData{
@@ -32,11 +38,13 @@ func TestProvidedIdentityConfirmedWhenNameNotMatch(t *testing.T) {
 			FirstNames: "X",
 			LastName:   "Y",
 		},
-	}.IdentityConfirmed())
+	}
+
+	assert.False(t, provided.IdentityConfirmed())
 }
 
 func TestProvidedIdentityConfirmedWhenNotConfirmed(t *testing.T) {
-	assert.False(t, Provided{
+	provided := &Provided{
 		FirstNames: "X",
 		LastName:   "Y",
 		IdentityUserData: identity.UserData{
@@ -44,5 +52,28 @@ func TestProvidedIdentityConfirmedWhenNotConfirmed(t *testing.T) {
 			FirstNames: "X",
 			LastName:   "Y",
 		},
-	}.IdentityConfirmed())
+	}
+
+	assert.False(t, provided.IdentityConfirmed())
+}
+
+func TestProvidedNameMatches(t *testing.T) {
+	provided := &Provided{FirstNames: "A", LastName: "B"}
+	lpa := &lpadata.Lpa{Voucher: lpadata.Voucher{FirstNames: "A", LastName: "B"}}
+
+	assert.Equal(t, actor.TypeNone, provided.NameMatches(lpa))
+}
+
+func TestProvidedNameMatchesWhenUnset(t *testing.T) {
+	provided := &Provided{}
+	lpa := &lpadata.Lpa{}
+
+	assert.Equal(t, actor.TypeNone, provided.NameMatches(lpa))
+}
+
+func TestProvidedNameMatchesWhenMatch(t *testing.T) {
+	provided := &Provided{FirstNames: "A", LastName: "B"}
+	lpa := &lpadata.Lpa{Donor: lpadata.Donor{FirstNames: "A", LastName: "B"}}
+
+	assert.Equal(t, actor.TypeDonor, provided.NameMatches(lpa))
 }
