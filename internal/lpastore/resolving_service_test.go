@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -39,8 +40,10 @@ func TestResolvingServiceGet(t *testing.T) {
 					Status:      identity.StatusConfirmed,
 					RetrievedAt: time.Now(),
 				},
-				Correspondent: donordata.Correspondent{Email: "x"},
-				Voucher:       donordata.Voucher{Allowed: true, Email: "y"},
+				Correspondent:       donordata.Correspondent{Email: "x"},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A", LastName: "S"},
+				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I", LastName: "W"},
+				Voucher:             donordata.Voucher{Allowed: true, Email: "y"},
 			},
 			resolved: &lpadata.Lpa{
 				LpaID: "1",
@@ -62,7 +65,17 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
 				Correspondent: lpadata.Correspondent{Email: "x"},
-				Voucher:       lpadata.Voucher{Email: "y"},
+				AuthorisedSignatory: lpadata.Actor{
+					Type:       actor.TypeAuthorisedSignatory,
+					FirstNames: "A",
+					LastName:   "S",
+				},
+				IndependentWitness: lpadata.Actor{
+					Type:       actor.TypeIndependentWitness,
+					FirstNames: "I",
+					LastName:   "W",
+				},
+				Voucher: lpadata.Voucher{Email: "y"},
 			},
 		},
 		"online with no lpastore record": {
