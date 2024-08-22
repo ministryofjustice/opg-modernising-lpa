@@ -28,7 +28,7 @@ resource "aws_route53_health_check" "service_health_check" {
   request_interval  = 30
   resource_path     = "/health-check/service"
   measure_latency   = true
-  regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
+  regions           = ["us-east-1", "eu-west-1", "us-west-2"]
   tags = {
     Name = "${data.aws_default_tags.current.tags.environment-name} service health check"
   }
@@ -100,7 +100,7 @@ resource "aws_route53_health_check" "dependency_health_check" {
   request_interval  = 30
   resource_path     = "/health-check/dependency"
   measure_latency   = true
-  regions           = ["us-east-1", "eu-west-1", "ap-southeast-1"]
+  regions           = ["us-east-1", "eu-west-1", "us-west-2"]
   tags = {
     Name = "${data.aws_default_tags.current.tags.environment-name} dependency health check"
   }
