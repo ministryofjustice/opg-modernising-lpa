@@ -26,6 +26,28 @@ describe('Confirm your identity', () => {
         cy.contains('I’m vouching for someone');
     });
 
+    it('warns when matches another actor', () => {
+        cy.visitLpa('/your-name');
+        cy.get('#f-first-names').clear().type('Charlie');
+        cy.get('#f-last-name').clear().type('Cooper');
+        cy.contains('button', 'Save and continue').click();
+        cy.contains('button', 'Continue').click();
+        cy.visitLpa('/confirm-your-identity');
+
+        cy.checkA11yApp();
+        cy.contains('a', 'Continue').click();
+        cy.contains('label', 'Charlie Cooper').click();
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/confirm-allowed-to-vouch');
+        cy.checkA11yApp();
+        cy.contains('Your confirmed identity details match someone');
+
+        cy.contains('label', 'Yes').click();
+        cy.contains('button', 'Continue').click();
+        cy.get('ul li:nth-child(3)').should('contain', 'Completed');
+    });
+
     it('can fail', () => {
         cy.contains('a', 'Continue').click();
         cy.contains('label', 'Sam Smith').click();

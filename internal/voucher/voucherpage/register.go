@@ -208,7 +208,7 @@ func makeVoucherHandle(mux *http.ServeMux, store SessionStore, errorHandler page
 				return
 			}
 
-			if !voucher.CanGoTo(provided, r.URL.String()) {
+			if !path.CanGoTo(provided) {
 				voucher.PathTaskList.Redirect(w, r, appData, provided.LpaID)
 				return
 			}

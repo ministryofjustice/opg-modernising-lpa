@@ -40,6 +40,27 @@ describe('Confirm your name', () => {
 
         cy.url().should('contain', '/confirm-allowed-to-vouch');
         cy.checkA11yApp();
+        cy.contains('surname matches your surname');
+
+        cy.contains('label', 'Yes').click();
+        cy.contains('button', 'Continue').click();
+        cy.get('ul li:first-child').should('contain', 'Completed');
+    });
+
+    it('warns when name matches another actor', () => {
+        cy.contains('div', 'Vivian').contains('a', 'Change').click();
+
+        cy.url().should('contain', '/your-name')
+        cy.checkA11yApp();
+        cy.get('#f-first-names').clear().type('Charlie');
+        cy.get('#f-last-name').clear().type('Cooper');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('button', 'Continue').click();
+
+        cy.url().should('contain', '/confirm-allowed-to-vouch');
+        cy.checkA11yApp();
+        cy.contains('You have entered a name that matches someone');
 
         cy.contains('label', 'Yes').click();
         cy.contains('button', 'Continue').click();
