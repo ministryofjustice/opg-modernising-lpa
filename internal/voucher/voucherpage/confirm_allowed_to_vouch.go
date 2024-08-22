@@ -15,10 +15,11 @@ import (
 )
 
 type confirmAllowedToVouchData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
-	Lpa    *lpadata.Lpa
+	App                 appcontext.Data
+	Errors              validation.List
+	Form                *form.YesNoForm
+	Lpa                 *lpadata.Lpa
+	SurnameMatchesDonor bool
 }
 
 func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore) Handler {
@@ -29,9 +30,10 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 		}
 
 		data := &confirmAllowedToVouchData{
-			App:  appData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
-			Lpa:  lpa,
+			App:                 appData,
+			Form:                form.NewYesNoForm(form.YesNoUnknown),
+			Lpa:                 lpa,
+			SurnameMatchesDonor: provided.LastName == lpa.Donor.LastName,
 		}
 
 		if r.Method == http.MethodPost {
