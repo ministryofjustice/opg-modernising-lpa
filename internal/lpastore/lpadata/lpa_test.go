@@ -92,8 +92,8 @@ func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
 }
 
 func TestLpaActors(t *testing.T) {
-	authorisedSignatory := Actor{UID: actoruid.New()}
-	independentWitness := Actor{UID: actoruid.New()}
+	authorisedSignatory := actor.Actor{UID: actoruid.New()}
+	independentWitness := actor.Actor{UID: actoruid.New()}
 
 	lpa := &Lpa{
 		Donor: Donor{
@@ -143,7 +143,7 @@ func TestLpaActors(t *testing.T) {
 
 	actors := slices.Collect(lpa.Actors())
 
-	assert.Equal(t, []Actor{{
+	assert.Equal(t, []actor.Actor{{
 		Type:       actor.TypeDonor,
 		UID:        lpa.Donor.UID,
 		FirstNames: "Sam",
