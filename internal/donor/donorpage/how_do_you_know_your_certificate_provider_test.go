@@ -116,7 +116,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks: donordata.Tasks{
+					Tasks: task.DonorTasks{
 						YourDetails:     task.StateCompleted,
 						ChooseAttorneys: task.StateCompleted,
 					},
@@ -126,7 +126,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: donordata.CertificateProvider{FirstNames: "John"},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					YourDetails:     task.StateCompleted,
 					ChooseAttorneys: task.StateCompleted,
 				},
@@ -186,7 +186,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 				Put(r.Context(), &donordata.Provided{
 					LpaID:               "lpa-id",
 					CertificateProvider: tc.updatedCertificateProviderDetails,
-					Tasks: donordata.Tasks{
+					Tasks: task.DonorTasks{
 						YourDetails:         task.StateCompleted,
 						ChooseAttorneys:     task.StateCompleted,
 						CertificateProvider: task.StateInProgress,
@@ -197,7 +197,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 			err := HowDoYouKnowYourCertificateProvider(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:               "lpa-id",
 				CertificateProvider: tc.existingCertificateProviderDetails,
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					YourDetails:         task.StateCompleted,
 					ChooseAttorneys:     task.StateCompleted,
 					CertificateProvider: task.StateCompleted,

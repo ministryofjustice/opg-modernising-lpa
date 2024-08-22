@@ -53,7 +53,7 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"more evidence required": {
 			appData:          testAppData,
-			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}},
+			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: task.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -65,7 +65,7 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"fee denied": {
 			appData:          testAppData,
-			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateDenied}},
+			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: task.DonorTasks{PayForLpa: task.PaymentStateDenied}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -77,7 +77,7 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"fee approved": {
 			appData:          testAppData,
-			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateApproved}},
+			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: task.DonorTasks{PayForLpa: task.PaymentStateApproved}},
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
@@ -290,7 +290,7 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 				}},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
 					ChooseReplacementAttorneys: task.StateInProgress,
@@ -337,7 +337,7 @@ func TestGetTaskList(t *testing.T) {
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 				}},
 				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
 					ChooseReplacementAttorneys: task.StateCompleted,
@@ -393,7 +393,7 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 				}},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
 					ChooseReplacementAttorneys: task.StateInProgress,

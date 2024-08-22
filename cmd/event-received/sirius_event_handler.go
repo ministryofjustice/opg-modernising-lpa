@@ -150,7 +150,7 @@ func handleFeeApproved(
 }
 
 func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
-	var v uidEvent
+	var v furtherInfoRequestedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
@@ -165,9 +165,10 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 	}
 
 	donor.Tasks.PayForLpa = task.PaymentStateMoreEvidenceRequired
+	donor.Notifications.FeeEvidence.Received = v.PostedDate
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
-		return fmt.Errorf("failed to update LPA task status: %w", err)
+		return fmt.Errorf("failed to update LPA task status and notification: %w", err)
 	}
 
 	return nil

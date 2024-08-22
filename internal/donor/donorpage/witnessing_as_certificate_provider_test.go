@@ -114,7 +114,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: testNow,
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
@@ -149,7 +149,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
-				Tasks:                            donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+				Tasks:                            task.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
 				WitnessCodeLimiter:               testLimiter(),
 			})
@@ -178,7 +178,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		WitnessedByCertificateProviderAt: testNow,
-		Tasks: donordata.Tasks{
+		Tasks: task.DonorTasks{
 			PayForLpa:                  task.PaymentStatePending,
 			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
 		},
@@ -193,7 +193,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
-		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStatePending},
+		Tasks:                    task.DonorTasks{PayForLpa: task.PaymentStatePending},
 		WitnessCodeLimiter:       testLimiter(),
 	})
 	resp := w.Result()
@@ -237,7 +237,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
-		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		Tasks:                    task.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 		WitnessCodeLimiter:       testLimiter(),
 	})
 	assert.Equal(t, expectedError, err)
@@ -272,7 +272,7 @@ func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) 
 		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
-		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		Tasks:                    task.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 		WitnessCodeLimiter:       testLimiter(),
 	})
 	assert.Equal(t, expectedError, err)
@@ -300,7 +300,7 @@ func TestPostWitnessingAsCertificateProviderWhenShareCodeSendToCertificateProvid
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
-		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		Tasks:                    task.DonorTasks{PayForLpa: task.PaymentStateCompleted},
 		WitnessCodeLimiter:       testLimiter(),
 	})
 

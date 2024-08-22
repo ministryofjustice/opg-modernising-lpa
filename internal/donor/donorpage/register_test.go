@@ -179,7 +179,7 @@ func TestMakeLpaHandleWhenDetailsProvidedAndUIDExists(t *testing.T) {
 					Email:       "a@example.com",
 				},
 					Type:   lpadata.LpaTypePropertyAndAffairs,
-					Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
+					Tasks:  task.DonorTasks{YourDetails: task.StateCompleted},
 					LpaUID: "a-uid",
 				}, nil)
 
@@ -225,7 +225,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Address:     place.Address{Postcode: "ABC123"},
 		},
 			Type:   lpadata.LpaTypePropertyAndAffairs,
-			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
+			Tasks:  task.DonorTasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}, nil)
 	donorStore.EXPECT().
@@ -237,7 +237,7 @@ func TestMakeHandleLpaWhenDonorEmailNotSet(t *testing.T) {
 			Email:       "a@example.com",
 		},
 			Type:   lpadata.LpaTypePropertyAndAffairs,
-			Tasks:  donordata.Tasks{YourDetails: task.StateCompleted},
+			Tasks:  task.DonorTasks{YourDetails: task.StateCompleted},
 			LpaUID: "a-uid",
 		}).
 		Return(nil)

@@ -5,6 +5,8 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 )
 
 type Localizer interface {
@@ -26,10 +28,9 @@ type ProgressTracker struct {
 }
 
 type ProgressTask struct {
-	State             State
-	Label             string
-	NotificationLabel string
-	Completed         time.Time
+	State     State
+	Label     string
+	Completed time.Time
 }
 
 type Progress struct {
@@ -54,27 +55,37 @@ func (p Progress) ToSlice() []ProgressTask {
 	if !p.FeeEvidenceSubmitted.State.IsNotStarted() {
 		list = append(list, p.FeeEvidenceSubmitted)
 
-		if p.FeeEvidenceNotification.State.IsNotStarted() {
-			list = append(list, p.FeeEvidenceApproved, p.DonorSigned)
-		} else {
-			if !p.DonorSigned.State.IsCompleted() {
-				list = append(list, p.FeeEvidenceNotification, p.FeeEvidenceApproved, p.DonorSigned)
+		if !p.isOrganisation {
+			if p.FeeEvidenceNotification.State.IsNotStarted() {
+				list = append(list, p.FeeEvidenceApproved, p.DonorSigned)
 			} else {
-				if p.FeeEvidenceNotification.Completed.Before(p.DonorSigned.Completed) {
+				if !p.DonorSigned.State.IsCompleted() {
+					list = append(list, p.FeeEvidenceNotification, p.FeeEvidenceApproved, p.DonorSigned)
+				} else if p.FeeEvidenceNotification.Completed.Before(p.DonorSigned.Completed) {
 					list = append(list, p.FeeEvidenceNotification, p.DonorSigned, p.FeeEvidenceApproved)
 				} else {
 					list = append(list, p.DonorSigned, p.FeeEvidenceNotification, p.FeeEvidenceApproved)
 				}
 			}
+		} else {
+			if p.FeeEvidenceNotification.State.IsNotStarted() {
+				list = append(list, p.FeeEvidenceApproved, p.Paid, p.ConfirmedID, p.DonorSigned)
+			} else {
+				if !p.DonorSigned.State.IsCompleted() {
+					list = append(list, p.FeeEvidenceNotification, p.FeeEvidenceApproved, p.Paid, p.ConfirmedID, p.DonorSigned)
+				} else if p.FeeEvidenceNotification.Completed.Before(p.DonorSigned.Completed) {
+					list = append(list, p.FeeEvidenceNotification, p.DonorSigned, p.FeeEvidenceApproved, p.Paid, p.ConfirmedID)
+				} else {
+					list = append(list, p.DonorSigned, p.FeeEvidenceNotification, p.FeeEvidenceApproved, p.Paid, p.ConfirmedID)
+				}
+			}
 		}
-	}
-
-	if p.isOrganisation {
-		list = append(list, p.Paid, p.ConfirmedID)
-	}
-
-	if p.FeeEvidenceSubmitted.State.IsNotStarted() {
-		list = append(list, p.DonorSigned)
+	} else {
+		if p.isOrganisation {
+			list = append(list, p.Paid, p.ConfirmedID, p.DonorSigned)
+		} else {
+			list = append(list, p.DonorSigned)
+		}
 	}
 
 	list = append(list, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
@@ -88,7 +99,7 @@ func (p Progress) ToSlice() []ProgressTask {
 	return list
 }
 
-func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
+func (pt ProgressTracker) Progress(lpa *lpadata.Lpa, donorTasks DonorTasks, notifications notification.Notifications, feeType pay.FeeType) Progress {
 	var labels map[string]string
 
 	if lpa.IsOrganisationDonor {
@@ -112,6 +123,31 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 			"statutoryWaitingPeriod":    pt.Localizer.T("theWaitingPeriodHasStarted"),
 			"lpaRegistered":             pt.Localizer.T("theLpaHasBeenRegistered"),
 		}
+
+		if !feeType.IsFullFee() {
+			donorFullNamePossessive := pt.Localizer.Possessive(lpa.Donor.FullName())
+
+			labels["feeEvidenceSubmitted"] = pt.Localizer.Format(
+				"donorNamesLPAFeeEvidenceHasBeenSubmitted",
+				map[string]interface{}{"DonorFullNamePossessive": donorFullNamePossessive},
+			)
+
+			if !notifications.FeeEvidence.Received.IsZero() {
+				labels["feeEvidenceNotification"] = pt.Localizer.Format(
+					"weEmailedDonorNameOnAbout",
+					map[string]interface{}{
+						"On":            pt.Localizer.FormatDate(notifications.FeeEvidence.Received),
+						"About":         pt.Localizer.T("theFee"),
+						"DonorFullName": lpa.Donor.FullName(),
+					},
+				)
+			}
+
+			labels["feeEvidenceApproved"] = pt.Localizer.Format(
+				"donorNamesLPAFeeEvidenceHasBeenApproved",
+				map[string]interface{}{"DonorFullNamePossessive": donorFullNamePossessive},
+			)
+		}
 	} else {
 		labels = map[string]string{
 			"donorSigned":            pt.Localizer.T("youveSignedYourLpa"),
@@ -120,6 +156,22 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 			"noticesOfIntentSent":    "weSentAnEmailYourLpaIsReadyToRegister",
 			"statutoryWaitingPeriod": pt.Localizer.T("yourWaitingPeriodHasStarted"),
 			"lpaRegistered":          pt.Localizer.T("yourLpaHasBeenRegistered"),
+		}
+
+		if !feeType.IsFullFee() {
+			labels["feeEvidenceSubmitted"] = pt.Localizer.T("yourLPAFeeEvidenceHasBeenSubmitted")
+
+			if !notifications.FeeEvidence.Received.IsZero() {
+				labels["feeEvidenceNotification"] = pt.Localizer.Format(
+					"weEmailedYouOnAbout",
+					map[string]interface{}{
+						"On":    pt.Localizer.FormatDate(notifications.FeeEvidence.Received),
+						"About": pt.Localizer.T("yourFee"),
+					},
+				)
+			}
+
+			labels["feeEvidenceApproved"] = pt.Localizer.T("yourLPAFeeEvidenceHasBeenApproved")
 		}
 
 		if lpa.CertificateProvider.FirstNames != "" {
@@ -134,6 +186,19 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 
 	progress := Progress{
 		isOrganisation: lpa.IsOrganisationDonor,
+		FeeEvidenceSubmitted: ProgressTask{
+			State: StateNotStarted,
+			Label: labels["feeEvidenceSubmitted"],
+		},
+		FeeEvidenceNotification: ProgressTask{
+			State:     StateNotStarted,
+			Label:     labels["feeEvidenceNotification"],
+			Completed: notifications.FeeEvidence.Received,
+		},
+		FeeEvidenceApproved: ProgressTask{
+			State: StateNotStarted,
+			Label: labels["feeEvidenceApproved"],
+		},
 		Paid: ProgressTask{
 			State: StateNotStarted,
 			Label: labels["paid"],
@@ -143,8 +208,9 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 			Label: labels["confirmedID"],
 		},
 		DonorSigned: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["donorSigned"],
+			State:     StateNotStarted,
+			Label:     labels["donorSigned"],
+			Completed: lpa.SignedAt,
 		},
 		CertificateProviderSigned: ProgressTask{
 			State: StateNotStarted,
@@ -169,6 +235,28 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 			State: StateNotStarted,
 			Label: labels["lpaRegistered"],
 		},
+	}
+
+	if !feeType.IsFullFee() {
+		progress.FeeEvidenceSubmitted.State = StateCompleted
+
+		if !notifications.FeeEvidence.Received.IsZero() {
+			progress.FeeEvidenceSubmitted.State = StateCompleted
+			progress.FeeEvidenceNotification.State = StateCompleted
+		}
+
+		// donor signed task can move positions when fee evidence tasks exist
+		if !lpa.SignedAt.IsZero() {
+			progress.DonorSigned.State = StateCompleted
+		}
+
+		progress.FeeEvidenceApproved.State = StateInProgress
+
+		if !donorTasks.PayForLpa.IsApproved() && !donorTasks.PayForLpa.IsCompleted() {
+			return progress
+		}
+
+		progress.FeeEvidenceApproved.State = StateCompleted
 	}
 
 	if lpa.IsOrganisationDonor {

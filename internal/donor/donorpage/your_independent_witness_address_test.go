@@ -148,7 +148,7 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 			IndependentWitness: donordata.IndependentWitness{
 				Address: testAddress,
 			},
-			Tasks: donordata.Tasks{
+			Tasks: task.DonorTasks{
 				ChooseYourSignatory: task.StateCompleted,
 			},
 		}).
@@ -210,7 +210,7 @@ func TestPostYourIndependentWitnessAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: donordata.Tasks{
+			Tasks: task.DonorTasks{
 				ChooseYourSignatory: task.StateCompleted,
 			},
 		}).
@@ -578,7 +578,7 @@ func TestPostYourIndependentWitnessAddressReuseSelect(t *testing.T) {
 			IndependentWitness: donordata.IndependentWitness{
 				Address: testAddress,
 			},
-			Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseYourSignatory: task.StateCompleted},
 		}).
 		Return(nil)
 

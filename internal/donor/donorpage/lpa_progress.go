@@ -27,7 +27,7 @@ func LpaProgress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolv
 		data := &lpaProgressData{
 			App:      appData,
 			Donor:    donor,
-			Progress: progressTracker.Progress(lpa),
+			Progress: progressTracker.Progress(lpa, donor.Tasks, donor.Notifications, donor.FeeType),
 		}
 
 		return tmpl(w, data)

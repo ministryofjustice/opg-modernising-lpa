@@ -94,7 +94,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 				LpaID:             "lpa-id",
 				Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithEmail, attorneyWithAddress}},
 				AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-				Tasks:             donordata.Tasks{ChooseAttorneys: task.StateInProgress},
+				Tasks:             task.DonorTasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},
@@ -107,7 +107,7 @@ func TestPostRemoveAttorney(t *testing.T) {
 			updatedDonor: &donordata.Provided{
 				LpaID:     "lpa-id",
 				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{attorneyWithAddress}},
-				Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
+				Tasks:     task.DonorTasks{ChooseAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseAttorneysSummary,
 		},

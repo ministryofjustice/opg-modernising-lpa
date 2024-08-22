@@ -1350,5 +1350,13 @@
     "toTheBestOfMyKnowledgeDeclaration": "Welsh {{.DonorFullName}}",
     "thankYou": "Welsh",
     "youHaveVouchedFor": "Welsh {{.DonorFullNamePossessive}}",
-    "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>"
+    "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>",
+    "donorNamesLPAFeeEvidenceHasBeenSubmitted": "{{.DonorFullNamePossessive}} Welsh",
+    "weEmailedDonorNameOnAbout": "Welsh {{.DonorFullName}} Welsh {{.On}} Welsh {{.About}}",
+    "theFee": "Welsh",
+    "donorNamesLPAFeeEvidenceHasBeenApproved": "{{.DonorFullNamePossessive}} Welsh",
+    "yourLPAFeeEvidenceHasBeenSubmitted": "Welsh",
+    "weEmailedYouOnAbout": "Welsh {{.On}} Welsh {{.About}}",
+    "yourFee": "Welsh",
+    "yourLPAFeeEvidenceHasBeenApproved": "Welsh"
 }

@@ -119,7 +119,7 @@ func TestPostYourAuthorisedSignatory(t *testing.T) {
 					LpaID:               "lpa-id",
 					Donor:               donordata.Donor{FirstNames: "John", LastName: "Smith"},
 					AuthorisedSignatory: tc.person,
-					Tasks:               donordata.Tasks{ChooseYourSignatory: task.StateInProgress},
+					Tasks:               task.DonorTasks{ChooseYourSignatory: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -155,7 +155,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
-			Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseYourSignatory: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -164,7 +164,7 @@ func TestPostYourAuthorisedSignatoryWhenTaskCompleted(t *testing.T) {
 		AuthorisedSignatory: donordata.AuthorisedSignatory{
 			FirstNames: "John",
 		},
-		Tasks: donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
+		Tasks: task.DonorTasks{ChooseYourSignatory: task.StateCompleted},
 	})
 	resp := w.Result()
 

@@ -170,7 +170,7 @@ func TestPostChooseReplacementAttorneysAddressManual(t *testing.T) {
 				FirstNames: "a",
 				Address:    testAddress,
 			}}},
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseReplacementAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -234,7 +234,7 @@ func TestPostChooseReplacementAttorneysAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}}},
-			Tasks: donordata.Tasks{ChooseReplacementAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseReplacementAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -662,7 +662,7 @@ func TestPostChooseReplacementAttorneysAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                "lpa-id",
 			ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{updatedAttorney}},
-			Tasks:                donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
+			Tasks:                task.DonorTasks{ChooseReplacementAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 

@@ -21,11 +21,6 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 	}
 }
 
-type lpaUpdatedEvent struct {
-	UID        string `json:"uid"`
-	ChangeType string `json:"changeType"`
-}
-
 func handleLpaUpdated(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
 	var v lpaUpdatedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {

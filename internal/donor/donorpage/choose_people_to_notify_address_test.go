@@ -158,14 +158,14 @@ func TestPostChoosePeopleToNotifyAddressManual(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:          "lpa-id",
 			PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
+			Tasks:          task.DonorTasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := ChoosePeopleToNotifyAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{{UID: uid}},
-		Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
+		Tasks:          task.DonorTasks{PeopleToNotify: task.StateInProgress},
 	})
 	resp := w.Result()
 
@@ -193,7 +193,7 @@ func TestPostChoosePeopleToNotifyAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			PeopleToNotify: donordata.PeopleToNotify{{UID: uid, Address: testAddress}},
-			Tasks:          donordata.Tasks{PeopleToNotify: task.StateCompleted},
+			Tasks:          task.DonorTasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(expectedError)
 
@@ -227,7 +227,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			}},
-			Tasks: donordata.Tasks{PeopleToNotify: task.StateCompleted},
+			Tasks: task.DonorTasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -238,7 +238,7 @@ func TestPostChoosePeopleToNotifyAddressManualFromStore(t *testing.T) {
 			FirstNames: "John",
 			Address:    place.Address{Line1: "line1"},
 		}},
-		Tasks: donordata.Tasks{PeopleToNotify: task.StateInProgress},
+		Tasks: task.DonorTasks{PeopleToNotify: task.StateInProgress},
 	})
 
 	resp := w.Result()
@@ -618,7 +618,7 @@ func TestPostChoosePeopleToNotifyAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			}},
-			Tasks: donordata.Tasks{PeopleToNotify: task.StateCompleted},
+			Tasks: task.DonorTasks{PeopleToNotify: task.StateCompleted},
 		}).
 		Return(nil)
 

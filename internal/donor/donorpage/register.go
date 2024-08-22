@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -161,7 +162,7 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpadata.Lpa) task.Progress
+	Progress(lpa *lpadata.Lpa, donorTasks task.DonorTasks, notifications notification.Notifications, feeType pay.FeeType) task.Progress
 }
 
 func Register(
