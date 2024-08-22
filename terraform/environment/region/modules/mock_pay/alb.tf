@@ -90,6 +90,14 @@ data "aws_ip_ranges" "route53_healthchecks" {
   provider = aws.region
 }
 
+resource "terraform_data" "route53_healthchecks_cidr_blocks" {
+  input = data.aws_ip_ranges.route53_healthchecks.cidr_blocks
+}
+
+resource "terraform_data" "route53_healthchecks_ipv6_cidr_blocks" {
+  input = data.aws_ip_ranges.route53_healthchecks.ipv6_cidr_blocks
+}
+
 resource "terraform_data" "ingress_allow_list_cidr" {
   input = var.ingress_allow_list_cidr
 }
@@ -135,7 +143,13 @@ resource "aws_security_group_rule" "loadbalancer_ingress_route53_healthchecks" {
   cidr_blocks       = data.aws_ip_ranges.route53_healthchecks.cidr_blocks
   ipv6_cidr_blocks  = data.aws_ip_ranges.route53_healthchecks.ipv6_cidr_blocks
   security_group_id = aws_security_group.mock_pay_loadbalancer.id
-  provider          = aws.region
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.route53_healthchecks_cidr_blocks,
+      terraform_data.route53_healthchecks_ipv6_cidr_blocks
+    ]
+  }
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "mock_pay_loadbalancer_public_access_ingress" {
