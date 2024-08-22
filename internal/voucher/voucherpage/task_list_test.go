@@ -29,6 +29,26 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"identity in progress": {
+			lpa: &lpadata.Lpa{
+				LpaID: "lpa-id",
+				Donor: lpadata.Donor{FirstNames: "John", LastName: "Smith"},
+			},
+			voucher: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName:     task.StateCompleted,
+					VerifyDonorDetails:  task.StateCompleted,
+					ConfirmYourIdentity: task.StateInProgress,
+				},
+			},
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
+				items[2].State = task.StateInProgress
+				items[2].Path = voucher.PathConfirmAllowedToVouch
+				return items
+			},
+		},
 		"completed": {
 			lpa: &lpadata.Lpa{
 				LpaID: "lpa-id",
