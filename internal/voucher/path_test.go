@@ -49,53 +49,48 @@ func TestPathRedirectWhenFrom(t *testing.T) {
 func TestCanGoTo(t *testing.T) {
 	testcases := map[string]struct {
 		provided *voucherdata.Provided
-		url      string
+		path     Path
 		expected bool
 	}{
-		"empty path": {
-			provided: &voucherdata.Provided{},
-			url:      "",
-			expected: false,
-		},
 		"unexpected path": {
 			provided: &voucherdata.Provided{},
-			url:      "/whatever",
+			path:     Path("/whatever"),
 			expected: true,
 		},
 		"unrestricted path": {
 			provided: &voucherdata.Provided{},
-			url:      PathTaskList.Format("123"),
+			path:     PathTaskList,
 			expected: true,
 		},
 		"your name": {
 			provided: &voucherdata.Provided{},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
 			expected: true,
 		},
 		"your name when identity completed": {
 			provided: &voucherdata.Provided{
 				Tasks: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
 			},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
 			expected: false,
 		},
 		"verify donor details": {
 			provided: &voucherdata.Provided{},
-			url:      PathVerifyDonorDetails.Format("123"),
+			path:     PathVerifyDonorDetails,
 			expected: false,
 		},
 		"verify donor details when previous task completed": {
 			provided: &voucherdata.Provided{
 				Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
 			},
-			url:      PathVerifyDonorDetails.Format("123"),
+			path:     PathVerifyDonorDetails,
 			expected: true,
 		},
 		"verify donor details when already verified": {
 			provided: &voucherdata.Provided{
 				Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted, VerifyDonorDetails: task.StateCompleted},
 			},
-			url:      PathVerifyDonorDetails.Format("123"),
+			path:     PathVerifyDonorDetails,
 			expected: false,
 		},
 		"confirm your identity": {
@@ -104,7 +99,7 @@ func TestCanGoTo(t *testing.T) {
 					ConfirmYourName: task.StateCompleted,
 				},
 			},
-			url:      PathConfirmYourIdentity.Format("123"),
+			path:     PathConfirmYourIdentity,
 			expected: false,
 		},
 		"confirm your identity when previous task completed": {
@@ -114,7 +109,7 @@ func TestCanGoTo(t *testing.T) {
 					VerifyDonorDetails: task.StateCompleted,
 				},
 			},
-			url:      PathConfirmYourIdentity.Format("123"),
+			path:     PathConfirmYourIdentity,
 			expected: true,
 		},
 		"sign the declaration": {
@@ -124,7 +119,7 @@ func TestCanGoTo(t *testing.T) {
 					VerifyDonorDetails: task.StateCompleted,
 				},
 			},
-			url:      PathSignTheDeclaration.Format("123"),
+			path:     PathSignTheDeclaration,
 			expected: false,
 		},
 		"sign the declaration when previous task completed": {
@@ -135,14 +130,14 @@ func TestCanGoTo(t *testing.T) {
 					ConfirmYourIdentity: task.StateCompleted,
 				},
 			},
-			url:      PathSignTheDeclaration.Format("123"),
+			path:     PathSignTheDeclaration,
 			expected: true,
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.provided, tc.url))
+			assert.Equal(t, tc.expected, tc.path.CanGoTo(tc.provided))
 		})
 	}
 }

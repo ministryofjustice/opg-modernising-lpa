@@ -2,7 +2,6 @@ package voucher
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -65,18 +64,4 @@ func (p Path) CanGoTo(provided *voucherdata.Provided) bool {
 	default:
 		return true
 	}
-}
-
-func CanGoTo(provided *voucherdata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/voucher/") {
-		_, voucherPath, _ := strings.Cut(strings.TrimPrefix(path, "/voucher/"), "/")
-		return Path("/" + voucherPath).CanGoTo(provided)
-	}
-
-	return true
 }
