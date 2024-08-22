@@ -47,7 +47,7 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 func (p Path) CanGoTo(provided *voucherdata.Provided) bool {
 	switch p {
 	case PathYourName:
-		return !provided.Tasks.ConfirmYourIdentity.IsCompleted()
+		return provided.Tasks.ConfirmYourIdentity.IsNotStarted()
 
 	case PathVerifyDonorDetails:
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&

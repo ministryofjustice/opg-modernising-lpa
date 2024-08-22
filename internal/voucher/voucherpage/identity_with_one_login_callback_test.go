@@ -23,56 +23,85 @@ import (
 
 func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	now := time.Now()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
-
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 
-	updatedVoucher := &voucherdata.Provided{
-		LpaID:            "lpa-id",
-		FirstNames:       "John",
-		LastName:         "Doe",
-		IdentityUserData: userData,
-		Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+	testcases := map[string]struct {
+		lpa            *lpadata.Lpa
+		updatedVoucher *voucherdata.Provided
+		redirect       voucher.Path
+	}{
+		"confirmed": {
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid", Voucher: lpadata.Voucher{FirstNames: "John", LastName: "Doe"}},
+			updatedVoucher: &voucherdata.Provided{
+				LpaID:            "lpa-id",
+				FirstNames:       "John",
+				LastName:         "Doe",
+				IdentityUserData: userData,
+				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+			},
+			redirect: voucher.PathOneLoginIdentityDetails,
+		},
+		"matches other actor": {
+			lpa: &lpadata.Lpa{
+				LpaUID:  "lpa-uid",
+				Donor:   lpadata.Donor{FirstNames: "John", LastName: "Doe"},
+				Voucher: lpadata.Voucher{FirstNames: "John", LastName: "Doe"},
+			},
+			updatedVoucher: &voucherdata.Provided{
+				LpaID:            "lpa-id",
+				FirstNames:       "John",
+				LastName:         "Doe",
+				IdentityUserData: userData,
+				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateInProgress},
+			},
+			redirect: voucher.PathConfirmAllowedToVouch,
+		},
 	}
 
-	voucherStore := newMockVoucherStore(t)
-	voucherStore.EXPECT().
-		Put(r.Context(), updatedVoucher).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{LpaUID: "lpa-uid", Voucher: lpadata.Voucher{FirstNames: "John", LastName: "Doe"}}, nil)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
 
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		OneLogin(r).
-		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				Put(r.Context(), tc.updatedVoucher).
+				Return(nil)
 
-	oneLoginClient := newMockOneLoginClient(t)
-	oneLoginClient.EXPECT().
-		Exchange(r.Context(), "a-code", "a-nonce").
-		Return("id-token", "a-jwt", nil)
-	oneLoginClient.EXPECT().
-		UserInfo(r.Context(), "a-jwt").
-		Return(userInfo, nil)
-	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
-		Return(userData, nil)
+			sessionStore := newMockSessionStore(t)
+			sessionStore.EXPECT().
+				OneLogin(r).
+				Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil, "www.example.com")(testAppData, w, r, &voucherdata.Provided{
-		LpaID:      "lpa-id",
-		FirstNames: "John",
-		LastName:   "Doe",
-	})
-	resp := w.Result()
+			oneLoginClient := newMockOneLoginClient(t)
+			oneLoginClient.EXPECT().
+				Exchange(r.Context(), "a-code", "a-nonce").
+				Return("id-token", "a-jwt", nil)
+			oneLoginClient.EXPECT().
+				UserInfo(r.Context(), "a-jwt").
+				Return(userInfo, nil)
+			oneLoginClient.EXPECT().
+				ParseIdentityClaim(r.Context(), userInfo).
+				Return(userData, nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil, "www.example.com")(testAppData, w, r, &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "John",
+				LastName:   "Doe",
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
