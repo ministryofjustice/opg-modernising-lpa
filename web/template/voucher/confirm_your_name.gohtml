@@ -3,7 +3,7 @@
 {{ define "pageTitle" }}{{ tr .App "confirmYourName" }}{{ end }}
 
 {{ define "main" }}
-    {{ $canChange := not .Tasks.ConfirmYourIdentity.IsCompleted }}
+    {{ $canChange := .Tasks.ConfirmYourIdentity.IsNotStarted }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
