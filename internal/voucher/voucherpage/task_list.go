@@ -32,7 +32,10 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		confirmYourIdentityPath := voucher.PathConfirmYourIdentity
-		if provided.Tasks.ConfirmYourIdentity.IsCompleted() {
+		switch provided.Tasks.ConfirmYourIdentity {
+		case task.StateInProgress:
+			confirmYourIdentityPath = voucher.PathConfirmAllowedToVouch
+		case task.StateCompleted:
 			confirmYourIdentityPath = voucher.PathOneLoginIdentityDetails
 		}
 
