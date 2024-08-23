@@ -65,12 +65,12 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
 				Correspondent: lpadata.Correspondent{Email: "x"},
-				AuthorisedSignatory: lpadata.Actor{
+				AuthorisedSignatory: actor.Actor{
 					Type:       actor.TypeAuthorisedSignatory,
 					FirstNames: "A",
 					LastName:   "S",
 				},
-				IndependentWitness: lpadata.Actor{
+				IndependentWitness: actor.Actor{
 					Type:       actor.TypeIndependentWitness,
 					FirstNames: "I",
 					LastName:   "W",
@@ -128,12 +128,12 @@ func TestResolvingServiceGet(t *testing.T) {
 					TrustCorporation: lpadata.TrustCorporation{Name: "d"},
 				},
 				Correspondent: lpadata.Correspondent{Email: "x"},
-				AuthorisedSignatory: lpadata.Actor{
+				AuthorisedSignatory: actor.Actor{
 					Type:       actor.TypeAuthorisedSignatory,
 					FirstNames: "A",
 					LastName:   "S",
 				},
-				IndependentWitness: lpadata.Actor{
+				IndependentWitness: actor.Actor{
 					Type:       actor.TypeIndependentWitness,
 					FirstNames: "I",
 					LastName:   "W",
