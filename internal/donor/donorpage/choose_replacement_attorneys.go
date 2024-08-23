@@ -101,38 +101,12 @@ func replacementAttorneyMatches(donor *donordata.Provided, uid actoruid.UID, fir
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
-		return actor.TypeDonor
-	}
-
-	for _, attorney := range donor.Attorneys.Attorneys {
-		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
-			return actor.TypeAttorney
+	for person := range donor.Actors() {
+		if !(person.Type.IsReplacementAttorney() && person.UID == uid) &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
 		}
-	}
-
-	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		if attorney.UID != uid && strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
-			return actor.TypeReplacementAttorney
-		}
-	}
-
-	if strings.EqualFold(donor.CertificateProvider.FirstNames, firstNames) && strings.EqualFold(donor.CertificateProvider.LastName, lastName) {
-		return actor.TypeCertificateProvider
-	}
-
-	for _, person := range donor.PeopleToNotify {
-		if strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
-			return actor.TypePersonToNotify
-		}
-	}
-
-	if strings.EqualFold(donor.AuthorisedSignatory.FirstNames, firstNames) && strings.EqualFold(donor.AuthorisedSignatory.LastName, lastName) {
-		return actor.TypeAuthorisedSignatory
-	}
-
-	if strings.EqualFold(donor.IndependentWitness.FirstNames, firstNames) && strings.EqualFold(donor.IndependentWitness.LastName, lastName) {
-		return actor.TypeIndependentWitness
 	}
 
 	return actor.TypeNone

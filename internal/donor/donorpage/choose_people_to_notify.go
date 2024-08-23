@@ -124,25 +124,14 @@ func personToNotifyMatches(donor *donordata.Provided, uid actoruid.UID, firstNam
 		return actor.TypeNone
 	}
 
-	if strings.EqualFold(donor.Donor.FirstNames, firstNames) && strings.EqualFold(donor.Donor.LastName, lastName) {
-		return actor.TypeDonor
-	}
-
-	for _, attorney := range donor.Attorneys.Attorneys {
-		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
-			return actor.TypeAttorney
-		}
-	}
-
-	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		if strings.EqualFold(attorney.FirstNames, firstNames) && strings.EqualFold(attorney.LastName, lastName) {
-			return actor.TypeReplacementAttorney
-		}
-	}
-
-	for _, person := range donor.PeopleToNotify {
-		if person.UID != uid && strings.EqualFold(person.FirstNames, firstNames) && strings.EqualFold(person.LastName, lastName) {
-			return actor.TypePersonToNotify
+	for person := range donor.Actors() {
+		if !(person.Type.IsPersonToNotify() && person.UID == uid) &&
+			!person.Type.IsCertificateProvider() &&
+			!person.Type.IsAuthorisedSignatory() &&
+			!person.Type.IsIndependentWitness() &&
+			strings.EqualFold(person.FirstNames, firstNames) &&
+			strings.EqualFold(person.LastName, lastName) {
+			return person.Type
 		}
 	}
 
