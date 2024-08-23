@@ -45,7 +45,12 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		provided.IdentityUserData = userData
-		provided.Tasks.ConfirmYourIdentity = task.StateCompleted
+		if provided.NameMatches(lpa).IsNone() {
+			provided.Tasks.ConfirmYourIdentity = task.StateCompleted
+		} else {
+			provided.Tasks.ConfirmYourIdentity = task.StateInProgress
+		}
+
 		if err := voucherStore.Put(r.Context(), provided); err != nil {
 			return err
 		}
@@ -66,6 +71,10 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return voucher.PathUnableToConfirmIdentity.Redirect(w, r, appData, appData.LpaID)
 		}
 
-		return voucher.PathOneLoginIdentityDetails.Redirect(w, r, appData, appData.LpaID)
+		if provided.Tasks.ConfirmYourIdentity.IsCompleted() {
+			return voucher.PathOneLoginIdentityDetails.Redirect(w, r, appData, appData.LpaID)
+		}
+
+		return voucher.PathConfirmAllowedToVouch.Redirect(w, r, appData, appData.LpaID)
 	}
 }
