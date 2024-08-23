@@ -10,7 +10,10 @@
             <h1 class="govuk-heading-xl">{{ tr .App "confirmThatYouAreAllowedToVouch" }}</h1>
 
             <p class="govuk-body">
-                {{ if .SurnameMatchesDonor }}
+                {{ if .MatchIdentity }}
+                    {{ trFormat .App "yourConfirmedIdentityDetailsMatchSomeone"
+                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                {{ else if .SurnameMatchesDonor }}
                     {{ trFormat .App "theDonorsLastNameMatchesYours"
                         "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
                 {{ else }}
