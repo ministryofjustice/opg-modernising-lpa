@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/docker_job.yml
     with:
       tag: ur-${{ inputs.tag_to_deploy }}
-      checkout_tag : ${{ inputs.tag_to_deploy }}
+      branch_name: ${{ github.head_ref }}
 
   ui_tests_image:
     name: Run Cypress UI Tests On ur Images
