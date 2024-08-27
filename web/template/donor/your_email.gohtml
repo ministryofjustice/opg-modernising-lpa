@@ -1,21 +1,36 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-    {{ tr .App "whatIsYourEmail" }}
+    {{ if .App.SupporterData }}
+        {{ tr .App "whatIsYourEmail" }}
+    {{ else }}
+        {{ tr .App "yourEmailAddressForUpdates" }}
+    {{ end }}
 {{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
-                {{ template "input" (input . "email" "whatIsYourEmailOptional"
-                    .Form.Email
-                    "classes" "govuk-input--width-20"
-                    "type" "email"
-                    "spellcheck" "false"
-                    "autocomplete" "email"
-                    "heading" true) }}
+                {{ if .App.SupporterData }}
+                    {{ template "input" (input . "email" "whatIsYourEmailOptional"
+                        .Form.Email
+                        "classes" "govuk-input--width-20"
+                        "type" "email"
+                        "spellcheck" "false"
+                        "autocomplete" "email"
+                        "heading" true) }}
+                {{ else }}
+                    <h1 class="govuk-heading-xl">{{ tr .App "yourEmailAddressForUpdates" }}</h1>
 
+                    {{ template "input" (input . "email" "enterYourEmailAddress"
+                        .Form.Email
+                        "classes" "govuk-input--width-20"
+                        "type" "email"
+                        "spellcheck" "false"
+                        "autocomplete" "email") }}
+                {{ end }}
+                    
                 {{ if .CanTaskList }}
                     {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ else }}

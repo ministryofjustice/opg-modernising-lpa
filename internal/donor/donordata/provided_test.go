@@ -2,10 +2,10 @@ package donordata
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 	"time"
-"slices"
-	
+
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -36,14 +36,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xbc5145e2956a2a2b
+	const modified uint64 = 0x4765981bee80f0a4
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x4748f866664816f4,
+		0: 0x2d6528866eb5ccbf,
 	}
 
 	for version, initial := range testcases {
@@ -93,13 +93,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x80dd4c6c182cd354
+	const modified uint64 = 0xaca608ad8e0a588d
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x5a917bb07c1dde03,
+		0: 0xc354aa0f0c97e090,
 	}
 
 	for version, initial := range testcases {
@@ -445,13 +445,13 @@ func TestProvidedActors(t *testing.T) {
 		UID:        lpa.PeopleToNotify[0].UID,
 		FirstNames: "Peter",
 		LastName:   "Person",
-	},{      
-		Type: actor.TypeAuthorisedSignatory,
+	}, {
+		Type:       actor.TypeAuthorisedSignatory,
 		FirstNames: "Arthur",
-		LastName: "Signor",
-	}, {      
-		Type: actor.TypeIndependentWitness,
+		LastName:   "Signor",
+	}, {
+		Type:       actor.TypeIndependentWitness,
 		FirstNames: "Independent",
-		LastName: "Wit",
+		LastName:   "Wit",
 	}}, actors)
 }

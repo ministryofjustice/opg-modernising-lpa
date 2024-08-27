@@ -15,26 +15,26 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetYourEmail(t *testing.T) {
+func TestGetYourMobile(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, &yourEmailData{
+		On("Execute", w, &yourMobileData{
 			App:  testAppData,
-			Form: &yourEmailForm{},
+			Form: &yourMobileForm{},
 		}).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
+func TestGetYourMobileWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -43,16 +43,16 @@ func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
 		On("Execute", w, mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostYourEmail(t *testing.T) {
+func TestPostYourMobile(t *testing.T) {
 	form := url.Values{
-		"email": {"john@example.com"},
+		"mobile": {"07000000000"},
 	}
 
 	w := httptest.NewRecorder()
@@ -66,12 +66,12 @@ func TestPostYourEmail(t *testing.T) {
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{
 				FirstNames: "John",
-				Email:      "john@example.com",
+				Mobile:     "07000000000",
 			},
 		}).
 		Return(nil)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{
 			FirstNames: "John",
@@ -84,9 +84,9 @@ func TestPostYourEmail(t *testing.T) {
 	assert.Equal(t, donor.PathReceivingUpdatesAboutYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostYourEmailWhenValidationError(t *testing.T) {
+func TestPostYourMobileWhenValidationError(t *testing.T) {
 	form := url.Values{
-		"email": {"john"},
+		"mobile": {"john"},
 	}
 
 	w := httptest.NewRecorder()
@@ -95,21 +95,21 @@ func TestPostYourEmailWhenValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.
-		On("Execute", w, mock.MatchedBy(func(data *yourEmailData) bool {
-			return assert.Equal(t, validation.With("email", validation.EmailError{Label: "email"}), data.Errors)
+		On("Execute", w, mock.MatchedBy(func(data *yourMobileData) bool {
+			return assert.Equal(t, validation.With("mobile", validation.PhoneError{Label: "mobile", Tmpl: "errorMobile"}), data.Errors)
 		})).
 		Return(nil)
 
-	err := YourEmail(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestPostYourEmailWhenStoreErrors(t *testing.T) {
+func TestPostYourMobileWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"email": {"john@example.com"},
+		"mobile": {"07000000000"},
 	}
 
 	w := httptest.NewRecorder()
@@ -121,35 +121,35 @@ func TestPostYourEmailWhenStoreErrors(t *testing.T) {
 		On("Put", r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := YourMobile(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestReadYourEmailForm(t *testing.T) {
-	form := url.Values{"email": {"john@example.com"}}
+func TestReadYourMobileForm(t *testing.T) {
+	form := url.Values{"mobile": {"07000000000"}}
 
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readYourEmailForm(r)
+	result := readYourMobileForm(r)
 
-	assert.Equal(t, "john@example.com", result.Email)
+	assert.Equal(t, "07000000000", result.Mobile)
 }
 
-func TestYourEmailFormValidate(t *testing.T) {
+func TestYourMobileFormValidate(t *testing.T) {
 	testCases := map[string]struct {
-		form   *yourEmailForm
+		form   *yourMobileForm
 		errors validation.List
 	}{
 		"valid": {
-			form: &yourEmailForm{Email: "john@example.com"},
+			form: &yourMobileForm{Mobile: "07000000000"},
 		},
 		"empty": {
-			form: &yourEmailForm{},
+			form: &yourMobileForm{},
 		},
 		"invalid": {
-			form:   &yourEmailForm{Email: "john"},
-			errors: validation.With("email", validation.EmailError{Label: "email"}),
+			form:   &yourMobileForm{Mobile: "john"},
+			errors: validation.With("mobile", validation.PhoneError{Label: "mobile", Tmpl: "errorMobile"}),
 		},
 	}
 

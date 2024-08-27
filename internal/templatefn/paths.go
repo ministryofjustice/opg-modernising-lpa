@@ -196,6 +196,7 @@ type appPaths struct {
 	Progress                                             donor.Path
 	ProveYourIdentity                                    donor.Path
 	ReadYourLpa                                          donor.Path
+	ReceivingUpdatesAboutYourLpa                         donor.Path
 	RegisterWithCourtOfProtection                        donor.Path
 	RemoveAttorney                                       donor.Path
 	RemovePersonToNotify                                 donor.Path
@@ -239,6 +240,7 @@ type appPaths struct {
 	YourIndependentWitnessMobile                         donor.Path
 	YourLegalRightsAndResponsibilitiesIfYouMakeLpa       donor.Path
 	YourLpaLanguage                                      donor.Path
+	YourMobile                                           donor.Path
 	YourName                                             donor.Path
 	YourPreferredLanguage                                donor.Path
 }
@@ -423,6 +425,7 @@ var paths = appPaths{
 	Progress:                                             donor.PathProgress,
 	ProveYourIdentity:                                    donor.PathProveYourIdentity,
 	ReadYourLpa:                                          donor.PathReadYourLpa,
+	ReceivingUpdatesAboutYourLpa:                         donor.PathReceivingUpdatesAboutYourLpa,
 	RegisterWithCourtOfProtection:                        donor.PathRegisterWithCourtOfProtection,
 	RemoveAttorney:                                       donor.PathRemoveAttorney,
 	RemovePersonToNotify:                                 donor.PathRemovePersonToNotify,
@@ -466,6 +469,7 @@ var paths = appPaths{
 	YourIndependentWitnessMobile:                         donor.PathYourIndependentWitnessMobile,
 	YourLegalRightsAndResponsibilitiesIfYouMakeLpa:       donor.PathYourLegalRightsAndResponsibilitiesIfYouMakeLpa,
 	YourLpaLanguage:                                      donor.PathYourLpaLanguage,
+	YourMobile:                                           donor.PathYourMobile,
 	YourName:                                             donor.PathYourName,
 	YourPreferredLanguage:                                donor.PathYourPreferredLanguage,
 }
