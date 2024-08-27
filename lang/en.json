@@ -278,7 +278,7 @@
     "bySigningIConfirm": "By signing my {{ .LpaType}} LPA, I confirm all of the following:",
     "iHaveReadLpa": "I have read my LPA or have had it read to me. This includes my legal rights and responsibilities",
     "iGiveAttorneysAuthority": "I give my attorneys authority to make decisions about my {{ .LpaType }}, including when I cannot act for myself because I do not have mental capacity",
-    "iGiveAttorneysAuthorityWhenRegistered": "I give my attorneys authority to make decisions about my property and affairs, once this LPA is registered",
+    "iGiveAttorneysAuthorityWhenRegistered": "I give my attorneys authority to make decisions about my property and affairs, once this LPA is registered and including when I no longer have capacity",
     "iGiveAttorneysAuthorityWhenLostMentalCapacity": "I give my attorneys authority to make decisions about my property and affairs when I cannot act for myself because I do not have mental capacity",
     "iHaveChosenNPeopleToNotify": {
         "one": "I have chosen to notify 1 person about my LPA",
