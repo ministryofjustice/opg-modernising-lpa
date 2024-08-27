@@ -28,6 +28,8 @@ type Donor struct {
 	DateOfBirth date.Date
 	// Address of the donor
 	Address place.Address
+	// Mobile phone number to contact the donor
+	Mobile string
 	// ThinksCanSign is what the donor thinks about their ability to sign online
 	ThinksCanSign YesNoMaybe
 	// CanSign is Yes if the donor has said they will sign online

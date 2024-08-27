@@ -62,7 +62,7 @@ func YourAddress(logger Logger, tmpl template.Template, addressClient AddressCli
 						return donor.PathYourEmail.Redirect(w, r, appData, provided)
 					}
 
-					return donor.PathCanYouSignYourLpa.Redirect(w, r, appData, provided)
+					return donor.PathReceivingUpdatesAboutYourLpa.Redirect(w, r, appData, provided)
 				}
 
 			case "postcode-select":

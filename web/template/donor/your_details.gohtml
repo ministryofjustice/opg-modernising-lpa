@@ -31,12 +31,15 @@
                         (fromLink .App global.Paths.YourAddress "#f-address-line-1")
                         .Donor.Donor.FullName true true) }}
 
-                    {{ if .App.SupporterData }}
-                        {{ template "summary-row" (summaryRow .App "email"
-                            .Donor.Donor.Email
-                            (fromLink .App global.Paths.YourEmail "#f-email")
-                            .Donor.Donor.FullName true true) }}
-                    {{ end }}
+                    {{ template "summary-row" (summaryRow .App "email"
+                        .Donor.Donor.Email
+                        (fromLink .App global.Paths.YourEmail "#f-email")
+                        .Donor.Donor.FullName true true) }}
+
+                    {{ template "summary-row" (summaryRow .App "mobile"
+                        .Donor.Donor.Mobile
+                        (fromLink .App global.Paths.YourMobile "#f-mobile")
+                        .Donor.Donor.FullName true true) }}
                 </dl>
 
                 {{ if not $hasNoIdentity }}
