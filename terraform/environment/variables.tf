@@ -67,6 +67,7 @@ variable "environments" {
       dynamodb = object({
         table_name             = string
         region_replica_enabled = bool
+        cloudtrail_enabled     = bool
       })
       ecs = object({
         fargate_spot_capacity_provider_enabled = bool
