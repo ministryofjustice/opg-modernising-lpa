@@ -216,8 +216,12 @@ func Register(
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
 	handleWithDonor(donor.PathYourAddress, page.CanGoBack,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
+	handleWithDonor(donor.PathReceivingUpdatesAboutYourLpa, page.CanGoBack,
+		Guidance(tmpls.Get("receiving_updates_about_your_lpa.gohtml")))
 	handleWithDonor(donor.PathYourEmail, page.CanGoBack,
 		YourEmail(tmpls.Get("your_email.gohtml"), donorStore))
+	handleWithDonor(donor.PathYourMobile, page.CanGoBack,
+		YourMobile(tmpls.Get("your_mobile.gohtml"), donorStore))
 	handleWithDonor(donor.PathWeHaveUpdatedYourDetails, page.None,
 		Guidance(tmpls.Get("we_have_updated_your_details.gohtml")))
 	handleWithDonor(donor.PathCanYouSignYourLpa, page.CanGoBack,

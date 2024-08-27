@@ -19,6 +19,8 @@ describe('Provide your details', () => {
 
         AddressFormAssertions.assertCanAddAddressFromSelect();
 
+        cy.contains('a', 'Continue').click();
+
         cy.get('#f-can-sign').check({ force: true });
         cy.contains('button', 'Save and continue').click();
 
