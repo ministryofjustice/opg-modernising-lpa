@@ -5,18 +5,44 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "confirmYouWitnessedTheDonorSign" }}</h1>
+      <h1 class="govuk-heading-xl">{{ trFormat .App "personConfirmYouWitnessedTheDonorSign" "FullName" .Donor.IndependentWitness.FullName }}</h1>
+
+      <h2 class="govuk-heading-l">{{ tr .App "confirmYourDetails" }}</h2>
+
+      <p class="govuk-body">{{ trFormat .App "theseAreTheDetailsDonorProvidedCheck" "DonorFullName" .Donor.Donor.FullName }}</p>
+
+      <dl class="govuk-summary-list">
+          {{ template "summary-row" (summaryRow .App "firstNames"
+              .Donor.IndependentWitness.FirstNames
+              "" "" false false) }}
+          {{ template "summary-row" (summaryRow .App "lastName"
+              .Donor.IndependentWitness.LastName
+              "" "" false false) }}
+          {{ template "address-summary-row" (summaryRow .App "address"
+              .Donor.IndependentWitness.Address
+              "" "" false false) }}
+      </dl>
+
+      {{ template "warning" (content .App "itMayCauseDelaysIfDetailsAreNotCorrect") }}
+
+      <h3 class="govuk-heading-m">{{ tr .App "whatToDoIfTheseDetailsAreNotCorrect" }}</h3>
+
+      {{ trFormatHtml .App "whatToDoIfTheseDetailsAreNotCorrectContent" "DonorFullName" .Donor.Donor.FullName }}
+
+      <h2 class="govuk-heading-l">{{ tr .App "confirmYouWitnessedTheDonorSignTheirLpa" }}</h2>
 
       <p class="govuk-inset-text">
-        {{ trFormatHtml .App "weHaveSentACodeTo" "Mobile" (formatPhone .Donor.IndependentWitness.Mobile) }}
+        {{ trFormatHtml .App "weHaveSentAWitnessCodeTo" "Mobile" (formatPhone .Donor.IndependentWitness.Mobile) }}
       </p>
 
-      <p class="govuk-body">
-        {{ trFormat .App "asTheIndependentWitnessTypeTheCode" "IndependentWitnessFirstNames" .Donor.IndependentWitness.FirstNames "DonorFullName" .Donor.Donor.FullName }}
-      </p>
+      <p class="govuk-body">{{ tr .App "byEnteringThisWitnessCodeYouAreConfirming" }}</p>
 
       <form novalidate method="post">
-        {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code "classes" "govuk-input--width-5" "labelClasses" "govuk-label--s" "autocomplete" "off") }}
+        {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code
+            "hint" "typeInTheCodeToProveYouWitnessed"
+            "classes" "govuk-input--width-5"
+            "labelClasses" "govuk-label--s"
+            "autocomplete" "off") }}
 
         {{ template "buttons" (button .App "continue") }}
         {{ template "csrf-field" . }}

@@ -783,6 +783,7 @@
     "witnessYourSignatureContentCannotSign": "<p class=\"govuk-body\">Rhaid i’r ddau dyst gadarnhau eu bod gyda chi a’u bod wedi gweld eich LPA yn cael ei llofnodi.</p><p class=\"govuk-body\">Eich tystion yw:</p><ul class=\"govuk-list govuk-list--bullet\"><li>eich tyst annibynnol, {{.IndependentWitnessFullName}}</li><li>eich darparwr tystysgrif, {{.CertificateProviderFullName}}</li></ul><h2 class=\"govuk-heading-m\">Beth fydd yn digwydd nesaf</h2><ol class=\"govuk-list govuk-list--number\"><li>Pan fyddwch yn dewis <span class=\"govuk-!-font-weight-bold\">Parhau</span>, byddwn yn anfon neges testun unigol at eich dau dyst sy’n cynnwys cod unigryw.</li><li>Bydd angen i bob un ohonynt deipio eu cod unigryw ar y sgriniau nesaf.</li></ol><p class=\"govuk-body\">Dim ond am 30 munud mae’r codau’n ddilys. Rhaid iddynt ddefnyddio’r codau o fewn y cyfnod hwn.</p>",
     "confirmYouWitnessedTheDonorSign": "Cadarnhau eich bod wedi bod yn dyst i’r rhoddwr yn llofnodi ei LPA",
     "weHaveSentACodeTo": "Rydym wedi anfon cod drwy neges testun at: <span class=\"govuk-!-font-weight-bold\">{{.Mobile}}</span>",
+    "weHaveSentAWitnessCodeTo": "Welsh {{.Mobile}}",
     "asTheIndependentWitnessTypeTheCode": "{{.IndependentWitnessFirstNames}}, fel tyst annibynnol {{.DonorFullName}}, teipiwch y cod i brofi eich bod wedi gweld ei LPA yn cael ei llofnodi.",
     "enter4DigitCode": "Rhowch y cod 4 digid",
     "imHavingProblemWithCode": "Rwy’n cael trafferth gyda’r cod",
@@ -1352,5 +1353,13 @@
     "youHaveVouchedFor": "Welsh {{.DonorFullNamePossessive}}",
     "voucherThankYouContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNamesPossessive}}</p>",
     "youHaveEnteredNameWhichMatchesSomeone": "Welsh {{.DonorFullNamePossessive}}",
-    "yourConfirmedIdentityDetailsMatchSomeone": "Welsh {{.DonorFullNamePossessive}}"
+    "yourConfirmedIdentityDetailsMatchSomeone": "Welsh {{.DonorFullNamePossessive}}",
+    "personConfirmYouWitnessedTheDonorSign": "{{.FullName}} Welsh",
+    "theseAreTheDetailsDonorProvidedCheck": "Welsh {{.DonorFullNames}}",
+    "itMayCauseDelaysIfDetailsAreNotCorrect": "Welsh",
+    "whatToDoIfTheseDetailsAreNotCorrect": "Welsh",
+    "whatToDoIfTheseDetailsAreNotCorrectContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
+    "confirmYouWitnessedTheDonorSignTheirLpa": "Welsh",
+    "byEnteringThisWitnessCodeYouAreConfirming": "Welsh",
+    "typeInTheCodeToProveYouWitnessed": "Welsh"
 }
