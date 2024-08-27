@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "yourMobileForUpdates" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ tr .App "yourMobileForUpdates" }}</h1>
+
+                {{ template "input" (input . "mobile" "enterYourUkMobilePhoneNumberOptional" .Form.Mobile
+                    "hint" "youCanLeaveThisFieldBlankIfNotTextMessage"
+                    "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing"
+                    "type" "tel"
+                    "autocomplete" "tel") }}
+                
+                {{ if .CanTaskList }}
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "button" (button .App "saveAndContinue") }}
+                {{ end }}
+                    
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

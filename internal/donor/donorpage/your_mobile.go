@@ -11,39 +11,35 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type yourEmailData struct {
+type yourMobileData struct {
 	App         appcontext.Data
 	Errors      validation.List
-	Form        *yourEmailForm
+	Form        *yourMobileForm
 	CanTaskList bool
 }
 
-func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
+func YourMobile(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		data := &yourEmailData{
+		data := &yourMobileData{
 			App: appData,
-			Form: &yourEmailForm{
-				Email: provided.Donor.Email,
+			Form: &yourMobileForm{
+				Mobile: provided.Donor.Mobile,
 			},
 			CanTaskList: !provided.Type.Empty(),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readYourEmailForm(r)
+			data.Form = readYourMobileForm(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.Donor.Email = data.Form.Email
+				provided.Donor.Mobile = data.Form.Mobile
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				if appData.SupporterData != nil {
-					return donor.PathCanYouSignYourLpa.Redirect(w, r, appData, provided)
-				} else {
-					return donor.PathReceivingUpdatesAboutYourLpa.Redirect(w, r, appData, provided)
-				}
+				return donor.PathReceivingUpdatesAboutYourLpa.Redirect(w, r, appData, provided)
 			}
 		}
 
@@ -51,19 +47,19 @@ func YourEmail(tmpl template.Template, donorStore DonorStore) Handler {
 	}
 }
 
-type yourEmailForm struct {
-	Email string
+type yourMobileForm struct {
+	Mobile string
 }
 
-func readYourEmailForm(r *http.Request) *yourEmailForm {
-	return &yourEmailForm{Email: page.PostFormString(r, "email")}
+func readYourMobileForm(r *http.Request) *yourMobileForm {
+	return &yourMobileForm{Mobile: page.PostFormString(r, "mobile")}
 }
 
-func (f *yourEmailForm) Validate() validation.List {
+func (f *yourMobileForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.String("email", "email", f.Email,
-		validation.Email())
+	errors.String("mobile", "mobile", f.Mobile,
+		validation.Mobile())
 
 	return errors
 }
