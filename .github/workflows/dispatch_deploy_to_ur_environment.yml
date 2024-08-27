@@ -63,7 +63,7 @@ jobs:
       run_against_image: true
       tag: ur-${{ inputs.tag_to_deploy}}
       checkout_tag: ${{ inputs.tag_to_deploy}}
-      specs: 'cypress/e2e/**/*.js'
+      specs: 'cypress/e2e/**/*.cy.js'
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
