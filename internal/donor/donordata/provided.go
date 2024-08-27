@@ -141,6 +141,8 @@ type Provided struct {
 	PreviousFee pay.PreviousFee
 	// A record of Notifications sent by the OPG to the donor outside MRLPA
 	Notifications notification.Notifications `hash:"-"`
+	// A record of progress tracker steps the donor has completed
+	ProgressSteps *task.Progress2
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }

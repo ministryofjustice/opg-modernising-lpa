@@ -1,12 +1,30 @@
 {{ define "donor-lpa-progress" }}
   <div id="progress" class="app-progress-bar" aria-label="progress-label">
     <ol class="app-progress-bar__list">
-      {{ range .Progress.ToSlice }}
-        <li class="app-progress-bar__item" {{ if .State.IsInProgress }}aria-current="step"{{ end }}>
-          <span class="app-progress-bar__icon {{ if .State.IsCompleted }}app-progress-bar__icon--complete{{ end }}"></span>
-          <span class="app-progress-bar__label">
-            {{ .Label }}<span class="govuk-visually-hidden"> {{tr $.App .State.String }}</span>
-          </span>
+      {{ range .Completed }}
+          <li class="app-progress-bar__item">
+              <span class="app-progress-bar__icon app-progress-bar__icon--complete"></span>
+              <span class="app-progress-bar__label">
+        {{ .DonorLabel $.App.Localizer $.Lpa }}<span class="govuk-visually-hidden"> {{tr $.App .State.String }}</span>
+      </span>
+          </li>
+      {{ end }}
+
+      {{ if (not .InProgress.Name.Empty) }}
+          <li class="app-progress-bar__item" aria-current="step">
+              <span class="app-progress-bar__icon"></span>
+              <span class="app-progress-bar__label">
+          {{ .InProgress.DonorLabel $.App.Localizer $.Lpa }}<span class="govuk-visually-hidden"> {{tr $.App .InProgress.State.String }}</span>
+        </span>
+          </li>
+      {{ end }}
+
+      {{ range .NotStarted }}
+        <li class="app-progress-bar__item">
+            <span class="app-progress-bar__icon"></span>
+            <span class="app-progress-bar__label">
+        {{ .DonorLabel $.App.Localizer $.Lpa }}<span class="govuk-visually-hidden"> {{tr $.App .State.String }}</span>
+      </span>
         </li>
       {{ end }}
     </ol>

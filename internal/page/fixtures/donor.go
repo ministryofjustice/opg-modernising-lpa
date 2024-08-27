@@ -125,7 +125,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, false)
 		if err != nil {
 			return err
 		}
@@ -182,9 +182,9 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
+	isSupporter bool,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
 		donorDetails.Donor = makeDonor(data.DonorEmail)
 
@@ -388,6 +388,11 @@ func updateLPAProgress(
 			if err := documentStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID}), previouslyUploaded); err != nil {
 				return nil, nil, err
 			}
+
+			donorDetails.ProgressSteps.Complete(task.FeeEvidenceSubmitted, time.Now())
+			donorDetails.ProgressSteps.Complete(task.FeeEvidenceNotification, time.Now())
+			donorDetails.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
+
 		} else {
 			donorDetails.FeeType = pay.FullFee
 		}
@@ -407,6 +412,10 @@ func updateLPAProgress(
 
 			donorDetails.EvidenceDelivery = pay.Upload
 			donorDetails.Tasks.PayForLpa = taskState
+		}
+
+		if isSupporter {
+			donorDetails.ProgressSteps.Complete(task.DonorPaid, time.Now())
 		}
 	}
 
@@ -438,6 +447,9 @@ func updateLPAProgress(
 
 		donorDetails.DonorIdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+		if isSupporter {
+			donorDetails.ProgressSteps.Complete(task.DonorProvedID, time.Now())
+		}
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
@@ -446,6 +458,7 @@ func updateLPAProgress(
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
+		donorDetails.ProgressSteps.Complete(task.DonorSignedLPA, time.Now())
 	}
 
 	var certificateProviderUID actoruid.UID
@@ -470,6 +483,7 @@ func updateLPAProgress(
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
 		})
+		donorDetails.ProgressSteps.Complete(task.CertificateProvided, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
@@ -545,10 +559,13 @@ func updateLPAProgress(
 				})
 			}
 		}
+
+		donorDetails.ProgressSteps.Complete(task.AllAttorneysSignedLPA, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "submitted") {
 		donorDetails.SubmittedAt = time.Now()
+		donorDetails.ProgressSteps.Complete(task.LpaSubmitted, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "perfect") {
@@ -556,6 +573,7 @@ func updateLPAProgress(
 			return client.SendPerfect(ctx, donorDetails.LpaUID)
 		})
 		donorDetails.PerfectAt = time.Now()
+		donorDetails.ProgressSteps.Complete(task.NoticesOfIntentSent, time.Now())
 	}
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
@@ -572,6 +590,8 @@ func updateLPAProgress(
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendRegister(ctx, donorDetails.LpaUID)
 		})
+
+		donorDetails.ProgressSteps.Complete(task.LpaRegistered, time.Now())
 	}
 
 	return donorDetails, fns, nil

@@ -196,7 +196,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
+						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, true)
 						if err != nil {
 							return err
 						}
