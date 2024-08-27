@@ -18,6 +18,11 @@
             </div>
         {{ end }}
         {{ template "error-message" (errorMessage .top .name) }}
-        <input class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}" id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}" {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }} {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }} />
+        <input id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}"
+            class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}"
+            {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }}
+            {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }}
+            {{ if .type }}type="{{ .type }}"{{ end }}
+            {{ if .hint }}aria-describedby="{{ .name }}-hint"{{ end }} />
     </div>
 {{ end }}

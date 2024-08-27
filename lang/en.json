@@ -733,6 +733,7 @@
     "witnessYourSignatureContentCannotSign": "<p class=\"govuk-body\">Both of your witnesses must confirm that they are with you and have witnessed your LPA being signed.</p><p class=\"govuk-body\">Your witnesses are:</p><ul class=\"govuk-list govuk-list--bullet\"><li>your independent witness, {{.IndependentWitnessFullName}}</li><li>your certificate provider, {{.CertificateProviderFullName}}</li></ul><h2 class=\"govuk-heading-m\">What happens next</h2><ol class=\"govuk-list govuk-list--number\"><li>When you select <span class=\"govuk-!-font-weight-bold\">Continue</span>, we will send both of your witnesses an individual text message that contains a unique code.</li><li>They will each need to type in their unique code on the next screens.</li></ol><p class=\"govuk-body\">Codes are only valid for 30 minutes. They must use the codes within this time.</p>",
     "confirmYouWitnessedTheDonorSign": "Confirm you witnessed the donor sign their LPA",
     "weHaveSentACodeTo": "We have sent a code by text message to: <span class=\"govuk-!-font-weight-bold\">{{.Mobile}}</span>",
+    "weHaveSentAWitnessCodeTo": "We have sent a witness code by text message to: <span class=\"govuk-!-font-weight-bold\">{{.Mobile}}</span>",
     "asTheIndependentWitnessTypeTheCode": "{{.IndependentWitnessFirstNames}}, as the independent witness for {{.DonorFullName}}, please type in the code to prove that you witnessed their LPA being signed.",
     "enter4DigitCode": "Enter 4 digit code",
     "imHavingProblemWithCode": "I’m having a problem with the code",
@@ -1281,5 +1282,13 @@
     "youHaveVouchedFor": "You have vouched for {{.DonorFullNamePossessive}} identity.",
     "voucherThankYouContent": "<p class=\"govuk-body\">You do not need to do anything else.</p><p class=\"govuk-body\">{{.DonorFirstNamesPossessive}} vouching request will no longer appear on your dashboard.</p><p class=\"govuk-body\">You can print this page out for your records if you wish, or close this browsing window.</p>",
     "youHaveEnteredNameWhichMatchesSomeone": "You have entered a name that matches someone named on {{.DonorFullNamePossessive}} lasting power of attorney (LPA).",
-    "yourConfirmedIdentityDetailsMatchSomeone": "Your confirmed identity details match someone named on {{.DonorFullNamePossessive}} lasting power of attorney (LPA)."
+    "yourConfirmedIdentityDetailsMatchSomeone": "Your confirmed identity details match someone named on {{.DonorFullNamePossessive}} lasting power of attorney (LPA).",
+    "personConfirmYouWitnessedTheDonorSign": "{{.FullName}}, confirm you witnessed the donor sign their LPA",
+    "theseAreTheDetailsDonorProvidedCheck": "These are the details {{.DonorFullNames}} provided for you. You must check they are correct before you continue.",
+    "itMayCauseDelaysIfDetailsAreNotCorrect": "It may cause delays if any of these details are not correct.",
+    "whatToDoIfTheseDetailsAreNotCorrect": "What to do if these details are not correct",
+    "whatToDoIfTheseDetailsAreNotCorrectContent": "<p class=\"govuk-body\">You will need to speak with {{.DonorFullName}} and ask them to update your details.</p><p class=\"govuk-body\">Do not enter your witness code and continue. You can return to this page from the task list once your details have been updated.</p>",
+    "confirmYouWitnessedTheDonorSignTheirLpa": "Confirm you witnessed the donor sign their LPA",
+    "byEnteringThisWitnessCodeYouAreConfirming": "By entering this witness code you are confirming that the LPA was signed in your presence and that your name and address have been entered correctly as shown.",
+    "typeInTheCodeToProveYouWitnessed": "Type in the code to prove that you witnessed their LPA being signed."
 }
