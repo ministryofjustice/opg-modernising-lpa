@@ -15,8 +15,15 @@ resource "aws_cloudtrail" "dynamodb" {
     # include_management_events = true
 
     data_resource {
-      type   = "AWS::DynamoDB::Table"
-      values = ["arn:aws:lambda"]
+      type = "AWS::DynamoDB::Table"
+      values = [
+        aws_dynamodb_table.lpas_table.arn,
+        aws_dynamodb_table_replica.lpas_table[0].arn
+      ]
+    }
+    data_resource {
+      type   = "AWS::DynamoDB::Stream"
+      values = ["${aws_dynamodb_table.lpas_table.arn}/stream/*"]
     }
   }
 }
