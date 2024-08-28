@@ -47,6 +47,7 @@ resource "aws_cloudtrail" "dynamodb" {
 }
 
 resource "aws_cloudwatch_query_definition" "dynamodb_cloudtrail_table" {
+  count           = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name            = "${local.default_tags.environment-name}/dynamodb cloudtrail table"
   log_group_names = [aws_cloudwatch_log_group.cloudtrail_dynamodb[0].name]
 
@@ -59,6 +60,7 @@ EOF
 }
 
 resource "aws_cloudwatch_query_definition" "dynamodb_cloudtrail_stream" {
+  count           = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name            = "${local.default_tags.environment-name}/dynamodb cloudtrail stream"
   log_group_names = [aws_cloudwatch_log_group.cloudtrail_dynamodb[0].name]
 
