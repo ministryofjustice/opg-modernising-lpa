@@ -4,7 +4,7 @@ data "aws_s3_bucket" "cloudtrail" {
 }
 
 data "aws_kms_alias" "cloudtrail" {
-  name = "cloudtrail_s3_modernising_lpa_${local.environment.account_name}"
+  name = "alias/cloudtrail_s3_modernising_lpa_${local.environment.account_name}"
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_dynamodb" {
