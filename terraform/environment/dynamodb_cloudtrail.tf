@@ -22,7 +22,7 @@ data "aws_iam_role" "cloudtrail" {
 
 resource "aws_cloudtrail" "dynamodb" {
   count                         = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
-  name                          = "dynamodb"
+  name                          = "${local.default_tags.environment-name}-dynamodb"
   s3_bucket_name                = data.aws_s3_bucket.cloudtrail.id
   kms_key_id                    = data.aws_kms_alias.cloudtrail.arn
   cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail_dynamodb[0].arn}:*"
