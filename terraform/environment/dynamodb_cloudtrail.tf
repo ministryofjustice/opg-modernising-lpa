@@ -27,7 +27,7 @@ resource "aws_cloudtrail" "dynamodb" {
   kms_key_id                    = data.aws_kms_alias.cloudtrail.target_key_arn
   cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail_dynamodb[0].arn}:*"
   cloud_watch_logs_role_arn     = data.aws_iam_role.cloudtrail.arn
-  s3_key_prefix                 = "dynamodb"
+  s3_key_prefix                 = "${local.default_tags.environment-name}-dynamodb"
   enable_log_file_validation    = true
   include_global_service_events = true
   is_multi_region_trail         = true
@@ -46,12 +46,25 @@ resource "aws_cloudtrail" "dynamodb" {
   provider = aws.eu_west_1
 }
 
-resource "aws_cloudwatch_query_definition" "app_container_messages" {
-  name            = "${local.default_tags.environment-name}/dynamodb cloudtrail"
+resource "aws_cloudwatch_query_definition" "dynamodb_cloudtrail_table" {
+  name            = "${local.default_tags.environment-name}/dynamodb cloudtrail table"
   log_group_names = [aws_cloudwatch_log_group.cloudtrail_dynamodb[0].name]
 
   query_string = <<EOF
 fields @timestamp, eventSource, eventName, errorCode, userIdentity.principalId, userIdentity.sessionContext.sessionIssuer.userName
+| filter resources.1.type != "AWS::DynamoDB::Stream"
+| sort @timestamp desc
+EOF
+  provider     = aws.eu_west_1
+}
+
+resource "aws_cloudwatch_query_definition" "dynamodb_cloudtrail_stream" {
+  name            = "${local.default_tags.environment-name}/dynamodb cloudtrail stream"
+  log_group_names = [aws_cloudwatch_log_group.cloudtrail_dynamodb[0].name]
+
+  query_string = <<EOF
+fields @timestamp, eventSource, eventName, errorCode, userIdentity.principalId, userIdentity.sessionContext.sessionIssuer.userName
+| filter resources.1.type == "AWS::DynamoDB::Stream"
 | sort @timestamp desc
 EOF
   provider     = aws.eu_west_1
