@@ -3,11 +3,12 @@ data "aws_s3_bucket" "cloudtrail" {
   provider = aws.eu_west_1
 }
 
-data "aws_kms_key_alias" "cloudtrail" {
+data "aws_kms_alias" "cloudtrail" {
   name = "cloudtrail_s3_modernising_lpa_${local.environment.account_name}"
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_dynamodb" {
+  count             = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name              = "/aws/cloudtrail/dynamodb"
   retention_in_days = 365
 }
@@ -20,9 +21,9 @@ resource "aws_cloudtrail" "dynamodb" {
   count                         = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name                          = "dynamodb"
   s3_bucket_name                = data.aws_s3_bucket.cloudtrail.id
-  kms_key_id                    = data.aws_kms_key_alias.cloudtrail.arn
-  cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail_dynamodb.arn}:*"
-  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail.arn
+  kms_key_id                    = data.aws_kms_alias.cloudtrail.arn
+  cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail_dynamodb[0].arn}:*"
+  cloud_watch_logs_role_arn     = data.aws_iam_role.cloudtrail.arn
   s3_key_prefix                 = "dynamodb"
   enable_log_file_validation    = true
   include_global_service_events = true
