@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -51,37 +52,55 @@ func TestGetYourEmailWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostYourEmail(t *testing.T) {
-	form := url.Values{
-		"email": {"john@example.com"},
+	testcases := map[string]struct {
+		appData  appcontext.Data
+		redirect donor.Path
+	}{
+		"donor": {
+			appData:  testAppData,
+			redirect: donor.PathReceivingUpdatesAboutYourLpa,
+		},
+		"supporter": {
+			appData:  testSupporterAppData,
+			redirect: donor.PathCanYouSignYourLpa,
+		},
 	}
 
-	w := httptest.NewRecorder()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			form := url.Values{
+				"email": {"john@example.com"},
+			}
 
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+			w := httptest.NewRecorder()
 
-	donorStore := newMockDonorStore(t)
-	donorStore.
-		On("Put", r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Donor: donordata.Donor{
-				FirstNames: "John",
-				Email:      "john@example.com",
-			},
-		}).
-		Return(nil)
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := YourEmail(nil, donorStore)(testAppData, w, r, &donordata.Provided{
-		LpaID: "lpa-id",
-		Donor: donordata.Donor{
-			FirstNames: "John",
-		},
-	})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.
+				On("Put", r.Context(), &donordata.Provided{
+					LpaID: "lpa-id",
+					Donor: donordata.Donor{
+						FirstNames: "John",
+						Email:      "john@example.com",
+					},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathCanYouSignYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+			err := YourEmail(nil, donorStore)(tc.appData, w, r, &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					FirstNames: "John",
+				},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostYourEmailWhenValidationError(t *testing.T) {
