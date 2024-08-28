@@ -7,6 +7,7 @@ describe('As a trust corporation', () => {
 
         // start
         cy.contains('a', 'Start').click();
+        cy.contains('label', 'Random value').click();
         cy.get('form').submit();
 
         // enter reference number
