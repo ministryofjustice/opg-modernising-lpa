@@ -39,12 +39,8 @@ resource "aws_cloudtrail" "dynamodb" {
       type = "AWS::DynamoDB::Table"
       values = [
         aws_dynamodb_table.lpas_table.arn,
-        aws_dynamodb_table_replica.lpas_table[0].arn
+        local.environment.dynamodb.region_replica_enabled ? aws_dynamodb_table_replica.lpas_table[0].arn : ""
       ]
-    }
-    data_resource {
-      type   = "AWS::DynamoDB::Stream"
-      values = ["${aws_dynamodb_table.lpas_table.arn}/stream/*"]
     }
   }
   provider = aws.eu_west_1
