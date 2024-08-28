@@ -4,17 +4,20 @@ data "aws_s3_bucket" "cloudtrail" {
 }
 
 data "aws_kms_alias" "cloudtrail" {
-  name = "alias/cloudtrail_s3_modernising_lpa_${local.environment.account_name}"
+  name     = "alias/cloudtrail_s3_modernising_lpa_${local.environment.account_name}"
+  provider = aws.eu_west_1
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_dynamodb" {
   count             = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name              = "/aws/cloudtrail/dynamodb"
   retention_in_days = 365
+  provider          = aws.eu_west_1
 }
 
 data "aws_iam_role" "cloudtrail" {
-  name = "modernising-lpa-${local.environment.account_name}"
+  name     = "modernising-lpa-${local.environment.account_name}"
+  provider = aws.eu_west_1
 }
 
 resource "aws_cloudtrail" "dynamodb" {
@@ -44,4 +47,5 @@ resource "aws_cloudtrail" "dynamodb" {
       values = ["${aws_dynamodb_table.lpas_table.arn}/stream/*"]
     }
   }
+  provider = aws.eu_west_1
 }
