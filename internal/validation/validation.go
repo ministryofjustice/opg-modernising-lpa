@@ -3,10 +3,10 @@
 package validation
 
 type Localizer interface {
-	Concat([]string, string) string
-	Format(string, map[string]any) string
-	FormatCount(string, int, map[string]interface{}) string
-	T(string) string
+	Concat(x []string, b string) string
+	Format(x string, a map[string]interface{}) string
+	FormatCount(a string, b int, c map[string]interface{}) string
+	T(a string) string
 }
 
 type Field struct {
