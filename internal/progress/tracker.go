@@ -22,24 +22,24 @@ type Localizer interface {
 	T(messageID string) string
 }
 
-type ProgressTracker struct {
+type Tracker struct {
 	Localizer      Localizer
 	PaidFullFee    bool
 	Supporter      bool
 	CompletedSteps []Step
 }
 
-func NewProgressTracker(localizer Localizer) *ProgressTracker {
-	return &ProgressTracker{Localizer: localizer}
+func NewTracker(localizer Localizer) *Tracker {
+	return &Tracker{Localizer: localizer}
 }
 
-func (pt *ProgressTracker) Init(paidFullFee, isSupporter bool, completedSteps []Step) {
-	pt.PaidFullFee = paidFullFee
-	pt.Supporter = isSupporter
-	pt.CompletedSteps = completedSteps
+func (t *Tracker) Init(paidFullFee, isSupporter bool, completedSteps []Step) {
+	t.PaidFullFee = paidFullFee
+	t.Supporter = isSupporter
+	t.CompletedSteps = completedSteps
 }
 
-func (pt *ProgressTracker) DonorSteps() []Step {
+func (t *Tracker) DonorSteps() []Step {
 	steps := []Step{
 		{Name: DonorSignedLPA},
 		{Name: CertificateProvided},
@@ -50,7 +50,7 @@ func (pt *ProgressTracker) DonorSteps() []Step {
 		{Name: LpaRegistered},
 	}
 
-	if !pt.PaidFullFee {
+	if !t.PaidFullFee {
 		steps = slices.Insert(steps, 0,
 			Step{Name: FeeEvidenceSubmitted},
 			Step{Name: FeeEvidenceNotification, Notification: true},
@@ -61,7 +61,7 @@ func (pt *ProgressTracker) DonorSteps() []Step {
 	return steps
 }
 
-func (pt *ProgressTracker) SupporterSteps() []Step {
+func (t *Tracker) SupporterSteps() []Step {
 	steps := []Step{
 		{Name: DonorPaid},
 		{Name: DonorProvedID},
@@ -74,7 +74,7 @@ func (pt *ProgressTracker) SupporterSteps() []Step {
 		{Name: LpaRegistered},
 	}
 
-	if !pt.PaidFullFee {
+	if !t.PaidFullFee {
 		steps = slices.Insert(steps, 0,
 			Step{Name: FeeEvidenceSubmitted},
 			Step{Name: FeeEvidenceNotification, Notification: true},
@@ -85,19 +85,19 @@ func (pt *ProgressTracker) SupporterSteps() []Step {
 	return steps
 }
 
-func (pt *ProgressTracker) Remaining() (inProgress Step, remaining []Step) {
-	allSteps := pt.DonorSteps()
-	if pt.Supporter {
-		allSteps = pt.SupporterSteps()
+func (t *Tracker) Remaining() (inProgress Step, remaining []Step) {
+	allSteps := t.DonorSteps()
+	if t.Supporter {
+		allSteps = t.SupporterSteps()
 	}
 
-	if len(pt.CompletedSteps) == 0 {
+	if len(t.CompletedSteps) == 0 {
 		return allSteps[0], allSteps[1:]
 	}
 
 	removeMap := make(map[StepName]bool)
 
-	for _, toRemove := range pt.CompletedSteps {
+	for _, toRemove := range t.CompletedSteps {
 		removeMap[toRemove.Name] = true
 	}
 
@@ -110,12 +110,12 @@ func (pt *ProgressTracker) Remaining() (inProgress Step, remaining []Step) {
 	return remaining[0], remaining[1:]
 }
 
-func (pt *ProgressTracker) Completed() []Step {
+func (t *Tracker) Completed() []Step {
 	var filteredCompleted []Step
 
-	steps := pt.DonorSteps()
-	if pt.Supporter {
-		steps = pt.SupporterSteps()
+	steps := t.DonorSteps()
+	if t.Supporter {
+		steps = t.SupporterSteps()
 	}
 
 	//Filter out supporter steps appearing in donor steps
@@ -124,19 +124,19 @@ func (pt *ProgressTracker) Completed() []Step {
 		seen[step.Name] = true
 	}
 
-	for _, step := range pt.CompletedSteps {
+	for _, step := range t.CompletedSteps {
 		if seen[step.Name] && step.Show() {
 			filteredCompleted = append(filteredCompleted, step)
 		}
 	}
 
 	sort.Slice(filteredCompleted, func(a, b int) bool {
-		return pt.CompletedSteps[a].Completed.Before(pt.CompletedSteps[b].Completed)
+		return t.CompletedSteps[a].Completed.Before(t.CompletedSteps[b].Completed)
 	})
 
 	return filteredCompleted
 }
 
-func (pt *ProgressTracker) IsSupporter() bool {
-	return pt.Supporter
+func (t *Tracker) IsSupporter() bool {
+	return t.Supporter
 }
