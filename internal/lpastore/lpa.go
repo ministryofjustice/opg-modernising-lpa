@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -404,9 +405,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		},
 		HowShouldReplacementAttorneysStepIn:        l.HowReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowReplacementAttorneysStepInDetails,
-		Restrictions:                             l.Restrictions,
-		WhenCanTheLpaBeUsed:                      l.WhenTheLpaCanBeUsed,
-		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
+		Restrictions:                  l.Restrictions,
+		WhenCanTheLpaBeUsed:           l.WhenTheLpaCanBeUsed,
+		LifeSustainingTreatmentOption: l.LifeSustainingTreatmentOption,
+		// TODO: add authorised signatory and independent witness when these become available
 		SignedAt:                                 l.SignedAt,
 		CertificateProviderNotRelatedConfirmedAt: confirmedAt,
 		CannotRegister:                           l.Status == "cannot-register",
@@ -484,6 +486,26 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 		}
 	}
 
+	var authorisedSignatory actor.Actor
+	if v := l.AuthorisedSignatory; v.FirstNames != "" {
+		authorisedSignatory = actor.Actor{
+			// TODO: add UID for this actor
+			Type:       actor.TypeAuthorisedSignatory,
+			FirstNames: v.FirstNames,
+			LastName:   v.LastName,
+		}
+	}
+
+	var independentWitness actor.Actor
+	if v := l.IndependentWitness; v.FirstNames != "" {
+		independentWitness = actor.Actor{
+			// TODO: add UID for this actor
+			Type:       actor.TypeIndependentWitness,
+			FirstNames: v.FirstNames,
+			LastName:   v.LastName,
+		}
+	}
+
 	return &lpadata.Lpa{
 		LpaID:     l.LpaID,
 		LpaUID:    l.LpaUID,
@@ -533,7 +555,9 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 			LastName:   l.Correspondent.LastName,
 			Email:      l.Correspondent.Email,
 		},
-		Voucher: voucher,
+		AuthorisedSignatory: authorisedSignatory,
+		IndependentWitness:  independentWitness,
+		Voucher:             voucher,
 	}
 }
 

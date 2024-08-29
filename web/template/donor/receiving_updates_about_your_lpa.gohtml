@@ -1,0 +1,32 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "receivingUpdatesAboutYourLpa" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            {{ trHtml .App "receivingUpdatesAboutYourLpaContent" }}
+
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "email"
+                    .Donor.Donor.Email
+                    (fromLink .App global.Paths.YourEmail "#f-email")
+                    "" true true) }}
+                {{ template "summary-row" (summaryRow .App "mobilePhoneNumber"
+                    (formatPhone .Donor.Donor.Mobile)
+                    (fromLink .App global.Paths.YourMobile "#f-mobile")
+                    "" true true) }}
+            </dl>
+
+            {{ if .Donor.Type.Empty }}
+                {{ template "button" (button .App "continue" "link" (global.Paths.CanYouSignYourLpa.Format .App.LpaID)) }}
+            {{ else }}
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.CanYouSignYourLpa.Format .App.LpaID)) }}
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

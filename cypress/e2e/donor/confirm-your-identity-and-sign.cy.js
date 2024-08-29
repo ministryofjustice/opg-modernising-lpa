@@ -62,7 +62,7 @@ describe('Confirm your identity and sign', () => {
             cy.url().should('contain', '/witnessing-as-certificate-provider');
             cy.checkA11yApp();
 
-            cy.contains('h1', "Confirm you witnessed the donor sign");
+            cy.contains('h1', "Charlie Cooper, confirm you witnessed the donor sign their LPA");
             cy.get('#f-witness-code').type('1234');
             cy.contains('button', 'Continue').click();
 
@@ -170,7 +170,7 @@ describe('Confirm your identity and sign', () => {
             cy.url().should('contain', '/witnessing-as-certificate-provider');
             cy.checkA11yApp();
 
-            cy.contains('h1', "Confirm you witnessed the donor sign");
+            cy.contains('h1', "Charlie Cooper, confirm you witnessed the donor sign their LPA");
             cy.get('#f-witness-code').type('1234');
             cy.contains('button', 'Continue').click();
 

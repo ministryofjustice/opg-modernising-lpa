@@ -18,32 +18,96 @@ import (
 )
 
 func TestGetConfirmAllowedToVouch(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
-		}, nil)
-
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &confirmAllowedToVouchData{
-			App: testAppData,
-			Lpa: &lpadata.Lpa{
+	testcases := map[string]struct {
+		lpa      *lpadata.Lpa
+		provided *voucherdata.Provided
+		data     *confirmAllowedToVouchData
+	}{
+		"actor matches": {
+			lpa: &lpadata.Lpa{
 				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
 			},
-			Form: form.NewYesNoForm(form.YesNoUnknown),
-		}).
-		Return(nil)
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "V",
+				LastName:   "W",
+			},
+			data: &confirmAllowedToVouchData{
+				App:  testAppData,
+				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Lpa: &lpadata.Lpa{
+					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+				},
+			},
+		},
+		"surname matches donor": {
+			lpa: &lpadata.Lpa{
+				Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
+				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+			},
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "V",
+				LastName:   "W",
+			},
+			data: &confirmAllowedToVouchData{
+				App:  testAppData,
+				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Lpa: &lpadata.Lpa{
+					Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
+					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+				},
+				SurnameMatchesDonor: true,
+			},
+		},
+		"matches actor after identity": {
+			lpa: &lpadata.Lpa{
+				Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
+				Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+			},
+			provided: &voucherdata.Provided{
+				LpaID:      "lpa-id",
+				FirstNames: "V",
+				LastName:   "W",
+				Tasks: voucherdata.Tasks{
+					ConfirmYourIdentity: task.StateInProgress,
+				},
+			},
+			data: &confirmAllowedToVouchData{
+				App:  testAppData,
+				Form: form.NewYesNoForm(form.YesNoUnknown),
+				Lpa: &lpadata.Lpa{
+					Donor:   lpadata.Donor{FirstNames: "A", LastName: "W"},
+					Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+				},
+				SurnameMatchesDonor: true,
+				MatchIdentity:       true,
+			},
+		},
+	}
 
-	err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	resp := w.Result()
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, tc.data).
+				Return(nil)
+
+			err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, tc.provided)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetConfirmAllowedToVouchWhenLpaStoreResolvingServiceErrors(t *testing.T) {
@@ -82,33 +146,39 @@ func TestGetConfirmAllowedToVouchWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmAllowedToVouch(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.Yes.String()},
+	testcases := map[task.State]voucherdata.Tasks{
+		task.StateNotStarted: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
+		task.StateInProgress: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
 	}
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	for taskState, tasks := range testcases {
+		t.Run(taskState.String(), func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.YesNo: {form.Yes.String()},
+			}
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	voucherStore := newMockVoucherStore(t)
-	voucherStore.EXPECT().
-		Put(r.Context(), &voucherdata.Provided{
-			LpaID: "lpa-id",
-			Tasks: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
-		}).
-		Return(nil)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
 
-	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	resp := w.Result()
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				Put(r.Context(), &voucherdata.Provided{LpaID: "lpa-id", Tasks: tasks}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+			err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", Tasks: voucherdata.Tasks{ConfirmYourIdentity: taskState}})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {

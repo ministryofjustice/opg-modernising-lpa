@@ -3,6 +3,7 @@ package voucherpage
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -15,10 +16,12 @@ import (
 )
 
 type confirmAllowedToVouchData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *form.YesNoForm
-	Lpa    *lpadata.Lpa
+	App                 appcontext.Data
+	Errors              validation.List
+	Form                *form.YesNoForm
+	Lpa                 *lpadata.Lpa
+	SurnameMatchesDonor bool
+	MatchIdentity       bool
 }
 
 func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore) Handler {
@@ -29,9 +32,11 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 		}
 
 		data := &confirmAllowedToVouchData{
-			App:  appData,
-			Form: form.NewYesNoForm(form.YesNoUnknown),
-			Lpa:  lpa,
+			App:                 appData,
+			Form:                form.NewYesNoForm(form.YesNoUnknown),
+			Lpa:                 lpa,
+			SurnameMatchesDonor: strings.EqualFold(provided.LastName, lpa.Donor.LastName),
+			MatchIdentity:       provided.Tasks.ConfirmYourIdentity.IsInProgress(),
 		}
 
 		if r.Method == http.MethodPost {
@@ -43,7 +48,12 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 					return errors.New("// TODO there should be a page here but it hasn't been built yet")
 				}
 
-				provided.Tasks.ConfirmYourName = task.StateCompleted
+				if provided.Tasks.ConfirmYourIdentity.IsInProgress() {
+					provided.Tasks.ConfirmYourIdentity = task.StateCompleted
+				} else {
+					provided.Tasks.ConfirmYourName = task.StateCompleted
+				}
+
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
 					return err
 				}

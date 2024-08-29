@@ -6,12 +6,20 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ template "information-banner" (content .App "youMustReviewTheInformationYouHaveEntered") }}
-            
+
             <h1 class="govuk-heading-xl">{{ tr .App "confirmThatYouAreAllowedToVouch" }}</h1>
 
             <p class="govuk-body">
-                {{ trFormat .App "theDonorsLastNameMatchesYours"
-                    "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                {{ if .MatchIdentity }}
+                    {{ trFormat .App "yourConfirmedIdentityDetailsMatchSomeone"
+                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                {{ else if .SurnameMatchesDonor }}
+                    {{ trFormat .App "theDonorsLastNameMatchesYours"
+                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                {{ else }}
+                    {{ trFormat .App "youHaveEnteredNameWhichMatchesSomeone"
+                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                {{ end }}
             </p>
 
             {{ trFormatHtml .App "thePersonVouchingCannot"
@@ -31,7 +39,7 @@
                             (item .Form.Options.No.String "no")) }}
                     </fieldset>
                 </div>
-                
+
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}
             </form>

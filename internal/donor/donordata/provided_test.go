@@ -2,6 +2,7 @@ package donordata
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -35,14 +36,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x21fe499ef7d8e7d
+	const modified uint64 = 0x4765981bee80f0a4
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
-	// (*DonorProvidedDetails).HashInclude and adding another testcase for the new
+	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xe2e9210379ed1764,
+		0: 0x2d6528866eb5ccbf,
 	}
 
 	for version, initial := range testcases {
@@ -92,13 +93,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x80dd4c6c182cd354
+	const modified uint64 = 0xaca608ad8e0a588d
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x5a917bb07c1dde03,
+		0: 0xc354aa0f0c97e090,
 	}
 
 	for version, initial := range testcases {
@@ -352,4 +353,105 @@ func TestNamesChanged(t *testing.T) {
 	}
 
 	assert.False(t, donor.NamesChanged("a", "b", "c"))
+}
+
+func TestProvidedActors(t *testing.T) {
+	lpa := &Provided{
+		Donor: Donor{
+			UID:        actoruid.New(),
+			FirstNames: "Sam",
+			LastName:   "Smith",
+		},
+		CertificateProvider: CertificateProvider{
+			UID:        actoruid.New(),
+			FirstNames: "Charlie",
+			LastName:   "Cooper",
+		},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{
+				UID:        actoruid.New(),
+				FirstNames: "Alan",
+				LastName:   "Attorney",
+			}, {
+				UID:        actoruid.New(),
+				FirstNames: "Angela",
+				LastName:   "Attorney",
+			}},
+			TrustCorporation: TrustCorporation{Name: "Trusty"},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys: []Attorney{{
+				UID:        actoruid.New(),
+				FirstNames: "Richard",
+				LastName:   "Replacement",
+			}, {
+				UID:        actoruid.New(),
+				FirstNames: "Rachel",
+				LastName:   "Replacement",
+			}},
+			TrustCorporation: TrustCorporation{Name: "Untrusty"},
+		},
+		PeopleToNotify: []PersonToNotify{{
+			UID:        actoruid.New(),
+			FirstNames: "Peter",
+			LastName:   "Person",
+		}},
+		AuthorisedSignatory: AuthorisedSignatory{
+			FirstNames: "Arthur",
+			LastName:   "Signor",
+		},
+		IndependentWitness: IndependentWitness{
+			FirstNames: "Independent",
+			LastName:   "Wit",
+		},
+		Correspondent: Correspondent{FirstNames: "Nope"},
+		Voucher:       Voucher{FirstNames: "Nada"},
+	}
+
+	actors := slices.Collect(lpa.Actors())
+
+	assert.Equal(t, []actor.Actor{{
+		Type:       actor.TypeDonor,
+		UID:        lpa.Donor.UID,
+		FirstNames: "Sam",
+		LastName:   "Smith",
+	}, {
+		Type:       actor.TypeCertificateProvider,
+		UID:        lpa.CertificateProvider.UID,
+		FirstNames: "Charlie",
+		LastName:   "Cooper",
+	}, {
+		Type:       actor.TypeAttorney,
+		UID:        lpa.Attorneys.Attorneys[0].UID,
+		FirstNames: "Alan",
+		LastName:   "Attorney",
+	}, {
+		Type:       actor.TypeAttorney,
+		UID:        lpa.Attorneys.Attorneys[1].UID,
+		FirstNames: "Angela",
+		LastName:   "Attorney",
+	}, {
+		Type:       actor.TypeReplacementAttorney,
+		UID:        lpa.ReplacementAttorneys.Attorneys[0].UID,
+		FirstNames: "Richard",
+		LastName:   "Replacement",
+	}, {
+		Type:       actor.TypeReplacementAttorney,
+		UID:        lpa.ReplacementAttorneys.Attorneys[1].UID,
+		FirstNames: "Rachel",
+		LastName:   "Replacement",
+	}, {
+		Type:       actor.TypePersonToNotify,
+		UID:        lpa.PeopleToNotify[0].UID,
+		FirstNames: "Peter",
+		LastName:   "Person",
+	}, {
+		Type:       actor.TypeAuthorisedSignatory,
+		FirstNames: "Arthur",
+		LastName:   "Signor",
+	}, {
+		Type:       actor.TypeIndependentWitness,
+		FirstNames: "Independent",
+		LastName:   "Wit",
+	}}, actors)
 }

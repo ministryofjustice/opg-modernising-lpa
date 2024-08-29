@@ -3,6 +3,7 @@ package donordata
 
 import (
 	"errors"
+	"iter"
 	"slices"
 	"strings"
 	"time"
@@ -400,4 +401,81 @@ func (l *Provided) CertificateProviderSharesDetails() bool {
 	}
 
 	return false
+}
+
+// Actors returns an iterator over all human actors named on the LPA (i.e. this
+// excludes trust corporations, the correspondent, and the voucher).
+func (l *Provided) Actors() iter.Seq[actor.Actor] {
+	return func(yield func(actor.Actor) bool) {
+		if !yield(actor.Actor{
+			Type:       actor.TypeDonor,
+			UID:        l.Donor.UID,
+			FirstNames: l.Donor.FirstNames,
+			LastName:   l.Donor.LastName,
+		}) {
+			return
+		}
+
+		if !yield(actor.Actor{
+			Type:       actor.TypeCertificateProvider,
+			UID:        l.CertificateProvider.UID,
+			FirstNames: l.CertificateProvider.FirstNames,
+			LastName:   l.CertificateProvider.LastName,
+		}) {
+			return
+		}
+
+		for _, attorney := range l.Attorneys.Attorneys {
+			if !yield(actor.Actor{
+				Type:       actor.TypeAttorney,
+				UID:        attorney.UID,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+			}) {
+				return
+			}
+		}
+
+		for _, attorney := range l.ReplacementAttorneys.Attorneys {
+			if !yield(actor.Actor{
+				Type:       actor.TypeReplacementAttorney,
+				UID:        attorney.UID,
+				FirstNames: attorney.FirstNames,
+				LastName:   attorney.LastName,
+			}) {
+				return
+			}
+		}
+
+		for _, person := range l.PeopleToNotify {
+			if !yield(actor.Actor{
+				Type:       actor.TypePersonToNotify,
+				UID:        person.UID,
+				FirstNames: person.FirstNames,
+				LastName:   person.LastName,
+			}) {
+				return
+			}
+		}
+
+		if l.AuthorisedSignatory.FirstNames != "" {
+			if !yield(actor.Actor{
+				Type:       actor.TypeAuthorisedSignatory,
+				FirstNames: l.AuthorisedSignatory.FirstNames,
+				LastName:   l.AuthorisedSignatory.LastName,
+			}) {
+				return
+			}
+		}
+
+		if l.IndependentWitness.FirstNames != "" {
+			if !yield(actor.Actor{
+				Type:       actor.TypeIndependentWitness,
+				FirstNames: l.IndependentWitness.FirstNames,
+				LastName:   l.IndependentWitness.LastName,
+			}) {
+				return
+			}
+		}
+	}
 }
