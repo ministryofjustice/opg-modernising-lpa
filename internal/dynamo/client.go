@@ -427,3 +427,33 @@ func (c *Client) BatchPut(ctx context.Context, values []interface{}) error {
 
 	return err
 }
+
+func (c *Client) Move(ctx context.Context, oldKeys Keys, value any) error {
+	v, err := attributevalue.MarshalMap(value)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: []types.TransactWriteItem{
+			{
+				Delete: &types.Delete{
+					TableName: aws.String(c.table),
+					Key: map[string]types.AttributeValue{
+						"PK": &types.AttributeValueMemberS{Value: oldKeys.PK.PK()},
+						"SK": &types.AttributeValueMemberS{Value: oldKeys.SK.SK()},
+					},
+					ConditionExpression: aws.String("attribute_exists(PK) and attribute_exists(SK)"),
+				},
+			},
+			{
+				Put: &types.Put{
+					TableName: aws.String(c.table),
+					Item:      v,
+				},
+			},
+		},
+	})
+
+	return err
+}

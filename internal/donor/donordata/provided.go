@@ -291,6 +291,14 @@ func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
+func (l *Provided) CorrespondentEmail() string {
+	if l.Correspondent.Email == "" {
+		return l.Donor.Email
+	}
+
+	return l.Correspondent.Email
+}
+
 func (l *Provided) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
