@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -26,6 +28,8 @@ const (
 	certificateProviderSharePrefix = "CERTIFICATEPROVIDERSHARE"
 	attorneySharePrefix            = "ATTORNEYSHARE"
 	voucherSharePrefix             = "VOUCHERSHARE"
+	scheduledDayPrefix             = "SCHEDULEDDAY"
+	scheduledPrefix                = "SCHEDULED"
 )
 
 func readKey(s string) (any, error) {
@@ -71,6 +75,10 @@ func readKey(s string) (any, error) {
 		return DonorInviteKeyType(s), nil
 	case voucherPrefix:
 		return VoucherKeyType(s), nil
+	case scheduledDayPrefix:
+		return ScheduledDayKeyType(s), nil
+	case scheduledPrefix:
+		return ScheduledKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -266,4 +274,22 @@ func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
 // VoucherShareKey is used as the PK for sharing an Lpa with a donor.
 func VoucherShareKey(code string) VoucherShareKeyType {
 	return VoucherShareKeyType(voucherSharePrefix + "#" + code)
+}
+
+type ScheduledDayKeyType string
+
+func (t ScheduledDayKeyType) PK() string { return string(t) }
+
+// ScheduledDayKey is used as the PK for a scheduled.Event.
+func ScheduledDayKey(at time.Time) ScheduledDayKeyType {
+	return ScheduledDayKeyType(scheduledDayPrefix + "#" + at.Format(time.DateOnly))
+}
+
+type ScheduledKeyType string
+
+func (t ScheduledKeyType) SK() string { return string(t) }
+
+// ScheduledKey is used as the SK for a scheduled.Event.
+func ScheduledKey(at time.Time, action int) ScheduledKeyType {
+	return ScheduledKeyType(scheduledPrefix + "#" + at.Format(time.RFC3339) + "#" + strconv.Itoa(action))
 }

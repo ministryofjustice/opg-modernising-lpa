@@ -1,14 +1,18 @@
 {{ define "notification-banner" }}
-  <div class="govuk-notification-banner {{ if .Success }}govuk-notification-banner--success{{ end }}" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-    <div class="govuk-notification-banner__header">
-      <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-        {{ tr .App .Title }}
-      </h1>
+    <div class="govuk-notification-banner {{ if .Success }}govuk-notification-banner--success{{ end }}" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+        <div class="govuk-notification-banner__header">
+            <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                {{ tr .App .Title }}
+            </h1>
+        </div>
+        {{ if .Contents }}
+            {{ .Content }}
+        {{ else }}
+            <div class="govuk-notification-banner__content">
+                <p class="{{ if .Heading }}govuk-notification-banner__heading{{ else }}govuk-body app-full-width{{ end }}">
+                    {{ .Content }}
+                </p>
+            </div>
+        {{ end }}
     </div>
-    <div class="govuk-notification-banner__content">
-      <p class="{{ if .Heading }}govuk-notification-banner__heading{{ else }}govuk-body app-full-width{{ end }}">
-        {{ .Content }}
-      </p>
-    </div>
-  </div>
 {{ end }}
