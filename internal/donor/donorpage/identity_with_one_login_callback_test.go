@@ -9,8 +9,10 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -25,6 +27,8 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 	updatedDonor := &donordata.Provided{
+		PK:                    dynamo.LpaKey("hey"),
+		SK:                    dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
@@ -52,7 +56,19 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		ParseIdentityClaim(r.Context(), userInfo).
 		Return(userData, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &donordata.Provided{
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		Put(r.Context(), scheduled.Event{
+			At:                now.AddDate(0, 6, 0),
+			Action:            scheduled.ActionExpireDonorIdentity,
+			TargetLpaKey:      dynamo.LpaKey("hey"),
+			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
+		}).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore)(testAppData, w, r, &donordata.Provided{
+		PK:    dynamo.LpaKey("hey"),
+		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "John", LastName: "Doe"},
 	})
@@ -61,6 +77,50 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestGetIdentityWithOneLoginCallbackWhenScheduledStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
+	now := time.Now()
+
+	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(nil)
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		OneLogin(mock.Anything).
+		Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
+
+	oneLoginClient := newMockOneLoginClient(t)
+	oneLoginClient.EXPECT().
+		Exchange(mock.Anything, mock.Anything, mock.Anything).
+		Return("id-token", "a-jwt", nil)
+	oneLoginClient.EXPECT().
+		UserInfo(mock.Anything, mock.Anything).
+		Return(userInfo, nil)
+	oneLoginClient.EXPECT().
+		ParseIdentityClaim(mock.Anything, mock.Anything).
+		Return(userData, nil)
+
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore)(testAppData, w, r, &donordata.Provided{
+		PK:    dynamo.LpaKey("hey"),
+		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
+		LpaID: "lpa-id",
+		Donor: donordata.Donor{FirstNames: "John", LastName: "Doe"},
+	})
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
@@ -182,7 +242,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
 
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.donorStore(t))(testAppData, w, r, &donordata.Provided{})
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.donorStore(t), nil)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -222,7 +282,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(identity.UserData{Status: identity.StatusInsufficientEvidence}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "John", LastName: "Doe"},
 		LpaID: "lpa-id",
 	})
@@ -264,7 +324,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(identity.UserData{Status: identity.StatusFailed}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "John", LastName: "Doe"},
 		LpaID: "lpa-id",
 	})
@@ -301,7 +361,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -312,7 +372,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "first-name", LastName: "last-name"},
 		DonorIdentityUserData: userData,
