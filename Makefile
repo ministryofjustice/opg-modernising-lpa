@@ -130,8 +130,8 @@ emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the
 emit-reduced-fee-declined: ##@events emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
 	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
-emit-more-evidence-required: ##@events emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+emit-further-info-requested: ##@events emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
+	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"further-info-requested","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","postedDate":"2024-01-18T00:00:00.000Z","reducedFeeType":"remission"}}'
 
 emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \

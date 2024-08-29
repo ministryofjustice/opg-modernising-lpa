@@ -218,14 +218,14 @@ func TestRemovePersonToNotifyRemoveLastPerson(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:          "lpa-id",
 			PeopleToNotify: donordata.PeopleToNotify{},
-			Tasks:          donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, PeopleToNotify: task.StateNotStarted},
+			Tasks:          task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, PeopleToNotify: task.StateNotStarted},
 		}).
 		Return(nil)
 
 	err := RemovePersonToNotify(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		PeopleToNotify: donordata.PeopleToNotify{personToNotifyWithoutAddress},
-		Tasks:          donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, PeopleToNotify: task.StateCompleted},
+		Tasks:          task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, PeopleToNotify: task.StateCompleted},
 	})
 	resp := w.Result()
 

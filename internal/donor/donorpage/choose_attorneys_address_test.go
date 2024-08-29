@@ -161,7 +161,7 @@ func TestPostChooseAttorneysAddressManual(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 				UID:        uid,
 				FirstNames: "a",
@@ -234,7 +234,7 @@ func TestPostChooseAttorneysAddressManualFromStore(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{
 				UID:        uid,
 				FirstNames: "John",
@@ -682,7 +682,7 @@ func TestPostChooseAttorneysAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:     "lpa-id",
 			Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{updatedAttorney}},
-			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
+			Tasks:     task.DonorTasks{ChooseAttorneys: task.StateInProgress},
 		}).
 		Return(nil)
 

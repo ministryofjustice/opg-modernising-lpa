@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 type OrganisationStore struct {
@@ -120,6 +121,7 @@ func (s *OrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided,
 		Donor: donordata.Donor{
 			UID: donorUID,
 		},
+		ProgressSteps: &task.Progress{},
 	}
 
 	if err := donor.UpdateHash(); err != nil {

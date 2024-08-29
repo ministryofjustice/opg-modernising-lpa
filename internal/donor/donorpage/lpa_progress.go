@@ -6,15 +6,20 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type lpaProgressData struct {
-	App      appcontext.Data
-	Donor    *donordata.Provided
-	Progress task.Progress
-	Errors   validation.List
+	App         appcontext.Data
+	Donor       *donordata.Provided
+	Lpa         *lpadata.Lpa
+	Completed   []task.Step
+	InProgress  task.Step
+	NotStarted  []task.Step
+	IsSupporter bool
+	Errors      validation.List
 }
 
 func LpaProgress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
@@ -24,10 +29,18 @@ func LpaProgress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolv
 			return err
 		}
 
+		progressTracker.Init(donor.FeeType.IsFullFee(), lpa.IsOrganisationDonor, donor.ProgressSteps)
+
+		inProgress, notStarted := progressTracker.Remaining()
+
 		data := &lpaProgressData{
-			App:      appData,
-			Donor:    donor,
-			Progress: progressTracker.Progress(lpa),
+			App:         appData,
+			Donor:       donor,
+			Lpa:         lpa,
+			Completed:   progressTracker.Completed(),
+			InProgress:  inProgress,
+			NotStarted:  notStarted,
+			IsSupporter: progressTracker.IsSupporter(),
 		}
 
 		return tmpl(w, data)

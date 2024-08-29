@@ -323,7 +323,7 @@ func TestDonorStorePutWhenNoChange(t *testing.T) {
 }
 
 func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
-	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateInProgress}}
+	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: task.DonorTasks{CheckYourLpa: task.StateInProgress}}
 	_ = saved.UpdateHash()
 
 	dynamoClient := newMockDynamoClient(t)
@@ -333,7 +333,7 @@ func TestDonorStorePutWhenCheckChangeAndCheckCompleted(t *testing.T) {
 
 	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: donordata.Tasks{CheckYourLpa: task.StateCompleted}})
+	err := donorStore.Put(ctx, &donordata.Provided{PK: dynamo.LpaKey("5"), Hash: 5, CheckedHash: 5, SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, Donor: donordata.Donor{FirstNames: "a", LastName: "b"}, Tasks: task.DonorTasks{CheckYourLpa: task.StateCompleted}})
 	assert.Nil(t, err)
 }
 

@@ -87,13 +87,13 @@ func TestPostRestrictions(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:        "lpa-id",
 			Restrictions: "blah",
-			Tasks:        donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, Restrictions: task.StateCompleted},
+			Tasks:        task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, Restrictions: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := Restrictions(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+		Tasks: task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -113,7 +113,7 @@ func TestPostRestrictionsWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{Restrictions: "blah", Tasks: donordata.Tasks{Restrictions: task.StateCompleted}}).
+		Put(r.Context(), &donordata.Provided{Restrictions: "blah", Tasks: task.DonorTasks{Restrictions: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := Restrictions(nil, donorStore)(testAppData, w, r, &donordata.Provided{})

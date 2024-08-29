@@ -103,7 +103,10 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpadata.Lpa) task.Progress
+	Init(paidFullFee, isSupporter bool, completedSteps *task.Progress)
+	Remaining() (inProgress task.Step, notStarted []task.Step)
+	Completed() []task.Step
+	IsSupporter() bool
 }
 
 func Register(
@@ -155,7 +158,7 @@ func Register(
 	handleWithSupporter(supporter.PathContactOPGForPaperForms, None,
 		Guidance(tmpls.Get("contact_opg_for_paper_forms.gohtml")))
 	handleWithSupporter(supporter.PathViewLPA, None,
-		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, progressTracker))
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreResolvingService, progressTracker, donorStore))
 
 	handleWithSupporter(supporter.PathOrganisationDetails, RequireAdmin,
 		Guidance(tmpls.Get("organisation_details.gohtml")))

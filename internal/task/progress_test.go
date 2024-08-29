@@ -7,6 +7,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,11 +67,129 @@ func TestProgressToSlice(t *testing.T) {
 				p.LpaRegistered,
 			}
 		},
+		"donor with fee evidence pre signing": func(p Progress) (Progress, []ProgressTask) {
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceApproved,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"donor with fee evidence pre signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"donor with fee evidence post signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.DonorSigned.State = StateCompleted
+			p.DonorSigned.Completed = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.DonorSigned,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"organisation with fee evidence pre signing": func(p Progress) (Progress, []ProgressTask) {
+			p.isOrganisation = true
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceApproved,
+				p.Paid,
+				p.ConfirmedID,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"organisation with fee evidence pre signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.isOrganisation = true
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.Paid,
+				p.ConfirmedID,
+				p.DonorSigned,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
+		"organisation with fee evidence post signing communication sent": func(p Progress) (Progress, []ProgressTask) {
+			p.isOrganisation = true
+			p.DonorSigned.State = StateCompleted
+			p.DonorSigned.Completed = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+
+			p.FeeEvidenceSubmitted.State = StateCompleted
+
+			p.FeeEvidenceNotification.State = StateCompleted
+			p.FeeEvidenceNotification.Completed = time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)
+
+			return p, []ProgressTask{
+				p.FeeEvidenceSubmitted,
+				p.DonorSigned,
+				p.FeeEvidenceNotification,
+				p.FeeEvidenceApproved,
+				p.Paid,
+				p.ConfirmedID,
+				p.CertificateProviderSigned,
+				p.AttorneysSigned,
+				p.LpaSubmitted,
+				p.StatutoryWaitingPeriod,
+				p.LpaRegistered,
+			}
+		},
 	}
 
 	for name, fn := range testcases {
 		t.Run(name, func(t *testing.T) {
 			progress, slice := fn(Progress{
+				FeeEvidenceSubmitted:      ProgressTask{State: StateNotStarted, Label: "Fee evidence submitted translation"},
+				FeeEvidenceNotification:   ProgressTask{State: StateNotStarted, Label: "Fee evidence notification translation"},
+				FeeEvidenceApproved:       ProgressTask{State: StateNotStarted, Label: "Fee evidence approved translation"},
 				Paid:                      ProgressTask{State: StateNotStarted, Label: "Paid translation"},
 				ConfirmedID:               ProgressTask{State: StateNotStarted, Label: "ConfirmedID translation"},
 				DonorSigned:               ProgressTask{State: StateInProgress, Label: "DonorSigned translation"},
@@ -91,6 +211,8 @@ func TestProgressTrackerProgress(t *testing.T) {
 	uid1 := actoruid.New()
 	uid2 := actoruid.New()
 	initialProgress := Progress{
+		FeeEvidenceSubmitted:      ProgressTask{State: StateNotStarted, Label: ""},
+		FeeEvidenceNotification:   ProgressTask{State: StateNotStarted, Label: ""},
 		Paid:                      ProgressTask{State: StateNotStarted, Label: ""},
 		ConfirmedID:               ProgressTask{State: StateNotStarted, Label: ""},
 		DonorSigned:               ProgressTask{State: StateInProgress, Label: "DonorSigned translation"},
@@ -103,6 +225,9 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 	testCases := map[string]struct {
 		lpa              *lpadata.Lpa
+		donorTasks       DonorTasks
+		notifications    notification.Notifications
+		feeType          pay.FeeType
 		expectedProgress func() Progress
 		setupLocalizer   func(*mockLocalizer)
 	}{
@@ -141,6 +266,177 @@ func TestProgressTrackerProgress(t *testing.T) {
 					Return("AttorneysSigned translation")
 			},
 		},
+		"fee evidence submitted - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateNotStarted
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("certificateProviderHasDeclared", map[string]interface{}{
+						"CertificateProviderFullName": "A B",
+					}).
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenSubmitted").
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenApproved").
+					Return("FeeEvidenceApproved translation")
+			},
+		},
+		"fee evidence notification sent - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			notifications: notification.Notifications{
+				FeeEvidence: notification.Notification{Received: testNow},
+			},
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceNotification.State = StateCompleted
+				progress.FeeEvidenceNotification.Label = "FeeEvidenceNotification translation"
+				progress.FeeEvidenceNotification.Completed = testNow
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateNotStarted
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("certificateProviderHasDeclared", map[string]interface{}{
+						"CertificateProviderFullName": "A B",
+					}).
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenSubmitted").
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					T("yourFee").
+					Return("yourFee translation")
+				localizer.EXPECT().
+					FormatDate(testNow).
+					Return("formatted date")
+				localizer.EXPECT().
+					Format("weEmailedYouOnAbout", map[string]interface{}{
+						"On":    "formatted date",
+						"About": "yourFee translation",
+					}).
+					Return("FeeEvidenceNotification translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenApproved").
+					Return("FeeEvidenceApproved translation")
+			},
+		},
+		"fee evidence approved - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			notifications: notification.Notifications{
+				FeeEvidence: notification.Notification{Received: testNow},
+			},
+			donorTasks: DonorTasks{PayForLpa: PaymentStateApproved},
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceNotification.State = StateCompleted
+				progress.FeeEvidenceNotification.Label = "FeeEvidenceNotification translation"
+				progress.FeeEvidenceNotification.Completed = testNow
+				progress.FeeEvidenceApproved.State = StateCompleted
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateInProgress
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("certificateProviderHasDeclared", map[string]interface{}{
+						"CertificateProviderFullName": "A B",
+					}).
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenSubmitted").
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					T("yourFee").
+					Return("yourFee translation")
+				localizer.EXPECT().
+					FormatDate(testNow).
+					Return("formatted date")
+				localizer.EXPECT().
+					Format("weEmailedYouOnAbout", map[string]interface{}{
+						"On":    "formatted date",
+						"About": "yourFee translation",
+					}).
+					Return("FeeEvidenceNotification translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenApproved").
+					Return("FeeEvidenceApproved translation")
+			},
+		},
+		"fee evidence submitted - LPA signed": {
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				SignedAt:            testNow,
+			},
+			feeType: pay.HalfFee,
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = testNow
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("certificateProviderHasDeclared", map[string]interface{}{
+						"CertificateProviderFullName": "A B",
+					}).
+					Return("CertificateProviderSigned translation")
+				localizer.EXPECT().
+					Count("attorneysHaveDeclared", 1).
+					Return("AttorneysSigned translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenSubmitted").
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					T("yourLPAFeeEvidenceHasBeenApproved").
+					Return("FeeEvidenceApproved translation")
+			},
+		},
 		"lpa signed": {
 			lpa: &lpadata.Lpa{
 				Donor:     lpadata.Donor{FirstNames: "a", LastName: "b"},
@@ -150,6 +446,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateInProgress
 
 				return progress
@@ -174,6 +471,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateInProgress
 
@@ -199,6 +497,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateInProgress
@@ -226,6 +525,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -254,6 +554,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -292,6 +593,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			expectedProgress: func() Progress {
 				progress := initialProgress
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -341,7 +643,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 			progressTracker := ProgressTracker{Localizer: localizer}
 
-			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa))
+			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa, tc.donorTasks, tc.notifications, tc.feeType))
 		})
 	}
 }
@@ -352,6 +654,8 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 	uid := actoruid.New()
 	initialProgress := Progress{
 		isOrganisation:            true,
+		FeeEvidenceSubmitted:      ProgressTask{State: StateNotStarted},
+		FeeEvidenceNotification:   ProgressTask{State: StateNotStarted},
 		Paid:                      ProgressTask{State: StateInProgress, Label: "Paid translation"},
 		ConfirmedID:               ProgressTask{State: StateNotStarted, Label: "ConfirmedID translation"},
 		DonorSigned:               ProgressTask{State: StateNotStarted, Label: "DonorSigned translation"},
@@ -365,6 +669,9 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 	testCases := map[string]struct {
 		lpa              *lpadata.Lpa
+		donorTasks       DonorTasks
+		notifications    notification.Notifications
+		feeType          pay.FeeType
 		expectedProgress func() Progress
 		setupLocalizer   func(*mockLocalizer)
 	}{
@@ -376,6 +683,187 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			expectedProgress: func() Progress {
 				return initialProgress
+			},
+		},
+		"fee evidence submitted - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateNotStarted
+				progress.Paid.State = StateNotStarted
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenSubmitted", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenApproved", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceApproved translation")
+				localizer.EXPECT().
+					Possessive("a b").
+					Return("Donor FullName Possessive")
+			},
+		},
+		"fee evidence notification sent - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			notifications: notification.Notifications{
+				FeeEvidence: notification.Notification{Received: testNow},
+			},
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceNotification.State = StateCompleted
+				progress.FeeEvidenceNotification.Label = "FeeEvidenceNotification translation"
+				progress.FeeEvidenceNotification.Completed = testNow
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateNotStarted
+				progress.Paid.State = StateNotStarted
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenSubmitted", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenApproved", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceApproved translation")
+				localizer.EXPECT().
+					Possessive("a b").
+					Return("Donor FullName Possessive")
+				localizer.EXPECT().
+					FormatDate(testNow).
+					Return("Formatted date")
+				localizer.EXPECT().
+					T("theFee").
+					Return("Translated theFee")
+				localizer.EXPECT().
+					Format("weEmailedDonorNameOnAbout", map[string]interface{}{
+						"On":            "Formatted date",
+						"About":         "Translated theFee",
+						"DonorFullName": "a b",
+					}).
+					Return("FeeEvidenceNotification translation")
+			},
+		},
+		"fee evidence approved - LPA not signed": {
+			lpa: &lpadata.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+			},
+			feeType: pay.HalfFee,
+			notifications: notification.Notifications{
+				FeeEvidence: notification.Notification{Received: testNow},
+			},
+			donorTasks: DonorTasks{PayForLpa: PaymentStateApproved},
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceNotification.State = StateCompleted
+				progress.FeeEvidenceNotification.Label = "FeeEvidenceNotification translation"
+				progress.FeeEvidenceNotification.Completed = testNow
+				progress.FeeEvidenceApproved.State = StateCompleted
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateNotStarted
+				progress.Paid.State = StateInProgress
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenSubmitted", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenApproved", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceApproved translation")
+				localizer.EXPECT().
+					Possessive("a b").
+					Return("Donor FullName Possessive")
+				localizer.EXPECT().
+					FormatDate(testNow).
+					Return("Formatted date")
+				localizer.EXPECT().
+					T("theFee").
+					Return("Translated theFee")
+				localizer.EXPECT().
+					Format("weEmailedDonorNameOnAbout", map[string]interface{}{
+						"On":            "Formatted date",
+						"About":         "Translated theFee",
+						"DonorFullName": "a b",
+					}).
+					Return("FeeEvidenceNotification translation")
+			},
+		},
+		"fee evidence submitted - LPA signed": {
+			lpa: &lpadata.Lpa{
+				IsOrganisationDonor: true,
+				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				SignedAt:            testNow,
+			},
+			feeType: pay.HalfFee,
+			expectedProgress: func() Progress {
+				progress := initialProgress
+
+				progress.FeeEvidenceSubmitted.State = StateCompleted
+				progress.FeeEvidenceSubmitted.Label = "FeeEvidenceSubmitted translation"
+				progress.FeeEvidenceApproved.State = StateInProgress
+				progress.FeeEvidenceApproved.Label = "FeeEvidenceApproved translation"
+				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = testNow
+				progress.Paid.State = StateNotStarted
+				return progress
+			},
+			setupLocalizer: func(localizer *mockLocalizer) {
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenSubmitted", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceSubmitted translation")
+				localizer.EXPECT().
+					Format("donorNamesLPAFeeEvidenceHasBeenApproved", map[string]interface{}{
+						"DonorFullNamePossessive": "Donor FullName Possessive",
+					}).
+					Return("FeeEvidenceApproved translation")
+				localizer.EXPECT().
+					Possessive("a b").
+					Return("Donor FullName Possessive")
 			},
 		},
 		"paid": {
@@ -432,6 +920,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateInProgress
 
 				return progress
@@ -456,6 +945,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateInProgress
 
@@ -481,6 +971,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateInProgress
@@ -508,6 +999,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -536,6 +1028,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -576,6 +1069,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				progress.Paid.State = StateCompleted
 				progress.ConfirmedID.State = StateCompleted
 				progress.DonorSigned.State = StateCompleted
+				progress.DonorSigned.Completed = lpaSignedAt
 				progress.CertificateProviderSigned.State = StateCompleted
 				progress.AttorneysSigned.State = StateCompleted
 				progress.LpaSubmitted.State = StateCompleted
@@ -640,7 +1134,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 			progressTracker := ProgressTracker{Localizer: localizer}
 
-			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa))
+			assert.Equal(t, tc.expectedProgress(), progressTracker.Progress(tc.lpa, tc.donorTasks, tc.notifications, tc.feeType))
 		})
 	}
 }

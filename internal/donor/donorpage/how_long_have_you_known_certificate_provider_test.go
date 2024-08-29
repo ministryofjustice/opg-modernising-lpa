@@ -96,7 +96,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 			Attorneys:           donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 			AttorneyDecisions:   donordata.AttorneyDecisions{How: lpadata.Jointly},
 			CertificateProvider: donordata.CertificateProvider{RelationshipLength: donordata.GreaterThanEqualToTwoYears},
-			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+			Tasks:               task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -104,7 +104,7 @@ func TestPostHowLongHaveYouKnownCertificateProviderMoreThan2Years(t *testing.T) 
 		LpaID:             "lpa-id",
 		Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "c"}, DateOfBirth: date.New("1990", "1", "1")}}},
 		AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-		Tasks:             donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+		Tasks:             task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 

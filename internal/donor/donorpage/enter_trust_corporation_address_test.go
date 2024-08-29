@@ -110,7 +110,7 @@ func TestPostEnterTrustCorporationAddressManual(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "a",
 				Address: testAddress,
@@ -176,7 +176,7 @@ func TestPostEnterTrustCorporationAddressManualFromStore(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks: task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 			Attorneys: donordata.Attorneys{TrustCorporation: donordata.TrustCorporation{
 				Name:    "John",
 				Address: testAddress,
@@ -589,7 +589,7 @@ func TestPostEnterTrustCorporationAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:     "lpa-id",
 			Attorneys: donordata.Attorneys{TrustCorporation: updatedTrustCorporation},
-			Tasks:     donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks:     task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 

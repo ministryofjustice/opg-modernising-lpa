@@ -12,23 +12,37 @@ import (
 )
 
 type viewLPAData struct {
-	App      appcontext.Data
-	Errors   validation.List
-	Lpa      *lpadata.Lpa
-	Progress task.Progress
+	App         appcontext.Data
+	Errors      validation.List
+	Lpa         *lpadata.Lpa
+	Completed   []task.Step
+	InProgress  task.Step
+	NotStarted  []task.Step
+	IsSupporter bool
 }
 
-func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
+func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
+		donor, err := donorStore.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		progressTracker.Init(donor.FeeType.IsFullFee(), lpa.IsOrganisationDonor, donor.ProgressSteps)
+		inProgress, notStarted := progressTracker.Remaining()
+
 		return tmpl(w, &viewLPAData{
-			App:      appData,
-			Lpa:      lpa,
-			Progress: progressTracker.Progress(lpa),
+			App:         appData,
+			Lpa:         lpa,
+			Completed:   progressTracker.Completed(),
+			InProgress:  inProgress,
+			NotStarted:  notStarted,
+			IsSupporter: progressTracker.IsSupporter(),
 		})
 	}
 }

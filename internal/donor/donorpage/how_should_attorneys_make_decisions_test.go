@@ -96,7 +96,7 @@ func TestPostHowShouldAttorneysMakeDecisions(t *testing.T) {
 			LpaID:             "lpa-id",
 			Attorneys:         attorneys,
 			AttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
-			Tasks:             donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+			Tasks:             task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -157,7 +157,7 @@ func TestPostHowShouldAttorneysMakeDecisionsFromStore(t *testing.T) {
 					LpaID:             "lpa-id",
 					Attorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress}, {FirstNames: "b", Address: testAddress}}},
 					AttorneyDecisions: donordata.AttorneyDecisions{Details: tc.updatedDetails, How: tc.updatedType},
-					Tasks:             donordata.Tasks{ChooseAttorneys: task.StateCompleted},
+					Tasks:             task.DonorTasks{ChooseAttorneys: task.StateCompleted},
 				}).
 				Return(nil)
 

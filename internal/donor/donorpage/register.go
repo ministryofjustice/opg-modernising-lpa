@@ -161,7 +161,10 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpadata.Lpa) task.Progress
+	Init(paidFullFee, isSupporter bool, completedSteps *task.Progress)
+	Remaining() (inProgress task.Step, notStarted []task.Step)
+	Completed() []task.Step
+	IsSupporter() bool
 }
 
 func Register(

@@ -1294,5 +1294,13 @@
     "yourEmailAddressForUpdates": "Your email address for receiving updates about your LPA",
     "enterYourEmailAddress": "Enter your email address",
     "yourMobileForUpdates": "Your mobile phone number for receiving text message updates about your LPA",
-    "youCanLeaveThisFieldBlankIfNotTextMessage": "You can leave this field  blank if you do not wish to receive updates by text message"
+    "youCanLeaveThisFieldBlankIfNotTextMessage": "You can leave this field  blank if you do not wish to receive updates by text message",
+    "donorNamesLPAFeeEvidenceHasBeenSubmitted": "{{.DonorFullNamePossessive}} LPA fee evidence has been submitted",
+    "weEmailedDonorNameOnAbout": "We emailed {{.DonorFullName}} on {{.On}} about {{.About}}",
+    "theFee": "the fee",
+    "donorNamesLPAFeeEvidenceHasBeenApproved": "{{.DonorFullNamePossessive}} fee evidence has been approved",
+    "yourLPAFeeEvidenceHasBeenSubmitted": "Your LPA fee evidence has been submitted",
+    "weEmailedYouOnAbout": "We emailed you on {{.On}} about {{.About}}",
+    "yourFee": "your fee",
+    "yourLPAFeeEvidenceHasBeenApproved": "Your fee evidence has been approved"
 }

@@ -32,7 +32,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "Barry",
 					Relationship: lpadata.Personally,
 				},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},
@@ -311,7 +311,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					FirstNames:   "Barry",
 					Relationship: lpadata.Personally,
 				},
-				Tasks: donordata.Tasks{
+				Tasks: task.DonorTasks{
 					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},

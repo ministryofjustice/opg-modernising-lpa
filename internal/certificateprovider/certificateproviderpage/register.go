@@ -172,7 +172,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml"), lpaStoreResolvingService))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now, donorStore))
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml"), lpaStoreResolvingService))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,

@@ -6,6 +6,10 @@ import (
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	mock "github.com/stretchr/testify/mock"
 
+	notification "github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
+
+	pay "github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+
 	task "github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -22,17 +26,17 @@ func (_m *mockProgressTracker) EXPECT() *mockProgressTracker_Expecter {
 	return &mockProgressTracker_Expecter{mock: &_m.Mock}
 }
 
-// Progress provides a mock function with given fields: lpa
-func (_m *mockProgressTracker) Progress(lpa *lpadata.Lpa) task.Progress {
-	ret := _m.Called(lpa)
+// Progress provides a mock function with given fields: lpa, donorTasks, notifications, feeType
+func (_m *mockProgressTracker) Progress(lpa *lpadata.Lpa, donorTasks task.DonorTasks, notifications notification.Notifications, feeType pay.FeeType) task.Progress {
+	ret := _m.Called(lpa, donorTasks, notifications, feeType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Progress")
 	}
 
 	var r0 task.Progress
-	if rf, ok := ret.Get(0).(func(*lpadata.Lpa) task.Progress); ok {
-		r0 = rf(lpa)
+	if rf, ok := ret.Get(0).(func(*lpadata.Lpa, task.DonorTasks, notification.Notifications, pay.FeeType) task.Progress); ok {
+		r0 = rf(lpa, donorTasks, notifications, feeType)
 	} else {
 		r0 = ret.Get(0).(task.Progress)
 	}
@@ -47,13 +51,16 @@ type mockProgressTracker_Progress_Call struct {
 
 // Progress is a helper method to define mock.On call
 //   - lpa *lpadata.Lpa
-func (_e *mockProgressTracker_Expecter) Progress(lpa interface{}) *mockProgressTracker_Progress_Call {
-	return &mockProgressTracker_Progress_Call{Call: _e.mock.On("Progress", lpa)}
+//   - donorTasks task.DonorTasks
+//   - notifications notification.Notifications
+//   - feeType pay.FeeType
+func (_e *mockProgressTracker_Expecter) Progress(lpa interface{}, donorTasks interface{}, notifications interface{}, feeType interface{}) *mockProgressTracker_Progress_Call {
+	return &mockProgressTracker_Progress_Call{Call: _e.mock.On("Progress", lpa, donorTasks, notifications, feeType)}
 }
 
-func (_c *mockProgressTracker_Progress_Call) Run(run func(lpa *lpadata.Lpa)) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) Run(run func(lpa *lpadata.Lpa, donorTasks task.DonorTasks, notifications notification.Notifications, feeType pay.FeeType)) *mockProgressTracker_Progress_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*lpadata.Lpa))
+		run(args[0].(*lpadata.Lpa), args[1].(task.DonorTasks), args[2].(notification.Notifications), args[3].(pay.FeeType))
 	})
 	return _c
 }
@@ -63,7 +70,7 @@ func (_c *mockProgressTracker_Progress_Call) Return(_a0 task.Progress) *mockProg
 	return _c
 }
 
-func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*lpadata.Lpa) task.Progress) *mockProgressTracker_Progress_Call {
+func (_c *mockProgressTracker_Progress_Call) RunAndReturn(run func(*lpadata.Lpa, task.DonorTasks, notification.Notifications, pay.FeeType) task.Progress) *mockProgressTracker_Progress_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -188,7 +188,7 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 						LastName:   "Doe",
 					},
 					CertificateProvider: tc.certificateProviderDetails,
-					Tasks:               donordata.Tasks{CertificateProvider: task.StateInProgress},
+					Tasks:               task.DonorTasks{CertificateProvider: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -233,7 +233,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 				LastName:   "Rey",
 				Mobile:     "07535111111",
 			},
-			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
+			Tasks: task.DonorTasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -243,7 +243,7 @@ func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *
 			FirstNames: "Jane",
 			LastName:   "Doe",
 		},
-		Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
+		Tasks: task.DonorTasks{CertificateProvider: task.StateCompleted},
 	})
 	resp := w.Result()
 

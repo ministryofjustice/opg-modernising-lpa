@@ -76,7 +76,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemption(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{Email: "a@b.com"},
-			Tasks: donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
+			Tasks: task.DonorTasks{PayForLpa: task.PaymentStateInProgress},
 		}).
 		Return(nil)
 
@@ -139,7 +139,7 @@ func TestPostAreYouApplyingForFeeDiscountOrExemptionWhenYes(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{Email: "a@b.com"},
-			Tasks: donordata.Tasks{PayForLpa: task.PaymentStateInProgress},
+			Tasks: task.DonorTasks{PayForLpa: task.PaymentStateInProgress},
 		}).
 		Return(nil)
 

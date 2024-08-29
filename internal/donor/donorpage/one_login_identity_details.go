@@ -3,12 +3,14 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -51,6 +53,8 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 					if err := provided.UpdateCheckedHash(); err != nil {
 						return err
 					}
+
+					provided.ProgressSteps.Complete(task.DonorProvedID, time.Now())
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return err

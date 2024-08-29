@@ -177,7 +177,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: donordata.Tasks{
+						Tasks: task.DonorTasks{
 							CertificateProvider: task.StateCompleted,
 							CheckYourLpa:        task.StateCompleted,
 						},
@@ -193,7 +193,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: donordata.Tasks{
+						Tasks: task.DonorTasks{
 							CertificateProvider: task.StateNotStarted,
 							CheckYourLpa:        task.StateNotStarted,
 						},
