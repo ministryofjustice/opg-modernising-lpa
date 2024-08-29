@@ -32,7 +32,7 @@ type Localizer interface {
 	Concat(list []string, joiner string) string
 	Count(messageID string, count int) string
 	Format(messageID string, data map[string]interface{}) string
-	FormatCount(messageID string, count int, data map[string]any) string
+	FormatCount(messageID string, count int, data map[string]interface{}) string
 	FormatDate(t date.TimeOrDate) string
 	FormatTime(t time.Time) string
 	FormatDateTime(t time.Time) string
