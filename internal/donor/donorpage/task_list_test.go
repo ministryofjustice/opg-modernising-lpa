@@ -144,6 +144,21 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"expired identity": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:                 "lpa-id",
+				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				DonorIdentityUserData: identity.UserData{Status: identity.StatusExpired, LastName: "a"},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: donor.PathWhatYouCanDoNowExpired.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"insufficient evidence for identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{

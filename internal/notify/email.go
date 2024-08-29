@@ -221,3 +221,9 @@ type VoucherFailedIdentityCheckEmail struct {
 func (e VoucherFailedIdentityCheckEmail) emailID(isProduction bool) string {
 	return "TODO"
 }
+
+type DonorIdentityCheckExpiredEmail struct{}
+
+func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool) string {
+	return "TODO"
+}
