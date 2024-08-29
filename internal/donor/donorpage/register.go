@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/cron"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
@@ -158,6 +159,10 @@ type ShareCodeStore interface {
 	Get(ctx context.Context, actorType actor.Type, code string) (sharecodedata.Link, error)
 }
 
+type CronStore interface {
+	Put(ctx context.Context, row cron.Row) error
+}
+
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
@@ -187,6 +192,7 @@ func Register(
 	shareCodeStore ShareCodeStore,
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
+	cronStore CronStore,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
 
@@ -382,7 +388,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, cronStore))
 	handleWithDonor(donor.PathOneLoginIdentityDetails, page.CanGoBack,
 		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
@@ -404,6 +410,8 @@ func Register(
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
 		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now.gohtml"), donorStore))
+	handleWithDonor(donor.PathWhatYouCanDoNowExpired, page.CanGoBack,
+		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now_expired.gohtml"), donorStore))
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
 

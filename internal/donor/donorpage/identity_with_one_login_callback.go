@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/cron"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, cronStore CronStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.DonorIdentityConfirmed() {
 			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
@@ -59,6 +61,15 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		case identity.StatusInsufficientEvidence:
 			return donor.PathUnableToConfirmIdentity.Redirect(w, r, appData, provided)
 		default:
+			if err := cronStore.Put(r.Context(), cron.Row{
+				At:       userData.RetrievedAt.AddDate(0, 6, 0),
+				Action:   cron.ActionCancelDonorIdentity,
+				TargetPK: dynamo.WrapPK(provided.PK),
+				TargetSK: dynamo.WrapSK(provided.SK),
+			}); err != nil {
+				return err
+			}
+
 			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
 		}
 	}
