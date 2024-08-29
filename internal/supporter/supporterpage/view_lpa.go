@@ -12,10 +12,13 @@ import (
 )
 
 type viewLPAData struct {
-	App      appcontext.Data
-	Errors   validation.List
-	Lpa      *lpadata.Lpa
-	Progress task.Progress
+	App         appcontext.Data
+	Errors      validation.List
+	Lpa         *lpadata.Lpa
+	Completed   []task.Step
+	InProgress  task.Step
+	NotStarted  []task.Step
+	IsSupporter bool
 }
 
 func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, donorStore DonorStore) Handler {
@@ -30,10 +33,16 @@ func ViewLPA(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingS
 			return err
 		}
 
+		progressTracker.Init(donor.FeeType.IsFullFee(), lpa.IsOrganisationDonor, donor.ProgressSteps)
+		inProgress, notStarted := progressTracker.Remaining()
+
 		return tmpl(w, &viewLPAData{
-			App:      appData,
-			Lpa:      lpa,
-			Progress: progressTracker.Progress(lpa, donor.Tasks, donor.Notifications, donor.FeeType),
+			App:         appData,
+			Lpa:         lpa,
+			Completed:   progressTracker.Completed(),
+			InProgress:  inProgress,
+			NotStarted:  notStarted,
+			IsSupporter: progressTracker.IsSupporter(),
 		})
 	}
 }

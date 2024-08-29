@@ -1,8 +1,6 @@
 package task
 
 import (
-	"slices"
-	"sort"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -26,98 +24,12 @@ const (
 	LpaRegistered
 )
 
-type Progress2 struct {
-	Steps []Step
-}
-
 type Step struct {
-	Name      StepName
+	Name StepName
+	// When the notification was completed
 	Completed time.Time
-	State     State
-}
-
-func (p *Progress2) RemainingDonorSteps(fullFee bool) []Step {
-	steps := []Step{
-		{Name: DonorSignedLPA},
-		{Name: CertificateProvided},
-		{Name: AllAttorneysSignedLPA},
-		{Name: LpaSubmitted},
-		{Name: NoticesOfIntentSent},
-		{Name: StatutoryWaitingPeriodFinished},
-		{Name: LpaRegistered},
-	}
-
-	if !fullFee {
-		steps = slices.Insert(steps, 0,
-			Step{Name: FeeEvidenceSubmitted},
-			Step{Name: FeeEvidenceApproved},
-		)
-	}
-
-	filteredSteps := make([]Step, 0)
-	removeMap := make(map[StepName]bool)
-
-	for _, toRemove := range p.Steps {
-		removeMap[toRemove.Name] = true
-	}
-	for _, step := range steps {
-		if _, ok := removeMap[step.Name]; !ok {
-			filteredSteps = append(filteredSteps, step)
-		}
-	}
-
-	return filteredSteps
-}
-
-func (p *Progress2) RemainingSupporterSteps() []Step {
-	steps := []Step{
-		{Name: DonorPaid},
-		{Name: DonorProvedID},
-		{Name: DonorSignedLPA},
-		{Name: CertificateProvided},
-		{Name: AllAttorneysSignedLPA},
-		{Name: LpaSubmitted},
-		{Name: NoticesOfIntentSent},
-		{Name: StatutoryWaitingPeriodFinished},
-		{Name: LpaRegistered},
-	}
-
-	filteredSteps := make([]Step, 0)
-	removeMap := make(map[StepName]bool)
-
-	for _, toRemove := range p.Steps {
-		removeMap[toRemove.Name] = true
-	}
-	for _, step := range steps {
-		if _, ok := removeMap[step.Name]; !ok {
-			filteredSteps = append(filteredSteps, step)
-		}
-	}
-
-	return filteredSteps
-}
-
-func (p *Progress2) Complete(name StepName, now time.Time) {
-	p.Steps = append(p.Steps, Step{Name: name, Completed: now, State: StateCompleted})
-}
-
-func (p *Progress2) Completed() []Step {
-	var completed []Step
-	for _, step := range p.Steps {
-		if !step.Completed.IsZero() {
-			completed = append(completed, step)
-		}
-	}
-
-	sort.Slice(completed, func(a, b int) bool {
-		return p.Steps[a].Completed.Before(p.Steps[b].Completed)
-	})
-
-	return completed
-}
-
-func (p *Progress2) InProgress(fullFee bool) Step {
-	return p.RemainingDonorSteps(fullFee)[0]
+	// Notification indicates the step relies on receiving a notification to be shown
+	Notification bool
 }
 
 func (s Step) DonorLabel(l Localizer, lpa *lpadata.Lpa) string {
@@ -162,31 +74,63 @@ func (s Step) DonorLabel(l Localizer, lpa *lpadata.Lpa) string {
 	}
 }
 
-func (s Step) SupporterLabel() string {
+func (s Step) SupporterLabel(l Localizer, lpa *lpadata.Lpa) string {
 	switch s.Name {
 	case FeeEvidenceSubmitted:
-		return ""
+		donorFullNamePossessive := l.Possessive(lpa.Donor.FullName())
+		return l.Format(
+			"donorNamesLPAFeeEvidenceHasBeenSubmitted",
+			map[string]interface{}{"DonorFullNamePossessive": donorFullNamePossessive},
+		)
+	case FeeEvidenceNotification:
+		return l.Format(
+			"weEmailedDonorNameOnAbout",
+			map[string]interface{}{
+				"On":            l.FormatDate(s.Completed),
+				"About":         l.T("theFee"),
+				"DonorFullName": lpa.Donor.FullName(),
+			},
+		)
 	case FeeEvidenceApproved:
-		return ""
+		donorFullNamePossessive := l.Possessive(lpa.Donor.FullName())
+		return l.Format(
+			"donorNamesLPAFeeEvidenceHasBeenApproved",
+			map[string]interface{}{"DonorFullNamePossessive": donorFullNamePossessive},
+		)
 	case DonorPaid:
-		return ""
+		return l.Format(
+			"donorFullNameHasPaid",
+			map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
+		)
 	case DonorProvedID:
-		return ""
+		return l.Format(
+			"donorFullNameHasConfirmedTheirIdentity",
+			map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
+		)
 	case DonorSignedLPA:
-		return ""
+		return l.Format(
+			"donorFullNameHasSignedTheLPA",
+			map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
+		)
 	case CertificateProvided:
-		return ""
+		return l.T("theCertificateProviderHasDeclared")
 	case AllAttorneysSignedLPA:
-		return ""
+		return l.T("allAttorneysHaveSignedTheLpa")
 	case LpaSubmitted:
-		return ""
+		return l.T("opgHasReceivedTheLPA")
 	case NoticesOfIntentSent:
-		return ""
+		return l.Format(
+			"weSentAnEmailTheLpaIsReadyToRegister",
+			map[string]any{"SentOn": l.FormatDate(lpa.PerfectAt)})
 	case StatutoryWaitingPeriodFinished:
-		return ""
+		return l.T("theWaitingPeriodHasStarted")
 	case LpaRegistered:
-		return ""
+		return l.T("theLpaHasBeenRegistered")
 	default:
 		return ""
 	}
+}
+
+func (s Step) Show() bool {
+	return (s.Notification && !s.Completed.IsZero()) || !s.Notification
 }

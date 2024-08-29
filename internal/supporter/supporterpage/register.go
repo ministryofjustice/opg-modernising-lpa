@@ -13,11 +13,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -105,7 +103,10 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpadata.Lpa, donorTasks task.DonorTasks, notifications notification.Notifications, feeType pay.FeeType) task.Progress
+	Init(paidFullFee, isSupporter bool, completedSteps *task.Progress)
+	Remaining() (inProgress task.Step, notStarted []task.Step)
+	Completed() []task.Step
+	IsSupporter() bool
 }
 
 func Register(

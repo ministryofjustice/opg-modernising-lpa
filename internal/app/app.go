@@ -107,7 +107,7 @@ func App(
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	voucherStore := voucher.NewStore(lpaDynamoClient)
-	progressTracker := task.ProgressTracker{Localizer: localizer}
+	progressTracker := task.NewProgressTracker(localizer)
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, notifyClient, localizer)

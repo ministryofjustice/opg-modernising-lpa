@@ -14,34 +14,34 @@ var (
 )
 
 func TestProgressCompleted(t *testing.T) {
-	progress := Progress2{Steps: []Step{
-		{Name: DonorPaid, State: StateInProgress},
-		{Name: FeeEvidenceNotification, State: StateCompleted, Completed: today},
-		{Name: FeeEvidenceSubmitted, State: StateCompleted, Completed: yesterday},
-		{Name: FeeEvidenceApproved, State: StateCompleted, Completed: tomorrow},
+	progress := Progress{CompletedSteps: []Step{
+		{Name: DonorPaid},
+		{Name: FeeEvidenceNotification, Completed: today},
+		{Name: FeeEvidenceSubmitted, Completed: yesterday},
+		{Name: FeeEvidenceApproved, Completed: tomorrow},
 	}}
 
 	assert.Equal(t, []Step{
-		{Name: FeeEvidenceSubmitted, State: StateCompleted, Completed: yesterday},
-		{Name: FeeEvidenceNotification, State: StateCompleted, Completed: today},
-		{Name: FeeEvidenceApproved, State: StateCompleted, Completed: tomorrow},
-	}, progress.Completed())
+		{Name: FeeEvidenceSubmitted, Completed: yesterday},
+		{Name: FeeEvidenceNotification, Completed: today},
+		{Name: FeeEvidenceApproved, Completed: tomorrow},
+	}, progress.Completed(true, false))
 }
 
 func TestInProgress(t *testing.T) {
-	progress := Progress2{Steps: []Step{
-		{Name: FeeEvidenceNotification, State: StateCompleted, Completed: today},
-		{Name: DonorPaid, State: StateInProgress},
+	progress := Progress{CompletedSteps: []Step{
+		{Name: FeeEvidenceNotification, Completed: today},
+		{Name: DonorPaid},
 	}}
 
-	assert.Equal(t, Step{Name: DonorPaid, State: StateInProgress}, progress.InProgress(true))
+	assert.Equal(t, Step{Name: DonorPaid}, progress.InProgress(true))
 }
 
 func TestProgressRemainingDonorSteps(t *testing.T) {
-	progress := Progress2{Steps: []Step{
-		{Name: FeeEvidenceNotification, State: StateCompleted, Completed: today},
-		{Name: FeeEvidenceSubmitted, State: StateCompleted, Completed: yesterday},
-		{Name: FeeEvidenceApproved, State: StateInProgress},
+	progress := Progress{CompletedSteps: []Step{
+		{Name: FeeEvidenceNotification, Completed: today},
+		{Name: FeeEvidenceSubmitted, Completed: yesterday},
+		{Name: FeeEvidenceApproved},
 	}}
 
 	assert.Equal(t, []Step{
@@ -56,10 +56,10 @@ func TestProgressRemainingDonorSteps(t *testing.T) {
 }
 
 func TestProgressRemainingSupporterSteps(t *testing.T) {
-	progress := Progress2{Steps: []Step{
-		{Name: FeeEvidenceNotification, State: StateCompleted, Completed: today},
-		{Name: FeeEvidenceSubmitted, State: StateCompleted, Completed: yesterday},
-		{Name: FeeEvidenceApproved, State: StateInProgress},
+	progress := Progress{CompletedSteps: []Step{
+		{Name: FeeEvidenceNotification, Completed: today},
+		{Name: FeeEvidenceSubmitted, Completed: yesterday},
+		{Name: FeeEvidenceApproved},
 	}}
 
 	assert.Equal(t, []Step{

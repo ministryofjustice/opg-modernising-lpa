@@ -125,7 +125,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, false)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
 		if err != nil {
 			return err
 		}
@@ -182,7 +182,6 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
-	isSupporter bool,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
@@ -414,9 +413,7 @@ func updateLPAProgress(
 			donorDetails.Tasks.PayForLpa = taskState
 		}
 
-		if isSupporter {
-			donorDetails.ProgressSteps.Complete(task.DonorPaid, time.Now())
-		}
+		donorDetails.ProgressSteps.Complete(task.DonorPaid, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
@@ -447,9 +444,7 @@ func updateLPAProgress(
 
 		donorDetails.DonorIdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
-		if isSupporter {
-			donorDetails.ProgressSteps.Complete(task.DonorProvedID, time.Now())
-		}
+		donorDetails.ProgressSteps.Complete(task.DonorProvedID, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {

@@ -142,7 +142,7 @@ type Provided struct {
 	// A record of Notifications sent by the OPG to the donor outside MRLPA
 	Notifications notification.Notifications `hash:"-"`
 	// A record of progress tracker steps the donor has completed
-	ProgressSteps *task.Progress2
+	ProgressSteps *task.Progress
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
