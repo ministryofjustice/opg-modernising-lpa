@@ -143,7 +143,7 @@ func TestGetSign(t *testing.T) {
 				Get(r.Context()).
 				Return(tc.lpa, nil)
 
-			err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -173,7 +173,7 @@ func TestGetSignWhenSigned(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			err := Sign(nil, nil, nil, nil, nil)(testAppData, w, r, attorneyProvidedDetails)
+			err := Sign(nil, nil, nil, nil, nil, nil)(testAppData, w, r, attorneyProvidedDetails)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -225,7 +225,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 				Get(r.Context()).
 				Return(tc.lpa, nil)
 
-			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -278,7 +278,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 				Get(r.Context()).
 				Return(tc.lpa, nil)
 
-			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -299,7 +299,7 @@ func TestGetSignOnLpaStoreResolvingServiceError(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpadata.Lpa{}, expectedError)
 
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -324,7 +324,7 @@ func TestGetSignOnTemplateError(t *testing.T) {
 			CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
 		}, nil)
 
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -444,7 +444,7 @@ func TestPostSign(t *testing.T) {
 				SendAttorney(r.Context(), tc.lpa, tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, func() time.Time { return now }, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -563,7 +563,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now }, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -651,7 +651,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now }, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -682,7 +682,7 @@ func TestPostSignWhenLpaStoreClientErrors(t *testing.T) {
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, lpaStoreResolvingService, nil, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+	err := Sign(nil, lpaStoreResolvingService, nil, lpaStoreClient, time.Now, nil)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -714,7 +714,7 @@ func TestPostSignWhenStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -747,7 +747,7 @@ func TestPostSignOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, time.Now)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, time.Now, nil)(testAppData, w, r, &attorneydata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

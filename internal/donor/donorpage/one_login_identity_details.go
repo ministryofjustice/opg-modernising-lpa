@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -54,7 +54,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 						return err
 					}
 
-					provided.ProgressSteps.Complete(task.DonorProvedID, time.Now())
+					provided.ProgressSteps.Complete(progress.DonorProvedID, time.Now())
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return err

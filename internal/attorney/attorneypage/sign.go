@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -85,7 +86,7 @@ func Sign(
 						return err
 					}
 
-					donorProvided.ProgressSteps.Complete(task.AllAttorneysSignedLPA, now())
+					donorProvided.ProgressSteps.Complete(progress.AllAttorneysSignedLPA, now())
 
 					if err := donorStore.Put(r.Context(), donorProvided); err != nil {
 						return err
@@ -169,7 +170,7 @@ func Sign(
 							return err
 						}
 
-						donorProvided.ProgressSteps.Complete(task.AllAttorneysSignedLPA, time.Now())
+						donorProvided.ProgressSteps.Complete(progress.AllAttorneysSignedLPA, time.Now())
 
 						if err := donorStore.Put(r.Context(), donorProvided); err != nil {
 							return err

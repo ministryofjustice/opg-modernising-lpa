@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -122,8 +123,8 @@ func handleFeeApproved(
 
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
-		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
-		donor.ProgressSteps.Complete(task.DonorPaid, time.Now())
+		donor.ProgressSteps.Complete(progress.FeeEvidenceApproved, time.Now())
+		donor.ProgressSteps.Complete(progress.DonorPaid, time.Now())
 
 		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
@@ -142,7 +143,7 @@ func handleFeeApproved(
 		}
 	} else {
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
-		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
+		donor.ProgressSteps.Complete(progress.FeeEvidenceApproved, time.Now())
 	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {

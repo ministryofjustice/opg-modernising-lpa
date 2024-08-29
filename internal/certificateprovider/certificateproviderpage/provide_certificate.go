@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -83,7 +84,7 @@ func ProvideCertificate(
 					return err
 				}
 
-				donorProvided.ProgressSteps.Complete(task.CertificateProvided, lpa.CertificateProvider.SignedAt)
+				donorProvided.ProgressSteps.Complete(progress.CertificateProvided, lpa.CertificateProvider.SignedAt)
 				if err := donorStore.Put(r.Context(), donorProvided); err != nil {
 					return err
 				}

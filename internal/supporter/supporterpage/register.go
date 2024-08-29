@@ -16,13 +16,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -103,9 +103,9 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Init(paidFullFee, isSupporter bool, completedSteps *task.Progress)
-	Remaining() (inProgress task.Step, notStarted []task.Step)
-	Completed() []task.Step
+	Init(paidFullFee, isSupporter bool, completedSteps []progress.Step)
+	Remaining() (inProgress progress.Step, notStarted []progress.Step)
+	Completed() []progress.Step
 	IsSupporter() bool
 }
 

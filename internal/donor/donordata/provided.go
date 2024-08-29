@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/mitchellh/hashstructure/v2"
 )
 
@@ -143,7 +142,7 @@ type Provided struct {
 	// A record of Notifications sent by the OPG to the donor outside MRLPA
 	Notifications notification.Notifications `hash:"-"`
 	// A record of progress tracker steps the donor has completed
-	ProgressSteps *task.Progress
+	ProgressSteps *Progress
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }

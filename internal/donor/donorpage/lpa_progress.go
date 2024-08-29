@@ -7,7 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -15,9 +15,9 @@ type lpaProgressData struct {
 	App         appcontext.Data
 	Donor       *donordata.Provided
 	Lpa         *lpadata.Lpa
-	Completed   []task.Step
-	InProgress  task.Step
-	NotStarted  []task.Step
+	Completed   []progress.Step
+	InProgress  progress.Step
+	NotStarted  []progress.Step
 	IsSupporter bool
 	Errors      validation.List
 }
@@ -29,7 +29,7 @@ func LpaProgress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolv
 			return err
 		}
 
-		progressTracker.Init(donor.FeeType.IsFullFee(), lpa.IsOrganisationDonor, donor.ProgressSteps)
+		progressTracker.Init(donor.FeeType.IsFullFee(), lpa.IsOrganisationDonor, donor.ProgressSteps.CompletedSteps)
 
 		inProgress, notStarted := progressTracker.Remaining()
 

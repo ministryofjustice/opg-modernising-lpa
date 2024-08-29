@@ -28,7 +28,7 @@ func TestGetLpaProgress(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa, donordata.Tasks{YourDetails: task.StateCompleted}, notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}}, pay.FullFee).
-		Return(task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}})
+		Return(donordata.Progress{DonorSigned: donordata.ProgressTask{State: task.StateInProgress}})
 
 	donor := &donordata.Provided{
 		LpaUID:        "lpa-uid",
@@ -42,7 +42,7 @@ func TestGetLpaProgress(t *testing.T) {
 		Execute(w, &lpaProgressData{
 			App:      testAppData,
 			Donor:    donor,
-			Progress: task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}},
+			Progress: donordata.Progress{DonorSigned: donordata.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 
@@ -78,7 +78,7 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(task.Progress{})
+		Return(donordata.Progress{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

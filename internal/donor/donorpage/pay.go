@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -27,7 +28,7 @@ func Pay(
 			provided.Tasks.PayForLpa = task.PaymentStatePending
 
 			if provided.EvidenceDelivery.IsUpload() {
-				provided.ProgressSteps.Complete(task.FeeEvidenceSubmitted, time.Now())
+				provided.ProgressSteps.Complete(progress.FeeEvidenceSubmitted, time.Now())
 			}
 
 			if err := donorStore.Put(r.Context(), provided); err != nil {

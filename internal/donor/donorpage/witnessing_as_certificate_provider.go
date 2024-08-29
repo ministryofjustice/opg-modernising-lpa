@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -60,7 +61,7 @@ func WitnessingAsCertificateProvider(
 					provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStatePending
 				} else {
 					provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
-					provided.ProgressSteps.Complete(task.DonorSignedLPA, time.Now())
+					provided.ProgressSteps.Complete(progress.DonorSignedLPA, time.Now())
 				}
 
 				provided.WitnessCodeLimiter = nil

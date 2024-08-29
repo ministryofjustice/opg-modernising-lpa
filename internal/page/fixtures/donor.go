@@ -25,6 +25,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -388,9 +389,9 @@ func updateLPAProgress(
 				return nil, nil, err
 			}
 
-			donorDetails.ProgressSteps.Complete(task.FeeEvidenceSubmitted, time.Now())
-			donorDetails.ProgressSteps.Complete(task.FeeEvidenceNotification, time.Now())
-			donorDetails.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
+			donorDetails.ProgressSteps.Complete(progress.FeeEvidenceSubmitted, time.Now())
+			donorDetails.ProgressSteps.Complete(progress.FeeEvidenceNotification, time.Now())
+			donorDetails.ProgressSteps.Complete(progress.FeeEvidenceApproved, time.Now())
 
 		} else {
 			donorDetails.FeeType = pay.FullFee
@@ -413,7 +414,7 @@ func updateLPAProgress(
 			donorDetails.Tasks.PayForLpa = taskState
 		}
 
-		donorDetails.ProgressSteps.Complete(task.DonorPaid, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.DonorPaid, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
@@ -444,7 +445,7 @@ func updateLPAProgress(
 
 		donorDetails.DonorIdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
-		donorDetails.ProgressSteps.Complete(task.DonorProvedID, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.DonorProvedID, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
@@ -453,7 +454,7 @@ func updateLPAProgress(
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
-		donorDetails.ProgressSteps.Complete(task.DonorSignedLPA, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.DonorSignedLPA, time.Now())
 	}
 
 	var certificateProviderUID actoruid.UID
@@ -478,7 +479,7 @@ func updateLPAProgress(
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, lpa *lpadata.Lpa) error {
 			return client.SendCertificateProvider(ctx, certificateProvider, lpa)
 		})
-		donorDetails.ProgressSteps.Complete(task.CertificateProvided, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.CertificateProvided, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signedByAttorneys") {
@@ -555,12 +556,12 @@ func updateLPAProgress(
 			}
 		}
 
-		donorDetails.ProgressSteps.Complete(task.AllAttorneysSignedLPA, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.AllAttorneysSignedLPA, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "submitted") {
 		donorDetails.SubmittedAt = time.Now()
-		donorDetails.ProgressSteps.Complete(task.LpaSubmitted, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.LpaSubmitted, time.Now())
 	}
 
 	if data.Progress >= slices.Index(progressValues, "perfect") {
@@ -568,7 +569,7 @@ func updateLPAProgress(
 			return client.SendPerfect(ctx, donorDetails.LpaUID)
 		})
 		donorDetails.PerfectAt = time.Now()
-		donorDetails.ProgressSteps.Complete(task.NoticesOfIntentSent, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.NoticesOfIntentSent, time.Now())
 	}
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
@@ -586,7 +587,7 @@ func updateLPAProgress(
 			return client.SendRegister(ctx, donorDetails.LpaUID)
 		})
 
-		donorDetails.ProgressSteps.Complete(task.LpaRegistered, time.Now())
+		donorDetails.ProgressSteps.Complete(progress.LpaRegistered, time.Now())
 	}
 
 	return donorDetails, fns, nil

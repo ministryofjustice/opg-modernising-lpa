@@ -33,7 +33,7 @@ func TestGetViewLPA(t *testing.T) {
 			donordata.Tasks{YourDetails: task.StateCompleted},
 			notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}},
 			pay.FullFee).
-		Return(task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}})
+		Return(donordata.Progress{Paid: donordata.ProgressTask{State: task.StateInProgress}})
 
 	donor := &donordata.Provided{
 		LpaUID:        "lpa-uid",
@@ -47,7 +47,7 @@ func TestGetViewLPA(t *testing.T) {
 		Execute(w, &viewLPAData{
 			App:      testAppData,
 			Lpa:      lpa,
-			Progress: task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}},
+			Progress: donordata.Progress{Paid: donordata.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 
@@ -111,7 +111,7 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(task.Progress{})
+		Return(donordata.Progress{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().

@@ -1,4 +1,4 @@
-package task
+package progress
 
 import (
 	"time"
