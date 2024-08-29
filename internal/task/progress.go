@@ -120,13 +120,14 @@ func (pt *ProgressTracker) Remaining() (inProgress Step, remaining []Step) {
 
 func (pt *ProgressTracker) Completed() []Step {
 	var filteredCompleted []Step
-	seen := make(map[StepName]bool)
+
 	steps := pt.DonorSteps()
 	if pt.Supporter {
 		steps = pt.SupporterSteps()
 	}
 
-	//Protect against supporter steps appearing in donor steps
+	//Filter out supporter steps appearing in donor steps
+	seen := make(map[StepName]bool)
 	for _, step := range steps {
 		seen[step.Name] = true
 	}

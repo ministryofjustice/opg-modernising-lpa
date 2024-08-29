@@ -122,6 +122,8 @@ func handleFeeApproved(
 
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
+		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
+		donor.ProgressSteps.Complete(task.DonorPaid, time.Now())
 
 		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
@@ -140,6 +142,7 @@ func handleFeeApproved(
 		}
 	} else {
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
+		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
 	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {

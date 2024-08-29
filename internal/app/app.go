@@ -222,6 +222,7 @@ func App(
 		lpaStoreResolvingService,
 		notifyClient,
 		appPublicURL,
+		donorStore,
 	)
 
 	donorpage.Register(
