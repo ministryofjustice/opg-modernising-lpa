@@ -460,20 +460,22 @@ func content(app appcontext.Data, content string) map[string]interface{} {
 }
 
 type notificationBannerData struct {
-	App     appcontext.Data
-	Title   string
-	Content template.HTML
-	Heading bool
-	Success bool
+	App      appcontext.Data
+	Title    string
+	Content  template.HTML
+	Heading  bool
+	Success  bool
+	Contents bool
 }
 
 func notificationBanner(app appcontext.Data, title string, content template.HTML, options ...string) notificationBannerData {
 	return notificationBannerData{
-		App:     app,
-		Title:   title,
-		Content: content,
-		Heading: slices.Contains(options, "heading"),
-		Success: slices.Contains(options, "success"),
+		App:      app,
+		Title:    title,
+		Content:  content,
+		Heading:  slices.Contains(options, "heading"),
+		Success:  slices.Contains(options, "success"),
+		Contents: slices.Contains(options, "contents"),
 	}
 }
 
