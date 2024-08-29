@@ -26,6 +26,8 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/cron"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -356,6 +358,17 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
+
+	donorStore := donor.NewStore(lpasDynamoClient, eventClient, logger, searchClient)
+	cronStore := cron.NewStore(lpasDynamoClient)
+
+	runner := cron.NewRunner(logger, cronStore, donorStore, notifyClient)
+	go func() {
+		if err := runner.Run(ctx); err != nil {
+			logger.Error("runner error", slog.Any("err", err))
+			os.Exit(1)
+		}
+	}()
 
 	server := &http.Server{
 		Addr:              ":" + port,
