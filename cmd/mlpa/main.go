@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"crypto/ecdsa"
 	"encoding/base64"
@@ -22,10 +23,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
-	"github.com/ministryofjustice/opg-go-common/env"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -37,6 +38,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -85,38 +87,44 @@ func main() {
 
 func run(ctx context.Context, logger *slog.Logger) error {
 	var (
-		devMode               = env.Get("DEV_MODE", "") == "1"
-		appPublicURL          = env.Get("APP_PUBLIC_URL", "http://localhost:5050")
-		authRedirectBaseURL   = env.Get("AUTH_REDIRECT_BASE_URL", "http://localhost:5050")
-		webDir                = env.Get("WEB_DIR", "web")
-		awsBaseURL            = env.Get("AWS_BASE_URL", "")
-		clientID              = env.Get("CLIENT_ID", "client-id-value")
-		issuer                = env.Get("ISSUER", "http://mock-onelogin:8080")
-		dynamoTableLpas       = env.Get("DYNAMODB_TABLE_LPAS", "lpas")
-		notifyBaseURL         = env.Get("GOVUK_NOTIFY_BASE_URL", "http://mock-notify:8080")
-		notifyIsProduction    = env.Get("GOVUK_NOTIFY_IS_PRODUCTION", "") == "1"
-		ordnanceSurveyBaseURL = env.Get("ORDNANCE_SURVEY_BASE_URL", "http://mock-os-api:8080")
-		payBaseURL            = env.Get("GOVUK_PAY_BASE_URL", "http://mock-pay:8080")
-		port                  = env.Get("APP_PORT", "8080")
-		xrayEnabled           = env.Get("XRAY_ENABLED", "") == "1"
+		devMode               = os.Getenv("DEV_MODE") == "1"
+		appPublicURL          = cmp.Or(os.Getenv("APP_PUBLIC_URL"), "http://localhost:5050")
+		authRedirectBaseURL   = cmp.Or(os.Getenv("AUTH_REDIRECT_BASE_URL"), "http://localhost:5050")
+		webDir                = cmp.Or(os.Getenv("WEB_DIR"), "web")
+		awsBaseURL            = os.Getenv("AWS_BASE_URL")
+		clientID              = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
+		issuer                = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
+		dynamoTableLpas       = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
+		notifyBaseURL         = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
+		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+		ordnanceSurveyBaseURL = cmp.Or(os.Getenv("ORDNANCE_SURVEY_BASE_URL"), "http://mock-os-api:8080")
+		payBaseURL            = cmp.Or(os.Getenv("GOVUK_PAY_BASE_URL"), "http://mock-pay:8080")
+		port                  = cmp.Or(os.Getenv("APP_PORT"), "8080")
+		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 		rumConfig             = templatefn.RumConfig{
-			GuestRoleArn:      env.Get("AWS_RUM_GUEST_ROLE_ARN", ""),
-			Endpoint:          env.Get("AWS_RUM_ENDPOINT", ""),
-			ApplicationRegion: env.Get("AWS_RUM_APPLICATION_REGION", ""),
-			IdentityPoolID:    env.Get("AWS_RUM_IDENTITY_POOL_ID", ""),
-			ApplicationID:     env.Get("AWS_RUM_APPLICATION_ID", ""),
+			GuestRoleArn:      os.Getenv("AWS_RUM_GUEST_ROLE_ARN"),
+			Endpoint:          os.Getenv("AWS_RUM_ENDPOINT"),
+			ApplicationRegion: os.Getenv("AWS_RUM_APPLICATION_REGION"),
+			IdentityPoolID:    os.Getenv("AWS_RUM_IDENTITY_POOL_ID"),
+			ApplicationID:     os.Getenv("AWS_RUM_APPLICATION_ID"),
 		}
-		uidBaseURL            = env.Get("UID_BASE_URL", "http://mock-uid:8080")
-		lpaStoreBaseURL       = env.Get("LPA_STORE_BASE_URL", "http://mock-lpa-store:8080")
-		metadataURL           = env.Get("ECS_CONTAINER_METADATA_URI_V4", "")
-		oneloginURL           = env.Get("ONELOGIN_URL", "https://home.integration.account.gov.uk")
-		evidenceBucketName    = env.Get("UPLOADS_S3_BUCKET_NAME", "evidence")
-		eventBusName          = env.Get("EVENT_BUS_NAME", "default")
-		mockIdentityPublicKey = env.Get("MOCK_IDENTITY_PUBLIC_KEY", "")
-		searchEndpoint        = env.Get("SEARCH_ENDPOINT", "")
-		searchIndexName       = env.Get("SEARCH_INDEX_NAME", "lpas")
-		searchIndexingEnabled = env.Get("SEARCH_INDEXING_DISABLED", "") != "1"
+		uidBaseURL            = cmp.Or(os.Getenv("UID_BASE_URL"), "http://mock-uid:8080")
+		lpaStoreBaseURL       = cmp.Or(os.Getenv("LPA_STORE_BASE_URL"), "http://mock-lpa-store:8080")
+		metadataURL           = os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
+		oneloginURL           = cmp.Or(os.Getenv("ONELOGIN_URL"), "https://home.integration.account.gov.uk")
+		evidenceBucketName    = cmp.Or(os.Getenv("UPLOADS_S3_BUCKET_NAME"), "evidence")
+		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+		mockIdentityPublicKey = os.Getenv("MOCK_IDENTITY_PUBLIC_KEY")
+		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
+		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+		scheduledRunnerPeriod = cmp.Or(os.Getenv("SCHEDULED_RUNNER_PERIOD"), "6h")
 	)
+
+	scheduledRunnerPeriodDur, err := time.ParseDuration(scheduledRunnerPeriod)
+	if err != nil {
+		return err
+	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
@@ -356,6 +364,17 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
+
+	donorStore := donor.NewStore(lpasDynamoClient, eventClient, logger, searchClient)
+	scheduledStore := scheduled.NewStore(lpasDynamoClient)
+
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, scheduledRunnerPeriodDur)
+	go func() {
+		if err := runner.Run(ctx); err != nil {
+			logger.Error("runner error", slog.Any("err", err))
+			os.Exit(1)
+		}
+	}()
 
 	server := &http.Server{
 		Addr:              ":" + port,
