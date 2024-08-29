@@ -93,7 +93,7 @@ func TestPostLpaType(t *testing.T) {
 				Address:     place.Address{Postcode: "F1 1FF"},
 			},
 			Type:  lpadata.LpaTypePropertyAndAffairs,
-			Tasks: task.DonorTasks{YourDetails: task.StateCompleted},
+			Tasks: donordata.Tasks{YourDetails: task.StateCompleted},
 		},
 		lpadata.LpaTypePersonalWelfare: {
 			LpaID: "lpa-id",
@@ -105,7 +105,7 @@ func TestPostLpaType(t *testing.T) {
 			},
 			Type:                lpadata.LpaTypePersonalWelfare,
 			WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenCapacityLost,
-			Tasks:               task.DonorTasks{YourDetails: task.StateCompleted},
+			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted},
 		},
 	}
 

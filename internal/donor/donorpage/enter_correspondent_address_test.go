@@ -147,7 +147,7 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 			Correspondent: donordata.Correspondent{
 				Address: testAddress,
 			},
-			Tasks: task.DonorTasks{
+			Tasks: donordata.Tasks{
 				AddCorrespondent: task.StateCompleted,
 			},
 		}).
@@ -209,7 +209,7 @@ func TestPostEnterCorrespondentAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: task.DonorTasks{
+			Tasks: donordata.Tasks{
 				AddCorrespondent: task.StateCompleted,
 			},
 		}).
@@ -618,7 +618,7 @@ func TestPostEnterCorrespondentAddressReuseSelect(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:         "lpa-id",
 			Correspondent: updatedCorrespondent,
-			Tasks:         task.DonorTasks{AddCorrespondent: task.StateCompleted},
+			Tasks:         donordata.Tasks{AddCorrespondent: task.StateCompleted},
 		}).
 		Return(nil)
 

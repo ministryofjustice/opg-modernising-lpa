@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -225,7 +226,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 
 	testCases := map[string]struct {
 		lpa              *lpadata.Lpa
-		donorTasks       DonorTasks
+		donorTasks       donordata.Tasks
 		notifications    notification.Notifications
 		feeType          pay.FeeType
 		expectedProgress func() Progress
@@ -359,7 +360,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 			notifications: notification.Notifications{
 				FeeEvidence: notification.Notification{Received: testNow},
 			},
-			donorTasks: DonorTasks{PayForLpa: PaymentStateApproved},
+			donorTasks: donordata.Tasks{PayForLpa: PaymentStateApproved},
 			expectedProgress: func() Progress {
 				progress := initialProgress
 
@@ -669,7 +670,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 
 	testCases := map[string]struct {
 		lpa              *lpadata.Lpa
-		donorTasks       DonorTasks
+		donorTasks       donordata.Tasks
 		notifications    notification.Notifications
 		feeType          pay.FeeType
 		expectedProgress func() Progress
@@ -785,7 +786,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			notifications: notification.Notifications{
 				FeeEvidence: notification.Notification{Received: testNow},
 			},
-			donorTasks: DonorTasks{PayForLpa: PaymentStateApproved},
+			donorTasks: donordata.Tasks{PayForLpa: PaymentStateApproved},
 			expectedProgress: func() Progress {
 				progress := initialProgress
 

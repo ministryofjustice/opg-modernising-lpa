@@ -91,13 +91,13 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity,
-			Tasks:               task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, WhenCanTheLpaBeUsed: task.StateCompleted},
+			Tasks:               donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, WhenCanTheLpaBeUsed: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -117,7 +117,7 @@ func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity, Tasks: task.DonorTasks{WhenCanTheLpaBeUsed: task.StateCompleted}}).
+		Put(r.Context(), &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity, Tasks: donordata.Tasks{WhenCanTheLpaBeUsed: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := WhenCanTheLpaBeUsed(nil, donorStore)(testAppData, w, r, &donordata.Provided{})

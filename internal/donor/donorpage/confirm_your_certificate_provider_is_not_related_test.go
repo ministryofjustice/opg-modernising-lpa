@@ -22,7 +22,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &donordata.Provided{
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			CertificateProvider: task.StateCompleted,
 		},
 	}
@@ -67,7 +67,7 @@ func TestGetConfirmYourCertificateProviderIsNotRelatedWhenTemplateErrors(t *test
 		Return(expectedError)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			CertificateProvider: task.StateCompleted,
 		},
 	})
@@ -92,7 +92,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 			LpaID:                          "lpa-id",
 			Donor:                          donordata.Donor{CanSign: form.Yes},
 			HasSentApplicationUpdatedEvent: true,
-			Tasks: task.DonorTasks{
+			Tasks: donordata.Tasks{
 				YourDetails:                task.StateCompleted,
 				ChooseAttorneys:            task.StateCompleted,
 				ChooseReplacementAttorneys: task.StateCompleted,
@@ -111,7 +111,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 		LpaID:                          "lpa-id",
 		Donor:                          donordata.Donor{CanSign: form.Yes},
 		HasSentApplicationUpdatedEvent: true,
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			YourDetails:                task.StateCompleted,
 			ChooseAttorneys:            task.StateCompleted,
 			ChooseReplacementAttorneys: task.StateCompleted,
@@ -142,7 +142,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
-			Tasks: task.DonorTasks{
+			Tasks: donordata.Tasks{
 				CertificateProvider: task.StateNotStarted,
 			},
 		}).
@@ -153,7 +153,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedChooseNew(t *testing.T) {
 		CertificateProvider: donordata.CertificateProvider{
 			FirstNames: "John",
 		},
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			CertificateProvider: task.StateCompleted,
 		},
 	})
@@ -186,7 +186,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenStoreErrors(t *testin
 				Return(expectedError)
 
 			err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{
-				Tasks: task.DonorTasks{
+				Tasks: donordata.Tasks{
 					CertificateProvider: task.StateCompleted,
 				},
 			})
@@ -209,7 +209,7 @@ func TestPostConfirmYourCertificateProviderIsNotRelatedWhenValidationErrors(t *t
 		Return(nil)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			CertificateProvider: task.StateCompleted,
 		},
 	})

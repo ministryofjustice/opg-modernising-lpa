@@ -28,7 +28,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		LpaID:                 "lpa-id",
 		Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 		DonorIdentityUserData: userData,
-		Tasks:                 task.DonorTasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
+		Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -202,7 +202,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
-			Tasks:                 task.DonorTasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
+			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 		}).
 		Return(nil)
 
@@ -244,7 +244,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
 			LpaID:                 "lpa-id",
 			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
-			Tasks:                 task.DonorTasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
+			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
 		}).
 		Return(nil)
 

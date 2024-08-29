@@ -102,7 +102,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 				Email:       "email@example.com",
 				WantAddress: form.No,
 			},
-			Tasks: task.DonorTasks{AddCorrespondent: task.StateCompleted},
+			Tasks: donordata.Tasks{AddCorrespondent: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -140,7 +140,7 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 				Email:       "email@example.com",
 				WantAddress: form.Yes,
 			},
-			Tasks: task.DonorTasks{AddCorrespondent: task.StateInProgress},
+			Tasks: donordata.Tasks{AddCorrespondent: task.StateInProgress},
 		}).
 		Return(nil)
 

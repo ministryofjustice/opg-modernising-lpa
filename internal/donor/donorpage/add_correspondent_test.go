@@ -131,14 +131,14 @@ func TestPostAddCorrespondent(t *testing.T) {
 					LpaID:            "lpa-id",
 					AddCorrespondent: tc.yesNo,
 					Correspondent:    tc.expectedCorrespondent,
-					Tasks:            task.DonorTasks{AddCorrespondent: tc.expectedTaskState},
+					Tasks:            donordata.Tasks{AddCorrespondent: tc.expectedTaskState},
 				}).
 				Return(nil)
 
 			err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:         "lpa-id",
 				Correspondent: tc.existingCorrespondent,
-				Tasks:         task.DonorTasks{AddCorrespondent: tc.existingTaskState},
+				Tasks:         donordata.Tasks{AddCorrespondent: tc.existingTaskState},
 			})
 			resp := w.Result()
 

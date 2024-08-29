@@ -174,7 +174,7 @@ func TestPostChoosePeopleToNotifyPersonDoesNotExists(t *testing.T) {
 					LpaID:          "lpa-id",
 					Donor:          donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					PeopleToNotify: donordata.PeopleToNotify{tc.personToNotify},
-					Tasks:          task.DonorTasks{PeopleToNotify: task.StateInProgress},
+					Tasks:          donordata.Tasks{PeopleToNotify: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -211,7 +211,7 @@ func TestPostChoosePeopleToNotifyPersonExists(t *testing.T) {
 				LastName:   "Dear",
 				UID:        uid,
 			}},
-			Tasks: task.DonorTasks{PeopleToNotify: task.StateInProgress},
+			Tasks: donordata.Tasks{PeopleToNotify: task.StateInProgress},
 		}).
 		Return(nil)
 

@@ -233,7 +233,7 @@ func TestPostChooseAttorneysAttorneyDoesNotExist(t *testing.T) {
 						LastName:   "Doe",
 					},
 					Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{tc.attorney}},
-					Tasks:     task.DonorTasks{ChooseAttorneys: task.StateInProgress},
+					Tasks:     donordata.Tasks{ChooseAttorneys: task.StateInProgress},
 				}).
 				Return(nil)
 
@@ -331,7 +331,7 @@ func TestPostChooseAttorneysAttorneyExists(t *testing.T) {
 					LpaID:     "lpa-id",
 					Donor:     donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 					Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{tc.attorney}},
-					Tasks:     task.DonorTasks{ChooseAttorneys: task.StateCompleted},
+					Tasks:     donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 				}).
 				Return(nil)
 
@@ -383,7 +383,7 @@ func TestPostChooseAttorneysNameWarningOnlyShownWhenAttorneyAndFormNamesAreDiffe
 					DateOfBirth: date.New("2000", "1", "2"),
 				},
 			}},
-			Tasks: task.DonorTasks{ChooseAttorneys: task.StateCompleted},
+			Tasks: donordata.Tasks{ChooseAttorneys: task.StateCompleted},
 		}).
 		Return(nil)
 

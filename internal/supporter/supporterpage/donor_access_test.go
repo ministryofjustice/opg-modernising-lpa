@@ -443,7 +443,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(shareCodeData, nil)
 
-	donor := &donordata.Provided{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: task.DonorTasks{PayForLpa: task.PaymentStateCompleted}}
+	donor := &donordata.Provided{SK: dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateCompleted}}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().

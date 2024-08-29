@@ -49,7 +49,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 
 	err := CheckYourDetails(nil)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: task.DonorTasks{
+		Tasks: donordata.Tasks{
 			PayForLpa: task.PaymentStateCompleted,
 		},
 	})

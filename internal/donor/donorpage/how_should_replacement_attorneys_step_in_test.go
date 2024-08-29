@@ -174,7 +174,7 @@ func TestPostHowShouldReplacementAttorneysStepInRedirects(t *testing.T) {
 					ReplacementAttorneys:                tc.ReplacementAttorneys,
 					ReplacementAttorneyDecisions:        donordata.AttorneyDecisions{How: tc.HowReplacementAttorneysMakeDecisions},
 					HowShouldReplacementAttorneysStepIn: tc.HowShouldReplacementAttorneysStepIn,
-					Tasks:                               task.DonorTasks{ChooseReplacementAttorneys: tc.TaskState},
+					Tasks:                               donordata.Tasks{ChooseReplacementAttorneys: tc.TaskState},
 				}).
 				Return(nil)
 

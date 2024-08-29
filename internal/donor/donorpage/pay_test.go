@@ -96,7 +96,7 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
-					Tasks:            task.DonorTasks{PayForLpa: task.PaymentStatePending},
+					Tasks:            donordata.Tasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
@@ -131,7 +131,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
 					FeeType:          feeType,
-					Tasks:            task.DonorTasks{PayForLpa: task.PaymentStatePending},
+					Tasks:            donordata.Tasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Post,
 				}).
 				Return(nil)
@@ -159,7 +159,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:            "lpa-id",
 			FeeType:          pay.HalfFee,
-			Tasks:            task.DonorTasks{PayForLpa: task.PaymentStatePending},
+			Tasks:            donordata.Tasks{PayForLpa: task.PaymentStatePending},
 			EvidenceDelivery: pay.Upload,
 		}).
 		Return(nil)
@@ -167,7 +167,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
 		FeeType:          pay.HalfFee,
-		Tasks:            task.DonorTasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
+		Tasks:            donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
 		EvidenceDelivery: pay.Upload,
 	})
 	resp := w.Result()
@@ -186,7 +186,7 @@ func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:   "lpa-id",
 			FeeType: pay.NoFee,
-			Tasks:   task.DonorTasks{PayForLpa: task.PaymentStatePending},
+			Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending},
 		}).
 		Return(expectedError)
 
@@ -240,7 +240,7 @@ func TestPayWhenFeeDenied(t *testing.T) {
 		LpaUID:         "lpa-uid",
 		Donor:          donordata.Donor{Email: "a@b.com"},
 		FeeType:        pay.HalfFee,
-		Tasks:          task.DonorTasks{PayForLpa: task.PaymentStateDenied},
+		Tasks:          donordata.Tasks{PayForLpa: task.PaymentStateDenied},
 		PaymentDetails: []donordata.Payment{{Amount: 4100}},
 	})
 	resp := w.Result()

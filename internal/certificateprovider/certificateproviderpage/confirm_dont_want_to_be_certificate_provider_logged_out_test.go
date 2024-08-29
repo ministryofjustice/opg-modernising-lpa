@@ -213,7 +213,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: task.DonorTasks{
+						Tasks: donordata.Tasks{
 							CertificateProvider: task.StateCompleted,
 							CheckYourLpa:        task.StateCompleted,
 						},
@@ -229,7 +229,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 						Donor: donordata.Donor{
 							FirstNames: "a b", LastName: "c",
 						},
-						Tasks: task.DonorTasks{
+						Tasks: donordata.Tasks{
 							CertificateProvider: task.StateNotStarted,
 							CheckYourLpa:        task.StateNotStarted,
 						},

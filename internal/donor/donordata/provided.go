@@ -62,7 +62,7 @@ type Provided struct {
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
-	Tasks task.DonorTasks
+	Tasks Tasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
 	// Information returned by the identity service related to the applicant

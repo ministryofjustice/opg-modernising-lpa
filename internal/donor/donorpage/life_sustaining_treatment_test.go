@@ -89,13 +89,13 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                         "lpa-id",
 			LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
-			Tasks:                         task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, LifeSustainingTreatment: task.StateCompleted},
+			Tasks:                         donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted, LifeSustainingTreatment: task.StateCompleted},
 		}).
 		Return(nil)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
-		Tasks: task.DonorTasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
+		Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted},
 	})
 	resp := w.Result()
 
@@ -115,7 +115,7 @@ func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA, Tasks: task.DonorTasks{LifeSustainingTreatment: task.StateCompleted}}).
+		Put(r.Context(), &donordata.Provided{LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA, Tasks: donordata.Tasks{LifeSustainingTreatment: task.StateCompleted}}).
 		Return(expectedError)
 
 	err := LifeSustainingTreatment(nil, donorStore)(testAppData, w, r, &donordata.Provided{})

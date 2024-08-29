@@ -27,12 +27,12 @@ func TestGetLpaProgress(t *testing.T) {
 
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(lpa, task.DonorTasks{YourDetails: task.StateCompleted}, notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}}, pay.FullFee).
+		Progress(lpa, donordata.Tasks{YourDetails: task.StateCompleted}, notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}}, pay.FullFee).
 		Return(task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}})
 
 	donor := &donordata.Provided{
 		LpaUID:        "lpa-uid",
-		Tasks:         task.DonorTasks{YourDetails: task.StateCompleted},
+		Tasks:         donordata.Tasks{YourDetails: task.StateCompleted},
 		Notifications: notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}},
 		FeeType:       pay.FullFee,
 	}

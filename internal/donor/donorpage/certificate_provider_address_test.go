@@ -184,7 +184,7 @@ func TestPostCertificateProviderAddressManual(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID:               "lpa-id",
 			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
-			Tasks:               task.DonorTasks{CertificateProvider: task.StateCompleted},
+			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -214,7 +214,7 @@ func TestPostCertificateProviderAddressManualWhenStoreErrors(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			CertificateProvider: donordata.CertificateProvider{Address: testAddress},
-			Tasks:               task.DonorTasks{CertificateProvider: task.StateCompleted},
+			Tasks:               donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(expectedError)
 
@@ -245,7 +245,7 @@ func TestPostCertificateProviderAddressManualFromStore(t *testing.T) {
 				FirstNames: "John",
 				Address:    testAddress,
 			},
-			Tasks: task.DonorTasks{CertificateProvider: task.StateCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
@@ -644,7 +644,7 @@ func TestPostCertificateProviderAddressReuseSelect(t *testing.T) {
 					Country:    "GB",
 				},
 			},
-			Tasks: task.DonorTasks{CertificateProvider: task.StateCompleted},
+			Tasks: donordata.Tasks{CertificateProvider: task.StateCompleted},
 		}).
 		Return(nil)
 
