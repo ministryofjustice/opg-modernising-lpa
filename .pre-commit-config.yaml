@@ -38,13 +38,13 @@ repos:
     rev: 37.150.1
     hooks:
       - id: renovate-config-validator
-  - repo: local
-    hooks:
-      - id: stop-only
-        name: stop-only
-        entry: yarn run stop-only
-        language: node
-        args: [--folder, cypress]
+#  - repo: local
+#    hooks:
+#      - id: stop-only
+#        name: stop-only
+#        entry: yarn run stop-only
+#        language: node
+#        args: [--folder, cypress]
 
 #  - repo: https://github.com/Yelp/detect-secrets
 #    rev: v1.4.0

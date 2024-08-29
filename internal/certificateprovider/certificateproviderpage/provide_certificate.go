@@ -33,6 +33,7 @@ func ProvideCertificate(
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
+	donorStore DonorStore,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
@@ -75,6 +76,16 @@ func ProvideCertificate(
 					}
 				} else {
 					certificateProvider.SignedAt = lpa.CertificateProvider.SignedAt
+				}
+
+				donorProvided, err := donorStore.GetAny(r.Context())
+				if err != nil {
+					return err
+				}
+
+				donorProvided.ProgressSteps.Complete(task.CertificateProvided, lpa.CertificateProvider.SignedAt)
+				if err := donorStore.Put(r.Context(), donorProvided); err != nil {
+					return err
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{

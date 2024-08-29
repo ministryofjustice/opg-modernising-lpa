@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -25,22 +26,6 @@ const (
 	currentHashVersion        uint8 = 0
 	currentCheckedHashVersion uint8 = 0
 )
-
-type Tasks struct {
-	YourDetails                task.State
-	ChooseAttorneys            task.State
-	ChooseReplacementAttorneys task.State
-	WhenCanTheLpaBeUsed        task.State // property and affairs only
-	LifeSustainingTreatment    task.State // personal welfare only
-	Restrictions               task.State
-	CertificateProvider        task.State
-	PeopleToNotify             task.State
-	AddCorrespondent           task.State
-	ChooseYourSignatory        task.State // if .Donor.CanSign.IsNo only
-	CheckYourLpa               task.State
-	PayForLpa                  task.PaymentState
-	ConfirmYourIdentityAndSign task.IdentityState
-}
 
 // Provided contains all the data related to the LPA application
 type Provided struct {
@@ -155,6 +140,10 @@ type Provided struct {
 	PreviousApplicationNumber string
 	// PreviousFee is the fee previously paid for an LPA
 	PreviousFee pay.PreviousFee
+	// A record of Notifications sent by the OPG to the donor outside MRLPA
+	Notifications notification.Notifications `hash:"-"`
+	// A record of progress tracker steps the donor has completed
+	ProgressSteps *task.Progress
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }

@@ -122,6 +122,8 @@ func handleFeeApproved(
 
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
+		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
+		donor.ProgressSteps.Complete(task.DonorPaid, time.Now())
 
 		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
@@ -140,6 +142,7 @@ func handleFeeApproved(
 		}
 	} else {
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
+		donor.ProgressSteps.Complete(task.FeeEvidenceApproved, time.Now())
 	}
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
@@ -150,7 +153,7 @@ func handleFeeApproved(
 }
 
 func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
-	var v uidEvent
+	var v furtherInfoRequestedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
@@ -165,9 +168,10 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 	}
 
 	donor.Tasks.PayForLpa = task.PaymentStateMoreEvidenceRequired
+	donor.Notifications.FeeEvidence.Received = v.PostedDate
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
-		return fmt.Errorf("failed to update LPA task status: %w", err)
+		return fmt.Errorf("failed to update LPA task status and notification: %w", err)
 	}
 
 	return nil
