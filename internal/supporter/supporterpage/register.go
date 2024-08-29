@@ -68,9 +68,9 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
 }
 
-type Localizer interface {
-	page.Localizer
-}
+// type Localizer interface {
+// 	page.Localizer
+// }
 
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
