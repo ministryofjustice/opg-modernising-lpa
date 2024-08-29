@@ -30,7 +30,7 @@ go-test: ##@testing Runs full go test suite
 
 go-generate: ##@testing Runs go generate for mocks and enums
 	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm
-	mockery
+	GODEBUG=gotypesalias=0 mockery
 	go install ./cmd/enumerator
 	go generate ./...
 
