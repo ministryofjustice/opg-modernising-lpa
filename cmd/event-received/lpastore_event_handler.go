@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 )
 
 type lpastoreEventHandler struct{}
@@ -19,11 +20,6 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 	default:
 		return fmt.Errorf("unknown lpastore event")
 	}
-}
-
-type lpaUpdatedEvent struct {
-	UID        string `json:"uid"`
-	ChangeType string `json:"changeType"`
 }
 
 func handleLpaUpdated(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
@@ -42,6 +38,7 @@ func handleLpaUpdated(ctx context.Context, client dynamodbClient, event events.C
 	}
 
 	donor.PerfectAt = now()
+	donor.ProgressSteps.Complete(progress.NoticesOfIntentSent, now())
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update donor details: %w", err)

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -14,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -84,12 +86,16 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 		case task.PaymentStateInProgress:
 			if provided.FeeType.IsFullFee() && provided.FeeAmount() == 0 {
 				provided.Tasks.PayForLpa = task.PaymentStateCompleted
+				provided.ProgressSteps.Complete(progress.DonorPaid, time.Now())
 			} else {
 				provided.Tasks.PayForLpa = task.PaymentStatePending
+				provided.ProgressSteps.Complete(progress.FeeEvidenceSubmitted, time.Now())
 			}
 		case task.PaymentStateApproved, task.PaymentStateDenied:
 			if provided.FeeAmount() == 0 {
 				provided.Tasks.PayForLpa = task.PaymentStateCompleted
+				provided.ProgressSteps.Complete(progress.DonorPaid, time.Now())
+
 				nextPage = donor.PathTaskList
 
 				if provided.Voucher.Allowed {

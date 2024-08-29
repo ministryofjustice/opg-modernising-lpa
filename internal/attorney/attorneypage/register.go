@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -90,6 +91,11 @@ type NotifyClient interface {
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 }
 
+type DonorStore interface {
+	GetAny(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
+}
+
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 func Register(
@@ -106,6 +112,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
 	appPublicURL string,
+	donorStore DonorStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -141,7 +148,7 @@ func Register(
 	handleAttorney(attorney.PathWhatHappensWhenYouSign, CanGoBack,
 		Guidance(tmpls.Get("what_happens_when_you_sign.gohtml"), lpaStoreResolvingService))
 	handleAttorney(attorney.PathSign, CanGoBack,
-		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now))
+		Sign(tmpls.Get("sign.gohtml"), lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now, donorStore))
 	handleAttorney(attorney.PathWouldLikeSecondSignatory, None,
 		WouldLikeSecondSignatory(tmpls.Get("would_like_second_signatory.gohtml"), attorneyStore, lpaStoreResolvingService, lpaStoreClient))
 	handleAttorney(attorney.PathWhatHappensNext, None,

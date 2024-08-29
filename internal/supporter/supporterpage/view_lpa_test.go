@@ -5,7 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -25,19 +28,35 @@ func TestGetViewLPA(t *testing.T) {
 
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(lpa).
-		Return(task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}})
+		Progress(
+			lpa,
+			donordata.Tasks{YourDetails: task.StateCompleted},
+			notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}},
+			pay.FullFee).
+		Return(donordata.Progress{Paid: donordata.ProgressTask{State: task.StateInProgress}})
+
+	donor := &donordata.Provided{
+		LpaUID:        "lpa-uid",
+		Tasks:         donordata.Tasks{YourDetails: task.StateCompleted},
+		Notifications: notification.Notifications{FeeEvidence: notification.Notification{Received: testNow}},
+		FeeType:       pay.FullFee,
+	}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &viewLPAData{
 			App:      testAppData,
 			Lpa:      lpa,
-			Progress: task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}},
+			Progress: donordata.Progress{Paid: donordata.ProgressTask{State: task.StateInProgress}},
 		}).
 		Return(nil)
 
-	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(r.Context()).
+		Return(donor, nil)
+
+	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker, donorStore)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Nil(t, err)
 }
@@ -51,7 +70,26 @@ func TestGetViewLPAWhenLpaStoreClientError(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := ViewLPA(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	err := ViewLPA(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &supporterdata.Organisation{}, nil)
+
+	assert.Error(t, err)
+}
+
+func TestGetViewLPAWhenDonorStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(nil, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(&donordata.Provided{}, expectedError)
+
+	err := ViewLPA(nil, lpaStoreResolvingService, nil, donorStore)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Error(t, err)
 }
@@ -65,17 +103,22 @@ func TestGetViewLPAWhenTemplateError(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpadata.Lpa{}, nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(&donordata.Provided{}, nil)
+
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
-		Progress(mock.Anything).
-		Return(task.Progress{})
+		Progress(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(donordata.Progress{})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	err := ViewLPA(template.Execute, lpaStoreResolvingService, progressTracker, donorStore)(testAppData, w, r, &supporterdata.Organisation{}, nil)
 
 	assert.Error(t, err)
 }

@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -24,6 +26,11 @@ func Pay(
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.FeeType.IsNoFee() || provided.FeeType.IsHardshipFee() || provided.Tasks.PayForLpa.IsMoreEvidenceRequired() {
 			provided.Tasks.PayForLpa = task.PaymentStatePending
+
+			if provided.EvidenceDelivery.IsUpload() {
+				provided.ProgressSteps.Complete(progress.FeeEvidenceSubmitted, time.Now())
+			}
+
 			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
 			}

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -32,6 +33,7 @@ func Sign(
 	attorneyStore AttorneyStore,
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
+	donorStore DonorStore,
 ) Handler {
 	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &signData{
@@ -74,6 +76,21 @@ func Sign(
 
 				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
 					return err
+				}
+
+				lpa.Attorneys.Attorneys[lpa.Attorneys.Index(data.Attorney.UID)] = data.Attorney
+
+				if lpa.AllAttorneysSigned() {
+					donorProvided, err := donorStore.GetAny(r.Context())
+					if err != nil {
+						return err
+					}
+
+					donorProvided.ProgressSteps.Complete(progress.AllAttorneysSignedLPA, now())
+
+					if err := donorStore.Put(r.Context(), donorProvided); err != nil {
+						return err
+					}
 				}
 
 				return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
@@ -145,6 +162,21 @@ func Sign(
 				if signatoryIndex == 0 {
 					return attorney.PathWouldLikeSecondSignatory.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				} else {
+					lpa.Attorneys.TrustCorporation = data.TrustCorporation
+
+					if lpa.AllAttorneysSigned() {
+						donorProvided, err := donorStore.GetAny(r.Context())
+						if err != nil {
+							return err
+						}
+
+						donorProvided.ProgressSteps.Complete(progress.AllAttorneysSignedLPA, time.Now())
+
+						if err := donorStore.Put(r.Context(), donorProvided); err != nil {
+							return err
+						}
+					}
+
 					return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 				}
 			}

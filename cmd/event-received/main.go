@@ -45,10 +45,6 @@ type Handler interface {
 	Handle(context.Context, factory, events.CloudWatchEvent) error
 }
 
-type uidEvent struct {
-	UID string `json:"uid"`
-}
-
 type dynamodbClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error

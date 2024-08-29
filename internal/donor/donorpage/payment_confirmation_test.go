@@ -380,8 +380,8 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 }
 
 func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) {
-	for _, task := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
-		t.Run(task.String(), func(t *testing.T) {
+	for _, tsk := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
+		t.Run(tsk.String(), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
 
@@ -429,9 +429,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 					Email: "certificateprovider@example.com",
 				},
 				Voucher: donordata.Voucher{Allowed: true},
-				Tasks: donordata.Tasks{
-					PayForLpa: task,
-				},
+				Tasks:   donordata.Tasks{PayForLpa: tsk},
 			})
 			resp := w.Result()
 

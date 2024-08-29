@@ -110,6 +110,7 @@ func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 			UID:     donorUID,
 			Channel: lpadata.ChannelOnline,
 		},
+		ProgressSteps: &donordata.Progress{},
 	}
 
 	latest, err := s.Latest(ctx)

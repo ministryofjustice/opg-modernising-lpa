@@ -120,6 +120,7 @@ func (s *OrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided,
 		Donor: donordata.Donor{
 			UID: donorUID,
 		},
+		ProgressSteps: &donordata.Progress{},
 	}
 
 	if err := donor.UpdateHash(); err != nil {

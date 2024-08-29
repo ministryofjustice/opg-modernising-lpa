@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -15,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notification"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -510,12 +512,23 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 }
 
 func TestHandleFurtherInfoRequested(t *testing.T) {
+	postedDate := "2024-01-18T00:00:00.000Z"
+	postedDateTime, _ := time.Parse(time.RFC3339, postedDate)
+
 	event := events.CloudWatchEvent{
 		DetailType: "further-info-requested",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail: json.RawMessage(
+			fmt.Sprintf(`{"uid":"M-1111-2222-3333","postedDate":"%s","reducedFeeType":"remission"}`, postedDate),
+		),
 	}
 
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: testNow}
+	updated := &donordata.Provided{
+		PK:            dynamo.LpaKey("123"),
+		SK:            dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		Tasks:         donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
+		UpdatedAt:     testNow,
+		Notifications: notification.Notifications{FeeEvidence: notification.Notification{Received: postedDateTime}},
+	}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -554,7 +567,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(t *testing.T) {
 	event := events.CloudWatchEvent{
 		DetailType: "further-info-requested",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","postedDate":"2024-01-18T00:00:00.000Z","reducedFeeType":"remission"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -612,7 +625,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleFurtherInfoRequested(ctx, client, event, testNowFn)
-	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update LPA task status and notification: %w", expectedError), err)
 }
 
 func TestHandleFeeDenied(t *testing.T) {

@@ -1365,5 +1365,13 @@
     "yourEmailAddressForUpdates": "Welsh",
     "enterYourEmailAddress": "Welsh",
     "yourMobileForUpdates": "Welsh",
-    "youCanLeaveThisFieldBlankIfNotTextMessage": "Welsh"
+    "youCanLeaveThisFieldBlankIfNotTextMessage": "Welsh",
+    "donorNamesLPAFeeEvidenceHasBeenSubmitted": "{{.DonorFullNamePossessive}} Welsh",
+    "weEmailedDonorNameOnAbout": "Welsh {{.DonorFullName}} Welsh {{.On}} Welsh {{.About}}",
+    "theFee": "Welsh",
+    "donorNamesLPAFeeEvidenceHasBeenApproved": "{{.DonorFullNamePossessive}} Welsh",
+    "yourLPAFeeEvidenceHasBeenSubmitted": "Welsh",
+    "weEmailedYouOnAbout": "Welsh {{.On}} Welsh {{.About}}",
+    "yourFee": "Welsh",
+    "yourLPAFeeEvidenceHasBeenApproved": "Welsh"
 }

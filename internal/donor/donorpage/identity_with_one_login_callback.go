@@ -3,11 +3,13 @@ package donorpage
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
@@ -47,6 +49,10 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
 		} else {
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+		}
+
+		if userData.Status.IsConfirmed() {
+			provided.ProgressSteps.Complete(progress.DonorProvedID, time.Now())
 		}
 
 		if err := donorStore.Put(r.Context(), provided); err != nil {

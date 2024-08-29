@@ -24,11 +24,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
 
@@ -161,7 +161,10 @@ type ShareCodeStore interface {
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
 type ProgressTracker interface {
-	Progress(lpa *lpadata.Lpa) task.Progress
+	Init(paidFullFee, isSupporter bool, completedSteps []progress.Step)
+	Remaining() (inProgress progress.Step, notStarted []progress.Step)
+	Completed() []progress.Step
+	IsSupporter() bool
 }
 
 func Register(

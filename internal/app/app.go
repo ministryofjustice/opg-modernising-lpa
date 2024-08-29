@@ -28,13 +28,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page/fixtures"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/progress"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterpage"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherpage"
 )
@@ -107,7 +107,7 @@ func App(
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	voucherStore := voucher.NewStore(lpaDynamoClient)
-	progressTracker := task.ProgressTracker{Localizer: localizer}
+	progressTracker := progress.NewTracker(localizer)
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, notifyClient, localizer)
@@ -222,6 +222,7 @@ func App(
 		lpaStoreResolvingService,
 		notifyClient,
 		appPublicURL,
+		donorStore,
 	)
 
 	donorpage.Register(
