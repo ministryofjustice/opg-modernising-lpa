@@ -25,9 +25,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
-type Localizer interface {
-	page.Localizer
-}
+// type Localizer interface {
+// 	page.Localizer
+// }
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)

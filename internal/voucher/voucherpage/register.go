@@ -29,9 +29,9 @@ type Template func(io.Writer, interface{}) error
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
 
-type Localizer interface {
-	page.Localizer
-}
+// type Localizer interface {
+// 	page.Localizer
+// }
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)

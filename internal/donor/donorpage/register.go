@@ -121,9 +121,9 @@ type RequestSigner interface {
 	Sign(context.Context, *http.Request, string) error
 }
 
-type Localizer interface {
-	page.Localizer
-}
+// type Localizer interface {
+// 	page.Localizer
+// }
 
 type DocumentStore interface {
 	GetAll(context.Context) (document.Documents, error)

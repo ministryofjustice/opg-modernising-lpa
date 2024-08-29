@@ -84,9 +84,9 @@ type AddressClient interface {
 	LookupPostcode(ctx context.Context, postcode string) ([]place.Address, error)
 }
 
-type Localizer interface {
-	page.Localizer
-}
+// type Localizer interface {
+// 	page.Localizer
+// }
 
 type DashboardStore interface {
 	GetAll(ctx context.Context) (results dashboarddata.Results, err error)
