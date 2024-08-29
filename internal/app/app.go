@@ -29,6 +29,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -48,22 +49,23 @@ type Logger interface {
 }
 
 type DynamoClient interface {
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
-	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
-	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
-	Put(ctx context.Context, v interface{}) error
+	BatchPut(ctx context.Context, items []interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
-	BatchPut(ctx context.Context, items []interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
+	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
+	Put(ctx context.Context, v interface{}) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -107,6 +109,7 @@ func App(
 	organisationStore := supporter.NewOrganisationStore(lpaDynamoClient)
 	memberStore := supporter.NewMemberStore(lpaDynamoClient)
 	voucherStore := voucher.NewStore(lpaDynamoClient)
+	scheduledStore := scheduled.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
@@ -247,6 +250,7 @@ func App(
 		shareCodeStore,
 		progressTracker,
 		lpaStoreResolvingService,
+		scheduledStore,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
