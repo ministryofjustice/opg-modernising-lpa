@@ -250,16 +250,21 @@ func (s *Store) Get(ctx context.Context) (*donordata.Provided, error) {
 		sk = dynamo.OrganisationKey(data.OrganisationID)
 	}
 
+	return s.One(ctx, dynamo.LpaKey(data.LpaID), sk)
+}
+
+func (s *Store) One(ctx context.Context, pk dynamo.LpaKeyType, sk dynamo.SK) (*donordata.Provided, error) {
 	var donor struct {
 		donordata.Provided
 		ReferencedSK dynamo.OrganisationKeyType
 	}
-	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), sk, &donor); err != nil {
+	err := s.dynamoClient.One(ctx, pk, sk, &donor)
+	if err != nil {
 		return nil, err
 	}
 
 	if donor.ReferencedSK != "" {
-		err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), donor.ReferencedSK, &donor)
+		err = s.dynamoClient.One(ctx, pk, donor.ReferencedSK, &donor)
 	}
 
 	return &donor.Provided, err
