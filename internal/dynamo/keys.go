@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -26,6 +28,8 @@ const (
 	certificateProviderSharePrefix = "CERTIFICATEPROVIDERSHARE"
 	attorneySharePrefix            = "ATTORNEYSHARE"
 	voucherSharePrefix             = "VOUCHERSHARE"
+	cronDayPrefix                  = "CRONDAY"
+	cronPrefix                     = "CRON"
 )
 
 func readKey(s string) (any, error) {
@@ -266,4 +270,22 @@ func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
 // VoucherShareKey is used as the PK for sharing an Lpa with a donor.
 func VoucherShareKey(code string) VoucherShareKeyType {
 	return VoucherShareKeyType(voucherSharePrefix + "#" + code)
+}
+
+type CronDayKeyType string
+
+func (t CronDayKeyType) PK() string { return string(t) }
+
+// CronDayKey is used as the PK for a cron row.
+func CronDayKey(at time.Time) CronDayKeyType {
+	return CronDayKeyType(cronDayPrefix + "#" + at.Format(time.DateOnly))
+}
+
+type CronKeyType string
+
+func (t CronKeyType) SK() string { return string(t) }
+
+// CronKey is used as the SK for a cron row.
+func CronKey(at time.Time, action int) CronKeyType {
+	return CronKeyType(cronPrefix + "#" + at.Format(time.RFC3339) + "#" + strconv.Itoa(action))
 }
