@@ -15,11 +15,12 @@ func _() {
 	_ = x[StatusConfirmed-1]
 	_ = x[StatusFailed-2]
 	_ = x[StatusInsufficientEvidence-3]
+	_ = x[StatusExpired-4]
 }
 
-const _Status_name = "unknownconfirmedfailedinsufficient-evidence"
+const _Status_name = "unknownconfirmedfailedinsufficient-evidenceexpired"
 
-var _Status_index = [...]uint8{0, 7, 16, 22, 43}
+var _Status_index = [...]uint8{0, 7, 16, 22, 43, 50}
 
 func (i Status) String() string {
 	if i >= Status(len(_Status_index)-1) {
@@ -58,6 +59,10 @@ func (i Status) IsInsufficientEvidence() bool {
 	return i == StatusInsufficientEvidence
 }
 
+func (i Status) IsExpired() bool {
+	return i == StatusExpired
+}
+
 func ParseStatus(s string) (Status, error) {
 	switch s {
 	case "unknown":
@@ -68,6 +73,8 @@ func ParseStatus(s string) (Status, error) {
 		return StatusFailed, nil
 	case "insufficient-evidence":
 		return StatusInsufficientEvidence, nil
+	case "expired":
+		return StatusExpired, nil
 	default:
 		return Status(0), fmt.Errorf("invalid Status '%s'", s)
 	}
@@ -78,6 +85,7 @@ type StatusOptions struct {
 	Confirmed            Status
 	Failed               Status
 	InsufficientEvidence Status
+	Expired              Status
 }
 
 var StatusValues = StatusOptions{
@@ -85,4 +93,5 @@ var StatusValues = StatusOptions{
 	Confirmed:            StatusConfirmed,
 	Failed:               StatusFailed,
 	InsufficientEvidence: StatusInsufficientEvidence,
+	Expired:              StatusExpired,
 }

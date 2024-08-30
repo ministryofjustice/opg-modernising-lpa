@@ -26,6 +26,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -37,6 +38,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -356,6 +358,19 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
+
+	// TODO: move others out of app/app.go to here, maybe it makes more sense? The
+	// only negative is the number of arguments that will be added.
+	donorStore := donor.NewStore(lpasDynamoClient, eventClient, logger, searchClient)
+	scheduledStore := scheduled.NewStore(lpasDynamoClient)
+
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
+	go func() {
+		if err := runner.Run(ctx); err != nil {
+			logger.Error("runner error", slog.Any("err", err))
+			os.Exit(1)
+		}
+	}()
 
 	server := &http.Server{
 		Addr:              ":" + port,
