@@ -1365,5 +1365,9 @@
     "yourEmailAddressForUpdates": "Welsh",
     "enterYourEmailAddress": "Welsh",
     "yourMobileForUpdates": "Welsh",
-    "youCanLeaveThisFieldBlankIfNotTextMessage": "Welsh"
+    "youCanLeaveThisFieldBlankIfNotTextMessage": "Welsh",
+    "yourConfirmedIdentityHasExpired": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "returnToOneLoginToConfirmYourIdentityContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "askSomeoneToVouchForYouContent": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "iWillReturnToOneLogin": "Welsh"
 }
