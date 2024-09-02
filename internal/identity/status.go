@@ -8,4 +8,5 @@ const (
 	StatusConfirmed                          // confirmed
 	StatusFailed                             // failed
 	StatusInsufficientEvidence               // insufficient-evidence
+	StatusExpired                            // expired
 )
