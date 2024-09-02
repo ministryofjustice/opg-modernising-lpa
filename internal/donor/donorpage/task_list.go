@@ -192,6 +192,9 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 	case identity.StatusFailed:
 		signPath = donor.PathRegisterWithCourtOfProtection
 
+	case identity.StatusExpired:
+		signPath = donor.PathWhatYouCanDoNowExpired
+
 	case identity.StatusInsufficientEvidence:
 		if !provided.SignedAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa
