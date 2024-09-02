@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -27,7 +27,7 @@ import (
 
 func TestRegister(t *testing.T) {
 	mux := http.NewServeMux()
-	Register(mux, &slog.Logger{}, template.Templates{}, &mockSessionStore{}, &mockDonorStore{}, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, &mockShareCodeSender{}, &mockWitnessCodeSender{}, nil, &mockCertificateProviderStore{}, &mockNotifyClient{}, &mockEvidenceReceivedStore{}, &mockDocumentStore{}, &mockEventClient{}, &mockDashboardStore{}, &mockLpaStoreClient{}, &mockShareCodeStore{}, &mockProgressTracker{}, &lpastore.ResolvingService{})
+	Register(mux, &slog.Logger{}, template.Templates{}, &mockSessionStore{}, &mockDonorStore{}, &onelogin.Client{}, &place.Client{}, "http://example.org", &pay.Client{}, &mockShareCodeSender{}, &mockWitnessCodeSender{}, nil, &mockCertificateProviderStore{}, &mockNotifyClient{}, &mockEvidenceReceivedStore{}, &mockDocumentStore{}, &mockEventClient{}, &mockDashboardStore{}, &mockLpaStoreClient{}, &mockShareCodeStore{}, &mockProgressTracker{}, &lpastore.ResolvingService{}, &mockScheduledStore{})
 
 	assert.Implements(t, (*http.Handler)(nil), mux)
 }
