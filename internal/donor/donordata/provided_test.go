@@ -245,6 +245,21 @@ func TestUnder18ActorDetails(t *testing.T) {
 	}, actors)
 }
 
+func TestProvidedCorrespondentEmail(t *testing.T) {
+	lpa := &Provided{
+		Donor: Donor{Email: "donor"},
+	}
+	assert.Equal(t, "donor", lpa.CorrespondentEmail())
+}
+
+func TestProvidedCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
+	lpa := &Provided{
+		Donor:         Donor{Email: "donor"},
+		Correspondent: Correspondent{Email: "correspondent"},
+	}
+	assert.Equal(t, "correspondent", lpa.CorrespondentEmail())
+}
+
 func TestActorAddresses(t *testing.T) {
 	donor := &Provided{
 		Donor: Donor{Address: place.Address{Line1: "1"}},

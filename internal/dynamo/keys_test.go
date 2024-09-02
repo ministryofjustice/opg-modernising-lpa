@@ -3,6 +3,7 @@ package dynamo
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -35,6 +36,7 @@ func TestPK(t *testing.T) {
 		"CertificateProviderShareKey": {CertificateProviderShareKey("S"), "CERTIFICATEPROVIDERSHARE#S"},
 		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
 		"VoucherShareKey":             {VoucherShareKey("S"), "VOUCHERSHARE#S"},
+		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
 	}
 
 	for name, tc := range testcases {
@@ -80,6 +82,7 @@ func TestSK(t *testing.T) {
 		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
+		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), 99), "SCHEDULED#2024-01-02T12:13:14Z#99"},
 	}
 
 	for name, tc := range testcases {
@@ -123,4 +126,10 @@ func TestShareSortKeyTypes(t *testing.T) {
 	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey(OrganisationKey("what"), LpaKey("hello"))} {
 		key.shareSort()
 	}
+}
+
+func TestScheduledDayKeyTypeHandled(t *testing.T) {
+	key := ScheduledDayKey(time.Now())
+
+	assert.Equal(t, key.PK()+"#HANDLED", key.Handled().PK())
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/smithy-go"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 type testPK string
@@ -23,7 +23,10 @@ type testSK string
 
 func (k testSK) SK() string { return string(k) }
 
-var expectedError = errors.New("err")
+var (
+	ctx           = context.Background()
+	expectedError = errors.New("err")
+)
 
 func TestOne(t *testing.T) {
 	ctx := context.Background()
@@ -972,4 +975,79 @@ func TestOneBySkWhenQueryError(t *testing.T) {
 	err := c.OneBySK(ctx, testSK("sk"), &v)
 
 	assert.Equal(t, expectedError, err)
+}
+
+func TestMove(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: []types.TransactWriteItem{
+				{
+					Delete: &types.Delete{
+						TableName: aws.String("this"),
+						Key: map[string]types.AttributeValue{
+							"PK": &types.AttributeValueMemberS{Value: "a-pk"},
+							"SK": &types.AttributeValueMemberS{Value: "an-sk"},
+						},
+						ConditionExpression: aws.String("attribute_exists(PK) and attribute_exists(SK)"),
+					},
+				},
+				{
+					Put: &types.Put{
+						TableName: aws.String("this"),
+						Item: map[string]types.AttributeValue{
+							"hey": &types.AttributeValueMemberS{Value: "hi"},
+						},
+					},
+				},
+			},
+		}).
+		Return(nil, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
+	assert.Nil(t, err)
+}
+
+func TestMoveWhenConflict(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(mock.Anything, mock.Anything).
+		Return(nil, &types.TransactionConflictException{})
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
+	assert.Equal(t, ConditionalCheckFailedError{}, err)
+}
+
+func TestMoveWhenConditionalCheckFailed(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(mock.Anything, mock.Anything).
+		Return(nil, &types.TransactionCanceledException{
+			CancellationReasons: []types.CancellationReason{
+				{Code: aws.String("ConditionalCheckFailed")},
+			},
+		})
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
+	assert.Equal(t, ConditionalCheckFailedError{}, err)
+}
+
+func TestMoveWhenOtherCancellation(t *testing.T) {
+	canceledException := &types.TransactionCanceledException{
+		CancellationReasons: []types.CancellationReason{
+			{Code: aws.String("What")},
+		},
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(mock.Anything, mock.Anything).
+		Return(nil, canceledException)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
+	assert.Equal(t, canceledException, err)
 }

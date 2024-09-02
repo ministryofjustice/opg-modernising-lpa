@@ -103,6 +103,7 @@ const (
 	PathWhatHappensNextRegisteringWithCourtOfProtection      = Path("/what-happens-next-registering-with-court-of-protection")
 	PathWhatIsVouching                                       = Path("/what-is-vouching")
 	PathWhatYouCanDoNow                                      = Path("/what-you-can-do-now")
+	PathWhatYouCanDoNowExpired                               = Path("/what-you-can-do-now-expired")
 	PathWhenCanTheLpaBeUsed                                  = Path("/when-can-the-lpa-be-used")
 	PathWhichFeeTypeAreYouApplyingFor                        = Path("/which-fee-type-are-you-applying-for")
 	PathWithdrawThisLpa                                      = Path("/withdraw-this-lpa")
