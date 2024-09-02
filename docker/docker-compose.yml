@@ -27,6 +27,7 @@ services:
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
       - SEARCH_INDEXING_ENABLED=1
       - DEV_MODE=1
+      - SCHEDULED_RUNNER_PERIOD=1m
 
   event-logger:
     build:
