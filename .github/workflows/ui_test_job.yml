@@ -105,7 +105,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubActionTestInfra
-      - uses: actions/setup-python@v5.1.1
+      - uses: actions/setup-python@v5.2.0
         if: inputs.run_against_image != true
         with:
           python-version: '3.9'
@@ -140,7 +140,7 @@ jobs:
 
       - name: Persist Cypress failure screenshots as artifacts
         if: failure()
-        uses: actions/upload-artifact@v4.3.6
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: cypress-failure-screenshots
           path: ./cypress/screenshots/
