@@ -170,6 +170,7 @@ func App(
 		lpaStoreResolvingService,
 		notifyClient,
 		appPublicURL,
+		donorStore,
 	)
 
 	supporterpage.Register(
