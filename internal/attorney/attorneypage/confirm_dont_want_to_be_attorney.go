@@ -1,6 +1,7 @@
 package attorneypage
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -32,14 +33,14 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 		}
 
 		if r.Method == http.MethodPost {
-			attorneyFullName, err := findAttorneyFullName(lpa, attorneyProvidedDetails.UID)
-			if err != nil {
-				return err
+			fullName, actorType := lpa.Attorney(attorneyProvidedDetails.UID)
+			if actorType.IsNone() {
+				return errors.New("attorney not found")
 			}
 
 			email := notify.AttorneyOptedOutEmail{
 				Greeting:          notifyClient.EmailGreeting(lpa),
-				AttorneyFullName:  attorneyFullName,
+				AttorneyFullName:  fullName,
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
@@ -50,7 +51,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				return err
 			}
 
-			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID); err != nil {
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID, actorType); err != nil {
 				return err
 			}
 
