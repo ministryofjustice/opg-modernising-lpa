@@ -82,7 +82,7 @@ type DashboardStore interface {
 
 type LpaStoreClient interface {
 	SendAttorney(context.Context, *lpadata.Lpa, *attorneydata.Provided) error
-	SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID) error
+	SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID, actorType actor.Type) error
 }
 
 type NotifyClient interface {

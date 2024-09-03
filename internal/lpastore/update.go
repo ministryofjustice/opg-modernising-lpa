@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -223,9 +224,13 @@ func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpa
 	return c.sendUpdate(ctx, lpaUID, certificateProvider.UID, body)
 }
 
-func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID) error {
+func (c *Client) SendAttorneyOptOut(ctx context.Context, lpaUID string, attorneyUID actoruid.UID, actorType actor.Type) error {
 	body := updateRequest{
 		Type: "ATTORNEY_OPT_OUT",
+	}
+
+	if actorType.IsTrustCorporation() || actorType.IsReplacementTrustCorporation() {
+		body.Type = "TRUST_CORPORATION_OPT_OUT"
 	}
 
 	return c.sendUpdate(ctx, lpaUID, attorneyUID, body)

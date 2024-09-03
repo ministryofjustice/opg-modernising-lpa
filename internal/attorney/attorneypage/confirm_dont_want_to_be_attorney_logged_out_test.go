@@ -122,22 +122,27 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 	testcases := map[string]struct {
 		uid              actoruid.UID
 		attorneyFullName string
+		actorType        actor.Type
 	}{
 		"attorney": {
 			uid:              attorneyUID,
 			attorneyFullName: "d e f",
+			actorType:        actor.TypeAttorney,
 		},
 		"replacement attorney": {
 			uid:              replacementAttorneyUID,
 			attorneyFullName: "x y z",
+			actorType:        actor.TypeReplacementAttorney,
 		},
 		"trust corporation": {
 			uid:              trustCorporationUID,
 			attorneyFullName: "trusty",
+			actorType:        actor.TypeTrustCorporation,
 		},
 		"replacement trust corporation": {
 			uid:              replacementTrustCorporationUID,
 			attorneyFullName: "untrusty",
+			actorType:        actor.TypeReplacementTrustCorporation,
 		},
 	}
 
@@ -216,7 +221,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
-				SendAttorneyOptOut(r.Context(), "lpa-uid", tc.uid).
+				SendAttorneyOptOut(r.Context(), "lpa-uid", tc.uid, tc.actorType).
 				Return(nil)
 
 			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r)
@@ -398,7 +403,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				client := newMockLpaStoreClient(t)
 				client.EXPECT().
-					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 				return client
 			},
@@ -446,7 +451,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				client := newMockLpaStoreClient(t)
 				client.EXPECT().
-					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				return client
 			},

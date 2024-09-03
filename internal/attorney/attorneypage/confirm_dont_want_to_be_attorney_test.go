@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
@@ -131,7 +132,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendAttorneyOptOut(r.Context(), "lpa-uid", uid).
+		SendAttorneyOptOut(r.Context(), "lpa-uid", uid, actor.TypeAttorney).
 		Return(nil)
 
 	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
@@ -193,7 +194,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				client := newMockLpaStoreClient(t)
 				client.EXPECT().
-					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 				return client
 			},
@@ -213,7 +214,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 			lpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
 				client := newMockLpaStoreClient(t)
 				client.EXPECT().
-					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything).
+					SendAttorneyOptOut(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				return client
 			},

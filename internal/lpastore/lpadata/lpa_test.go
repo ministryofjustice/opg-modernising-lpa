@@ -183,3 +183,61 @@ func TestLpaActors(t *testing.T) {
 		independentWitness,
 	}, actors)
 }
+
+func TestAttorney(t *testing.T) {
+	attorneyUID := actoruid.New()
+	replacementAttorneyUID := actoruid.New()
+	trustCorporationUID := actoruid.New()
+	replacementTrustCorporationUID := actoruid.New()
+
+	lpa := &Lpa{
+		Attorneys: Attorneys{
+			Attorneys:        []Attorney{{UID: attorneyUID, FirstNames: "A", LastName: "B"}},
+			TrustCorporation: TrustCorporation{UID: trustCorporationUID, Name: "C"},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys:        []Attorney{{UID: replacementAttorneyUID, FirstNames: "D", LastName: "E"}},
+			TrustCorporation: TrustCorporation{UID: replacementTrustCorporationUID, Name: "F"},
+		},
+	}
+
+	testcases := map[string]struct {
+		uid       actoruid.UID
+		name      string
+		actorType actor.Type
+	}{
+		"attorney": {
+			uid:       attorneyUID,
+			name:      "A B",
+			actorType: actor.TypeAttorney,
+		},
+		"replacement attorney": {
+			uid:       replacementAttorneyUID,
+			name:      "D E",
+			actorType: actor.TypeReplacementAttorney,
+		},
+		"trust corporation": {
+			uid:       trustCorporationUID,
+			name:      "C",
+			actorType: actor.TypeTrustCorporation,
+		},
+		"replacement trust corporation": {
+			uid:       replacementTrustCorporationUID,
+			name:      "F",
+			actorType: actor.TypeReplacementTrustCorporation,
+		},
+		"missing": {
+			uid:       actoruid.New(),
+			actorType: actor.TypeNone,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			name, actorType := lpa.Attorney(tc.uid)
+
+			assert.Equal(t, tc.name, name)
+			assert.Equal(t, tc.actorType, actorType)
+		})
+	}
+}
