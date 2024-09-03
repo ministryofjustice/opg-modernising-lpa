@@ -8,10 +8,16 @@ data "aws_kms_alias" "cloudtrail" {
   provider = aws.eu_west_1
 }
 
+data "aws_kms_alias" "dynamodb_cloudtrail_log_group" {
+  name     = "alias/${local.default_tags.application}_dynamodb_cloudtrail_log_group_encryption"
+  provider = aws.eu_west_1
+}
+
 resource "aws_cloudwatch_log_group" "cloudtrail_dynamodb" {
   count             = local.environment.dynamodb.cloudtrail_enabled ? 1 : 0
   name              = "/aws/cloudtrail/dynamodb-${local.default_tags.environment-name}"
   retention_in_days = 365
+  kms_key_id        = data.aws_kms_alias.dynamodb_cloudtrail_log_group.target_key_arn
   provider          = aws.eu_west_1
 }
 
