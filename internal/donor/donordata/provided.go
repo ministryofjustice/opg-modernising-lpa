@@ -135,6 +135,8 @@ type Provided struct {
 	WantVoucher form.YesNo
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher
+	// FailedVouchAttempts are the number of unsuccessful attempts a voucher has made to confirm the Donors ID
+	FailedVouchAttempts int
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes
@@ -159,8 +161,8 @@ type Provided struct {
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
-func (d *Provided) HashInclude(field string, _ any) (bool, error) {
-	if d.HashVersion > currentHashVersion {
+func (p *Provided) HashInclude(field string, _ any) (bool, error) {
+	if p.HashVersion > currentHashVersion {
 		return false, errors.New("HashVersion too high")
 	}
 
@@ -202,57 +204,58 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"PreviousFee",
 		"RegisteringWithCourtOfProtection",
 		"WantVoucher",
-		"Voucher":
+		"Voucher",
+		"FailedVouchAttempts":
 		return false, nil
 	}
 
 	return true, nil
 }
 
-func (l *Provided) NamesChanged(firstNames, lastName, otherNames string) bool {
-	return l.Donor.FirstNames != firstNames || l.Donor.LastName != lastName || l.Donor.OtherNames != otherNames
+func (p *Provided) NamesChanged(firstNames, lastName, otherNames string) bool {
+	return p.Donor.FirstNames != firstNames || p.Donor.LastName != lastName || p.Donor.OtherNames != otherNames
 }
 
-func (l *Provided) HashChanged() bool {
-	hash, _ := l.generateHash()
+func (p *Provided) HashChanged() bool {
+	hash, _ := p.generateHash()
 
-	return hash != l.Hash
+	return hash != p.Hash
 }
 
-func (l *Provided) UpdateHash() (err error) {
-	l.HashVersion = currentHashVersion
-	l.Hash, err = l.generateHash()
+func (p *Provided) UpdateHash() (err error) {
+	p.HashVersion = currentHashVersion
+	p.Hash, err = p.generateHash()
 	return err
 }
 
-func (l *Provided) generateHash() (uint64, error) {
-	return hashstructure.Hash(l, hashstructure.FormatV2, nil)
+func (p *Provided) generateHash() (uint64, error) {
+	return hashstructure.Hash(p, hashstructure.FormatV2, nil)
 }
 
-func (l *Provided) CheckedHashChanged() bool {
-	hash, _ := l.generateCheckedHash()
+func (p *Provided) CheckedHashChanged() bool {
+	hash, _ := p.generateCheckedHash()
 
-	return hash != l.CheckedHash
+	return hash != p.CheckedHash
 }
 
-func (l *Provided) UpdateCheckedHash() (err error) {
-	l.CheckedHashVersion = currentCheckedHashVersion
-	l.CheckedHash, err = l.generateCheckedHash()
+func (p *Provided) UpdateCheckedHash() (err error) {
+	p.CheckedHashVersion = currentCheckedHashVersion
+	p.CheckedHash, err = p.generateCheckedHash()
 	return err
 }
 
-func (l *Provided) generateCheckedHash() (uint64, error) {
-	return hashstructure.Hash(toCheck(*l), hashstructure.FormatV2, nil)
+func (p *Provided) generateCheckedHash() (uint64, error) {
+	return hashstructure.Hash(toCheck(*p), hashstructure.FormatV2, nil)
 }
 
-func (l *Provided) DonorIdentityConfirmed() bool {
-	return l.DonorIdentityUserData.Status.IsConfirmed() &&
-		l.DonorIdentityUserData.MatchName(l.Donor.FirstNames, l.Donor.LastName) &&
-		l.DonorIdentityUserData.DateOfBirth.Equals(l.Donor.DateOfBirth)
+func (p *Provided) DonorIdentityConfirmed() bool {
+	return p.DonorIdentityUserData.Status.IsConfirmed() &&
+		p.DonorIdentityUserData.MatchName(p.Donor.FirstNames, p.Donor.LastName) &&
+		p.DonorIdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
 }
 
-func (l *Provided) AttorneysAndCpSigningDeadline() time.Time {
-	return l.SignedAt.Add((24 * time.Hour) * 28)
+func (p *Provided) AttorneysAndCpSigningDeadline() time.Time {
+	return p.SignedAt.Add((24 * time.Hour) * 28)
 }
 
 type Under18ActorDetails struct {
@@ -262,11 +265,11 @@ type Under18ActorDetails struct {
 	Type        actor.Type
 }
 
-func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
+func (p *Provided) Under18ActorDetails() []Under18ActorDetails {
 	var data []Under18ActorDetails
 	eighteenYearsAgo := date.Today().AddDate(-18, 0, 0)
 
-	for _, a := range l.Attorneys.Attorneys {
+	for _, a := range p.Attorneys.Attorneys {
 		if a.DateOfBirth.After(eighteenYearsAgo) {
 			data = append(data, Under18ActorDetails{
 				FullName:    a.FullName(),
@@ -277,7 +280,7 @@ func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 		}
 	}
 
-	for _, ra := range l.ReplacementAttorneys.Attorneys {
+	for _, ra := range p.ReplacementAttorneys.Attorneys {
 		if ra.DateOfBirth.After(eighteenYearsAgo) {
 			data = append(data, Under18ActorDetails{
 				FullName:    ra.FullName(),
@@ -291,32 +294,32 @@ func (l *Provided) Under18ActorDetails() []Under18ActorDetails {
 	return data
 }
 
-func (l *Provided) CorrespondentEmail() string {
-	if l.Correspondent.Email == "" {
-		return l.Donor.Email
+func (p *Provided) CorrespondentEmail() string {
+	if p.Correspondent.Email == "" {
+		return p.Donor.Email
 	}
 
-	return l.Correspondent.Email
+	return p.Correspondent.Email
 }
 
-func (l *Provided) ActorAddresses() []place.Address {
+func (p *Provided) ActorAddresses() []place.Address {
 	var addresses []place.Address
 
-	if l.Donor.Address.String() != "" {
-		addresses = append(addresses, l.Donor.Address)
+	if p.Donor.Address.String() != "" {
+		addresses = append(addresses, p.Donor.Address)
 	}
 
-	if l.CertificateProvider.Address.String() != "" && !slices.Contains(addresses, l.CertificateProvider.Address) {
-		addresses = append(addresses, l.CertificateProvider.Address)
+	if p.CertificateProvider.Address.String() != "" && !slices.Contains(addresses, p.CertificateProvider.Address) {
+		addresses = append(addresses, p.CertificateProvider.Address)
 	}
 
-	for _, address := range l.Attorneys.Addresses() {
+	for _, address := range p.Attorneys.Addresses() {
 		if address.String() != "" && !slices.Contains(addresses, address) {
 			addresses = append(addresses, address)
 		}
 	}
 
-	for _, address := range l.ReplacementAttorneys.Addresses() {
+	for _, address := range p.ReplacementAttorneys.Addresses() {
 		if address.String() != "" && !slices.Contains(addresses, address) {
 			addresses = append(addresses, address)
 		}
@@ -325,86 +328,86 @@ func (l *Provided) ActorAddresses() []place.Address {
 	return addresses
 }
 
-func (l *Provided) AllLayAttorneysFirstNames() []string {
+func (p *Provided) AllLayAttorneysFirstNames() []string {
 	var names []string
 
-	for _, a := range l.Attorneys.Attorneys {
+	for _, a := range p.Attorneys.Attorneys {
 		names = append(names, a.FirstNames)
 	}
 
-	for _, a := range l.ReplacementAttorneys.Attorneys {
+	for _, a := range p.ReplacementAttorneys.Attorneys {
 		names = append(names, a.FirstNames)
 	}
 
 	return names
 }
 
-func (l *Provided) AllLayAttorneysFullNames() []string {
+func (p *Provided) AllLayAttorneysFullNames() []string {
 	var names []string
 
-	for _, a := range l.Attorneys.Attorneys {
+	for _, a := range p.Attorneys.Attorneys {
 		names = append(names, a.FullName())
 	}
 
-	for _, a := range l.ReplacementAttorneys.Attorneys {
+	for _, a := range p.ReplacementAttorneys.Attorneys {
 		names = append(names, a.FullName())
 	}
 
 	return names
 }
 
-func (l *Provided) TrustCorporationsNames() []string {
+func (p *Provided) TrustCorporationsNames() []string {
 	var names []string
 
-	if l.Attorneys.TrustCorporation.Name != "" {
-		names = append(names, l.Attorneys.TrustCorporation.Name)
+	if p.Attorneys.TrustCorporation.Name != "" {
+		names = append(names, p.Attorneys.TrustCorporation.Name)
 	}
 
-	if l.ReplacementAttorneys.TrustCorporation.Name != "" {
-		names = append(names, l.ReplacementAttorneys.TrustCorporation.Name)
+	if p.ReplacementAttorneys.TrustCorporation.Name != "" {
+		names = append(names, p.ReplacementAttorneys.TrustCorporation.Name)
 	}
 
 	return names
 }
 
-func (l *Provided) Cost() int {
-	if l.Tasks.PayForLpa.IsDenied() {
+func (p *Provided) Cost() int {
+	if p.Tasks.PayForLpa.IsDenied() {
 		return 8200
 	}
 
-	return pay.Cost(l.FeeType, l.PreviousFee)
+	return pay.Cost(p.FeeType, p.PreviousFee)
 }
 
-func (l *Provided) FeeAmount() pay.AmountPence {
+func (p *Provided) FeeAmount() pay.AmountPence {
 	paid := 0
 
-	for _, payment := range l.PaymentDetails {
+	for _, payment := range p.PaymentDetails {
 		paid += payment.Amount
 	}
 
-	return pay.AmountPence(l.Cost() - paid)
+	return pay.AmountPence(p.Cost() - paid)
 }
 
 // CertificateProviderSharesDetails will return true if the last name or address
 // of the certificate provider matches that of the donor or one of the
 // attorneys. For a match of the last name we break on '-' to account for
 // double-barrelled names.
-func (l *Provided) CertificateProviderSharesDetails() bool {
-	certificateProviderParts := strings.Split(l.CertificateProvider.LastName, "-")
+func (p *Provided) CertificateProviderSharesDetails() bool {
+	certificateProviderParts := strings.Split(p.CertificateProvider.LastName, "-")
 
-	donorParts := strings.Split(l.Donor.LastName, "-")
+	donorParts := strings.Split(p.Donor.LastName, "-")
 	for _, certificateProviderPart := range certificateProviderParts {
 		if slices.Contains(donorParts, certificateProviderPart) {
 			return true
 		}
 
-		if l.CertificateProvider.Address.Line1 == l.Donor.Address.Line1 &&
-			l.CertificateProvider.Address.Postcode == l.Donor.Address.Postcode {
+		if p.CertificateProvider.Address.Line1 == p.Donor.Address.Line1 &&
+			p.CertificateProvider.Address.Postcode == p.Donor.Address.Postcode {
 			return true
 		}
 	}
 
-	for _, attorney := range append(l.Attorneys.Attorneys, l.ReplacementAttorneys.Attorneys...) {
+	for _, attorney := range append(p.Attorneys.Attorneys, p.ReplacementAttorneys.Attorneys...) {
 		attorneyParts := strings.Split(attorney.LastName, "-")
 
 		for _, certificateProviderPart := range certificateProviderParts {
@@ -412,8 +415,8 @@ func (l *Provided) CertificateProviderSharesDetails() bool {
 				return true
 			}
 
-			if l.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
-				l.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
+			if p.CertificateProvider.Address.Line1 == attorney.Address.Line1 &&
+				p.CertificateProvider.Address.Postcode == attorney.Address.Postcode {
 				return true
 			}
 		}
@@ -424,27 +427,27 @@ func (l *Provided) CertificateProviderSharesDetails() bool {
 
 // Actors returns an iterator over all human actors named on the LPA (i.e. this
 // excludes trust corporations, the correspondent, and the voucher).
-func (l *Provided) Actors() iter.Seq[actor.Actor] {
+func (p *Provided) Actors() iter.Seq[actor.Actor] {
 	return func(yield func(actor.Actor) bool) {
 		if !yield(actor.Actor{
 			Type:       actor.TypeDonor,
-			UID:        l.Donor.UID,
-			FirstNames: l.Donor.FirstNames,
-			LastName:   l.Donor.LastName,
+			UID:        p.Donor.UID,
+			FirstNames: p.Donor.FirstNames,
+			LastName:   p.Donor.LastName,
 		}) {
 			return
 		}
 
 		if !yield(actor.Actor{
 			Type:       actor.TypeCertificateProvider,
-			UID:        l.CertificateProvider.UID,
-			FirstNames: l.CertificateProvider.FirstNames,
-			LastName:   l.CertificateProvider.LastName,
+			UID:        p.CertificateProvider.UID,
+			FirstNames: p.CertificateProvider.FirstNames,
+			LastName:   p.CertificateProvider.LastName,
 		}) {
 			return
 		}
 
-		for _, attorney := range l.Attorneys.Attorneys {
+		for _, attorney := range p.Attorneys.Attorneys {
 			if !yield(actor.Actor{
 				Type:       actor.TypeAttorney,
 				UID:        attorney.UID,
@@ -455,7 +458,7 @@ func (l *Provided) Actors() iter.Seq[actor.Actor] {
 			}
 		}
 
-		for _, attorney := range l.ReplacementAttorneys.Attorneys {
+		for _, attorney := range p.ReplacementAttorneys.Attorneys {
 			if !yield(actor.Actor{
 				Type:       actor.TypeReplacementAttorney,
 				UID:        attorney.UID,
@@ -466,7 +469,7 @@ func (l *Provided) Actors() iter.Seq[actor.Actor] {
 			}
 		}
 
-		for _, person := range l.PeopleToNotify {
+		for _, person := range p.PeopleToNotify {
 			if !yield(actor.Actor{
 				Type:       actor.TypePersonToNotify,
 				UID:        person.UID,
@@ -477,24 +480,28 @@ func (l *Provided) Actors() iter.Seq[actor.Actor] {
 			}
 		}
 
-		if l.AuthorisedSignatory.FirstNames != "" {
+		if p.AuthorisedSignatory.FirstNames != "" {
 			if !yield(actor.Actor{
 				Type:       actor.TypeAuthorisedSignatory,
-				FirstNames: l.AuthorisedSignatory.FirstNames,
-				LastName:   l.AuthorisedSignatory.LastName,
+				FirstNames: p.AuthorisedSignatory.FirstNames,
+				LastName:   p.AuthorisedSignatory.LastName,
 			}) {
 				return
 			}
 		}
 
-		if l.IndependentWitness.FirstNames != "" {
+		if p.IndependentWitness.FirstNames != "" {
 			if !yield(actor.Actor{
 				Type:       actor.TypeIndependentWitness,
-				FirstNames: l.IndependentWitness.FirstNames,
-				LastName:   l.IndependentWitness.LastName,
+				FirstNames: p.IndependentWitness.FirstNames,
+				LastName:   p.IndependentWitness.LastName,
 			}) {
 				return
 			}
 		}
 	}
+}
+
+func (p *Provided) CanHaveVoucher() bool {
+	return p.FailedVouchAttempts < 2
 }

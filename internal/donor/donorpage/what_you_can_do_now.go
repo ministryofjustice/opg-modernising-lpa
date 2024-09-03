@@ -14,9 +14,12 @@ import (
 )
 
 type whatYouCanDoNowData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *whatYouCanDoNowForm
+	App                 appcontext.Data
+	Errors              validation.List
+	Form                *whatYouCanDoNowForm
+	NewVoucherLabel     string
+	BannerContent       string
+	FailedVouchAttempts int
 }
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
@@ -24,12 +27,14 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 		data := &whatYouCanDoNowData{
 			App: appData,
 			Form: &whatYouCanDoNowForm{
-				Options: donordata.NoVoucherDecisionValues,
+				Options:        donordata.NoVoucherDecisionValues,
+				CanHaveVoucher: provided.CanHaveVoucher(),
 			},
+			FailedVouchAttempts: provided.FailedVouchAttempts,
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readWhatYouCanDoNowForm(r)
+			data.Form = readWhatYouCanDoNowForm(r, provided)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -57,23 +62,36 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 		}
 
+		switch provided.FailedVouchAttempts {
+		case 0:
+			data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
+			data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
+		case 1:
+			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
+			data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
+		default:
+			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
+		}
+
 		return tmpl(w, data)
 	}
 }
 
 type whatYouCanDoNowForm struct {
-	DoNext  donordata.NoVoucherDecision
-	Error   error
-	Options donordata.NoVoucherDecisionOptions
+	DoNext         donordata.NoVoucherDecision
+	Error          error
+	Options        donordata.NoVoucherDecisionOptions
+	CanHaveVoucher bool
 }
 
-func readWhatYouCanDoNowForm(r *http.Request) *whatYouCanDoNowForm {
+func readWhatYouCanDoNowForm(r *http.Request, provided *donordata.Provided) *whatYouCanDoNowForm {
 	doNext, err := donordata.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
 
 	return &whatYouCanDoNowForm{
-		DoNext:  doNext,
-		Error:   err,
-		Options: donordata.NoVoucherDecisionValues,
+		DoNext:         doNext,
+		Error:          err,
+		Options:        donordata.NoVoucherDecisionValues,
+		CanHaveVoucher: provided.CanHaveVoucher(),
 	}
 }
 
@@ -82,6 +100,12 @@ func (f *whatYouCanDoNowForm) Validate() validation.List {
 
 	errors.Error("do-next", "whatYouWouldLikeToDo", f.Error,
 		validation.Selected())
+
+	if !f.CanHaveVoucher && f.DoNext.IsSelectNewVoucher() {
+		errors.Add("do-next", validation.CustomError{
+			Label: "youCannotAskAnotherPersonToVouchForYou",
+		})
+	}
 
 	return errors
 }
