@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -171,4 +172,24 @@ func (l Lpa) Actors() iter.Seq[actor.Actor] {
 			}
 		}
 	}
+}
+
+func (l *Lpa) Attorney(uid actoruid.UID) (string, actor.Type) {
+	if t := l.ReplacementAttorneys.TrustCorporation; t.UID == uid {
+		return t.Name, actor.TypeReplacementTrustCorporation
+	}
+
+	if t := l.Attorneys.TrustCorporation; t.UID == uid {
+		return t.Name, actor.TypeTrustCorporation
+	}
+
+	if a, ok := l.ReplacementAttorneys.Get(uid); ok {
+		return a.FullName(), actor.TypeReplacementAttorney
+	}
+
+	if a, ok := l.Attorneys.Get(uid); ok {
+		return a.FullName(), actor.TypeAttorney
+	}
+
+	return "", actor.TypeNone
 }
