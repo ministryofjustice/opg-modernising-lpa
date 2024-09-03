@@ -46,7 +46,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID)
+			attorneyFullName, isTrustCorporation, err := findAttorneyFullName(lpa, shareCode.ActorUID)
 			if err != nil {
 				return err
 			}
@@ -64,7 +64,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, shareCode.ActorUID); err != nil {
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, shareCode.ActorUID, isTrustCorporation); err != nil {
 				return err
 			}
 
@@ -79,22 +79,22 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 	}
 }
 
-func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID) (string, error) {
+func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID) (string, bool, error) {
 	if t := lpa.ReplacementAttorneys.TrustCorporation; t.UID == uid {
-		return t.Name, nil
+		return t.Name, true, nil
 	}
 
 	if t := lpa.Attorneys.TrustCorporation; t.UID == uid {
-		return t.Name, nil
+		return t.Name, true, nil
 	}
 
 	if a, ok := lpa.ReplacementAttorneys.Get(uid); ok {
-		return a.FullName(), nil
+		return a.FullName(), false, nil
 	}
 
 	if a, ok := lpa.Attorneys.Get(uid); ok {
-		return a.FullName(), nil
+		return a.FullName(), false, nil
 	}
 
-	return "", errors.New("attorney not found")
+	return "", false, errors.New("attorney not found")
 }

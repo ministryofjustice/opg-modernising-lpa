@@ -32,7 +32,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 		}
 
 		if r.Method == http.MethodPost {
-			attorneyFullName, err := findAttorneyFullName(lpa, attorneyProvidedDetails.UID)
+			attorneyFullName, isTrustCorporation, err := findAttorneyFullName(lpa, attorneyProvidedDetails.UID)
 			if err != nil {
 				return err
 			}
@@ -50,7 +50,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				return err
 			}
 
-			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID); err != nil {
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, attorneyProvidedDetails.UID, isTrustCorporation); err != nil {
 				return err
 			}
 

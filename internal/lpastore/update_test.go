@@ -466,37 +466,46 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 }
 
 func TestClientSendAttorneyOptOut(t *testing.T) {
-	json := `{"type":"ATTORNEY_OPT_OUT","changes":null}`
+	testcases := map[string]bool{
+		"ATTORNEY_OPT_OUT":          false,
+		"TRUST_CORPORATION_OPT_OUT": true,
+	}
 
-	ctx := context.Background()
+	for updateType, isTrustCorporation := range testcases {
+		t.Run(updateType, func(t *testing.T) {
+			json := `{"type":"` + updateType + `","changes":null}`
 
-	secretsClient := newMockSecretsClient(t)
-	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
-		Return("secret", nil)
+			ctx := context.Background()
 
-	var body []byte
-	doer := newMockDoer(t)
-	doer.EXPECT().
-		Do(mock.MatchedBy(func(req *http.Request) bool {
-			if body == nil {
-				body, _ = io.ReadAll(req.Body)
-			}
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Return("secret", nil)
 
-			return assert.Equal(t, ctx, req.Context()) &&
-				assert.Equal(t, http.MethodPost, req.Method) &&
-				assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
-				assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
-				assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOmRjNDg3ZWJiLWIzOWQtNDVlZC1iYjZhLTdmOTUwZmQzNTVjOSIsImlhdCI6OTQ2NzgyMjQ1fQ.MIHlxYV520Wpx-pP2XVvYdbUGFh3CkmCjFR99XBOX9k", req.Header.Get("X-Jwt-Authorization")) &&
-				assert.JSONEq(t, json, string(body))
-		})).
-		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
+			var body []byte
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.MatchedBy(func(req *http.Request) bool {
+					if body == nil {
+						body, _ = io.ReadAll(req.Body)
+					}
 
-	client := New("http://base", secretsClient, doer)
-	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
+					return assert.Equal(t, ctx, req.Context()) &&
+						assert.Equal(t, http.MethodPost, req.Method) &&
+						assert.Equal(t, "http://base/lpas/lpa-uid/updates", req.URL.String()) &&
+						assert.Equal(t, "application/json", req.Header.Get("Content-Type")) &&
+						assert.Equal(t, "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ1cm46b3BnOnBvYXM6bWFrZXJlZ2lzdGVyOnVzZXJzOmRjNDg3ZWJiLWIzOWQtNDVlZC1iYjZhLTdmOTUwZmQzNTVjOSIsImlhdCI6OTQ2NzgyMjQ1fQ.MIHlxYV520Wpx-pP2XVvYdbUGFh3CkmCjFR99XBOX9k", req.Header.Get("X-Jwt-Authorization")) &&
+						assert.JSONEq(t, json, string(body))
+				})).
+				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	uid, _ := actoruid.Parse("dc487ebb-b39d-45ed-bb6a-7f950fd355c9")
-	err := client.SendAttorneyOptOut(ctx, "lpa-uid", uid)
+			client := New("http://base", secretsClient, doer)
+			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	assert.Nil(t, err)
+			uid, _ := actoruid.Parse("dc487ebb-b39d-45ed-bb6a-7f950fd355c9")
+			err := client.SendAttorneyOptOut(ctx, "lpa-uid", uid, isTrustCorporation)
+
+			assert.Nil(t, err)
+		})
+	}
 }
