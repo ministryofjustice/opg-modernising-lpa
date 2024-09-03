@@ -7,7 +7,6 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -46,14 +45,14 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			attorneyFullName, err := findAttorneyFullName(lpa, shareCode.ActorUID)
-			if err != nil {
-				return err
+			fullName, actorType := lpa.Attorney(shareCode.ActorUID)
+			if actorType.IsNone() {
+				return errors.New("attorney not found")
 			}
 
 			email := notify.AttorneyOptedOutEmail{
 				Greeting:          notifyClient.EmailGreeting(lpa),
-				AttorneyFullName:  attorneyFullName,
+				AttorneyFullName:  fullName,
 				DonorFullName:     lpa.Donor.FullName(),
 				LpaType:           appData.Localizer.T(lpa.Type.String()),
 				LpaUID:            lpa.LpaUID,
@@ -64,7 +63,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, shareCode.ActorUID); err != nil {
+			if err := lpaStoreClient.SendAttorneyOptOut(r.Context(), lpa.LpaUID, shareCode.ActorUID, actorType); err != nil {
 				return err
 			}
 
@@ -77,24 +76,4 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 
 		return tmpl(w, data)
 	}
-}
-
-func findAttorneyFullName(lpa *lpadata.Lpa, uid actoruid.UID) (string, error) {
-	if t := lpa.ReplacementAttorneys.TrustCorporation; t.UID == uid {
-		return t.Name, nil
-	}
-
-	if t := lpa.Attorneys.TrustCorporation; t.UID == uid {
-		return t.Name, nil
-	}
-
-	if a, ok := lpa.ReplacementAttorneys.Get(uid); ok {
-		return a.FullName(), nil
-	}
-
-	if a, ok := lpa.Attorneys.Get(uid); ok {
-		return a.FullName(), nil
-	}
-
-	return "", errors.New("attorney not found")
 }
