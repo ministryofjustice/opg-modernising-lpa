@@ -56,17 +56,6 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if !provided.IdentityConfirmed() {
-			donor, err := donorStore.GetAny(r.Context())
-			if err != nil {
-				return err
-			}
-
-			donor.FailedVouchAttempts++
-
-			if err := donorStore.Put(r.Context(), donor); err != nil {
-				return err
-			}
-
 			if !lpa.SignedAt.IsZero() {
 				if err = notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.VoucherFailedIdentityCheckEmail{
 					Greeting:          notifyClient.EmailGreeting(lpa),
@@ -77,6 +66,17 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				}); err != nil {
 					return err
 				}
+			}
+
+			donor, err := donorStore.GetAny(r.Context())
+			if err != nil {
+				return err
+			}
+
+			donor.FailedVouchAttempts++
+
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
 			}
 
 			return voucher.PathUnableToConfirmIdentity.Redirect(w, r, appData, appData.LpaID)

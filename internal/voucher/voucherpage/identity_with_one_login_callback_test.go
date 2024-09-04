@@ -220,14 +220,6 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		ParseIdentityClaim(mock.Anything, mock.Anything).
 		Return(userData, nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&donordata.Provided{}, nil)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{FailedVouchAttempts: 1}).
-		Return(nil)
-
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
 		T(mock.Anything).
@@ -243,7 +235,7 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, "www.example.com", donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, "www.example.com", nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
