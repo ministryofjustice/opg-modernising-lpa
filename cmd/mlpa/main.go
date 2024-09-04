@@ -3,8 +3,6 @@ package main
 import (
 	"cmp"
 	"context"
-	"crypto/ecdsa"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	html "html/template"
@@ -21,7 +19,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/handlers"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -94,6 +91,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		awsBaseURL            = os.Getenv("AWS_BASE_URL")
 		clientID              = cmp.Or(os.Getenv("CLIENT_ID"), "client-id-value")
 		issuer                = cmp.Or(os.Getenv("ISSUER"), "http://mock-onelogin:8080")
+		identityURL           = cmp.Or(os.Getenv("IDENTITY_URL"), "http://mock-onelogin:8080")
 		dynamoTableLpas       = cmp.Or(os.Getenv("DYNAMODB_TABLE_LPAS"), "lpas")
 		notifyBaseURL         = cmp.Or(os.Getenv("GOVUK_NOTIFY_BASE_URL"), "http://mock-notify:8080")
 		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
@@ -114,7 +112,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		oneloginURL           = cmp.Or(os.Getenv("ONELOGIN_URL"), "https://home.integration.account.gov.uk")
 		evidenceBucketName    = cmp.Or(os.Getenv("UPLOADS_S3_BUCKET_NAME"), "evidence")
 		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
-		mockIdentityPublicKey = os.Getenv("MOCK_IDENTITY_PUBLIC_KEY")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
@@ -246,27 +243,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	redirectURL := authRedirectBaseURL + page.PathAuthRedirect.Format()
 
-	identityPublicKeyFunc := func(ctx context.Context) (*ecdsa.PublicKey, error) {
-		bytes, err := secretsClient.SecretBytes(ctx, secrets.GovUkOneLoginIdentityPublicKey)
-		if err != nil {
-			return nil, err
-		}
-
-		return jwt.ParseECPublicKeyFromPEM(bytes)
-	}
-
-	if mockIdentityPublicKey != "" {
-		identityPublicKeyFunc = func(ctx context.Context) (*ecdsa.PublicKey, error) {
-			bytes, err := base64.StdEncoding.DecodeString(mockIdentityPublicKey)
-			if err != nil {
-				return nil, err
-			}
-
-			return jwt.ParseECPublicKeyFromPEM(bytes)
-		}
-	}
-
-	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, clientID, redirectURL, identityPublicKeyFunc)
+	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, identityURL, clientID, redirectURL)
 
 	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
