@@ -45,19 +45,30 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsNo() {
-					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.VoucherFirstFailedVouchAttempt{
-						Greeting:        notifyClient.EmailGreeting(lpa),
-						VoucherFullName: provided.FullName(),
-					}); err != nil {
-						return err
-					}
-
 					donor, err := donorStore.GetAny(r.Context())
 					if err != nil {
 						return err
 					}
 
 					donor.FailedVouchAttempts++
+
+					var email notify.Email
+
+					if donor.FailedVouchAttempts > 1 {
+						email = notify.VoucherSecondFailedVouchAttempt{
+							Greeting:        notifyClient.EmailGreeting(lpa),
+							VoucherFullName: provided.FullName(),
+						}
+					} else {
+						email = notify.VoucherFirstFailedVouchAttempt{
+							Greeting:        notifyClient.EmailGreeting(lpa),
+							VoucherFullName: provided.FullName(),
+						}
+					}
+
+					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, email); err != nil {
+						return err
+					}
 
 					if err := donorStore.Put(r.Context(), donor); err != nil {
 						return err
