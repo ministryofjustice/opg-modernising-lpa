@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -18,22 +19,51 @@ import (
 )
 
 func TestGetWhatYouCanDoNow(t *testing.T) {
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	testcases := map[int]struct {
+		BannerContent   string
+		NewVoucherLabel string
+		CanHaveVoucher  bool
+	}{
+		0: {
+			BannerContent:   "youHaveNotChosenAnyoneToVouchForYou",
+			NewVoucherLabel: "iHaveSomeoneWhoCanVouch",
+			CanHaveVoucher:  true,
+		},
+		1: {
+			BannerContent:   "thePersonYouAskedToVouchHasBeenUnableToContinue",
+			NewVoucherLabel: "iHaveSomeoneElseWhoCanVouch",
+			CanHaveVoucher:  true,
+		},
+		2: {
+			BannerContent: "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt",
+		},
+	}
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &whatYouCanDoNowData{
-			App: testAppData,
-			Form: &whatYouCanDoNowForm{
-				Options: donordata.NoVoucherDecisionValues,
-			},
-		}).
-		Return(nil)
+	for failedVouchAttempts, tc := range testcases {
+		t.Run(strconv.Itoa(failedVouchAttempts), func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &whatYouCanDoNowData{
+					App: testAppData,
+					Form: &whatYouCanDoNowForm{
+						Options:        donordata.NoVoucherDecisionValues,
+						CanHaveVoucher: tc.CanHaveVoucher,
+					},
+					FailedVouchAttempts: failedVouchAttempts,
+					BannerContent:       tc.BannerContent,
+					NewVoucherLabel:     tc.NewVoucherLabel,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
+			err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{FailedVouchAttempts: failedVouchAttempts})
+
+			assert.Nil(t, err)
+		})
+	}
+
 }
 
 func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
@@ -166,7 +196,7 @@ func TestReadWhatYouCanDoNowForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readWhatYouCanDoNowForm(r)
+	result := readWhatYouCanDoNowForm(r, &donordata.Provided{})
 
 	assert.Equal(donordata.WithdrawLPA, result.DoNext)
 	assert.Nil(result.Error)
@@ -189,6 +219,14 @@ func TestWhatYouCanDoNowFormValidate(t *testing.T) {
 			},
 			errors: validation.
 				With("do-next", validation.SelectError{Label: "whatYouWouldLikeToDo"}),
+		},
+		"not allowed another vouch": {
+			form: &whatYouCanDoNowForm{
+				DoNext:         donordata.SelectNewVoucher,
+				CanHaveVoucher: false,
+			},
+			errors: validation.
+				With("do-next", validation.CustomError{Label: "youCannotAskAnotherPersonToVouchForYou"}),
 		},
 	}
 
