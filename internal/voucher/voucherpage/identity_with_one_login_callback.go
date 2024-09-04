@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, voucherStore VoucherStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, appPublicURL string) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, voucherStore VoucherStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, appPublicURL string, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -66,6 +66,17 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				}); err != nil {
 					return err
 				}
+			}
+
+			donor, err := donorStore.GetAny(r.Context())
+			if err != nil {
+				return err
+			}
+
+			donor.FailedVouchAttempts++
+
+			if err := donorStore.Put(r.Context(), donor); err != nil {
+				return err
 			}
 
 			return voucher.PathUnableToConfirmIdentity.Redirect(w, r, appData, appData.LpaID)
