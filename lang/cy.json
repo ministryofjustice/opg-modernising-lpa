@@ -134,7 +134,7 @@
     "payForTheLpa": "Talu am yr LPA",
     "confirmYourIdentityAndSign": "Cadarnhau eich hunaniaeth a llofnodi’r LPA",
     "attorneysAdded": {
-        "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai gwreiddiol",
+        "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
         "two": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "few": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
