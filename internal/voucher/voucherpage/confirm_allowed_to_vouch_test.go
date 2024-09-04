@@ -7,8 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -101,7 +103,7 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 				Execute(w, tc.data).
 				Return(nil)
 
-			err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, tc.provided)
+			err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, tc.provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -121,7 +123,7 @@ func TestGetConfirmAllowedToVouchWhenLpaStoreResolvingServiceErrors(t *testing.T
 		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -140,7 +142,7 @@ func TestGetConfirmAllowedToVouchWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := ConfirmAllowedToVouch(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -171,7 +173,7 @@ func TestPostConfirmAllowedToVouch(t *testing.T) {
 				Put(r.Context(), &voucherdata.Provided{LpaID: "lpa-id", Tasks: tasks}).
 				Return(nil)
 
-			err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", Tasks: voucherdata.Tasks{ConfirmYourIdentity: taskState}})
+			err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", Tasks: voucherdata.Tasks{ConfirmYourIdentity: taskState}})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -190,13 +192,35 @@ func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	lpa := &lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith", Email: "a@example.com"}, LpaUID: "lpa-uid"}
+
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
+		Return(lpa, nil)
 
-	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	assert.Error(t, err)
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(lpa).
+		Return("Email greeting")
+	notifyClient.EXPECT().
+		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.VoucherFirstFailedVouchAttempt{Greeting: "Email greeting", VoucherFullName: "a b"}).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&donordata.Provided{}, nil)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{FailedVouchAttempts: 1}).
+		Return(nil)
+
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil, notifyClient, donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "a", LastName: "b"})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, voucher.PathYouCannotVouchForDonor.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostConfirmAllowedToVouchWhenStoreErrors(t *testing.T) {
@@ -218,6 +242,94 @@ func TestPostConfirmAllowedToVouchWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, voucherStore, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPostConfirmAllowedToVouchWhenNoWhenNotifyClientError(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("Email greeting")
+	notifyClient.EXPECT().
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil, notifyClient, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	resp := w.Result()
+
+	assert.Error(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostConfirmAllowedToVouchWhenNoWhenDonorStoreErrors(t *testing.T) {
+	testcases := map[string]struct {
+		donorStore func(t *testing.T) *mockDonorStore
+	}{
+		"GetAny": {
+			donorStore: func(t *testing.T) *mockDonorStore {
+				d := newMockDonorStore(t)
+				d.EXPECT().
+					GetAny(mock.Anything).
+					Return(&donordata.Provided{}, expectedError)
+				return d
+			},
+		},
+		"Put": {
+			donorStore: func(t *testing.T) *mockDonorStore {
+				d := newMockDonorStore(t)
+				d.EXPECT().
+					GetAny(mock.Anything).
+					Return(&donordata.Provided{}, nil)
+				d.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(expectedError)
+				return d
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.YesNo: {form.No.String()},
+			}
+
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(mock.Anything).
+				Return(&lpadata.Lpa{}, nil)
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.EXPECT().
+				EmailGreeting(mock.Anything).
+				Return("Email greeting")
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil)
+
+			err := ConfirmAllowedToVouch(nil, lpaStoreResolvingService, nil, notifyClient, tc.donorStore(t))(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+			resp := w.Result()
+
+			assert.Error(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
