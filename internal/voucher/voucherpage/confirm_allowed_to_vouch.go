@@ -1,7 +1,6 @@
 package voucherpage
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -24,7 +24,7 @@ type confirmAllowedToVouchData struct {
 	MatchIdentity       bool
 }
 
-func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore) Handler {
+func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -45,7 +45,25 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsNo() {
-					return errors.New("// TODO there should be a page here but it hasn't been built yet")
+					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, notify.VoucherFirstFailedVouchAttempt{
+						Greeting:        notifyClient.EmailGreeting(lpa),
+						VoucherFullName: provided.FullName(),
+					}); err != nil {
+						return err
+					}
+
+					donor, err := donorStore.GetAny(r.Context())
+					if err != nil {
+						return err
+					}
+
+					donor.FailedVouchAttempts++
+
+					if err := donorStore.Put(r.Context(), donor); err != nil {
+						return err
+					}
+
+					return voucher.PathYouCannotVouchForDonor.Redirect(w, r, appData, appData.LpaID)
 				}
 
 				if provided.Tasks.ConfirmYourIdentity.IsInProgress() {

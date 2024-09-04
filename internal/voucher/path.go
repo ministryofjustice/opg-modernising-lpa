@@ -10,6 +10,7 @@ import (
 const (
 	PathTaskList                     = Path("/task-list")
 	PathConfirmAllowedToVouch        = Path("/confirm-allowed-to-vouch")
+	PathYouCannotVouchForDonor       = Path("/you-cannot-vouch-for-donor")
 	PathConfirmYourName              = Path("/confirm-your-name")
 	PathYourName                     = Path("/your-name")
 	PathVerifyDonorDetails           = Path("/verify-donor-details")
