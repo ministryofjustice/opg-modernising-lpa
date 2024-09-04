@@ -1373,5 +1373,8 @@
     "tryVouchingAgainContent": "<h2 class=\"govuk-heading-m\">Welsh</h2><p class=\"govuk-body\">Welsh</p><details class=\"govuk-details\"><summary class=\"govuk-details__summary\"><span class=\"govuk-details__summary-text\">Welsh</span></summary><div class=\"govuk-details__text\">Welsh</div><div class=\"govuk-details__text\">Welsh</div></details>",
     "iHaveSomeoneElseWhoCanVouch": "Welsh",
     "thePersonYouAskedToVouchHasBeenUnableToContinue": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p></div>",
-    "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>"
+    "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "youCannotVouch": "Welsh",
+    "youHaveToldUsYouCannotVouchForDonorName": "Welsh {{ .DonorFullName }}",
+    "voucherYouCannotVouchContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullName }} Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
 }
