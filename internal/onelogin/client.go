@@ -28,29 +28,29 @@ type SecretsClient interface {
 type IdentityPublicKeyFunc func(context.Context) (*ecdsa.PublicKey, error)
 
 type Client struct {
-	ctx                   context.Context
-	logger                Logger
-	httpClient            Doer
-	openidConfiguration   *configurationClient
-	secretsClient         SecretsClient
-	randomString          func(int) string
-	identityPublicKeyFunc IdentityPublicKeyFunc
+	ctx                 context.Context
+	logger              Logger
+	httpClient          Doer
+	openidConfiguration *configurationClient
+	secretsClient       SecretsClient
+	randomString        func(int) string
+	didClient           *didClient
 
 	clientID    string
 	redirectURL string
 }
 
-func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, clientID, redirectURL string, identityPublicKeyFunc IdentityPublicKeyFunc) *Client {
+func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, identityURL, clientID, redirectURL string) *Client {
 	return &Client{
-		ctx:                   ctx,
-		logger:                logger,
-		httpClient:            httpClient,
-		secretsClient:         secretsClient,
-		randomString:          random.String,
-		identityPublicKeyFunc: identityPublicKeyFunc,
-		clientID:              clientID,
-		redirectURL:           redirectURL,
-		openidConfiguration:   getConfiguration(ctx, logger, httpClient, issuer),
+		ctx:                 ctx,
+		logger:              logger,
+		httpClient:          httpClient,
+		secretsClient:       secretsClient,
+		randomString:        random.String,
+		clientID:            clientID,
+		redirectURL:         redirectURL,
+		openidConfiguration: getConfiguration(ctx, logger, httpClient, issuer),
+		didClient:           getDID(ctx, logger, httpClient, identityURL),
 	}
 }
 
