@@ -1131,3 +1131,189 @@ func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestSendVoucherAccessCodeToDonor(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	testcases := map[string]struct {
+		notifyClient func() *mockNotifyClient
+		localizer    func() *mockLocalizer
+		donor        donordata.Donor
+	}{
+		"sms": {
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorSMS(ctx, "123", "lpa-uid", notify.VouchingShareCodeSMS{
+						ShareCode:                 testRandomString,
+						DonorFullNamePossessive:   "Possessive full name",
+						LpaType:                   "translated type",
+						VoucherFullName:           "c d",
+						DonorFirstNamesPossessive: "Possessive first names",
+					}).
+					Return(nil)
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(lpadata.LpaTypePersonalWelfare.String()).
+					Return("translated type")
+				l.EXPECT().
+					Possessive("a").
+					Return("Possessive first names")
+				l.EXPECT().
+					Possessive("a b").
+					Return("Possessive full name")
+				return l
+			},
+			donor: donordata.Donor{
+				FirstNames: "a",
+				LastName:   "b",
+				Mobile:     "123",
+				Email:      "a@example.com",
+			},
+		},
+		"email": {
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorEmail(ctx, "a@example.com", "lpa-uid",
+						notify.VouchingShareCodeEmail{
+							ShareCode:       testRandomString,
+							VoucherFullName: "c d",
+							DonorFullName:   "a b",
+							LpaType:         "translated type",
+						}).
+					Return(nil)
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(lpadata.LpaTypePersonalWelfare.String()).
+					Return("translated type")
+				return l
+			},
+			donor: donordata.Donor{
+				FirstNames: "a",
+				LastName:   "b",
+				Email:      "a@example.com",
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeVoucher, testRandomString, sharecodedata.Link{
+					LpaKey:      dynamo.LpaKey("lpa"),
+					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					ActorUID:    uid,
+				}).
+				Return(nil)
+
+			sender := NewSender(shareCodeStore, tc.notifyClient(), "http://app", testRandomStringFn, nil)
+
+			TestAppData.Localizer = tc.localizer()
+
+			err := sender.SendVoucherAccessCodeToDonor(ctx, &donordata.Provided{
+				PK:     dynamo.LpaKey("lpa"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Donor:  tc.donor,
+				Voucher: donordata.Voucher{
+					UID:        uid,
+					FirstNames: "c",
+					LastName:   "d",
+				},
+			}, TestAppData)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestSendVoucherAccessCodeToDonorWhenShareCodeStoreError(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
+
+	err := sender.SendVoucherAccessCodeToDonor(ctx, &donordata.Provided{
+		PK:     dynamo.LpaKey("lpa"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: donordata.Donor{
+			FirstNames: "a",
+			LastName:   "b",
+			Mobile:     "123",
+			Email:      "a@example.com",
+		},
+		Voucher: donordata.Voucher{
+			UID:        uid,
+			FirstNames: "c",
+			LastName:   "d",
+		},
+	}, TestAppData)
+
+	assert.Equal(t, fmt.Errorf("creating share failed: %w", expectedError), err)
+}
+
+func TestSendVoucherAccessCodeToDonorWhenNotifyClientError(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(lpadata.LpaTypePersonalWelfare.String()).
+		Return("translated type")
+	localizer.EXPECT().
+		Possessive("a").
+		Return("Possessive first names")
+	localizer.EXPECT().
+		Possessive("a b").
+		Return("Possessive full name")
+	TestAppData.Localizer = localizer
+
+	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil)
+
+	err := sender.SendVoucherAccessCodeToDonor(ctx, &donordata.Provided{
+		PK:     dynamo.LpaKey("lpa"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: donordata.Donor{
+			FirstNames: "a",
+			LastName:   "b",
+			Mobile:     "123",
+			Email:      "a@example.com",
+		},
+		Voucher: donordata.Voucher{
+			UID:        uid,
+			FirstNames: "c",
+			LastName:   "d",
+		},
+	}, TestAppData)
+
+	assert.Equal(t, fmt.Errorf("sms failed: %w", expectedError), err)
+}
