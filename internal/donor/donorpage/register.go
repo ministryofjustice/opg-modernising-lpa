@@ -85,6 +85,7 @@ type AddressClient interface {
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
+	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
 }
 
 type OneLoginClient interface {
@@ -403,7 +404,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmPersonAllowedToVouch, page.CanGoBack,
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
-		CheckYourDetails(tmpls.Get("check_your_details.gohtml")))
+		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender))
 	handleWithDonor(donor.PathWeHaveReceivedVoucherDetails, page.None,
 		Guidance(tmpls.Get("we_have_received_voucher_details.gohtml")))
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,

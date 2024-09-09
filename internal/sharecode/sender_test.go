@@ -1131,3 +1131,288 @@ func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
 		})
 	}
 }
+
+func TestSendVoucherAccessCode(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	testcases := map[string]struct {
+		notifyClient func() *mockNotifyClient
+		localizer    func() *mockLocalizer
+		donor        donordata.Donor
+	}{
+		"sms": {
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorSMS(ctx, "123", "lpa-uid", notify.VouchingShareCodeSMS{
+						ShareCode:                 testRandomString,
+						DonorFullNamePossessive:   "Possessive full name",
+						LpaType:                   "translated type",
+						VoucherFullName:           "c d",
+						DonorFirstNamesPossessive: "Possessive first names",
+					}).
+					Return(nil)
+				nc.EXPECT().
+					SendActorEmail(ctx, "voucher@example.com", "lpa-uid",
+						notify.VoucherInviteEmail{
+							VoucherFullName:           "c d",
+							DonorFullName:             "a b",
+							DonorFirstNamesPossessive: "Possessive first names",
+							DonorFirstNames:           "a",
+							LpaType:                   "translated type",
+						}).
+					Return(nil)
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(lpadata.LpaTypePersonalWelfare.String()).
+					Return("translated type").
+					Twice()
+				l.EXPECT().
+					Possessive("a").
+					Return("Possessive first names").
+					Twice()
+				l.EXPECT().
+					Possessive("a b").
+					Return("Possessive full name")
+				return l
+			},
+			donor: donordata.Donor{
+				FirstNames: "a",
+				LastName:   "b",
+				Mobile:     "123",
+				Email:      "donor@example.com",
+			},
+		},
+		"email": {
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorEmail(ctx, "donor@example.com", "lpa-uid",
+						notify.VouchingShareCodeEmail{
+							ShareCode:       testRandomString,
+							VoucherFullName: "c d",
+							DonorFullName:   "a b",
+							LpaType:         "translated type",
+						}).
+					Return(nil)
+				nc.EXPECT().
+					SendActorEmail(ctx, "voucher@example.com", "lpa-uid",
+						notify.VoucherInviteEmail{
+							VoucherFullName:           "c d",
+							DonorFullName:             "a b",
+							DonorFirstNamesPossessive: "Possessive first names",
+							DonorFirstNames:           "a",
+							LpaType:                   "translated type",
+						}).
+					Return(nil)
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(lpadata.LpaTypePersonalWelfare.String()).
+					Return("translated type")
+				l.EXPECT().
+					Possessive("a").
+					Return("Possessive first names")
+				l.EXPECT().
+					T(lpadata.LpaTypePersonalWelfare.String()).
+					Return("translated type")
+				return l
+			},
+			donor: donordata.Donor{
+				FirstNames: "a",
+				LastName:   "b",
+				Email:      "donor@example.com",
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.EXPECT().
+				Put(ctx, actor.TypeVoucher, testRandomString, sharecodedata.Link{
+					LpaKey:      dynamo.LpaKey("lpa"),
+					LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+					ActorUID:    uid,
+				}).
+				Return(nil)
+
+			sender := NewSender(shareCodeStore, tc.notifyClient(), "http://app", testRandomStringFn, nil)
+
+			TestAppData.Localizer = tc.localizer()
+
+			err := sender.SendVoucherAccessCode(ctx, &donordata.Provided{
+				PK:     dynamo.LpaKey("lpa"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Donor:  tc.donor,
+				Voucher: donordata.Voucher{
+					UID:        uid,
+					FirstNames: "c",
+					LastName:   "d",
+					Email:      "voucher@example.com",
+				},
+			}, TestAppData)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestSendVoucherAccessCodeWhenShareCodeStoreError(t *testing.T) {
+	ctx := context.Background()
+	uid := actoruid.New()
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	sender := NewSender(shareCodeStore, nil, "http://app", testRandomStringFn, nil)
+
+	err := sender.SendVoucherAccessCode(ctx, &donordata.Provided{
+		PK:     dynamo.LpaKey("lpa"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: donordata.Donor{
+			FirstNames: "a",
+			LastName:   "b",
+			Mobile:     "123",
+			Email:      "a@example.com",
+		},
+		Voucher: donordata.Voucher{
+			UID:        uid,
+			FirstNames: "c",
+			LastName:   "d",
+		},
+	}, TestAppData)
+
+	assert.Equal(t, fmt.Errorf("creating share failed: %w", expectedError), err)
+}
+
+func TestSendVoucherAccessCodeWhenNotifyClientError(t *testing.T) {
+	testcases := map[string]struct {
+		email        string
+		mobile       string
+		notifyClient func() *mockNotifyClient
+		localizer    func() *mockLocalizer
+		error        error
+	}{
+		"sms": {
+			mobile: "123",
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError).
+					Once()
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("translated type")
+				l.EXPECT().
+					Possessive(mock.Anything).
+					Return("Possessive first names")
+				l.EXPECT().
+					Possessive(mock.Anything).
+					Return("Possessive full name")
+				return l
+			},
+			error: fmt.Errorf("sms failed: %w", expectedError),
+		},
+		"email": {
+			email: "a@example.com",
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError).
+					Once()
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("translated type")
+				return l
+			},
+			error: fmt.Errorf("email failed: %w", expectedError),
+		},
+		"voucher email": {
+			mobile: "123",
+			notifyClient: func() *mockNotifyClient {
+				nc := newMockNotifyClient(t)
+				nc.EXPECT().
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					Once()
+				nc.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError).
+					Once()
+				return nc
+			},
+			localizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T(mock.Anything).
+					Return("translated type").
+					Times(2)
+				l.EXPECT().
+					Possessive(mock.Anything).
+					Return("Possessive first names").
+					Times(3)
+				return l
+			},
+			error: fmt.Errorf("email failed: %w", expectedError),
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			uid := actoruid.New()
+
+			shareCodeStore := newMockShareCodeStore(t)
+			shareCodeStore.EXPECT().
+				Put(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil)
+
+			TestAppData.Localizer = tc.localizer()
+
+			sender := NewSender(shareCodeStore, tc.notifyClient(), "http://app", testRandomStringFn, nil)
+
+			err := sender.SendVoucherAccessCode(ctx, &donordata.Provided{
+				PK:     dynamo.LpaKey("lpa"),
+				SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Donor: donordata.Donor{
+					FirstNames: "a",
+					LastName:   "b",
+					Mobile:     tc.mobile,
+					Email:      tc.email,
+				},
+				Voucher: donordata.Voucher{
+					UID:        uid,
+					FirstNames: "c",
+					LastName:   "d",
+				},
+			}, TestAppData)
+
+			assert.Equal(t, tc.error, err)
+		})
+	}
+}

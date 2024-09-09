@@ -16,14 +16,16 @@ type checkYourDetailsData struct {
 	Donor  *donordata.Provided
 }
 
-func CheckYourDetails(tmpl template.Template) Handler {
+func CheckYourDetails(tmpl template.Template, shareCodeSender ShareCodeSender) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.Tasks.PayForLpa.IsCompleted() {
 				return donor.PathWeHaveReceivedVoucherDetails.Redirect(w, r, appData, provided)
 			}
 
-			// TODO: MLPAB-1897 send code to donor and MLPAB-1899 contact voucher
+			if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+				return err
+			}
 
 			return donor.PathWeHaveContactedVoucher.Redirect(w, r, appData, provided)
 		}

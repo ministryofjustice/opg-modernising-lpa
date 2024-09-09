@@ -228,6 +228,37 @@ func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool) string {
 	return "TODO"
 }
 
+type VouchingShareCodeEmail struct {
+	ShareCode       string
+	VoucherFullName string
+	DonorFullName   string
+	LpaType         string
+}
+
+func (s VouchingShareCodeEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "38e26a3f-d87d-4b0c-8985-8fb5bed79466"
+	}
+
+	return "881e25c4-4898-4525-bca3-722f51c5d6ee"
+}
+
+type VoucherInviteEmail struct {
+	VoucherFullName           string
+	DonorFullName             string
+	DonorFirstNamesPossessive string
+	DonorFirstNames           string
+	LpaType                   string
+}
+
+func (s VoucherInviteEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "36ad56ad-823b-4852-88a7-8acc4dfd1749"
+	}
+
+	return "9af150b5-d9cd-4702-bf97-d3e6bfe81eec"
+}
+
 type VoucherFirstFailedVouchAttempt struct {
 	Greeting        string
 	VoucherFullName string
