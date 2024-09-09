@@ -85,7 +85,7 @@ type AddressClient interface {
 type ShareCodeSender interface {
 	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
-	SendVoucherAccessCodeToDonor(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
+	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
 }
 
 type OneLoginClient interface {
@@ -96,6 +96,7 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
+	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
 	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
 	SendEmail(ctx context.Context, to string, email notify.Email) error
 }
