@@ -54,7 +54,7 @@ resource "aws_cloudwatch_event_rule" "receive_events_sirius" {
       "certificate-provider-submission-completed",
       "donor-submission-completed",
       "evidence-received",
-      "further-evidence-requested",
+      "further-info-requested",
       "reduced-fee-approved",
       "reduced-fee-declined",
     ],
