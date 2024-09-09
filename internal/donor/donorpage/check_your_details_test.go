@@ -56,7 +56,7 @@ func TestPostCheckYourDetails(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCodeToDonor(r.Context(), provided, testAppData).
+		SendVoucherAccessCode(r.Context(), provided, testAppData).
 		Return(nil)
 
 	err := CheckYourDetails(nil, shareCodeSender)(testAppData, w, r, provided)
@@ -92,7 +92,7 @@ func TestPostCheckYourDetailsWhenShareCodeStoreError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCodeToDonor(r.Context(), provided, testAppData).
+		SendVoucherAccessCode(r.Context(), provided, testAppData).
 		Return(expectedError)
 
 	err := CheckYourDetails(nil, shareCodeSender)(testAppData, w, r, provided)
