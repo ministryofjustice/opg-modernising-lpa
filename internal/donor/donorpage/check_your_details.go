@@ -23,8 +23,7 @@ func CheckYourDetails(tmpl template.Template, shareCodeSender ShareCodeSender) H
 				return donor.PathWeHaveReceivedVoucherDetails.Redirect(w, r, appData, provided)
 			}
 
-			// TODO: MLPAB-1899 contact voucher
-			if err := shareCodeSender.SendVoucherAccessCodeToDonor(r.Context(), provided, appData); err != nil {
+			if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
 				return err
 			}
 
