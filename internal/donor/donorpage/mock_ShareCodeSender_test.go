@@ -123,54 +123,6 @@ func (_c *mockShareCodeSender_SendCertificateProviderPrompt_Call) RunAndReturn(r
 	return _c
 }
 
-// SendVoucherAccessCodeToDonor provides a mock function with given fields: ctx, donor, appData
-func (_m *mockShareCodeSender) SendVoucherAccessCodeToDonor(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error {
-	ret := _m.Called(ctx, donor, appData)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SendVoucherAccessCodeToDonor")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided, appcontext.Data) error); ok {
-		r0 = rf(ctx, donor, appData)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockShareCodeSender_SendVoucherAccessCodeToDonor_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendVoucherAccessCodeToDonor'
-type mockShareCodeSender_SendVoucherAccessCodeToDonor_Call struct {
-	*mock.Call
-}
-
-// SendVoucherAccessCodeToDonor is a helper method to define mock.On call
-//   - ctx context.Context
-//   - donor *donordata.Provided
-//   - appData appcontext.Data
-func (_e *mockShareCodeSender_Expecter) SendVoucherAccessCodeToDonor(ctx interface{}, donor interface{}, appData interface{}) *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call {
-	return &mockShareCodeSender_SendVoucherAccessCodeToDonor_Call{Call: _e.mock.On("SendVoucherAccessCodeToDonor", ctx, donor, appData)}
-}
-
-func (_c *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call) Run(run func(ctx context.Context, donor *donordata.Provided, appData appcontext.Data)) *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.Provided), args[2].(appcontext.Data))
-	})
-	return _c
-}
-
-func (_c *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call) Return(_a0 error) *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call) RunAndReturn(run func(context.Context, *donordata.Provided, appcontext.Data) error) *mockShareCodeSender_SendVoucherAccessCodeToDonor_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // newMockShareCodeSender creates a new instance of mockShareCodeSender. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockShareCodeSender(t interface {

@@ -74,19 +74,3 @@ func (s WitnessCodeSMS) smsID(isProduction bool) string {
 
 	return "dfa15e16-1f23-494a-bffb-a475513df6cc"
 }
-
-type VouchingShareCodeSMS struct {
-	ShareCode                 string
-	DonorFullNamePossessive   string
-	LpaType                   string
-	VoucherFullName           string
-	DonorFirstNamesPossessive string
-}
-
-func (s VouchingShareCodeSMS) smsID(isProduction bool) string {
-	if isProduction {
-		return "4864a99a-40a7-4aef-8c1d-7fdc0a4775b9"
-	}
-
-	return "84d70372-5c7a-4a88-a836-ee7c7dea203a"
-}
