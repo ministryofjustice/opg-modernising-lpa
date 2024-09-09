@@ -242,3 +242,19 @@ func (s VouchingShareCodeEmail) emailID(isProduction bool) string {
 
 	return "881e25c4-4898-4525-bca3-722f51c5d6ee"
 }
+
+type VoucherInviteEmail struct {
+	VoucherFullName           string
+	DonorFullName             string
+	DonorFirstNamesPossessive string
+	DonorFirstNames           string
+	LpaType                   string
+}
+
+func (s VoucherInviteEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "36ad56ad-823b-4852-88a7-8acc4dfd1749"
+	}
+
+	return "9af150b5-d9cd-4702-bf97-d3e6bfe81eec"
+}

@@ -145,27 +145,39 @@ func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, don
 	return nil
 }
 
-func (s *Sender) SendVoucherAccessCodeToDonor(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error {
+func (s *Sender) SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error {
 	shareCode, err := s.createShareCode(ctx, donor.PK, donor.SK, donor.Voucher.UID, actor.TypeVoucher)
 	if err != nil {
 		return err
 	}
 
 	if donor.Donor.Mobile != "" {
-		return s.sendSMS(ctx, donor.Donor.Mobile, donor.LpaUID, notify.VouchingShareCodeSMS{
+		if err := s.sendSMS(ctx, donor.Donor.Mobile, donor.LpaUID, notify.VouchingShareCodeSMS{
 			ShareCode:                 shareCode,
 			DonorFullNamePossessive:   appData.Localizer.Possessive(donor.Donor.FullName()),
 			LpaType:                   appData.Localizer.T(donor.Type.String()),
 			VoucherFullName:           donor.Voucher.FullName(),
 			DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
-		})
+		}); err != nil {
+			return err
+		}
+	} else {
+		if err := s.sendEmail(ctx, donor.Donor.Email, donor.LpaUID, notify.VouchingShareCodeEmail{
+			ShareCode:       shareCode,
+			VoucherFullName: donor.Voucher.FullName(),
+			DonorFullName:   donor.Donor.FullName(),
+			LpaType:         appData.Localizer.T(donor.Type.String()),
+		}); err != nil {
+			return err
+		}
 	}
 
-	return s.sendEmail(ctx, donor.Donor.Email, donor.LpaUID, notify.VouchingShareCodeEmail{
-		ShareCode:       shareCode,
-		VoucherFullName: donor.Voucher.FullName(),
-		DonorFullName:   donor.Donor.FullName(),
-		LpaType:         appData.Localizer.T(donor.Type.String()),
+	return s.sendEmail(ctx, donor.Voucher.Email, donor.LpaUID, notify.VoucherInviteEmail{
+		VoucherFullName:           donor.Voucher.FullName(),
+		DonorFullName:             donor.Donor.FullName(),
+		DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
+		DonorFirstNames:           donor.Donor.FirstNames,
+		LpaType:                   appData.Localizer.T(donor.Type.String()),
 	})
 }
 

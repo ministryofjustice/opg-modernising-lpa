@@ -436,7 +436,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 
 			shareCodeSender := newMockShareCodeSender(t)
 			shareCodeSender.EXPECT().
-				SendVoucherAccessCodeToDonor(r.Context(), provided, testAppData).
+				SendVoucherAccessCode(r.Context(), provided, testAppData).
 				Return(nil)
 
 			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, provided)
@@ -473,7 +473,7 @@ func TestGetPaymentConfirmationWhenVoucherAllowedShareCodeError(t *testing.T) {
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
-		SendVoucherAccessCodeToDonor(mock.Anything, mock.Anything, mock.Anything).
+		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
@@ -897,13 +897,16 @@ func (m *mockPayClient) withASuccessfulPayment(amount int, ctx context.Context) 
 func (m *mockLocalizer) withEmailLocalizations() *mockLocalizer {
 	m.EXPECT().
 		Possessive("a b").
-		Return("donor name possessive")
+		Return("donor name possessive").
+		Once()
 	m.EXPECT().
 		T("personal-welfare").
-		Return("translated type")
+		Return("translated type").
+		Once()
 	m.EXPECT().
 		FormatDate(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)).
-		Return("formatted capture submit time")
+		Return("formatted capture submit time").
+		Once()
 	return m
 }
 
