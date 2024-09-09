@@ -121,7 +121,9 @@ func Register(
 	handleVoucher(voucher.PathYourName, None,
 		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathConfirmAllowedToVouch, None,
-		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore))
+		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, notifyClient, donorStore))
+	handleVoucher(voucher.PathYouCannotVouchForDonor, None,
+		Guidance(tmpls.Get("you_cannot_vouch_for_donor.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
 		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, donorStore))

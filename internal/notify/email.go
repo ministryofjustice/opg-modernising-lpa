@@ -258,3 +258,29 @@ func (s VoucherInviteEmail) emailID(isProduction bool) string {
 
 	return "9af150b5-d9cd-4702-bf97-d3e6bfe81eec"
 }
+
+type VoucherFirstFailedVouchAttempt struct {
+	Greeting        string
+	VoucherFullName string
+}
+
+func (e VoucherFirstFailedVouchAttempt) emailID(isProduction bool) string {
+	if isProduction {
+		return "f21ee857-8c3e-43ee-adf2-2d9f1ff1a1a8"
+	}
+
+	return "584412e6-f235-4227-aff9-6cb56ba48e31"
+}
+
+type VoucherSecondFailedVouchAttempt struct {
+	Greeting        string
+	VoucherFullName string
+}
+
+func (e VoucherSecondFailedVouchAttempt) emailID(isProduction bool) string {
+	if isProduction {
+		return "44ffb252-ce34-4164-baa5-8b21036625ac"
+	}
+
+	return "3af1b3c4-35ce-4a23-abd2-bd0d019985c2"
+}
