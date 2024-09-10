@@ -115,6 +115,7 @@ services:
       - CLIENT_ID=client-id-value
       - REDIRECT_URL=http://localhost:5050/auth/redirect
       - TEMPLATE_SUB=1
+      - TEMPLATE_SUB_DEFAULT=random
       - TEMPLATE_RETURN_CODES=1
 
   mock-notify:
