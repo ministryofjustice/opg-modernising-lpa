@@ -6,7 +6,7 @@ resource "aws_cloudwatch_log_group" "events" {
 }
 
 resource "aws_cloudwatch_log_data_protection_policy" "events" {
-  log_group_name = aws_cloudwatch_log_group.lambda.name
+  log_group_name = aws_cloudwatch_log_group.events.name
   policy_document = jsonencode({
     Name    = "data-protection-${data.aws_default_tags.current.tags.environment-name}-events"
     Version = "2021-06-01"
