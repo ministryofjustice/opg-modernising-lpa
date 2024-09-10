@@ -183,37 +183,21 @@ resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   provider          = aws.eu_west_1
 }
 
+locals {
+  cloudwatch_data_protection_policy_template_vars = {
+    environment_name        = local.default_tags.environment-name
+    protected_resource_name = "opensearch-ingestion"
+  }
+  template = templatefile("cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json.tftpl", local.cloudwatch_data_protection_policy_template_vars)
+}
 resource "aws_cloudwatch_log_data_protection_policy" "opensearch_pipeline" {
   log_group_name = aws_cloudwatch_log_group.opensearch_pipeline[0].name
-  policy_document = jsonencode({
-    Name    = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
-    Version = "2021-06-01"
-
-    "Statement" : [
-      {
-        "Sid" : "audit-policy",
-        "DataIdentifier" : [
-          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
-        ],
-        "Operation" : {
-          "Audit" : {
-            "FindingsDestination" : {}
-          }
-        }
-      },
-      {
-        "Sid" : "redact-policy",
-        "DataIdentifier" : [
-          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
-        ],
-        "Operation" : {
-          "Deidentify" : {
-            "MaskConfig" : {}
-          }
-        }
-      }
-    ]
-  })
+  policy_document = jsonencode(merge(
+    jsondecode(local.template),
+    {
+      Name = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
+    }
+  ))
   provider = aws.eu_west_1
 }
 
