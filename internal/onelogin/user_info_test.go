@@ -2,6 +2,7 @@ package onelogin
 
 import (
 	"context"
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -12,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MicahParks/jwkset"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -57,37 +59,37 @@ func TestUserInfo(t *testing.T) {
 	}
 
 	body := `{  "sub": "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
-  "email": "email@example.com",
-  "email_verified": true,
-  "phone": "01406946277",
-  "phone_verified": true,
-  "https://vocab.account.gov.uk/v1/coreIdentityJWT": "a jwt",
-  "https://vocab.account.gov.uk/v1/address": [
-    {
-      "uprn": 10022812929,
-      "subBuildingName": "FLAT 5",
-      "buildingName": "WEST LEA",
-      "buildingNumber": "16",
-      "dependentStreetName": "KINGS PARK",
-      "streetName": "HIGH STREET",
-      "doubleDependentAddressLocality": "EREWASH",
-      "dependentAddressLocality": "LONG EATON",
-      "addressLocality": "GREAT MISSENDEN",
-      "postalCode": "HP16 0AL",
-      "addressCountry": "GB",
-      "validFrom": "2022-01-01"
-    },
-    {
-      "uprn": 10002345923,
-      "buildingName": "SAWLEY MARINA",
-      "streetName": "INGWORTH ROAD",
-      "dependentAddressLocality": "LONG EATON",
-      "addressLocality": "NOTTINGHAM",
-      "postalCode": "BH12 1JY",
-      "addressCountry": "GB",
-      "validUntil": "2022-01-01"
-    }
-  ]
+	"email": "email@example.com",
+	"email_verified": true,
+	"phone": "01406946277",
+	"phone_verified": true,
+	"https://vocab.account.gov.uk/v1/coreIdentityJWT": "a jwt",
+	"https://vocab.account.gov.uk/v1/address": [
+		{
+			"uprn": 10022812929,
+			"subBuildingName": "FLAT 5",
+			"buildingName": "WEST LEA",
+			"buildingNumber": "16",
+			"dependentStreetName": "KINGS PARK",
+			"streetName": "HIGH STREET",
+			"doubleDependentAddressLocality": "EREWASH",
+			"dependentAddressLocality": "LONG EATON",
+			"addressLocality": "GREAT MISSENDEN",
+			"postalCode": "HP16 0AL",
+			"addressCountry": "GB",
+			"validFrom": "2022-01-01"
+		},
+		{
+			"uprn": 10002345923,
+			"buildingName": "SAWLEY MARINA",
+			"streetName": "INGWORTH ROAD",
+			"dependentAddressLocality": "LONG EATON",
+			"addressLocality": "NOTTINGHAM",
+			"postalCode": "BH12 1JY",
+			"addressCountry": "GB",
+			"validUntil": "2022-01-01"
+		}
+	]
 }`
 
 	httpClient := newMockDoer(t)
@@ -148,9 +150,14 @@ func TestParseIdentityClaim(t *testing.T) {
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	issuedAt := time.Now().Add(-time.Minute).Round(time.Second)
 
-	c := &Client{identityPublicKeyFunc: func(context.Context) (*ecdsa.PublicKey, error) {
-		return &privateKey.PublicKey, nil
-	}}
+	c := &Client{
+		didClient: &didClient{
+			controllerID: "blah",
+			assertionMethods: map[string]crypto.PublicKey{
+				"blah#thing": &privateKey.PublicKey,
+			},
+		},
+	}
 
 	namePart := []map[string]any{
 		{
@@ -203,6 +210,20 @@ func TestParseIdentityClaim(t *testing.T) {
 	}
 
 	mustSign := func(token *jwt.Token, key any) string {
+		token.Header[jwkset.HeaderKID] = "blah#thing"
+		s, err := token.SignedString(key)
+
+		assert.Nil(t, err)
+		return s
+	}
+
+	missingKIDHeaderToken, _ := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		"iat": issuedAt.Unix(),
+		"vc":  vc,
+	}).SignedString(privateKey)
+
+	kidNotAStringToken := func(token *jwt.Token, key any) string {
+		token.Header[jwkset.HeaderKID] = 1
 		s, err := token.SignedString(key)
 
 		assert.Nil(t, err)
@@ -292,6 +313,17 @@ func TestParseIdentityClaim(t *testing.T) {
 			}), privateKey),
 			error: jwt.ErrTokenInvalidClaims,
 		},
+		"missing header kid": {
+			token: missingKIDHeaderToken,
+			error: jwt.ErrTokenUnverifiable,
+		},
+		"kid not a string": {
+			token: kidNotAStringToken(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc":  vc,
+			}), privateKey),
+			error: jwt.ErrTokenUnverifiable,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -332,9 +364,14 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 
-	c := &Client{identityPublicKeyFunc: func(context.Context) (*ecdsa.PublicKey, error) {
-		return &privateKey.PublicKey, nil
-	}}
+	c := &Client{
+		didClient: &didClient{
+			controllerID: "blah",
+			assertionMethods: map[string]crypto.PublicKey{
+				"blah#thing": &privateKey.PublicKey,
+			},
+		},
+	}
 
 	for returnCode, expectedStatus := range testcases {
 		t.Run(returnCode, func(t *testing.T) {
@@ -348,15 +385,6 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 			assert.Equal(t, identity.UserData{Status: expectedStatus}, userData)
 		})
 	}
-}
-
-func TestParseIdentityClaimWhenIdentityPublicKeyFuncError(t *testing.T) {
-	c := &Client{identityPublicKeyFunc: func(context.Context) (*ecdsa.PublicKey, error) {
-		return nil, expectedError
-	}}
-
-	_, err := c.ParseIdentityClaim(context.Background(), UserInfo{})
-	assert.Equal(t, expectedError, err)
 }
 
 func TestCredentialAddressTransformToAddress(t *testing.T) {
