@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDIDClientRefresh(t *testing.T) {
@@ -63,4 +65,106 @@ func TestDIDClientRefresh(t *testing.T) {
 		X:     new(big.Int).SetBytes(xbytes),
 		Y:     new(big.Int).SetBytes(ybytes),
 	}, key)
+}
+
+func TestDIDClientRefreshWhenDoerError(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{}, nil)
+
+	client := &didClient{ctx: context.Background(), http: doer}
+
+	timeout, err := client.refresh()
+
+	assert.Equal(t, time.Duration(0), timeout)
+	assert.Error(t, err)
+}
+
+func TestDIDClientRefreshWhenUnexpectedStatusCode(t *testing.T) {
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.Anything).
+		Return(&http.Response{
+			StatusCode: http.StatusBadRequest,
+			Body:       io.NopCloser(strings.NewReader("a body")),
+		}, nil)
+
+	client := &didClient{ctx: context.Background(), http: doer, identityURL: "http://example.com"}
+
+	timeout, err := client.refresh()
+
+	assert.Equal(t, time.Duration(0), timeout)
+	assert.Equal(t, fmt.Errorf("unexpected response status code %d for %s", http.StatusBadRequest, "http://example.com"+didDocumentEndpoint), err)
+}
+
+func TestDIDClientRefreshWhenCannotUnmarshalPublicKey(t *testing.T) {
+	const body = `{
+	"@context" : [ "https://www.w3.org/ns/did/v1", "https://w3id.org/security/jwk/v1" ],
+	"id" : "did:web:identity.integration.account.gov.uk",
+	"assertionMethod" : [ {
+		"type" : "JsonWebKey",
+		"id" : "did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936",
+		"controller" : "did:web:identity.integration.account.gov.uk",
+		"publicKeyJwk" : {
+			"kty" : "some",
+			"crv" : "very",
+			"x" : "unexpected",
+			"y" : "values",
+			"alg" : "here"
+		}
+	} ]
+}`
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(mock.MatchedBy(func(req *http.Request) bool {
+			return true
+		})).
+		Return(&http.Response{
+			StatusCode: http.StatusOK,
+			Header: http.Header{
+				"Cache-Control": {"max-age=3600, private"},
+			},
+			Body: io.NopCloser(strings.NewReader(body)),
+		}, nil)
+
+	client := &didClient{ctx: context.Background(), http: doer}
+
+	timeout, err := client.refresh()
+
+	assert.Equal(t, time.Duration(0), timeout)
+	require.EqualError(t, err, "could not unmarshal public key jwk for did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936: failed to unmarshal JSON Web Key: unsupported key: some (kty)")
+}
+
+func TestDIDClientForKIDWhenNoControllerID(t *testing.T) {
+	client := &didClient{ctx: context.Background()}
+
+	_, err := client.ForKID("")
+
+	assert.Equal(t, ErrConfigurationMissing, err)
+}
+
+func TestDIDClientForKIDWhenMalformedKID(t *testing.T) {
+	client := &didClient{ctx: context.Background(), controllerID: "an-id"}
+
+	_, err := client.ForKID("not-a-valid-kid")
+
+	assert.Equal(t, fmt.Errorf("malformed kid missing '#'"), err)
+}
+
+func TestDIDClientForKIDWhenUnexpectedControllerID(t *testing.T) {
+	client := &didClient{ctx: context.Background(), controllerID: "unexpected-controller-id"}
+
+	_, err := client.ForKID("did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936")
+
+	assert.Equal(t, fmt.Errorf("controller id does not match: %s != %s", "unexpected-controller-id", "did:web:identity.integration.account.gov.uk"), err)
+}
+
+func TestDIDClientForKIDWhenMissingJWKForKID(t *testing.T) {
+	client := &didClient{ctx: context.Background(), controllerID: "did:web:identity.integration.account.gov.uk"}
+
+	_, err := client.ForKID("did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936")
+
+	assert.Equal(t, fmt.Errorf("missing jwk for kid %s", "did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936"), err)
 }
