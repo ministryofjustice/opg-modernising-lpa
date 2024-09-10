@@ -183,6 +183,17 @@ resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   provider          = aws.eu_west_1
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "opensearch_pipeline" {
+  log_group_name = aws_cloudwatch_log_group.opensearch_pipeline[0].name
+  policy_document = jsonencode(merge(
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
+    {
+      Name = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
+    }
+  ))
+  provider = aws.eu_west_1
+}
+
 resource "aws_cloudwatch_query_definition" "opensearch_pipeline" {
   count           = local.enable_opensearch_ingestion_pipeline ? 1 : 0
   name            = "${local.default_tags.environment-name}/lpas-opensearch-pipeline"

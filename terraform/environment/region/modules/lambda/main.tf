@@ -4,6 +4,17 @@ resource "aws_cloudwatch_log_group" "lambda" {
   provider   = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "lambda" {
+  log_group_name = aws_cloudwatch_log_group.lambda.name
+  policy_document = jsonencode(merge(
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
+    {
+      Name = "data-protection-${var.environment}-${var.lambda_name}"
+    }
+  ))
+  provider = aws.region
+}
+
 resource "aws_lambda_function" "lambda_function" {
   function_name = "${var.lambda_name}-${var.environment}"
   description   = var.description

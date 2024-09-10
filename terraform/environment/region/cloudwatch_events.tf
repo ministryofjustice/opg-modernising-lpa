@@ -5,6 +5,17 @@ resource "aws_cloudwatch_log_group" "events" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "events" {
+  log_group_name = aws_cloudwatch_log_group.events.name
+  policy_document = jsonencode(merge(
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
+    {
+      Name = "data-protection-${data.aws_default_tags.current.tags.environment-name}-events"
+    }
+  ))
+  provider = aws.region
+}
+
 resource "aws_cloudwatch_query_definition" "events" {
   name            = "${data.aws_default_tags.current.tags.environment-name}/events"
   log_group_names = [aws_cloudwatch_log_group.events.name]
