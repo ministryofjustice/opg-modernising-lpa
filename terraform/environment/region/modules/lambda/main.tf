@@ -4,6 +4,41 @@ resource "aws_cloudwatch_log_group" "lambda" {
   provider   = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "application_logs" {
+  log_group_name = aws_cloudwatch_log_group.lambda.name
+  policy_document = jsonencode({
+    Name    = "data-protection-${var.environment}-${var.lambda_name}"
+    Version = "2021-06-01"
+
+    "Statement" : [
+      {
+        "Sid" : "audit-policy",
+        "DataIdentifier" : [
+          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
+        ],
+        "Operation" : {
+          "Audit" : {
+            "FindingsDestination" : {}
+          }
+        }
+      },
+      {
+        "Sid" : "redact-policy",
+        "DataIdentifier" : [
+          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
+        ],
+        "Operation" : {
+          "Deidentify" : {
+            "MaskConfig" : {}
+          }
+        }
+      }
+    ]
+  })
+  provider = aws.region
+}
+
+
 resource "aws_lambda_function" "lambda_function" {
   function_name = "${var.lambda_name}-${var.environment}"
   description   = var.description

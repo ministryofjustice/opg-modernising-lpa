@@ -5,6 +5,40 @@ resource "aws_cloudwatch_log_group" "lambda" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "application_logs" {
+  log_group_name = aws_cloudwatch_log_group.lambda.name
+  policy_document = jsonencode({
+    Name    = "data-protection-${data.aws_default_tags.current.tags.environment-name}-$s3-antivirus"
+    Version = "2021-06-01"
+
+    "Statement" : [
+      {
+        "Sid" : "audit-policy",
+        "DataIdentifier" : [
+          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
+        ],
+        "Operation" : {
+          "Audit" : {
+            "FindingsDestination" : {}
+          }
+        }
+      },
+      {
+        "Sid" : "redact-policy",
+        "DataIdentifier" : [
+          "arn:aws:dataprotection::aws:data-identifier/EmailAddress"
+        ],
+        "Operation" : {
+          "Deidentify" : {
+            "MaskConfig" : {}
+          }
+        }
+      }
+    ]
+  })
+  provider = aws.region
+}
+
 resource "aws_cloudwatch_query_definition" "main" {
   name            = "${data.aws_default_tags.current.tags.environment-name}/s3-antivirus"
   log_group_names = [aws_cloudwatch_log_group.lambda.name]
