@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -71,7 +70,7 @@ func TestDIDClientRefreshWhenDoerError(t *testing.T) {
 	doer := newMockDoer(t)
 	doer.EXPECT().
 		Do(mock.Anything).
-		Return(&http.Response{}, nil)
+		Return(&http.Response{}, expectedError)
 
 	client := &didClient{ctx: context.Background(), http: doer}
 
@@ -95,7 +94,7 @@ func TestDIDClientRefreshWhenUnexpectedStatusCode(t *testing.T) {
 	timeout, err := client.refresh()
 
 	assert.Equal(t, time.Duration(0), timeout)
-	assert.Equal(t, fmt.Errorf("unexpected response status code %d for %s", http.StatusBadRequest, "http://example.com"+didDocumentEndpoint), err)
+	require.EqualError(t, err, "unexpected response status code 400 for http://example.com/.well-known/did.json")
 }
 
 func TestDIDClientRefreshWhenCannotUnmarshalPublicKey(t *testing.T) {
@@ -150,7 +149,7 @@ func TestDIDClientForKIDWhenMalformedKID(t *testing.T) {
 
 	_, err := client.ForKID("not-a-valid-kid")
 
-	assert.Equal(t, fmt.Errorf("malformed kid missing '#'"), err)
+	require.EqualError(t, err, "malformed kid missing '#'")
 }
 
 func TestDIDClientForKIDWhenUnexpectedControllerID(t *testing.T) {
@@ -158,7 +157,7 @@ func TestDIDClientForKIDWhenUnexpectedControllerID(t *testing.T) {
 
 	_, err := client.ForKID("did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936")
 
-	assert.Equal(t, fmt.Errorf("controller id does not match: %s != %s", "unexpected-controller-id", "did:web:identity.integration.account.gov.uk"), err)
+	require.EqualError(t, err, "controller id does not match: unexpected-controller-id != did:web:identity.integration.account.gov.uk")
 }
 
 func TestDIDClientForKIDWhenMissingJWKForKID(t *testing.T) {
@@ -166,5 +165,5 @@ func TestDIDClientForKIDWhenMissingJWKForKID(t *testing.T) {
 
 	_, err := client.ForKID("did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936")
 
-	assert.Equal(t, fmt.Errorf("missing jwk for kid %s", "did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936"), err)
+	require.EqualError(t, err, "missing jwk for kid did:web:identity.integration.account.gov.uk#c9f8da1c87525bb41653583c2d05274e85805ab7d0abc58376c7128129daa936")
 }
