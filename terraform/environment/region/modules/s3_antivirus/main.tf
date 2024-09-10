@@ -5,6 +5,17 @@ resource "aws_cloudwatch_log_group" "lambda" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "lambda" {
+  log_group_name = aws_cloudwatch_log_group.lambda.name
+  policy_document = jsonencode(merge(
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
+    {
+      Name = "data-protection-${data.aws_default_tags.current.tags.environment-name}-s3-antivirus"
+    }
+  ))
+  provider = aws.region
+}
+
 resource "aws_cloudwatch_query_definition" "main" {
   name            = "${data.aws_default_tags.current.tags.environment-name}/s3-antivirus"
   log_group_names = [aws_cloudwatch_log_group.lambda.name]

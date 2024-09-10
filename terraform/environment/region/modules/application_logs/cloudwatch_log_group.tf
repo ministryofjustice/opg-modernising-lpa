@@ -10,6 +10,17 @@ resource "aws_cloudwatch_log_group" "application_logs" {
   provider          = aws.region
 }
 
+resource "aws_cloudwatch_log_data_protection_policy" "application_logs" {
+  log_group_name = aws_cloudwatch_log_group.application_logs.name
+  policy_document = jsonencode(merge(
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
+    {
+      Name = "data-protection-${data.aws_default_tags.current.tags.environment-name}-application-logs"
+    }
+  ))
+  provider = aws.region
+}
+
 resource "aws_cloudwatch_query_definition" "app_container_messages" {
   name            = "${data.aws_default_tags.current.tags.environment-name}/app container messages"
   log_group_names = [aws_cloudwatch_log_group.application_logs.name]
