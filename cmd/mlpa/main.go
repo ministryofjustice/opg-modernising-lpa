@@ -133,6 +133,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	staticHash = url.QueryEscape(staticHash[3:11])
 
 	httpClient := &http.Client{Timeout: 10 * time.Second}
+	slowHTTPClient := &http.Client{Timeout: 30 * time.Second}
 
 	if xrayEnabled {
 		resource, err := ecs.NewResourceDetector().Detect(ctx)
@@ -147,6 +148,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		defer shutdown(ctx)
 
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+		slowHTTPClient.Transport = otelhttp.NewTransport(slowHTTPClient.Transport)
 	}
 
 	var region string
@@ -273,7 +275,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	payClient := pay.New(logger, httpClient, payBaseURL, payApiKey)
+	payClient := pay.New(logger, slowHTTPClient, payBaseURL, payApiKey)
 
 	osApiKey, err := secretsClient.Secret(ctx, secrets.OrdnanceSurvey)
 	if err != nil {
