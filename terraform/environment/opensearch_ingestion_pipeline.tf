@@ -184,16 +184,12 @@ resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
 }
 
 locals {
-  cloudwatch_data_protection_policy_template_vars = {
-    environment_name        = local.default_tags.environment-name
-    protected_resource_name = "opensearch-ingestion"
-  }
-  template = templatefile("cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json.tftpl", local.cloudwatch_data_protection_policy_template_vars)
+  data_protect_policy = file("cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")
 }
 resource "aws_cloudwatch_log_data_protection_policy" "opensearch_pipeline" {
   log_group_name = aws_cloudwatch_log_group.opensearch_pipeline[0].name
   policy_document = jsonencode(merge(
-    jsondecode(local.template),
+    jsondecode(local.data_protect_policy),
     {
       Name = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
     }
