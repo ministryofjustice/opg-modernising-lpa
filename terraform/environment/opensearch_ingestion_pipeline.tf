@@ -184,9 +184,9 @@ resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
 }
 
 resource "aws_cloudwatch_log_data_protection_policy" "opensearch_pipeline" {
-  log_group_name = aws_cloudwatch_log_group.opensearch_pipeline.name
+  log_group_name = aws_cloudwatch_log_group.opensearch_pipeline[0].name
   policy_document = jsonencode({
-    Name    = "data-protection-${data.aws_default_tags.current.tags.environment-name}-opensearch-ingestion"
+    Name    = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
     Version = "2021-06-01"
 
     "Statement" : [
