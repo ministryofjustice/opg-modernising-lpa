@@ -183,13 +183,10 @@ resource "aws_cloudwatch_log_group" "opensearch_pipeline" {
   provider          = aws.eu_west_1
 }
 
-locals {
-  data_protect_policy = file("cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")
-}
 resource "aws_cloudwatch_log_data_protection_policy" "opensearch_pipeline" {
   log_group_name = aws_cloudwatch_log_group.opensearch_pipeline[0].name
   policy_document = jsonencode(merge(
-    jsondecode(local.data_protect_policy),
+    jsondecode(file("${path.root}/cloudwatch_log_data_protection_policy/cloudwatch_log_data_protection_policy.json")),
     {
       Name = "data-protection-${local.default_tags.environment-name}-opensearch-ingestion"
     }
