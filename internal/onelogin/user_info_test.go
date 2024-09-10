@@ -217,6 +217,19 @@ func TestParseIdentityClaim(t *testing.T) {
 		return s
 	}
 
+	missingKIDHeaderToken, _ := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		"iat": issuedAt.Unix(),
+		"vc":  vc,
+	}).SignedString(privateKey)
+
+	kidNotAStringToken := func(token *jwt.Token, key any) string {
+		token.Header[jwkset.HeaderKID] = 1
+		s, err := token.SignedString(key)
+
+		assert.Nil(t, err)
+		return s
+	}
+
 	testcases := map[string]struct {
 		token    string
 		userData identity.UserData
@@ -299,6 +312,17 @@ func TestParseIdentityClaim(t *testing.T) {
 				"vc":  vc,
 			}), privateKey),
 			error: jwt.ErrTokenInvalidClaims,
+		},
+		"missing header kid": {
+			token: missingKIDHeaderToken,
+			error: jwt.ErrTokenUnverifiable,
+		},
+		"kid not a string": {
+			token: kidNotAStringToken(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc":  vc,
+			}), privateKey),
+			error: jwt.ErrTokenUnverifiable,
 		},
 	}
 
