@@ -5,12 +5,13 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveNotChosenAnyoneToVouchForYou") "heading" ) }}
+            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App .BannerContent) "contents" "1" ) }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
             {{ trHtml .App "whatYouCanDoNowContent" }}
             {{ trHtml .App "replaceFindOrGetNewIDContent" }}
+            {{ if eq 1 .FailedVouchAttempts }} {{ trHtml .App "tryVouchingAgainContent" }} {{ end }}
             {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
 
             {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
@@ -22,12 +23,21 @@
 
                         {{ template "error-message" (errorMessage . "do-next") }}
 
-                        {{ template "radios" (items . "do-next" ""
-                        (item .Form.Options.ProveOwnID.String "iWillGetOrFindID")
-                        (item .Form.Options.SelectNewVoucher.String "iHaveSomeoneWhoCanVouch")
-                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
-                        ) }}
+                        {{ if .Form.CanHaveVoucher }}
+                            {{ template "radios" (items . "do-next" ""
+                            (item .Form.Options.ProveOwnID.String "iWillGetOrFindID")
+                            (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
+                            (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                            (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                            ) }}
+                        {{ else }}
+                            {{ template "radios" (items . "do-next" ""
+                            (item .Form.Options.ProveOwnID.String "iWillGetOrFindID")
+                            (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                            (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                            ) }}
+                        {{ end }}
+
                     </fieldset>
                 </div>
 

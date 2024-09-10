@@ -36,14 +36,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x4765981bee80f0a4
+	const modified uint64 = 0xa66eaae2dbca5f95
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x2d6528866eb5ccbf,
+		0: 0x19fb86f631b8b355,
 	}
 
 	for version, initial := range testcases {
@@ -469,4 +469,18 @@ func TestProvidedActors(t *testing.T) {
 		FirstNames: "Independent",
 		LastName:   "Wit",
 	}}, actors)
+}
+
+func TestProvidedCanHaveVoucher(t *testing.T) {
+	provided := Provided{}
+	assert.True(t, provided.CanHaveVoucher())
+
+	provided.FailedVouchAttempts++
+	assert.True(t, provided.CanHaveVoucher())
+
+	provided.FailedVouchAttempts++
+	assert.False(t, provided.CanHaveVoucher())
+
+	provided.FailedVouchAttempts++
+	assert.False(t, provided.CanHaveVoucher())
 }

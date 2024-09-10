@@ -93,7 +93,10 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 				nextPage = donor.PathTaskList
 
 				if provided.Voucher.Allowed {
-					// TODO: MLPAB-1897 send code to donor and MLPAB-1899 contact voucher
+					if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+						return err
+					}
+
 					nextPage = donor.PathWeHaveContactedVoucher
 				}
 

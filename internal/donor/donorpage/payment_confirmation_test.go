@@ -420,7 +420,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 			notifyClient := newMockNotifyClient(t).
 				withEmailPersonalizations(r.Context(), "£82")
 
-			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+			provided := &donordata.Provided{
 				Type:    lpadata.LpaTypePersonalWelfare,
 				Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
 				LpaUID:  "lpa-uid",
@@ -432,13 +432,67 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenVoucherAllowed(t *testing.T) 
 				Tasks: donordata.Tasks{
 					PayForLpa: task,
 				},
-			})
+			}
+
+			shareCodeSender := newMockShareCodeSender(t)
+			shareCodeSender.EXPECT().
+				SendVoucherAccessCode(r.Context(), provided, testAppData).
+				Return(nil)
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 		})
 	}
+}
+
+func TestGetPaymentConfirmationWhenVoucherAllowedShareCodeError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+	payClient := newMockPayClient(t).
+		withASuccessfulPayment(8200, r.Context())
+
+	sessionStore := newMockSessionStore(t).
+		withPaySession(r)
+
+	localizer := newMockLocalizer(t).
+		withEmailLocalizations()
+
+	testAppData.Localizer = localizer
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendPaymentReceived(r.Context(), mock.Anything).
+		Return(nil)
+
+	notifyClient := newMockNotifyClient(t).
+		withEmailPersonalizations(r.Context(), "£82")
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendVoucherAccessCode(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := PaymentConfirmation(newMockLogger(t), nil, payClient, nil, sessionStore, shareCodeSender, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+		Type:    lpadata.LpaTypePersonalWelfare,
+		Donor:   donordata.Donor{FirstNames: "a", LastName: "b"},
+		LpaUID:  "lpa-uid",
+		FeeType: pay.FullFee,
+		CertificateProvider: donordata.CertificateProvider{
+			Email: "certificateprovider@example.com",
+		},
+		Voucher: donordata.Voucher{Allowed: true},
+		Tasks: donordata.Tasks{
+			PayForLpa: task.PaymentStateDenied,
+		},
+	})
+	resp := w.Result()
+
+	assert.Error(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestGetPaymentConfirmationWhenNotSuccess(t *testing.T) {
@@ -843,13 +897,16 @@ func (m *mockPayClient) withASuccessfulPayment(amount int, ctx context.Context) 
 func (m *mockLocalizer) withEmailLocalizations() *mockLocalizer {
 	m.EXPECT().
 		Possessive("a b").
-		Return("donor name possessive")
+		Return("donor name possessive").
+		Once()
 	m.EXPECT().
 		T("personal-welfare").
-		Return("translated type")
+		Return("translated type").
+		Once()
 	m.EXPECT().
 		FormatDate(time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)).
-		Return("formatted capture submit time")
+		Return("formatted capture submit time").
+		Once()
 	return m
 }
 

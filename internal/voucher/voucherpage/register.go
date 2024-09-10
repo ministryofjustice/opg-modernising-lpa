@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -35,6 +36,11 @@ type Localizer interface {
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
+}
+
+type DonorStore interface {
+	GetAny(ctx context.Context) (*donordata.Provided, error)
+	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
 type NotifyClient interface {
@@ -94,6 +100,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
 	appPublicURL string,
+	donorStore DonorStore,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -114,10 +121,12 @@ func Register(
 	handleVoucher(voucher.PathYourName, None,
 		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathConfirmAllowedToVouch, None,
-		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore))
+		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, notifyClient, donorStore))
+	handleVoucher(voucher.PathYouCannotVouchForDonor, None,
+		Guidance(tmpls.Get("you_cannot_vouch_for_donor.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
-		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore))
+		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, donorStore))
 	handleVoucher(voucher.PathDonorDetailsDoNotMatch, None,
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
@@ -126,7 +135,7 @@ func Register(
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, appPublicURL))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, appPublicURL, donorStore))
 	handleVoucher(voucher.PathOneLoginIdentityDetails, None,
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathUnableToConfirmIdentity, None,
