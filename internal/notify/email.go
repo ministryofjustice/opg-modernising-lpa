@@ -249,6 +249,7 @@ type VoucherInviteEmail struct {
 	DonorFirstNamesPossessive string
 	DonorFirstNames           string
 	LpaType                   string
+	VoucherStartPageURL       string
 }
 
 func (s VoucherInviteEmail) emailID(isProduction bool) string {
