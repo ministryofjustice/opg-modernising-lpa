@@ -356,6 +356,41 @@ func TestParseIdentityClaim(t *testing.T) {
 	}
 }
 
+func TestParseIdentityClaimWhenDIDClientErrors(t *testing.T) {
+	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	issuedAt := time.Now().Add(-time.Minute).Round(time.Second)
+
+	c := &Client{
+		didClient: &didClient{
+			controllerID: "blah-not-matching",
+		},
+	}
+
+	vc := map[string]any{
+		"credentialSubject": map[string]any{},
+	}
+
+	mustSign := func(token *jwt.Token, key any) string {
+		token.Header[jwkset.HeaderKID] = "blah#thing"
+		s, err := token.SignedString(key)
+
+		assert.Nil(t, err)
+		return s
+	}
+
+	token := mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		"iat": issuedAt.Unix(),
+		"vc":  vc,
+	}), privateKey)
+
+	userInfo := UserInfo{
+		CoreIdentityJWT: token,
+	}
+
+	_, err := c.ParseIdentityClaim(context.Background(), userInfo)
+	assert.ErrorContains(t, err, "could not find jwk for kid")
+}
+
 func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 	testcases := map[string]identity.Status{
 		"X":              identity.StatusInsufficientEvidence,
