@@ -178,6 +178,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, donor *donordata.Pro
 		DonorFirstNamesPossessive: appData.Localizer.Possessive(donor.Donor.FirstNames),
 		DonorFirstNames:           donor.Donor.FirstNames,
 		LpaType:                   appData.Localizer.T(donor.Type.String()),
+		VoucherStartPageURL:       s.appPublicURL + page.PathVoucherStart.Format(),
 	})
 }
 
