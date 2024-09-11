@@ -129,7 +129,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 	staticHash = url.QueryEscape(staticHash[3:11])
 
-	httpClient := &http.Client{Timeout: 10 * time.Second}
+	httpClient := &http.Client{Timeout: 30 * time.Second}
 
 	if xrayEnabled {
 		resource, err := ecs.NewResourceDetector().Detect(ctx)
