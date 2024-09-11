@@ -290,7 +290,7 @@
     "readYourLpa": "Darllen eich LPA",
     "readAndCheckYourLpa": "Rhaid i chi ddarllen eich LPA a’i gwirio’n ofalus cyn ei llofnodi.",
     "whatHappensIfIWantToMakeChanges": "Beth fydd yn digwydd ar ôl i fi lofnodi?",
-    "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">Wrth lofnodi’ch LPA, rydych yn gwneud gweithred sy’n gyfreithiol rwymol.</p><p class=\"govuk-body\">Os byddwch yn newid eich meddwl am benderfyniad yr ydych wedi’i wneud yn eich LPA ar ôl i chi ei llofnodi, bydd angen i chi dynnu eich LPA yn ôl a dechrau un newydd. Efallai y byddwch yn colli unrhyw ffi rydych wedi'i thalu. <a href=\"#\" class=\"govuk-link\">Dysgu mwy am wneud newidiadau i LPA.</a><p class=\"govuk-body\">Os bydd gennych unrhyw gwestiynau neu bryderon ynghylch llofnodi’ch LPA, efallai yr hoffech gael cyngor cyfreithiol.</p>",
+    "whatHappensIfIWantToMakeChangesContent": "<p class=\"govuk-body\">Wrth lofnodi’ch LPA, rydych yn gwneud gweithred sy’n gyfreithiol rwymol.</p><p class=\"govuk-body\">Os byddwch yn newid eich meddwl am benderfyniad yr ydych wedi’i wneud yn eich LPA ar ôl i chi ei llofnodi, bydd angen i chi dynnu eich LPA yn ôl a dechrau un newydd. Efallai y byddwch yn colli unrhyw ffi rydych wedi’i thalu. <a href=\"#\" class=\"govuk-link\">Dysgu mwy am wneud newidiadau i LPA.</a><p class=\"govuk-body\">Os bydd gennych unrhyw gwestiynau neu bryderon ynghylch llofnodi’ch LPA, efallai yr hoffech gael cyngor cyfreithiol.</p>",
     "witnessCodeDoesNotMatch": "Mae’r cod a roesoch yn anghywir, gwiriwch ef a cheisiwch eto",
     "witnessCodeExpired": "Mae’r cod a roesoch wedi dod i ben",
     "continueToSigningPage": "Parhau i’r dudalen arwyddo",
