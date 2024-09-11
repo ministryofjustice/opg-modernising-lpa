@@ -14,12 +14,11 @@ import (
 )
 
 const (
-	GovUkNotify                    = "gov-uk-notify-api-key"
-	GovUkPay                       = "gov-uk-pay-api-key"
-	GovUkOneLoginPrivateKey        = "private-jwt-key-base64"
-	GovUkOneLoginIdentityPublicKey = "gov-uk-onelogin-identity-public-key"
-	OrdnanceSurvey                 = "os-postcode-lookup-api-key"
-	LpaStoreJwtSecretKey           = "lpa-store-jwt-secret-key"
+	GovUkNotify             = "gov-uk-notify-api-key"
+	GovUkPay                = "gov-uk-pay-api-key"
+	GovUkOneLoginPrivateKey = "private-jwt-key-base64"
+	OrdnanceSurvey          = "os-postcode-lookup-api-key"
+	LpaStoreJwtSecretKey    = "lpa-store-jwt-secret-key"
 
 	cookieSessionKeys = "cookie-session-keys"
 
