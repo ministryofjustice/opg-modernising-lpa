@@ -1161,6 +1161,7 @@ func TestSendVoucherAccessCode(t *testing.T) {
 							DonorFirstNamesPossessive: "Possessive first names",
 							DonorFirstNames:           "a",
 							LpaType:                   "translated type",
+							VoucherStartPageURL:       "http://app" + page.PathVoucherStart.Format(),
 						}).
 					Return(nil)
 				return nc
@@ -1207,6 +1208,7 @@ func TestSendVoucherAccessCode(t *testing.T) {
 							DonorFirstNamesPossessive: "Possessive first names",
 							DonorFirstNames:           "a",
 							LpaType:                   "translated type",
+							VoucherStartPageURL:       "http://app" + page.PathVoucherStart.Format(),
 						}).
 					Return(nil)
 				return nc
