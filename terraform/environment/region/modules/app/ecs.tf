@@ -379,6 +379,8 @@ locals {
           awslogs-group         = var.ecs_application_log_group_name,
           awslogs-region        = data.aws_region.current.name,
           awslogs-stream-prefix = data.aws_default_tags.current.tags.environment-name
+          mode                  = "non-blocking"
+          max-buffer-size       = "25m"
         }
       },
       secrets = [
@@ -520,6 +522,8 @@ locals {
           awslogs-group         = var.ecs_application_log_group_name,
           awslogs-region        = data.aws_region.current.name,
           awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
+          mode                  = "non-blocking"
+          max-buffer-size       = "25m"
         }
       },
       environment = []
@@ -552,6 +556,8 @@ locals {
           awslogs-group         = var.ecs_application_log_group_name,
           awslogs-region        = data.aws_region.current.name,
           awslogs-stream-prefix = "${data.aws_default_tags.current.tags.environment-name}.otel.app"
+          mode                  = "non-blocking"
+          max-buffer-size       = "25m"
         }
       },
       environmentFiles      = [],
