@@ -9,7 +9,6 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +27,7 @@ func TestGetPreviousApplicationNumber(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,7 +48,7 @@ func TestGetPreviousApplicationNumberFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{PreviousApplicationNumber: "ABC"})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &donordata.Provided{PreviousApplicationNumber: "ABC"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +64,7 @@ func TestGetPreviousApplicationNumberWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := PreviousApplicationNumber(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -97,15 +96,7 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 				}).
 				Return(nil)
 
-			eventClient := newMockEventClient(t)
-			eventClient.EXPECT().
-				SendPreviousApplicationLinked(r.Context(), event.PreviousApplicationLinked{
-					UID:                       "lpa-uid",
-					PreviousApplicationNumber: start,
-				}).
-				Return(nil)
-
-			err := PreviousApplicationNumber(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
+			err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:  "lpa-id",
 				LpaUID: "lpa-uid",
 			})
@@ -116,33 +107,6 @@ func TestPostPreviousApplicationNumber(t *testing.T) {
 			assert.Equal(t, redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
-}
-
-func TestPostPreviousApplicationNumberWhenEventErrors(t *testing.T) {
-	form := url.Values{
-		"previous-application-number": {"7"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendPreviousApplicationLinked(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := PreviousApplicationNumber(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
-		LpaID:  "lpa-id",
-		LpaUID: "lpa-uid",
-	})
-
-	assert.Equal(t, expectedError, err)
 }
 
 func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
@@ -159,7 +123,7 @@ func TestPostPreviousApplicationNumberWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PreviousApplicationNumber(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
+	err := PreviousApplicationNumber(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -175,7 +139,7 @@ func TestPostPreviousApplicationNumberWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := PreviousApplicationNumber(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := PreviousApplicationNumber(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
