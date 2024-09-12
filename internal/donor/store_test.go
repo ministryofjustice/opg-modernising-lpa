@@ -24,7 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestDonorStoreGetAny(t *testing.T) {
@@ -225,6 +225,31 @@ func TestDonorStoreGetByKeys(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.ExpectAllByKeys(ctx, keys,
 		[]map[string]types.AttributeValue{av0, av1, av2}, nil)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	result, err := donorStore.GetByKeys(ctx, keys)
+	assert.Nil(t, err)
+	assert.Equal(t, donors, result)
+}
+
+func TestDonorStoreGetByKeysWhenMissingResults(t *testing.T) {
+	keys := []dynamo.Keys{
+		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a"))},
+		{PK: dynamo.LpaKey("2"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b"))},
+		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c"))},
+	}
+	donors := []donordata.Provided{
+		{PK: dynamo.LpaKey("1"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a")), LpaID: "1"},
+		{PK: dynamo.LpaKey("3"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("c")), LpaID: "3"},
+	}
+	av0, _ := attributevalue.MarshalMap(donors[1])
+	av1, _ := attributevalue.MarshalMap(donors[0])
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByKeys(ctx, keys).
+		Return([]map[string]types.AttributeValue{av0, av1}, nil)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
@@ -648,9 +673,14 @@ func TestDonorStoreDelete(t *testing.T) {
 		AllKeysByPK(ctx, dynamo.LpaKey("123")).
 		Return(keys, nil)
 	dynamoClient.ExpectOne(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("an-id"),
-		&donordata.Provided{LpaUID: "lpa-uid"}, nil)
+		&donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaUID: "lpa-uid"}, nil)
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, keys).
+		Return(nil)
+
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Delete(ctx, search.Lpa{PK: dynamo.LpaKey("123").PK(), SK: dynamo.DonorKey("an-id").SK()}).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
@@ -658,7 +688,7 @@ func TestDonorStoreDelete(t *testing.T) {
 		SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: "lpa-uid"}).
 		Return(nil)
 
-	donorStore := &Store{dynamoClient: dynamoClient, eventClient: eventClient}
+	donorStore := &Store{dynamoClient: dynamoClient, eventClient: eventClient, searchClient: searchClient}
 
 	err := donorStore.Delete(ctx)
 	assert.Nil(t, err)
@@ -684,14 +714,15 @@ func TestDonorStoreDeleteWhenOtherDonor(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
+func TestDonorStoreDeleteWhenErrors(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "123"})
 
 	testCases := map[string]struct {
 		dynamoClient func(t *testing.T) *mockDynamoClient
 		eventClient  func(t *testing.T) *mockEventClient
+		searchClient func(t *testing.T) *mockSearchClient
 	}{
-		"AllKeysByPK": {
+		"dynamo AllKeysByPK": {
 			dynamoClient: func(t *testing.T) *mockDynamoClient {
 				dynamoClient := newMockDynamoClient(t)
 				dynamoClient.EXPECT().
@@ -699,11 +730,10 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 					Return(nil, expectedError)
 				return dynamoClient
 			},
-			eventClient: func(t *testing.T) *mockEventClient {
-				return newMockEventClient(t)
-			},
+			searchClient: func(t *testing.T) *mockSearchClient { return nil },
+			eventClient:  func(t *testing.T) *mockEventClient { return nil },
 		},
-		"One": {
+		"dynamo One": {
 			dynamoClient: func(t *testing.T) *mockDynamoClient {
 				dynamoClient := newMockDynamoClient(t)
 				dynamoClient.EXPECT().
@@ -713,11 +743,35 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 					&donordata.Provided{}, expectedError)
 				return dynamoClient
 			},
+			searchClient: func(t *testing.T) *mockSearchClient { return nil },
+			eventClient:  func(t *testing.T) *mockEventClient { return nil },
+		},
+		"event send": {
+			dynamoClient: func(t *testing.T) *mockDynamoClient {
+				dynamoClient := newMockDynamoClient(t)
+				dynamoClient.EXPECT().
+					AllKeysByPK(mock.Anything, mock.Anything).
+					Return([]dynamo.Keys{{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")}}, nil)
+				dynamoClient.ExpectOne(mock.Anything, mock.Anything, mock.Anything,
+					&donordata.Provided{}, nil)
+				return dynamoClient
+			},
+			searchClient: func(t *testing.T) *mockSearchClient {
+				searchClient := newMockSearchClient(t)
+				searchClient.EXPECT().
+					Delete(ctx, mock.Anything).
+					Return(nil)
+				return searchClient
+			},
 			eventClient: func(t *testing.T) *mockEventClient {
-				return newMockEventClient(t)
+				eventClient := newMockEventClient(t)
+				eventClient.EXPECT().
+					SendApplicationDeleted(ctx, mock.Anything).
+					Return(expectedError)
+				return eventClient
 			},
 		},
-		"DeleteKeys": {
+		"dynamo DeleteKeys": {
 			dynamoClient: func(t *testing.T) *mockDynamoClient {
 				dynamoClient := newMockDynamoClient(t)
 				dynamoClient.EXPECT().
@@ -730,6 +784,13 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 					Return(expectedError)
 				return dynamoClient
 			},
+			searchClient: func(t *testing.T) *mockSearchClient {
+				searchClient := newMockSearchClient(t)
+				searchClient.EXPECT().
+					Delete(ctx, mock.Anything).
+					Return(nil)
+				return searchClient
+			},
 			eventClient: func(t *testing.T) *mockEventClient {
 				eventClient := newMockEventClient(t)
 				eventClient.EXPECT().
@@ -741,40 +802,17 @@ func TestDonorStoreDeleteWhenDynamoClientErrors(t *testing.T) {
 	}
 
 	for name, tc := range testCases {
-		t.Run(name, func(tt *testing.T) {
-			donorStore := &Store{dynamoClient: tc.dynamoClient(tt), eventClient: tc.eventClient(tt)}
+		t.Run(name, func(t *testing.T) {
+			donorStore := &Store{
+				dynamoClient: tc.dynamoClient(t),
+				eventClient:  tc.eventClient(t),
+				searchClient: tc.searchClient(t),
+			}
 
 			err := donorStore.Delete(ctx)
-			assert.Equal(tt, expectedError, err)
+			assert.Equal(t, expectedError, err)
 		})
 	}
-}
-
-func TestDonorStoreDeleteWhenEventClientError(t *testing.T) {
-	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "123"})
-
-	keys := []dynamo.Keys{
-		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("sk1")},
-		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("sk2")},
-		{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("an-id")},
-	}
-
-	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.EXPECT().
-		AllKeysByPK(mock.Anything, mock.Anything).
-		Return(keys, nil)
-	dynamoClient.ExpectOne(mock.Anything, mock.Anything, mock.Anything,
-		&donordata.Provided{}, nil)
-
-	eventClient := newMockEventClient(t)
-	eventClient.EXPECT().
-		SendApplicationDeleted(ctx, mock.Anything).
-		Return(expectedError)
-
-	donorStore := &Store{dynamoClient: dynamoClient, eventClient: eventClient}
-
-	err := donorStore.Delete(ctx)
-	assert.Equal(t, expectedError, err)
 }
 
 func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
