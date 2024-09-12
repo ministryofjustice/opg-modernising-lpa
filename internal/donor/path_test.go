@@ -198,8 +198,8 @@ func TestDonorCanGoTo(t *testing.T) {
 				Donor: donordata.Donor{
 					CanSign: form.Yes,
 				},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Type:                  lpadata.LpaTypePersonalWelfare,
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				Type:             lpadata.LpaTypePersonalWelfare,
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,
@@ -222,7 +222,7 @@ func TestDonorCanGoTo(t *testing.T) {
 		},
 		"your name when identity set": {
 			donor: &donordata.Provided{
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			url:      PathYourName.Format("123"),
 			expected: false,

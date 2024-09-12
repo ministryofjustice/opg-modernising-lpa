@@ -42,7 +42,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 
 				switch data.Form.DoNext {
 				case donordata.ProveOwnID:
-					provided.DonorIdentityUserData = identity.UserData{}
+					provided.IdentityUserData = identity.UserData{}
 					next = donor.PathTaskList
 				case donordata.SelectNewVoucher:
 					provided.WantVoucher = form.Yes
@@ -62,15 +62,27 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			}
 		}
 
-		switch provided.FailedVouchAttempts {
-		case 0:
-			data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
-			data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
-		case 1:
-			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
-			data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
-		default:
-			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
+		data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
+
+		if provided.IdentityUserData.VouchedFor && provided.IdentityUserData.Status.IsExpired() {
+			provided.FailedVouchAttempts = 1
+
+			switch provided.FailedVouchAttempts {
+			case 1:
+				data.BannerContent = "yourVouchedForIdentityHasExpired"
+			default:
+				data.BannerContent = "yourVouchedForIdentityHasExpiredSecondAttempt"
+			}
+		} else {
+			switch provided.FailedVouchAttempts {
+			case 0:
+				data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
+			case 1:
+				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
+				data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
+			default:
+				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
+			}
 		}
 
 		return tmpl(w, data)

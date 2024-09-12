@@ -127,7 +127,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 
 	if donor.DonorIdentityConfirmed() {
 		body.Donor.IdentityCheck = &lpaRequestIdentityCheck{
-			CheckedAt: donor.DonorIdentityUserData.RetrievedAt,
+			CheckedAt: donor.IdentityUserData.RetrievedAt,
 			Type:      "one-login",
 		}
 	}
@@ -462,7 +462,7 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 
 	var identityCheck lpadata.IdentityCheck
 	if l.DonorIdentityConfirmed() {
-		identityCheck.CheckedAt = l.DonorIdentityUserData.RetrievedAt
+		identityCheck.CheckedAt = l.IdentityUserData.RetrievedAt
 		identityCheck.Type = "one-login"
 	}
 

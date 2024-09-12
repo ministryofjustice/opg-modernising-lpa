@@ -88,23 +88,23 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 		donordata.ProveOwnID: {
 			expectedPath: donor.PathTaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{},
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{},
 			},
 		},
 		donordata.SelectNewVoucher: {
 			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				WantVoucher:           form.Yes,
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				LpaID:            "lpa-id",
+				WantVoucher:      form.Yes,
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
 		donordata.WithdrawLPA: {
 			expectedPath: donor.PathWithdrawThisLpa.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
 		donordata.ApplyToCOP: {
@@ -112,7 +112,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 			expectedDonor: &donordata.Provided{
 				LpaID:                            "lpa-id",
 				RegisteringWithCourtOfProtection: true,
-				DonorIdentityUserData:            identity.UserData{Status: identity.StatusInsufficientEvidence},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
 			},
 		},
 	}
@@ -132,7 +132,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 				Put(r.Context(), tc.expectedDonor).
 				Return(nil)
 
-			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
+			err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence}})
 			resp := w.Result()
 
 			assert.Nil(t, err)

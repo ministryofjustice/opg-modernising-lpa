@@ -436,7 +436,7 @@ func updateLPAProgress(
 			}
 		}
 
-		donorDetails.DonorIdentityUserData = userData
+		donorDetails.IdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 	}
 

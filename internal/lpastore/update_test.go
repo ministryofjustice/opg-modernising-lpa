@@ -414,7 +414,7 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 	err := client.SendDonorConfirmIdentity(ctx, &donordata.Provided{
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{UID: uid},
-		DonorIdentityUserData: identity.UserData{
+		IdentityUserData: identity.UserData{
 			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
 		},
 	})

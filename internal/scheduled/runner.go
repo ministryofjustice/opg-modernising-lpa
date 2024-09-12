@@ -151,11 +151,11 @@ func (r *Runner) stepCancelDonorIdentity(ctx context.Context, row *Event) error 
 		return fmt.Errorf("error retrieving donor: %w", err)
 	}
 
-	if !provided.DonorIdentityUserData.Status.IsConfirmed() || !provided.SignedAt.IsZero() {
+	if !provided.IdentityUserData.Status.IsConfirmed() || !provided.SignedAt.IsZero() {
 		return errStepIgnored
 	}
 
-	provided.DonorIdentityUserData = identity.UserData{Status: identity.StatusExpired}
+	provided.IdentityUserData = identity.UserData{Status: identity.StatusExpired}
 	provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateNotStarted
 
 	if err := r.notifyClient.SendActorEmail(ctx, provided.CorrespondentEmail(), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
