@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("err")
@@ -37,11 +38,6 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendApplicationUpdated(ctx, event) }, event
 		},
-		"previous-application-linked": func() (func(*Client) error, any) {
-			event := PreviousApplicationLinked{UID: "a"}
-
-			return func(client *Client) error { return client.SendPreviousApplicationLinked(ctx, event) }, event
-		},
 		"reduced-fee-requested": func() (func(*Client) error, any) {
 			event := ReducedFeeRequested{UID: "a"}
 
@@ -53,7 +49,7 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendNotificationSent(ctx, event) }, event
 		},
 		"paper-form-requested": func() (func(*Client) error, any) {
-			event := PaperFormRequested{UID: "a", ActorType: "attorney", ActorUID: actoruid.New()}
+			event := PaperFormRequested{UID: "a", ActorType: "attorney", ActorUID: actoruid.Prefixed(actoruid.New())}
 
 			return func(client *Client) error { return client.SendPaperFormRequested(ctx, event) }, event
 		},
@@ -68,7 +64,7 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendCertificateProviderStarted(ctx, event) }, event
 		},
 		"attorney-started": func() (func(*Client) error, any) {
-			event := AttorneyStarted{LpaUID: "a", ActorUID: uid}
+			event := AttorneyStarted{LpaUID: "a", ActorUID: actoruid.Prefixed(uid)}
 
 			return func(client *Client) error { return client.SendAttorneyStarted(ctx, event) }, event
 		},
@@ -96,5 +92,14 @@ func TestClientSendEvents(t *testing.T) {
 
 			assert.Equal(t, expectedError, err)
 		})
+	}
+}
+
+func TestEventsAllHaveSchemas(t *testing.T) {
+	for _, name := range events {
+		if info, _ := os.Stat("testdata/" + name + ".json"); info == nil {
+			t.Fail()
+			t.Log("missing schema for", name)
+		}
 	}
 }
