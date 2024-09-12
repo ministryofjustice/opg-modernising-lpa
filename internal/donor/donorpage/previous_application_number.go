@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,7 +17,7 @@ type previousApplicationNumberData struct {
 	Form   *previousApplicationNumberForm
 }
 
-func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
+func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &previousApplicationNumberData{
 			App: appData,
@@ -35,13 +34,6 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, ev
 				provided.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				if err := eventClient.SendPreviousApplicationLinked(r.Context(), event.PreviousApplicationLinked{
-					UID:                       provided.LpaUID,
-					PreviousApplicationNumber: provided.PreviousApplicationNumber,
-				}); err != nil {
 					return err
 				}
 
