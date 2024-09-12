@@ -1,0 +1,44 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/uid-requested.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/uid-requested",
+  "type": "object",
+  "properties": {
+    "lpaID": {
+      "type": "string",
+      "description": "The ID of the LPA",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "donorSessionID": {
+      "type": "string",
+      "description": "The ID for the donor session",
+        "pattern": "^[a-zA-Z0-9]+={0,2}$"
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of LPA being created",
+      "enum": ["pfa", "hw", "personal-welfare", "property-and-affairs"]
+    },
+    "donor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The donor's name"
+        },
+        "dob": {
+          "type": "string",
+          "description": "The donor's date of birth",
+          "format": "date"
+        },
+        "postcode": {
+            "type": "string",
+            "description": "The donor's postcode",
+            "pattern": "^[A-Z0-9 ]{1,9}$"
+        }
+      },
+      "required": ["name", "dob", "postcode"]
+    }
+  },
+  "required": ["lpaID", "donorSessionID", "type", "donor"]
+}

@@ -42,10 +42,6 @@ func (c *Client) SendApplicationUpdated(ctx context.Context, event ApplicationUp
 	return c.send(ctx, "application-updated", event)
 }
 
-func (c *Client) SendPreviousApplicationLinked(ctx context.Context, event PreviousApplicationLinked) error {
-	return c.send(ctx, "previous-application-linked", event)
-}
-
 func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRequested) error {
 	return c.send(ctx, "reduced-fee-requested", event)
 }
