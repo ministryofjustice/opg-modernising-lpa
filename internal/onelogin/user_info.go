@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MicahParks/jwkset"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -165,11 +166,6 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 		return identity.UserData{Status: identity.StatusFailed}, nil
 	}
 
-	publicKey, err := c.identityPublicKeyFunc(ctx)
-	if err != nil {
-		return identity.UserData{}, err
-	}
-
 	if u.CoreIdentityJWT == "" {
 		return identity.UserData{}, ErrMissingCoreIdentityJWT
 	}
@@ -177,6 +173,20 @@ func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.U
 	token, err := jwt.ParseWithClaims(u.CoreIdentityJWT, &CoreIdentityClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
 			return nil, fmt.Errorf("signing method %v is invalid", token.Header["alg"])
+		}
+
+		kidVal, ok := token.Header[jwkset.HeaderKID]
+		if !ok {
+			return nil, fmt.Errorf("could not find kid in jwt header")
+		}
+		kid, ok := kidVal.(string)
+		if !ok {
+			return nil, fmt.Errorf("could not convert kid to string")
+		}
+
+		publicKey, err := c.didClient.ForKID(kid)
+		if err != nil {
+			return nil, fmt.Errorf("could not find jwk for kid")
 		}
 
 		return publicKey, nil
