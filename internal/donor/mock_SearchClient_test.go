@@ -22,6 +22,53 @@ func (_m *mockSearchClient) EXPECT() *mockSearchClient_Expecter {
 	return &mockSearchClient_Expecter{mock: &_m.Mock}
 }
 
+// Delete provides a mock function with given fields: ctx, lpa
+func (_m *mockSearchClient) Delete(ctx context.Context, lpa search.Lpa) error {
+	ret := _m.Called(ctx, lpa)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, search.Lpa) error); ok {
+		r0 = rf(ctx, lpa)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockSearchClient_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type mockSearchClient_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpa search.Lpa
+func (_e *mockSearchClient_Expecter) Delete(ctx interface{}, lpa interface{}) *mockSearchClient_Delete_Call {
+	return &mockSearchClient_Delete_Call{Call: _e.mock.On("Delete", ctx, lpa)}
+}
+
+func (_c *mockSearchClient_Delete_Call) Run(run func(ctx context.Context, lpa search.Lpa)) *mockSearchClient_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(search.Lpa))
+	})
+	return _c
+}
+
+func (_c *mockSearchClient_Delete_Call) Return(_a0 error) *mockSearchClient_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockSearchClient_Delete_Call) RunAndReturn(run func(context.Context, search.Lpa) error) *mockSearchClient_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Index provides a mock function with given fields: ctx, lpa
 func (_m *mockSearchClient) Index(ctx context.Context, lpa search.Lpa) error {
 	ret := _m.Called(ctx, lpa)

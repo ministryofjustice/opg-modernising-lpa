@@ -63,6 +63,7 @@ type EventClient interface {
 
 type SearchClient interface {
 	Index(ctx context.Context, lpa search.Lpa) error
+	Delete(ctx context.Context, lpa search.Lpa) error
 }
 
 type Store struct {
@@ -299,19 +300,23 @@ func (s *Store) GetByKeys(ctx context.Context, keys []dynamo.Keys) ([]donordata.
 	}
 
 	var donors []donordata.Provided
-	err = attributevalue.UnmarshalListOfMaps(items, &donors)
+	if err := attributevalue.UnmarshalListOfMaps(items, &donors); err != nil {
+		return nil, err
+	}
 
 	mappedDonors := map[string]donordata.Provided{}
 	for _, donor := range donors {
 		mappedDonors[donor.PK.PK()+"|"+donor.SK.SK()] = donor
 	}
 
-	clear(donors)
-	for i, key := range keys {
-		donors[i] = mappedDonors[key.PK.PK()+"|"+key.SK.SK()]
+	donors = donors[0:0]
+	for _, key := range keys {
+		if v, ok := mappedDonors[key.PK.PK()+"|"+key.SK.SK()]; ok {
+			donors = append(donors, v)
+		}
 	}
 
-	return donors, err
+	return donors, nil
 }
 
 func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
@@ -398,7 +403,11 @@ func (s *Store) Delete(ctx context.Context) error {
 		return err
 	}
 
-	if err = s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
+	if err := s.searchClient.Delete(ctx, search.Lpa{PK: provided.PK.PK(), SK: provided.SK.SK()}); err != nil {
+		return err
+	}
+
+	if err := s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
 		return err
 	}
 
