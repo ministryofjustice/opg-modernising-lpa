@@ -7,24 +7,22 @@
     "uid": {
       "type": "string",
       "description": "The UID of the LPA",
-      "pattern": "M(-[A-Z0-9]{4}){3}"
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
     },
     "actorType": {
       "type": "string",
       "description": "The type of actor that needs a paper form",
       "enum": ["certificateProvider", "attorney", "replacementAttorney", "trustCorporation", "replacementTrustCorporation"]
     },
-    "actorUid": {
+    "actorUID": {
       "type": "string",
       "description": "The UID of the actor that needs a paper form",
-      "pattern": "(urn:opg:poas:makeregister:users:)?([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})"
+      "pattern": "^urn:opg:poas:makeregister:users:([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
+    },
+    "accessCode": {
+      "type": "string",
+      "description": "One-time code that can be used by the actor to complete their actions online"
     }
   },
-  "if": {
-    "properties": {
-      "actorType": { "const": "certificateProvider" }
-    }
-  },
-  "then": { "required": ["uid", "actorType"] },
-  "else": { "required": ["uid", "actorType", "actorUID"] }
+  "required": ["uid", "actorType", "actorUID", "accessCode"]
 }

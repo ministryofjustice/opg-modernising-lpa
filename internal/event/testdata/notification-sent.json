@@ -7,12 +7,12 @@
     "uid": {
       "type": "string",
       "description": "The UID of the LPA",
-      "pattern": "M(-[A-Z0-9]{4}){3}"
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
     },
     "notificationId": {
       "type": "string",
       "description": "The GOV UK Notify id of the notification sent",
-      "pattern": "([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})"
+      "format": "uuid"
     }
   },
   "required": ["uid", "notificationId"]
