@@ -7,7 +7,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -35,13 +34,6 @@ func PreviousApplicationNumber(tmpl template.Template, donorStore DonorStore, ev
 				provided.PreviousApplicationNumber = data.Form.PreviousApplicationNumber
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
-					return err
-				}
-
-				if err := eventClient.SendPreviousApplicationLinked(r.Context(), event.PreviousApplicationLinked{
-					UID:                       provided.LpaUID,
-					PreviousApplicationNumber: provided.PreviousApplicationNumber,
-				}); err != nil {
 					return err
 				}
 

@@ -1,7 +1,18 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 mkdir -p internal/event/testdata
-curl -o internal/event/testdata/application-updated.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/application-updated/schema.json"
-curl -o internal/event/testdata/reduced-fee-requested.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/reduced-fee-requested/schema.json"
-curl -o internal/event/testdata/notification-sent.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/notification-sent/schema.json"
-curl -o internal/event/testdata/paper-form-requested.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/paper-form-requested/schema.json"
+rm -f internal/event/testdata/*
+
+for v in uid-requested \
+             application-deleted \
+             application-updated \
+             reduced-fee-requested \
+             notification-sent \
+             paper-form-requested \
+             payment-received \
+             certificate-provider-started \
+             attorney-started 
+do
+    echo $v
+    curl -o internal/event/testdata/$v.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/$v/schema.json"
+done

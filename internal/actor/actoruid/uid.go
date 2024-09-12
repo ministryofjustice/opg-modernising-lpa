@@ -78,3 +78,15 @@ func (u *UID) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 
 	return u.UnmarshalText([]byte(s))
 }
+
+// Prefixed can be used to wrap a UID so it JSON marshals with PrefixedString
+// instead of String.
+type Prefixed UID
+
+func (u Prefixed) MarshalJSON() ([]byte, error) {
+	if UID(u).IsZero() {
+		return []byte("null"), nil
+	}
+
+	return []byte(`"` + UID(u).PrefixedString() + `"`), nil
+}
