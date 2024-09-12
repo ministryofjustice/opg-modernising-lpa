@@ -59,6 +59,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
 
     status = "Enabled"
   }
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "bucket" {
