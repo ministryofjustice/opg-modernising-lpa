@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -309,4 +309,57 @@ func TestClientCountWithQueryWhenSearchError(t *testing.T) {
 	_, err := client.CountWithQuery(ctx, CountWithQueryReq{})
 
 	assert.Error(t, err)
+}
+
+func TestClientDelete(t *testing.T) {
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{})
+
+	resp := &opensearchapi.SearchResp{}
+	resp.Hits.Hits = []opensearchapi.SearchHit{{ID: "doc-id"}}
+
+	svc := newMockOpensearchapiClient(t)
+	svc.EXPECT().
+		Search(ctx, &opensearchapi.SearchReq{
+			Indices: []string{testIndexName},
+			Body:    bytes.NewReader([]byte(`{"query":{"bool":{"must":[{"match":{"SK":"an-sk"}},{"match":{"PK":"a-pk"}}]}}}`)),
+			Params: opensearchapi.SearchParams{
+				Size: aws.Int(2),
+			},
+		}).
+		Return(resp, nil)
+
+	document := newMockDocumentClient(t)
+	document.EXPECT().
+		Delete(ctx, opensearchapi.DocumentDeleteReq{Index: testIndexName, DocumentID: "doc-id"}).
+		Return(nil, expectedError)
+
+	client := &Client{svc: svc, document: document, indexName: testIndexName}
+	err := client.Delete(ctx, Lpa{PK: "a-pk", SK: "an-sk"})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestClientDeleteWhenSearchErrors(t *testing.T) {
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{})
+
+	svc := newMockOpensearchapiClient(t)
+	svc.EXPECT().
+		Search(ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	client := &Client{svc: svc, indexName: testIndexName}
+	err := client.Delete(ctx, Lpa{PK: "a-pk", SK: "an-sk"})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestClientDeleteWhenAlreadyDeleted(t *testing.T) {
+	ctx := appcontext.ContextWithSession(ctx, &appcontext.Session{})
+
+	svc := newMockOpensearchapiClient(t)
+	svc.EXPECT().
+		Search(ctx, mock.Anything).
+		Return(&opensearchapi.SearchResp{}, nil)
+
+	client := &Client{svc: svc, indexName: testIndexName}
+	err := client.Delete(ctx, Lpa{PK: "a-pk", SK: "an-sk"})
+	assert.Nil(t, err)
 }
