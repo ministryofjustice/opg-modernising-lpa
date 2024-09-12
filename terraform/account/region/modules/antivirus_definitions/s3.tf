@@ -47,6 +47,20 @@ resource "aws_s3_bucket_logging" "bucket" {
   provider      = aws.region
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    id = "abort-incomplete-multipart-upload"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
+    status = "Enabled"
+  }
+}
+
 data "aws_iam_policy_document" "bucket" {
   policy_id = "PutObjPolicy"
 
