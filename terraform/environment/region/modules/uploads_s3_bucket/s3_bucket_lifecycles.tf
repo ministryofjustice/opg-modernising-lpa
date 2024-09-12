@@ -35,5 +35,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "main" {
     status = "Enabled"
   }
 
+  rule {
+    id = "abort-incomplete-multipart-upload"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+
+    status = "Enabled"
+  }
+
   provider = aws.region
 }
