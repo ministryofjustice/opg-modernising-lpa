@@ -4,6 +4,7 @@ package event
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
@@ -13,6 +14,18 @@ import (
 )
 
 const source = "opg.poas.makeregister"
+
+var events = map[any]string{
+	(*UidRequested)(nil):               "uid-requested",
+	(*ApplicationDeleted)(nil):         "application-deleted",
+	(*ApplicationUpdated)(nil):         "application-updated",
+	(*ReducedFeeRequested)(nil):        "reduced-fee-requested",
+	(*NotificationSent)(nil):           "notification-sent",
+	(*PaperFormRequested)(nil):         "paper-form-requested",
+	(*PaymentReceived)(nil):            "payment-received",
+	(*CertificateProviderStarted)(nil): "certificate-provider-started",
+	(*AttorneyStarted)(nil):            "attorney-started",
+}
 
 type eventbridgeClient interface {
 	PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)
@@ -31,46 +44,47 @@ func NewClient(cfg aws.Config, eventBusName string) *Client {
 }
 
 func (c *Client) SendUidRequested(ctx context.Context, event UidRequested) error {
-	return c.send(ctx, "uid-requested", event)
+	return send[UidRequested](ctx, c, event)
 }
 
 func (c *Client) SendApplicationDeleted(ctx context.Context, event ApplicationDeleted) error {
-	return c.send(ctx, "application-deleted", event)
+	return send[ApplicationDeleted](ctx, c, event)
 }
 
 func (c *Client) SendApplicationUpdated(ctx context.Context, event ApplicationUpdated) error {
-	return c.send(ctx, "application-updated", event)
-}
-
-func (c *Client) SendPreviousApplicationLinked(ctx context.Context, event PreviousApplicationLinked) error {
-	return c.send(ctx, "previous-application-linked", event)
+	return send[ApplicationUpdated](ctx, c, event)
 }
 
 func (c *Client) SendReducedFeeRequested(ctx context.Context, event ReducedFeeRequested) error {
-	return c.send(ctx, "reduced-fee-requested", event)
+	return send[ReducedFeeRequested](ctx, c, event)
 }
 
 func (c *Client) SendNotificationSent(ctx context.Context, event NotificationSent) error {
-	return c.send(ctx, "notification-sent", event)
+	return send[NotificationSent](ctx, c, event)
 }
 
 func (c *Client) SendPaperFormRequested(ctx context.Context, event PaperFormRequested) error {
-	return c.send(ctx, "paper-form-requested", event)
+	return send[PaperFormRequested](ctx, c, event)
 }
 
 func (c *Client) SendPaymentReceived(ctx context.Context, event PaymentReceived) error {
-	return c.send(ctx, "payment-received", event)
+	return send[PaymentReceived](ctx, c, event)
 }
 
 func (c *Client) SendCertificateProviderStarted(ctx context.Context, event CertificateProviderStarted) error {
-	return c.send(ctx, "certificate-provider-started", event)
+	return send[CertificateProviderStarted](ctx, c, event)
 }
 
 func (c *Client) SendAttorneyStarted(ctx context.Context, event AttorneyStarted) error {
-	return c.send(ctx, "attorney-started", event)
+	return send[AttorneyStarted](ctx, c, event)
 }
 
-func (c *Client) send(ctx context.Context, detailType string, detail any) error {
+func send[T any](ctx context.Context, c *Client, detail any) error {
+	detailType, ok := events[(*T)(nil)]
+	if !ok {
+		return errors.New("event send of unknown type")
+	}
+
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
 	ctx, span := tracer.Start(ctx, detailType,
 		trace.WithSpanKind(trace.SpanKindInternal),
