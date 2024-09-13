@@ -52,7 +52,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket   = aws_s3_bucket.access_log.id
 
   rule {
-    id     = "retain-dynamodb-exports-for-400-days"
+    id     = "retain-for-400-days"
     status = "Enabled"
     expiration {
       days = 400
