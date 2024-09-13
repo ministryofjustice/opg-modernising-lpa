@@ -7,7 +7,7 @@
     "uid": {
       "type": "string",
       "description": "The UID of the LPA",
-      "pattern": "M(-[A-Z0-9]{4}){3}"
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
     },
     "type": {
       "type": "string",
@@ -53,12 +53,12 @@
             },
             "postcode": {
               "type": "string",
-              "pattern": "[A-Z0-9 ]{1,9}"
+              "pattern": "^[A-Z0-9 ]{1,9}$"
             },
             "country": {
               "type": "string",
               "description": "2-digit ISO 3166-1 country code per FCDO definitions: https://www.gov.uk/government/publications/geographical-names-and-information",
-              "pattern": "[A-Z]{2}"
+              "pattern": "^[A-Z]{2}$"
             }
           },
           "required": ["line1", "town", "country"]
