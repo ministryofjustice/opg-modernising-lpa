@@ -51,13 +51,22 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
   bucket = aws_s3_bucket.bucket.id
 
   rule {
-    id = "abort-incomplete-multipart-upload"
-
+    id     = "retain-for-30-days"
+    status = "Enabled"
+    expiration {
+      days = 30
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+  rule {
+    id     = "abort-incomplete-multipart-upload"
+    status = "Enabled"
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
 
-    status = "Enabled"
   }
   provider = aws.region
 }
