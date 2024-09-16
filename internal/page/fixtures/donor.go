@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -83,6 +86,7 @@ type FixtureData struct {
 	DonorEmail                string
 	IdStatus                  string
 	Voucher                   string
+	FailedVouchAttempts       string
 }
 
 func Donor(
@@ -413,7 +417,12 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "confirmYourIdentity") {
 		var userData identity.UserData
 
-		switch data.IdStatus {
+		idActor, idStatus, ok := strings.Cut(data.IdStatus, ":")
+		if !ok && data.IdStatus != "" {
+			return nil, nil, errors.New("invalid value for idStatus - must be in format actor:status")
+		}
+
+		switch idStatus {
 		case "failed":
 			userData = identity.UserData{
 				Status: identity.StatusFailed,
@@ -421,10 +430,6 @@ func updateLPAProgress(
 		case "insufficient-evidence":
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
-			}
-
-			if data.Voucher == "1" {
-				donorDetails.Voucher = makeVoucher(voucherName)
 			}
 		default:
 			userData = identity.UserData{
@@ -436,7 +441,23 @@ func updateLPAProgress(
 			}
 		}
 
-		donorDetails.DonorIdentityUserData = userData
+		if idActor == "voucher" {
+			userData.VouchedFor = true
+			donorDetails.WantVoucher = form.Yes
+		}
+
+		if data.Voucher == "1" {
+			donorDetails.Voucher = makeVoucher(voucherName)
+			donorDetails.WantVoucher = form.Yes
+		}
+
+		attempts, err := strconv.Atoi(data.FailedVouchAttempts)
+		if err != nil && data.FailedVouchAttempts != "" {
+			return nil, nil, fmt.Errorf("invalid value for failedVouchAttempts: %s", err.Error())
+		}
+
+		donorDetails.FailedVouchAttempts = attempts
+		donorDetails.IdentityUserData = userData
 		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 	}
 
@@ -597,5 +618,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		DonorEmail:                r.FormValue("donorEmail"),
 		IdStatus:                  r.FormValue("idStatus"),
 		Voucher:                   r.FormValue("voucher"),
+		FailedVouchAttempts:       r.FormValue("failedVouchAttempts"),
 	}
 }

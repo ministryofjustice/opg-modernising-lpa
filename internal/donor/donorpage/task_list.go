@@ -179,7 +179,7 @@ func taskListPaymentSection(provided *donordata.Provided) taskListSection {
 func taskListSignSection(provided *donordata.Provided) taskListSection {
 	var signPath donor.Path
 
-	switch provided.DonorIdentityUserData.Status {
+	switch provided.IdentityUserData.Status {
 	case identity.StatusConfirmed:
 		if !provided.SignedAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa

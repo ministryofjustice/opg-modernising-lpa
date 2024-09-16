@@ -6,7 +6,7 @@
 
 {{ define "main" }}
   {{ $donor := .DonorProvided.Donor }}
-  {{ $userData := .DonorProvided.DonorIdentityUserData }}
+  {{ $userData := .DonorProvided.IdentityUserData }}
   {{ $donorFullName := (printf "%s %s" $userData.FirstNames $userData.LastName) }}
   {{ $firstNamesMatch := eq $donor.FirstNames $userData.FirstNames }}
   {{ $lastNameMatch := eq $donor.LastName $userData.LastName }}

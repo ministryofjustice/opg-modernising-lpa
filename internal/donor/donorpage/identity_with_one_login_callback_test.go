@@ -27,12 +27,12 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
 	updatedDonor := &donordata.Provided{
-		PK:                    dynamo.LpaKey("hey"),
-		SK:                    dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
-		LpaID:                 "lpa-id",
-		Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
-		DonorIdentityUserData: userData,
-		Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
+		PK:               dynamo.LpaKey("hey"),
+		SK:               dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
+		LpaID:            "lpa-id",
+		Donor:            donordata.Donor{FirstNames: "John", LastName: "Doe"},
+		IdentityUserData: userData,
+		Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 	}
 
 	donorStore := newMockDonorStore(t)
@@ -259,10 +259,10 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
-			LpaID:                 "lpa-id",
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
-			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
+			Donor:            donordata.Donor{FirstNames: "John", LastName: "Doe"},
+			LpaID:            "lpa-id",
+			IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateInProgress},
 		}).
 		Return(nil)
 
@@ -301,10 +301,10 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			Donor:                 donordata.Donor{FirstNames: "John", LastName: "Doe"},
-			LpaID:                 "lpa-id",
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
-			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
+			Donor:            donordata.Donor{FirstNames: "John", LastName: "Doe"},
+			LpaID:            "lpa-id",
+			IdentityUserData: identity.UserData{Status: identity.StatusFailed},
+			Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
 		}).
 		Return(nil)
 
@@ -373,9 +373,9 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
-		LpaID:                 "lpa-id",
-		Donor:                 donordata.Donor{FirstNames: "first-name", LastName: "last-name"},
-		DonorIdentityUserData: userData,
+		LpaID:            "lpa-id",
+		Donor:            donordata.Donor{FirstNames: "first-name", LastName: "last-name"},
+		IdentityUserData: userData,
 	})
 	resp := w.Result()
 
