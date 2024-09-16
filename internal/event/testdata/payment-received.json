@@ -1,0 +1,22 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/payment-received.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/payment-received",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
+    },
+    "paymentId": {
+      "type": "string",
+      "description": "The ID of the payment in GovUK Pay"
+    },
+    "amount": {
+      "type": "integer",
+      "description": "The amount paid in pence"
+    }
+  },
+  "required": ["uid", "paymentId", "amount"]
+}

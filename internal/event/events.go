@@ -10,11 +10,11 @@ import (
 )
 
 type UidRequested struct {
-	LpaID          string
-	DonorSessionID string
-	OrganisationID string
-	Type           string
-	Donor          uid.DonorDetails
+	LpaID          string           `json:"lpaID"`
+	DonorSessionID string           `json:"donorSessionID"`
+	OrganisationID string           `json:"organisationID"`
+	Type           string           `json:"type"`
+	Donor          uid.DonorDetails `json:"donor"`
 }
 
 type ApplicationDeleted struct {
@@ -35,11 +35,6 @@ type ApplicationUpdatedDonor struct {
 	Address     place.Address `json:"address"`
 }
 
-type PreviousApplicationLinked struct {
-	UID                       string `json:"uid"`
-	PreviousApplicationNumber string `json:"previousApplicationNumber"`
-}
-
 type ReducedFeeRequested struct {
 	UID              string     `json:"uid"`
 	RequestType      string     `json:"requestType"`
@@ -58,10 +53,10 @@ type NotificationSent struct {
 }
 
 type PaperFormRequested struct {
-	UID        string       `json:"uid"`
-	ActorType  string       `json:"actorType"`
-	ActorUID   actoruid.UID `json:"actorUID"`
-	AccessCode string       `json:"accessCode"`
+	UID        string            `json:"uid"`
+	ActorType  string            `json:"actorType"`
+	ActorUID   actoruid.Prefixed `json:"actorUID"`
+	AccessCode string            `json:"accessCode"`
 }
 
 type PaymentReceived struct {
@@ -75,6 +70,6 @@ type CertificateProviderStarted struct {
 }
 
 type AttorneyStarted struct {
-	LpaUID   string       `json:"uid"`
-	ActorUID actoruid.UID `json:"actorUID"`
+	LpaUID   string            `json:"uid"`
+	ActorUID actoruid.Prefixed `json:"actorUID"`
 }

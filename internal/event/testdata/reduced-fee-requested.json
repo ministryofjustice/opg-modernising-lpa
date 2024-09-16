@@ -7,7 +7,7 @@
     "uid": {
       "type": "string",
       "description": "The UID of the LPA",
-      "pattern": "M(-[A-Z0-9]{4}){3}"
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
     },
     "requestType": {
       "type": "string",
@@ -23,7 +23,7 @@
           "path": {
             "type": "string",
             "description": "The absolute path to the evidence file in S3. The first item in the path will always be the UID of the LPA the evidence is associated with.",
-            "pattern": "M(-[A-Z0-9]{4}){3}/evidence/.+"
+            "pattern": "^M(-[A-Z0-9]{4}){3}/evidence/.+$"
           },
           "filename": {
             "type": "string",
