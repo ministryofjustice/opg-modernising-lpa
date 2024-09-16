@@ -418,7 +418,7 @@ func updateLPAProgress(
 		var userData identity.UserData
 
 		idActor, idStatus, ok := strings.Cut(data.IdStatus, ":")
-		if !ok {
+		if !ok && data.IdStatus != "" {
 			return nil, nil, errors.New("invalid value for idStatus")
 		}
 
