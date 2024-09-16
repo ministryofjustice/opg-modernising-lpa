@@ -43,6 +43,10 @@ type indicesClient interface {
 	Create(ctx context.Context, req opensearchapi.IndicesCreateReq) (*opensearchapi.IndicesCreateResp, error)
 }
 
+type documentClient interface {
+	Delete(ctx context.Context, req opensearchapi.DocumentDeleteReq) (*opensearchapi.DocumentDeleteResp, error)
+}
+
 type QueryResponse struct {
 	Pagination *Pagination
 	Keys       []dynamo.Keys
@@ -67,6 +71,7 @@ type QueryRequest struct {
 type Client struct {
 	svc             opensearchapiClient
 	indices         indicesClient
+	document        documentClient
 	endpoint        string
 	indexName       string
 	indexingEnabled bool
@@ -88,7 +93,14 @@ func NewClient(cfg aws.Config, endpoint, indexName string, indexingEnabled bool)
 		return nil, fmt.Errorf("search could not create opensearch client: %w", err)
 	}
 
-	return &Client{indices: svc.Indices, svc: svc, endpoint: endpoint, indexName: indexName, indexingEnabled: indexingEnabled}, nil
+	return &Client{
+		indices:         svc.Indices,
+		document:        svc.Document,
+		svc:             svc,
+		endpoint:        endpoint,
+		indexName:       indexName,
+		indexingEnabled: indexingEnabled,
+	}, nil
 }
 
 func (c *Client) CreateIndices(ctx context.Context) error {
@@ -134,7 +146,7 @@ func (c *Client) Query(ctx context.Context, req QueryRequest) (*QueryResponse, e
 	}
 
 	body, err := json.Marshal(map[string]any{
-		"query": baseQuery(sk),
+		"query": baseQuery(sk.SK()),
 	})
 	if err != nil {
 		return nil, err
@@ -183,7 +195,7 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 		"track_total_hits": true,
 	}
 
-	query := baseQuery(sk)
+	query := baseQuery(sk.SK())
 
 	if req.MustNotExist != "" {
 		query["bool"]["must_not"] = map[string]any{
@@ -211,6 +223,49 @@ func (c *Client) CountWithQuery(ctx context.Context, req CountWithQueryReq) (int
 	return resp.Hits.Total.Value, err
 }
 
+func (c *Client) Delete(ctx context.Context, lpa Lpa) error {
+	body, err := json.Marshal(map[string]any{
+		"query": map[string]map[string]any{
+			"bool": {
+				"must": []map[string]any{
+					{
+						"match": map[string]string{
+							"SK": lpa.SK,
+						},
+					},
+					{
+						"match": map[string]string{
+							"PK": lpa.PK,
+						},
+					},
+				},
+			},
+		},
+	})
+
+	resp, err := c.svc.Search(ctx, &opensearchapi.SearchReq{
+		Indices: []string{c.indexName},
+		Body:    bytes.NewReader(body),
+		Params: opensearchapi.SearchParams{
+			Size: aws.Int(2),
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	if len(resp.Hits.Hits) == 0 {
+		return nil
+	}
+
+	_, err = c.document.Delete(ctx, opensearchapi.DocumentDeleteReq{
+		Index:      c.indexName,
+		DocumentID: resp.Hits.Hits[0].ID,
+	})
+
+	return err
+}
+
 func baseQuery(sk string) map[string]map[string]any {
 	return map[string]map[string]any{
 		"bool": {
@@ -230,10 +285,10 @@ func baseQuery(sk string) map[string]map[string]any {
 	}
 }
 
-func getSKFromContext(ctx context.Context) (string, error) {
+func getSKFromContext(ctx context.Context) (dynamo.SK, error) {
 	session, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var sk dynamo.SK = dynamo.DonorKey(session.SessionID)
@@ -241,5 +296,5 @@ func getSKFromContext(ctx context.Context) (string, error) {
 		sk = dynamo.OrganisationKey(session.OrganisationID)
 	}
 
-	return sk.SK(), nil
+	return sk, nil
 }
