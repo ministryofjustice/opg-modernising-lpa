@@ -146,7 +146,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				CertificateProvider: donordata.CertificateProvider{
 					Mobile: "07535111111",
 				},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
 			redirect: donor.PathWitnessingAsCertificateProvider,
@@ -163,7 +163,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 					Mobile:         "+337575757",
 					HasNonUKMobile: true,
 				},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToCertificateProvider",
 			redirect: donor.PathWitnessingAsCertificateProvider,
@@ -178,7 +178,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				IndependentWitness: donordata.IndependentWitness{
 					Mobile: "07535111111",
 				},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
 			redirect: donor.PathWitnessingAsIndependentWitness,
@@ -195,7 +195,7 @@ func TestPostChangeMobileNumber(t *testing.T) {
 					Mobile:         "+337575757",
 					HasNonUKMobile: true,
 				},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 			send:     "SendToIndependentWitness",
 			redirect: donor.PathWitnessingAsIndependentWitness,
@@ -214,8 +214,8 @@ func TestPostChangeMobileNumber(t *testing.T) {
 				Return(nil)
 
 			err := ChangeMobileNumber(nil, witnessCodeSender, tc.actorType)(testAppData, w, r, &donordata.Provided{
-				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			})
 			resp := w.Result()
 

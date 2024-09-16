@@ -1376,5 +1376,7 @@
     "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
     "youCannotVouch": "Welsh",
     "youHaveToldUsYouCannotVouchForDonorName": "Welsh {{ .DonorFullName }}",
-    "voucherYouCannotVouchContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullName }} Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>"
+    "voucherYouCannotVouchContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullName }} Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
+    "yourVouchedForIdentityHasExpired": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "yourVouchedForIdentityHasExpiredSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>"
 }

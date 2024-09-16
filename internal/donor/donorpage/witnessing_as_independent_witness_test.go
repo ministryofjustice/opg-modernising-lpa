@@ -95,7 +95,7 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:                           "lpa-id",
-			DonorIdentityUserData:           identity.UserData{Status: identity.StatusConfirmed},
+			IdentityUserData:                identity.UserData{Status: identity.StatusConfirmed},
 			IndependentWitnessCodes:         donordata.WitnessCodes{{Code: "1234", Created: now}},
 			WitnessedByIndependentWitnessAt: now,
 		}).
@@ -103,7 +103,7 @@ func TestPostWitnessingAsIndependentWitness(t *testing.T) {
 
 	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
 		LpaID:                   "lpa-id",
-		DonorIdentityUserData:   identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:        identity.UserData{Status: identity.StatusConfirmed},
 		IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	resp := w.Result()
@@ -130,7 +130,7 @@ func TestPostWitnessingAsIndependentWitnessWhenDonorStoreErrors(t *testing.T) {
 
 	err := WitnessingAsIndependentWitness(nil, donorStore, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{
 		LpaID:                   "lpa-id",
-		DonorIdentityUserData:   identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:        identity.UserData{Status: identity.StatusConfirmed},
 		IndependentWitnessCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
 	})
 	assert.Equal(t, expectedError, err)
