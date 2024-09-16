@@ -42,7 +42,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return err
 		}
 
-		provided.DonorIdentityUserData = userData
+		provided.IdentityUserData = userData
 
 		if userData.Status.IsFailed() {
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
@@ -54,7 +54,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return err
 		}
 
-		switch provided.DonorIdentityUserData.Status {
+		switch provided.IdentityUserData.Status {
 		case identity.StatusFailed:
 			return donor.PathRegisterWithCourtOfProtection.Redirect(w, r, appData, provided)
 		case identity.StatusInsufficientEvidence:
