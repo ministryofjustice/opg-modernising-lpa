@@ -1,4 +1,4 @@
-FROM golang:1.23.0-alpine AS base
+FROM golang:1.23.1-alpine AS base
 
 WORKDIR /app
 
@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.20.2 AS production
+FROM alpine:3.20.3 AS production
 
 WORKDIR /go/bin
 
