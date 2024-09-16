@@ -80,8 +80,8 @@ type Provided struct {
 	Tasks Tasks
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
 	PaymentDetails []Payment
-	// Information returned by the identity service related to the applicant
-	DonorIdentityUserData identity.UserData
+	// Information returned by the identity service related to the Donor or Voucher
+	IdentityUserData identity.UserData
 	// Replacement attorneys named in the LPA
 	ReplacementAttorneys Attorneys
 	// Information on how the applicant wishes their replacement attorneys to act
@@ -186,7 +186,7 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"CreatedAt",
 		"Tasks",
 		"PaymentDetails",
-		"DonorIdentityUserData",
+		"IdentityUserData",
 		"WantToApplyForLpa",
 		"WantToSignLpa",
 		"SignedAt",
@@ -249,9 +249,9 @@ func (p *Provided) generateCheckedHash() (uint64, error) {
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {
-	return p.DonorIdentityUserData.Status.IsConfirmed() &&
-		p.DonorIdentityUserData.MatchName(p.Donor.FirstNames, p.Donor.LastName) &&
-		p.DonorIdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
+	return p.IdentityUserData.Status.IsConfirmed() &&
+		p.IdentityUserData.MatchName(p.Donor.FirstNames, p.Donor.LastName) &&
+		p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
 }
 
 func (p *Provided) AttorneysAndCpSigningDeadline() time.Time {

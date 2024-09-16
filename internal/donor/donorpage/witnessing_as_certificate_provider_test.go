@@ -110,7 +110,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			provided := &donordata.Provided{
 				LpaID:                            "lpa-id",
 				LpaUID:                           "lpa-uid",
-				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: testNow,
@@ -146,7 +146,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 			err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 				LpaID:                            "lpa-id",
 				LpaUID:                           "lpa-uid",
-				DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
 				CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				Tasks:                            donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
@@ -174,7 +174,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 
 	provided := &donordata.Provided{
 		LpaID:                            "lpa-id",
-		DonorIdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		WitnessedByCertificateProviderAt: testNow,
@@ -190,7 +190,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, nil, nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
-		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProvider:      donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStatePending},
@@ -234,7 +234,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
-		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
@@ -269,7 +269,7 @@ func TestPostWitnessingAsCertificateProviderWhenEventClientErrors(t *testing.T) 
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, nil, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:                    "lpa-id",
-		DonorIdentityUserData:    identity.UserData{Status: identity.StatusConfirmed},
+		IdentityUserData:         identity.UserData{Status: identity.StatusConfirmed},
 		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:      donordata.CertificateProvider{FirstNames: "Fred"},
 		Tasks:                    donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
