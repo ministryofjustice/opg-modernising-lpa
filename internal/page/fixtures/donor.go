@@ -419,7 +419,7 @@ func updateLPAProgress(
 
 		idActor, idStatus, ok := strings.Cut(data.IdStatus, ":")
 		if !ok && data.IdStatus != "" {
-			return nil, nil, errors.New("invalid value for idStatus")
+			return nil, nil, errors.New("invalid value for idStatus - must be in format actor:status")
 		}
 
 		switch idStatus {
