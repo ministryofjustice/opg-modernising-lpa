@@ -84,3 +84,15 @@ func TestUIDAttributeValue(t *testing.T) {
 	assert.Error(t, err)
 	assert.True(t, c.IsZero())
 }
+
+func TestPrefixedJSON(t *testing.T) {
+	uuidString := "2ea1a849-975e-481c-af19-1209d20ed362"
+	uid, err := Parse(uuidString)
+	assert.Nil(t, err)
+
+	jsonData, _ := json.Marshal(Prefixed(uid))
+	assert.Equal(t, `"`+prefix+uuidString+`"`, string(jsonData))
+
+	emptyData, _ := json.Marshal(Prefixed(UID{}))
+	assert.Equal(t, `null`, string(emptyData))
+}
