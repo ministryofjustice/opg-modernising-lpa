@@ -411,7 +411,7 @@ func Register(
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
 		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now.gohtml"), donorStore))
 	handleWithDonor(donor.PathWhatYouCanDoNowExpired, page.CanGoBack,
-		WhatYouCanDoNow(tmpls.Get("what_you_can_do_now_expired.gohtml"), donorStore))
+		WhatYouCanDoNowExpired(tmpls.Get("what_you_can_do_now_expired.gohtml"), donorStore))
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
 

@@ -401,16 +401,16 @@ func TestRunnerStepCancelDonorIdentity(t *testing.T) {
 	donorStore.EXPECT().
 		One(ctx, lpaKey, donorKey).
 		Return(&donordata.Provided{
-			LpaUID:                "lpa-uid",
-			Donor:                 donordata.Donor{Email: "donor@example.com"},
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			LpaUID:           "lpa-uid",
+			Donor:            donordata.Donor{Email: "donor@example.com"},
+			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		}, nil)
 	donorStore.EXPECT().
 		Put(ctx, &donordata.Provided{
-			LpaUID:                "lpa-uid",
-			Donor:                 donordata.Donor{Email: "donor@example.com"},
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusExpired},
-			Tasks:                 donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateNotStarted},
+			LpaUID:           "lpa-uid",
+			Donor:            donordata.Donor{Email: "donor@example.com"},
+			IdentityUserData: identity.UserData{Status: identity.StatusExpired},
+			Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateNotStarted},
 		}).
 		Return(nil)
 
@@ -450,11 +450,11 @@ func TestRunnerStepCancelDonorIdentityWhenDonorStoreErrors(t *testing.T) {
 func TestRunnerStepCancelDonorIdentityWhenStepIgnored(t *testing.T) {
 	testcases := map[string]*donordata.Provided{
 		"identity not confirmed": &donordata.Provided{
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed},
+			IdentityUserData: identity.UserData{Status: identity.StatusFailed},
 		},
 		"already signed": &donordata.Provided{
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-			SignedAt:              time.Now(),
+			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			SignedAt:         time.Now(),
 		},
 	}
 
@@ -492,9 +492,9 @@ func TestRunnerStepCancelDonorIdentityWhenNotifySendErrors(t *testing.T) {
 	donorStore.EXPECT().
 		One(mock.Anything, mock.Anything, mock.Anything).
 		Return(&donordata.Provided{
-			LpaUID:                "lpa-uid",
-			Donor:                 donordata.Donor{Email: "donor@example.com"},
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			LpaUID:           "lpa-uid",
+			Donor:            donordata.Donor{Email: "donor@example.com"},
+			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		}, nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -521,9 +521,9 @@ func TestRunnerStepCancelDonorIdentityWhenDonorStorePutErrors(t *testing.T) {
 	donorStore.EXPECT().
 		One(mock.Anything, mock.Anything, mock.Anything).
 		Return(&donordata.Provided{
-			LpaUID:                "lpa-uid",
-			Donor:                 donordata.Donor{Email: "donor@example.com"},
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			LpaUID:           "lpa-uid",
+			Donor:            donordata.Donor{Email: "donor@example.com"},
+			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 		}, nil)
 	donorStore.EXPECT().
 		Put(mock.Anything, mock.Anything).
