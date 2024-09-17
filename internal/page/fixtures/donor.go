@@ -431,6 +431,10 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
 			}
+		case "expired":
+			userData = identity.UserData{
+				Status: identity.StatusExpired,
+			}
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,

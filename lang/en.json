@@ -1306,6 +1306,6 @@
     "youCannotVouch": "You cannot vouch",
     "youHaveToldUsYouCannotVouchForDonorName": "You have told us that you cannot vouch for {{ .DonorFullName }}.",
     "voucherYouCannotVouchContent": "<p class=\"govuk-body\">We have contacted {{ .DonorFullName }} to let them know.</p><p class=\"govuk-body\">You do not need to do anything else.</p><p class=\"govuk-body\">You can now close this browsing window.</p>",
-    "yourVouchedForIdentityHasExpired": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">The person you asked to vouch for you has been unable to continue</p><p class=\"govuk-body\">You must sign your LPA within 6 months of having your identity vouched for.</p></div>",
+    "yourVouchedForIdentityHasExpired": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Your vouched-for identity has expired</p><p class=\"govuk-body\">You must sign your LPA within 6 months of having your identity vouched for.</p></div>",
     "yourVouchedForIdentityHasExpiredSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Your vouched-for identity has expired</p><p class=\"govuk-body\">You must sign your LPA within 6 months of having your identity vouched for.</p><p class=\"govuk-body\">You cannot ask another person to vouch for you as only 2 attempts can be made of having someone vouch for your identity.</p></div>"
 }

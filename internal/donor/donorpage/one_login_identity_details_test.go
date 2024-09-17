@@ -89,8 +89,8 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 
 	updated := &donordata.Provided{
 		LpaID:            "lpa-id",
-		Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
-		IdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+		Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
+		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
 	}
 	updated.UpdateCheckedHash()
 
@@ -101,8 +101,8 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 
 	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
-		Donor:            donordata.Donor{FirstNames: "a", LastName: "a", DateOfBirth: existingDob, Address: testAddress},
-		IdentityUserData: identity.UserData{FirstNames: "b", LastName: "b", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+		Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
 	})
 	resp := w.Result()
 

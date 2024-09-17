@@ -78,7 +78,7 @@ describe('what you can do now', () => {
         it('provides next steps', () => {
             cy.contains('h2', 'Try vouching again')
             cy.contains('label', 'I have someone else who can vouch for me').click()
-            cy.contains('button', 'Continue').click();
+            cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/enter-voucher')
         })
@@ -95,12 +95,55 @@ describe('what you can do now', () => {
             cy.get('label').should('not.contain', 'I have someone who can vouch for me')
             cy.get('label').should('not.contain', 'I have someone else who can vouch for me')
 
-            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click();
-            cy.contains('button', 'Continue').click();
+            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('button', 'Continue').click()
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
-
         })
     })
 
+    context('donor ID expired', () => {
+        it('provides next steps', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=donor:expired')
+            cy.url().should('contain', '/what-you-can-do-now-expired')
+
+            cy.contains('Your confirmed identity has expired')
+            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('button', 'Continue').click()
+
+            cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
+        })
+    })
+
+    context('vouch expired', () => {
+        it('provides next steps for first expired vouch', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&failedVouchAttempts=1')
+            cy.url().should('contain', '/what-you-can-do-now-expired')
+
+            cy.contains('Your vouched-for identity has expired')
+            cy.contains('h2', 'Try vouching again')
+
+            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('button', 'Continue').click()
+
+            cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
+        })
+
+        it('provides next steps for second expired vouch', () => {
+            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&failedVouchAttempts=2')
+            cy.url().should('contain', '/what-you-can-do-now-expired')
+
+            cy.contains('Your vouched-for identity has expired');
+            cy.contains('You cannot ask another person to vouch for you as only 2 attempts can be made of having someone vouch for your identity.');
+
+            cy.get('Try vouching again').should('not.exist')
+            cy.get('label').should('not.contain', 'I have someone who can vouch for me')
+            cy.get('label').should('not.contain', 'I have someone else who can vouch for me')
+
+            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click()
+            cy.contains('button', 'Continue').click()
+
+            cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
+        })
+    })
 })

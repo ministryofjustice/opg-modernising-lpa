@@ -5,7 +5,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourConfirmedIdentityHasExpired") "contents") }}
+            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App .BannerContent) "contents") }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
@@ -14,7 +14,7 @@
 
             {{ if eq 0 .FailedVouchAttempts }}
                 {{ trHtml .App "askSomeoneToVouchForYouContent" }}
-            {{ else if eq 1 }}
+            {{ else if eq 1 .FailedVouchAttempts }}
                 {{ trHtml .App "tryVouchingAgainContent" }}
             {{ end }}
 
