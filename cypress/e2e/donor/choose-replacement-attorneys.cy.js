@@ -138,13 +138,12 @@ describe('Choose replacement attorneys', () => {
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys-address');
 
-        // TODO workout why cypress with later versions of node breaks when using back links
-        // cy.contains('a', 'Back').click()
-        // cy.url().should('contain', '/choose-replacement-attorneys');
-        //
-        // cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
-        // cy.contains('button', 'Save and continue').click();
-        //
-        // cy.url().should('contain', '/choose-replacement-attorneys-address');
+        cy.go(-2);
+        cy.url().should('contain', '/choose-replacement-attorneys');
+
+        cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
+        cy.contains('button', 'Save and continue').click();
+
+        cy.url().should('contain', '/choose-replacement-attorneys-address');
     });
 });
