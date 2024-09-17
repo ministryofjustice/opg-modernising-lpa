@@ -1222,7 +1222,7 @@
     "noIDoNotKnowSomeone": "Welsh",
     "yesIfHaveSomeoneCanVouchForYou": "Welsh",
     "weHaveContactedVoucher": "Welsh",
-    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
+    "weHaveContactedVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Welsh {{ .ContactType }} Welsh</li><li>Welsh</li><li>Welsh</li></ul>",
     "registerYourLpaThroughCOPContent": "<p class=\"govuk-body\">Welsh</p>",
     "registerYourLpaThroughCOPWarning": "Welsh",
     "whatWouldYouLikeToDo": "Welsh",
@@ -1378,5 +1378,7 @@
     "youHaveToldUsYouCannotVouchForDonorName": "Welsh {{ .DonorFullName }}",
     "voucherYouCannotVouchContent": "<p class=\"govuk-body\">Welsh {{ .DonorFullName }} Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p>",
     "yourVouchedForIdentityHasExpired": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
-    "yourVouchedForIdentityHasExpiredSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>"
+    "yourVouchedForIdentityHasExpiredSecondAttempt": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "anEmail": "Welsh",
+    "aTextMessage": "Welsh"
 }
