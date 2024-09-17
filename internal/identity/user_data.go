@@ -120,6 +120,7 @@ type UserData struct {
 	DateOfBirth    date.Date
 	RetrievedAt    time.Time
 	CurrentAddress place.Address
+	VouchedFor     bool
 }
 
 func (u UserData) MatchName(firstNames, lastName string) bool {

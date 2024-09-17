@@ -243,7 +243,7 @@ func TestClientSendLpa(t *testing.T) {
 						Country:    "GB",
 					},
 				}},
-				DonorIdentityUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",

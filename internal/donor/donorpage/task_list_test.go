@@ -102,9 +102,9 @@ func TestGetTaskList(t *testing.T) {
 		"confirmed identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -117,9 +117,9 @@ func TestGetTaskList(t *testing.T) {
 		"confirmed identity does not match LPA": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "b", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "b", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -132,9 +132,9 @@ func TestGetTaskList(t *testing.T) {
 		"failed identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusFailed, LastName: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusFailed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -147,9 +147,9 @@ func TestGetTaskList(t *testing.T) {
 		"expired identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusExpired, LastName: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusExpired, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -162,9 +162,9 @@ func TestGetTaskList(t *testing.T) {
 		"insufficient evidence for identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -177,10 +177,10 @@ func TestGetTaskList(t *testing.T) {
 		"insufficient evidence for identity with voucher details": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
-				Voucher:               donordata.Voucher{FirstNames: "a"},
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				Voucher:          donordata.Voucher{FirstNames: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -193,10 +193,10 @@ func TestGetTaskList(t *testing.T) {
 		"does not want a voucher": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
-				WantVoucher:           form.No,
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:      form.No,
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -209,10 +209,10 @@ func TestGetTaskList(t *testing.T) {
 		"wants a voucher": {
 			appData: testAppData,
 			donor: &donordata.Provided{
-				LpaID:                 "lpa-id",
-				Donor:                 donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
-				WantVoucher:           form.Yes,
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:      form.Yes,
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
@@ -227,7 +227,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:                            "lpa-id",
 				Donor:                            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData:            identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
 				WantVoucher:                      form.No,
 				RegisteringWithCourtOfProtection: true,
 			},
@@ -244,7 +244,7 @@ func TestGetTaskList(t *testing.T) {
 			donor: &donordata.Provided{
 				LpaID:                            "lpa-id",
 				Donor:                            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				DonorIdentityUserData:            identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
 				WantVoucher:                      form.No,
 				RegisteringWithCourtOfProtection: true,
 				SignedAt:                         testNow,
@@ -351,7 +351,7 @@ func TestGetTaskList(t *testing.T) {
 				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
 					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
 				}},
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
 				Tasks: donordata.Tasks{
 					YourDetails:                task.StateCompleted,
 					ChooseAttorneys:            task.StateCompleted,

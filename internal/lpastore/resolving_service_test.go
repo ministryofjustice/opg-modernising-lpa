@@ -36,7 +36,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},
-				DonorIdentityUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
 					RetrievedAt: time.Now(),
 				},
@@ -95,7 +95,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					Attorneys:        []donordata.Attorney{{FirstNames: "c"}},
 					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
-				DonorIdentityUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
 					RetrievedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 				},
@@ -315,7 +315,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					CheckYourLpa: task.StateCompleted,
 					PayForLpa:    task.PaymentStateCompleted,
 				},
-				DonorIdentityUserData: identity.UserData{
+				IdentityUserData: identity.UserData{
 					Status: identity.StatusConfirmed,
 				},
 			}},

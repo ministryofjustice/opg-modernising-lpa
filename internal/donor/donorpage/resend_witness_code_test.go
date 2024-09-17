@@ -77,8 +77,8 @@ func TestPostResendWitnessCode(t *testing.T) {
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 			donor := &donordata.Provided{
-				LpaID:                 "lpa-id",
-				DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				LpaID:            "lpa-id",
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			}
 
 			witnessCodeSender := newMockWitnessCodeSender(t)
