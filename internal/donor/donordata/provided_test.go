@@ -36,14 +36,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xa66eaae2dbca5f95
+	const modified uint64 = 0xfd5454f5d9c33092
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x19fb86f631b8b355,
+		0: 0xf43fbd1d67d4baf8,
 	}
 
 	for version, initial := range testcases {
@@ -142,7 +142,7 @@ func TestIdentityConfirmed(t *testing.T) {
 	}{
 		"confirmed": {
 			lpa: &Provided{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -153,7 +153,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"failed": {
 			lpa: &Provided{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -164,7 +164,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"name does not match": {
 			lpa: &Provided{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "c",
@@ -175,7 +175,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"dob does not match": {
 			lpa: &Provided{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
@@ -186,7 +186,7 @@ func TestIdentityConfirmed(t *testing.T) {
 		},
 		"insufficient evidence": {
 			lpa: &Provided{
-				DonorIdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
 					LastName:    "b",
