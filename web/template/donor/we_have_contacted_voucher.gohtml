@@ -9,7 +9,12 @@
 
       <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
 
-      {{ trFormatHtml .App "weHaveContactedVoucherContent" }}
+      {{ $contactType := "anEmail" }}
+      {{ if .Donor.Donor.Mobile }}
+        {{ $contactType = "aTextMessage" }}
+      {{ end }}
+
+      {{ trFormatHtml .App "weHaveContactedVoucherContent" "ContactType" ( tr .App $contactType ) }}
 
       <div class="govuk-button-group">
         <a href="{{ global.Paths.ReadYourLpa.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "continue" }}</a>
