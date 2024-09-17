@@ -204,7 +204,7 @@ func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.
 	body := updateRequest{
 		Type: "DONOR_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{
-			{Key: "/donor/identityCheck/checkedAt", New: donor.DonorIdentityUserData.RetrievedAt, Old: nil},
+			{Key: "/donor/identityCheck/checkedAt", New: donor.IdentityUserData.RetrievedAt, Old: nil},
 			{Key: "/donor/identityCheck/type", New: "one-login", Old: nil},
 		},
 	}
