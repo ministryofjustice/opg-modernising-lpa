@@ -44,7 +44,6 @@ type S3Client interface {
 type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
-	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 

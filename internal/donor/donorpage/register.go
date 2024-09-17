@@ -140,7 +140,6 @@ type EventClient interface {
 	SendReducedFeeRequested(ctx context.Context, e event.ReducedFeeRequested) error
 	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
 	SendUidRequested(ctx context.Context, e event.UidRequested) error
-	SendPreviousApplicationLinked(ctx context.Context, e event.PreviousApplicationLinked) error
 	SendCertificateProviderStarted(ctx context.Context, e event.CertificateProviderStarted) error
 }
 
@@ -360,7 +359,7 @@ func Register(
 	handleWithDonor(donor.PathWhichFeeTypeAreYouApplyingFor, page.CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
 	handleWithDonor(donor.PathPreviousApplicationNumber, page.None,
-		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore, eventClient))
+		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 	handleWithDonor(donor.PathPreviousFee, page.CanGoBack,
 		PreviousFee(tmpls.Get("previous_fee.gohtml"), payer, donorStore))
 	handleWithDonor(donor.PathEvidenceRequired, page.CanGoBack,
