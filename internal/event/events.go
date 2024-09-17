@@ -73,3 +73,7 @@ type AttorneyStarted struct {
 	LpaUID   string            `json:"uid"`
 	ActorUID actoruid.Prefixed `json:"actorUID"`
 }
+
+type VoucherActedEvent struct {
+	LpaUID string `json:"uid"`
+}

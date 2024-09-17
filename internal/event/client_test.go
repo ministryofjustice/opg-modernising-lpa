@@ -68,6 +68,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendAttorneyStarted(ctx, event) }, event
 		},
+		"voucher-acted": func() (func(*Client) error, any) {
+			event := VoucherActedEvent{LpaUID: "a"}
+
+			return func(client *Client) error { return client.SendVoucherActed(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {

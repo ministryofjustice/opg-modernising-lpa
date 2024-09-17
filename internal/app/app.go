@@ -171,6 +171,7 @@ func App(
 		notifyClient,
 		appPublicURL,
 		donorStore,
+		eventClient,
 	)
 
 	supporterpage.Register(

@@ -25,6 +25,7 @@ var events = map[any]string{
 	(*PaymentReceived)(nil):            "payment-received",
 	(*CertificateProviderStarted)(nil): "certificate-provider-started",
 	(*AttorneyStarted)(nil):            "attorney-started",
+	(*VoucherActedEvent)(nil):          "voucher-acted",
 }
 
 type eventbridgeClient interface {
@@ -77,6 +78,10 @@ func (c *Client) SendCertificateProviderStarted(ctx context.Context, event Certi
 
 func (c *Client) SendAttorneyStarted(ctx context.Context, event AttorneyStarted) error {
 	return send[AttorneyStarted](ctx, c, event)
+}
+
+func (c *Client) SendVoucherActed(ctx context.Context, event VoucherActedEvent) error {
+	return send[VoucherActedEvent](ctx, c, event)
 }
 
 func send[T any](ctx context.Context, c *Client, detail any) error {

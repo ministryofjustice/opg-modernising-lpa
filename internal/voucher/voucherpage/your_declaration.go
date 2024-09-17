@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -22,7 +23,7 @@ type yourDeclarationData struct {
 	Voucher *voucherdata.Provided
 }
 
-func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, now func() time.Time) Handler {
+func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, now func() time.Time, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		if !provided.SignedAt.IsZero() {
 			return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
@@ -45,6 +46,10 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				if err := eventClient.SendVoucherActed(r.Context(), event.VoucherActedEvent{LpaUID: lpa.LpaUID}); er != nil {
+					return err
+				}
+
 				provided.SignedAt = now()
 				provided.Tasks.SignTheDeclaration = task.StateCompleted
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
