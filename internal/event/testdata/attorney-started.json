@@ -1,0 +1,19 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/attorney-started.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/attorney-started",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
+    },
+    "actorUID": {
+      "type": "string",
+      "description": "The UID of the attorney",
+      "pattern": "^urn:opg:poas:makeregister:users:([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
+    }
+  },
+  "required": ["uid", "actorUID"]
+}

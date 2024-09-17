@@ -44,9 +44,9 @@ func TestGetSignYourLpaWhenSigned(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	err := SignYourLpa(nil, nil, testNowFn)(testAppData, w, r, &donordata.Provided{
-		LpaID:                 "lpa-id",
-		DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-		SignedAt:              time.Now(),
+		LpaID:            "lpa-id",
+		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+		SignedAt:         time.Now(),
 	})
 	resp := w.Result()
 
@@ -97,15 +97,15 @@ func TestPostSignYourLpa(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			LpaID:                 "lpa-id",
-			DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-			WantToSignLpa:         true,
-			WantToApplyForLpa:     true,
-			SignedAt:              testNow,
+			LpaID:             "lpa-id",
+			IdentityUserData:  identity.UserData{Status: identity.StatusConfirmed},
+			WantToSignLpa:     true,
+			WantToApplyForLpa: true,
+			SignedAt:          testNow,
 		}).
 		Return(nil)
 
-	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", DonorIdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
+	err := SignYourLpa(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
 	resp := w.Result()
 
 	assert.Nil(t, err)

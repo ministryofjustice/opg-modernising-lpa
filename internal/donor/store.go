@@ -57,7 +57,6 @@ type EventClient interface {
 	SendUidRequested(context.Context, event.UidRequested) error
 	SendApplicationDeleted(context.Context, event.ApplicationDeleted) error
 	SendApplicationUpdated(context.Context, event.ApplicationUpdated) error
-	SendPreviousApplicationLinked(context.Context, event.PreviousApplicationLinked) error
 	SendReducedFeeRequested(context.Context, event.ReducedFeeRequested) error
 }
 

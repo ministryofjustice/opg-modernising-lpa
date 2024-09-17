@@ -47,6 +47,38 @@ data "aws_elb_service_account" "main" {
   region   = data.aws_region.current.name
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
+  provider = aws.region
+  bucket   = aws_s3_bucket.access_log.id
+
+  rule {
+    id     = "retain-logs-for-13-months"
+    status = "Enabled"
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+    transition {
+      days          = 60
+      storage_class = "GLACIER"
+    }
+    expiration {
+      days = 400
+    }
+    noncurrent_version_expiration {
+      noncurrent_days = 400
+    }
+  }
+
+  rule {
+    id     = "abort-incomplete-multipart-upload"
+    status = "Enabled"
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
 data "aws_iam_policy_document" "access_log" {
   provider = aws.region
 
@@ -143,31 +175,6 @@ resource "aws_s3_bucket_public_access_block" "access_log" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "log_retention_policy" {
-  provider = aws.region
-  bucket   = aws_s3_bucket.access_log.id
-
-  rule {
-    id     = "retain-logs-for-13-months"
-    status = "Enabled"
-
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = 60
-      storage_class = "GLACIER"
-    }
-
-    expiration {
-      days = 400
-    }
-
-  }
 }
 
 data "aws_iam_role" "sns_success_feedback" {

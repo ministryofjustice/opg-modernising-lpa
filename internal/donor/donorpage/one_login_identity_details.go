@@ -28,10 +28,10 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 			Form:           form.NewYesNoForm(form.YesNoUnknown),
 			DonorProvided:  provided,
 			DetailsUpdated: r.FormValue("detailsUpdated") == "1",
-			DetailsMatch: provided.Donor.FirstNames == provided.DonorIdentityUserData.FirstNames &&
-				provided.Donor.LastName == provided.DonorIdentityUserData.LastName &&
-				provided.Donor.DateOfBirth == provided.DonorIdentityUserData.DateOfBirth &&
-				provided.Donor.Address.Postcode == provided.DonorIdentityUserData.CurrentAddress.Postcode,
+			DetailsMatch: provided.Donor.FirstNames == provided.IdentityUserData.FirstNames &&
+				provided.Donor.LastName == provided.IdentityUserData.LastName &&
+				provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth &&
+				provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
 		}
 
 		if r.Method == http.MethodPost {
@@ -44,10 +44,10 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 
 			if data.Errors.None() {
 				if f.YesNo.IsYes() {
-					provided.Donor.FirstNames = provided.DonorIdentityUserData.FirstNames
-					provided.Donor.LastName = provided.DonorIdentityUserData.LastName
-					provided.Donor.DateOfBirth = provided.DonorIdentityUserData.DateOfBirth
-					provided.Donor.Address = provided.DonorIdentityUserData.CurrentAddress
+					provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
+					provided.Donor.LastName = provided.IdentityUserData.LastName
+					provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
+					provided.Donor.Address = provided.IdentityUserData.CurrentAddress
 					if err := provided.UpdateCheckedHash(); err != nil {
 						return err
 					}

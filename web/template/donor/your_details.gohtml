@@ -3,7 +3,7 @@
 {{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $hasNoIdentity := .Donor.DonorIdentityUserData.Status.IsUnknown }}
+    {{ $hasNoIdentity := .Donor.IdentityUserData.Status.IsUnknown }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

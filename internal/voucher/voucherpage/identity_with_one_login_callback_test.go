@@ -25,7 +25,7 @@ import (
 func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	now := time.Now()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now, VouchedFor: true}
 
 	testcases := map[string]struct {
 		lpa            *lpadata.Lpa
@@ -293,8 +293,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				voucherStore := newMockVoucherStore(t)
 				voucherStore.EXPECT().
 					Put(context.Background(), &voucherdata.Provided{
-						LpaID: "lpa-id",
-						Tasks: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+						LpaID:            "lpa-id",
+						Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+						IdentityUserData: identity.UserData{VouchedFor: true},
 					}).
 					Return(nil)
 

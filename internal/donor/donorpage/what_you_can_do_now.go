@@ -17,6 +17,7 @@ type whatYouCanDoNowData struct {
 	App                 appcontext.Data
 	Errors              validation.List
 	Form                *whatYouCanDoNowForm
+	ProveOwnIDLabel     string
 	NewVoucherLabel     string
 	BannerContent       string
 	FailedVouchAttempts int
@@ -38,27 +39,13 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				var next donor.Path
-
-				switch data.Form.DoNext {
-				case donordata.ProveOwnID:
-					provided.DonorIdentityUserData = identity.UserData{}
-					next = donor.PathTaskList
-				case donordata.SelectNewVoucher:
-					provided.WantVoucher = form.Yes
-					next = donor.PathEnterVoucher
-				case donordata.WithdrawLPA:
-					next = donor.PathWithdrawThisLpa
-				case donordata.ApplyToCOP:
-					provided.RegisteringWithCourtOfProtection = true
-					next = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
-				}
+				nextPage := handleDoNext(data.Form.DoNext, provided)
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return next.Redirect(w, r, appData, provided)
+				return nextPage.Redirect(w, r, appData, provided)
 			}
 		}
 
@@ -66,15 +53,36 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 		case 0:
 			data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
 			data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
+			data.ProveOwnIDLabel = "iWillReturnToOneLogin"
 		case 1:
 			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
 			data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
+			data.ProveOwnIDLabel = "iWillGetOrFindID"
 		default:
 			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
+			data.ProveOwnIDLabel = "iWillGetOrFindID"
 		}
 
 		return tmpl(w, data)
 	}
+}
+
+func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provided) (nextPage donor.Path) {
+	switch doNext {
+	case donordata.ProveOwnID:
+		provided.IdentityUserData = identity.UserData{}
+		nextPage = donor.PathTaskList
+	case donordata.SelectNewVoucher:
+		provided.WantVoucher = form.Yes
+		nextPage = donor.PathEnterVoucher
+	case donordata.WithdrawLPA:
+		nextPage = donor.PathWithdrawThisLpa
+	case donordata.ApplyToCOP:
+		provided.RegisteringWithCourtOfProtection = true
+		nextPage = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+	}
+
+	return nextPage
 }
 
 type whatYouCanDoNowForm struct {
