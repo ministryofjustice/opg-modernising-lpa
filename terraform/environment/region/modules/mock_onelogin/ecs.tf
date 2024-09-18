@@ -187,6 +187,10 @@ locals {
         {
           name  = "TEMPLATE_RETURN_CODES",
           value = "1"
+        },
+        {
+          name  = "TEMPLATE_SUB_DEFAULT",
+          value = "random"
         }
       ]
     }
