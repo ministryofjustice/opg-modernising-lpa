@@ -87,6 +87,7 @@ func All(globals *Globals) map[string]any {
 		"checkboxEq":         checkboxEq,
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
+		"staticSummaryRow":   staticSummaryRow,
 	}
 }
 
@@ -510,5 +511,16 @@ func summaryRow(app appcontext.Data, label string, value any, changeLink, fullNa
 		"FullName":        fullName,
 		"CanChange":       canChange,
 		"SummarisingSelf": summarisingSelf,
+	}
+}
+
+// staticSummaryRow prevents space being left for possible actions, so it should
+// only be used in a list where no row is using summaryRow.
+func staticSummaryRow(app appcontext.Data, label string, value any) map[string]any {
+	return map[string]any{
+		"App":    app,
+		"Label":  label,
+		"Value":  value,
+		"Static": true,
 	}
 }
