@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -47,6 +48,10 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
+				if provided.IndependentWitness.UID.IsZero() {
+					provided.IndependentWitness.UID = actoruid.New()
+				}
+
 				provided.IndependentWitness.FirstNames = data.Form.FirstNames
 				provided.IndependentWitness.LastName = data.Form.LastName
 
