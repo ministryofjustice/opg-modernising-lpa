@@ -2,6 +2,7 @@ package onelogin
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -28,21 +29,31 @@ func TestAuthCodeURL(t *testing.T) {
 }
 
 func TestAuthCodeURLForIdentity(t *testing.T) {
-	expected := "http://auth?claims=%7B%22userinfo%22%3A%7B%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FcoreIdentityJWT%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FreturnCode%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2Faddress%22%3A+null%7D%7D&client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy&vtr=%5B%22Cl.Cm.P2%22%5D"
-
-	c := &Client{
-		redirectURL: "http://redirect",
-		clientID:    "123",
-		openidConfiguration: &configurationClient{
-			currentConfiguration: &openidConfiguration{
-				AuthorizationEndpoint: "http://auth",
-			},
-		},
+	testcases := map[bool]string{
+		true:  "vtr=%5B%22Cl.Cm.P1%22%5D",
+		false: "vtr=%5B%22Cl.Cm.P2%22%5D",
 	}
-	actual, err := c.AuthCodeURL("state", "nonce", "cy", true)
 
-	assert.Nil(t, err)
-	assert.Equal(t, expected, actual)
+	for lowConfidenceEnabled, expectedVTR := range testcases {
+		t.Run(fmt.Sprintf("lowConfidenceEnabled=%t", lowConfidenceEnabled), func(t *testing.T) {
+			expected := "http://auth?claims=%7B%22userinfo%22%3A%7B%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FcoreIdentityJWT%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FreturnCode%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2Faddress%22%3A+null%7D%7D&client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy&" + expectedVTR
+
+			c := &Client{
+				redirectURL: "http://redirect",
+				clientID:    "123",
+				openidConfiguration: &configurationClient{
+					currentConfiguration: &openidConfiguration{
+						AuthorizationEndpoint: "http://auth",
+					},
+				},
+				lowConfidenceEnabled: lowConfidenceEnabled,
+			}
+			actual, err := c.AuthCodeURL("state", "nonce", "cy", true)
+
+			assert.Nil(t, err)
+			assert.Equal(t, expected, actual)
+		})
+	}
 }
 
 func TestAuthCodeURLWhenConfigurationMissing(t *testing.T) {

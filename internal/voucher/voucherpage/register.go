@@ -101,6 +101,7 @@ func Register(
 	notifyClient NotifyClient,
 	appPublicURL string,
 	donorStore DonorStore,
+	lowConfidenceEnabled bool,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -131,7 +132,7 @@ func Register(
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
-		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
+		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), lowConfidenceEnabled))
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
