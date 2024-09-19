@@ -41,21 +41,21 @@
         <div class="govuk-dashboard-row">
             {{ if not .Item.Lpa.WithdrawnAt.IsZero }}
                 <div class="govuk-button-group">
-                    <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
+                    <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                 </div>
             {{ else if .Item.Lpa.CannotRegister }}
                 <div class="govuk-button-group">
-                    <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a><br/>
+                    <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a><br/>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpa" }}</a>
                 </div>
             {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
                 <p class="govuk-body">
-                    <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a><br/>
+                    <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a><br/>
                     <a class="govuk-link" href="#">{{ tr .App "useThisLpa" }}</a>
                 </p>
             {{ else if .Item.Lpa.Submitted }}
                 <div class="govuk-button-group">
-                    <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
+                    <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
                 </div>
@@ -64,7 +64,7 @@
                     <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
                     <div class="moj-button-menu">
                         <div class="moj-button-menu__wrapper">
-                            <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="#">{{ tr .App "viewLpa" }}</a>
+                            <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                             <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                             <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
                         </div>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="app-only-small-screen govuk-button-group">
                     <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-                    <a class="govuk-button govuk-button--secondary" href="#">{{ tr .App "viewLpa" }}</a>
+                    <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
                 </div>

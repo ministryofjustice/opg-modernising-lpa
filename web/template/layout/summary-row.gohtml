@@ -1,5 +1,5 @@
 {{ define "summary-row" }}
-    <div class="govuk-summary-list__row{{ if or (eq "" .Value) (not .CanChange) }} govuk-summary-list__row--no-actions{{ end }}">
+    <div class="govuk-summary-list__row{{ if and (not .Static) (or (eq "" .Value) (not .CanChange)) }} govuk-summary-list__row--no-actions{{ end }}">
         <dt class="govuk-summary-list__key">{{ tr .App .Label }}</dt>
         <dd class="govuk-summary-list__value">
             {{ if .Value }}

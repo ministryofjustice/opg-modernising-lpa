@@ -24,15 +24,14 @@ function init() {
         new CrossServiceHeader(header).init();
     }
 
-    const buttonMenu = document.querySelector(".moj-button-menu");
-    if (buttonMenu) {
+    document.querySelectorAll(".moj-button-menu").forEach(buttonMenu => {
         new MOJFrontend.ButtonMenu({
             container: buttonMenu,
             mq: "(max-width: 1px)",
             buttonText: "Actions",
             buttonClasses: "govuk-button--secondary moj-button-menu__toggle-button--secondary",
-        });
-    }
+        })
+    })
 
     new DataLossWarning(document.getElementById('return-to-tasklist-btn'), document.getElementById('dialog')).init()
     new DataLossWarning(document.querySelector('.trans-switch a'), document.getElementById('language-dialog')).init()
