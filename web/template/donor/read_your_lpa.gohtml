@@ -9,7 +9,7 @@
 
             {{ template "warning" (content .App "readAndCheckYourLpa") }}
 
-            {{ template "contextual-lpa" . }}
+            {{ template "changeable-contextual-lpa" . }}
             
             {{ template "buttons" (button .App "continue" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
         </div>
