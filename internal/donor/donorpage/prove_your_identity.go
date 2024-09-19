@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type proveYourIdentity struct {
+type proveYourIdentityData struct {
 	App                  appcontext.Data
 	Errors               validation.List
 	LowConfidenceEnabled bool
@@ -17,7 +17,7 @@ type proveYourIdentity struct {
 
 func ProveYourIdentity(tmpl template.Template, lowConfidenceEnabled bool) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		return tmpl(w, &proveYourIdentity{
+		return tmpl(w, &proveYourIdentityData{
 			App:                  appData,
 			LowConfidenceEnabled: lowConfidenceEnabled,
 		})

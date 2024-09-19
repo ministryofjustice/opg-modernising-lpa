@@ -94,7 +94,7 @@ func (m *mockDynamoClient) ExpectOneByPK(ctx, pk, data interface{}, err error) {
 }
 
 func TestApp(t *testing.T) {
-	app := App(true, &slog.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{})
+	app := App(true, &slog.Logger{}, &localize.Localizer{}, localize.En, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, template.Templates{}, nil, nil, "http://public.url", &pay.Client{}, &notify.Client{}, &place.Client{}, &onelogin.Client{}, nil, nil, nil, &search.Client{}, true)
 
 	assert.Implements(t, (*http.Handler)(nil), app)
 }
