@@ -19,9 +19,6 @@ func TestIdentityWithOneLogin(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		EnableLowConfidenceFeatureFlag(r.Context(), w).
-		Return(w, nil)
-	client.EXPECT().
 		AuthCodeURL("i am random", "i am random", "cy", true).
 		Return("http://auth", nil)
 

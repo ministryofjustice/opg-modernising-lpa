@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
-type confirmYourIdentity struct {
+type confirmYourIdentityData struct {
 	App                  appcontext.Data
 	Errors               validation.List
 	LowConfidenceEnabled bool
@@ -17,7 +17,7 @@ type confirmYourIdentity struct {
 
 func ConfirmYourIdentity(tmpl template.Template, lowConfidenceEnabled bool) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, _ *voucherdata.Provided) error {
-		return tmpl(w, &confirmYourIdentity{
+		return tmpl(w, &confirmYourIdentityData{
 			App:                  appData,
 			LowConfidenceEnabled: lowConfidenceEnabled,
 		})
