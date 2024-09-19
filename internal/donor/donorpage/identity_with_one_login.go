@@ -12,7 +12,8 @@ import (
 
 func IdentityWithOneLogin(oneLoginClient OneLoginClient, sessionStore SessionStore, randomString func(int) string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		if err := oneLoginClient.EnableLowConfidenceFeatureFlag(r.Context()); err != nil {
+		var err error
+		if w, err = oneLoginClient.EnableLowConfidenceFeatureFlag(r.Context(), w); err != nil {
 			return err
 		}
 
