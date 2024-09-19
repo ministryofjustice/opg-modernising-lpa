@@ -28,6 +28,7 @@ services:
       - SEARCH_INDEXING_ENABLED=1
       - DEV_MODE=1
       - SCHEDULED_RUNNER_PERIOD=1m
+      - LOW_CONFIDENCE_ENABLED=1
 
   event-logger:
     build:

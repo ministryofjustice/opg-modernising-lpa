@@ -48,7 +48,6 @@ type CertificateProviderStore interface {
 
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
-	EnableLowConfidenceFeatureFlag(ctx context.Context, w http.ResponseWriter) (http.ResponseWriter, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
@@ -124,6 +123,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
 	appPublicURL string,
+	lowConfidenceEnabled bool,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -158,7 +158,7 @@ func Register(
 		Guidance(tmpls.Get("your_role.gohtml"), lpaStoreResolvingService))
 
 	handleCertificateProvider(certificateprovider.PathProveYourIdentity, page.None,
-		Guidance(tmpls.Get("prove_your_identity.gohtml"), nil))
+		ProveYourIdentity(tmpls.Get("prove_your_identity.gohtml"), lowConfidenceEnabled))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
