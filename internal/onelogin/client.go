@@ -125,6 +125,7 @@ func (c *Client) EnableLowConfidenceFeatureFlag(ctx context.Context, w http.Resp
 	}
 
 	for _, cookie := range resp.Cookies() {
+		cookie.Domain = ".integration.account.gov.uk"
 		http.SetCookie(w, cookie)
 	}
 
