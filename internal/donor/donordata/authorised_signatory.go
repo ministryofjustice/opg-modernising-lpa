@@ -1,9 +1,14 @@
 package donordata
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
+)
 
 // AuthorisedSignatory contains details of the person who will sign the LPA on the donor's behalf
 type AuthorisedSignatory struct {
+	UID        actoruid.UID
 	FirstNames string
 	LastName   string
 }

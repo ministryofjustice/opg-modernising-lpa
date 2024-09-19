@@ -8,3 +8,7 @@ type Actor struct {
 	FirstNames string
 	LastName   string
 }
+
+func (a Actor) FullName() string {
+	return a.FirstNames + " " + a.LastName
+}
