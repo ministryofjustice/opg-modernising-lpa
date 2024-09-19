@@ -5,7 +5,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -37,21 +36,23 @@ type Client struct {
 	randomString        func(int) string
 	didClient           *didClient
 
-	clientID    string
-	redirectURL string
+	clientID             string
+	redirectURL          string
+	lowConfidenceEnabled bool
 }
 
-func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, identityURL, clientID, redirectURL string) *Client {
+func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, identityURL, clientID, redirectURL string, lowConfidenceEnabled bool) *Client {
 	return &Client{
-		ctx:                 ctx,
-		logger:              logger,
-		httpClient:          httpClient,
-		secretsClient:       secretsClient,
-		randomString:        random.String,
-		clientID:            clientID,
-		redirectURL:         redirectURL,
-		openidConfiguration: getConfiguration(ctx, logger, httpClient, issuer),
-		didClient:           getDID(ctx, logger, httpClient, identityURL),
+		ctx:                  ctx,
+		logger:               logger,
+		httpClient:           httpClient,
+		secretsClient:        secretsClient,
+		randomString:         random.String,
+		clientID:             clientID,
+		redirectURL:          redirectURL,
+		openidConfiguration:  getConfiguration(ctx, logger, httpClient, issuer),
+		didClient:            getDID(ctx, logger, httpClient, identityURL),
+		lowConfidenceEnabled: lowConfidenceEnabled,
 	}
 }
 
@@ -67,7 +68,12 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string
 	}
 
 	if identity {
-		q.Add("vtr", `["Cl.Cm.P1"]`)
+		vtr := `["Cl.Cm.P2"]`
+		if c.lowConfidenceEnabled {
+			vtr = `["Cl.Cm.P1"]`
+		}
+
+		q.Add("vtr", vtr)
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null,"https://vocab.account.gov.uk/v1/returnCode": null,"https://vocab.account.gov.uk/v1/address": null}}`)
 	}
 
@@ -103,33 +109,4 @@ func (c *Client) CheckHealth(ctx context.Context) error {
 	}
 
 	return resp.Body.Close()
-}
-
-func (c *Client) EnableLowConfidenceFeatureFlag(ctx context.Context, w http.ResponseWriter) (http.ResponseWriter, error) {
-	//if strings.Contains(c.redirectURL, "localhost") {
-	//	return w, nil
-	//}
-
-	req, err := http.NewRequestWithContext(ctx, "GET", "https://identity.integration.account.gov.uk/ipv/useFeatureSet?featureSet=p1Journeys", nil)
-	if err != nil {
-		return w, err
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return w, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return w, fmt.Errorf("unexpected status code from feature flag endpoint: %d", resp.StatusCode)
-	}
-
-	for _, cookie := range resp.Cookies() {
-		cookie.Domain = ".integration.account.gov.uk"
-		cookie.SameSite = http.SameSiteNoneMode
-		cookie.Secure = true
-		http.SetCookie(w, cookie)
-	}
-
-	return w, nil
 }
