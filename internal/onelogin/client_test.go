@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAuthCodeURL(t *testing.T) {
@@ -103,4 +104,64 @@ func TestCheckHealthWhenError(t *testing.T) {
 	}
 
 	assert.NotNil(t, c.CheckHealth(context.Background()))
+}
+
+func TestEnableLowConfidenceFeatureFlag(t *testing.T) {
+	req, _ := http.NewRequestWithContext(ctx, "GET", "https://identity.integration.account.gov.uk/ipv/useFeatureSet?featureSet=p1Journeys", nil)
+
+	doer := newMockDoer(t)
+	doer.EXPECT().
+		Do(req).
+		Return(&http.Response{StatusCode: http.StatusOK}, nil)
+
+	c := &Client{
+		httpClient:  doer,
+		redirectURL: "https://exmaple.com",
+	}
+
+	err := c.EnableLowConfidenceFeatureFlag(context.Background())
+
+	assert.Nil(t, err)
+}
+
+func TestEnableLowConfidenceFeatureFlagWhenRedirectIsLocalhost(t *testing.T) {
+	c := &Client{
+		redirectURL: "https://localhost:5050",
+	}
+
+	err := c.EnableLowConfidenceFeatureFlag(context.Background())
+
+	assert.Nil(t, err)
+}
+
+func TestEnableLowConfidenceFeatureFlagErrors(t *testing.T) {
+	testcases := map[string]func() *mockDoer{
+		"doer error": func() *mockDoer {
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.Anything).
+				Return(&http.Response{}, expectedError)
+			return doer
+		},
+		"non OK status": func() *mockDoer {
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.Anything).
+				Return(&http.Response{StatusCode: http.StatusBadRequest}, nil)
+			return doer
+		},
+	}
+
+	for name, doer := range testcases {
+		t.Run(name, func(t *testing.T) {
+			c := &Client{
+				httpClient:  doer(),
+				redirectURL: "https://exmaple.com",
+			}
+
+			err := c.EnableLowConfidenceFeatureFlag(context.Background())
+
+			assert.Error(t, err)
+		})
+	}
 }

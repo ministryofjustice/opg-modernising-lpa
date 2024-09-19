@@ -83,6 +83,52 @@ func (_c *mockOneLoginClient_AuthCodeURL_Call) RunAndReturn(run func(string, str
 	return _c
 }
 
+// EnableLowConfidenceFeatureFlag provides a mock function with given fields: ctx
+func (_m *mockOneLoginClient) EnableLowConfidenceFeatureFlag(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnableLowConfidenceFeatureFlag")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EnableLowConfidenceFeatureFlag'
+type mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call struct {
+	*mock.Call
+}
+
+// EnableLowConfidenceFeatureFlag is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockOneLoginClient_Expecter) EnableLowConfidenceFeatureFlag(ctx interface{}) *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call {
+	return &mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call{Call: _e.mock.On("EnableLowConfidenceFeatureFlag", ctx)}
+}
+
+func (_c *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call) Run(run func(ctx context.Context)) *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call) Return(_a0 error) *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call) RunAndReturn(run func(context.Context) error) *mockOneLoginClient_EnableLowConfidenceFeatureFlag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Exchange provides a mock function with given fields: ctx, code, nonce
 func (_m *mockOneLoginClient) Exchange(ctx context.Context, code string, nonce string) (string, string, error) {
 	ret := _m.Called(ctx, code, nonce)
