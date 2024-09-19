@@ -207,6 +207,9 @@ func Register(
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
 
+	handleWithDonor(donor.PathViewLPA, page.None,
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))
+
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
