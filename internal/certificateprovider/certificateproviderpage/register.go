@@ -123,6 +123,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
 	appPublicURL string,
+	lowConfidenceEnabled bool,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
 
@@ -157,7 +158,7 @@ func Register(
 		Guidance(tmpls.Get("your_role.gohtml"), lpaStoreResolvingService))
 
 	handleCertificateProvider(certificateprovider.PathProveYourIdentity, page.None,
-		Guidance(tmpls.Get("prove_your_identity.gohtml"), nil))
+		ProveYourIdentity(tmpls.Get("prove_your_identity.gohtml"), lowConfidenceEnabled))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,

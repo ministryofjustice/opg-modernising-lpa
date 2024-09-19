@@ -39,6 +39,7 @@ variable "environments" {
           notify_is_production   = string
           onelogin_url           = string
           dev_mode               = string
+          low_confidence_enabled = string
         })
         autoscaling = object({
           minimum = number
