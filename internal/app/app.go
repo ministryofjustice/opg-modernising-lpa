@@ -97,6 +97,7 @@ func App(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
+	lowConfidenceEnabled bool,
 ) http.Handler {
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
@@ -171,6 +172,7 @@ func App(
 		notifyClient,
 		appPublicURL,
 		donorStore,
+		lowConfidenceEnabled,
 	)
 
 	supporterpage.Register(
@@ -209,6 +211,7 @@ func App(
 		lpaStoreResolvingService,
 		donorStore,
 		appPublicURL,
+		lowConfidenceEnabled,
 	)
 
 	attorneypage.Register(
@@ -252,6 +255,7 @@ func App(
 		progressTracker,
 		lpaStoreResolvingService,
 		scheduledStore,
+		lowConfidenceEnabled,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
