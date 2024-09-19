@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -21,7 +22,7 @@ type yourIndependentWitnessData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handler {
+func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourIndependentWitnessData{
 			App: appData,
@@ -47,6 +48,10 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore) Handl
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
+				if provided.IndependentWitness.UID.IsZero() {
+					provided.IndependentWitness.UID = newUID()
+				}
+
 				provided.IndependentWitness.FirstNames = data.Form.FirstNames
 				provided.IndependentWitness.LastName = data.Form.LastName
 

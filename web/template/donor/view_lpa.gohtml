@@ -1,0 +1,13 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ trFormat .App "typeLpa" "Type" (tr .App .Lpa.Type.String) }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            {{ template "contextual-lpa" . }}
+        </div>
+    </div>
+{{ end }}

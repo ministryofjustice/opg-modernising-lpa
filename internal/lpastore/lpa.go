@@ -489,20 +489,21 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 	var authorisedSignatory actor.Actor
 	if v := l.AuthorisedSignatory; v.FirstNames != "" {
 		authorisedSignatory = actor.Actor{
-			// TODO: add UID for this actor
 			Type:       actor.TypeAuthorisedSignatory,
+			UID:        v.UID,
 			FirstNames: v.FirstNames,
 			LastName:   v.LastName,
 		}
 	}
 
-	var independentWitness actor.Actor
+	var independentWitness lpadata.IndependentWitness
 	if v := l.IndependentWitness; v.FirstNames != "" {
-		independentWitness = actor.Actor{
-			// TODO: add UID for this actor
-			Type:       actor.TypeIndependentWitness,
+		independentWitness = lpadata.IndependentWitness{
+			UID:        v.UID,
 			FirstNames: v.FirstNames,
 			LastName:   v.LastName,
+			Mobile:     v.Mobile,
+			Address:    v.Address,
 		}
 	}
 

@@ -172,3 +172,14 @@ body.js-enabled .js-only {
 .app-unbold {
     font-weight: normal !important;
 }
+
+.app-signing-list {
+    border-top: 1px solid $govuk-border-colour;
+}
+.app-signing-list .govuk-summary-list__key {
+    font-weight: normal;
+    width: 66%;
+}
+.app-signing-list .govuk-summary-list__value {
+    text-align: right;
+}

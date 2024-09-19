@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var htmlTagRe = regexp.MustCompile("<.+?>")
+
 func TestAwsRegion(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/task" {
@@ -141,6 +143,21 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 	}
 }
 
+func TestTranslationContentMustMatch(t *testing.T) {
+	en := loadTranslations("../../lang/en.json")
+	cy := loadTranslations("../../lang/cy.json")
+
+	mustMatch := map[string]string{
+		"yourLegalRightsAndResponsibilitiesContent:property-and-affairs": "yourLegalRightsAndResponsibilitiesContent:property-and-affairs:h3",
+		"yourLegalRightsAndResponsibilitiesContent:personal-welfare":     "yourLegalRightsAndResponsibilitiesContent:personal-welfare:h3",
+	}
+
+	for a, b := range mustMatch {
+		assert.Equal(t, stripHTML(en[a]), stripHTML(en[b]))
+		assert.Equal(t, stripHTML(cy[a]), stripHTML(cy[b]))
+	}
+}
+
 func loadTranslations(path string) map[string]string {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -151,4 +168,12 @@ func loadTranslations(path string) map[string]string {
 	json.Unmarshal(data, &v)
 
 	return v
+}
+
+func TestStripHTML(t *testing.T) {
+	assert.Equal(t, "<X>Hey<X><X>link<X><X>", stripHTML(`<h1 class="what">Hey</h1><div>link</div><input />`))
+}
+
+func stripHTML(s string) string {
+	return htmlTagRe.ReplaceAllString(s, "<X>")
 }
