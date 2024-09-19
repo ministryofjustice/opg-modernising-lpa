@@ -65,6 +65,7 @@ type SessionStore interface {
 
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
+	EnableLowConfidenceFeatureFlag(ctx context.Context, w http.ResponseWriter) (http.ResponseWriter, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
 	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
