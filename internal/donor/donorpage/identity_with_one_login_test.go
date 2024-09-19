@@ -20,6 +20,9 @@ func TestIdentityWithOneLogin(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
+		EnableLowConfidenceFeatureFlag(r.Context()).
+		Return(nil)
+	client.EXPECT().
 		AuthCodeURL("i am random", "i am random", "cy", true).
 		Return("http://auth", nil)
 
@@ -36,13 +39,32 @@ func TestIdentityWithOneLogin(t *testing.T) {
 	assert.Equal(t, "http://auth", resp.Header.Get("Location"))
 }
 
+func TestIdentityWithOneLoginWhenFeatureFlagError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	client := newMockOneLoginClient(t)
+	client.EXPECT().
+		EnableLowConfidenceFeatureFlag(mock.Anything).
+		Return(expectedError)
+
+	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r, &donordata.Provided{})
+	resp := w.Result()
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
 func TestIdentityWithOneLoginWhenAuthCodeURLError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		AuthCodeURL("i am random", "i am random", "", true).
+		EnableLowConfidenceFeatureFlag(mock.Anything).
+		Return(nil)
+	client.EXPECT().
+		AuthCodeURL(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return("http://auth?locale=en", expectedError)
 
 	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r, &donordata.Provided{})
@@ -58,7 +80,10 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 
 	client := newMockOneLoginClient(t)
 	client.EXPECT().
-		AuthCodeURL("i am random", "i am random", "", true).
+		EnableLowConfidenceFeatureFlag(mock.Anything).
+		Return(nil)
+	client.EXPECT().
+		AuthCodeURL(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return("http://auth?locale=en", nil)
 
 	sessionStore := newMockSessionStore(t)
