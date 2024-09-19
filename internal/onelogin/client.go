@@ -5,8 +5,10 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
@@ -66,7 +68,7 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string
 	}
 
 	if identity {
-		q.Add("vtr", `["Cl.Cm.P2"]`)
+		q.Add("vtr", `["Cl.Cm.P1"]`)
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null,"https://vocab.account.gov.uk/v1/returnCode": null,"https://vocab.account.gov.uk/v1/address": null}}`)
 	}
 
@@ -102,4 +104,26 @@ func (c *Client) CheckHealth(ctx context.Context) error {
 	}
 
 	return resp.Body.Close()
+}
+
+func (c *Client) EnableLowConfidenceFeatureFlag(ctx context.Context) error {
+	if strings.Contains(c.redirectURL, "localhost") {
+		return nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://identity.integration.account.gov.uk/ipv/useFeatureSet?featureSet=p1Journeys", nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code from feature flag endpoint: %d", resp.StatusCode)
+	}
+
+	return nil
 }
