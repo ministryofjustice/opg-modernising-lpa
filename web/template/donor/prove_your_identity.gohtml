@@ -11,14 +11,6 @@
 
       {{ trHtml .App "proveYourIdentityContent" }}
 
-      {{ if .LowConfidenceEnabled }}
-          <p class="govuk-body">
-              <a href="https://identity.integration.account.gov.uk/ipv/useFeatureSet?featureSet=p1Journeys" target="_blank" class="govuk-link">
-                  {{ tr .App "Click here before pressing continue to enable low confidence feature flag (opens in a new window)" }}
-              </a>
-          </p>
-      {{ end }}
-
       {{ template "buttons" (button .App "continue" "link" (global.Paths.IdentityWithOneLogin.Format .App.LpaID)) }}
     </div>
   </div>

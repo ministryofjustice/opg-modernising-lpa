@@ -493,10 +493,6 @@ locals {
           name  = "JWT_KEY_SECRET_ARN",
           value = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
         },
-        {
-          name  = "LOW_CONFIDENCE_ENABLED",
-          value = var.app_env_vars.low_confidence_enabled
-        },
       ]
     }
   )
