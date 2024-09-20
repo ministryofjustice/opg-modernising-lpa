@@ -584,3 +584,16 @@ func TestSummaryRow(t *testing.T) {
 		"SummarisingSelf": true,
 	}, summaryRow(app, label, value, changeLink, fullName, true, true))
 }
+
+func TestStaticSummaryRow(t *testing.T) {
+	app := appcontext.Data{SessionID: "abc"}
+	label := "a-label"
+	value := "aValue"
+
+	assert.Equal(t, map[string]any{
+		"App":    app,
+		"Label":  label,
+		"Value":  value,
+		"Static": true,
+	}, staticSummaryRow(app, label, value))
+}
