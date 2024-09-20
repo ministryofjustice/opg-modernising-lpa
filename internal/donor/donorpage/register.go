@@ -193,7 +193,6 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
-	lowConfidenceEnabled bool,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
 
@@ -388,7 +387,7 @@ func Register(
 	handleWithDonor(donor.PathHowToConfirmYourIdentityAndSign, page.None,
 		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
 	handleWithDonor(donor.PathProveYourIdentity, page.CanGoBack,
-		ProveYourIdentity(tmpls.Get("prove_your_identity.gohtml"), lowConfidenceEnabled))
+		Guidance(tmpls.Get("prove_your_identity.gohtml")))
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
