@@ -207,6 +207,9 @@ func Register(
 
 	handleWithDonor := makeLpaHandle(rootMux, sessionStore, errorHandler, donorStore)
 
+	handleWithDonor(donor.PathViewLPA, page.None,
+		ViewLPA(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))
+
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
 		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
@@ -335,9 +338,9 @@ func Register(
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
 	handleWithDonor(donor.PathYourAuthorisedSignatory, page.CanGoBack,
-		YourAuthorisedSignatory(tmpls.Get("your_authorised_signatory.gohtml"), donorStore))
+		YourAuthorisedSignatory(tmpls.Get("your_authorised_signatory.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathYourIndependentWitness, page.CanGoBack,
-		YourIndependentWitness(tmpls.Get("your_independent_witness.gohtml"), donorStore))
+		YourIndependentWitness(tmpls.Get("your_independent_witness.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathYourIndependentWitnessMobile, page.CanGoBack,
 		YourIndependentWitnessMobile(tmpls.Get("your_independent_witness_mobile.gohtml"), donorStore))
 	handleWithDonor(donor.PathYourIndependentWitnessAddress, page.CanGoBack,

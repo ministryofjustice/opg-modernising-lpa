@@ -93,7 +93,6 @@ func TestLpaCorrespondentEmailWhenCorrespondentProvided(t *testing.T) {
 
 func TestLpaActors(t *testing.T) {
 	authorisedSignatory := actor.Actor{UID: actoruid.New()}
-	independentWitness := actor.Actor{UID: actoruid.New()}
 
 	lpa := &Lpa{
 		Donor: Donor{
@@ -136,9 +135,13 @@ func TestLpaActors(t *testing.T) {
 			LastName:   "Person",
 		}},
 		AuthorisedSignatory: authorisedSignatory,
-		IndependentWitness:  independentWitness,
-		Correspondent:       Correspondent{FirstNames: "Nope"},
-		Voucher:             Voucher{FirstNames: "Nada"},
+		IndependentWitness: IndependentWitness{
+			UID:        actoruid.New(),
+			FirstNames: "Ind",
+			LastName:   "Wit",
+		},
+		Correspondent: Correspondent{FirstNames: "Nope"},
+		Voucher:       Voucher{FirstNames: "Nada"},
 	}
 
 	actors := slices.Collect(lpa.Actors())
@@ -178,10 +181,12 @@ func TestLpaActors(t *testing.T) {
 		UID:        lpa.PeopleToNotify[0].UID,
 		FirstNames: "Peter",
 		LastName:   "Person",
-	},
-		authorisedSignatory,
-		independentWitness,
-	}, actors)
+	}, authorisedSignatory, {
+		Type:       actor.TypeIndependentWitness,
+		UID:        lpa.IndependentWitness.UID,
+		FirstNames: "Ind",
+		LastName:   "Wit",
+	}}, actors)
 }
 
 func TestAttorney(t *testing.T) {
