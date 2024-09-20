@@ -214,6 +214,7 @@ type appPaths struct {
 	UploadEvidence                                       donor.Path
 	UploadEvidenceSSE                                    donor.Path
 	UseExistingAddress                                   donor.Path
+	ViewLPA                                              donor.Path
 	WeHaveContactedVoucher                               donor.Path
 	WeHaveReceivedVoucherDetails                         donor.Path
 	WeHaveUpdatedYourDetails                             donor.Path
@@ -443,6 +444,7 @@ var paths = appPaths{
 	UploadEvidence:                                       donor.PathUploadEvidence,
 	UploadEvidenceSSE:                                    donor.PathUploadEvidenceSSE,
 	UseExistingAddress:                                   donor.PathUseExistingAddress,
+	ViewLPA:                                              donor.PathViewLPA,
 	WeHaveContactedVoucher:                               donor.PathWeHaveContactedVoucher,
 	WeHaveReceivedVoucherDetails:                         donor.PathWeHaveReceivedVoucherDetails,
 	WeHaveUpdatedYourDetails:                             donor.PathWeHaveUpdatedYourDetails,

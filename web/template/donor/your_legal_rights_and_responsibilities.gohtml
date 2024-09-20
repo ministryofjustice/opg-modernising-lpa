@@ -7,6 +7,8 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "yourLegalRightsAndResponsibilities" }}</h1>
 
+      <p class="govuk-body-l">{{ tr .App "beforeSigningYouMustReadAgain" }}</p>
+      
       {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s" .Donor.Type.String) }}
 
       <p class="govuk-button-group govuk-!-margin-top-8">
