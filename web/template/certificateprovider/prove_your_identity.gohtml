@@ -8,7 +8,7 @@
       <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "proveYourIdentity" }}</h1>
 
       <p class="govuk-body">{{ tr .App "beforeYouCanProvideYourCertificateForThisLpa" }}</p>
-      
+
       {{ trHtml .App "proveYourIdentityContent" }}
 
       {{ template "buttons" (button .App "continue" "link" (global.Paths.CertificateProvider.IdentityWithOneLogin.Format .App.LpaID)) }}
