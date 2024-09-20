@@ -116,7 +116,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		scheduledRunnerPeriod = cmp.Or(os.Getenv("SCHEDULED_RUNNER_PERIOD"), "6h")
-		lowConfidenceEnabled  = os.Getenv("LOW_CONFIDENCE_ENABLED") == "1"
 	)
 
 	scheduledRunnerPeriodDur, err := time.ParseDuration(scheduledRunnerPeriod)
@@ -244,7 +243,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	redirectURL := authRedirectBaseURL + page.PathAuthRedirect.Format()
 
-	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, identityURL, clientID, redirectURL, lowConfidenceEnabled)
+	oneloginClient := onelogin.New(ctx, logger, httpClient, secretsClient, issuer, identityURL, clientID, redirectURL)
 
 	payApiKey, err := secretsClient.Secret(ctx, secrets.GovUkPay)
 	if err != nil {
@@ -312,7 +311,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventClient,
 		lpaStoreClient,
 		searchClient,
-		lowConfidenceEnabled,
 	)))
 
 	mux.Handle("/", app.App(
@@ -337,7 +335,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventClient,
 		lpaStoreClient,
 		searchClient,
-		lowConfidenceEnabled,
 	))
 
 	var handler http.Handler = mux

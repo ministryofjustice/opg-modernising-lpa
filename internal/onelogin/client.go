@@ -36,23 +36,21 @@ type Client struct {
 	randomString        func(int) string
 	didClient           *didClient
 
-	clientID             string
-	redirectURL          string
-	lowConfidenceEnabled bool
+	clientID    string
+	redirectURL string
 }
 
-func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, identityURL, clientID, redirectURL string, lowConfidenceEnabled bool) *Client {
+func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsClient SecretsClient, issuer, identityURL, clientID, redirectURL string) *Client {
 	return &Client{
-		ctx:                  ctx,
-		logger:               logger,
-		httpClient:           httpClient,
-		secretsClient:        secretsClient,
-		randomString:         random.String,
-		clientID:             clientID,
-		redirectURL:          redirectURL,
-		openidConfiguration:  getConfiguration(ctx, logger, httpClient, issuer),
-		didClient:            getDID(ctx, logger, httpClient, identityURL),
-		lowConfidenceEnabled: lowConfidenceEnabled,
+		ctx:                 ctx,
+		logger:              logger,
+		httpClient:          httpClient,
+		secretsClient:       secretsClient,
+		randomString:        random.String,
+		clientID:            clientID,
+		redirectURL:         redirectURL,
+		openidConfiguration: getConfiguration(ctx, logger, httpClient, issuer),
+		didClient:           getDID(ctx, logger, httpClient, identityURL),
 	}
 }
 
@@ -68,12 +66,7 @@ func (c *Client) AuthCodeURL(state, nonce, locale string, identity bool) (string
 	}
 
 	if identity {
-		vtr := `["Cl.Cm.P2"]`
-		if c.lowConfidenceEnabled {
-			vtr = `["Cl.Cm.P1"]`
-		}
-
-		q.Add("vtr", vtr)
+		q.Add("vtr", `["Cl.Cm.P1"]`)
 		q.Add("claims", `{"userinfo":{"https://vocab.account.gov.uk/v1/coreIdentityJWT": null,"https://vocab.account.gov.uk/v1/returnCode": null,"https://vocab.account.gov.uk/v1/address": null}}`)
 	}
 
