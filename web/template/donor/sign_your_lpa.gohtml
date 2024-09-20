@@ -50,7 +50,7 @@
           </div>
           <div class="govuk-summary-card__content">
             <p class="govuk-body govuk-!-font-weight-bold">
-              {{ trFormat .App "iConfirmThat" "DonorFullName" .Donor.Donor.FullName }}
+              {{ trFormat .App "iNameConfirmThat" "DonorFullName" .Donor.Donor.FullName }}
             </p>
 
             <div class="govuk-form-group {{ if .Errors.Has "sign-lpa" }}govuk-form-group--error{{ end }}">

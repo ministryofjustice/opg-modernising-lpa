@@ -30,7 +30,7 @@ func TestGetYourIndependentWitness(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourIndependentWitness(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -51,7 +51,7 @@ func TestGetYourIndependentWitnessFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+	err := YourIndependentWitness(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		IndependentWitness: donordata.IndependentWitness{
 			FirstNames: "John",
 		},
@@ -71,7 +71,7 @@ func TestGetYourIndependentWitnessWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := YourIndependentWitness(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,6 +89,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				"last-name":   {"Doe"},
 			},
 			person: donordata.IndependentWitness{
+				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -100,6 +101,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				"ignore-name-warning": {actor.NewSameNameWarning(actor.TypeIndependentWitness, actor.TypeDonor, "John", "Smith").String()},
 			},
 			person: donordata.IndependentWitness{
+				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Smith",
 			},
@@ -123,7 +125,7 @@ func TestPostYourIndependentWitness(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			err := YourIndependentWitness(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			})
@@ -152,6 +154,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		Put(r.Context(), &donordata.Provided{
 			LpaID: "lpa-id",
 			IndependentWitness: donordata.IndependentWitness{
+				UID:        testUID,
 				FirstNames: "John",
 				LastName:   "Doe",
 			},
@@ -159,7 +162,7 @@ func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := YourIndependentWitness(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		IndependentWitness: donordata.IndependentWitness{
 			FirstNames: "John",
@@ -229,7 +232,7 @@ func TestPostYourIndependentWitnessWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := YourIndependentWitness(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+			err := YourIndependentWitness(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 				Donor: donordata.Donor{
 					FirstNames: "John",
 					LastName:   "Doe",
@@ -258,7 +261,7 @@ func TestPostYourIndependentWitnessWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourIndependentWitness(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := YourIndependentWitness(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

@@ -71,8 +71,12 @@
           </li>
         </ul>
 
-        {{ if and (not .App.IsTrustCorporation) .IsReplacement }}
-          {{ trHtml .App "asReplacementAttorneyAlsoConfirmThat" }}
+        {{ if .IsReplacement }}
+            {{ if .App.IsTrustCorporation }}
+                {{ trFormatHtml .App "asReplacementTrustCorporationAlsoConfirmThat" "Name" .TrustCorporation.Name }}
+            {{ else }}
+                {{ trHtml .App "asReplacementAttorneyAlsoConfirmThat" }}
+            {{ end }}
         {{ end }}
 
         <div class="govuk-summary-card">

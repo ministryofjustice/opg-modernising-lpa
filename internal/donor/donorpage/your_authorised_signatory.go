@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -21,7 +22,7 @@ type yourAuthorisedSignatoryData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Handler {
+func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &yourAuthorisedSignatoryData{
 			App: appData,
@@ -47,6 +48,10 @@ func YourAuthorisedSignatory(tmpl template.Template, donorStore DonorStore) Hand
 			}
 
 			if data.Errors.None() && data.NameWarning == nil {
+				if provided.AuthorisedSignatory.UID.IsZero() {
+					provided.AuthorisedSignatory.UID = newUID()
+				}
+
 				provided.AuthorisedSignatory.FirstNames = data.Form.FirstNames
 				provided.AuthorisedSignatory.LastName = data.Form.LastName
 
