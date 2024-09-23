@@ -525,7 +525,7 @@
         "other": "Enwau’r atwrneiod wrth gefn"
     },
     "readDonorNameLpa": "Darllen LPA {{ .DonorFullName }}",
-    "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus.",
+    "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus; dylai gynrychioli’n gywir yr hyn a dystioch. (Efallai bod mân wallau wedi'u cywiro).",
     "youShouldReadLpaCarefully": "Dylech ddarllen yr LPA hon yn ofalus",
     "peopleToNotifyAboutTheLpa": "Pobl i’w hysbysu ynglŷn â’r LPA",
     "pleaseWaitOneMinute": "Arhoswch o leiaf un munud i’r neges testun flaenorol gyrraedd cyn gofyn am god newydd",
@@ -900,7 +900,7 @@
     "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Unwaith y bydd LPA wedi’i chofrestru, gellir ei rhannu â sefydliadau drwy’r gwasanaeth ‘Defnyddio LPA’.</p><p class=\"govuk-body\">Efallai y bydd yn rhaid i chi greu cyfrif ar gyfer y gwasanaeth hwn os nad ydych wedi’i ddefnyddio o’r blaen. Os oes cyfrif gennych, bydd angen i chi fewngofnodi eto.</p><p class=\"govuk-body\">Yn y gwasanaeth ‘Defnyddio LPA’ byddwch yn gallu:</p><ul class=\"govuk-list govuk-list--bullet\"><li>rhoi hawl i sefydliadau weld crynodeb ar-lein o’r LPA, yn cynnwys unrhyw gyfyngiadau neu amodau</li><li>cadw golwg ar ba sefydliadau sydd â hawl i’w gweld</li><li>gweld y fersiwn ddiweddaraf o’r crynodeb o’r LPA, yn cynnwys unrhyw newidiadau a wnaed ers ei llofnodi </li><li>gofyn am allwedd cadarnhau cyfrif os nad ydych wedi cael un neu os ydyw wedi dod i ben</li></ul>",
     "deleteThisLpa": "Dileu’r LPA hon",
     "donorName": "Enw’r rhoddwr",
-    "lpaType": "Y math o LPA",
+    "lpaType": "Math o LPA",
     "whatHappensWhenYouDeleteYourLpa": "<h2 class=\"govuk-heading-m\">Beth fydd yn digwydd pan fyddwch yn dileu’ch LPA</h2><p class=\"govuk-body\">Os byddwch yn dileu’r LPA hon, collir y wybodaeth sydd ynddi ac ni fyddwch yn gallu mynd ati o’ch dangosfwrdd.</p><p class=\"govuk-body\">Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn storio rhai eitemau o wybodaeth bersonol rydych wedi’u cofnodi yn yr LPA hon neu rai eraill. Gallwch ailddefnyddio’r wybodaeth hon i wneud LPA newydd yn y dyfodol.</p><p class=\"govuk-body\">Gallwch ddarllen rhagor am y ffordd rydym yn defnyddio’ch data yn yr <a href=\"#\" class=\"govuk-link\">hysbysiad preifatrwydd</a>.</p><h3 class=\"govuk-heading-s\">Os ydych wedi talu yn barod</h3><p class=\"govuk-body\">Os byddwch yn dileu’ch LPA ar ôl talu amdani, byddwch yn colli’ch ffi. Ni ellir ei had-dalu.</p>",
     "deletingThisLpaIsPermanent": "Rydych yn dileu’r LPA hon yn barhaol ac ni ellir dad-wneud hyn.",
     "lpaDeleted": "Mae’r LPA wedi’i dileu",
