@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -24,7 +25,7 @@ type confirmAllowedToVouchData struct {
 	MatchIdentity       bool
 }
 
-func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, donorStore DonorStore) Handler {
+func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, donorStore DonorStore, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -52,18 +53,10 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 					donor.FailedVouchAttempts++
 
-					var email notify.Email
-
-					if donor.FailedVouchAttempts > 1 {
-						email = notify.VoucherSecondFailedVouchAttempt{
-							Greeting:        notifyClient.EmailGreeting(lpa),
-							VoucherFullName: provided.FullName(),
-						}
-					} else {
-						email = notify.VoucherFirstFailedVouchAttempt{
-							Greeting:        notifyClient.EmailGreeting(lpa),
-							VoucherFullName: provided.FullName(),
-						}
+					email := notify.VouchingFailedAttempt{
+						Greeting:          notifyClient.EmailGreeting(lpa),
+						VoucherFullName:   provided.FullName(),
+						DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 					}
 
 					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, email); err != nil {
