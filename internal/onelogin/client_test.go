@@ -28,7 +28,7 @@ func TestAuthCodeURL(t *testing.T) {
 }
 
 func TestAuthCodeURLForIdentity(t *testing.T) {
-	expected := "http://auth?claims=%7B%22userinfo%22%3A%7B%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FcoreIdentityJWT%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FreturnCode%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2Faddress%22%3A+null%7D%7D&client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy&vtr=%5B%22Cl.Cm.P2%22%5D"
+	expected := "http://auth?claims=%7B%22userinfo%22%3A%7B%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FcoreIdentityJWT%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2FreturnCode%22%3A+null%2C%22https%3A%2F%2Fvocab.account.gov.uk%2Fv1%2Faddress%22%3A+null%7D%7D&client_id=123&nonce=nonce&redirect_uri=http%3A%2F%2Fredirect&response_type=code&scope=openid+email&state=state&ui_locales=cy&vtr=%5B%22Cl.Cm.P1%22%5D"
 
 	c := &Client{
 		redirectURL: "http://redirect",
