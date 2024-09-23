@@ -261,8 +261,9 @@ func (s VoucherInviteEmail) emailID(isProduction bool) string {
 }
 
 type VoucherFirstFailedVouchAttempt struct {
-	Greeting        string
-	VoucherFullName string
+	Greeting          string
+	VoucherFullName   string
+	DonorStartPageURL string
 }
 
 func (e VoucherFirstFailedVouchAttempt) emailID(isProduction bool) string {
@@ -274,8 +275,9 @@ func (e VoucherFirstFailedVouchAttempt) emailID(isProduction bool) string {
 }
 
 type VoucherSecondFailedVouchAttempt struct {
-	Greeting        string
-	VoucherFullName string
+	Greeting          string
+	VoucherFullName   string
+	DonorStartPageURL string
 }
 
 func (e VoucherSecondFailedVouchAttempt) emailID(isProduction bool) string {
