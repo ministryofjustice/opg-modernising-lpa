@@ -95,6 +95,7 @@ const (
 	PathUploadEvidence                                       = Path("/upload-evidence")
 	PathUploadEvidenceSSE                                    = Path("/upload-evidence-sse")
 	PathUseExistingAddress                                   = Path("/use-existing-address")
+	PathViewLPA                                              = Path("/view-lpa")
 	PathWeHaveContactedVoucher                               = Path("/we-have-contacted-voucher")
 	PathWeHaveReceivedVoucherDetails                         = Path("/we-have-received-voucher-details")
 	PathWeHaveUpdatedYourDetails                             = Path("/we-have-updated-your-details")

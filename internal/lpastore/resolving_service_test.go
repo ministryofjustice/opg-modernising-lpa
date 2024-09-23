@@ -70,8 +70,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames: "A",
 					LastName:   "S",
 				},
-				IndependentWitness: actor.Actor{
-					Type:       actor.TypeIndependentWitness,
+				IndependentWitness: lpadata.IndependentWitness{
 					FirstNames: "I",
 					LastName:   "W",
 				},
@@ -133,8 +132,7 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames: "A",
 					LastName:   "S",
 				},
-				IndependentWitness: actor.Actor{
-					Type:       actor.TypeIndependentWitness,
+				IndependentWitness: lpadata.IndependentWitness{
 					FirstNames: "I",
 					LastName:   "W",
 				},
