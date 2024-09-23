@@ -116,6 +116,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		if lpa.AuthorisedSignatory.FirstNames == "" && donor.AuthorisedSignatory.FirstNames != "" {
 			lpa.AuthorisedSignatory = actor.Actor{
 				Type:       actor.TypeAuthorisedSignatory,
+				UID:        donor.AuthorisedSignatory.UID,
 				FirstNames: donor.AuthorisedSignatory.FirstNames,
 				LastName:   donor.AuthorisedSignatory.LastName,
 			}
@@ -123,10 +124,12 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 
 		// TODO: remove this once independent witness is in lpa-store
 		if lpa.IndependentWitness.FirstNames == "" && donor.IndependentWitness.FirstNames != "" {
-			lpa.IndependentWitness = actor.Actor{
-				Type:       actor.TypeIndependentWitness,
+			lpa.IndependentWitness = lpadata.IndependentWitness{
+				UID:        donor.IndependentWitness.UID,
 				FirstNames: donor.IndependentWitness.FirstNames,
 				LastName:   donor.IndependentWitness.LastName,
+				Mobile:     donor.IndependentWitness.Mobile,
+				Address:    donor.IndependentWitness.Address,
 			}
 		}
 
