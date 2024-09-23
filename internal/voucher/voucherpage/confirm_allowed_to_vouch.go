@@ -53,20 +53,10 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 					donor.FailedVouchAttempts++
 
-					var email notify.Email
-
-					if donor.FailedVouchAttempts > 1 {
-						email = notify.VoucherSecondFailedVouchAttempt{
-							Greeting:          notifyClient.EmailGreeting(lpa),
-							VoucherFullName:   provided.FullName(),
-							DonorStartPageURL: appPublicURL + page.PathStart.Format(),
-						}
-					} else {
-						email = notify.VoucherFirstFailedVouchAttempt{
-							Greeting:          notifyClient.EmailGreeting(lpa),
-							VoucherFullName:   provided.FullName(),
-							DonorStartPageURL: appPublicURL + page.PathStart.Format(),
-						}
+					email := notify.VouchingFailedAttempt{
+						Greeting:          notifyClient.EmailGreeting(lpa),
+						VoucherFullName:   provided.FullName(),
+						DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 					}
 
 					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, email); err != nil {
