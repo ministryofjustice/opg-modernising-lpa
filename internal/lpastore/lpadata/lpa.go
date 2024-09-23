@@ -32,7 +32,7 @@ type Lpa struct {
 	WhenCanTheLpaBeUsed                        CanBeUsedWhen
 	LifeSustainingTreatmentOption              LifeSustainingTreatment
 	AuthorisedSignatory                        actor.Actor
-	IndependentWitness                         actor.Actor
+	IndependentWitness                         IndependentWitness
 
 	// SignedAt is the date the Donor signed their LPA (and signifies it has been
 	// witnessed by their CertificateProvider)
@@ -167,7 +167,12 @@ func (l Lpa) Actors() iter.Seq[actor.Actor] {
 		}
 
 		if !l.IndependentWitness.UID.IsZero() {
-			if !yield(l.IndependentWitness) {
+			if !yield(actor.Actor{
+				Type:       actor.TypeIndependentWitness,
+				UID:        l.IndependentWitness.UID,
+				FirstNames: l.IndependentWitness.FirstNames,
+				LastName:   l.IndependentWitness.LastName,
+			}) {
 				return
 			}
 		}

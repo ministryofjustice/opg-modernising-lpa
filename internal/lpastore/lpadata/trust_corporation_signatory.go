@@ -8,3 +8,7 @@ type TrustCorporationSignatory struct {
 	ProfessionalTitle string    `json:"professionalTitle"`
 	SignedAt          time.Time `json:"signedAt"`
 }
+
+func (s TrustCorporationSignatory) FullName() string {
+	return s.FirstNames + " " + s.LastName
+}
