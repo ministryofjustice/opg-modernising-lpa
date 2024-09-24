@@ -10,7 +10,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 )
 
 const (
@@ -41,12 +40,19 @@ type SecretsClient interface {
 type Client struct {
 	baseURL       string
 	secretsClient SecretsClient
+	secretARN     string
 	doer          Doer
 	now           func() time.Time
 }
 
-func New(baseURL string, secretsClient SecretsClient, lambdaClient Doer) *Client {
-	return &Client{baseURL: baseURL, secretsClient: secretsClient, doer: lambdaClient, now: time.Now}
+func New(baseURL string, secretsClient SecretsClient, secretARN string, lambdaClient Doer) *Client {
+	return &Client{
+		baseURL:       baseURL,
+		secretsClient: secretsClient,
+		secretARN:     secretARN,
+		doer:          lambdaClient,
+		now:           time.Now,
+	}
 }
 
 func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Request) (*http.Response, error) {
@@ -60,7 +66,7 @@ func (c *Client) do(ctx context.Context, actorUID actoruid.UID, req *http.Reques
 		Subject:  actorUID.PrefixedString(),
 	})
 
-	secretKey, err := c.secretsClient.Secret(ctx, secrets.LpaStoreJwtSecretKey)
+	secretKey, err := c.secretsClient.Secret(ctx, c.secretARN)
 	if err != nil {
 		return nil, err
 	}

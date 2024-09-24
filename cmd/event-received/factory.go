@@ -60,6 +60,7 @@ type Factory struct {
 	dynamoClient          dynamodbClient
 	appPublicURL          string
 	lpaStoreBaseURL       string
+	lpaStoreSecretARN     string
 	uidBaseURL            string
 	notifyBaseURL         string
 	notifyIsProduction    bool
@@ -175,7 +176,7 @@ func (f *Factory) LpaStoreClient() (LpaStoreClient, error) {
 			return nil, err
 		}
 
-		f.lpaStoreClient = lpastore.New(f.lpaStoreBaseURL, secretsClient, f.LambdaClient())
+		f.lpaStoreClient = lpastore.New(f.lpaStoreBaseURL, secretsClient, f.lpaStoreSecretARN, f.LambdaClient())
 	}
 
 	return f.lpaStoreClient, nil
