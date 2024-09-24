@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -29,7 +28,7 @@ func TestClientSendRegister(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -49,7 +48,7 @@ func TestClientSendRegister(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendRegister(ctx, "lpa-uid")
 
@@ -63,7 +62,7 @@ func TestClientSendPerfect(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -83,7 +82,7 @@ func TestClientSendPerfect(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendPerfect(ctx, "lpa-uid")
 
@@ -97,7 +96,7 @@ func TestClientSendDonorWithdrawLPA(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -117,7 +116,7 @@ func TestClientSendDonorWithdrawLPA(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendDonorWithdrawLPA(ctx, "lpa-uid")
 
@@ -156,7 +155,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -176,7 +175,7 @@ func TestClientSendCertificateProvider(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendCertificateProvider(ctx, certificateProvider, lpa)
 
@@ -314,7 +313,7 @@ func TestClientSendAttorney(t *testing.T) {
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
-				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Secret(ctx, "secret").
 				Return("secret", nil)
 
 			var body []byte
@@ -334,7 +333,7 @@ func TestClientSendAttorney(t *testing.T) {
 				})).
 				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 			err := client.SendAttorney(ctx, tc.donor, tc.attorney)
 
@@ -350,7 +349,7 @@ func TestClientSendCertificateProviderOptOut(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -370,7 +369,7 @@ func TestClientSendCertificateProviderOptOut(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendCertificateProviderOptOut(ctx, "lpa-uid", actoruid.Service)
 
@@ -389,7 +388,7 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -409,7 +408,7 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendDonorConfirmIdentity(ctx, &donordata.Provided{
 		LpaUID: "lpa-uid",
@@ -434,7 +433,7 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 
 	secretsClient := newMockSecretsClient(t)
 	secretsClient.EXPECT().
-		Secret(ctx, secrets.LpaStoreJwtSecretKey).
+		Secret(ctx, "secret").
 		Return("secret", nil)
 
 	var body []byte
@@ -454,7 +453,7 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 		})).
 		Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 	err := client.SendCertificateProviderConfirmIdentity(ctx, "lpa-uid", &certificateproviderdata.Provided{
 		UID: uid,
@@ -482,7 +481,7 @@ func TestClientSendAttorneyOptOut(t *testing.T) {
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
-				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Secret(ctx, "secret").
 				Return("secret", nil)
 
 			var body []byte
@@ -502,7 +501,7 @@ func TestClientSendAttorneyOptOut(t *testing.T) {
 				})).
 				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 			uid, _ := actoruid.Parse("dc487ebb-b39d-45ed-bb6a-7f950fd355c9")
