@@ -1058,7 +1058,7 @@ func TestClientDo(t *testing.T) {
 		Do(mock.Anything).
 		Return(expectedResponse, expectedError)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	resp, err := client.do(ctx, actoruid.New(), req)
 
 	assert.Equal(t, expectedError, err)
@@ -1081,7 +1081,7 @@ func TestCheckHealth(t *testing.T) {
 		w.Write([]byte(`{"status":"OK"}`))
 	}))
 
-	client := New(server.URL, nil, server.Client())
+	client := New(server.URL, nil, "secret", server.Client())
 
 	err := client.CheckHealth(context.Background())
 
@@ -1093,7 +1093,7 @@ func TestCheckHealth(t *testing.T) {
 func TestCheckHealthOnNewRequestError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 
-	client := New(server.URL+"`invalid-url-format", nil, server.Client())
+	client := New(server.URL+"`invalid-url-format", nil, "secret", server.Client())
 	err := client.CheckHealth(context.Background())
 	assert.NotNil(t, err)
 }
@@ -1104,7 +1104,7 @@ func TestCheckHealthOnDoRequestError(t *testing.T) {
 		Do(mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("/", nil, httpClient)
+	client := New("/", nil, "secret", httpClient)
 	err := client.CheckHealth(context.Background())
 	assert.Equal(t, expectedError, err)
 }
@@ -1114,7 +1114,7 @@ func TestCheckHealthWhenNotOK(t *testing.T) {
 		w.WriteHeader(http.StatusTeapot)
 	}))
 
-	client := New(server.URL, nil, server.Client())
+	client := New(server.URL, nil, "secret", server.Client())
 	err := client.CheckHealth(context.Background())
 	assert.NotNil(t, err)
 }
