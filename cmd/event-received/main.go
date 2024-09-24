@@ -91,6 +91,7 @@ func handler(ctx context.Context, event Event) error {
 		evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
 		uidBaseURL            = os.Getenv("UID_BASE_URL")
 		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
+		lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
 		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
@@ -135,6 +136,7 @@ func handler(ctx context.Context, event Event) error {
 		dynamoClient:          dynamoClient,
 		appPublicURL:          appPublicURL,
 		lpaStoreBaseURL:       lpaStoreBaseURL,
+		lpaStoreSecretARN:     lpaStoreSecretARN,
 		uidBaseURL:            uidBaseURL,
 		notifyBaseURL:         notifyBaseURL,
 		notifyIsProduction:    notifyIsProduction,
