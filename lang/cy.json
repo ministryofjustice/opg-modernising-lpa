@@ -525,7 +525,7 @@
         "other": "Enwau’r atwrneiod wrth gefn"
     },
     "readDonorNameLpa": "Darllen LPA {{ .DonorFullName }}",
-    "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus; dylai gynrychioli’n gywir yr hyn a dystioch. (Efallai bod mân wallau wedi'u cywiro).",
+    "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus; dylai gynrychioli’n gywir yr hyn a dystioch. (Efallai bod mân wallau wedi’u cywiro).",
     "youShouldReadLpaCarefully": "Dylech ddarllen yr LPA hon yn ofalus",
     "peopleToNotifyAboutTheLpa": "Pobl i’w hysbysu ynglŷn â’r LPA",
     "pleaseWaitOneMinute": "Arhoswch o leiaf un munud i’r neges testun flaenorol gyrraedd cyn gofyn am god newydd",
