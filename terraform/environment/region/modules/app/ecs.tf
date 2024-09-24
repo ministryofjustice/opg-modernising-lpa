@@ -367,7 +367,7 @@ locals {
         }
       ],
       volumesFrom    = [],
-      systemControls = []
+      systemControls = [],
       logConfiguration = {
         logDriver = "awslogs",
         options = {
