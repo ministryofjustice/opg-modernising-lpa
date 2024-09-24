@@ -108,6 +108,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		}
 		uidBaseURL            = cmp.Or(os.Getenv("UID_BASE_URL"), "http://mock-uid:8080")
 		lpaStoreBaseURL       = cmp.Or(os.Getenv("LPA_STORE_BASE_URL"), "http://mock-lpa-store:8080")
+		lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
 		metadataURL           = os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
 		oneloginURL           = cmp.Or(os.Getenv("ONELOGIN_URL"), "https://home.integration.account.gov.uk")
 		evidenceBucketName    = cmp.Or(os.Getenv("UPLOADS_S3_BUCKET_NAME"), "evidence")
@@ -273,7 +274,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	lambdaClient := lambda.New(cfg, v4.NewSigner(), httpClient, time.Now)
 	uidClient := uid.New(uidBaseURL, lambdaClient)
-	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lambdaClient)
+	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lpaStoreSecretARN, lambdaClient)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.PathHealthCheckService.String(), func(w http.ResponseWriter, r *http.Request) {})
