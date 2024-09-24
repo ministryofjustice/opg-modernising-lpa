@@ -23,8 +23,8 @@ var (
 	testNowFn     = func() time.Time { return testNow }
 
 	// set resolution lower to make tests more accurate, but the clock won't be
-	// perfect so 2ms seems a reasonable trade-off
-	resolution = 2 * time.Millisecond
+	// perfect so 3ms seems a reasonable trade-off
+	resolution = 3 * time.Millisecond
 	// set period higher to make tests more accurate, but that will make them
 	// slower
 	period = 20 * resolution

@@ -28,6 +28,7 @@ services:
       - SEARCH_INDEXING_ENABLED=1
       - DEV_MODE=1
       - SCHEDULED_RUNNER_PERIOD=1m
+      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
 
   event-logger:
     build:
