@@ -490,7 +490,7 @@ locals {
           value = "1"
         },
         {
-          name  = "JWT_KEY_SECRET_ARN",
+          name  = "LPA_STORE_SECRET_ARN",
           value = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
         },
       ]
