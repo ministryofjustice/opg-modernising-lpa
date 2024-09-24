@@ -18,7 +18,6 @@ const (
 	GovUkPay                = "gov-uk-pay-api-key"
 	GovUkOneLoginPrivateKey = "private-jwt-key-base64"
 	OrdnanceSurvey          = "os-postcode-lookup-api-key"
-	LpaStoreJwtSecretKey    = "lpa-store-jwt-secret-key"
 
 	cookieSessionKeys = "cookie-session-keys"
 
