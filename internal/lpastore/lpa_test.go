@@ -16,7 +16,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -286,7 +285,7 @@ func TestClientSendLpa(t *testing.T) {
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
-				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Secret(ctx, "secret").
 				Return("secret", nil)
 
 			var body []byte
@@ -306,7 +305,7 @@ func TestClientSendLpa(t *testing.T) {
 				})).
 				Return(&http.Response{StatusCode: http.StatusCreated, Body: io.NopCloser(strings.NewReader(""))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 			err := client.SendLpa(ctx, tc.donor)
 
@@ -316,7 +315,7 @@ func TestClientSendLpa(t *testing.T) {
 }
 
 func TestClientSendLpaWhenNewRequestError(t *testing.T) {
-	client := New("http://base", nil, nil)
+	client := New("http://base", nil, "secret", nil)
 	err := client.SendLpa(nil, &donordata.Provided{})
 
 	assert.NotNil(t, err)
@@ -330,7 +329,7 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 		Secret(mock.Anything, mock.Anything).
 		Return("", expectedError)
 
-	client := New("http://base", secretsClient, nil)
+	client := New("http://base", secretsClient, "secret", nil)
 	err := client.SendLpa(ctx, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
@@ -349,7 +348,7 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 		Do(mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	err := client.SendLpa(ctx, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
@@ -375,7 +374,7 @@ func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
 				Do(mock.Anything).
 				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			err := client.SendLpa(ctx, &donordata.Provided{})
 
 			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
@@ -655,7 +654,7 @@ func TestClientLpa(t *testing.T) {
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
-				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Secret(ctx, "secret").
 				Return("secret", nil)
 
 			doer := newMockDoer(t)
@@ -668,7 +667,7 @@ func TestClientLpa(t *testing.T) {
 				})).
 				Return(&http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(tc.json))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 			donor, err := client.Lpa(ctx, "M-0000-1111-2222")
 
@@ -679,7 +678,7 @@ func TestClientLpa(t *testing.T) {
 }
 
 func TestClientLpaWhenNewRequestError(t *testing.T) {
-	client := New("http://base", nil, nil)
+	client := New("http://base", nil, "secret", nil)
 	_, err := client.Lpa(nil, "M-0000-1111-2222")
 
 	assert.NotNil(t, err)
@@ -693,7 +692,7 @@ func TestClientLpaWhenSecretsClientError(t *testing.T) {
 		Secret(mock.Anything, mock.Anything).
 		Return("", expectedError)
 
-	client := New("http://base", secretsClient, nil)
+	client := New("http://base", secretsClient, "secret", nil)
 	_, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 	assert.Equal(t, expectedError, err)
@@ -712,7 +711,7 @@ func TestClientLpaWhenDoerError(t *testing.T) {
 		Do(mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	_, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 	assert.Equal(t, expectedError, err)
@@ -731,7 +730,7 @@ func TestClientLpaWhenStatusCodeIsNotFound(t *testing.T) {
 		Do(mock.Anything).
 		Return(&http.Response{StatusCode: http.StatusNotFound, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	_, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 	assert.Equal(t, ErrNotFound, err)
@@ -750,7 +749,7 @@ func TestClientLpaWhenStatusCodeIsNotOK(t *testing.T) {
 		Do(mock.Anything).
 		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	_, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 	assert.Equal(t, responseError{name: "expected 200 response but got 400", body: "hey"}, err)
@@ -1023,7 +1022,7 @@ func TestClientLpas(t *testing.T) {
 
 			secretsClient := newMockSecretsClient(t)
 			secretsClient.EXPECT().
-				Secret(ctx, secrets.LpaStoreJwtSecretKey).
+				Secret(ctx, "secret").
 				Return("secret", nil)
 
 			doer := newMockDoer(t)
@@ -1037,7 +1036,7 @@ func TestClientLpas(t *testing.T) {
 				})).
 				Return(&http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(tc.json))}, nil)
 
-			client := New("http://base", secretsClient, doer)
+			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
 			lpas, err := client.Lpas(ctx, []string{"M-0000-1111-2222"})
 
@@ -1048,7 +1047,7 @@ func TestClientLpas(t *testing.T) {
 }
 
 func TestClientLpasWhenNewRequestError(t *testing.T) {
-	client := New("http://base", nil, nil)
+	client := New("http://base", nil, "secret", nil)
 	_, err := client.Lpas(nil, []string{"M-0000-1111-2222"})
 
 	assert.NotNil(t, err)
@@ -1062,7 +1061,7 @@ func TestClientLpasWhenSecretsClientError(t *testing.T) {
 		Secret(mock.Anything, mock.Anything).
 		Return("", expectedError)
 
-	client := New("http://base", secretsClient, nil)
+	client := New("http://base", secretsClient, "secret", nil)
 	_, err := client.Lpas(ctx, []string{"M-0000-1111-2222"})
 
 	assert.Equal(t, expectedError, err)
@@ -1081,7 +1080,7 @@ func TestClientLpasWhenDoerError(t *testing.T) {
 		Do(mock.Anything).
 		Return(nil, expectedError)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	_, err := client.Lpas(ctx, []string{"M-0000-1111-2222"})
 
 	assert.Equal(t, expectedError, err)
@@ -1100,7 +1099,7 @@ func TestClientLpasWhenStatusCodeIsNotOK(t *testing.T) {
 		Do(mock.Anything).
 		Return(&http.Response{StatusCode: http.StatusBadRequest, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
-	client := New("http://base", secretsClient, doer)
+	client := New("http://base", secretsClient, "secret", doer)
 	_, err := client.Lpas(ctx, []string{"M-0000-1111-2222"})
 
 	assert.Equal(t, responseError{name: "expected 200 response but got 400", body: "hey"}, err)
