@@ -100,6 +100,7 @@ jobs:
         id: get-date
         run: |
           echo "date=$(/bin/date -u "+%Y%m%d%P")" >> $GITHUB_OUTPUT
+          mkdir -p ~/.cache/trivy
       - name: Cache trivy db
         id: cache-trivy-db
         uses: actions/cache/restore@v4.0.2
