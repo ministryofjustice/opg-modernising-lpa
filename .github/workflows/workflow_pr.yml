@@ -47,14 +47,19 @@ jobs:
       pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
+  trivy_db_download:
+    name: Trivy DB Download Job
+    uses: ./.github/workflows/trivy_db_download_job.yml
+
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     if: needs.detect_changes.outputs.changes_detected == 'true' &&
       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     needs: [
-      go_unit_tests,
-      create_tags
+      # go_unit_tests,
+      create_tags,
+      trivy_db_download
       ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
