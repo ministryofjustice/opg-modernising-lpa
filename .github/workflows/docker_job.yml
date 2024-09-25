@@ -96,7 +96,10 @@ jobs:
             TAG=${{inputs.tag}}
         env:
           SOURCE_DATE_EPOCH: 0
-
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
       - name: Cache trivy db
         id: cache-trivy-db
         uses: actions/cache@v4
