@@ -53,8 +53,8 @@ jobs:
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
-      (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
+    # if: needs.detect_changes.outputs.changes_detected == 'true' &&
+    #   (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     needs: [
       # go_unit_tests,
