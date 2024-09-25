@@ -7,6 +7,27 @@
 @import "patterns/supporter-lpa-context";
 @import "patterns/trans_switch";
 
+@media print {
+    .app-print-background {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        background-image: url('/static/assets/images/draft-warning.svg');
+        background-size: 100% 100%;
+    }
+
+    .app-hide-print {
+        display: none !important;
+    }
+
+    .govuk-grid-column-two-thirds { width: 100% !important; }
+}
+
 .app-float-right {
     float: right;
 }
@@ -83,13 +104,6 @@ body:not(.js-enabled) .govuk-back-link {
     border-right: none;
     padding-left: 0;
     padding-right: 0;
-}
-
-@media print {
-    .app-hide-print {
-        display: none !important;
-    }
-    .govuk-grid-column-two-thirds { width: 100% !important; }
 }
 
 .app-summary-list--no-vertical-padding {
