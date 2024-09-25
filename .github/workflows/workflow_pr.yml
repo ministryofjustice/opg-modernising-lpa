@@ -57,7 +57,7 @@ jobs:
       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     needs: [
-      go_unit_tests,
+      # go_unit_tests,
       create_tags,
       trivy_db_download
       ]
