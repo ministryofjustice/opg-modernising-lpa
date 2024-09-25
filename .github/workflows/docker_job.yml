@@ -99,7 +99,7 @@ jobs:
       - name: Get Date
         id: get-date
         run: |
-          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+          echo "date=$(/bin/date -u "+%Y%m%d%P")" >> $GITHUB_OUTPUT
       - name: Cache trivy db
         id: cache-trivy-db
         uses: actions/cache@v4
