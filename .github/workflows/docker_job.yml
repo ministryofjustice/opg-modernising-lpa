@@ -106,8 +106,7 @@ jobs:
         uses: actions/cache/restore@v4.0.2
         with:
           path: ~/.cache/trivy
-          key: trivy-db-trivy-db-20240926am
-          # key: trivy-db-${{ steps.get-date.outputs.date }}
+          key: trivy-db-${{ steps.get-date.outputs.date }}
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
