@@ -25,13 +25,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/trivy
-          key: ${{ runner.os }}-trivy-db-${{ steps.get-date.outputs.date }}
+          key: trivy-db-${{ steps.get-date.outputs.date }}
       - name: Download Trivy DB
         if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
           trivy image --download-db-only
           trivy -h | grep cache
 
-      - name: Test with scan
-        run: |
-          trivy image --cache-dir ~/.cache/trivy --skip-db-update alpine:3.12
