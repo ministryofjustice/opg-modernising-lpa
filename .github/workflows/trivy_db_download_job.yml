@@ -29,6 +29,6 @@ jobs:
       - name: Download Trivy DB
         if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
-          trivy image --download-db-only
+          trivy image --cache-dir ~/.cache/trivy --download-db-only
           trivy -h | grep cache
 
