@@ -1,3 +1,5 @@
 {{ define "contextual-lpa-warning" }}
-    {{ template "warning" (content .App "thisIsNotTheRegisteredLpaWarning") }}
+    <div class="app-hide-print">
+        {{ template "warning" (content .App "thisIsNotTheRegisteredLpaWarning") }}
+    </div>
 {{ end }}
