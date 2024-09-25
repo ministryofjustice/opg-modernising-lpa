@@ -8,7 +8,7 @@ defaults:
     shell: bash
 
 jobs:
-  run_ui_tests:
+  trivy_db_download:
     runs-on: ubuntu-latest
     steps:
       - name: Install Trivy
