@@ -25,8 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/trivy
-          key: trivy-db-20240925AM
-          # key: trivy-db-${{ steps.get-date.outputs.date }}
+          key: trivy-db-${{ steps.get-date.outputs.date }}
       - name: Download Trivy DB
         if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
