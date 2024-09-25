@@ -19,15 +19,16 @@ jobs:
       - name: Get Date
         id: get-date
         run: |
-          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+          echo "date=$(/bin/date -u "+%Y%m%d%P")" >> $GITHUB_OUTPUT
       - name: Cache trivy db
         id: cache-trivy-db
         uses: actions/cache@v4
         with:
           path: ~/.cache/trivy
-          key: trivy-db-${{ steps.get-date.outputs.date }}
+          key: trivy-db-20240925AM
+          # key: trivy-db-${{ steps.get-date.outputs.date }}
       - name: Download Trivy DB
-        # if: steps.cache-trivy-db.outputs.cache-hit != 'true'
+        if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
           trivy image --cache-dir ~/.cache/trivy --download-db-only
           trivy -h | grep cache
