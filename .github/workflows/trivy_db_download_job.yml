@@ -1,0 +1,23 @@
+name: "Trivy DB Download Job"
+
+on:
+  workflow_call:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run_ui_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.17.2_Linux-64bit.deb
+      - name: Download Trivy DB
+        run: |
+          trivy image --download-db-only
+      # - name: Cache Trivy DB
+      #   run: |
+      #
