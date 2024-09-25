@@ -1,6 +1,6 @@
-<!-- TODO: remove no_actions from summary-row as it adds additional spacing not needed -->
-
 {{ define "contextual-lpa" }}
+    <div class="app-print-background"></div>
+
     {{ $donorFullName := .Lpa.Donor.FullName }}
     {{ $isPropertyAndAffairs := .Lpa.Type.IsPropertyAndAffairs }}
     {{ $isDonor := .App.IsDonor }}
@@ -96,7 +96,7 @@
                 <dl class="govuk-summary-list">
                     {{ template "summary-row" (staticSummaryRow $.App "dateOfBirth"
                         (formatDate $.App .DateOfBirth)) }}
-                    
+
                     {{ if .Mobile }}
                         {{ template "summary-row" (staticSummaryRow $.App "mobile"
                             .Mobile) }}
@@ -386,9 +386,9 @@
                     </div>
                 </dl>
             </div>
-        </div>        
+        </div>
     {{ end }}
-    
+
     {{ if not .Lpa.CertificateProvider.SignedAt.IsZero }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
@@ -415,7 +415,7 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
-                    
+
                     <ul class="govuk-list govuk-list--bullet">
                         {{ trHtml $.App "signAsAttorneyBullets" }}
                         <li>
@@ -435,7 +435,7 @@
                     </dl>
                 </div>
             </div>
-        {{ end }}        
+        {{ end }}
     {{ end }}
 
     {{ if .Lpa.Attorneys.TrustCorporation.Signatories }}
@@ -445,7 +445,7 @@
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
-                
+
                 <ul class="govuk-list govuk-list--bullet">
                     {{ trHtml $.App "signAsTrustCorporationBullets" }}
                     <li>
@@ -477,7 +477,7 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
-                    
+
                     <ul class="govuk-list govuk-list--bullet">
                         {{ trHtml $.App "signAsAttorneyBullets" }}
                         <li>
@@ -499,7 +499,7 @@
                     </dl>
                 </div>
             </div>
-        {{ end }}        
+        {{ end }}
     {{ end }}
 
     {{ if .Lpa.ReplacementAttorneys.TrustCorporation.Signatories }}
@@ -510,7 +510,7 @@
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
-                    
+
                     <ul class="govuk-list govuk-list--bullet">
                         {{ trHtml $.App "signAsTrustCorporationBullets" }}
                         <li>
