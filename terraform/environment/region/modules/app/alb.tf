@@ -4,7 +4,7 @@ resource "aws_lb_target_group" "app" {
   protocol             = "HTTP"
   target_type          = "ip"
   vpc_id               = var.network.vpc_id
-  deregistration_delay = 0
+  deregistration_delay = 300
   depends_on           = [aws_lb.app]
 
   health_check {

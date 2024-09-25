@@ -148,7 +148,8 @@ locals {
           protocol      = "tcp"
         }
       ],
-      volumesFrom = [],
+      volumesFrom    = [],
+      systemControls = [],
       logConfiguration = {
         logDriver = "awslogs",
         options = {

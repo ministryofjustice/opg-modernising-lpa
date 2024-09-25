@@ -366,7 +366,8 @@ locals {
           protocol      = "tcp"
         }
       ],
-      volumesFrom = [],
+      volumesFrom    = [],
+      systemControls = [],
       logConfiguration = {
         logDriver = "awslogs",
         options = {
@@ -520,7 +521,8 @@ locals {
           max-buffer-size       = "25m"
         }
       },
-      environment = []
+      environment    = [],
+      systemControls = []
   })
 
   amazon_ssm_agent = jsonencode(
