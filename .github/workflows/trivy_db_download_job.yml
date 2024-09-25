@@ -13,27 +13,19 @@ jobs:
     steps:
       - name: Install Trivy
         run: |
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_Linux-64bit.deb
-          sudo dpkg -i trivy_0.17.2_Linux-64bit.deb
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.55.2/trivy_0.55.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.55.2_Linux-64bit.deb
           mkdir -p ~/.cache/trivy
-      # - name: Download Trivy DB
-      #   run: |
-      #     trivy image --download-db-only
-      #     trivy -h | grep cache
+      - name: Download Trivy DB
+        run: |
+          trivy image --download-db-only
+          trivy -h | grep cache
       # - name: Cache trivy db
       #   id: cache-trivy-db
       #   uses: actions/cache@v4
       #   with:
       #     path: ~/.cache/trivy
       #     key: ${{ runner.os }}-trivy-db
-
-      - name: Download Trivy DB
-        # if: steps.cache-trivy-db.outputs.cache-hit != 'true'
-        run: |
-          cd ~/.cache/trivy
-          wget https://github.com/aquasecurity/trivy-db/releases/latest/download/trivy-offline.db.tgz
-          tar xvf trivy-offline.db.tgz
-          rm trivy-offline.db.tgz
 
       - name: Test with scan
         run: |
