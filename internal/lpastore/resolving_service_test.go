@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -16,6 +16,8 @@ import (
 )
 
 func TestResolvingServiceGet(t *testing.T) {
+	actorUID := actoruid.New()
+
 	testcases := map[string]struct {
 		donor    *donordata.Provided
 		resolved *lpadata.Lpa
@@ -41,8 +43,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					RetrievedAt: time.Now(),
 				},
 				Correspondent:       donordata.Correspondent{Email: "x"},
-				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A", LastName: "S"},
-				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I", LastName: "W"},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{UID: actorUID, FirstNames: "A", LastName: "S"},
+				IndependentWitness:  donordata.IndependentWitness{UID: actorUID, FirstNames: "I", LastName: "W"},
 				Voucher:             donordata.Voucher{Allowed: true, Email: "y"},
 			},
 			resolved: &lpadata.Lpa{
@@ -65,16 +67,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
 				Correspondent: lpadata.Correspondent{Email: "x"},
-				AuthorisedSignatory: actor.Actor{
-					Type:       actor.TypeAuthorisedSignatory,
-					FirstNames: "A",
-					LastName:   "S",
-				},
-				IndependentWitness: lpadata.IndependentWitness{
-					FirstNames: "I",
-					LastName:   "W",
-				},
-				Voucher: lpadata.Voucher{Email: "y"},
+				Voucher:       lpadata.Voucher{Email: "y"},
 			},
 		},
 		"online with no lpastore record": {
@@ -99,8 +92,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					RetrievedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 				},
 				Correspondent:       donordata.Correspondent{Email: "x"},
-				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A", LastName: "S"},
-				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I", LastName: "W"},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{UID: actorUID, FirstNames: "A", LastName: "S"},
+				IndependentWitness:  donordata.IndependentWitness{UID: actorUID, FirstNames: "I", LastName: "W"},
 				Voucher:             donordata.Voucher{Allowed: true, Email: "y"},
 			},
 			error: ErrNotFound,
@@ -127,12 +120,13 @@ func TestResolvingServiceGet(t *testing.T) {
 					TrustCorporation: lpadata.TrustCorporation{Name: "d"},
 				},
 				Correspondent: lpadata.Correspondent{Email: "x"},
-				AuthorisedSignatory: actor.Actor{
-					Type:       actor.TypeAuthorisedSignatory,
+				AuthorisedSignatory: lpadata.AuthorisedSignatory{
+					UID:        actorUID,
 					FirstNames: "A",
 					LastName:   "S",
 				},
 				IndependentWitness: lpadata.IndependentWitness{
+					UID:        actorUID,
 					FirstNames: "I",
 					LastName:   "W",
 				},
