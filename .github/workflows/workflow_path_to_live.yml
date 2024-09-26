@@ -41,10 +41,6 @@ jobs:
       pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
-  trivy_db_download:
-    name: Trivy DB Download Job
-    uses: ./.github/workflows/trivy_db_download_job.yml
-
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml

@@ -97,22 +97,6 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
 
-
-
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "date=$(/bin/date -u "+%Y%m%d%P")" >> $GITHUB_OUTPUT
-          mkdir -p /home/runner/.cache/trivy
-      - name: Cache trivy db
-        id: cache-trivy-db
-        uses: actions/cache/restore@v4.0.2
-        with:
-          path: /home/runner/.cache/trivy
-          key: trivy-db-${{ steps.get-date.outputs.date }}
-
-
-
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.24.0
