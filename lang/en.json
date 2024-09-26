@@ -376,7 +376,7 @@
     "replacement-jointly-for-some-severally-for-others": "Jointly for some decisions and jointly and severally for others - replacement attorneys must all agree certain decisions but can make others on their own",
     "when-has-capacity": "Whether or not I have mental capacity to make a particular decision myself",
     "when-capacity-lost": "Only when I do not have mental capacity to make a particular decision",
-    "when-has-capacity:3rd": "When the donor has mental capacity",
+    "when-has-capacity:3rd": "Whether or not the donor has mental capacity to make a particular decision",
     "when-capacity-lost:3rd": "Only when the donor does not have mental capacity to make a particular decision",
     "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
@@ -1329,5 +1329,6 @@
     "witnessingOfDonorSignature": "Witnessing of donor signature",
     "iConfirmTheLpaWasSignedInMyPresence": "I confirm that the LPA was signed in my presence and that my name and address are correct.",
     "trustCorporationSignature": "Trust corporation signature",
-    "replacementTrustCorporationSignature": "Replacement trust corporation signature"
+    "replacementTrustCorporationSignature": "Replacement trust corporation signature",
+    "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear."
 }

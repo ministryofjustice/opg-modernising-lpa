@@ -63,16 +63,14 @@ func HowShouldReplacementAttorneysStepIn(tmpl template.Template, donorStore Dono
 
 type howShouldReplacementAttorneysStepInForm struct {
 	WhenToStepIn lpadata.ReplacementAttorneysStepIn
-	Error        error
 	OtherDetails string
 }
 
 func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldReplacementAttorneysStepInForm {
-	when, err := lpadata.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
+	when, _ := lpadata.ParseReplacementAttorneysStepIn(page.PostFormString(r, "when-to-step-in"))
 
 	return &howShouldReplacementAttorneysStepInForm{
 		WhenToStepIn: when,
-		Error:        err,
 		OtherDetails: page.PostFormString(r, "other-details"),
 	}
 }
@@ -80,7 +78,7 @@ func readHowShouldReplacementAttorneysStepInForm(r *http.Request) *howShouldRepl
 func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.Error,
+	errors.Enum("when-to-step-in", "whenYourReplacementAttorneysStepIn", f.WhenToStepIn,
 		validation.Selected())
 
 	if f.WhenToStepIn == lpadata.ReplacementAttorneysStepInAnotherWay {
