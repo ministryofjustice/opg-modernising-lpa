@@ -51,22 +51,20 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 
 type lifeSustainingTreatmentForm struct {
 	Option lpadata.LifeSustainingTreatment
-	Error  error
 }
 
 func readLifeSustainingTreatmentForm(r *http.Request) *lifeSustainingTreatmentForm {
-	option, err := lpadata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
+	option, _ := lpadata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
 
 	return &lifeSustainingTreatmentForm{
 		Option: option,
-		Error:  err,
 	}
 }
 
 func (f *lifeSustainingTreatmentForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("option", "ifTheDonorGivesConsentToLifeSustainingTreatment", f.Error,
+	errors.Enum("option", "ifTheDonorGivesConsentToLifeSustainingTreatment", f.Option,
 		validation.Selected())
 
 	return errors

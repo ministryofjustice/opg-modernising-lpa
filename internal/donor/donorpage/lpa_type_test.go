@@ -298,12 +298,12 @@ func TestLpaTypeFormValidate(t *testing.T) {
 		errors              validation.List
 	}{
 		"valid": {
-			form: &lpaTypeForm{},
+			form: &lpaTypeForm{
+				LpaType: lpadata.LpaTypePropertyAndAffairs,
+			},
 		},
 		"invalid": {
-			form: &lpaTypeForm{
-				Error: expectedError,
-			},
+			form:   &lpaTypeForm{},
 			errors: validation.With("lpa-type", validation.SelectError{Label: "theTypeOfLpaToMake"}),
 		},
 		"to personal welfare": {

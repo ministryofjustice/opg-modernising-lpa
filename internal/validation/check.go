@@ -18,6 +18,19 @@ var (
 	postcodeRegex    = regexp.MustCompile("^[A-Z0-9 ]{1,9}$")
 )
 
+type EnumChecker interface {
+	CheckEnum(label string, value interface{ Empty() bool }) FormattableError
+}
+
+func (l *List) Enum(name, label string, value interface{ Empty() bool }, checks ...EnumChecker) {
+	for _, check := range checks {
+		if err := check.CheckEnum(label, value); err != nil {
+			l.Add(name, err)
+			return
+		}
+	}
+}
+
 type ErrorChecker interface {
 	CheckError(label string, value error) FormattableError
 }
@@ -103,6 +116,18 @@ type SelectedCheck struct {
 func (c SelectedCheck) CustomError() SelectedCheck {
 	c.useCustomError = true
 	return c
+}
+
+func (c SelectedCheck) CheckEnum(label string, value interface{ Empty() bool }) FormattableError {
+	if value.Empty() {
+		if c.useCustomError {
+			return CustomError{Label: label}
+		} else {
+			return SelectError{Label: label}
+		}
+	}
+
+	return nil
 }
 
 func (c SelectedCheck) CheckBool(label string, value bool) FormattableError {
