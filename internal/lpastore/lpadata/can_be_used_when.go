@@ -1,10 +1,9 @@
 package lpadata
 
-//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix
+//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
 type CanBeUsedWhen uint8
 
 const (
-	CanBeUsedWhenUnknown      CanBeUsedWhen = iota
-	CanBeUsedWhenCapacityLost               // when-capacity-lost
-	CanBeUsedWhenHasCapacity                // when-has-capacity
+	CanBeUsedWhenCapacityLost CanBeUsedWhen = iota + 1 // when-capacity-lost
+	CanBeUsedWhenHasCapacity                           // when-has-capacity
 )

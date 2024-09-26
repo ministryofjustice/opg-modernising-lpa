@@ -64,6 +64,8 @@ func (i NoVoucherDecision) IsApplyToCOP() bool {
 
 func ParseNoVoucherDecision(s string) (NoVoucherDecision, error) {
 	switch s {
+	case "":
+		return NoVoucherDecision(0), nil
 	case "prove-own-id":
 		return ProveOwnID, nil
 	case "select-new-voucher":
