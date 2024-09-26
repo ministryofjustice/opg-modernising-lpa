@@ -1,10 +1,6 @@
 {{ define "contextual-lpa" }}
     <div class="app-print-background"></div>
 
-    {{ $donorFullName := .Lpa.Donor.FullName }}
-    {{ $isPropertyAndAffairs := .Lpa.Type.IsPropertyAndAffairs }}
-    {{ $isDonor := .App.IsDonor }}
-
     {{ template "contextual-lpa-warning" . }}
 
     {{ with .Lpa.Donor }}
@@ -146,17 +142,12 @@
             </div>
         {{ end }}
     {{ else }}
-        {{ $label := "theDonorHasChosenNotToFormallyNotifyAnyone" }}
-        {{ if $isDonor }}
-            {{ $label = "youHaveChosenNotToFormallyNotifyAnyone" }}
-        {{ end }}
-
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h2>
             </div>
             <div class="govuk-summary-card__content">
-                <p class="govuk-body">{{ tr .App $label }}</p>
+                <p class="govuk-body">{{ tr .App "theDonorHasChosenNotToFormallyNotifyAnyone" }}</p>
             </div>
         </div>
     {{ end }}
@@ -195,74 +186,57 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Lpa.WhenCanTheLpaBeUsed }}
-            {{ $label := "whenAttorneysCanUseTheLpa" }}
-            {{ $value := printf "%s:3rd" .String }}
-
-            {{ if $isDonor }}
-                {{ $label = "whenYourAttorneysCanUseYourLpa" }}
-                {{ $value = .String }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow $.App $label
-                (tr $.App $value)) }}
+            {{ template "summary-row" (staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
+                (tr $.App (printf "%s:3rd" .String))) }}
+        {{ else }}
+            {{ template "defaulted-summary-row" (staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
+                (tr $.App "when-has-capacity:3rd")) }}
         {{ end }}
-
+        
         {{ if .Lpa.Type.IsPersonalWelfare }}
-            {{ $value := "optionB" }}
-            {{ if .Lpa.LifeSustainingTreatmentOption.IsOptionA }}
-                {{ $value = "optionA" }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow .App "lifeSustainingTreatment"
-                (trHtml .App $value)) }}
-        {{ end }}
-
-        {{ if .Lpa.AttorneyDecisions.How }}
-            {{ with .Lpa.AttorneyDecisions.How }}
-                {{ $label := "howAttorneysMustMakeDecisions" }}
-                {{ $value := .String }}
-
-                {{ if $isDonor }}
-                    {{ $label = "howYourAttorneysMustMakeDecisions" }}
-                    {{ $value = printf "your-%s" .String }}
+            {{ with .Lpa.LifeSustainingTreatmentOption }}
+                {{ $value := "optionB" }}
+                {{ if .IsOptionA }}
+                    {{ $value = "optionA" }}
                 {{ end }}
-
-                {{ template "summary-row" (staticSummaryRow $.App $label
-                    (tr $.App $value)) }}
-            {{ end }}
-        {{ end }}
-
-        {{ if .Lpa.HowShouldReplacementAttorneysStepIn }}
-            {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
-                {{ $label := "howReplacementAttorneysShouldStepIn" }}
-                {{ if $isDonor }}
-                    {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
-                {{ end }}
-
-                {{ $value := "otherWay" }}
-                {{ if .IsWhenOneCanNoLongerAct }}
-                    {{ $value = "whenOneCanNoLongerAct" }}
-                {{ else if .IsWhenAllCanNoLongerAct }}
-                    {{ $value = "whenNoneCanNoLongerAct" }}
-                {{ end }}
-
-                {{ template "summary-row" (staticSummaryRow $.App $label
+                
+                {{ template "summary-row" (staticSummaryRow $.App "lifeSustainingTreatment"
                     (trHtml $.App $value)) }}
+            {{ else }}
+                {{ template "defaulted-summary-row" (staticSummaryRow .App "lifeSustainingTreatment"
+                    (trHtml .App "optionB")) }}
             {{ end }}
         {{ end }}
 
-        {{ if .Lpa.ReplacementAttorneyDecisions.How }}
+        {{ if gt .Lpa.Attorneys.Len 1 }}
+            {{ with .Lpa.AttorneyDecisions.How }}
+                {{ template "summary-row" (staticSummaryRow $.App "howAttorneysMustMakeDecisions"
+                    (tr $.App .String)) }}
+            {{ else }}
+                {{ template "defaulted-summary-row" (staticSummaryRow $.App "howAttorneysMustMakeDecisions"
+                    (tr $.App "jointly")) }}
+            {{ end }}
+        {{ end }}
+        
+        {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
+            {{ $value := "otherWay" }}
+            {{ if .IsWhenOneCanNoLongerAct }}
+                {{ $value = "whenOneCanNoLongerAct" }}
+            {{ else if .IsWhenAllCanNoLongerAct }}
+                {{ $value = "whenNoneCanNoLongerAct" }}
+            {{ end }}
+
+            {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysShouldStepIn"
+                (trHtml $.App $value)) }}
+        {{ end }}
+
+        {{ if and (gt .Lpa.ReplacementAttorneys.Len 1) (or (not .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally) .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct) }}
             {{ with .Lpa.ReplacementAttorneyDecisions.How }}
-                {{ $label := "howReplacementAttorneysMustMakeDecisions" }}
-                {{ $value := .String }}
-
-                {{ if $isDonor }}
-                    {{ $label = "howYourReplacementAttorneysMustMakeDecisions" }}
-                    {{ $value = printf "your-%s" .String }}
-                {{ end }}
-
-                {{ template "summary-row" (staticSummaryRow $.App $label
-                    (tr $.App $value)) }}
+                {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
+                    (tr $.App .String)) }}
+            {{ else }}
+                {{ template "defaulted-summary-row" (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
+                    (tr $.App "jointly")) }}                
             {{ end }}
         {{ end }}
     </dl>
@@ -273,35 +247,17 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsAttorneysMustMakeJointly" }}
-
-            {{ if $isDonor }}
-                {{ $label = "decisionsYourAttorneysMustMakeJointly" }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow .App $label
+            {{ template "summary-row" (staticSummaryRow .App "decisionsAttorneysMustMakeJointly"
                 (trHtml .App .Lpa.AttorneyDecisions.Details)) }}
         {{ end }}
 
         {{ if .Lpa.HowShouldReplacementAttorneysStepInDetails }}
-            {{ $label := "howReplacementAttorneysShouldStepIn" }}
-
-            {{ if $isDonor }}
-                {{ $label = "howYourReplacementAttorneysShouldStepIn" }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow .App $label
+            {{ template "summary-row" (staticSummaryRow .App "howReplacementAttorneysShouldStepIn"
                 .Lpa.HowShouldReplacementAttorneysStepInDetails) }}
         {{ end }}
 
         {{ if .Lpa.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-            {{ $label := "decisionsReplacementAttorneysMustMakeJointly" }}
-
-            {{ if $isDonor }}
-                {{ $label = "decisionsYourReplacementAttorneysMustMakeJointly" }}
-            {{ end }}
-
-            {{ template "summary-row" (staticSummaryRow .App $label
+            {{ template "summary-row" (staticSummaryRow .App "decisionsReplacementAttorneysMustMakeJointly"
                 (trHtml .App .Lpa.ReplacementAttorneyDecisions.Details)) }}
         {{ end }}
 
