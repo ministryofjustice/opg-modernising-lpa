@@ -44,7 +44,7 @@ jobs:
   docker_build_scan_push:
     name: Docker Build, Scan and Push
     uses: ./.github/workflows/docker_job.yml
-    needs: [go_unit_tests,create_tags,trivy_db_download]
+    needs: [go_unit_tests,create_tags]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       branch_name: main
