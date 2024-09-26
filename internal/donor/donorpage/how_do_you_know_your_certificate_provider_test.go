@@ -269,12 +269,12 @@ func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &howDoYouKnowYourCertificateProviderForm{},
+			form: &howDoYouKnowYourCertificateProviderForm{
+				How: lpadata.Personally,
+			},
 		},
 		"invalid": {
-			form: &howDoYouKnowYourCertificateProviderForm{
-				Error: expectedError,
-			},
+			form:   &howDoYouKnowYourCertificateProviderForm{},
 			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
 		},
 	}

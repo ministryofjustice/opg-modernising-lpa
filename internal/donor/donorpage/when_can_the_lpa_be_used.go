@@ -52,23 +52,21 @@ func WhenCanTheLpaBeUsed(tmpl template.Template, donorStore DonorStore) Handler 
 }
 
 type whenCanTheLpaBeUsedForm struct {
-	When  lpadata.CanBeUsedWhen
-	Error error
+	When lpadata.CanBeUsedWhen
 }
 
 func readWhenCanTheLpaBeUsedForm(r *http.Request) *whenCanTheLpaBeUsedForm {
-	when, err := lpadata.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
+	when, _ := lpadata.ParseCanBeUsedWhen(page.PostFormString(r, "when"))
 
 	return &whenCanTheLpaBeUsedForm{
-		When:  when,
-		Error: err,
+		When: when,
 	}
 }
 
 func (f *whenCanTheLpaBeUsedForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("when", "whenYourAttorneysCanUseYourLpa", f.Error,
+	errors.Enum("when", "whenYourAttorneysCanUseYourLpa", f.When,
 		validation.Selected())
 
 	return errors

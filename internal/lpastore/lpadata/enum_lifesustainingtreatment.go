@@ -54,6 +54,8 @@ func (i LifeSustainingTreatment) IsOptionB() bool {
 
 func ParseLifeSustainingTreatment(s string) (LifeSustainingTreatment, error) {
 	switch s {
+	case "":
+		return LifeSustainingTreatment(0), nil
 	case "option-a":
 		return LifeSustainingTreatmentOptionA, nil
 	case "option-b":
