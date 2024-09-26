@@ -27,7 +27,7 @@ jobs:
           path: ~/.cache/trivy
           key: trivy-db-${{ steps.get-date.outputs.date }}
       - name: Download Trivy DB
-        if: steps.cache-trivy-db.outputs.cache-hit != 'true'
+        # if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
           trivy image --cache-dir ~/.cache/trivy --download-db-only
           trivy -h | grep cache
