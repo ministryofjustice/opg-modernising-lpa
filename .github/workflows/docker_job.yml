@@ -96,6 +96,9 @@ jobs:
             TAG=${{inputs.tag}}
         env:
           SOURCE_DATE_EPOCH: 0
+
+
+
       - name: Get Date
         id: get-date
         run: |
@@ -108,18 +111,20 @@ jobs:
           path: ~/.cache/trivy
           key: trivy-db-${{ steps.get-date.outputs.date }}
 
+
+
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.24.0
         env:
           TRIVY_SKIP_DB_UPDATE: "true"
+          TRIVY_CACHE_DIR: " ~/.cache/trivy"
         with:
-          cache-dir: ~/.cache/trivy
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          # trivy-config: trivy.yml
+
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@v3.26.8
