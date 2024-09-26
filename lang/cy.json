@@ -1332,7 +1332,7 @@
     "yesIfAllowedToVouch": "Welsh",
     "verifyDonorDetails": "Welsh",
     "verifyPersonDetails": "Welsh {{.DonorFullNamePossessive}}",
-    "verifyPersonDetailsContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstName}} {{.DonorFullNamePossessive}}</p>",
+    "verifyPersonDetailsContent": "<p class=\"govuk-body\">Welsh {{.DonorFirstNames}} {{.DonorFullNamePossessive}}</p>",
     "doTheseDetailsMatchDonorIdentity": "Welsh {{.DonorFullNamePossessive}}",
     "theseDetailsMustMatchThePersonWhoAskedYouToVouch": "Welsh",
     "yesIfTheseDetailsMatch": "Welsh",
