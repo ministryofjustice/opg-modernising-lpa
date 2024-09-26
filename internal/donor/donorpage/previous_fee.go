@@ -56,22 +56,20 @@ func PreviousFee(tmpl template.Template, payer Handler, donorStore DonorStore) H
 
 type previousFeeForm struct {
 	PreviousFee pay.PreviousFee
-	Error       error
 }
 
 func readPreviousFeeForm(r *http.Request) *previousFeeForm {
-	previousFee, err := pay.ParsePreviousFee(page.PostFormString(r, "previous-fee"))
+	previousFee, _ := pay.ParsePreviousFee(page.PostFormString(r, "previous-fee"))
 
 	return &previousFeeForm{
 		PreviousFee: previousFee,
-		Error:       err,
 	}
 }
 
 func (f *previousFeeForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("previous-fee", "howMuchYouPreviouslyPaid", f.Error,
+	errors.Enum("previous-fee", "howMuchYouPreviouslyPaid", f.PreviousFee,
 		validation.Selected())
 
 	return errors

@@ -50,25 +50,23 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore
 
 type evidenceDeliveryForm struct {
 	EvidenceDelivery pay.EvidenceDelivery
-	Error            error
 	ErrorLabel       string
+}
+
+func readHowWouldYouLikeToSendEvidenceForm(r *http.Request) *evidenceDeliveryForm {
+	evidenceDelivery, _ := pay.ParseEvidenceDelivery(form.PostFormString(r, "evidence-delivery"))
+
+	return &evidenceDeliveryForm{
+		EvidenceDelivery: evidenceDelivery,
+		ErrorLabel:       "howYouWouldLikeToSendUsYourEvidence",
+	}
 }
 
 func (f *evidenceDeliveryForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("evidence-delivery", f.ErrorLabel, f.Error,
+	errors.Enum("evidence-delivery", f.ErrorLabel, f.EvidenceDelivery,
 		validation.Selected())
 
 	return errors
-}
-
-func readHowWouldYouLikeToSendEvidenceForm(r *http.Request) *evidenceDeliveryForm {
-	evidenceDelivery, err := pay.ParseEvidenceDelivery(form.PostFormString(r, "evidence-delivery"))
-
-	return &evidenceDeliveryForm{
-		EvidenceDelivery: evidenceDelivery,
-		Error:            err,
-		ErrorLabel:       "howYouWouldLikeToSendUsYourEvidence",
-	}
 }

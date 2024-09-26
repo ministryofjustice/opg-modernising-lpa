@@ -54,6 +54,8 @@ func (i CertificateProviderRelationship) IsProfessionally() bool {
 
 func ParseCertificateProviderRelationship(s string) (CertificateProviderRelationship, error) {
 	switch s {
+	case "":
+		return CertificateProviderRelationship(0), nil
 	case "personally":
 		return Personally, nil
 	case "professionally":

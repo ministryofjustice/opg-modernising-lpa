@@ -231,7 +231,8 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 	}{
 		"valid": {
 			form: &howShouldAttorneysMakeDecisionsForm{
-				errorLabel: "xyz",
+				DecisionsType: lpadata.Jointly,
+				errorLabel:    "xyz",
 			},
 		},
 		"valid with detail": {
@@ -243,7 +244,6 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 		},
 		"invalid": {
 			form: &howShouldAttorneysMakeDecisionsForm{
-				Error:      expectedError,
 				errorLabel: "xyz",
 			},
 			errors: validation.With("decision-type", validation.SelectError{Label: "xyz"}),

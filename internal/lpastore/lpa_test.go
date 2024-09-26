@@ -482,6 +482,64 @@ func TestClientLpa(t *testing.T) {
 "signedAt":"2000-01-02T03:04:05.000000006Z"
 }`,
 		},
+		"defaults": {
+			donor: &lpadata.Lpa{
+				LpaUID: "M-0000-1111-2222",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor: lpadata.Donor{
+					UID:         donorUID,
+					FirstNames:  "John Johnson",
+					LastName:    "Smith",
+					DateOfBirth: date.New("2000", "01", "02"),
+					Email:       "john@example.com",
+					Address: place.Address{
+						Line1:      "line-1",
+						TownOrCity: "town",
+						Country:    "GB",
+					},
+					OtherNames: "JJ",
+					Channel:    lpadata.ChannelOnline,
+				},
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{
+						UID:         attorneyUID,
+						FirstNames:  "Adam",
+						LastName:    "Attorney",
+						DateOfBirth: date.New("1999", "01", "02"),
+						Email:       "adam@example.com",
+						Address: place.Address{
+							Line1:      "a-line-1",
+							TownOrCity: "a-town",
+							Country:    "GB",
+						},
+					}},
+				},
+				ReplacementAttorneys: lpadata.Attorneys{},
+				CertificateProvider: lpadata.CertificateProvider{
+					UID:        certificateProviderUID,
+					FirstNames: "Carol",
+					LastName:   "Cert",
+					Address: place.Address{
+						Line1:      "c-line-1",
+						TownOrCity: "c-town",
+						Country:    "GB",
+					},
+					Channel: lpadata.ChannelPaper,
+				},
+				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+			},
+			json: `{
+"uid":"M-0000-1111-2222",
+"channel":"online",
+"lpaType":"property-and-affairs",
+"donor":{"uid":"` + donorUID.String() + `","firstNames":"John Johnson","lastName":"Smith","dateOfBirth":"2000-01-02","email":"john@example.com","address":{"line1":"line-1","line2":"","line3":"","town":"town","postcode":"","country":"GB"},"otherNamesKnownBy":"JJ"},
+"attorneys":[{"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"","line3":"","town":"a-town","postcode":"","country":"GB"},"status":"active"}],
+"certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
+"restrictionsAndConditions":"",
+"whenTheLpaCanBeUsed":"",
+"signedAt":"2000-01-02T03:04:05.000000006Z"
+}`,
+		},
 		"everything": {
 			donor: &lpadata.Lpa{
 				LpaUID: "M-0000-1111-2222",
