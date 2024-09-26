@@ -31,6 +31,8 @@ func TestClientSendLpa(t *testing.T) {
 	replacementAttorney2UID := actoruid.New()
 	certificateProviderUID := actoruid.New()
 	personToNotifyUID := actoruid.New()
+	authorisedSignatoryUID := actoruid.New()
+	independentWitnessUID := actoruid.New()
 
 	testcases := map[string]struct {
 		donor *donordata.Provided
@@ -242,6 +244,25 @@ func TestClientSendLpa(t *testing.T) {
 						Country:    "GB",
 					},
 				}},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{
+					UID:        authorisedSignatoryUID,
+					FirstNames: "Author",
+					LastName:   "Signor",
+				},
+				IndependentWitness: donordata.IndependentWitness{
+					UID:        independentWitnessUID,
+					FirstNames: "Indiana",
+					LastName:   "Witness",
+					Mobile:     "0777777777",
+					Address: place.Address{
+						Line1:      "i-line-1",
+						Line2:      "i-line-2",
+						Line3:      "i-line-3",
+						TownOrCity: "i-town",
+						Postcode:   "I1 1WW",
+						Country:    "GB",
+					},
+				},
 				IdentityUserData: identity.UserData{
 					Status:      identity.StatusConfirmed,
 					FirstNames:  "John Johnson",
@@ -268,6 +289,8 @@ func TestClientSendLpa(t *testing.T) {
 ],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online"},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
+"authorisedSignatory":{"uid":"` + authorisedSignatoryUID.String() + `","firstNames":"Author","lastName":"Signor"},
+"independentWitness":{"uid":"` + independentWitnessUID.String() + `","firstNames":"Indiana","lastName":"Witness","phone":"0777777777","address":{"line1":"i-line-1","line2":"i-line-2","line3":"i-line-3","town":"i-town","postcode":"I1 1WW","country":"GB"}},
 "howAttorneysMakeDecisions":"jointly",
 "howReplacementAttorneysMakeDecisions":"jointly-for-some-severally-for-others",
 "howReplacementAttorneysMakeDecisionsDetails":"umm",
