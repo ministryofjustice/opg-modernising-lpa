@@ -59,6 +59,8 @@ func (i AttorneysAct) IsJointlyForSomeSeverallyForOthers() bool {
 
 func ParseAttorneysAct(s string) (AttorneysAct, error) {
 	switch s {
+	case "":
+		return AttorneysAct(0), nil
 	case "jointly":
 		return Jointly, nil
 	case "jointly-and-severally":

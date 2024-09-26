@@ -900,6 +900,7 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: lpadata.ChannelOnline,
 				},
+				WhenCanTheLpaBeUsed:           lpadata.CanBeUsedWhenCapacityLost,
 				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}, donor)
@@ -1032,6 +1033,7 @@ func TestClientServiceContract(t *testing.T) {
 					},
 					Channel: lpadata.ChannelOnline,
 				},
+				WhenCanTheLpaBeUsed:           lpadata.CanBeUsedWhenCapacityLost,
 				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
 				SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 			}}, lpas)
