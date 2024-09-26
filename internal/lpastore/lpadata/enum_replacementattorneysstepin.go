@@ -59,6 +59,8 @@ func (i ReplacementAttorneysStepIn) IsAnotherWay() bool {
 
 func ParseReplacementAttorneysStepIn(s string) (ReplacementAttorneysStepIn, error) {
 	switch s {
+	case "":
+		return ReplacementAttorneysStepIn(0), nil
 	case "all-can-no-longer-act":
 		return ReplacementAttorneysStepInWhenAllCanNoLongerAct, nil
 	case "one-can-no-longer-act":
