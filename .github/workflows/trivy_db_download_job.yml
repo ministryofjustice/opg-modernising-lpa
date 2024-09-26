@@ -15,7 +15,7 @@ jobs:
         run: |
           wget https://github.com/aquasecurity/trivy/releases/download/v0.55.2/trivy_0.55.2_Linux-64bit.deb
           sudo dpkg -i trivy_0.55.2_Linux-64bit.deb
-          mkdir -p ~/.cache/trivy
+          mkdir -p /home/runner/.cache/trivy
       - name: Get Date
         id: get-date
         run: |
@@ -24,11 +24,11 @@ jobs:
         id: cache-trivy-db
         uses: actions/cache@v4.0.2
         with:
-          path: ~/.cache/trivy
+          path: /home/runner/.cache/trivy
           key: trivy-db-${{ steps.get-date.outputs.date }}
       - name: Download Trivy DB
         # if: steps.cache-trivy-db.outputs.cache-hit != 'true'
         run: |
-          trivy image --cache-dir ~/.cache/trivy --download-db-only
+          trivy image --cache-dir /home/runner/.cache/trivy --download-db-only
           trivy -h | grep cache
 

@@ -103,12 +103,12 @@ jobs:
         id: get-date
         run: |
           echo "date=$(/bin/date -u "+%Y%m%d%P")" >> $GITHUB_OUTPUT
-          mkdir -p ~/.cache/trivy
+          mkdir -p /home/runner/.cache/trivy
       - name: Cache trivy db
         id: cache-trivy-db
         uses: actions/cache/restore@v4.0.2
         with:
-          path: ~/.cache/trivy
+          path: /home/runner/.cache/trivy
           key: trivy-db-${{ steps.get-date.outputs.date }}
 
 
@@ -117,9 +117,9 @@ jobs:
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.24.0
         env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
-          # TRIVY_SKIP_DB_UPDATE: "true"
-          # TRIVY_CACHE_DIR: " ~/.cache/trivy"
+          # TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+          TRIVY_SKIP_DB_UPDATE: "true"
+          TRIVY_CACHE_DIR: "/home/runner/.cache/trivy"
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
