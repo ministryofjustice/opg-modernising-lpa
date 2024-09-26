@@ -107,6 +107,38 @@ jobs:
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          exit-code: '1'
+          ignore-unfixed: true
+
+
+
+      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
+        id: trivy_scan_to_summary
+        if: always()
+        uses: aquasecurity/trivy-action@0.24.0
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+        with:
+          image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
+          severity: 'HIGH,CRITICAL'
+          format: 'sarif'
+          output: 'trivy.txt'
+          ignore-unfixed: true
+      - name: Publish Trivy Output to Summary
+        if: always()
+        run: |
+          if [[ -s trivy.txt ]]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```terraform'
+              cat trivy.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
+
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
