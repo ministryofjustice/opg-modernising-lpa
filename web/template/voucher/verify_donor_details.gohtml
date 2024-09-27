@@ -12,7 +12,7 @@
 
             {{ trFormatHtml .App "verifyPersonDetailsContent"
                 "DonorFirstNames" .Lpa.Donor.FirstNames
-                "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+                "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
             
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "firstNames"
