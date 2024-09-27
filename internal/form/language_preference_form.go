@@ -9,16 +9,14 @@ import (
 
 type LanguagePreferenceForm struct {
 	Preference localize.Lang
-	Error      error
 	ErrorLabel string
 }
 
 func ReadLanguagePreferenceForm(r *http.Request, errorLabel string) *LanguagePreferenceForm {
-	preference, err := localize.ParseLang(PostFormString(r, FieldNames.LanguagePreference))
+	preference, _ := localize.ParseLang(PostFormString(r, FieldNames.LanguagePreference))
 
 	return &LanguagePreferenceForm{
 		Preference: preference,
-		Error:      err,
 		ErrorLabel: errorLabel,
 	}
 }
@@ -26,7 +24,7 @@ func ReadLanguagePreferenceForm(r *http.Request, errorLabel string) *LanguagePre
 func (f *LanguagePreferenceForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error(FieldNames.LanguagePreference, f.ErrorLabel, f.Error,
+	errors.Enum(FieldNames.LanguagePreference, f.ErrorLabel, f.Preference,
 		validation.Selected())
 
 	return errors

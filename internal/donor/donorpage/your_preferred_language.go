@@ -53,30 +53,26 @@ func YourPreferredLanguage(tmpl template.Template, donorStore DonorStore) Handle
 }
 
 type yourPreferredLanguageForm struct {
-	Contact      localize.Lang
-	ContactError error
-	Lpa          localize.Lang
-	LpaError     error
+	Contact localize.Lang
+	Lpa     localize.Lang
 }
 
 func readYourPreferredLanguageForm(r *http.Request) *yourPreferredLanguageForm {
-	contact, contactErr := localize.ParseLang(form.PostFormString(r, "contact-language"))
-	lpa, lpaErr := localize.ParseLang(form.PostFormString(r, "lpa-language"))
+	contact, _ := localize.ParseLang(form.PostFormString(r, "contact-language"))
+	lpa, _ := localize.ParseLang(form.PostFormString(r, "lpa-language"))
 
 	return &yourPreferredLanguageForm{
-		Contact:      contact,
-		ContactError: contactErr,
-		Lpa:          lpa,
-		LpaError:     lpaErr,
+		Contact: contact,
+		Lpa:     lpa,
 	}
 }
 
 func (f *yourPreferredLanguageForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("contact-language", "whichLanguageYouWouldLikeUsToUseWhenWeContactYou", f.ContactError,
+	errors.Enum("contact-language", "whichLanguageYouWouldLikeUsToUseWhenWeContactYou", f.Contact,
 		validation.Selected())
-	errors.Error("lpa-language", "theLanguageInWhichYouWouldLikeYourLpaRegistered", f.LpaError,
+	errors.Enum("lpa-language", "theLanguageInWhichYouWouldLikeYourLpaRegistered", f.Lpa,
 		validation.Selected())
 
 	return errors

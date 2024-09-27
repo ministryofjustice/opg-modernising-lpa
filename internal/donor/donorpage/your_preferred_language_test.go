@@ -1,7 +1,6 @@
 package donorpage
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -117,11 +116,8 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &yourPreferredLanguageData{
-			App: testAppData,
-			Form: &yourPreferredLanguageForm{
-				Lpa:          localize.En,
-				ContactError: errors.New("invalid Lang 'not-a-lang'"),
-			},
+			App:     testAppData,
+			Form:    &yourPreferredLanguageForm{Lpa: localize.En},
 			Options: localize.LangValues,
 			Errors:  validation.With("contact-language", validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}),
 		}).
@@ -149,10 +145,13 @@ func TestLanguagePreferenceFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &yourPreferredLanguageForm{},
+			form: &yourPreferredLanguageForm{
+				Lpa:     localize.En,
+				Contact: localize.Cy,
+			},
 		},
 		"invalid": {
-			form: &yourPreferredLanguageForm{ContactError: errors.New("err"), LpaError: errors.New("arr")},
+			form: &yourPreferredLanguageForm{},
 			errors: validation.With("contact-language", validation.SelectError{Label: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou"}).
 				With("lpa-language", validation.SelectError{Label: "theLanguageInWhichYouWouldLikeYourLpaRegistered"}),
 		},
