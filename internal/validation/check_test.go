@@ -418,3 +418,38 @@ func TestCheckOptions(t *testing.T) {
 		})
 	}
 }
+
+type testEnum int
+
+func (e testEnum) Empty() bool { return int(e) == 0 }
+
+func TestCheckEnum(t *testing.T) {
+	name := "field-name"
+	label := "translation-label"
+
+	testcases := map[string]struct {
+		input    interface{ Empty() bool }
+		checks   []EnumChecker
+		expected List
+	}{
+		"selected": {
+			input:  testEnum(1),
+			checks: []EnumChecker{Selected()},
+		},
+		"empty": {
+			input:    testEnum(0),
+			checks:   []EnumChecker{Selected()},
+			expected: With(name, SelectError{Label: label}),
+		},
+	}
+
+	for scenario, tc := range testcases {
+		t.Run(scenario, func(t *testing.T) {
+			var errors List
+
+			errors.Enum(name, label, tc.input, tc.checks...)
+
+			assert.Equal(t, tc.expected, errors)
+		})
+	}
+}

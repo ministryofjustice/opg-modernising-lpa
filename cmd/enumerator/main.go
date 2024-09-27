@@ -117,7 +117,8 @@
 //	)
 //
 // we would be able to check whether a value x had not been set to Yes or No by
-// using the boolean value returned by x.Empty().
+// using the boolean value returned by x.Empty(). It also alters Parse to accept
+// "" as, in this case, YesNo(0).
 //
 // The -bits flag tells enumerator to consider the type as a field of bits. This
 // is useful when an emum is defined using 1<<iota. It causes the following
@@ -678,6 +679,11 @@ func (g *Generator) buildParseMethod(runs [][]Value, typeName string) {
 		g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
 	switch s {
 `, typeName)
+		if g.empty {
+			g.Printf(`  case "":
+		return %[1]s(0), nil
+`, typeName)
+		}
 		for _, values := range runs {
 			for _, value := range values {
 				g.Printf(`  case "%[1]s":

@@ -163,12 +163,12 @@ func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &whenCanTheLpaBeUsedForm{},
+			form: &whenCanTheLpaBeUsedForm{
+				When: lpadata.CanBeUsedWhenHasCapacity,
+			},
 		},
 		"error": {
-			form: &whenCanTheLpaBeUsedForm{
-				Error: expectedError,
-			},
+			form:   &whenCanTheLpaBeUsedForm{},
 			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
 		},
 	}
