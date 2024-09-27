@@ -122,22 +122,22 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 		if strings.Contains(enTranslation, "{{") {
 			cyTranslation, _ := cy[k]
 
-			r := regexp.MustCompile(`{{[^{}]*}}`)
-			enMatches := r.FindAllString(enTranslation, -1)
-			cyMatches := r.FindAllString(cyTranslation, -1)
+			r := regexp.MustCompile(`{{[^\.]*(\.[^ }]*)[ ]*}}`)
+			enMatches := r.FindAllStringSubmatch(enTranslation, -1)
+			cyMatches := r.FindAllStringSubmatch(cyTranslation, -1)
 
-			// Account for white space in var
-			for enK, _ := range enMatches {
-				enMatches[enK] = strings.ReplaceAll(enMatches[enK], " ", "")
+			enGroups := make([]string, len(enMatches))
+			for i, matches := range enMatches {
+				enGroups[i] = matches[1]
+			}
+			cyGroups := make([]string, len(cyMatches))
+			for i, matches := range cyMatches {
+				cyGroups[i] = matches[1]
 			}
 
-			for cyK, _ := range cyMatches {
-				cyMatches[cyK] = strings.ReplaceAll(cyMatches[cyK], " ", "")
-			}
-
-			if !slices.Equal(enMatches, cyMatches) {
+			if !slices.Equal(enGroups, cyGroups) {
 				t.Fail()
-				t.Logf("missing translation variable in %s en: %v | cy: %v", k, enMatches, cyMatches)
+				t.Logf("missing translation variable in %s en: %v | cy: %v", k, enGroups, cyGroups)
 			}
 		}
 	}

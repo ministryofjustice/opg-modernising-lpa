@@ -9,11 +9,9 @@
 
       {{ trHtml .App "wantPeopleToNotifyContent" }}
 
-      {{ $lpaType := lowerFirst (tr .App .Donor.Type.String) }}
-
       <p class="govuk-body">{{ tr .App "weWillOnlyTellThem" }}</p>
       <ul class="govuk-list govuk-list--bullet">
-        <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" $lpaType }}</li>
+        <li>{{trFormat .App "thatYouHaveMadeALpaType" "LpaType" (tr .App .Donor.Type.String) }}</li>
         <li>{{ trFormatCount .App "thatYourAttorneysAre" .Donor.Attorneys.Len "AllAttorneysFirstNames" (concatAnd .App .Donor.Attorneys.FirstNames) }}</li>
         {{ if gt .Donor.Attorneys.Len 1 }}
           <li>{{ tr .App .HowWorkTogether }}</li>
