@@ -129,6 +129,8 @@ func (i Day) IsSunday() bool {
 
 func ParseDay(s string) (Day, error) {
 	switch s {
+	case "":
+		return Day(0), nil
 	case "Monday":
 		return Monday, nil
 	case "Tuesday":

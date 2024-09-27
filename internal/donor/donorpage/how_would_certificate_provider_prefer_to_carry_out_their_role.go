@@ -55,11 +55,10 @@ func HowWouldCertificateProviderPreferToCarryOutTheirRole(tmpl template.Template
 type howWouldCertificateProviderPreferToCarryOutTheirRoleForm struct {
 	CarryOutBy lpadata.Channel
 	Email      string
-	Error      error
 }
 
 func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *howWouldCertificateProviderPreferToCarryOutTheirRoleForm {
-	channel, err := lpadata.ParseChannel(page.PostFormString(r, "carry-out-by"))
+	channel, _ := lpadata.ParseChannel(page.PostFormString(r, "carry-out-by"))
 
 	email := page.PostFormString(r, "email")
 	if channel.IsPaper() {
@@ -69,14 +68,13 @@ func readHowWouldCertificateProviderPreferToCarryOutTheirRole(r *http.Request) *
 	return &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
 		CarryOutBy: channel,
 		Email:      email,
-		Error:      err,
 	}
 }
 
 func (f *howWouldCertificateProviderPreferToCarryOutTheirRoleForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.Error,
+	errors.Enum("carry-out-by", "howYourCertificateProviderWouldPreferToCarryOutTheirRole", f.CarryOutBy,
 		validation.Selected())
 
 	if f.CarryOutBy.IsOnline() {

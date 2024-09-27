@@ -66,23 +66,21 @@ func HowDoYouKnowYourCertificateProvider(tmpl template.Template, donorStore Dono
 }
 
 type howDoYouKnowYourCertificateProviderForm struct {
-	How   lpadata.CertificateProviderRelationship
-	Error error
+	How lpadata.CertificateProviderRelationship
 }
 
 func readHowDoYouKnowYourCertificateProviderForm(r *http.Request) *howDoYouKnowYourCertificateProviderForm {
-	how, err := lpadata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
+	how, _ := lpadata.ParseCertificateProviderRelationship(page.PostFormString(r, "how"))
 
 	return &howDoYouKnowYourCertificateProviderForm{
-		How:   how,
-		Error: err,
+		How: how,
 	}
 }
 
 func (f *howDoYouKnowYourCertificateProviderForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("how", "howYouKnowCertificateProvider", f.Error,
+	errors.Enum("how", "howYouKnowCertificateProvider", f.How,
 		validation.Selected())
 
 	return errors

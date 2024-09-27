@@ -79,22 +79,20 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 
 type lpaTypeForm struct {
 	LpaType lpadata.LpaType
-	Error   error
 }
 
 func readLpaTypeForm(r *http.Request) *lpaTypeForm {
-	lpaType, err := lpadata.ParseLpaType(page.PostFormString(r, "lpa-type"))
+	lpaType, _ := lpadata.ParseLpaType(page.PostFormString(r, "lpa-type"))
 
 	return &lpaTypeForm{
 		LpaType: lpaType,
-		Error:   err,
 	}
 }
 
 func (f *lpaTypeForm) Validate(hasTrustCorporation bool) validation.List {
 	var errors validation.List
 
-	errors.Error("lpa-type", "theTypeOfLpaToMake", f.Error,
+	errors.Enum("lpa-type", "theTypeOfLpaToMake", f.LpaType,
 		validation.Selected())
 
 	if f.LpaType.IsPersonalWelfare() && hasTrustCorporation {

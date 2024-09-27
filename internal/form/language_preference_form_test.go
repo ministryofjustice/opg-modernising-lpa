@@ -1,7 +1,6 @@
 package form
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -26,10 +25,10 @@ func TestLanguagePreferenceFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &LanguagePreferenceForm{},
+			form: &LanguagePreferenceForm{Preference: localize.En},
 		},
 		"invalid": {
-			form:   &LanguagePreferenceForm{Error: errors.New("err"), ErrorLabel: "a-label"},
+			form:   &LanguagePreferenceForm{ErrorLabel: "a-label"},
 			errors: validation.With(FieldNames.LanguagePreference, validation.SelectError{Label: "a-label"}),
 		},
 	}

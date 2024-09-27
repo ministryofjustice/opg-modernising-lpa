@@ -167,7 +167,6 @@ func TestReadCanYouSignYourLpaForm(t *testing.T) {
 	result := readCanYouSignYourLpaForm(r)
 
 	assert.Equal(t, donordata.Yes, result.CanSign)
-	assert.Nil(t, result.CanSignError)
 }
 
 func TestCanYouSignYourLpaFormValidate(t *testing.T) {
@@ -176,12 +175,10 @@ func TestCanYouSignYourLpaFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &canYouSignYourLpaForm{},
+			form: &canYouSignYourLpaForm{CanSign: donordata.Yes},
 		},
 		"invalid": {
-			form: &canYouSignYourLpaForm{
-				CanSignError: expectedError,
-			},
+			form:   &canYouSignYourLpaForm{},
 			errors: validation.With("can-sign", validation.SelectError{Label: "yesIfCanSign"}),
 		},
 	}

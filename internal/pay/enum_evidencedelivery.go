@@ -54,6 +54,8 @@ func (i EvidenceDelivery) IsPost() bool {
 
 func ParseEvidenceDelivery(s string) (EvidenceDelivery, error) {
 	switch s {
+	case "":
+		return EvidenceDelivery(0), nil
 	case "upload":
 		return Upload, nil
 	case "post":
