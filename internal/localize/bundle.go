@@ -71,14 +71,28 @@ func (b *Bundle) LoadMessageFile(p string) error {
 
 	lang, _ := strings.CutSuffix(path.Base(p), ".json")
 
+	fns := map[string]any{
+		"lowerFirst": LowerFirst,
+	}
+
 	if lang == "en" {
 		if err := verifyEn(v); err != nil {
 			return err
+		}
+		fns["possessive"] = func(s string) string {
+			format := "%s’s"
+
+			if strings.HasSuffix(s, "s") {
+				format = "%s’"
+			}
+
+			return fmt.Sprintf(format, s)
 		}
 	} else if lang == "cy" {
 		if err := verifyCy(v); err != nil {
 			return err
 		}
+		fns["possessive"] = func(s string) string { return s }
 	} else {
 		return errors.New("only supports en or cy")
 	}
@@ -90,14 +104,14 @@ func (b *Bundle) LoadMessageFile(p string) error {
 
 	for key, message := range v {
 		if message.S != "" {
-			messages.Singles[key] = newSingleMessage(message.S)
+			messages.Singles[key] = newSingleMessage(message.S, fns)
 		} else {
 			messages.Plurals[key] = pluralMessage{
-				One:   newSingleMessage(message.One),
-				Two:   newSingleMessage(message.Two),
-				Few:   newSingleMessage(message.Few),
-				Many:  newSingleMessage(message.Many),
-				Other: newSingleMessage(message.Other),
+				One:   newSingleMessage(message.One, fns),
+				Two:   newSingleMessage(message.Two, fns),
+				Few:   newSingleMessage(message.Few, fns),
+				Many:  newSingleMessage(message.Many, fns),
+				Other: newSingleMessage(message.Other, fns),
 			}
 		}
 	}
