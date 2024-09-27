@@ -1,5 +1,5 @@
 {
     "personal-welfare": "Personal welfare",
     "emailGreetingDonor": "Hi {{.DonorFullName}}",
-    "emailGreetingCorrespondent": "Hello {{.CorrespondentFullName}} for {{.DonorFullNamePossessive}} {{.LpaType}} LPA ({{.LpaUID}})"
+    "emailGreetingCorrespondent": "Hello {{.CorrespondentFullName}} for {{possessive .DonorFullName}} {{.LpaType}} LPA ({{.LpaUID}})"
 }

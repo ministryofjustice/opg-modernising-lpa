@@ -5,12 +5,10 @@
                 <div class="govuk-grid-column-two-thirds">
                     {{ if .App.SupporterData.DonorFullName }}
                         <p class="app-supporter-lpa-context-banner__content">
-                            {{ $donorNamePossessive := .App.Localizer.Possessive .App.SupporterData.DonorFullName }}
-
                             {{ if .App.SupporterData.LpaType.Empty }}
-                                {{ trFormatHtml .App "youAreDraftingDonorsLpa" "DonorFullNamePossessive" $donorNamePossessive }}
+                                {{ trFormatHtml .App "youAreDraftingDonorsLpa" "DonorFullName" .App.SupporterData.DonorFullName }}
                             {{ else }}
-                                {{ trFormatHtml .App "youAreDraftingDonorsTypeLpa" "DonorFullNamePossessive" $donorNamePossessive "LpaType" (tr .App .App.SupporterData.LpaType.String) }}
+                                {{ trFormatHtml .App "youAreDraftingDonorsTypeLpa" "DonorFullName" .App.SupporterData.DonorFullName "LpaType" (tr .App .App.SupporterData.LpaType.String) }}
                             {{ end }}
                         </p>
                     {{ else }}

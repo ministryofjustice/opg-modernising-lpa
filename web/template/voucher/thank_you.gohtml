@@ -11,12 +11,12 @@
                 </h1>
                 <div class="govuk-panel__body">
                     {{ trFormat .App "youHaveVouchedFor"
-                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                        "DonorFullName" .Lpa.Donor.FullName }}
                 </div>
             </div>
 
             {{ trFormatHtml .App "voucherThankYouContent"
-                "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+                "DonorFirstNames" .Lpa.Donor.FirstNames }}
         </div>
     </div>
 {{ end }}
