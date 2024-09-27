@@ -8,8 +8,7 @@
             <h1 class="govuk-heading-xl">{{ tr .App "yourDeclaration" }}</h1>
 
             {{ trFormatHtml .App "yourDeclarationContent"
-                "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName)
-                "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames)
+                "DonorFullName" .Lpa.Donor.FullName
                 "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
             <form novalidate method="post">

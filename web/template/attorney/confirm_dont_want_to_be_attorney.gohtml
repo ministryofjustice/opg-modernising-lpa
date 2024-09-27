@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "confirmYouDoNotWantToBeAttorney" }}</h1>
 
-            <p class="govuk-body">{{ trFormat .App "youHaveToldUsYouDoNotWantToBeAttorneyOn" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+            <p class="govuk-body">{{ trFormat .App "youHaveToldUsYouDoNotWantToBeAttorneyOn" "DonorFullName" .Lpa.Donor.FullName }}
             
             <div class="govuk-inset-text">
                 <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">

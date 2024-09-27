@@ -7,12 +7,12 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">
                 {{ trFormat .App "verifyPersonDetails"
-                    "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                    "DonorFullName" .Lpa.Donor.FullName }}
             </h1>
 
             {{ trFormatHtml .App "verifyPersonDetailsContent"
                 "DonorFirstNames" .Lpa.Donor.FirstNames
-                "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                "DonorFullName" .Lpa.Donor.FullName }}
             
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "firstNames"
@@ -33,7 +33,7 @@
                 <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                            {{ trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                            {{ trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullName" .Lpa.Donor.FullName }}
                         </legend>
 
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}

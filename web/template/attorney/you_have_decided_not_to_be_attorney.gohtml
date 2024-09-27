@@ -6,7 +6,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
-                <h1 class="govuk-panel__title">{{ trFormat .App "youHaveConfirmedYouDoNotWantToBeDonorsAttorney" "DonorFullNamePossessive" (possessive .App (.App.Query.Get "donorFullName")) }}</h1>
+                <h1 class="govuk-panel__title">{{ trFormat .App "youHaveConfirmedYouDoNotWantToBeDonorsAttorney" "DonorFullName" (.App.Query.Get "donorFullName") }}</h1>
             </div>
 
             {{ trFormatHtml .App "weHaveLetDonorKnowAboutYourDecision" "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
