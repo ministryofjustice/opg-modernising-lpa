@@ -15,7 +15,7 @@
         <div class="govuk-breadcrumbs">
           <ol class="govuk-breadcrumbs__list">
             <li class="govuk-breadcrumbs__list-item">
-              <a class="govuk-breadcrumbs__link" href="{{ link .App (global.Paths.Supporter.ViewLPA.Format .Donor.LpaID) }}">{{ trFormat .App "donorsTypeLpa" "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.String | lowerFirst) }}</a>
+              <a class="govuk-breadcrumbs__link" href="{{ link .App (global.Paths.Supporter.ViewLPA.Format .Donor.LpaID) }}">{{ trFormat .App "donorsTypeLpa" "DonorFullNamePossessive" (possessive .App .Donor.Donor.FullName) "LpaType" (tr .App .Donor.Type.String) }}</a>
             </li>
           </ol>
         </div>
@@ -39,7 +39,7 @@
           </dl>
         </div>
       {{ else }}
-        <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String | lowerFirst) }}</span>
+        <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String) }}</span>
         <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
         <div class="govuk-inset-text">

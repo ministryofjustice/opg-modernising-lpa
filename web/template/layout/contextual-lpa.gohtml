@@ -286,7 +286,7 @@
                 <ul class="govuk-list govuk-list--bullet">
                     <li>{{ tr .App "iHaveReadLpa" }}</li>
                     {{ if .Lpa.Type.IsPersonalWelfare }}
-                        <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" (tr .App .Lpa.Type.String | lowerFirst) }}</li>
+                        <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" (tr .App .Lpa.Type.String) }}</li>
                     {{ else }}
                         {{ if .Lpa.WhenCanTheLpaBeUsed.IsHasCapacity }}
                             <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
