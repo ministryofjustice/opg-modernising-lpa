@@ -372,6 +372,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		CannotRegister:                l.Status == "cannot-register",
 	}
 
+	if l.LpaType.IsPersonalWelfare() {
+		data.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+	}
+
 	for _, a := range l.Attorneys {
 		at := lpadata.Attorney{
 			UID:                       a.UID,

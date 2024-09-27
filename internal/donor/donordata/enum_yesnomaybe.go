@@ -59,6 +59,8 @@ func (i YesNoMaybe) IsMaybe() bool {
 
 func ParseYesNoMaybe(s string) (YesNoMaybe, error) {
 	switch s {
+	case "":
+		return YesNoMaybe(0), nil
 	case "Yes":
 		return Yes, nil
 	case "No":

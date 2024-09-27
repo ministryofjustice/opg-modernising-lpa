@@ -54,6 +54,8 @@ func (i Channel) IsOnline() bool {
 
 func ParseChannel(s string) (Channel, error) {
 	switch s {
+	case "":
+		return Channel(0), nil
 	case "paper":
 		return ChannelPaper, nil
 	case "online":
