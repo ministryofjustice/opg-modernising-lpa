@@ -204,7 +204,6 @@ func TestReadWhatYouCanDoNowForm(t *testing.T) {
 	result := readWhatYouCanDoNowForm(r, &donordata.Provided{})
 
 	assert.Equal(donordata.WithdrawLPA, result.DoNext)
-	assert.Nil(result.Error)
 }
 
 func TestWhatYouCanDoNowFormValidate(t *testing.T) {
@@ -218,10 +217,7 @@ func TestWhatYouCanDoNowFormValidate(t *testing.T) {
 			},
 		},
 		"invalid": {
-			form: &whatYouCanDoNowForm{
-				DoNext: donordata.NoVoucherDecision(99),
-				Error:  expectedError,
-			},
+			form: &whatYouCanDoNowForm{},
 			errors: validation.
 				With("do-next", validation.SelectError{Label: "whatYouWouldLikeToDo"}),
 		},

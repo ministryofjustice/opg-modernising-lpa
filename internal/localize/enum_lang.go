@@ -54,6 +54,8 @@ func (i Lang) IsCy() bool {
 
 func ParseLang(s string) (Lang, error) {
 	switch s {
+	case "":
+		return Lang(0), nil
 	case "en":
 		return En, nil
 	case "cy":

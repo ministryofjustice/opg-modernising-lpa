@@ -87,17 +87,15 @@ func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provid
 
 type whatYouCanDoNowForm struct {
 	DoNext         donordata.NoVoucherDecision
-	Error          error
 	Options        donordata.NoVoucherDecisionOptions
 	CanHaveVoucher bool
 }
 
 func readWhatYouCanDoNowForm(r *http.Request, provided *donordata.Provided) *whatYouCanDoNowForm {
-	doNext, err := donordata.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
+	doNext, _ := donordata.ParseNoVoucherDecision(page.PostFormString(r, "do-next"))
 
 	return &whatYouCanDoNowForm{
 		DoNext:         doNext,
-		Error:          err,
 		Options:        donordata.NoVoucherDecisionValues,
 		CanHaveVoucher: provided.CanHaveVoucher(),
 	}
@@ -106,7 +104,7 @@ func readWhatYouCanDoNowForm(r *http.Request, provided *donordata.Provided) *wha
 func (f *whatYouCanDoNowForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("do-next", "whatYouWouldLikeToDo", f.Error,
+	errors.Enum("do-next", "whatYouWouldLikeToDo", f.DoNext,
 		validation.Selected())
 
 	if !f.CanHaveVoucher && f.DoNext.IsSelectNewVoucher() {

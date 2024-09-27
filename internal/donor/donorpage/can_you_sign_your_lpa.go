@@ -59,23 +59,21 @@ func CanYouSignYourLpa(tmpl template.Template, donorStore DonorStore) Handler {
 }
 
 type canYouSignYourLpaForm struct {
-	CanSign      donordata.YesNoMaybe
-	CanSignError error
+	CanSign donordata.YesNoMaybe
 }
 
 func readCanYouSignYourLpaForm(r *http.Request) *canYouSignYourLpaForm {
-	canSign, canSignError := donordata.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
+	canSign, _ := donordata.ParseYesNoMaybe(page.PostFormString(r, "can-sign"))
 
 	return &canYouSignYourLpaForm{
-		CanSign:      canSign,
-		CanSignError: canSignError,
+		CanSign: canSign,
 	}
 }
 
 func (f *canYouSignYourLpaForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("can-sign", "yesIfCanSign", f.CanSignError,
+	errors.Enum("can-sign", "yesIfCanSign", f.CanSign,
 		validation.Selected())
 
 	return errors

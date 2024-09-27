@@ -203,12 +203,12 @@ func TestPreviousFeeFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &previousFeeForm{},
+			form: &previousFeeForm{
+				PreviousFee: pay.PreviousFeeFull,
+			},
 		},
 		"invalid": {
-			form: &previousFeeForm{
-				Error: expectedError,
-			},
+			form:   &previousFeeForm{},
 			errors: validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}),
 		},
 	}
