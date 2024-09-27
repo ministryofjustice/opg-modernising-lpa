@@ -267,17 +267,7 @@ func TestHowWouldCertificateProviderPreferToCarryOutTheirRoleFormValidate(t *tes
 			errors: validation.With("email", validation.EnterError{Label: "certificateProvidersEmail"}),
 		},
 		"missing": {
-			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: lpadata.Channel(0),
-				Error:      expectedError,
-			},
-			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
-		},
-		"invalid": {
-			form: &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{
-				CarryOutBy: lpadata.Channel(99),
-				Error:      expectedError,
-			},
+			form:   &howWouldCertificateProviderPreferToCarryOutTheirRoleForm{},
 			errors: validation.With("carry-out-by", validation.SelectError{Label: "howYourCertificateProviderWouldPreferToCarryOutTheirRole"}),
 		},
 	}

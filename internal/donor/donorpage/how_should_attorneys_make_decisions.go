@@ -65,18 +65,16 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 
 type howShouldAttorneysMakeDecisionsForm struct {
 	DecisionsType     lpadata.AttorneysAct
-	Error             error
 	DecisionsDetails  string
 	errorLabel        string
 	detailsErrorLabel string
 }
 
 func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel, detailsErrorLabel string) *howShouldAttorneysMakeDecisionsForm {
-	how, err := lpadata.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
+	how, _ := lpadata.ParseAttorneysAct(page.PostFormString(r, "decision-type"))
 
 	return &howShouldAttorneysMakeDecisionsForm{
 		DecisionsType:     how,
-		Error:             err,
 		DecisionsDetails:  page.PostFormString(r, "mixed-details"),
 		errorLabel:        errorLabel,
 		detailsErrorLabel: detailsErrorLabel,
@@ -86,7 +84,7 @@ func readHowShouldAttorneysMakeDecisionsForm(r *http.Request, errorLabel, detail
 func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Error("decision-type", f.errorLabel, f.Error,
+	errors.Enum("decision-type", f.errorLabel, f.DecisionsType,
 		validation.Selected())
 
 	if f.DecisionsType == lpadata.JointlyForSomeSeverallyForOthers {

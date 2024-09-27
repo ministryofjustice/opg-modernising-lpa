@@ -1,7 +1,6 @@
 package certificateproviderpage
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -158,7 +157,6 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 		Execute(w, &yourPreferredLanguageData{
 			App: testAppData,
 			Form: &form.LanguagePreferenceForm{
-				Error:      errors.New("invalid Lang 'not-a-lang'"),
 				ErrorLabel: "whichLanguageYouWouldLikeUsToUseWhenWeContactYou",
 			},
 			Options:   localize.LangValues,

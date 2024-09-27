@@ -161,12 +161,12 @@ func TestLifeSustainingTreatmentFormValidate(t *testing.T) {
 		errors validation.List
 	}{
 		"valid": {
-			form: &lifeSustainingTreatmentForm{},
+			form: &lifeSustainingTreatmentForm{
+				Option: lpadata.LifeSustainingTreatmentOptionA,
+			},
 		},
 		"invalid": {
-			form: &lifeSustainingTreatmentForm{
-				Error: expectedError,
-			},
+			form:   &lifeSustainingTreatmentForm{},
 			errors: validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}),
 		},
 	}
