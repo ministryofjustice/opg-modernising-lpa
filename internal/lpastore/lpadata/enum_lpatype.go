@@ -54,6 +54,8 @@ func (i LpaType) IsPropertyAndAffairs() bool {
 
 func ParseLpaType(s string) (LpaType, error) {
 	switch s {
+	case "":
+		return LpaType(0), nil
 	case "personal-welfare":
 		return LpaTypePersonalWelfare, nil
 	case "property-and-affairs":

@@ -64,6 +64,8 @@ func (i PreviousFee) IsPreviousFeeHardship() bool {
 
 func ParsePreviousFee(s string) (PreviousFee, error) {
 	switch s {
+	case "":
+		return PreviousFee(0), nil
 	case "Full":
 		return PreviousFeeFull, nil
 	case "Half":
