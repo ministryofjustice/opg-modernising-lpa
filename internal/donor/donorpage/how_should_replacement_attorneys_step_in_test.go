@@ -310,12 +310,18 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 		expectedErrors validation.List
 	}{
 		"valid": {
-			form: &howShouldReplacementAttorneysStepInForm{},
+			form: &howShouldReplacementAttorneysStepInForm{
+				WhenToStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+			},
+		},
+		"valid with details": {
+			form: &howShouldReplacementAttorneysStepInForm{
+				WhenToStepIn: lpadata.ReplacementAttorneysStepInAnotherWay,
+				OtherDetails: "hey",
+			},
 		},
 		"invalid": {
-			form: &howShouldReplacementAttorneysStepInForm{
-				Error: expectedError,
-			},
+			form:           &howShouldReplacementAttorneysStepInForm{},
 			expectedErrors: validation.With("when-to-step-in", validation.SelectError{Label: "whenYourReplacementAttorneysStepIn"}),
 		},
 		"missing other details": {
