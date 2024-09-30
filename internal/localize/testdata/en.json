@@ -9,5 +9,6 @@
     "d": {
         "one": "{{.PluralCount}} ONE {{.x}}",
         "other": "{{.PluralCount}} OTHER {{.x}}"
-    }
+    },
+    "p": "for {{ .x | lowerFirst | possessive }} birthday"
 }
