@@ -7,17 +7,15 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ tr .App "whatHappensWhenYouSignTheLpaTitle" }}</h1>
 
-      {{ $donorFullNamePossessive := possessive .App .Lpa.Donor.FullName }}
-
       {{ if .Lpa.Type.IsPersonalWelfare }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPw" "DonorFullName" .Lpa.Donor.FullName "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
         {{ else if .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPw" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPw" "DonorFullName" .Lpa.Donor.FullName "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
         {{ else if .App.IsReplacementAttorney }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPw" "DonorFullNamePossessive" $donorFullNamePossessive }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPw" "DonorFullName" .Lpa.Donor.FullName }}
         {{ else }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPw" "DonorFullNamePossessive" $donorFullNamePossessive }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPw" "DonorFullName" .Lpa.Donor.FullName }}
         {{ end }}
 
         {{ trHtml .App "pwDecisionsBullets"}}
@@ -29,13 +27,13 @@
         {{ end }}
       {{ else }}
         {{ if and .App.IsReplacementAttorney .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPa" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementTrustCorporationPa" "DonorFullName" .Lpa.Donor.FullName "TrustCorporationName" .Lpa.ReplacementAttorneys.TrustCorporation.Name }}
         {{ else if .App.IsTrustCorporation }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPa" "DonorFullNamePossessive" $donorFullNamePossessive "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentTrustCorporationPa" "DonorFullName" .Lpa.Donor.FullName "TrustCorporationName" .Lpa.Attorneys.TrustCorporation.Name }}
         {{ else if .App.IsReplacementAttorney }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPa" "DonorFullNamePossessive" $donorFullNamePossessive }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentReplacementAttorneyPa" "DonorFullName" .Lpa.Donor.FullName }}
         {{ else }}
-          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPa" "DonorFullNamePossessive" $donorFullNamePossessive }}
+          {{ trFormatHtml .App "whatHappensWhenYouSignTheLpaContentAttorneyPa" "DonorFullName" .Lpa.Donor.FullName }}
         {{ end }}
 
         {{  trFormatHtml .App "paPowersBullets" "DonorFirstNames" .Lpa.Donor.FirstNames }}
