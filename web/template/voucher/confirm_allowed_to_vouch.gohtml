@@ -12,13 +12,13 @@
             <p class="govuk-body">
                 {{ if .MatchIdentity }}
                     {{ trFormat .App "yourConfirmedIdentityDetailsMatchSomeone"
-                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                        "DonorFullName" .Lpa.Donor.FullName }}
                 {{ else if .SurnameMatchesDonor }}
                     {{ trFormat .App "theDonorsLastNameMatchesYours"
-                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                        "DonorFullName" .Lpa.Donor.FullName }}
                 {{ else }}
                     {{ trFormat .App "youHaveEnteredNameWhichMatchesSomeone"
-                        "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+                        "DonorFullName" .Lpa.Donor.FullName }}
                 {{ end }}
             </p>
 

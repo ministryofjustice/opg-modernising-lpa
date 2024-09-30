@@ -29,14 +29,14 @@
       </div>
 
       {{ if .App.IsTrustCorporation }}
-        {{ trFormatHtml .App "lpaWillBeSubmittedWhenAllAttorneysHaveSigned" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+        {{ trFormatHtml .App "lpaWillBeSubmittedWhenAllAttorneysHaveSigned" "DonorFullName" .Lpa.Donor.FullName }}
       {{ else if .App.IsReplacementAttorney }}
-        {{ trFormatHtml .App "youveFormallyAgreedToBeReplacementAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+        {{ trFormatHtml .App "youveFormallyAgreedToBeReplacementAttorneyContent" "DonorFullName" .Lpa.Donor.FullName }}
       {{ else }}
-        {{ trFormatHtml .App "youveFormallyAgreedToBeAttorneyContent" "DonorFullNamePossessive" (possessive .App .Lpa.Donor.FullName) }}
+        {{ trFormatHtml .App "youveFormallyAgreedToBeAttorneyContent" "DonorFullName" .Lpa.Donor.FullName }}
       {{ end }}
 
-      {{ trFormatHtml .App "attorneyWhatHappensNextContent" "DonorFirstNamesPossessive" (possessive .App .Lpa.Donor.FirstNames) }}
+      {{ trFormatHtml .App "attorneyWhatHappensNextContent" "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
       <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "goToYourDashboard" }}</a>
     </div>

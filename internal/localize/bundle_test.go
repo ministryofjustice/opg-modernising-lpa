@@ -26,6 +26,9 @@ func TestNewBundle(t *testing.T) {
 	assert.Equal("2 OTHER FORMATTED", en.FormatCount("d", 2, map[string]interface{}{"x": "FORMATTED"}))
 	assert.Equal("key does not exist", en.FormatCount("key does not exist", 2, map[string]interface{}{"x": "FORMATTED"}))
 
+	assert.Equal("for john’s birthday", en.Format("p", map[string]any{"x": "John"}))
+	assert.Equal("for johns’ birthday", en.Format("p", map[string]any{"x": "Johns"}))
+
 	cy := bundle.For(Cy)
 	assert.Equal("C", cy.T("a"))
 
@@ -46,6 +49,8 @@ func TestNewBundle(t *testing.T) {
 	assert.Equal("5 other formatted", cy.FormatCount("d", 5, map[string]interface{}{"x": "formatted"}))
 	assert.Equal("6 many formatted", cy.FormatCount("d", 6, map[string]interface{}{"x": "formatted"}))
 	assert.Equal("7 other formatted", cy.FormatCount("d", 7, map[string]interface{}{"x": "formatted"}))
+
+	assert.Equal("for john birthday", cy.Format("p", map[string]any{"x": "John"}))
 }
 
 func TestNewBundleWhenBadFormat(t *testing.T) {
