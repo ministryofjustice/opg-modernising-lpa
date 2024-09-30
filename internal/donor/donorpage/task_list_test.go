@@ -144,6 +144,60 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"failed identity and is applying to court of protection and has not signed": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				Donor:                            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusFailed, LastName: "a"},
+				WantVoucher:                      form.No,
+				RegisteringWithCourtOfProtection: true,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: donor.PathReadYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
+		"failed identity and is applying to court of protection and has signed and not witnessed": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				Donor:                            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusFailed, LastName: "a"},
+				WantVoucher:                      form.No,
+				RegisteringWithCourtOfProtection: true,
+				SignedAt:                         testNow,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: donor.PathWitnessingYourSignature.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
+		"failed identity and is applying to court of protection and has signed and witnessed": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:                            "lpa-id",
+				Donor:                            donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData:                 identity.UserData{Status: identity.StatusFailed, LastName: "a"},
+				WantVoucher:                      form.No,
+				RegisteringWithCourtOfProtection: true,
+				SignedAt:                         testNow,
+				WitnessedByCertificateProviderAt: testNow,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentityAndSign", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"expired identity": {
 			appData: testAppData,
 			donor: &donordata.Provided{
@@ -190,7 +244,7 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
-		"does not want a voucher": {
+		"insufficient evidence and does not want a voucher": {
 			appData: testAppData,
 			donor: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -206,7 +260,7 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
-		"wants a voucher": {
+		"insufficient evidence and wants a voucher": {
 			appData: testAppData,
 			donor: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -222,7 +276,7 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
-		"is applying to court of protection": {
+		"insufficient evidence and is applying to court of protection": {
 			appData: testAppData,
 			donor: &donordata.Provided{
 				LpaID:                            "lpa-id",
@@ -239,7 +293,7 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
-		"is applying to court of protection and has signed": {
+		"insufficient evidence and is applying to court of protection and has signed": {
 			appData: testAppData,
 			donor: &donordata.Provided{
 				LpaID:                            "lpa-id",
