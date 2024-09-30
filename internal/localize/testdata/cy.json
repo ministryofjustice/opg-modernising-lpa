@@ -17,5 +17,6 @@
         "other": "{{.PluralCount}} other {{.x}}"
     },
     "and": "a",
-    "or": "neu"
+    "or": "neu",
+    "p": "for {{ lowerFirst .x }} birthday"
 }
