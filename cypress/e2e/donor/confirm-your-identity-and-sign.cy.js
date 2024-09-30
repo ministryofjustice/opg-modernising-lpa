@@ -258,7 +258,7 @@ describe('Confirm your identity and sign', () => {
             cy.url().should('contain', '/register-with-court-of-protection');
         })
 
-        it('can withdraw', () => {
+        it('can delete LPA', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
             cy.contains('li', "Confirm your identity and sign")
                 .should('contain', 'Not started')
@@ -285,7 +285,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('label', 'I no longer want to make this LPA').click();
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/withdraw-this-lpa');
+            cy.url().should('contain', '/delete-this-lpa');
         })
     })
 
