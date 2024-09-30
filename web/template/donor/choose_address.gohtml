@@ -2,9 +2,9 @@
 
 {{ define "pageTitle" }}
     {{ if eq .Form.Action "manual" }}
-        {{ trFormat .App .TitleKeys.Manual "FullName" (tr .App .ActorLabel) "FullName" (tr .App .ActorLabel) }}
+        {{ trFormat .App .TitleKeys.Manual "FullName" (tr .App .ActorLabel) }}
     {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
-        {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullName" (tr .App .ActorLabel | lowerFirst) "FullName" (tr .App .ActorLabel | lowerFirst) }}
+        {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullName" (tr .App .ActorLabel | lowerFirst) }}
     {{ else if eq .Form.Action "postcode" }}
         {{ trFormat .App .TitleKeys.Postcode "FullName" (tr .App .ActorLabel | lowerFirst) }}
     {{ else if eq .Form.Action "reuse" "reuse-select" }}
