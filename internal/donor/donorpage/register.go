@@ -395,7 +395,7 @@ func Register(
 	handleWithDonor(donor.PathOneLoginIdentityDetails, page.CanGoBack,
 		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
-		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore, time.Now))
+		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore))
 
 	handleWithDonor(donor.PathUnableToConfirmIdentity, page.None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))

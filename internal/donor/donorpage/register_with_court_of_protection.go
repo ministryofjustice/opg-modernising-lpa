@@ -2,7 +2,6 @@ package donorpage
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -19,7 +18,7 @@ type registerWithCourtOfProtectionData struct {
 	Form   *form.YesNoForm
 }
 
-func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
+func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &registerWithCourtOfProtectionData{
 			App:  appData,
@@ -32,7 +31,7 @@ func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
+					return donor.PathDeleteThisLpa.Redirect(w, r, appData, provided)
 				} else {
 					provided.RegisteringWithCourtOfProtection = true
 				}

@@ -29,7 +29,7 @@ func TestGetRegisterWithCourtOfProtection(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetRegisterWithCourtOfProtectionWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -60,7 +60,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 	}{
 		"yes": {
 			yesNo:            form.Yes,
-			expectedRedirect: donor.PathWithdrawThisLpa.Format("lpa-id"),
+			expectedRedirect: donor.PathDeleteThisLpa.Format("lpa-id"),
 			donorStore:       func() *mockDonorStore { return nil },
 		},
 		"no": {
@@ -86,7 +86,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := RegisterWithCourtOfProtection(nil, tc.donorStore(), testNowFn)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := RegisterWithCourtOfProtection(nil, tc.donorStore())(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -110,7 +110,7 @@ func TestPostRegisterWithCourtOfProtectionWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := RegisterWithCourtOfProtection(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{})
+	err := RegisterWithCourtOfProtection(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -127,7 +127,7 @@ func TestPostRegisterWithCourtOfProtectionWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := RegisterWithCourtOfProtection(template.Execute, nil, testNowFn)(testAppData, w, r, &donordata.Provided{})
+	err := RegisterWithCourtOfProtection(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
