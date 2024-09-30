@@ -7,10 +7,9 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "confirmYouDoNotWantToBeACertificateProvider" }}</h1>
 
-            {{ $donorFullNamePossessive := tr .App (possessive .App .Lpa.Donor.FullName) }}
             {{ $lpaType := tr .App .Lpa.Type.String }}
 
-            {{ trFormatHtml .App "confirmYouDoNotWantToBeACertificateProviderContent" "DonorFullNamePossessive" $donorFullNamePossessive "LpaType" $lpaType "LpaUID" .Lpa.LpaUID }}
+            {{ trFormatHtml .App "confirmYouDoNotWantToBeACertificateProviderContent" "DonorFullName" .Lpa.Donor.FullName "LpaType" $lpaType "LpaUID" .Lpa.LpaUID }}
 
             <p class="govuk-body">{{ trFormat .App "whenYouSelectConfirmWeWillContactDonor" "DonorFirstNames" .Lpa.Donor.FirstNames }}</p>
 

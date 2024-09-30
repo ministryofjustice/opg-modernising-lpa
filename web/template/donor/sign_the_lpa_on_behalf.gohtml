@@ -11,14 +11,12 @@
 
       {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      {{ $lpaTypeLegalTerm := lowerFirst (tr .App .Donor.Type.String) }}
-
       <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Donor.Donor.FullName }}</p>
 
       <ul class="govuk-list govuk-list--bullet">
         <li>{{ tr .App "iHaveReadLpa" }}</li>
         {{ if .Donor.Type.IsPersonalWelfare }}
-          <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" $lpaTypeLegalTerm }}</li>
+          <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" (tr .App .Donor.Type.String) }}</li>
         {{ else }}
           {{ if .Donor.WhenCanTheLpaBeUsed.IsHasCapacity }}
             <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>

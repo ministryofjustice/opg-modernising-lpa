@@ -26,7 +26,7 @@
           {{ if eq . global.ActorTypes.Donor }}
             {{ trFormat $.App "youHaveEnteredNameWhichMatchesYourName" "FullName" $.FullName }}
           {{ else }}
-            {{ trFormat $.App "youHaveEnteredNameWhichMatches" "ActorType" (tr $.App .String | lowerFirst) "FullName" $.FullName }}
+            {{ trFormat $.App "youHaveEnteredNameWhichMatches" "ActorType" (tr $.App .String) "FullName" $.FullName }}
           {{ end }}
           {{ if $.MultipleMatches }}</li>{{ end }}
       {{ end }}

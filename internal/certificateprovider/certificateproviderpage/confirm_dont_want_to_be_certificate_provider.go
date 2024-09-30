@@ -85,8 +85,8 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreReso
 			}
 
 			return page.PathCertificateProviderYouHaveDecidedNotToBeCertificateProvider.RedirectQuery(w, r, appData, url.Values{
-				"donorFullNamePossessive": {appData.Localizer.Possessive(lpa.Donor.FullName())},
-				"donorFirstNames":         {lpa.Donor.FirstNames},
+				"donorFullName":   {lpa.Donor.FullName()},
+				"donorFirstNames": {lpa.Donor.FirstNames},
 			})
 		}
 

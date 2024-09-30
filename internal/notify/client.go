@@ -90,10 +90,10 @@ func (c *Client) EmailGreeting(lpa *lpadata.Lpa) string {
 	}
 
 	return localizer.Format("emailGreetingCorrespondent", map[string]any{
-		"LpaUID":                  lpa.LpaUID,
-		"CorrespondentFullName":   lpa.Correspondent.FullName(),
-		"DonorFullNamePossessive": localizer.Possessive(lpa.Donor.FullName()),
-		"LpaType":                 localizer.T(lpa.Type.String()),
+		"LpaUID":                lpa.LpaUID,
+		"CorrespondentFullName": lpa.Correspondent.FullName(),
+		"DonorFullName":         lpa.Donor.FullName(),
+		"LpaType":               localizer.T(lpa.Type.String()),
 	})
 }
 

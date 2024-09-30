@@ -27,9 +27,9 @@ func (s singleMessage) Execute(data any) string {
 	return buf.String()
 }
 
-func newSingleMessage(s string) singleMessage {
+func newSingleMessage(s string, fns template.FuncMap) singleMessage {
 	if strings.Contains(s, "{{") {
-		if t, err := template.New("").Parse(s); err == nil {
+		if t, err := template.New("").Funcs(fns).Parse(s); err == nil {
 			return singleMessage{T: t}
 		}
 	}
