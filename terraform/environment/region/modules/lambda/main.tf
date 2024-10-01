@@ -19,6 +19,7 @@ resource "aws_lambda_function" "lambda_function" {
   function_name = "${var.lambda_name}-${var.environment}"
   description   = var.description
   image_uri     = var.image_uri
+  architectures = var.architectures
   package_type  = var.package_type
   role          = var.aws_iam_role.arn
   timeout       = var.timeout

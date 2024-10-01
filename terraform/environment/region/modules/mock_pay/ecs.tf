@@ -120,10 +120,14 @@ resource "aws_ecs_task_definition" "mock_pay" {
   network_mode             = "awsvpc"
   cpu                      = 256
   memory                   = 512
-  container_definitions    = "[${local.mock_pay}]"
-  task_role_arn            = var.ecs_task_role.arn
-  execution_role_arn       = var.ecs_execution_role.arn
-  provider                 = aws.region
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64" # options are ARM64 or X86_64
+  }
+  container_definitions = "[${local.mock_pay}]"
+  task_role_arn         = var.ecs_task_role.arn
+  execution_role_arn    = var.ecs_execution_role.arn
+  provider              = aws.region
 }
 
 locals {

@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "app" {
   memory                   = 1024
   runtime_platform {
     operating_system_family = "LINUX"
-    cpu_architecture        = "X86_64"
+    cpu_architecture        = "ARM64" # options are ARM64 or X86_64
   }
   container_definitions = var.fault_injection_experiments_enabled ? "[${local.app}, ${local.aws_otel_collector}, ${local.amazon_ssm_agent}]" : "[${local.app}, ${local.aws_otel_collector}]"
   task_role_arn         = var.ecs_task_role.arn
