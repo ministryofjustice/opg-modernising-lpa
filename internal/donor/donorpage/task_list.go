@@ -181,23 +181,39 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 
 	switch provided.IdentityUserData.Status {
 	case identity.StatusConfirmed:
-		if !provided.SignedAt.IsZero() {
+		signPath = donor.PathOneLoginIdentityDetails
+
+		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa
+		} else if !provided.SignedAt.IsZero() {
+			signPath = donor.PathWitnessingYourSignature
 		} else if provided.DonorIdentityConfirmed() {
 			signPath = donor.PathReadYourLpa
-		} else {
-			signPath = donor.PathOneLoginIdentityDetails
 		}
 
 	case identity.StatusFailed:
 		signPath = donor.PathRegisterWithCourtOfProtection
 
+		if provided.RegisteringWithCourtOfProtection {
+			signPath = donor.PathReadYourLpa
+
+			if !provided.WitnessedByCertificateProviderAt.IsZero() {
+				signPath = donor.PathYouHaveSubmittedYourLpa
+			} else if !provided.SignedAt.IsZero() {
+				signPath = donor.PathWitnessingYourSignature
+			}
+		}
+
 	case identity.StatusExpired:
 		signPath = donor.PathWhatYouCanDoNowExpired
 
 	case identity.StatusInsufficientEvidence:
-		if !provided.SignedAt.IsZero() {
+		signPath = donor.PathUnableToConfirmIdentity
+
+		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa
+		} else if !provided.SignedAt.IsZero() {
+			signPath = donor.PathWitnessingYourSignature
 		} else if provided.RegisteringWithCourtOfProtection {
 			signPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 		} else if provided.Voucher.FirstNames != "" {
@@ -206,8 +222,6 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 			signPath = donor.PathEnterVoucher
 		} else if provided.WantVoucher.IsNo() {
 			signPath = donor.PathWhatYouCanDoNow
-		} else {
-			signPath = donor.PathUnableToConfirmIdentity
 		}
 
 	default:
