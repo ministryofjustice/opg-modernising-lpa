@@ -3,6 +3,7 @@ package donorpage
 import (
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -13,25 +14,32 @@ import (
 )
 
 type oneLoginIdentityDetailsData struct {
-	App            appcontext.Data
-	Errors         validation.List
-	DonorProvided  *donordata.Provided
-	DetailsMatch   bool
-	DetailsUpdated bool
-	Form           *form.YesNoForm
+	App              appcontext.Data
+	Errors           validation.List
+	DonorProvided    *donordata.Provided
+	FirstNamesMatch  bool
+	LastNameMatch    bool
+	DateOfBirthMatch bool
+	AddressMatch     bool
+	DetailsUpdated   bool
+	Form             *form.YesNoForm
+}
+
+func (d oneLoginIdentityDetailsData) DetailsMatch() bool {
+	return d.FirstNamesMatch && d.LastNameMatch && d.DateOfBirthMatch && d.AddressMatch
 }
 
 func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &oneLoginIdentityDetailsData{
-			App:            appData,
-			Form:           form.NewYesNoForm(form.YesNoUnknown),
-			DonorProvided:  provided,
-			DetailsUpdated: r.FormValue("detailsUpdated") == "1",
-			DetailsMatch: provided.Donor.FirstNames == provided.IdentityUserData.FirstNames &&
-				provided.Donor.LastName == provided.IdentityUserData.LastName &&
-				provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth &&
-				provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
+			App:              appData,
+			Form:             form.NewYesNoForm(form.YesNoUnknown),
+			DonorProvided:    provided,
+			DetailsUpdated:   r.FormValue("detailsUpdated") == "1",
+			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
+			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),
+			DateOfBirthMatch: provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth,
+			AddressMatch:     provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
 		}
 
 		if r.Method == http.MethodPost {
