@@ -338,7 +338,7 @@
     "howTickingActsAsSignature": "Sut mae ticio’r blychau yn gweithredu fel eich llofnod cyfreithiol",
     "howTickingActsAsSignatureDeclaration": "Welsh",
     "howTickingActsAsSignatureContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod mewn cyfraith yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p><p class=\"govuk-body\">Drwy roi tic yn y ddau flwch a dewis ‘Cyflwyno fy llofnod’, rydych yn darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel a rhwymol mewn cyfraith â llofnodi’ch LPA â llaw.</p>",
-    "howTickingActsAsSignatureDeclarationContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod yn gyfreithiol yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p><p class=\"govuk-body\">Trwy dicio'r blwch a dewis ‘Cyflwyno fy llofnod’, rydych yn darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel ac yn gyfreithiol rwymol â llofnodi eich datganiad â llaw.</p>",
+    "howTickingActsAsSignatureDeclarationContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod yn gyfreithiol yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p><p class=\"govuk-body\">Trwy dicio’r blwch a dewis ‘Cyflwyno fy llofnod’, rydych yn darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel ac yn gyfreithiol rwymol â llofnodi eich datganiad â llaw.</p>",
     "submitMySignature": "Cyflwyno fy llofnod",
     "bothBoxesToSignAndApply": "y ddau flwch i lofnodi ac i wneud cais i gofrestru eich LPA",
     "iWantToSignThisLpa": "Fy mod eisiau llofnodi’r LPA hon fel gweithred",
