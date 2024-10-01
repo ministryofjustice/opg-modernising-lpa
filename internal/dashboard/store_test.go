@@ -354,6 +354,29 @@ func TestDashboardStoreGetAllWhenNone(t *testing.T) {
 	assert.Equal(t, dashboarddata.Results{}, results)
 }
 
+func TestDashboardStoreGetAllWhenNoneWithUID(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.ExpectAllBySK(ctx, dynamo.SubKey("an-id"),
+		[]dashboarddata.LpaLink{
+			{PK: dynamo.LpaKey("a"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("b")), ActorType: actor.TypeDonor},
+		}, nil)
+	dynamoClient.ExpectAllByKeys(ctx, []dynamo.Keys{{PK: dynamo.LpaKey("a"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b"))}},
+		[]map[string]types.AttributeValue{
+			makeAttributeValueMap(&donordata.Provided{
+				PK: dynamo.LpaKey("a"),
+				SK: dynamo.LpaOwnerKey(dynamo.DonorKey("b")),
+			}),
+		}, nil)
+
+	dashboardStore := &Store{dynamoClient: dynamoClient}
+
+	results, err := dashboardStore.GetAll(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, dashboarddata.Results{}, results)
+}
+
 func TestDashboardStoreGetAllWhenAllForActorErrors(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 

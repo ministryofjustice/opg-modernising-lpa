@@ -146,6 +146,10 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 		}
 	}
 
+	if len(donorsDetails) == 0 {
+		return results, nil
+	}
+
 	resolvedLpas, err := s.lpaStoreResolvingService.ResolveList(ctx, donorsDetails)
 	if err != nil {
 		return results, err
