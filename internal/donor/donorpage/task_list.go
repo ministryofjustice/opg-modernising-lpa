@@ -181,12 +181,14 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 
 	switch provided.IdentityUserData.Status {
 	case identity.StatusConfirmed:
-		if !provided.SignedAt.IsZero() {
+		signPath = donor.PathOneLoginIdentityDetails
+
+		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa
+		} else if !provided.SignedAt.IsZero() {
+			signPath = donor.PathWitnessingYourSignature
 		} else if provided.DonorIdentityConfirmed() {
 			signPath = donor.PathReadYourLpa
-		} else {
-			signPath = donor.PathOneLoginIdentityDetails
 		}
 
 	case identity.StatusFailed:
@@ -194,10 +196,11 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 
 		if provided.RegisteringWithCourtOfProtection {
 			signPath = donor.PathReadYourLpa
-			if !provided.SignedAt.IsZero() && provided.WitnessedByCertificateProviderAt.IsZero() {
-				signPath = donor.PathWitnessingYourSignature
-			} else if !provided.WitnessedByCertificateProviderAt.IsZero() {
+
+			if !provided.WitnessedByCertificateProviderAt.IsZero() {
 				signPath = donor.PathYouHaveSubmittedYourLpa
+			} else if !provided.SignedAt.IsZero() {
+				signPath = donor.PathWitnessingYourSignature
 			}
 		}
 
@@ -205,8 +208,12 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		signPath = donor.PathWhatYouCanDoNowExpired
 
 	case identity.StatusInsufficientEvidence:
-		if !provided.SignedAt.IsZero() {
+		signPath = donor.PathUnableToConfirmIdentity
+
+		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signPath = donor.PathYouHaveSubmittedYourLpa
+		} else if !provided.SignedAt.IsZero() {
+			signPath = donor.PathWitnessingYourSignature
 		} else if provided.RegisteringWithCourtOfProtection {
 			signPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 		} else if provided.Voucher.FirstNames != "" {
@@ -215,8 +222,6 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 			signPath = donor.PathEnterVoucher
 		} else if provided.WantVoucher.IsNo() {
 			signPath = donor.PathWhatYouCanDoNow
-		} else {
-			signPath = donor.PathUnableToConfirmIdentity
 		}
 
 	default:
