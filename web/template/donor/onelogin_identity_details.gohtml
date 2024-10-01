@@ -8,10 +8,6 @@
   {{ $donor := .DonorProvided.Donor }}
   {{ $userData := .DonorProvided.IdentityUserData }}
   {{ $donorFullName := (printf "%s %s" $userData.FirstNames $userData.LastName) }}
-  {{ $firstNamesMatch := eq $donor.FirstNames $userData.FirstNames }}
-  {{ $lastNameMatch := eq $donor.LastName $userData.LastName }}
-  {{ $dobMatch := eq $donor.DateOfBirth $userData.DateOfBirth }}
-  {{ $addressMatch := eq $donor.Address.Postcode $userData.CurrentAddress.Postcode }}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -24,33 +20,33 @@
       <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
 
       <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-        <div class="govuk-summary-list__row {{ if $firstNamesMatch }}govuk-summary-list__row--no-actions{{end}}">
+        <div class="govuk-summary-list__row {{ if .FirstNamesMatch }}govuk-summary-list__row--no-actions{{end}}">
           <dt class="govuk-summary-list__key">{{ tr .App "firstNames" }}</dt>
           <dd class="govuk-summary-list__value">{{ $donor.FirstNames }}</dd>
-          {{ if not $firstNamesMatch }}
+          {{ if not .FirstNamesMatch }}
             <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span></dd>
           {{ end }}
         </div>
-        <div class="govuk-summary-list__row {{ if $lastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
+        <div class="govuk-summary-list__row {{ if .LastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
           <dt class="govuk-summary-list__key">{{ tr .App "lastName" }}</dt>
           <dd class="govuk-summary-list__value">{{ $donor.LastName }}</dd>
-          {{ if not $lastNameMatch }}
+          {{ if not .LastNameMatch }}
             <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
             </dd>
           {{ end}}
         </div>
-        <div class="govuk-summary-list__row {{ if $dobMatch }}govuk-summary-list__row--no-actions{{end}}">
+        <div class="govuk-summary-list__row {{ if .DateOfBirthMatch }}govuk-summary-list__row--no-actions{{end}}">
           <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
           <dd class="govuk-summary-list__value">{{ (formatDate .App $donor.DateOfBirth) }}</dd>
-          {{ if not $dobMatch }}
+          {{ if not .DateOfBirthMatch }}
             <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
             </dd>
           {{ end}}
         </div>
-        <div class="govuk-summary-list__row {{ if $addressMatch }}govuk-summary-list__row--no-actions{{end}}">
+        <div class="govuk-summary-list__row {{ if .AddressMatch }}govuk-summary-list__row--no-actions{{end}}">
           <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
           <dd class="govuk-summary-list__value">{{ template "address-lines" $donor.Address }}</dd>
-          {{ if not $addressMatch }}
+          {{ if not .AddressMatch }}
             <dd class="govuk-summary-list__actions"><span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span></dd>
           {{ end }}
         </div>
