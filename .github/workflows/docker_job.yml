@@ -36,11 +36,11 @@ jobs:
           - ecr_repository: modernising-lpa/app
             name: app
             path: ./docker/mlpa/Dockerfile
-            platforms: linux/arm64
+            platforms: linux/arm64 # options are linux/amd64, linux/arm64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             name: create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
-            platforms: linux/arm64
+            platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             name: event-received
             path: ./docker/event-received/Dockerfile
@@ -48,7 +48,7 @@ jobs:
           - ecr_repository: modernising-lpa/mock-pay
             name: mock-pay
             path: ./docker/mock-pay/Dockerfile
-            platforms: linux/arm64
+            platforms: linux/amd64
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}

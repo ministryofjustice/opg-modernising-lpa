@@ -23,6 +23,7 @@ module "event_received" {
   iam_policy_documents = [data.aws_iam_policy_document.api_access_policy.json]
   timeout              = 300
   memory               = 1024
+  architectures        = "arm64"
   vpc_config = {
     subnet_ids         = var.vpc_config.subnet_ids
     security_group_ids = var.vpc_config.security_group_ids

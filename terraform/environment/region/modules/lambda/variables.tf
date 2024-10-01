@@ -71,3 +71,13 @@ variable "vpc_config" {
     security_group_ids = []
   }
 }
+
+variable "architectures" {
+  description = "The architectures supported by the Lambda Function."
+  type        = list(string)
+  default     = ["x86_64"]
+  validation {
+    condition     = contains(["x86_64", "arm64"], var.architectures)
+    error_message = "Invalid value for architectures, must be one of x86_64 or arm64"
+  }
+}
