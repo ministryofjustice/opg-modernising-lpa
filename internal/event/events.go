@@ -73,3 +73,16 @@ type AttorneyStarted struct {
 	LpaUID   string            `json:"uid"`
 	ActorUID actoruid.Prefixed `json:"actorUID"`
 }
+
+type IdentityCheckMismatched struct {
+	LpaUID   string                         `json:"uid"`
+	ActorUID actoruid.Prefixed              `json:"actorUID"`
+	Provided IdentityCheckMismatchedDetails `json:"provided"`
+	Verified IdentityCheckMismatchedDetails `json:"verified"`
+}
+
+type IdentityCheckMismatchedDetails struct {
+	FirstNames  string    `json:"firstNames"`
+	LastName    string    `json:"lastName"`
+	DateOfBirth date.Date `json:"dateOfBirth"`
+}
