@@ -349,7 +349,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				}},
 			}
 
-			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)
+			userData, err := c.ParseIdentityClaim(userInfo)
 			assert.ErrorIs(t, err, tc.error)
 			assert.Equal(t, tc.userData, userData)
 		})
@@ -387,14 +387,59 @@ func TestParseIdentityClaimWhenDIDClientErrors(t *testing.T) {
 		CoreIdentityJWT: token,
 	}
 
-	_, err := c.ParseIdentityClaim(context.Background(), userInfo)
+	_, err := c.ParseIdentityClaim(userInfo)
 	assert.ErrorContains(t, err, "could not find jwk for kid")
 }
 
 func TestParseIdentityClaimWithReturnCode(t *testing.T) {
-	testcases := map[string]identity.Status{
-		"X":              identity.StatusInsufficientEvidence,
-		"any other code": identity.StatusFailed,
+	testcases := map[string]struct {
+		returnCodes    []ReturnCodeInfo
+		identityStatus identity.Status
+	}{
+		"A": {
+			returnCodes:    []ReturnCodeInfo{{Code: "A"}},
+			identityStatus: identity.StatusInsufficientEvidence,
+		},
+		"D": {
+			returnCodes:    []ReturnCodeInfo{{Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"N": {
+			returnCodes:    []ReturnCodeInfo{{Code: "N"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"P": {
+			returnCodes:    []ReturnCodeInfo{{Code: "P"}},
+			identityStatus: identity.StatusInsufficientEvidence,
+		},
+		"T": {
+			returnCodes:    []ReturnCodeInfo{{Code: "T"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"V": {
+			returnCodes:    []ReturnCodeInfo{{Code: "V"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"X": {
+			returnCodes:    []ReturnCodeInfo{{Code: "X"}},
+			identityStatus: identity.StatusInsufficientEvidence,
+		},
+		"Z": {
+			returnCodes:    []ReturnCodeInfo{{Code: "Z"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"A + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "A"}, {Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"P + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "P"}, {Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"X + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "X"}, {Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
 	}
 
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -408,16 +453,16 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 		},
 	}
 
-	for returnCode, expectedStatus := range testcases {
-		t.Run(returnCode, func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			userInfo := UserInfo{
-				ReturnCodes: []ReturnCodeInfo{{Code: returnCode}},
+				ReturnCodes: tc.returnCodes,
 			}
 
-			userData, err := c.ParseIdentityClaim(context.Background(), userInfo)
+			userData, err := c.ParseIdentityClaim(userInfo)
 
 			assert.Nil(t, err)
-			assert.Equal(t, identity.UserData{Status: expectedStatus}, userData)
+			assert.Equal(t, identity.UserData{Status: tc.identityStatus}, userData)
 		})
 	}
 }

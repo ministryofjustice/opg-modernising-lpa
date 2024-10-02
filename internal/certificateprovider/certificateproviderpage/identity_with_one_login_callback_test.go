@@ -56,7 +56,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
+		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -113,7 +113,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIDCheck(t *testing.T) {
 		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
+		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
 	localizer := newMockLocalizer(t)
@@ -186,7 +186,7 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(userData, nil)
 
 	localizer := newMockLocalizer(t)
@@ -249,7 +249,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
 				oneLoginClient.EXPECT().
-					ParseIdentityClaim(mock.Anything, mock.Anything).
+					ParseIdentityClaim(mock.Anything).
 					Return(identity.UserData{}, nil)
 				return oneLoginClient
 			},
@@ -276,7 +276,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
 				oneLoginClient.EXPECT().
-					ParseIdentityClaim(mock.Anything, mock.Anything).
+					ParseIdentityClaim(mock.Anything).
 					Return(identity.UserData{Status: identity.StatusConfirmed}, expectedError)
 				return oneLoginClient
 			},
@@ -393,7 +393,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutCertificateProviderStoreError(t *
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, nil, nil, "www.example.com")(testAppData, w, r, &certificateproviderdata.Provided{})
@@ -429,7 +429,7 @@ func TestGetIdentityWithOneLoginCallbackWhenLpaStoreClientError(t *testing.T) {
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
