@@ -155,15 +155,15 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 	return userinfoResponse, err
 }
 
-func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
+func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
 		for _, c := range u.ReturnCodes {
-			if c.Code == "X" {
-				return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+			if c.Code != "X" {
+				return identity.UserData{Status: identity.StatusFailed}, nil
 			}
 		}
 
-		return identity.UserData{Status: identity.StatusFailed}, nil
+		return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
 	}
 
 	if u.CoreIdentityJWT == "" {
