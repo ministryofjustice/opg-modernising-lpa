@@ -398,7 +398,7 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 	}{
 		"A": {
 			returnCodes:    []ReturnCodeInfo{{Code: "A"}},
-			identityStatus: identity.StatusFailed,
+			identityStatus: identity.StatusInsufficientEvidence,
 		},
 		"D": {
 			returnCodes:    []ReturnCodeInfo{{Code: "D"}},
@@ -410,7 +410,7 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 		},
 		"P": {
 			returnCodes:    []ReturnCodeInfo{{Code: "P"}},
-			identityStatus: identity.StatusFailed,
+			identityStatus: identity.StatusInsufficientEvidence,
 		},
 		"T": {
 			returnCodes:    []ReturnCodeInfo{{Code: "T"}},
@@ -428,8 +428,16 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 			returnCodes:    []ReturnCodeInfo{{Code: "Z"}},
 			identityStatus: identity.StatusFailed,
 		},
-		"any other code + X": {
-			returnCodes:    []ReturnCodeInfo{{Code: "P"}, {Code: "X"}},
+		"A + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "A"}, {Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"P + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "P"}, {Code: "D"}},
+			identityStatus: identity.StatusFailed,
+		},
+		"X + fail code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "X"}, {Code: "D"}},
 			identityStatus: identity.StatusFailed,
 		},
 	}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -32,6 +33,10 @@ type UserInfo struct {
 
 type ReturnCodeInfo struct {
 	Code string `json:"code"`
+}
+
+func isFailCode(code string) bool {
+	return slices.Contains([]string{"D", "N", "T", "V", "Z"}, code)
 }
 
 type CoreIdentityClaims struct {
@@ -158,7 +163,7 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
 		for _, c := range u.ReturnCodes {
-			if c.Code != "X" {
+			if isFailCode(c.Code) {
 				return identity.UserData{Status: identity.StatusFailed}, nil
 			}
 		}
