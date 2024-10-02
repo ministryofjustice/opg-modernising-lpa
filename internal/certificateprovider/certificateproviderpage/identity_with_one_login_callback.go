@@ -4,15 +4,17 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, appPublicURL string) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -55,7 +57,32 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		switch certificateProvider.IdentityUserData.Status {
-		case identity.StatusFailed, identity.StatusInsufficientEvidence, identity.StatusUnknown:
+		case identity.StatusConfirmed:
+			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+				if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
+					return err
+				}
+			} else {
+				if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+					LpaUID:   lpa.LpaUID,
+					ActorUID: actoruid.Prefixed(certificateProvider.UID),
+					Entered: event.IdentityCheckMismatchedDetails{
+						FirstNames:  lpa.CertificateProvider.FirstNames,
+						LastName:    lpa.CertificateProvider.LastName,
+						DateOfBirth: certificateProvider.DateOfBirth,
+					},
+					Verified: event.IdentityCheckMismatchedDetails{
+						FirstNames:  userData.FirstNames,
+						LastName:    userData.LastName,
+						DateOfBirth: userData.DateOfBirth,
+					},
+				}); err != nil {
+					return err
+				}
+			}
+
+			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+		default:
 			if !lpa.SignedAt.IsZero() {
 				if err = notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
 					Greeting:                    notifyClient.EmailGreeting(lpa),
@@ -69,12 +96,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			}
 
 			return certificateprovider.PathUnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
-		default:
-			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
-				return err
-			}
 
-			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 	}
 }

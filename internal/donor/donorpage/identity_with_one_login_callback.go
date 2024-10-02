@@ -4,15 +4,17 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, scheduledStore ScheduledStore) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, scheduledStore ScheduledStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.DonorIdentityConfirmed() {
 			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
@@ -48,6 +50,25 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
 		} else {
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+		}
+
+		if !provided.WitnessedByCertificateProviderAt.IsZero() && !provided.DonorIdentityConfirmed() {
+			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+				LpaUID:   provided.LpaUID,
+				ActorUID: actoruid.Prefixed(provided.Donor.UID),
+				Entered: event.IdentityCheckMismatchedDetails{
+					FirstNames:  provided.Donor.FirstNames,
+					LastName:    provided.Donor.LastName,
+					DateOfBirth: provided.Donor.DateOfBirth,
+				},
+				Verified: event.IdentityCheckMismatchedDetails{
+					FirstNames:  userData.FirstNames,
+					LastName:    userData.LastName,
+					DateOfBirth: userData.DateOfBirth,
+				},
+			}); err != nil {
+				return err
+			}
 		}
 
 		if err := donorStore.Put(r.Context(), provided); err != nil {
