@@ -18,33 +18,50 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestOneLoginIdentityDetailsDataDetailsMatch(t *testing.T) {
+	assert.True(t, oneLoginIdentityDetailsData{
+		FirstNamesMatch:  true,
+		LastNameMatch:    true,
+		DateOfBirthMatch: true,
+		AddressMatch:     true,
+	}.DetailsMatch())
+	assert.False(t, oneLoginIdentityDetailsData{LastNameMatch: true, DateOfBirthMatch: true, AddressMatch: true}.DetailsMatch())
+	assert.False(t, oneLoginIdentityDetailsData{}.DetailsMatch())
+}
+
 func TestGetOneLoginIdentityDetails(t *testing.T) {
 	dob := date.New("1", "2", "3")
 
 	testcases := map[string]struct {
-		donorProvided          *donordata.Provided
-		expectedDetailsMatch   bool
-		expectedDetailsUpdated bool
-		url                    string
+		donorProvided            *donordata.Provided
+		expectedFirstNamesMatch  bool
+		expectedLastNameMatch    bool
+		expectedDateOfBirthMatch bool
+		expectedAddressMatch     bool
+		expectedDetailsUpdated   bool
+		url                      string
 	}{
 		"details match": {
 			donorProvided: &donordata.Provided{
-				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", DateOfBirth: dob, CurrentAddress: testAddress},
+				Donor:            donordata.Donor{FirstNames: "A", LastName: "b", DateOfBirth: dob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "B", DateOfBirth: dob, CurrentAddress: testAddress},
 			},
-			expectedDetailsMatch: true,
-			url:                  "/",
+			expectedFirstNamesMatch:  true,
+			expectedLastNameMatch:    true,
+			expectedDateOfBirthMatch: true,
+			expectedAddressMatch:     true,
+			url:                      "/",
 		},
 		"details do not match": {
 			donorProvided: &donordata.Provided{
-				Donor:            donordata.Donor{FirstNames: "a"},
+				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
 				IdentityUserData: identity.UserData{FirstNames: "b"},
 			},
 			url: "/",
 		},
 		"details updated": {
 			donorProvided: &donordata.Provided{
-				Donor:            donordata.Donor{FirstNames: "a"},
+				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
 				IdentityUserData: identity.UserData{FirstNames: "b"},
 			},
 			url:                    "/?detailsUpdated=1",
@@ -60,11 +77,14 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &oneLoginIdentityDetailsData{
-					App:            testAppData,
-					Form:           form.NewYesNoForm(form.YesNoUnknown),
-					DonorProvided:  tc.donorProvided,
-					DetailsUpdated: tc.expectedDetailsUpdated,
-					DetailsMatch:   tc.expectedDetailsMatch,
+					App:              testAppData,
+					Form:             form.NewYesNoForm(form.YesNoUnknown),
+					DonorProvided:    tc.donorProvided,
+					DetailsUpdated:   tc.expectedDetailsUpdated,
+					FirstNamesMatch:  tc.expectedFirstNamesMatch,
+					LastNameMatch:    tc.expectedLastNameMatch,
+					DateOfBirthMatch: tc.expectedDateOfBirthMatch,
+					AddressMatch:     tc.expectedAddressMatch,
 				}).
 				Return(nil)
 
