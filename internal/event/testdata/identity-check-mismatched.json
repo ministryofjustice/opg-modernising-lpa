@@ -1,0 +1,48 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/identity-check-mismatched.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/identity-check-mismatched",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
+    },
+    "actorUID": {
+      "type": "string",
+      "description": "The UID of the actor the identity check relates to",
+      "pattern": "^urn:opg:poas:makeregister:users:([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
+    },
+    "provided": {
+      "description": "The data as provided on the LPA",
+      "allOf": [{"$ref": "#/$defs/Details"}]
+    },
+    "verified": {
+      "description": "The verified data returned from the identity check",
+      "allOf": [{"$ref": "#/$defs/Details"}]
+    }
+  },
+  "$defs": {
+    "Details": {
+      "type": "object",
+      "properties": {
+        "firstNames": {
+          "type": "string",
+          "description": "The first name(s) including any middle names"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name"
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "The date of birth",
+          "format": "date"
+        }
+      },
+      "required": ["firstNames", "lastName", "dateOfBirth"]
+    }
+  },
+  "required": ["uid", "provided", "verified"]
+}
