@@ -58,17 +58,15 @@
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
 
                 {{ template "providedDetails" . }}
-                {{ template "identityDetails" . }}
             {{ else if .DetailsMatch }}
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
-
-                {{ template "identityDetails" . }}
-            {{ else if not .DetailsMatch }}
+            {{ else }}
                 {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
 
                 {{ template "providedDetails" . }}
-                {{ template "identityDetails" . }}
             {{ end}}
+
+            {{ template "identity-details" . }}
 
             <form novalidate method="post">
                 {{ if not .DetailsMatch }}
