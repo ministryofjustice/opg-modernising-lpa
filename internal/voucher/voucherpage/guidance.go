@@ -11,17 +11,17 @@ import (
 )
 
 type guidanceData struct {
-	App     appcontext.Data
-	Errors  validation.List
-	Voucher *voucherdata.Provided
-	Lpa     *lpadata.Lpa
+	App      appcontext.Data
+	Errors   validation.List
+	Provided *voucherdata.Provided
+	Lpa      *lpadata.Lpa
 }
 
 func Guidance(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		data := &guidanceData{
-			App:     appData,
-			Voucher: provided,
+			App:      appData,
+			Provided: provided,
 		}
 
 		if lpaStoreResolvingService != nil {
