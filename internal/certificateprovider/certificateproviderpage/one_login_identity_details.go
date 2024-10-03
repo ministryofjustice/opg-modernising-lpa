@@ -12,24 +12,26 @@ import (
 )
 
 type oneLoginIdentityDetailsData struct {
-	App                 appcontext.Data
-	Errors              validation.List
-	CertificateProvider *certificateproviderdata.Provided
+	App           appcontext.Data
+	Errors        validation.List
+	Provided      *certificateproviderdata.Provided
+	DonorFullName string
 }
 
 func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
 		data := &oneLoginIdentityDetailsData{
-			App:                 appData,
-			CertificateProvider: certificateProvider,
+			App:           appData,
+			Provided:      certificateProvider,
+			DonorFullName: lpa.Donor.FullName(),
 		}
 
 		if r.Method == http.MethodPost {
-			lpa, err := lpaStoreResolvingService.Get(r.Context())
-			if err != nil {
-				return err
-			}
-
 			if certificateProvider.CertificateProviderIdentityConfirmed(
 				lpa.CertificateProvider.FirstNames,
 				lpa.CertificateProvider.LastName,
