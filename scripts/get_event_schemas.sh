@@ -11,7 +11,8 @@ for v in uid-requested \
              paper-form-requested \
              payment-received \
              certificate-provider-started \
-             attorney-started 
+             attorney-started \
+             identity-check-mismatched
 do
     echo $v
     curl -o internal/event/testdata/$v.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/$v/schema.json"

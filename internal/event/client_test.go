@@ -68,6 +68,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendAttorneyStarted(ctx, event) }, event
 		},
+		"identity-check-mismatched": func() (func(*Client) error, any) {
+			event := IdentityCheckMismatched{LpaUID: "a", ActorUID: actoruid.Prefixed(uid)}
+
+			return func(client *Client) error { return client.SendIdentityCheckMismatched(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {
