@@ -148,9 +148,9 @@ func (_c *mockOneLoginClient_Exchange_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// ParseIdentityClaim provides a mock function with given fields: ctx, userInfo
-func (_m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error) {
-	ret := _m.Called(ctx, userInfo)
+// ParseIdentityClaim provides a mock function with given fields: userInfo
+func (_m *mockOneLoginClient) ParseIdentityClaim(userInfo onelogin.UserInfo) (identity.UserData, error) {
+	ret := _m.Called(userInfo)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ParseIdentityClaim")
@@ -158,17 +158,17 @@ func (_m *mockOneLoginClient) ParseIdentityClaim(ctx context.Context, userInfo o
 
 	var r0 identity.UserData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, onelogin.UserInfo) (identity.UserData, error)); ok {
-		return rf(ctx, userInfo)
+	if rf, ok := ret.Get(0).(func(onelogin.UserInfo) (identity.UserData, error)); ok {
+		return rf(userInfo)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, onelogin.UserInfo) identity.UserData); ok {
-		r0 = rf(ctx, userInfo)
+	if rf, ok := ret.Get(0).(func(onelogin.UserInfo) identity.UserData); ok {
+		r0 = rf(userInfo)
 	} else {
 		r0 = ret.Get(0).(identity.UserData)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, onelogin.UserInfo) error); ok {
-		r1 = rf(ctx, userInfo)
+	if rf, ok := ret.Get(1).(func(onelogin.UserInfo) error); ok {
+		r1 = rf(userInfo)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -182,15 +182,14 @@ type mockOneLoginClient_ParseIdentityClaim_Call struct {
 }
 
 // ParseIdentityClaim is a helper method to define mock.On call
-//   - ctx context.Context
 //   - userInfo onelogin.UserInfo
-func (_e *mockOneLoginClient_Expecter) ParseIdentityClaim(ctx interface{}, userInfo interface{}) *mockOneLoginClient_ParseIdentityClaim_Call {
-	return &mockOneLoginClient_ParseIdentityClaim_Call{Call: _e.mock.On("ParseIdentityClaim", ctx, userInfo)}
+func (_e *mockOneLoginClient_Expecter) ParseIdentityClaim(userInfo interface{}) *mockOneLoginClient_ParseIdentityClaim_Call {
+	return &mockOneLoginClient_ParseIdentityClaim_Call{Call: _e.mock.On("ParseIdentityClaim", userInfo)}
 }
 
-func (_c *mockOneLoginClient_ParseIdentityClaim_Call) Run(run func(ctx context.Context, userInfo onelogin.UserInfo)) *mockOneLoginClient_ParseIdentityClaim_Call {
+func (_c *mockOneLoginClient_ParseIdentityClaim_Call) Run(run func(userInfo onelogin.UserInfo)) *mockOneLoginClient_ParseIdentityClaim_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(onelogin.UserInfo))
+		run(args[0].(onelogin.UserInfo))
 	})
 	return _c
 }
@@ -200,7 +199,7 @@ func (_c *mockOneLoginClient_ParseIdentityClaim_Call) Return(_a0 identity.UserDa
 	return _c
 }
 
-func (_c *mockOneLoginClient_ParseIdentityClaim_Call) RunAndReturn(run func(context.Context, onelogin.UserInfo) (identity.UserData, error)) *mockOneLoginClient_ParseIdentityClaim_Call {
+func (_c *mockOneLoginClient_ParseIdentityClaim_Call) RunAndReturn(run func(onelogin.UserInfo) (identity.UserData, error)) *mockOneLoginClient_ParseIdentityClaim_Call {
 	_c.Call.Return(run)
 	return _c
 }

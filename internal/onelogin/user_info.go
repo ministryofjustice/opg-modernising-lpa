@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -16,7 +17,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+const insufficientEvidenceCode = "X"
+
+var passCodes = []string{"A", "P"}
+var failCodes = []string{"D", "N", "T", "V", "Z"}
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
+var ErrUnexpectedReturnCode = errors.New("UserInfo contained an unexpected return code")
 
 type UserInfo struct {
 	Sub             string              `json:"sub"`
@@ -155,15 +161,25 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 	return userinfoResponse, err
 }
 
-func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
+func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
-		for _, c := range u.ReturnCodes {
-			if c.Code == "X" {
-				return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
-			}
+		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return slices.Contains(failCodes, r.Code)
+		}) {
+			return identity.UserData{Status: identity.StatusFailed}, nil
 		}
 
-		return identity.UserData{Status: identity.StatusFailed}, nil
+		if slices.Equal(u.ReturnCodes, []ReturnCodeInfo{{Code: "A"}, {Code: "P"}}) || slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return r.Code == insufficientEvidenceCode
+		}) {
+			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		}
+
+		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return !slices.Contains(passCodes, r.Code)
+		}) {
+			return identity.UserData{}, ErrUnexpectedReturnCode
+		}
 	}
 
 	if u.CoreIdentityJWT == "" {
