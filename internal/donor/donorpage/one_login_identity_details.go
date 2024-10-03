@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -18,7 +17,6 @@ type oneLoginIdentityDetailsData struct {
 	App              appcontext.Data
 	Errors           validation.List
 	Provided         *donordata.Provided
-	IdentityUserData identity.UserData
 	FirstNamesMatch  bool
 	LastNameMatch    bool
 	DateOfBirthMatch bool
