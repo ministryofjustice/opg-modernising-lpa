@@ -435,6 +435,7 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 	testcases := map[string]struct {
 		returnCodes    []ReturnCodeInfo
 		identityStatus identity.Status
+		error          error
 	}{
 		"D": {
 			returnCodes:    []ReturnCodeInfo{{Code: "D"}},
@@ -476,6 +477,11 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 			returnCodes:    []ReturnCodeInfo{{Code: "A"}, {Code: "P"}},
 			identityStatus: identity.StatusInsufficientEvidence,
 		},
+		"unexpected code": {
+			returnCodes:    []ReturnCodeInfo{{Code: "NOT A CODE"}},
+			identityStatus: identity.StatusUnknown,
+			error:          ErrUnexpectedReturnCode,
+		},
 	}
 
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -497,7 +503,7 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 
 			userData, err := c.ParseIdentityClaim(userInfo)
 
-			assert.Nil(t, err)
+			assert.Equal(t, tc.error, err)
 			assert.Equal(t, identity.UserData{Status: tc.identityStatus}, userData)
 		})
 	}

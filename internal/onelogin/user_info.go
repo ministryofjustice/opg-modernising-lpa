@@ -19,8 +19,10 @@ import (
 
 const insufficientEvidenceCode = "X"
 
+var passCodes = []string{"A", "P"}
 var failCodes = []string{"D", "N", "T", "V", "Z"}
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
+var ErrUnexpectedReturnCode = errors.New("UserInfo contained an unexpected return code")
 
 type UserInfo struct {
 	Sub             string              `json:"sub"`
@@ -171,6 +173,12 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 			return r.Code == insufficientEvidenceCode
 		}) {
 			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		}
+
+		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return !slices.Contains(passCodes, r.Code)
+		}) {
+			return identity.UserData{}, ErrUnexpectedReturnCode
 		}
 	}
 
