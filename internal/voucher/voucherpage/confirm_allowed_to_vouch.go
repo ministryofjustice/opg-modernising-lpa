@@ -53,7 +53,7 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 					donor.FailedVouchAttempts++
 
-					email := notify.VouchingFailedAttempt{
+					email := notify.VouchingFailedAttemptEmail{
 						Greeting:          notifyClient.EmailGreeting(lpa),
 						VoucherFullName:   provided.FullName(),
 						DonorStartPageURL: appPublicURL + page.PathStart.Format(),
