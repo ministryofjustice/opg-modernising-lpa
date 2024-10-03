@@ -141,6 +141,7 @@ type EventClient interface {
 	SendPaymentReceived(ctx context.Context, e event.PaymentReceived) error
 	SendUidRequested(ctx context.Context, e event.UidRequested) error
 	SendCertificateProviderStarted(ctx context.Context, e event.CertificateProviderStarted) error
+	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
 }
 
 type DashboardStore interface {
@@ -391,7 +392,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
 	handleWithDonor(donor.PathOneLoginIdentityDetails, page.CanGoBack,
 		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,

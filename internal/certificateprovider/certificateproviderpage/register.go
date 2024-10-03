@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -31,6 +32,10 @@ type Handler func(data appcontext.Data, w http.ResponseWriter, r *http.Request, 
 
 type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
+}
+
+type EventClient interface {
+	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
 }
 
 type Logger interface {
@@ -122,6 +127,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
+	eventClient EventClient,
 	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
@@ -161,7 +167,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, lpaStoreClient, appPublicURL))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, lpaStoreClient, eventClient, appPublicURL))
 	handleCertificateProvider(certificateprovider.PathOneLoginIdentityDetails, page.None,
 		OneLoginIdentityDetails(tmpls.Get("onelogin_identity_details.gohtml"), certificateProviderStore, lpaStoreResolvingService))
 	handleCertificateProvider(certificateprovider.PathUnableToConfirmIdentity, page.None,
