@@ -1331,5 +1331,6 @@
     "iConfirmTheLpaWasSignedInMyPresence": "I confirm that the LPA was signed in my presence and that my name and address are correct.",
     "trustCorporationSignature": "Trust corporation signature",
     "replacementTrustCorporationSignature": "Replacement trust corporation signature",
-    "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear."
+    "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear.",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those you entered in your LPA.</p></div>"
 }
