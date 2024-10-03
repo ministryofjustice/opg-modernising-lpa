@@ -122,6 +122,22 @@ var eventTests = map[string]map[string]any{
 			},
 		},
 	},
+	"identity-check-mismatched": {
+		"valid": IdentityCheckMismatched{
+			LpaUID:   "M-1111-1111-1111",
+			ActorUID: actoruid.Prefixed(actoruid.New()),
+			Provided: IdentityCheckMismatchedDetails{
+				FirstNames:  "a",
+				LastName:    "b",
+				DateOfBirth: date.Today(),
+			},
+			Verified: IdentityCheckMismatchedDetails{
+				FirstNames:  "a",
+				LastName:    "b",
+				DateOfBirth: date.Today(),
+			},
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {
