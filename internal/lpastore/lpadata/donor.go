@@ -18,6 +18,9 @@ type Donor struct {
 	Channel                   Channel
 	ContactLanguagePreference localize.Lang
 	IdentityCheck             IdentityCheck
+
+	// Mobile is only set for online donors who have provided one
+	Mobile string
 }
 
 func (d Donor) FullName() string {
