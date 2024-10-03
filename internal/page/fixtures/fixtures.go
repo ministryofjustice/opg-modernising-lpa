@@ -22,6 +22,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type ShareCodeSender interface {
@@ -206,6 +208,15 @@ func makeCorrespondent(name Name) donordata.Correspondent {
 	}
 }
 
+func makeVoucher(name Name) donordata.Voucher {
+	return donordata.Voucher{
+		FirstNames: name.Firstnames,
+		LastName:   name.Lastname,
+		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),
+		Allowed:    true,
+	}
+}
+
 func makeUID() string {
 	return strings.ToUpper("M-" + "FAKE" + "-" + random.String(4) + "-" + random.String(4))
 }
@@ -260,11 +271,19 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
 
-func makeVoucher(name Name) donordata.Voucher {
-	return donordata.Voucher{
-		FirstNames: name.Firstnames,
-		LastName:   name.Lastname,
-		Email:      fmt.Sprintf("%s.%s@example.org", name.Firstnames, name.Lastname),
-		Allowed:    true,
+func createVoucher(ctx context.Context, shareCodeStore ShareCodeStore, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
+	shareCode := random.String(16)
+	shareCodeData := sharecodedata.Link{
+		PK:          dynamo.ShareKey(dynamo.VoucherShareKey(shareCode)),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		ActorUID:    donor.Voucher.UID,
+		LpaOwnerKey: donor.SK,
 	}
+
+	err := shareCodeStore.Put(ctx, actor.TypeVoucher, shareCode, shareCodeData)
+	if err != nil {
+		return nil, err
+	}
+
+	return voucherStore.Create(ctx, shareCodeData, donor.Voucher.Email)
 }

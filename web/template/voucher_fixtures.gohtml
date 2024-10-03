@@ -3,17 +3,27 @@
 {{ define "pageTitle" }}Voucher fixtures{{ end }}
 
 {{ define "fixtures-main" }}
-    <p class="govuk-body">Enter a share code to redirect to the start page and
-        enter that code instead (because we aren't sending this code by email yet...)</p>
-    {{ template "input" (input . "withShareCode" "Share code" ""
-        "classes" "govuk-input--width-20") }}
+    {{ template "input" (input . "voucherEmail" "Voucher email" .DonorEmail "classes" "govuk-input--width-20") }}
+    {{ template "input" (input . "donorEmail" "Donor email" .DonorEmail "classes" "govuk-input--width-20") }}
+    {{ template "input" (input . "donorMobile" "Donor mobile" "" "classes" "govuk-input--width-20  govuk-input--extra-letter-spacing") }}
+
+    <div class="govuk-form-group">
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-signed" name="signed" type="checkbox" value="yes">
+                <label class="govuk-label govuk-checkboxes__label" for="f-signed">
+                    LPA Signed
+                </label>
+            </div>
+        </div>
+    </div>
 
     <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend">Progress</legend>
 
             {{ template "radios" (items . "progress" ""
-                (item "" "...")
+                (item "" "Start (Send share code)")
                 (item "confirmYourName" "Confirm your name")
                 (item "verifyDonorDetails" "Verify donor details")
                 (item "confirmYourIdentity" "Confirm your identity")) }}
