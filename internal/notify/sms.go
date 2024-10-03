@@ -90,3 +90,30 @@ func (s VouchingShareCodeSMS) smsID(isProduction bool) string {
 
 	return "84d70372-5c7a-4a88-a836-ee7c7dea203a"
 }
+
+type VoucherHasConfirmedDonorIdentitySMS struct {
+	VoucherFullName   string
+	DonorFullName     string
+	DonorStartPageURL string
+}
+
+func (e VoucherHasConfirmedDonorIdentitySMS) smsID(isProduction bool) string {
+	if isProduction {
+		return "ba3a4ae6-e68c-44e4-9923-f84d83c5f147"
+	}
+
+	return "aedb029f-fe6a-4e8a-a5a5-d38ba948fff4"
+}
+
+type VoucherHasConfirmedDonorIdentityOnSignedLpaSMS struct {
+	VoucherFullName   string
+	DonorStartPageURL string
+}
+
+func (e VoucherHasConfirmedDonorIdentityOnSignedLpaSMS) smsID(isProduction bool) string {
+	if isProduction {
+		return "7067aa92-df60-4e80-b2bf-0c64a4256d68"
+	}
+
+	return "65072ed8-0d20-4e0d-9800-2f1407407d32"
+}
