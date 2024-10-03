@@ -79,7 +79,7 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 				Execute(w, &oneLoginIdentityDetailsData{
 					App:              testAppData,
 					Form:             form.NewYesNoForm(form.YesNoUnknown),
-					DonorProvided:    tc.donorProvided,
+					Provided:         tc.donorProvided,
 					DetailsUpdated:   tc.expectedDetailsUpdated,
 					FirstNamesMatch:  tc.expectedFirstNamesMatch,
 					LastNameMatch:    tc.expectedLastNameMatch,
