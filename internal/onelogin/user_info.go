@@ -17,6 +17,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
+const insufficientEvidenceCode = "X"
+
+var failCodes = []string{"D", "N", "T", "V", "Z"}
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
 
 type UserInfo struct {
@@ -33,10 +36,6 @@ type UserInfo struct {
 
 type ReturnCodeInfo struct {
 	Code string `json:"code"`
-}
-
-func isFailCode(code string) bool {
-	return slices.Contains([]string{"D", "N", "T", "V", "Z"}, code)
 }
 
 type CoreIdentityClaims struct {
@@ -162,13 +161,17 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 
 func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
-		for _, c := range u.ReturnCodes {
-			if isFailCode(c.Code) {
-				return identity.UserData{Status: identity.StatusFailed}, nil
-			}
+		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return slices.Contains(failCodes, r.Code)
+		}) {
+			return identity.UserData{Status: identity.StatusFailed}, nil
 		}
 
-		return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		if slices.Equal(u.ReturnCodes, []ReturnCodeInfo{{Code: "A"}, {Code: "P"}}) || slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
+			return r.Code == insufficientEvidenceCode
+		}) {
+			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		}
 	}
 
 	if u.CoreIdentityJWT == "" {

@@ -231,9 +231,10 @@ func TestParseIdentityClaim(t *testing.T) {
 	}
 
 	testcases := map[string]struct {
-		token    string
-		userData identity.UserData
-		error    error
+		token       string
+		userData    identity.UserData
+		error       error
+		returnCodes []ReturnCodeInfo
 	}{
 		"with required claims": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -252,6 +253,44 @@ func TestParseIdentityClaim(t *testing.T) {
 					Country:  "GB",
 				},
 			},
+		},
+		"with return code 'A'": {
+			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc":  vc,
+			}), privateKey),
+			userData: identity.UserData{
+				Status:      identity.StatusConfirmed,
+				FirstNames:  "Alice Jane Laura",
+				LastName:    "Doe",
+				DateOfBirth: date.New("1970", "01", "02"),
+				RetrievedAt: issuedAt,
+				CurrentAddress: place.Address{
+					Line1:    "1 Fake Road",
+					Postcode: "B14 7ED",
+					Country:  "GB",
+				},
+			},
+			returnCodes: []ReturnCodeInfo{{Code: "A"}},
+		},
+		"with return code 'P'": {
+			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+				"iat": issuedAt.Unix(),
+				"vc":  vc,
+			}), privateKey),
+			userData: identity.UserData{
+				Status:      identity.StatusConfirmed,
+				FirstNames:  "Alice Jane Laura",
+				LastName:    "Doe",
+				DateOfBirth: date.New("1970", "01", "02"),
+				RetrievedAt: issuedAt,
+				CurrentAddress: place.Address{
+					Line1:    "1 Fake Road",
+					Postcode: "B14 7ED",
+					Country:  "GB",
+				},
+			},
+			returnCodes: []ReturnCodeInfo{{Code: "P"}},
 		},
 		"missing": {
 			error: ErrMissingCoreIdentityJWT,
@@ -347,6 +386,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					ValidFrom:      "2020-01-01",
 					ValidUntil:     "",
 				}},
+				ReturnCodes: tc.returnCodes,
 			}
 
 			userData, err := c.ParseIdentityClaim(userInfo)
@@ -391,15 +431,11 @@ func TestParseIdentityClaimWhenDIDClientErrors(t *testing.T) {
 	assert.ErrorContains(t, err, "could not find jwk for kid")
 }
 
-func TestParseIdentityClaimWithReturnCode(t *testing.T) {
+func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 	testcases := map[string]struct {
 		returnCodes    []ReturnCodeInfo
 		identityStatus identity.Status
 	}{
-		"A": {
-			returnCodes:    []ReturnCodeInfo{{Code: "A"}},
-			identityStatus: identity.StatusInsufficientEvidence,
-		},
 		"D": {
 			returnCodes:    []ReturnCodeInfo{{Code: "D"}},
 			identityStatus: identity.StatusFailed,
@@ -407,10 +443,6 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 		"N": {
 			returnCodes:    []ReturnCodeInfo{{Code: "N"}},
 			identityStatus: identity.StatusFailed,
-		},
-		"P": {
-			returnCodes:    []ReturnCodeInfo{{Code: "P"}},
-			identityStatus: identity.StatusInsufficientEvidence,
 		},
 		"T": {
 			returnCodes:    []ReturnCodeInfo{{Code: "T"}},
@@ -439,6 +471,10 @@ func TestParseIdentityClaimWithReturnCode(t *testing.T) {
 		"X + fail code": {
 			returnCodes:    []ReturnCodeInfo{{Code: "X"}, {Code: "D"}},
 			identityStatus: identity.StatusFailed,
+		},
+		"A + P": {
+			returnCodes:    []ReturnCodeInfo{{Code: "A"}, {Code: "P"}},
+			identityStatus: identity.StatusInsufficientEvidence,
 		},
 	}
 
