@@ -1,12 +1,14 @@
 package voucherpage
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -22,7 +24,38 @@ type yourDeclarationData struct {
 	Voucher *voucherdata.Provided
 }
 
-func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, now func() time.Time) Handler {
+func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
+	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
+		if lpa.Donor.Mobile != "" {
+			if lpa.SignedAt.IsZero() {
+				return notifyClient.SendActorSMS(ctx, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
+					VoucherFullName:   provided.FullName(),
+					DonorFullName:     lpa.Donor.FullName(),
+					DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+				})
+			}
+
+			return notifyClient.SendActorSMS(ctx, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
+				VoucherFullName:   provided.FullName(),
+				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+			})
+		}
+
+		if lpa.SignedAt.IsZero() {
+			return notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
+				VoucherFullName:   provided.FullName(),
+				DonorFullName:     lpa.Donor.FullName(),
+				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+			})
+		}
+
+		return notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
+			VoucherFullName:   provided.FullName(),
+			DonorFullName:     lpa.Donor.FullName(),
+			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+		})
+	}
+
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		if !provided.SignedAt.IsZero() {
 			return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
@@ -45,6 +78,10 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				if err := sendNotification(r.Context(), lpa, provided); err != nil {
+					return err
+				}
+
 				provided.SignedAt = now()
 				provided.Tasks.SignTheDeclaration = task.StateCompleted
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
