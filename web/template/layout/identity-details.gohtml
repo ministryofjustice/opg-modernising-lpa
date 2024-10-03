@@ -1,0 +1,20 @@
+{{ define "identityDetails" }}
+    {{ $fullName := (printf "%s %s" .Provided.IdentityUserData.FirstNames .Provided.IdentityUserData.LastName) }}
+
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">{{ tr .App "confirmedIdentityDetails" }}</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "firstNames" .Provided.IdentityUserData.FirstNames "" $fullName false true ) }}
+
+                {{ template "summary-row" (summaryRow .App "lastName" .Provided.IdentityUserData.LastName "" $fullName false true ) }}
+
+                {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App .Provided.IdentityUserData.DateOfBirth) "" $fullName false true ) }}
+
+                {{ template "address-summary-row" (summaryRow $.App "address" .Provided.IdentityUserData.CurrentAddress "" $fullName false true ) }}
+            </dl>
+        </div>
+    </div>
+{{ end }}

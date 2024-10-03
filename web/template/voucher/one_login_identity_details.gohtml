@@ -7,7 +7,7 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "yourIdentityConfirmedWithOneLogin" }}</h1>
+            {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher") "success" "contents" ) }}
 
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "firstNames"

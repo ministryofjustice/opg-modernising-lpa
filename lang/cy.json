@@ -1402,5 +1402,8 @@
     "iConfirmTheLpaWasSignedInMyPresence": "Welsh",
     "trustCorporationSignature": "Welsh",
     "replacementTrustCorporationSignature": "Welsh",
-    "defaultDecisionHasBeenSelected": "Welsh"
+    "defaultDecisionHasBeenSelected": "Welsh",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh {{possessive .DonorFullName }} Welsh</p></div>",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>"
 }
