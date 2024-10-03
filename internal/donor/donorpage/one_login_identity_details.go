@@ -10,13 +10,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type oneLoginIdentityDetailsData struct {
 	App              appcontext.Data
 	Errors           validation.List
-	DonorProvided    *donordata.Provided
+	Provided         *donordata.Provided
+	IdentityUserData identity.UserData
 	FirstNamesMatch  bool
 	LastNameMatch    bool
 	DateOfBirthMatch bool
@@ -34,7 +36,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 		data := &oneLoginIdentityDetailsData{
 			App:              appData,
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
-			DonorProvided:    provided,
+			Provided:         provided,
 			DetailsUpdated:   r.FormValue("detailsUpdated") == "1",
 			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
 			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),

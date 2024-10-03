@@ -5,15 +5,13 @@
 {{ end }}
 
 {{ define "providedDetails" }}
-    {{ $donor := .DonorProvided.Donor }}
-
     <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
 
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">
         <div
             class="govuk-summary-list__row {{ if .FirstNamesMatch }}govuk-summary-list__row--no-actions{{end}}">
             <dt class="govuk-summary-list__key">{{ tr .App "firstNames" }}</dt>
-            <dd class="govuk-summary-list__value">{{ $donor.FirstNames }}</dd>
+            <dd class="govuk-summary-list__value">{{ .Provided.Donor.FirstNames }}</dd>
             {{ if not .FirstNamesMatch }}
                 <dd class="govuk-summary-list__actions"><span
                         class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
@@ -23,7 +21,7 @@
         <div
             class="govuk-summary-list__row {{ if .LastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
             <dt class="govuk-summary-list__key">{{ tr .App "lastName" }}</dt>
-            <dd class="govuk-summary-list__value">{{ $donor.LastName }}</dd>
+            <dd class="govuk-summary-list__value">{{ .Provided.Donor.LastName }}</dd>
             {{ if not .LastNameMatch }}
                 <dd class="govuk-summary-list__actions"><span
                         class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
@@ -33,7 +31,7 @@
         <div
             class="govuk-summary-list__row {{ if .DateOfBirthMatch }}govuk-summary-list__row--no-actions{{end}}">
             <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-            <dd class="govuk-summary-list__value">{{ (formatDate .App $donor.DateOfBirth) }}</dd>
+            <dd class="govuk-summary-list__value">{{ (formatDate .App .Provided.Donor.DateOfBirth) }}</dd>
             {{ if not .DateOfBirthMatch }}
                 <dd class="govuk-summary-list__actions"><span
                         class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
@@ -43,7 +41,7 @@
         <div
             class="govuk-summary-list__row {{ if .AddressMatch }}govuk-summary-list__row--no-actions{{end}}">
             <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" $donor.Address }}</dd>
+            <dd class="govuk-summary-list__value">{{ template "address-lines" .Provided.Donor.Address }}</dd>
             {{ if not .AddressMatch }}
                 <dd class="govuk-summary-list__actions"><span
                         class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
@@ -51,28 +49,6 @@
             {{ end }}
         </div>
     </dl>
-{{ end }}
-
-{{ define "identityDetails" }}
-    {{ $userData := .DonorProvided.IdentityUserData }}
-    {{ $donorFullName := (printf "%s %s" $userData.FirstNames $userData.LastName) }}
-
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">{{ tr .App "confirmedIdentityDetails" }}</h2>
-        </div>
-        <div class="govuk-summary-card__content">
-            <dl class="govuk-summary-list">
-                {{ template "summary-row" (summaryRow .App "firstNames" $userData.FirstNames "" $donorFullName false true ) }}
-
-                {{ template "summary-row" (summaryRow .App "lastName" $userData.LastName "" $donorFullName false true ) }}
-
-                {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App $userData.DateOfBirth) "" $donorFullName false true ) }}
-
-                {{ template "address-summary-row" (summaryRow $.App "address" $userData.CurrentAddress "" $donorFullName false true ) }}
-            </dl>
-        </div>
-    </div>
 {{ end }}
 
 {{ define "main" }}
@@ -84,7 +60,7 @@
                 {{ template "providedDetails" . }}
                 {{ template "identityDetails" . }}
             {{ else if .DetailsMatch }}
-                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess") "success" "contents" ) }}
+                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
 
                 {{ template "identityDetails" . }}
             {{ else if not .DetailsMatch }}
