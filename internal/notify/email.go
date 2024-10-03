@@ -260,16 +260,44 @@ func (s VoucherInviteEmail) emailID(isProduction bool) string {
 	return "9af150b5-d9cd-4702-bf97-d3e6bfe81eec"
 }
 
-type VouchingFailedAttempt struct {
+type VouchingFailedAttemptEmail struct {
 	Greeting          string
 	VoucherFullName   string
 	DonorStartPageURL string
 }
 
-func (e VouchingFailedAttempt) emailID(isProduction bool) string {
+func (e VouchingFailedAttemptEmail) emailID(isProduction bool) string {
 	if isProduction {
 		return "f21ee857-8c3e-43ee-adf2-2d9f1ff1a1a8"
 	}
 
 	return "584412e6-f235-4227-aff9-6cb56ba48e31"
+}
+
+type VoucherHasConfirmedDonorIdentityEmail struct {
+	VoucherFullName   string
+	DonorFullName     string
+	DonorStartPageURL string
+}
+
+func (e VoucherHasConfirmedDonorIdentityEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "67cd151e-6e7b-4fba-9457-f0252e75dfe2"
+	}
+
+	return "86e6d479-6bef-428c-a09d-02a325b97972"
+}
+
+type VoucherHasConfirmedDonorIdentityOnSignedLpaEmail struct {
+	VoucherFullName   string
+	DonorFullName     string
+	DonorStartPageURL string
+}
+
+func (e VoucherHasConfirmedDonorIdentityOnSignedLpaEmail) emailID(isProduction bool) string {
+	if isProduction {
+		return "8df993ff-e4d9-43f2-b714-39053510c664"
+	}
+
+	return "efa0ef78-9e65-4edf-88c8-70d3da7a4b0e"
 }
