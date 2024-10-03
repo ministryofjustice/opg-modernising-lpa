@@ -118,7 +118,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
+		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
 	scheduledStore := newMockScheduledStore(t)
@@ -184,7 +184,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *tes
 		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
+		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
 	eventClient := newMockEventClient(t)
