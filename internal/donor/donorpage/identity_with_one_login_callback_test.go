@@ -55,7 +55,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 		UserInfo(r.Context(), "a-jwt").
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(r.Context(), userInfo).
+		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
 	scheduledStore := newMockScheduledStore(t)
@@ -229,7 +229,7 @@ func TestGetIdentityWithOneLoginCallbackWhenScheduledStoreErrors(t *testing.T) {
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(userData, nil)
 
 	scheduledStore := newMockScheduledStore(t)
@@ -284,7 +284,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
 				oneLoginClient.EXPECT().
-					ParseIdentityClaim(mock.Anything, mock.Anything).
+					ParseIdentityClaim(mock.Anything).
 					Return(identity.UserData{Status: identity.StatusFailed}, nil)
 				return oneLoginClient
 			},
@@ -310,7 +310,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					UserInfo(mock.Anything, mock.Anything).
 					Return(userInfo, nil)
 				oneLoginClient.EXPECT().
-					ParseIdentityClaim(mock.Anything, mock.Anything).
+					ParseIdentityClaim(mock.Anything).
 					Return(identity.UserData{}, expectedError)
 				return oneLoginClient
 			},
@@ -403,7 +403,7 @@ func TestGetIdentityWithOneLoginCallbackWhenInsufficientEvidenceReturnCodeClaimP
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusInsufficientEvidence}, nil)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil, nil)(testAppData, w, r, &donordata.Provided{
@@ -445,7 +445,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusFailed}, nil)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil, nil)(testAppData, w, r, &donordata.Provided{
@@ -482,7 +482,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutDonorStoreError(t *testing.T) {
 		UserInfo(mock.Anything, mock.Anything).
 		Return(userInfo, nil)
 	oneLoginClient.EXPECT().
-		ParseIdentityClaim(mock.Anything, mock.Anything).
+		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil, nil)(testAppData, w, r, &donordata.Provided{})
