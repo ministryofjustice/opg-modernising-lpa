@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -42,7 +43,7 @@ func TestGetYourDeclaration(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil)(testAppData, w, r, provided)
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, "")(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +54,7 @@ func TestGetYourDeclarationWhenSigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := YourDeclaration(nil, nil, nil, nil)(testAppData, w, r, &voucherdata.Provided{
+	err := YourDeclaration(nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: time.Now(),
 	})
@@ -73,7 +74,7 @@ func TestGetYourDeclarationWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -92,7 +93,7 @@ func TestGetYourDeclarationWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -106,26 +107,102 @@ func TestPostYourDeclaration(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
+	testcases := map[string]struct {
+		lpa         *lpadata.Lpa
+		setupNotify func(*mockNotifyClient)
+	}{
+		"email": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorEmail(r.Context(), "blah@example.com", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityEmail{
+						DonorFullName:     "John Smith",
+						DonorStartPageURL: "app:///start",
+						VoucherFullName:   "Vivian Voucher",
+					}).
+					Return(nil)
+			},
+		},
+		"email when signed": {
+			lpa: &lpadata.Lpa{
+				LpaUID:   "lpa-uid",
+				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+				SignedAt: time.Now(),
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorEmail(r.Context(), "blah@example.com", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
+						DonorFullName:     "John Smith",
+						DonorStartPageURL: "app:///start",
+						VoucherFullName:   "Vivian Voucher",
+					}).
+					Return(nil)
+			},
+		},
+		"mobile": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorSMS(r.Context(), "0777", "lpa-uid", notify.VoucherHasConfirmedDonorIdentitySMS{
+						DonorFullName:     "John Smith",
+						DonorStartPageURL: "app:///start",
+						VoucherFullName:   "Vivian Voucher",
+					}).
+					Return(nil)
+			},
+		},
+		"mobile when signed": {
+			lpa: &lpadata.Lpa{
+				LpaUID:   "lpa-uid",
+				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+				SignedAt: time.Now(),
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorSMS(r.Context(), "0777", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
+						DonorStartPageURL: "app:///start",
+						VoucherFullName:   "Vivian Voucher",
+					}).
+					Return(nil)
+			},
+		},
+	}
 
-	voucherStore := newMockVoucherStore(t)
-	voucherStore.EXPECT().
-		Put(r.Context(), &voucherdata.Provided{
-			LpaID:    "lpa-id",
-			SignedAt: testNow,
-			Tasks:    voucherdata.Tasks{SignTheDeclaration: task.StateCompleted},
-		}).
-		Return(nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, testNowFn)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	resp := w.Result()
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				Put(r.Context(), &voucherdata.Provided{
+					LpaID:      "lpa-id",
+					FirstNames: "Vivian",
+					LastName:   "Voucher",
+					SignedAt:   testNow,
+					Tasks:      voucherdata.Tasks{SignTheDeclaration: task.StateCompleted},
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathThankYou.Format("lpa-id"), resp.Header.Get("Location"))
+			notifyClient := newMockNotifyClient(t)
+			tc.setupNotify(notifyClient)
+
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, notifyClient, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, voucher.PathThankYou.Format("lpa-id"), resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestPostYourDeclarationWhenValidationError(t *testing.T) {
@@ -149,11 +226,89 @@ func TestPostYourDeclarationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
+	f := url.Values{
+		"confirm": {"1"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	testcases := map[string]struct {
+		lpa         *lpadata.Lpa
+		setupNotify func(*mockNotifyClient)
+	}{
+		"email": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+			},
+		},
+		"email when signed": {
+			lpa: &lpadata.Lpa{
+				LpaUID:   "lpa-uid",
+				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+				SignedAt: time.Now(),
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+			},
+		},
+		"mobile": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+			},
+		},
+		"mobile when signed": {
+			lpa: &lpadata.Lpa{
+				LpaUID:   "lpa-uid",
+				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+				SignedAt: time.Now(),
+			},
+			setupNotify: func(m *mockNotifyClient) {
+				m.EXPECT().
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
+
+			notifyClient := newMockNotifyClient(t)
+			tc.setupNotify(notifyClient)
+
+			err := YourDeclaration(nil, lpaStoreResolvingService, nil, notifyClient, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+
+			assert.Equal(t, expectedError, err)
+		})
+	}
 }
 
 func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
@@ -170,12 +325,17 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(&lpadata.Lpa{}, nil)
 
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
 	voucherStore := newMockVoucherStore(t)
 	voucherStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, testNowFn)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, notifyClient, testNowFn, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	assert.Equal(t, expectedError, err)
 }
 

@@ -119,6 +119,55 @@ func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// SendActorSMS provides a mock function with given fields: ctx, to, lpaUID, sms
+func (_m *mockNotifyClient) SendActorSMS(ctx context.Context, to string, lpaUID string, sms notify.SMS) error {
+	ret := _m.Called(ctx, to, lpaUID, sms)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendActorSMS")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, notify.SMS) error); ok {
+		r0 = rf(ctx, to, lpaUID, sms)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockNotifyClient_SendActorSMS_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendActorSMS'
+type mockNotifyClient_SendActorSMS_Call struct {
+	*mock.Call
+}
+
+// SendActorSMS is a helper method to define mock.On call
+//   - ctx context.Context
+//   - to string
+//   - lpaUID string
+//   - sms notify.SMS
+func (_e *mockNotifyClient_Expecter) SendActorSMS(ctx interface{}, to interface{}, lpaUID interface{}, sms interface{}) *mockNotifyClient_SendActorSMS_Call {
+	return &mockNotifyClient_SendActorSMS_Call{Call: _e.mock.On("SendActorSMS", ctx, to, lpaUID, sms)}
+}
+
+func (_c *mockNotifyClient_SendActorSMS_Call) Run(run func(ctx context.Context, to string, lpaUID string, sms notify.SMS)) *mockNotifyClient_SendActorSMS_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(notify.SMS))
+	})
+	return _c
+}
+
+func (_c *mockNotifyClient_SendActorSMS_Call) Return(_a0 error) *mockNotifyClient_SendActorSMS_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockNotifyClient_SendActorSMS_Call) RunAndReturn(run func(context.Context, string, string, notify.SMS) error) *mockNotifyClient_SendActorSMS_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockNotifyClient creates a new instance of mockNotifyClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockNotifyClient(t interface {
