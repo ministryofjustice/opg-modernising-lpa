@@ -204,7 +204,7 @@ func TestPostConfirmAllowedToVouchWhenNo(t *testing.T) {
 		EmailGreeting(lpa).
 		Return("Email greeting")
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.VouchingFailedAttempt{
+		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.VouchingFailedAttemptEmail{
 			Greeting:          "Email greeting",
 			VoucherFullName:   "a b",
 			DonorStartPageURL: "app://" + page.PathStart.Format(),
