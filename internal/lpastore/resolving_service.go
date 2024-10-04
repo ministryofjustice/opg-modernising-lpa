@@ -97,6 +97,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
 		lpa.Donor.Channel = lpadata.ChannelOnline
+		lpa.Donor.Mobile = donor.Donor.Mobile
 		lpa.Correspondent = lpadata.Correspondent{
 			FirstNames: donor.Correspondent.FirstNames,
 			LastName:   donor.Correspondent.LastName,

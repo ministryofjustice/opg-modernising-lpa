@@ -495,7 +495,7 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 		Restrictions:                             l.Restrictions,
 		WhenCanTheLpaBeUsed:                      l.WhenCanTheLpaBeUsed,
 		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
-		SignedAt:                                 l.SignedAt,
+		SignedAt:                                 l.WitnessedByCertificateProviderAt,
 		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
 		Correspondent: lpadata.Correspondent{
 			FirstNames: l.Correspondent.FirstNames,
