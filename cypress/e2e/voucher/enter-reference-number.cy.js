@@ -5,7 +5,7 @@ describe('Enter reference number', () => {
     beforeEach(() => {
         shareCode = randomShareCode()
 
-        cy.visit(`/fixtures/voucher?redirect=/voucher-start&withShareCode=${shareCode}&email=${TestEmail}`);
+        cy.visit(`/fixtures/voucher?redirect=&withShareCode=${shareCode}`);
 
         cy.contains('a', 'Start').click()
         cy.contains('label', 'Random value').click();

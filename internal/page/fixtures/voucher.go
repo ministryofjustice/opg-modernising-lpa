@@ -1,24 +1,24 @@
 package fixtures
 
 import (
+	"cmp"
 	"encoding/base64"
 	"net/http"
 	"slices"
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
@@ -27,10 +27,13 @@ func Voucher(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
 	shareCodeStore *sharecode.Store,
+	shareCodeSender *sharecode.Sender,
 	donorStore *donor.Store,
 	voucherStore *voucher.Store,
+	lpaStoreClient *lpastore.Client,
 ) page.Handler {
 	progressValues := []string{
+		"",
 		"confirmYourName",
 		"verifyDonorDetails",
 		"confirmYourIdentity",
@@ -40,22 +43,22 @@ func Voucher(
 		acceptCookiesConsent(w)
 
 		var (
-			voucherSub = r.FormValue("voucherSub")
-			shareCode  = r.FormValue("withShareCode")
-			redirect   = r.FormValue("redirect")
-			progress   = slices.Index(progressValues, r.FormValue("progress"))
+			voucherSub   = cmp.Or(r.FormValue("voucherSub"), random.String(16))
+			shareCode    = r.FormValue("withShareCode")
+			voucherEmail = r.FormValue("voucherEmail")
+			donorEmail   = r.FormValue("donorEmail")
+			donorMobile  = r.FormValue("donorMobile")
+			lpaSigned    = r.FormValue("signed") == "yes"
+			redirect     = r.FormValue("redirect")
+			progress     = slices.Index(progressValues, r.FormValue("progress"))
 		)
-
-		if voucherSub == "" {
-			voucherSub = random.String(16)
-		}
 
 		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: voucherSub, Email: testEmail}); err != nil {
 			return err
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: voucherSub})
+			return tmpl(w, &fixturesData{App: appData, Sub: voucherSub, DonorEmail: testEmail})
 		}
 
 		var (
@@ -75,8 +78,8 @@ func Voucher(
 			voucherCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: voucherSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.SignedAt = time.Now()
-		donorDetails.Donor = makeDonor(testEmail)
+		donorDetails.Donor = makeDonor(donorEmail)
+		donorDetails.Donor.Mobile = donorMobile
 		donorDetails.LpaUID = makeUID()
 		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 		donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
@@ -88,42 +91,48 @@ func Voucher(
 			UID:        actoruid.New(),
 			FirstNames: "Vivian",
 			LastName:   "Vaughn",
-			Email:      testEmail,
+			Email:      voucherEmail,
 			Allowed:    true,
+		}
+		if lpaSigned {
+			donorDetails.SignedAt = time.Now()
+			donorDetails.WitnessedByCertificateProviderAt = time.Now()
 		}
 
 		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 			return err
 		}
 
-		hasShareCode := shareCode != ""
-		if !hasShareCode {
-			shareCode = random.String(12)
+		if lpaSigned {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
 		}
 
-		link := sharecodedata.Link{
-			LpaKey:      donorDetails.PK,
-			LpaOwnerKey: donorDetails.SK,
-			ActorUID:    donorDetails.Voucher.UID,
-		}
-
-		if err := shareCodeStore.Put(voucherCtx, actor.TypeVoucher, shareCode, link); err != nil {
+		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
+		if err != nil {
 			return err
 		}
 
-		if hasShareCode {
-			http.Redirect(w, r, page.PathVoucherStart.Format(), http.StatusFound)
+		if progress == slices.Index(progressValues, "") {
+			if shareCode != "" {
+				shareCodeSender.UseTestCode(shareCode)
+			}
+
+			shareCodeSender.SendVoucherAccessCode(donorCtx, donorDetails, appcontext.Data{
+				SessionID: donorSessionID,
+				LpaID:     donorDetails.LpaID,
+				Localizer: appData.Localizer,
+			})
+
+			if redirect == "" {
+				redirect = page.PathVoucherStart.Format()
+			} else {
+				redirect = "/voucher/" + donorDetails.LpaID + redirect
+			}
+
+			http.Redirect(w, r, redirect, http.StatusFound)
 			return nil
-		}
-
-		shareLink, err := shareCodeStore.Get(voucherCtx, actor.TypeVoucher, shareCode)
-		if err != nil {
-			return err
-		}
-
-		voucherDetails, err := voucherStore.Create(voucherCtx, shareLink, testEmail)
-		if err != nil {
-			return err
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourName") {

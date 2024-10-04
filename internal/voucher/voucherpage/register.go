@@ -46,6 +46,7 @@ type DonorStore interface {
 type NotifyClient interface {
 	EmailGreeting(lpa *lpadata.Lpa) string
 	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
+	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
 }
 
 type Logger interface {
@@ -142,7 +143,7 @@ func Register(
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
-		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, time.Now))
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, notifyClient, time.Now, appPublicURL))
 	handleVoucher(voucher.PathThankYou, None,
 		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }
