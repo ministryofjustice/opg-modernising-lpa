@@ -1192,7 +1192,6 @@
     "theDetailsOnYourLPA": "The details on your LPA",
     "someDetailsDoNotMatchIdentityDetailsWarning": "Some of the details on your LPA do not match your confirmed identity details",
     "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess": "Your LPA details have been updated to match your confirmed identity",
-    "confirmedIdentityDetails": "Confirmed identity details",
     "doesNotMatch": "Does not match",
     "updateMyLPADetailsToMatchIdentityHint": "Update my LPA details to match my confirmed identity details.",
     "iUnderstandThisWillWithdrawLPAHint": "I understand that this will withdraw my LPA and I will no longer be able to access it.",
@@ -1331,5 +1330,8 @@
     "iConfirmTheLpaWasSignedInMyPresence": "I confirm that the LPA was signed in my presence and that my name and address are correct.",
     "trustCorporationSignature": "Trust corporation signature",
     "replacementTrustCorporationSignature": "Replacement trust corporation signature",
-    "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear."
+    "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear.",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those you entered in your LPA.</p></div>",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those entered in {{possessive .DonorFullName }} LPA.</p></div>",
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p></div>"
 }
