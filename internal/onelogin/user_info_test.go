@@ -477,6 +477,10 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 			returnCodes:    []ReturnCodeInfo{{Code: "A"}, {Code: "P"}},
 			identityStatus: identity.StatusInsufficientEvidence,
 		},
+		"P + A": {
+			returnCodes:    []ReturnCodeInfo{{Code: "P"}, {Code: "A"}},
+			identityStatus: identity.StatusInsufficientEvidence,
+		},
 		"unexpected code": {
 			returnCodes:    []ReturnCodeInfo{{Code: "NOT A CODE"}},
 			identityStatus: identity.StatusUnknown,

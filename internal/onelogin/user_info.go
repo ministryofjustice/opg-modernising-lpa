@@ -17,10 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-const insufficientEvidenceCode = "X"
-
-var passCodes = []string{"A", "P"}
-var failCodes = []string{"D", "N", "T", "V", "Z"}
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
 var ErrUnexpectedReturnCode = errors.New("UserInfo contained an unexpected return code")
 
@@ -38,6 +34,12 @@ type UserInfo struct {
 
 type ReturnCodeInfo struct {
 	Code string `json:"code"`
+}
+
+func (r ReturnCodeInfo) Pass() bool                 { return r.Code == "A" || r.Code == "P" }
+func (r ReturnCodeInfo) InsufficientEvidence() bool { return r.Code == "X" }
+func (r ReturnCodeInfo) Fail() bool {
+	return slices.Contains([]string{"D", "N", "T", "V", "Z"}, r.Code)
 }
 
 type CoreIdentityClaims struct {
@@ -163,22 +165,22 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 
 func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
-		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
-			return slices.Contains(failCodes, r.Code)
-		}) {
-			return identity.UserData{Status: identity.StatusFailed}, nil
+		var insufficientEvidence bool
+		for _, code := range u.ReturnCodes {
+			if code.Fail() {
+				return identity.UserData{Status: identity.StatusFailed}, nil
+			}
+
+			if !code.Pass() && !code.InsufficientEvidence() {
+				return identity.UserData{}, ErrUnexpectedReturnCode
+			}
+
+			insufficientEvidence = insufficientEvidence || code.InsufficientEvidence()
 		}
 
-		if slices.Equal(u.ReturnCodes, []ReturnCodeInfo{{Code: "A"}, {Code: "P"}}) || slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
-			return r.Code == insufficientEvidenceCode
-		}) {
+		// A+P will be missing CoreIdentityJWT but is not a fail
+		if insufficientEvidence || u.CoreIdentityJWT == "" {
 			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
-		}
-
-		if slices.ContainsFunc(u.ReturnCodes, func(r ReturnCodeInfo) bool {
-			return !slices.Contains(passCodes, r.Code)
-		}) {
-			return identity.UserData{}, ErrUnexpectedReturnCode
 		}
 	}
 
