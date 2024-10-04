@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 )
 
 var ErrMissingCoreIdentityJWT = errors.New("UserInfo missing CoreIdentityJWT property")
+var ErrUnexpectedReturnCode = errors.New("UserInfo contained an unexpected return code")
 
 type UserInfo struct {
 	Sub             string              `json:"sub"`
@@ -32,6 +34,12 @@ type UserInfo struct {
 
 type ReturnCodeInfo struct {
 	Code string `json:"code"`
+}
+
+func (r ReturnCodeInfo) Pass() bool                 { return r.Code == "A" || r.Code == "P" }
+func (r ReturnCodeInfo) InsufficientEvidence() bool { return r.Code == "X" }
+func (r ReturnCodeInfo) Fail() bool {
+	return slices.Contains([]string{"D", "N", "T", "V", "Z"}, r.Code)
 }
 
 type CoreIdentityClaims struct {
@@ -155,15 +163,25 @@ func (c *Client) UserInfo(ctx context.Context, idToken string) (UserInfo, error)
 	return userinfoResponse, err
 }
 
-func (c *Client) ParseIdentityClaim(ctx context.Context, u UserInfo) (identity.UserData, error) {
+func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 	if len(u.ReturnCodes) > 0 {
-		for _, c := range u.ReturnCodes {
-			if c.Code == "X" {
-				return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		var insufficientEvidence bool
+		for _, code := range u.ReturnCodes {
+			if code.Fail() {
+				return identity.UserData{Status: identity.StatusFailed}, nil
 			}
+
+			if !code.Pass() && !code.InsufficientEvidence() {
+				return identity.UserData{}, ErrUnexpectedReturnCode
+			}
+
+			insufficientEvidence = insufficientEvidence || code.InsufficientEvidence()
 		}
 
-		return identity.UserData{Status: identity.StatusFailed}, nil
+		// A+P will be missing CoreIdentityJWT but is not a fail
+		if insufficientEvidence || u.CoreIdentityJWT == "" {
+			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+		}
 	}
 
 	if u.CoreIdentityJWT == "" {
