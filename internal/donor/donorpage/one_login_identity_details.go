@@ -16,7 +16,7 @@ import (
 type oneLoginIdentityDetailsData struct {
 	App              appcontext.Data
 	Errors           validation.List
-	DonorProvided    *donordata.Provided
+	Provided         *donordata.Provided
 	FirstNamesMatch  bool
 	LastNameMatch    bool
 	DateOfBirthMatch bool
@@ -34,7 +34,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 		data := &oneLoginIdentityDetailsData{
 			App:              appData,
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
-			DonorProvided:    provided,
+			Provided:         provided,
 			DetailsUpdated:   r.FormValue("detailsUpdated") == "1",
 			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
 			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),

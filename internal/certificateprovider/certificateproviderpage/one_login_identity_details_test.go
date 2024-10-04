@@ -24,15 +24,25 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 		LpaID:            "lpa-id",
 	}
 
+	lpaResolvingService := newMockLpaStoreResolvingService(t)
+	lpaResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpadata.Lpa{
+			LpaUID:              "lpa-uid",
+			CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
+			Donor:               lpadata.Donor{FirstNames: "c", LastName: "d"},
+		}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &oneLoginIdentityDetailsData{
-			App:                 testAppData,
-			CertificateProvider: certificateProvider,
+			App:           testAppData,
+			Provided:      certificateProvider,
+			DonorFullName: "c d",
 		}).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(template.Execute, nil, nil)(testAppData, w, r, certificateProvider)
+	err := OneLoginIdentityDetails(template.Execute, nil, lpaResolvingService)(testAppData, w, r, certificateProvider)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,12 +53,17 @@ func TestGetOneLoginIdentityDetailsWhenTemplateErrors(t *testing.T) {
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
+	lpaResolvingService := newMockLpaStoreResolvingService(t)
+	lpaResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := OneLoginIdentityDetails(template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := OneLoginIdentityDetails(template.Execute, nil, lpaResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
