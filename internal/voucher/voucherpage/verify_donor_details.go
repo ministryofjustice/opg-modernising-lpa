@@ -20,7 +20,7 @@ type verifyDonorDetailsData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, donorStore DonorStore) Handler {
+func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, fail vouchFailer) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -45,14 +45,7 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 				}
 
 				if data.Form.YesNo.IsNo() {
-					donor, err := donorStore.GetAny(r.Context())
-					if err != nil {
-						return err
-					}
-
-					donor.FailedVouchAttempts++
-
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := fail(r.Context(), provided, lpa); err != nil {
 						return err
 					}
 

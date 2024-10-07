@@ -5,14 +5,12 @@ import (
 	"net/http"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, voucherStore VoucherStore, lpaStoreResolvingService LpaStoreResolvingService, notifyClient NotifyClient, appPublicURL string, donorStore DonorStore) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, voucherStore VoucherStore, lpaStoreResolvingService LpaStoreResolvingService, fail vouchFailer) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -58,26 +56,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if !provided.IdentityConfirmed() {
-			if !lpa.SignedAt.IsZero() {
-				if err = notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.VoucherFailedIdentityCheckEmail{
-					Greeting:          notifyClient.EmailGreeting(lpa),
-					DonorFullName:     lpa.Donor.FullName(),
-					VoucherFullName:   lpa.Voucher.FullName(),
-					LpaType:           appData.Localizer.T(lpa.Type.String()),
-					DonorStartPageURL: appPublicURL + page.PathStart.Format(),
-				}); err != nil {
-					return err
-				}
-			}
-
-			donor, err := donorStore.GetAny(r.Context())
-			if err != nil {
-				return err
-			}
-
-			donor.FailedVouchAttempts++
-
-			if err := donorStore.Put(r.Context(), donor); err != nil {
+			if err := fail(r.Context(), provided, lpa); err != nil {
 				return err
 			}
 
