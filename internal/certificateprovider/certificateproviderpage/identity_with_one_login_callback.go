@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 )
@@ -56,47 +55,49 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return err
 		}
 
-		switch certificateProvider.IdentityUserData.Status {
-		case identity.StatusConfirmed:
-			if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-				if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
-					return err
-				}
-			} else {
-				if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
-					LpaUID:   lpa.LpaUID,
-					ActorUID: actoruid.Prefixed(certificateProvider.UID),
-					Provided: event.IdentityCheckMismatchedDetails{
-						FirstNames:  lpa.CertificateProvider.FirstNames,
-						LastName:    lpa.CertificateProvider.LastName,
-						DateOfBirth: certificateProvider.DateOfBirth,
-					},
-					Verified: event.IdentityCheckMismatchedDetails{
-						FirstNames:  userData.FirstNames,
-						LastName:    userData.LastName,
-						DateOfBirth: userData.DateOfBirth,
-					},
-				}); err != nil {
-					return err
-				}
+		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+			if err := lpaStoreClient.SendCertificateProviderConfirmIdentity(r.Context(), lpa.LpaUID, certificateProvider); err != nil {
+				return err
 			}
 
 			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
-		default:
-			if !lpa.SignedAt.IsZero() {
-				if err = notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
-					Greeting:                    notifyClient.EmailGreeting(lpa),
-					DonorFullName:               lpa.Donor.FullName(),
-					CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-					LpaType:                     appData.Localizer.T(lpa.Type.String()),
-					DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
-				}); err != nil {
-					return err
-				}
-			}
-
-			return certificateprovider.PathUnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
-
 		}
+
+		if certificateProvider.IdentityUserData.Status.IsConfirmed() || certificateProvider.IdentityUserData.Status.IsFailed() {
+			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+				LpaUID:   lpa.LpaUID,
+				ActorUID: actoruid.Prefixed(certificateProvider.UID),
+				Provided: event.IdentityCheckMismatchedDetails{
+					FirstNames:  lpa.CertificateProvider.FirstNames,
+					LastName:    lpa.CertificateProvider.LastName,
+					DateOfBirth: certificateProvider.DateOfBirth,
+				},
+				Verified: event.IdentityCheckMismatchedDetails{
+					FirstNames:  userData.FirstNames,
+					LastName:    userData.LastName,
+					DateOfBirth: userData.DateOfBirth,
+				},
+			}); err != nil {
+				return err
+			}
+		}
+
+		if certificateProvider.IdentityUserData.Status.IsConfirmed() {
+			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+		}
+
+		if !lpa.SignedAt.IsZero() {
+			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
+				Greeting:                    notifyClient.EmailGreeting(lpa),
+				DonorFullName:               lpa.Donor.FullName(),
+				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+				LpaType:                     appData.Localizer.T(lpa.Type.String()),
+				DonorStartPageURL:           appPublicURL + page.PathStart.Format(),
+			}); err != nil {
+				return err
+			}
+		}
+
+		return certificateprovider.PathUnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 	}
 }

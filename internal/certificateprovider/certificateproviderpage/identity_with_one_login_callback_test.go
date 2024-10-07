@@ -247,7 +247,18 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, nil, nil, "www.example.com")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+			LpaUID: "lpa-uid",
+			Provided: event.IdentityCheckMismatchedDetails{
+				FirstNames: "a",
+				LastName:   "b",
+			},
+		}).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, nil, eventClient, "www.example.com")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -314,7 +325,12 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, nil, nil, "www.example.com")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendIdentityCheckMismatched(mock.Anything, mock.Anything).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, nil, eventClient, "www.example.com")(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
