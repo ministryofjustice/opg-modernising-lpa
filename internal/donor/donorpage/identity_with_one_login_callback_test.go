@@ -258,18 +258,15 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 		return sessionStore
 	}
 
-	sessionIgnored := func(t *testing.T) *mockSessionStore {
-		return nil
-	}
-
-	donorStoreIgnored := func(t *testing.T) *mockDonorStore {
-		return nil
-	}
+	sessionIgnored := func(*testing.T) *mockSessionStore { return nil }
+	donorStoreIgnored := func(*testing.T) *mockDonorStore { return nil }
+	eventClientIgnored := func(*testing.T) *mockEventClient { return nil }
 
 	testCases := map[string]struct {
 		oneLoginClient func(t *testing.T) *mockOneLoginClient
 		sessionStore   func(*testing.T) *mockSessionStore
 		donorStore     func(*testing.T) *mockDonorStore
+		eventClient    func(*testing.T) *mockEventClient
 		url            string
 		error          error
 	}{
@@ -297,6 +294,14 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 				return donorStore
 			},
+			eventClient: func(t *testing.T) *mockEventClient {
+				eventClient := newMockEventClient(t)
+				eventClient.EXPECT().
+					SendIdentityCheckMismatched(mock.Anything, mock.Anything).
+					Return(nil)
+
+				return eventClient
+			},
 			error: expectedError,
 		},
 		"errored on parse": {
@@ -316,6 +321,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore: sessionRetrieved,
 			error:        expectedError,
+			eventClient:  eventClientIgnored,
 			donorStore:   donorStoreIgnored,
 		},
 		"errored on userinfo": {
@@ -332,6 +338,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore: sessionRetrieved,
 			error:        expectedError,
+			eventClient:  eventClientIgnored,
 			donorStore:   donorStoreIgnored,
 		},
 		"errored on exchange": {
@@ -345,6 +352,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore: sessionRetrieved,
 			error:        expectedError,
+			eventClient:  eventClientIgnored,
 			donorStore:   donorStoreIgnored,
 		},
 		"provider access denied": {
@@ -353,6 +361,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				return newMockOneLoginClient(t)
 			},
 			sessionStore: sessionIgnored,
+			eventClient:  eventClientIgnored,
 			donorStore:   donorStoreIgnored,
 			error:        errors.New("access denied"),
 		},
@@ -365,8 +374,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
+			eventClient := tc.eventClient(t)
 
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.donorStore(t), nil, nil)(testAppData, w, r, &donordata.Provided{})
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.donorStore(t), nil, eventClient)(testAppData, w, r, &donordata.Provided{})
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -421,12 +431,14 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	userInfo := onelogin.UserInfo{ReturnCodes: []onelogin.ReturnCodeInfo{{Code: "T"}}}
+	actorUID := actoruid.New()
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
-			Donor:            donordata.Donor{FirstNames: "John", LastName: "Doe"},
+			Donor:            donordata.Donor{UID: actorUID, FirstNames: "John", LastName: "Doe"},
 			LpaID:            "lpa-id",
+			LpaUID:           "lpa-uid",
 			IdentityUserData: identity.UserData{Status: identity.StatusFailed},
 			Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateProblem},
 		}).
@@ -448,9 +460,22 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusFailed}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil, nil)(testAppData, w, r, &donordata.Provided{
-		Donor: donordata.Donor{FirstNames: "John", LastName: "Doe"},
-		LpaID: "lpa-id",
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+			LpaUID:   "lpa-uid",
+			ActorUID: actoruid.Prefixed(actorUID),
+			Provided: event.IdentityCheckMismatchedDetails{
+				FirstNames: "John",
+				LastName:   "Doe",
+			},
+		}).
+		Return(nil)
+
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, nil, eventClient)(testAppData, w, r, &donordata.Provided{
+		Donor:  donordata.Donor{UID: actorUID, FirstNames: "John", LastName: "Doe"},
+		LpaID:  "lpa-id",
+		LpaUID: "lpa-uid",
 	})
 	resp := w.Result()
 
