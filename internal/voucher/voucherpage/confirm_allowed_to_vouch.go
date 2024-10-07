@@ -8,8 +8,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -25,7 +23,7 @@ type confirmAllowedToVouchData struct {
 	MatchIdentity       bool
 }
 
-func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, donorStore DonorStore, appPublicURL string) Handler {
+func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, fail failVouch) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -46,24 +44,7 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsNo() {
-					donor, err := donorStore.GetAny(r.Context())
-					if err != nil {
-						return err
-					}
-
-					donor.FailedVouchAttempts++
-
-					email := notify.VouchingFailedAttemptEmail{
-						Greeting:          notifyClient.EmailGreeting(lpa),
-						VoucherFullName:   provided.FullName(),
-						DonorStartPageURL: appPublicURL + page.PathStart.Format(),
-					}
-
-					if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.Email, lpa.LpaUID, email); err != nil {
-						return err
-					}
-
-					if err := donorStore.Put(r.Context(), donor); err != nil {
+					if err := fail(r.Context(), provided, lpa); err != nil {
 						return err
 					}
 
