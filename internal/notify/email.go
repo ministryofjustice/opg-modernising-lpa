@@ -210,18 +210,6 @@ func (e AttorneyOptedOutEmail) emailID(isProduction bool) string {
 	return "TODO"
 }
 
-type VoucherFailedIdentityCheckEmail struct {
-	Greeting          string
-	DonorFullName     string
-	VoucherFullName   string
-	LpaType           string
-	DonorStartPageURL string
-}
-
-func (e VoucherFailedIdentityCheckEmail) emailID(isProduction bool) string {
-	return "TODO"
-}
-
 type DonorIdentityCheckExpiredEmail struct{}
 
 func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool) string {
