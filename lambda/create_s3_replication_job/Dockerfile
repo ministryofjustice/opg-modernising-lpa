@@ -6,9 +6,7 @@ RUN apk add --no-cache \
     libstdc++ \
     elfutils-dev
 
-RUN apk update && apk upgrade
-
-FROM python-alpine as build-image
+FROM python-alpine AS build-image
 
 # Install aws-lambda-cpp build dependencies
 RUN apk add --no-cache \
