@@ -55,7 +55,7 @@ type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)
 	Exchange(ctx context.Context, code, nonce string) (idToken, accessToken string, err error)
 	UserInfo(ctx context.Context, accessToken string) (onelogin.UserInfo, error)
-	ParseIdentityClaim(ctx context.Context, userInfo onelogin.UserInfo) (identity.UserData, error)
+	ParseIdentityClaim(userInfo onelogin.UserInfo) (identity.UserData, error)
 }
 
 type ShareCodeStore interface {
