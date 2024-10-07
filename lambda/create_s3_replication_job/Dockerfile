@@ -5,7 +5,7 @@ FROM python:alpine3.18 AS python-alpine
 RUN apk add --no-cache \
     libstdc++
 
-FROM python-alpine as build-image
+FROM python-alpine AS build-image
 
 # Install aws-lambda-cpp build dependencies
 RUN apk add --no-cache \
