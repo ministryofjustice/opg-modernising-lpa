@@ -1,14 +1,12 @@
 package voucherpage
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -83,63 +81,74 @@ func TestGetVerifyDonorDetailsWhenTemplateErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostVerifyDonorDetails(t *testing.T) {
-
-	testcases := map[form.YesNo]struct {
-		expectedRedirect voucher.Path
-		donorStore       func() *mockDonorStore
-	}{
-		form.Yes: {
-			expectedRedirect: voucher.PathTaskList,
-			donorStore:       func() *mockDonorStore { return newMockDonorStore(t) },
-		},
-		form.No: {
-			expectedRedirect: voucher.PathDonorDetailsDoNotMatch,
-			donorStore: func() *mockDonorStore {
-				d := newMockDonorStore(t)
-				d.EXPECT().
-					GetAny(context.Background()).
-					Return(&donordata.Provided{}, nil)
-				d.EXPECT().
-					Put(context.Background(), &donordata.Provided{FailedVouchAttempts: 1}).
-					Return(nil)
-				return d
-			},
-		},
+func TestPostVerifyDonorDetailsWhenYes(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.Yes.String()},
 	}
 
-	for yesNo, tc := range testcases {
-		t.Run(yesNo.String(), func(t *testing.T) {
-			f := url.Values{
-				form.FieldNames.YesNo: {yesNo.String()},
-			}
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	w := httptest.NewRecorder()
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-			w := httptest.NewRecorder()
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		Put(r.Context(), &voucherdata.Provided{
+			LpaID:             "lpa-id",
+			DonorDetailsMatch: form.Yes,
+			Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
+		}).
+		Return(nil)
 
-			voucherStore := newMockVoucherStore(t)
-			voucherStore.EXPECT().
-				Put(r.Context(), &voucherdata.Provided{
-					LpaID:             "lpa-id",
-					DonorDetailsMatch: yesNo,
-					Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
-				}).
-				Return(nil)
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	resp := w.Result()
 
-			err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, tc.donorStore())(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-			resp := w.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
 
-			assert.Nil(t, err)
-			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.expectedRedirect.Format("lpa-id"), resp.Header.Get("Location"))
-		})
+func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	w := httptest.NewRecorder()
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpa := &lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}
+	provided := &voucherdata.Provided{
+		LpaID:             "lpa-id",
+		DonorDetailsMatch: form.No,
+		Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
+	}
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(lpa, nil)
+
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		Put(r.Context(), provided).
+		Return(nil)
+
+	vouchFailer := newMockVouchFailer(t)
+	vouchFailer.EXPECT().
+		Execute(r.Context(), provided, lpa).
+		Return(nil)
+
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, voucher.PathDonorDetailsDoNotMatch.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostVerifyDonorDetailsWhenStoreErrors(t *testing.T) {
@@ -165,50 +174,30 @@ func TestPostVerifyDonorDetailsWhenStoreErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestPostVerifyDonorDetailsWhenDonorStoreErrors(t *testing.T) {
-	testcases := map[string]func() *mockDonorStore{
-		"GetAny": func() *mockDonorStore {
-			d := newMockDonorStore(t)
-			d.EXPECT().
-				GetAny(mock.Anything).
-				Return(&donordata.Provided{}, expectedError)
-			return d
-		},
-		"Put": func() *mockDonorStore {
-			d := newMockDonorStore(t)
-			d.EXPECT().
-				GetAny(mock.Anything).
-				Return(&donordata.Provided{}, nil)
-			d.EXPECT().
-				Put(mock.Anything, mock.Anything).
-				Return(expectedError)
-			return d
-		},
+func TestPostVerifyDonorDetailsWhenFailVouchErrors(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.YesNo: {form.No.String()},
 	}
 
-	for name, donorStore := range testcases {
-		t.Run(name, func(t *testing.T) {
-			f := url.Values{
-				form.FieldNames.YesNo: {form.No.String()},
-			}
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-			r.Header.Add("Content-Type", page.FormUrlEncoded)
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpadata.Lpa{}, nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{}, nil)
+	voucherStore := newMockVoucherStore(t)
+	voucherStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
 
-			voucherStore := newMockVoucherStore(t)
-			voucherStore.EXPECT().
-				Put(r.Context(), mock.Anything).
-				Return(nil)
+	vouchFailer := newMockVouchFailer(t)
+	vouchFailer.EXPECT().
+		Execute(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
-			err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, donorStore())(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-			assert.Equal(t, expectedError, err)
-		})
-	}
-
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	assert.Equal(t, expectedError, err)
 }
