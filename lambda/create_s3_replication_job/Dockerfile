@@ -1,11 +1,11 @@
 # Define function directory
 ARG FUNCTION_DIR="/function"
 
-FROM python:alpine3.16 AS python-alpine
+FROM python:alpine3.20 AS python-alpine
 RUN apk add --no-cache \
     libstdc++
 
-FROM python-alpine as build-image
+FROM python-alpine AS build-image
 
 # Install aws-lambda-cpp build dependencies
 RUN apk add --no-cache \
@@ -13,7 +13,6 @@ RUN apk add --no-cache \
     libtool \
     autoconf \
     automake \
-    libexecinfo-dev \
     make \
     cmake \
     libcurl
