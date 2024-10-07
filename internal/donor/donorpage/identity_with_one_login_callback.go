@@ -39,7 +39,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return err
 		}
 
-		userData, err := oneLoginClient.ParseIdentityClaim(r.Context(), userInfo)
+		userData, err := oneLoginClient.ParseIdentityClaim(userInfo)
 		if err != nil {
 			return err
 		}
