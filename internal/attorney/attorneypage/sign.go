@@ -163,7 +163,7 @@ func Sign(
 			return err
 		}
 
-		if lpa.SignedAt.IsZero() || lpa.CertificateProvider.SignedAt.IsZero() {
+		if !lpa.SignedForDonor() || lpa.CertificateProvider.SignedAt.IsZero() {
 			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
 
