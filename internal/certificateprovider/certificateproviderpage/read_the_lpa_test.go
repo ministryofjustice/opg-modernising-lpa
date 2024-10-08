@@ -80,9 +80,10 @@ func TestPostReadTheLpa(t *testing.T) {
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(&lpadata.Lpa{
-			LpaID:    "lpa-id",
-			SignedAt: time.Now(),
-			Paid:     true,
+			LpaID:                            "lpa-id",
+			SignedAt:                         time.Now(),
+			WitnessedByCertificateProviderAt: time.Now(),
+			Paid:                             true,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -142,9 +143,10 @@ func TestPostReadTheLpaWithAttorneyWhenCertificateStorePutErrors(t *testing.T) {
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(&lpadata.Lpa{
-			LpaID:    "lpa-id",
-			SignedAt: time.Now(),
-			Paid:     true,
+			LpaID:                            "lpa-id",
+			SignedAt:                         time.Now(),
+			WitnessedByCertificateProviderAt: time.Now(),
+			Paid:                             true,
 		}, nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
