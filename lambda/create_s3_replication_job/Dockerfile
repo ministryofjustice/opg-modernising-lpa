@@ -33,7 +33,7 @@ RUN python -m pip install --root-user-action=ignore \
         --requirement requirements.txt
 
 # Multi-stage build: grab a fresh copy of the base image
-FROM python-alpine
+FROM python-alpine AS production
 # Include global arg in this stage of the build
 ARG FUNCTION_DIR
 # Set working directory to function root directory
