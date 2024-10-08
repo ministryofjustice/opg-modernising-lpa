@@ -1,4 +1,4 @@
-package schedule_runner
+package main
 
 import (
 	"cmp"
