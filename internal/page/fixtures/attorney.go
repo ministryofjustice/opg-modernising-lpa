@@ -148,6 +148,7 @@ func Attorney(
 		)
 
 		donorDetails.SignedAt = time.Now()
+		donorDetails.WitnessedByCertificateProviderAt = time.Now()
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {

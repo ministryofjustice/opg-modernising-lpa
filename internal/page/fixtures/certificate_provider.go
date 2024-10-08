@@ -91,14 +91,15 @@ func CertificateProvider(
 		if donorChannel == "paper" {
 			lpaID := random.UuidString()
 			donorDetails = &donordata.Provided{
-				PK:                             dynamo.LpaKey(lpaID),
-				SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-				LpaID:                          lpaID,
-				LpaUID:                         random.UuidString(),
-				CreatedAt:                      time.Now(),
-				Version:                        1,
-				HasSentApplicationUpdatedEvent: true,
-				SignedAt:                       time.Now(),
+				PK:                               dynamo.LpaKey(lpaID),
+				SK:                               dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+				LpaID:                            lpaID,
+				LpaUID:                           random.UuidString(),
+				CreatedAt:                        time.Now(),
+				Version:                          1,
+				HasSentApplicationUpdatedEvent:   true,
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 			}
 
 			if err := dynamoClient.Create(r.Context(), donorDetails); err != nil {

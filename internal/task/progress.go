@@ -159,12 +159,12 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 		progress.ConfirmedID.State = StateCompleted
 		progress.DonorSigned.State = StateInProgress
 
-		if lpa.SignedAt.IsZero() {
+		if !lpa.SignedForDonor() {
 			return progress
 		}
 	} else {
 		progress.DonorSigned.State = StateInProgress
-		if lpa.SignedAt.IsZero() {
+		if !lpa.SignedForDonor() {
 			return progress
 		}
 	}

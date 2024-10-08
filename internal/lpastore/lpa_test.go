@@ -83,7 +83,8 @@ func TestClientSendLpa(t *testing.T) {
 					},
 					CarryOutBy: lpadata.ChannelPaper,
 				},
-				SignedAt: time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				SignedAt:                         time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				WitnessedByCertificateProviderAt: time.Date(2000, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
 			json: `{
 "lpaType":"property-and-affairs",
@@ -93,7 +94,8 @@ func TestClientSendLpa(t *testing.T) {
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","address":{"line1":"c-line-1","line2":"","line3":"","town":"c-town","postcode":"","country":"GB"},"channel":"paper"},
 "restrictionsAndConditions":"",
 "whenTheLpaCanBeUsed":"when-capacity-lost",
-"signedAt":"2000-01-02T03:04:05.000000006Z"
+"signedAt":"2000-01-02T03:04:05.000000006Z",
+"witnessedByCertificateProviderAt":"2000-02-03T04:05:06.000000007Z"
 }`,
 		},
 		"everything": {
@@ -271,6 +273,8 @@ func TestClientSendLpa(t *testing.T) {
 					RetrievedAt: time.Date(2002, time.January, 2, 12, 14, 16, 9, time.UTC),
 				},
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				WitnessedByCertificateProviderAt:         time.Date(2000, time.February, 3, 4, 5, 6, 7, time.UTC),
+				WitnessedByIndependentWitnessAt:          time.Date(2000, time.March, 4, 5, 6, 7, 8, time.UTC),
 				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
 			json: `{
@@ -297,6 +301,8 @@ func TestClientSendLpa(t *testing.T) {
 "restrictionsAndConditions":"do not do this",
 "lifeSustainingTreatmentOption":"option-a",
 "signedAt":"2000-01-02T03:04:05.000000006Z",
+"witnessedByCertificateProviderAt":"2000-02-03T04:05:06.000000007Z",
+"witnessedByIndependentWitnessAt":"2000-03-04T05:06:07.000000008Z",
 "certificateProviderNotRelatedConfirmedAt":"2001-02-03T04:05:06.000000007Z"}
 `,
 		},
@@ -720,6 +726,8 @@ func TestClientLpa(t *testing.T) {
 				},
 				WhenCanTheLpaBeUsed:                      lpadata.CanBeUsedWhenCapacityLost,
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
+				WitnessedByCertificateProviderAt:         time.Date(2000, time.February, 3, 4, 5, 6, 7, time.UTC),
+				WitnessedByIndependentWitnessAt:          time.Date(2000, time.February, 4, 5, 6, 7, 8, time.UTC),
 				CertificateProviderNotRelatedConfirmedAt: time.Date(2001, time.February, 3, 4, 5, 6, 7, time.UTC),
 			},
 			json: `{
@@ -749,6 +757,8 @@ func TestClientLpa(t *testing.T) {
 "restrictionsAndConditions":"do not do this",
 "lifeSustainingTreatmentOption":"option-a",
 "signedAt":"2000-01-02T03:04:05.000000006Z",
+"witnessedByCertificateProviderAt":"2000-02-03T04:05:06.000000007Z",
+"witnessedByIndependentWitnessAt":"2000-02-04T05:06:07.000000008Z",
 "certificateProviderNotRelatedConfirmedAt":"2001-02-03T04:05:06.000000007Z"}
 `,
 		},

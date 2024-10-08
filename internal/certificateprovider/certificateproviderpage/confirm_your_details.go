@@ -37,7 +37,7 @@ func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 			}
 
 			redirect := certificateprovider.PathYourRole
-			if !lpa.SignedAt.IsZero() {
+			if lpa.SignedForDonor() {
 				redirect = certificateprovider.PathTaskList
 			}
 
