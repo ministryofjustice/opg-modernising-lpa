@@ -23,6 +23,7 @@ module "event_received" {
   search_index_name             = var.search_index_name
   search_collection_arn         = var.search_collection_arn
   event_received_lambda_role    = var.iam_roles.event_received_lambda
+  event_bus_dead_letter_queue   = module.event_bus.event_bus_dead_letter_queue
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
     security_group_ids = [data.aws_security_group.lambda_egress.id]
