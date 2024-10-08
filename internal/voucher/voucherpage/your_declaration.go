@@ -27,7 +27,7 @@ type yourDeclarationData struct {
 func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
-			if lpa.SignedAt.IsZero() {
+			if !lpa.SignedForDonor() {
 				return notifyClient.SendActorSMS(ctx, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
 					VoucherFullName:   provided.FullName(),
 					DonorFullName:     lpa.Donor.FullName(),
@@ -41,7 +41,7 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			})
 		}
 
-		if lpa.SignedAt.IsZero() {
+		if !lpa.SignedForDonor() {
 			return notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
 				VoucherFullName:   provided.FullName(),
 				DonorFullName:     lpa.Donor.FullName(),
