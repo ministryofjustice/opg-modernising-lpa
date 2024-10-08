@@ -53,13 +53,13 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Name:     "confirmYourIdentity",
 					Path:     identityTaskPage.Format(lpa.LpaID),
 					State:    tasks.ConfirmYourIdentity,
-					Disabled: !lpa.Paid || lpa.SignedAt.IsZero(),
+					Disabled: !lpa.Paid || !lpa.SignedForDonor(),
 				},
 				{
 					Name:     "provideYourCertificate",
 					Path:     certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
 					State:    tasks.ProvideTheCertificate,
-					Disabled: lpa.SignedAt.IsZero() || !tasks.ConfirmYourDetails.IsCompleted() || !tasks.ConfirmYourIdentity.IsCompleted(),
+					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() || !tasks.ConfirmYourIdentity.IsCompleted(),
 				},
 			},
 		}

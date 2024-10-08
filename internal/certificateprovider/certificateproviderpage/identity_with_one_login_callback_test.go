@@ -203,11 +203,12 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
 		Return(&lpadata.Lpa{
-			LpaUID:              "lpa-uid",
-			CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
-			Donor:               lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                lpadata.LpaTypePersonalWelfare,
-			SignedAt:            time.Now(),
+			LpaUID:                           "lpa-uid",
+			CertificateProvider:              lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
+			Donor:                            lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
+			Type:                             lpadata.LpaTypePersonalWelfare,
+			SignedAt:                         time.Now(),
+			WitnessedByCertificateProviderAt: time.Now(),
 		}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -287,11 +288,12 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 	lpaStoreResolvingService.EXPECT().
 		Get(mock.Anything).
 		Return(&lpadata.Lpa{
-			LpaUID:              "lpa-uid",
-			CertificateProvider: lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
-			Donor:               lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:                lpadata.LpaTypePersonalWelfare,
-			SignedAt:            time.Now(),
+			LpaUID:                           "lpa-uid",
+			CertificateProvider:              lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
+			Donor:                            lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
+			Type:                             lpadata.LpaTypePersonalWelfare,
+			SignedAt:                         time.Now(),
+			WitnessedByCertificateProviderAt: time.Now(),
 		}, nil)
 
 	sessionStore := newMockSessionStore(t)

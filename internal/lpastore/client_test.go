@@ -155,9 +155,10 @@ func TestClientServiceContract(t *testing.T) {
 							}),
 							"channel": matchers.Regex("online", "online|paper"),
 						}),
-						"restrictionsAndConditions": matchers.String("hmm"),
-						"signedAt":                  matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
-						"howAttorneysMakeDecisions": matchers.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
+						"restrictionsAndConditions":        matchers.String("hmm"),
+						"signedAt":                         matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+						"witnessedByCertificateProviderAt": matchers.Regex("2000-01-02T13:14:15.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+						"howAttorneysMakeDecisions":        matchers.Regex("jointly", "jointly|jointly-and-severally|jointly-for-some-severally-for-others"),
 					})
 			}).
 			WillRespondWith(http.StatusCreated, func(b *consumer.V2ResponseBuilder) {
@@ -229,8 +230,9 @@ func TestClientServiceContract(t *testing.T) {
 					Address:    address,
 					CarryOutBy: lpadata.ChannelOnline,
 				},
-				Restrictions: "hmm",
-				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+				Restrictions:                     "hmm",
+				SignedAt:                         time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+				WitnessedByCertificateProviderAt: time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC),
 			})
 
 			assert.Nil(t, err)
@@ -315,8 +317,9 @@ func TestClientServiceContract(t *testing.T) {
 								"country":  matchers.String("GB"),
 							}),
 						}, 0),
-						"restrictionsAndConditions": matchers.String("hmm"),
-						"signedAt":                  matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+						"restrictionsAndConditions":        matchers.String("hmm"),
+						"signedAt":                         matchers.Regex("2000-01-02T12:13:14.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
+						"witnessedByCertificateProviderAt": matchers.Regex("2000-01-02T13:14:15.00000Z", `\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(.\d+)?Z`),
 					})
 			}).
 			WillRespondWith(http.StatusBadRequest, func(b *consumer.V2ResponseBuilder) {
@@ -390,8 +393,9 @@ func TestClientServiceContract(t *testing.T) {
 					LastName:   "Person",
 					Address:    address,
 				}},
-				Restrictions: "hmm",
-				SignedAt:     time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+				Restrictions:                     "hmm",
+				SignedAt:                         time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+				WitnessedByCertificateProviderAt: time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC),
 			})
 
 			assert.Nil(t, err)
