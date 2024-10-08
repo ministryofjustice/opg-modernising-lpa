@@ -32,12 +32,70 @@ awslocal s3api create-bucket --bucket evidence --create-bucket-configuration Loc
 echo 'configuring events'
 awslocal sqs create-queue --region eu-west-1 --queue-name event-queue
 awslocal events create-event-bus --region eu-west-1 --name default
-awslocal events put-rule --region eu-west-1 --name send-events-to-queue-rule --event-bus-name default --event-pattern '{}'
-awslocal events put-targets --region eu-west-1 --event-bus-name default --rule send-events-to-queue-rule --targets "Id"="event-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-queue"
 
-echo 'creating lambda'
-awslocal lambda create-function --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1}" --region eu-west-1 --function-name event-received --handler event-received --runtime go1.x --role arn:aws:iam::000000000000:role/lambda-role --zip-file fileb:///etc/event-received.zip
+awslocal events put-rule \
+  --region eu-west-1 \
+  --name send-events-to-queue-rule \
+  --event-bus-name default \
+  --event-pattern '{}'
+
+awslocal events put-targets \
+  --region eu-west-1 \
+  --event-bus-name default \
+  --rule send-events-to-queue-rule \
+  --targets "Id"="event-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-queue"
+
+echo 'creating event-received lambda'
+awslocal lambda create-function \
+  --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1}" \
+  --region eu-west-1 \
+  --function-name event-received \
+  --handler bootstrap \
+  --runtime provided.al2 \
+  --role arn:aws:iam::000000000000:role/lambda-role \
+  --zip-file fileb:///etc/event-received.zip \
+  --architectures arm64
+
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event-received
 
-awslocal events put-rule --region eu-west-1 --name receive-events-mlpa --event-bus-name default --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
-awslocal events put-targets --region eu-west-1 --event-bus-name default --rule receive-events-mlpa --targets "Id"="receive-events-sirius","Arn"="arn:aws:lambda:eu-west-1:000000000000:function:event-received"
+awslocal events put-rule \
+  --region eu-west-1 \
+  --name receive-events-mlpa \
+  --event-bus-name default \
+  --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
+
+awslocal events put-targets \
+  --region eu-west-1 \
+  --event-bus-name default \
+  --rule receive-events-mlpa \
+  --targets "Id"="receive-events-sirius","Arn"="arn:aws:lambda:eu-west-1:000000000000:function:event-received"
+
+echo 'creating schedule-runner lambda'
+awslocal lambda create-function \
+  --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1,SEARCH_INDEX_NAME=lpas}" \
+  --region eu-west-1 \
+  --function-name schedule-runner \
+  --handler bootstrap \
+  --runtime provided.al2 \
+  --role arn:aws:iam::000000000000:role/lambda-role \
+  --zip-file fileb:///etc/schedule-runner.zip \
+  --architectures arm64
+
+awslocal lambda wait function-active-v2 --region eu-west-1 --function-name schedule-runner
+
+echo 'create and associate scheduler'
+awslocal scheduler create-schedule \
+  --region eu-west-1 \
+  --name schedule-runner-daily-midnight \
+  --schedule-expression 'rate(10 seconds)' \
+  --description "Runs at midnight every day" \
+  --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
+  --flexible-time-window '{ "Mode": "OFF"}'
+
+#aws --endpoint-url=http://localstack:4566 scheduler create-schedule \
+#    --name my-schedule \
+#    --schedule-expression "rate(5 minutes)" \
+#    --target-arn arn:aws:lambda:us-east-1:000000000000:function:my-scheduled-lambda \
+#    --flexible-time-window Mode=OFF
+
+#  --schedule-expression "cron(0 0 * * ? *)" \

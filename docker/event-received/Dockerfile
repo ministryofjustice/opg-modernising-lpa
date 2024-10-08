@@ -8,9 +8,9 @@ RUN go mod download
 COPY --link cmd/event-received ./cmd/event-received
 COPY --link internal ./internal
 
-RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received
+RUN GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2 AS dev
+FROM public.ecr.aws/lambda/provided:al2023 AS dev
 
 WORKDIR /app
 
