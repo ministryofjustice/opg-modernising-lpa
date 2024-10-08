@@ -69,6 +69,6 @@ variable "vpc_config" {
   })
 }
 
-variable "event_bus_dead_letter_queue_arn" {
-  type = string
+variable "event_bus_dead_letter_queue" {
+  type = any
 }
