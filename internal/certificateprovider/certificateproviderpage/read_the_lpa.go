@@ -26,7 +26,7 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 		}
 
 		if r.Method == http.MethodPost {
-			if lpa.SignedAt.IsZero() || !lpa.Paid {
+			if !lpa.SignedForDonor() || !lpa.Paid {
 				return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
 			}
 

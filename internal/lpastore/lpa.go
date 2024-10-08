@@ -41,6 +41,8 @@ type lpaRequest struct {
 	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption,omitempty"`
 	SignedAt                                    time.Time                          `json:"signedAt"`
+	WitnessedByCertificateProviderAt            time.Time                          `json:"witnessedByCertificateProviderAt"`
+	WitnessedByIndependentWitnessAt             *time.Time                         `json:"witnessedByIndependentWitnessAt,omitempty"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
@@ -136,8 +138,9 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 			Address:    donor.CertificateProvider.Address,
 			Channel:    donor.CertificateProvider.CarryOutBy,
 		},
-		Restrictions: donor.Restrictions,
-		SignedAt:     donor.SignedAt,
+		Restrictions:                     donor.Restrictions,
+		SignedAt:                         donor.SignedAt,
+		WitnessedByCertificateProviderAt: donor.WitnessedByCertificateProviderAt,
 	}
 
 	if donor.DonorIdentityConfirmed() {
@@ -149,6 +152,10 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 
 	if !donor.CertificateProviderNotRelatedConfirmedAt.IsZero() {
 		body.CertificateProviderNotRelatedConfirmedAt = &donor.CertificateProviderNotRelatedConfirmedAt
+	}
+
+	if !donor.WitnessedByIndependentWitnessAt.IsZero() {
+		body.WitnessedByIndependentWitnessAt = &donor.WitnessedByIndependentWitnessAt
 	}
 
 	switch donor.Type {
@@ -330,6 +337,8 @@ type lpaResponse struct {
 	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed"`
 	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption"`
 	SignedAt                                    time.Time                          `json:"signedAt"`
+	WitnessedByCertificateProviderAt            time.Time                          `json:"witnessedByCertificateProviderAt"`
+	WitnessedByIndependentWitnessAt             *time.Time                         `json:"witnessedByIndependentWitnessAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt"`
 	UID                                         string                             `json:"uid"`
 	Status                                      string                             `json:"status"`
@@ -365,11 +374,12 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		},
 		HowShouldReplacementAttorneysStepIn:        l.HowReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowReplacementAttorneysStepInDetails,
-		Restrictions:                  l.Restrictions,
-		WhenCanTheLpaBeUsed:           l.WhenTheLpaCanBeUsed,
-		LifeSustainingTreatmentOption: l.LifeSustainingTreatmentOption,
-		SignedAt:                      l.SignedAt,
-		CannotRegister:                l.Status == "cannot-register",
+		Restrictions:                     l.Restrictions,
+		WhenCanTheLpaBeUsed:              l.WhenTheLpaCanBeUsed,
+		LifeSustainingTreatmentOption:    l.LifeSustainingTreatmentOption,
+		SignedAt:                         l.SignedAt,
+		WitnessedByCertificateProviderAt: l.WitnessedByCertificateProviderAt,
+		CannotRegister:                   l.Status == "cannot-register",
 	}
 
 	if l.LpaType.IsPersonalWelfare() {
@@ -448,6 +458,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		data.CertificateProviderNotRelatedConfirmedAt = *v
 	}
 
+	if v := l.WitnessedByIndependentWitnessAt; v != nil {
+		data.WitnessedByIndependentWitnessAt = *v
+	}
+
 	if l.Donor.IdentityCheck != nil {
 		data.Donor.IdentityCheck.CheckedAt = l.Donor.IdentityCheck.CheckedAt
 		data.Donor.IdentityCheck.Type = l.Donor.IdentityCheck.Type
@@ -495,7 +509,9 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 		Restrictions:                             l.Restrictions,
 		WhenCanTheLpaBeUsed:                      l.WhenCanTheLpaBeUsed,
 		LifeSustainingTreatmentOption:            l.LifeSustainingTreatmentOption,
-		SignedAt:                                 l.WitnessedByCertificateProviderAt,
+		SignedAt:                                 l.SignedAt,
+		WitnessedByCertificateProviderAt:         l.WitnessedByCertificateProviderAt,
+		WitnessedByIndependentWitnessAt:          l.WitnessedByIndependentWitnessAt,
 		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
 		Correspondent: lpadata.Correspondent{
 			FirstNames: l.Correspondent.FirstNames,

@@ -37,7 +37,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 
 		var signPath string
 		if tasks.ConfirmYourDetails.IsCompleted() && tasks.ReadTheLpa.IsCompleted() &&
-			!lpa.SignedAt.IsZero() && !lpa.CertificateProvider.SignedAt.IsZero() {
+			lpa.SignedForDonor() && !lpa.CertificateProvider.SignedAt.IsZero() {
 			signPath = attorney.PathRightsAndResponsibilities.Format(lpa.LpaID)
 		}
 
