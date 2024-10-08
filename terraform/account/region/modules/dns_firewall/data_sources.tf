@@ -6,3 +6,7 @@ data "aws_kms_alias" "cloudwatch_application_logs_encryption" {
 data "aws_region" "current" {
   provider = aws.region
 }
+
+data "aws_default_tags" "current" {
+  provider = aws.region
+}
