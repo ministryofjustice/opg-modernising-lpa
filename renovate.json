@@ -10,6 +10,9 @@
     "Dependencies",
     "Renovate"
   ],
+  "ignoreDeps": [
+    "ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
+  ],
   "prConcurrentLimit": 0,
   "branchConcurrentLimit": 0,
   "separateMultipleMajor": true,
