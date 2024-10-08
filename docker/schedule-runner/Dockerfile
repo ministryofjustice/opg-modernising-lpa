@@ -20,7 +20,7 @@ COPY --link docker/schedule-runner/aws-lambda-rie ./aws-lambda-rie
 
 ENTRYPOINT ["./schedule-runner"]
 
-FROM public.ecr.aws/lambda/provided:al2 AS production
+FROM public.ecr.aws/lambda/provided:al2023 AS production
 
 WORKDIR /app
 

@@ -51,7 +51,7 @@ awslocal lambda create-function \
   --region eu-west-1 \
   --function-name event-received \
   --handler bootstrap \
-  --runtime provided.al2 \
+  --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --zip-file fileb:///etc/event-received.zip \
   --architectures arm64
@@ -76,7 +76,7 @@ awslocal lambda create-function \
   --region eu-west-1 \
   --function-name schedule-runner \
   --handler bootstrap \
-  --runtime provided.al2 \
+  --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --zip-file fileb:///etc/schedule-runner.zip \
   --architectures arm64

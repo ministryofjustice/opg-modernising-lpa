@@ -20,7 +20,7 @@ COPY --link docker/event-received/aws-lambda-rie ./aws-lambda-rie
 
 ENTRYPOINT ["./event-received"]
 
-FROM public.ecr.aws/lambda/provided:al2 AS production
+FROM public.ecr.aws/lambda/provided:al2023 AS production
 
 WORKDIR /app
 COPY --link  docker/event-received/install_lambda_insights.sh /app/
