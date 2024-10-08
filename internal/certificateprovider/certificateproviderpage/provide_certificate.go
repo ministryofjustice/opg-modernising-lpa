@@ -40,7 +40,7 @@ func ProvideCertificate(
 			return err
 		}
 
-		if lpa.SignedAt.IsZero() {
+		if !lpa.SignedForDonor() {
 			return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
 		}
 
