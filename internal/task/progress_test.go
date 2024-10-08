@@ -143,9 +143,10 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"lpa signed": {
 			lpa: &lpadata.Lpa{
-				Donor:     lpadata.Donor{FirstNames: "a", LastName: "b"},
-				Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
-				SignedAt:  lpaSignedAt,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -165,11 +166,12 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"certificate provider signed": {
 			lpa: &lpadata.Lpa{
-				Paid:                true,
-				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
-				SignedAt:            lpaSignedAt,
+				Paid:                             true,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -190,11 +192,12 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"attorneys signed": {
 			lpa: &lpadata.Lpa{
-				Paid:                true,
-				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}, {UID: uid2, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				SignedAt:            lpaSignedAt,
+				Paid:                             true,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}, {UID: uid2, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -216,12 +219,13 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"submitted": {
 			lpa: &lpadata.Lpa{
-				Paid:                true,
-				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt}}},
-				SignedAt:            lpaSignedAt,
-				Submitted:           true,
+				Paid:                             true,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt}}},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Submitted:                        true,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -243,13 +247,14 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"perfect": {
 			lpa: &lpadata.Lpa{
-				Paid:                true,
-				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt}}},
-				SignedAt:            lpaSignedAt,
-				Submitted:           true,
-				PerfectAt:           lpaSignedAt,
+				Paid:                             true,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt}}},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Submitted:                        true,
+				PerfectAt:                        lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -280,14 +285,15 @@ func TestProgressTrackerProgress(t *testing.T) {
 		},
 		"registered": {
 			lpa: &lpadata.Lpa{
-				Paid:                true,
-				Donor:               lpadata.Donor{FirstNames: "a", LastName: "b"},
-				SignedAt:            lpaSignedAt,
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Submitted:           true,
-				PerfectAt:           lpaSignedAt,
-				RegisteredAt:        lpaSignedAt,
+				Paid:                             true,
+				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Submitted:                        true,
+				PerfectAt:                        lpaSignedAt,
+				RegisteredAt:                     lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -423,9 +429,10 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
-				Paid:      true,
-				SignedAt:  lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -446,10 +453,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Paid:                true,
-				SignedAt:            lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -471,10 +479,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Paid:                true,
-				SignedAt:            lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -497,11 +506,12 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Paid:                true,
-				SignedAt:            lpaSignedAt,
-				Submitted:           true,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Submitted:                        true,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -524,12 +534,13 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Paid:                true,
-				SignedAt:            lpaSignedAt,
-				Submitted:           true,
-				PerfectAt:           lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Submitted:                        true,
+				PerfectAt:                        lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -563,13 +574,14 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 					DateOfBirth:   dateOfBirth,
 					IdentityCheck: lpadata.IdentityCheck{CheckedAt: time.Now()},
 				},
-				Attorneys:           lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: lpaSignedAt},
-				Paid:                true,
-				SignedAt:            lpaSignedAt,
-				Submitted:           true,
-				PerfectAt:           lpaSignedAt,
-				RegisteredAt:        lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid, SignedAt: lpaSignedAt.Add(time.Minute)}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
+				Paid:                             true,
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Submitted:                        true,
+				PerfectAt:                        lpaSignedAt,
+				RegisteredAt:                     lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress

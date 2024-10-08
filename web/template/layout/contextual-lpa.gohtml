@@ -192,14 +192,14 @@
             {{ template "defaulted-summary-row" (staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
                 (tr $.App "when-has-capacity:3rd")) }}
         {{ end }}
-        
+
         {{ if .Lpa.Type.IsPersonalWelfare }}
             {{ with .Lpa.LifeSustainingTreatmentOption }}
                 {{ $value := "optionB" }}
                 {{ if .IsOptionA }}
                     {{ $value = "optionA" }}
                 {{ end }}
-                
+
                 {{ template "summary-row" (staticSummaryRow $.App "lifeSustainingTreatment"
                     (trHtml $.App $value)) }}
             {{ else }}
@@ -217,7 +217,7 @@
                     (tr $.App "jointly")) }}
             {{ end }}
         {{ end }}
-        
+
         {{ with .Lpa.HowShouldReplacementAttorneysStepIn }}
             {{ $value := "otherWay" }}
             {{ if .IsWhenOneCanNoLongerAct }}
@@ -236,7 +236,7 @@
                     (tr $.App .String)) }}
             {{ else }}
                 {{ template "defaulted-summary-row" (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
-                    (tr $.App "jointly")) }}                
+                    (tr $.App "jointly")) }}
             {{ end }}
         {{ end }}
     </dl>
@@ -318,9 +318,21 @@
                         {{ end }}
                         <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.SignedAt }}</dd>
                     </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="govuk-summary-card">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">{{ tr $.App "witnessingOfDonorSignature" }}</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <p class="govuk-body">{{ tr .App "iConfirmTheLpaWasSignedInMyPresence" }}</p>
+
+                <dl class="govuk-summary-list app-signing-list">
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">{{ trFormatHtml .App "witnessedByOn" "FullName" .Lpa.CertificateProvider.FullName }}</dt>
-                        <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.SignedAt }}</dd>
+                        <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.WitnessedByCertificateProviderAt }}</dd>
                     </div>
                 </dl>
             </div>
@@ -338,7 +350,7 @@
                 <dl class="govuk-summary-list app-signing-list">
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">{{ trFormatHtml .App "witnessedByOn" "FullName" .Lpa.IndependentWitness.FullName }}</dt>
-                        <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.SignedAt }}</dd>
+                        <dd class="govuk-summary-list__value">{{ formatDate .App .Lpa.WitnessedByIndependentWitnessAt }}</dd>
                     </div>
                 </dl>
             </div>

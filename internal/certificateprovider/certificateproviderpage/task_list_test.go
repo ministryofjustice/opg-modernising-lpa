@@ -55,8 +55,9 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"submitted": {
 			donor: &lpadata.Lpa{
-				LpaID:    "lpa-id",
-				SignedAt: time.Now(),
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
@@ -74,9 +75,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"identity confirmed": {
 			donor: &lpadata.Lpa{
-				LpaID:    "lpa-id",
-				SignedAt: time.Now(),
-				Paid:     true,
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				Paid:                             true,
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
@@ -98,9 +100,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"all": {
 			donor: &lpadata.Lpa{
-				LpaID:    "lpa-id",
-				SignedAt: time.Now(),
-				Paid:     true,
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				Paid:                             true,
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
