@@ -10,6 +10,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLpaSignedForDonor(t *testing.T) {
+	testcases := map[string]struct {
+		lpa      *Lpa
+		expected bool
+	}{
+		"unsigned": {
+			lpa: &Lpa{},
+		},
+		"unwitnessed": {
+			lpa: &Lpa{SignedAt: time.Now()},
+		},
+		"witnessed": {
+			lpa:      &Lpa{SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			expected: true,
+		},
+		"cannot sign unwitnessed": {
+			lpa: &Lpa{IndependentWitness: IndependentWitness{FirstNames: "a"}, SignedAt: time.Now()},
+		},
+		"cannot sign un-independent witnessed": {
+			lpa: &Lpa{IndependentWitness: IndependentWitness{FirstNames: "a"}, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+		},
+		"cannot sign independent witnessed": {
+			lpa:      &Lpa{IndependentWitness: IndependentWitness{FirstNames: "a"}, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now(), WitnessedByIndependentWitnessAt: time.Now()},
+			expected: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.lpa.SignedForDonor())
+		})
+	}
+}
+
 func TestAllAttorneysSigned(t *testing.T) {
 	attorneySigned := time.Now()
 
