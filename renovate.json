@@ -11,7 +11,7 @@
     "Renovate"
   ],
   "ignoreDeps": [
-    "ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
+    "github.com/ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
   ],
   "prConcurrentLimit": 0,
   "branchConcurrentLimit": 0,
