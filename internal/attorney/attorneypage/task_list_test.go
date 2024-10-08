@@ -43,9 +43,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"trust corporation with two signatories": {
 			lpa: &lpadata.Lpa{
-				LpaID:               "lpa-id",
-				SignedAt:            time.Now(),
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				WouldLikeSecondSignatory: form.Yes,
@@ -70,8 +71,9 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"tasks completed not signed": {
 			lpa: &lpadata.Lpa{
-				LpaID:    "lpa-id",
-				SignedAt: time.Now(),
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -89,9 +91,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"tasks completed and signed": {
 			lpa: &lpadata.Lpa{
-				LpaID:               "lpa-id",
-				SignedAt:            time.Now(),
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -110,9 +113,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"completed": {
 			lpa: &lpadata.Lpa{
-				LpaID:               "lpa-id",
-				SignedAt:            time.Now(),
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -133,9 +137,10 @@ func TestGetTaskList(t *testing.T) {
 		},
 		"completed replacement": {
 			lpa: &lpadata.Lpa{
-				LpaID:               "lpa-id",
-				SignedAt:            time.Now(),
-				CertificateProvider: lpadata.CertificateProvider{SignedAt: time.Now()},
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{

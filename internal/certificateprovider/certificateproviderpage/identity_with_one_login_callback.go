@@ -86,7 +86,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
-		if !lpa.SignedAt.IsZero() {
+		if lpa.SignedForDonor() {
 			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIDCheckEmail{
 				Greeting:                    notifyClient.EmailGreeting(lpa),
 				DonorFullName:               lpa.Donor.FullName(),
