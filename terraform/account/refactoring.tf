@@ -169,3 +169,8 @@ moved {
   from = aws_kms_alias.sqs_alias_eu_west_2
   to   = module.sqs_kms.aws_kms_alias.main_eu_west_2
 }
+
+moved {
+  from = aws_backup_vault.eu_west_1
+  to   = module.eu_west_1[0].module.aws_backup_vaults.aws_backup_vault.main
+}
