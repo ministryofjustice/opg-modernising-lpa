@@ -49,7 +49,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 
 			var email notify.Email
 
-			if !lpa.SignedAt.IsZero() {
+			if lpa.SignedForDonor() {
 				email = notify.CertificateProviderOptedOutPostWitnessingEmail{
 					Greeting:                      notifyClient.EmailGreeting(lpa),
 					CertificateProviderFirstNames: lpa.CertificateProvider.FirstNames,
