@@ -34,9 +34,21 @@ type Lpa struct {
 	AuthorisedSignatory                        AuthorisedSignatory
 	IndependentWitness                         IndependentWitness
 
-	// SignedAt is the date the Donor signed their LPA (and signifies it has been
-	// witnessed by their CertificateProvider)
-	SignedAt                                 time.Time
+	// SignedAt is when the donor signed their LPA.
+	SignedAt time.Time
+
+	// WitnessedByCertificateProviderAt is when the certificate provider signed to
+	// say they witnessed the donor signing the LPA.
+	WitnessedByCertificateProviderAt time.Time
+
+	// WitnessedByIndependentWitnessAt is when the independent witness signed to
+	// say they witnessed the LPA being signed on the donor's behalf, if the donor
+	// said they were unable to sign themselves.
+	WitnessedByIndependentWitnessAt time.Time
+
+	// CertificateProviderNotRelatedConfirmedAt is when the donor confirmed that
+	// the certificate provider is not related to them, if they have similar
+	// details.
 	CertificateProviderNotRelatedConfirmedAt time.Time
 
 	// Submitted is set if SubmittedAt is non-zero for online applications, or set
@@ -67,6 +79,12 @@ type Lpa struct {
 	// Voucher is set using the data provided by the donor for online
 	// applications, but is not set for paper applications.
 	Voucher Voucher
+}
+
+// SignedForDonor returns true if the Lpa has been signed and witnessed for the donor.
+func (l *Lpa) SignedForDonor() bool {
+	return !l.SignedAt.IsZero() && !l.WitnessedByCertificateProviderAt.IsZero() &&
+		(l.IndependentWitness.FirstNames == "" || !l.WitnessedByIndependentWitnessAt.IsZero())
 }
 
 func (l *Lpa) CorrespondentEmail() string {
