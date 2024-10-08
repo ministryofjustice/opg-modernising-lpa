@@ -1,11 +1,11 @@
 data "aws_iam_policy_document" "event_bus_dead_letter_queue_policy" {
   statement {
-    sid    = "First"
+    sid    = "events-received queue permissions"
     effect = "Allow"
 
     principals {
-      type        = "*"
-      identifiers = ["*"]
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
     }
 
     actions   = ["sqs:SendMessage"]
