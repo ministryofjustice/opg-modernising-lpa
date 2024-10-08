@@ -135,7 +135,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(r.Context()).
-				Return(&lpadata.Lpa{SignedAt: tc.signedAt}, nil)
+				Return(&lpadata.Lpa{SignedAt: tc.signedAt, WitnessedByCertificateProviderAt: tc.signedAt}, nil)
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
