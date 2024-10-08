@@ -45,8 +45,7 @@
         "Renovate"
     ],
     "prCreation": "immediate",
-    "stabilityDays": 3,
-    "prPriority": 0
+    "stabilityDays": 3
   },
   "vulnerabilityAlerts": {
     "enabled": false
