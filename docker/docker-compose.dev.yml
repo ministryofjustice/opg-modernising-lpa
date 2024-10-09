@@ -26,11 +26,13 @@ services:
       - "2345:2345"
 
   events-lambda:
-    platform: "linux/arm64"
     build:
       context: ..
       dockerfile: docker/event-received/Dockerfile
       target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
     container_name: events-lambda
     environment:
       - AWS_ACCESS_KEY_ID=fakeKeyId
@@ -49,11 +51,13 @@ services:
     entrypoint: aws-lambda-rie /var/task/event-received
 
   schedule-runner-lambda:
-    platform: "linux/arm64"
     build:
       context: ..
       dockerfile: docker/schedule-runner/Dockerfile
       target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
     container_name: schedule-runner
     environment:
       - AWS_ACCESS_KEY_ID=fakeKeyId

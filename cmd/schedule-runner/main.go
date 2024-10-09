@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -23,13 +22,11 @@ import (
 )
 
 func handler(ctx context.Context) error {
-	log.Println("Running scheduler (log)")
-
 	var (
 		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		scheduledRunnerPeriod = cmp.Or(os.Getenv("SCHEDULED_RUNNER_PERIOD"), "6h")
+		scheduledRunnerPeriod = cmp.Or(os.Getenv("SCHEDULED_RUNNER_PERIOD"), "30s")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
@@ -88,11 +85,9 @@ func handler(ctx context.Context) error {
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, scheduledRunnerPeriodDur)
 
-	logger.Info("Running scheduler (logger)")
-
 	if err := runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
-		os.Exit(1)
+		return err
 	}
 
 	return nil

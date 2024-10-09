@@ -173,3 +173,6 @@ delete-all-from-lpa-index: ##@opensearch clears all items from the lpa index
 
 delete-lpa-index: ##@opensearch deletes the lpa index
 	curl -XDELETE "http://localhost:9200/lpas"
+
+add-scheduled-events:
+	go run ./scripts/add-scheduled-items.go

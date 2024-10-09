@@ -53,8 +53,7 @@ awslocal lambda create-function \
   --handler bootstrap \
   --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
-  --zip-file fileb:///etc/event-received.zip \
-  --architectures arm64
+  --zip-file fileb:///etc/event-received.zip
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event-received
 
@@ -79,7 +78,7 @@ awslocal lambda create-function \
   --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --zip-file fileb:///etc/schedule-runner.zip \
-  --architectures arm64
+  --timeout 360
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name schedule-runner
 
@@ -91,11 +90,3 @@ awslocal scheduler create-schedule \
   --description "Runs at midnight every day" \
   --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
   --flexible-time-window '{ "Mode": "OFF"}'
-
-#aws --endpoint-url=http://localstack:4566 scheduler create-schedule \
-#    --name my-schedule \
-#    --schedule-expression "rate(5 minutes)" \
-#    --target-arn arn:aws:lambda:us-east-1:000000000000:function:my-scheduled-lambda \
-#    --flexible-time-window Mode=OFF
-
-#  --schedule-expression "cron(0 0 * * ? *)" \
