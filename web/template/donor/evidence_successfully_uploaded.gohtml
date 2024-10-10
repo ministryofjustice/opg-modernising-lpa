@@ -6,16 +6,42 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">{{ tr .App "evidenceSuccessfullyUploaded" }}</h1>
+        <h1 class="govuk-panel__title">
+            {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsPreviousFeeFull .Donor.PreviousFee.Empty) }}
+                {{ tr .App "referenceNumberStored" }}
+            {{ else }}
+                {{ tr .App "evidenceSuccessfullyUploaded" }}
+            {{ end }}
+        </h1>
       </div>
 
-      {{ trHtml .App "weWillReviewYourLpaApplicationAndSupportingEvidence" }}
+      <p class="govuk-body">
+          {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsPreviousFeeFull .Donor.PreviousFee.Empty) }}
+              {{ tr .App "weWillReviewYourLpaApplication" }}
+          {{ else }}
+              {{ tr .App "weWillReviewYourLpaApplicationAndSupportingEvidence" }}
+          {{ end }}
+      </p>
+
+      <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
       {{ if .Donor.SignedAt.IsZero }}
         {{ trFormatHtml .App "youCanStillSignYourLpa" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
       {{ end }}
 
-      {{ trHtml .App "ifYourApplicationIsSuccessful" }}
+      <h3 class="govuk-heading-s">{{ tr .App "ifYourApplicationIsSuccessful" }}</h3>
+      <p class="govuk-body">
+          {{ if .Donor.FeeType.IsNoFee }}
+              {{ tr .App "onceWeHaveApprovedYourRequest" }}
+          {{ else if and .Donor.FeeType.IsRepeatApplicationFee }}
+              {{ tr .App "onceWeHaveApprovedYourRepeatApplication" }}
+          {{ else }}
+              {{ tr .App "onceWeHaveApprovedYourPayment" }}
+          {{ end }}
+      </p>
+
+      <h3 class="govuk-heading-s">{{ tr .App "ifYourApplicationIsNotSuccessful" }}</h3>
+      <p class="govuk-body">{{ tr .App "weWillContactYouIfWeNeedMoreInformation" }}</p>
 
       {{ if not .Donor.FeeType.IsRepeatApplicationFee }}
         {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
