@@ -9,6 +9,20 @@
 
       {{ trFormatHtml .App "whatHappensNextPostEvidenceContent" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
 
+      <h2 class="govuk-heading-m">{{ tr .App "ifYourApplicationIsSuccessful" }}</h2>
+      <p class="govuk-body">
+          {{ if .Donor.FeeType.IsNoFee }}
+              {{ tr .App "onceWeHaveApprovedYourRequest" }}
+          {{ else if and .Donor.FeeType.IsRepeatApplicationFee }}
+              {{ tr .App "onceWeHaveApprovedYourRepeatApplication" }}
+          {{ else }}
+              {{ tr .App "onceWeHaveApprovedYourPayment" }}
+          {{ end }}
+      </p>
+
+      <h2 class="govuk-heading-m">{{ tr .App "ifYourApplicationIsNotSuccessful" }}</h2>
+      <p class="govuk-body">{{ tr .App "weWillContactYouIfWeNeedMoreInformation" }}</p>
+
       {{ if not .Donor.FeeType.IsRepeatApplicationFee }}
         {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
       {{ end }}
