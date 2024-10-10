@@ -13,6 +13,8 @@
       <p class="govuk-body">
           {{ if .Donor.FeeType.IsNoFee }}
               {{ tr .App "onceWeHaveApprovedYourRequest" }}
+          {{ else if and .Donor.FeeType.IsRepeatApplicationFee }}
+              {{ tr .App "onceWeHaveApprovedYourRepeatApplication" }}
           {{ else }}
               {{ tr .App "onceWeHaveApprovedYourPayment" }}
           {{ end }}

@@ -198,6 +198,107 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetPaymentConfirmationRepeatApplicationFee(t *testing.T) {
+	testcases := map[string]struct {
+		evidenceDelivery pay.EvidenceDelivery
+		nextPage         donor.Path
+	}{
+		"empty": {
+			nextPage: donor.PathEvidenceSuccessfullyUploaded,
+		},
+		"upload": {
+			evidenceDelivery: pay.Upload,
+			nextPage:         donor.PathEvidenceSuccessfullyUploaded,
+		},
+		"post": {
+			evidenceDelivery: pay.Post,
+			nextPage:         donor.PathWhatHappensNextPostEvidence,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/payment-confirmation", nil)
+
+			payClient := newMockPayClient(t).
+				withASuccessfulPayment(8200, r.Context())
+
+			localizer := newMockLocalizer(t).
+				withEmailLocalizations()
+
+			testAppData.Localizer = localizer
+
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &paymentConfirmationData{
+					App:              testAppData,
+					PaymentReference: "123456789012",
+					FeeType:          pay.RepeatApplicationFee,
+					NextPage:         tc.nextPage,
+					EvidenceDelivery: tc.evidenceDelivery,
+				}).
+				Return(nil)
+
+			sessionStore := newMockSessionStore(t).
+				withPaySession(r).
+				withExpiredPaySession(r, w)
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &donordata.Provided{
+					Type:             lpadata.LpaTypePersonalWelfare,
+					Donor:            donordata.Donor{FirstNames: "a", LastName: "b"},
+					LpaUID:           "lpa-uid",
+					FeeType:          pay.RepeatApplicationFee,
+					EvidenceDelivery: tc.evidenceDelivery,
+					CertificateProvider: donordata.CertificateProvider{
+						Email: "certificateprovider@example.com",
+					},
+					PaymentDetails: []donordata.Payment{{
+						PaymentId:        "abc123",
+						PaymentReference: "123456789012",
+						Amount:           8200,
+					}},
+					Tasks: donordata.Tasks{
+						PayForLpa: task.PaymentStatePending,
+					},
+				}).
+				Return(nil)
+
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendPaymentReceived(r.Context(), event.PaymentReceived{
+					UID:       "lpa-uid",
+					PaymentID: "abc123",
+					Amount:    8200,
+				}).
+				Return(nil)
+
+			notifyClient := newMockNotifyClient(t).
+				withEmailPersonalizations(r.Context(), "£82")
+
+			err := PaymentConfirmation(newMockLogger(t), template.Execute, payClient, donorStore, sessionStore, nil, nil, eventClient, notifyClient)(testAppData, w, r, &donordata.Provided{
+				LpaUID:           "lpa-uid",
+				FeeType:          pay.RepeatApplicationFee,
+				EvidenceDelivery: tc.evidenceDelivery,
+				CertificateProvider: donordata.CertificateProvider{
+					Email: "certificateprovider@example.com",
+				},
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateInProgress,
+				},
+				Donor: donordata.Donor{FirstNames: "a", LastName: "b"},
+				Type:  lpadata.LpaTypePersonalWelfare,
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
+}
+
 func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 	for _, taskState := range []task.PaymentState{task.PaymentStateApproved, task.PaymentStateDenied} {
 		t.Run(taskState.String(), func(t *testing.T) {
