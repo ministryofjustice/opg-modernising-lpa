@@ -13,8 +13,10 @@
       <p class="govuk-body">
           {{ if .Donor.FeeType.IsNoFee }}
               {{ tr .App "onceWeHaveApprovedYourRequest" }}
-          {{ else if and .Donor.FeeType.IsRepeatApplicationFee }}
+          {{ else if .Donor.FeeType.IsRepeatApplicationFee }}
               {{ tr .App "onceWeHaveApprovedYourRepeatApplication" }}
+          {{ else if .Donor.FeeType.IsHardshipFee }}
+              {{ tr .App "onceWeHaveApprovedYourHardshipRequest" }}
           {{ else }}
               {{ tr .App "onceWeHaveApprovedYourPayment" }}
           {{ end }}
@@ -23,7 +25,7 @@
       <h2 class="govuk-heading-m">{{ tr .App "ifYourApplicationIsNotSuccessful" }}</h2>
       <p class="govuk-body">{{ tr .App "weWillContactYouIfWeNeedMoreInformation" }}</p>
 
-      {{ if not .Donor.FeeType.IsRepeatApplicationFee }}
+      {{ if not (or .Donor.FeeType.IsRepeatApplicationFee .Donor.FeeType.IsHardshipFee) }}
         {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
       {{ end }}
 
