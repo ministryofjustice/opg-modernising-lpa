@@ -15,7 +15,17 @@
         {{ trFormatHtml .App "youCanStillSignYourLpa" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
       {{ end }}
 
-      {{ trHtml .App "ifYourApplicationIsSuccessful" }}
+      <h3 class="govuk-heading-s">{{ tr .App "ifYourApplicationIsSuccessful" }}</h3>
+      <p class="govuk-body">
+          {{ if .Donor.FeeType.IsNoFee }}
+              {{ tr .App "onceWeHaveApprovedYourRequest" }}
+          {{ else }}
+              {{ tr .App "onceWeHaveApprovedYourPayment" }}
+          {{ end }}
+      </p>
+
+      <h3 class="govuk-heading-s">{{ tr .App "ifYourApplicationIsNotSuccessful" }}</h3>
+      <p class="govuk-body">{{ tr .App "weWillContactYouIfWeNeedMoreInformation" }}</p>
 
       {{ if not .Donor.FeeType.IsRepeatApplicationFee }}
         {{ template "details" (details . "appealingTheDecision" "appealingTheDecisionDetails" false) }}
