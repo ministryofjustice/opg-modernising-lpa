@@ -59,12 +59,13 @@ jobs:
           ref: ${{ inputs.checkout_tag }}
 
       - uses: hadolint/hadolint-action@v3.1.0
+        id: hadolint
         with:
           dockerfile: ${{ matrix.path }}
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.hadolint.outcome != ''
         with:
           script: |
             const output = `
