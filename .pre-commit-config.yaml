@@ -45,7 +45,6 @@ repos:
         entry: yarn run stop-only
         language: node
         args: [--folder, cypress]
-
 #  - repo: https://github.com/Yelp/detect-secrets
 #    rev: v1.4.0
 #    hooks:
