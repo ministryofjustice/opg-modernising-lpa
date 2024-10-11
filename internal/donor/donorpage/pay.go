@@ -18,7 +18,6 @@ func Pay(
 	sessionStore SessionStore,
 	donorStore DonorStore,
 	payClient PayClient,
-	randomString func(int) string,
 	appPublicURL string,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
@@ -36,12 +35,14 @@ func Pay(
 		}
 
 		createPaymentBody := pay.CreatePaymentBody{
-			Amount:      provided.FeeAmount().Pence(),
-			Reference:   randomString(12),
-			Description: "Property and Finance LPA",
-			ReturnURL:   appPublicURL + appData.Lang.URL(donor.PathPaymentConfirmation.Format(provided.LpaID)),
-			Email:       provided.Donor.Email,
-			Language:    appData.Lang.String(),
+			Amount:    provided.FeeAmount().Pence(),
+			Reference: provided.LpaUID,
+			Description: appData.Localizer.Format("typeLpa", map[string]any{
+				"Type": appData.Localizer.T(provided.Type.String()),
+			}),
+			ReturnURL: appPublicURL + appData.Lang.URL(donor.PathPaymentConfirmation.Format(provided.LpaID)),
+			Email:     provided.Donor.Email,
+			Language:  appData.Lang.String(),
 		}
 
 		resp, err := payClient.CreatePayment(r.Context(), provided.LpaUID, createPaymentBody)
