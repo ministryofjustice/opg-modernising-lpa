@@ -13,6 +13,8 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /go/bin/even
 
 FROM scratch AS production
 
+WORKDIR /app
+
 COPY --from=base /go/bin/event-logger event-logger
 
 ENTRYPOINT ["./event-logger"]
