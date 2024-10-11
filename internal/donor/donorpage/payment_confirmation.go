@@ -5,30 +5,18 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"slices"
 
-	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type paymentConfirmationData struct {
-	App              appcontext.Data
-	Errors           validation.List
-	PaymentReference string
-	FeeType          pay.FeeType
-	PreviousFee      pay.PreviousFee
-	EvidenceDelivery pay.EvidenceDelivery
-	NextPage         donor.Path
-}
-
-func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
+func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -128,15 +116,9 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			logger.InfoContext(r.Context(), "unable to expire cookie in session", slog.Any("err", err))
 		}
 
-		data := &paymentConfirmationData{
-			App:              appData,
-			PaymentReference: payment.Reference,
-			FeeType:          provided.FeeType,
-			PreviousFee:      provided.PreviousFee,
-			EvidenceDelivery: provided.EvidenceDelivery,
-			NextPage:         nextPage,
-		}
-
-		return tmpl(w, data)
+		return donor.PathPaymentSuccessful.RedirectQuery(w, r, appData, provided, url.Values{
+			"reference": {payment.Reference},
+			"next":      {nextPage.Format(provided.LpaID)},
+		})
 	}
 }
