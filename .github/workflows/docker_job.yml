@@ -67,7 +67,7 @@ jobs:
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request' && ${{ steps.hadolint.outcome }} != 'success'
+        if: github.event_name == 'pull_request' && ${{ steps.hadolint.outcome }} == 'failure'
         with:
           script: |
             const output = `
