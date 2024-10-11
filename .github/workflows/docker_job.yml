@@ -57,6 +57,13 @@ jobs:
         with:
           ref: ${{ inputs.checkout_tag }}
 
+      - uses: hadolint/hadolint-action@v3.1.0
+        id: hadolint
+        with:
+          dockerfile: ${{ matrix.path }}
+          no-fail: false
+          failure-threshold: warning
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.2.0
       - name: Set up Docker Buildx
