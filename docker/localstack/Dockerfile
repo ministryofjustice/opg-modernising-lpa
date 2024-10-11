@@ -1,6 +1,6 @@
 FROM golang:1.23.2-alpine AS build
 
-RUN apk add zip
+RUN apk add --no-cache zip=3.0-r12 unzip=6.0-r14
 
 WORKDIR /app
 
@@ -10,14 +10,16 @@ RUN go mod download
 COPY --link cmd/event-received ./cmd/event-received
 COPY --link internal ./internal
 
-RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received
-RUN zip event-received.zip event-received
+RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received \
+  && zip event-received.zip event-received
 
 FROM localstack/localstack:3.8.0 AS localstack
+
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 
 COPY ./docker/localstack/localstack-init.sh /etc/localstack/init/ready.d/localstack-init.sh
-COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json ./dynamodb-lpa-gsi-schema.json
+
+COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json /app/dynamodb-lpa-gsi-schema.json
 
 RUN chmod 544 /etc/localstack/init/ready.d/localstack-init.sh
