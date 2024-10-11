@@ -72,6 +72,7 @@ const (
 	PathNeedHelpSigningConfirmation                          = Path("/need-help-signing-confirmation")
 	PathOneLoginIdentityDetails                              = Path("/one-login-identity-details")
 	PathPaymentConfirmation                                  = Path("/payment-confirmation")
+	PathPaymentSuccessful                                    = Path("/payment-successful")
 	PathPreviousApplicationNumber                            = Path("/previous-application-number")
 	PathPreviousFee                                          = Path("/how-much-did-you-previously-pay-for-your-lpa")
 	PathProgress                                             = Path("/progress")
