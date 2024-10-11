@@ -15,11 +15,11 @@ RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tag
 
 FROM localstack/localstack:3.8.0 AS localstack
 
-WORKDIR /app
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 
 COPY ./docker/localstack/localstack-init.sh /etc/localstack/init/ready.d/localstack-init.sh
-COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json ./dynamodb-lpa-gsi-schema.json
+
+COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json /app/dynamodb-lpa-gsi-schema.json
 
 RUN chmod 544 /etc/localstack/init/ready.d/localstack-init.sh
