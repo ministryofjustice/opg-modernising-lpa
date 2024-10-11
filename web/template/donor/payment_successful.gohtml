@@ -8,7 +8,7 @@
       <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">{{ tr .App "paymentReceivedHeader" }}</h1>
         <div class="govuk-panel__body">
-          {{ tr .App "yourRefNumber" }}<br><strong>{{ .PaymentReference }}</strong>
+          {{ tr .App "yourRefNumber" }}<br><strong>{{ .App.Query.Get "reference" }}</strong>
         </div>
       </div>
 
@@ -16,7 +16,7 @@
 
       {{ trHtml .App "paymentConfirmationContent" }}
 
-      <a class="govuk-button" href="{{ link .App (.NextPage.Format .App.LpaID) }}">{{ tr .App "continue" }}</a>
+      <a class="govuk-button" href="{{ link .App (.App.Query.Get "next") }}">{{ tr .App "continue" }}</a>
     </div>
   </div>
 {{ end }}
