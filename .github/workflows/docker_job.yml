@@ -62,7 +62,8 @@ jobs:
         id: hadolint
         with:
           dockerfile: ${{ matrix.path }}
-          no-fail: true
+          no-fail: false
+          failure-threshold: warning
 
       - name: Update Pull Request
         uses: actions/github-script@v6
