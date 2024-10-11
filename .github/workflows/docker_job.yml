@@ -25,7 +25,8 @@ permissions:
   id-token: write
   contents: write
   security-events: write
-  pull-requests: read
+  pull-requests: write
+  issues: write
 
 jobs:
   docker_build_scan_push:
