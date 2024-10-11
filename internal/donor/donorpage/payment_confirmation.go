@@ -78,6 +78,8 @@ func PaymentConfirmation(logger Logger, tmpl template.Template, payClient PayCli
 			nextPage = donor.PathEvidenceSuccessfullyUploaded
 		} else if provided.EvidenceDelivery.IsPost() {
 			nextPage = donor.PathWhatHappensNextPostEvidence
+		} else if provided.FeeType.IsRepeatApplicationFee() {
+			nextPage = donor.PathEvidenceSuccessfullyUploaded
 		}
 
 		switch provided.Tasks.PayForLpa {
