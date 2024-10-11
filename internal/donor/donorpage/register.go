@@ -195,7 +195,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
 ) {
-	payer := Pay(logger, sessionStore, donorStore, payClient, random.String, appPublicURL)
+	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
