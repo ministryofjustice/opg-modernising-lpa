@@ -27,7 +27,7 @@ COPY --link  docker/event-received/install_lambda_insights.sh /app/
 
 
 RUN chmod +x /app/install_lambda_insights.sh \
-  && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
+  && /app/install_lambda_insights.sh ${TARGETPLATFORM}
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang

@@ -24,7 +24,7 @@ awslocal dynamodb create-table \
          --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
          --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
          --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-         --global-secondary-indexes file://app/dynamodb-lpa-gsi-schema.json
+         --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
 
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
