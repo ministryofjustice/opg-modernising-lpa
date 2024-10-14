@@ -128,9 +128,10 @@ func TestPostYourDeclaration(t *testing.T) {
 		},
 		"email when signed": {
 			lpa: &lpadata.Lpa{
-				LpaUID:   "lpa-uid",
-				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
-				SignedAt: time.Now(),
+				LpaUID:                           "lpa-uid",
+				Donor:                            lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com"},
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
@@ -159,9 +160,10 @@ func TestPostYourDeclaration(t *testing.T) {
 		},
 		"mobile when signed": {
 			lpa: &lpadata.Lpa{
-				LpaUID:   "lpa-uid",
-				Donor:    lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
-				SignedAt: time.Now(),
+				LpaUID:                           "lpa-uid",
+				Donor:                            lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777"},
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().

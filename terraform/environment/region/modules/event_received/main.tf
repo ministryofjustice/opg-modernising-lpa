@@ -68,6 +68,9 @@ resource "aws_cloudwatch_event_target" "receive_events_sirius" {
   rule           = aws_cloudwatch_event_rule.receive_events_sirius.name
   arn            = module.event_received.lambda.arn
   provider       = aws.region
+  dead_letter_config {
+    arn = var.event_bus_dead_letter_queue.arn
+  }
 }
 
 resource "aws_cloudwatch_event_rule" "receive_events_lpa_store" {
@@ -87,7 +90,10 @@ resource "aws_cloudwatch_event_target" "receive_events_lpa_store" {
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_lpa_store.name
   arn            = module.event_received.lambda.arn
-  provider       = aws.region
+  dead_letter_config {
+    arn = var.event_bus_dead_letter_queue.arn
+  }
+  provider = aws.region
 }
 
 resource "aws_cloudwatch_event_rule" "receive_events_mlpa" {
@@ -107,7 +113,10 @@ resource "aws_cloudwatch_event_target" "receive_events_mlpa" {
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_mlpa.name
   arn            = module.event_received.lambda.arn
-  provider       = aws.region
+  dead_letter_config {
+    arn = var.event_bus_dead_letter_queue.arn
+  }
+  provider = aws.region
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_sirius" {

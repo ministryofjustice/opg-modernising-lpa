@@ -103,6 +103,8 @@ func Register(
 	appPublicURL string,
 	donorStore DonorStore,
 ) {
+	vouchFailed := makeVouchFailer(donorStore, notifyClient, appPublicURL)
+
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
 	handleRoot(page.PathVoucherLogin, None,
@@ -122,12 +124,12 @@ func Register(
 	handleVoucher(voucher.PathYourName, None,
 		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathConfirmAllowedToVouch, None,
-		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, notifyClient, donorStore, appPublicURL))
+		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
 	handleVoucher(voucher.PathYouCannotVouchForDonor, None,
 		Guidance(tmpls.Get("you_cannot_vouch_for_donor.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
-		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, donorStore))
+		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
 	handleVoucher(voucher.PathDonorDetailsDoNotMatch, None,
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
@@ -136,7 +138,7 @@ func Register(
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, appPublicURL, donorStore))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailed))
 	handleVoucher(voucher.PathOneLoginIdentityDetails, None,
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathUnableToConfirmIdentity, None,

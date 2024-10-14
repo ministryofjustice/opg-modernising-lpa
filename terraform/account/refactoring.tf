@@ -169,3 +169,28 @@ moved {
   from = aws_kms_alias.sqs_alias_eu_west_2
   to   = module.sqs_kms.aws_kms_alias.main_eu_west_2
 }
+
+moved {
+  from = aws_backup_vault.eu_west_1
+  to   = module.eu_west_1[0].module.aws_backup_vaults.aws_backup_vault.main
+}
+
+moved {
+  from = module.eu_west_1[0].module.aws_backup_vaults.aws_backup_vault.main
+  to   = module.aws_backup_vaults_eu_west_1.aws_backup_vault.main
+}
+
+moved {
+  from = module.eu_west_1[0].module.aws_backup_vaults.aws_backup_vault_notifications.aws_backup_failure_events
+  to   = module.aws_backup_vaults_eu_west_1.aws_backup_vault_notifications.aws_backup_failure_events
+}
+
+moved {
+  from = module.eu_west_1[0].module.aws_backup_vaults.aws_sns_topic.aws_backup_failure_events
+  to   = module.aws_backup_vaults_eu_west_1.aws_sns_topic.aws_backup_failure_events
+}
+
+moved {
+  from = module.eu_west_1[0].module.aws_backup_vaults.aws_sns_topic_policy.aws_backup_failure_events
+  to   = module.aws_backup_vaults_eu_west_1.aws_sns_topic_policy.aws_backup_failure_events
+}

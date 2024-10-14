@@ -18,7 +18,7 @@
         "@ministryofjustice/frontend": "2.2.4",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.24.0",
-        "govuk-frontend": "5.6.0",
+        "govuk-frontend": "5.7.0",
         "jquery": "^3.6.1",
         "sass": "^1.56.1",
         "totp-generator": "^1.0.0"
@@ -34,7 +34,7 @@
         "stop-only": "^3.3.2"
     },
     "engines": {
-        "node": "20.17.0"
+        "node": "20.18.0"
     },
     "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

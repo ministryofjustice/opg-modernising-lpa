@@ -10,6 +10,9 @@
     "Dependencies",
     "Renovate"
   ],
+  "ignoreDeps": [
+    "github.com/ministryofjustice/opg-terraform-aws-moj-ip-allow-list"
+  ],
   "prConcurrentLimit": 0,
   "branchConcurrentLimit": 0,
   "separateMultipleMajor": true,
@@ -42,8 +45,7 @@
         "Renovate"
     ],
     "prCreation": "immediate",
-    "stabilityDays": 3,
-    "prPriority": 0
+    "stabilityDays": 3
   },
   "vulnerabilityAlerts": {
     "enabled": false

@@ -52,7 +52,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
 		}
 
-		if !provided.WitnessedByCertificateProviderAt.IsZero() && !provided.DonorIdentityConfirmed() {
+		if (!provided.WitnessedByCertificateProviderAt.IsZero() && !provided.DonorIdentityConfirmed()) || provided.IdentityUserData.Status.IsFailed() {
 			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 				LpaUID:   provided.LpaUID,
 				ActorUID: actoruid.Prefixed(provided.Donor.UID),

@@ -8,12 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -91,7 +88,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				ParseIdentityClaim(userInfo).
 				Return(userData, nil)
 
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil, "www.example.com", nil)(testAppData, w, r, &voucherdata.Provided{
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{
 				LpaID:      "lpa-id",
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -111,6 +108,14 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusFailed}
+	provided := &voucherdata.Provided{LpaID: "lpa-id"}
+	lpa := &lpadata.Lpa{
+		LpaUID:   "lpa-uid",
+		Voucher:  lpadata.Voucher{FirstNames: "a", LastName: "b"},
+		Donor:    lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
+		Type:     lpadata.LpaTypePersonalWelfare,
+		SignedAt: time.Now(),
+	}
 
 	voucherStore := newMockVoucherStore(t)
 	voucherStore.EXPECT().
@@ -120,13 +125,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			LpaUID:   "lpa-uid",
-			Voucher:  lpadata.Voucher{FirstNames: "a", LastName: "b"},
-			Donor:    lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
-			Type:     lpadata.LpaTypePersonalWelfare,
-			SignedAt: time.Now(),
-		}, nil)
+		Return(lpa, nil)
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -144,36 +143,12 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
 		ParseIdentityClaim(userInfo).
 		Return(userData, nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T("personal-welfare").
-		Return("translated LPA type")
-
-	testAppData.Localizer = localizer
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		EmailGreeting(mock.Anything).
-		Return("Dear donor")
-	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.VoucherFailedIdentityCheckEmail{
-			Greeting:          "Dear donor",
-			DonorFullName:     "c d",
-			VoucherFullName:   "a b",
-			LpaType:           "translated LPA type",
-			DonorStartPageURL: "www.example.com" + page.PathStart.Format(),
-		}).
+	vouchFailer := newMockVouchFailer(t)
+	vouchFailer.EXPECT().
+		Execute(r.Context(), provided, lpa).
 		Return(nil)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		GetAny(r.Context()).
-		Return(&donordata.Provided{}, nil)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{FailedVouchAttempts: 1}).
-		Return(nil)
-
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, "www.example.com", donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailer.Execute)(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -181,7 +156,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
 	assert.Equal(t, voucher.PathUnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
+func TestGetIdentityWithOneLoginCallbackWhenFailVouchError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
@@ -220,22 +195,12 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		ParseIdentityClaim(mock.Anything).
 		Return(userData, nil)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		T(mock.Anything).
-		Return("translated LPA type")
-
-	testAppData.Localizer = localizer
-
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		EmailGreeting(mock.Anything).
-		Return("")
-	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+	vouchFailer := newMockVouchFailer(t)
+	vouchFailer.EXPECT().
+		Execute(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, notifyClient, "www.example.com", nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -253,21 +218,15 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 		return sessionStore
 	}
 
-	sessionIgnored := func(t *testing.T) *mockSessionStore {
-		return nil
-	}
-	voucherIgnored := func(t *testing.T) *mockVoucherStore {
-		return nil
-	}
-	donorIgnored := func(t *testing.T) *mockDonorStore {
-		return nil
-	}
+	sessionIgnored := func(t *testing.T) *mockSessionStore { return nil }
+	voucherIgnored := func(t *testing.T) *mockVoucherStore { return nil }
+	vouchFailerIgnored := func(t *testing.T) *mockVouchFailer { return newMockVouchFailer(t) }
 
 	testCases := map[string]struct {
 		oneLoginClient      func(t *testing.T) *mockOneLoginClient
 		sessionStore        func(*testing.T) *mockSessionStore
 		voucherStore        func(t *testing.T) *mockVoucherStore
-		donorStore          func(t *testing.T) *mockDonorStore
+		vouchFailer         func(t *testing.T) *mockVouchFailer
 		url                 string
 		error               error
 		expectedRedirectURL string
@@ -301,15 +260,12 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 
 				return voucherStore
 			},
-			donorStore: func(t *testing.T) *mockDonorStore {
-				d := newMockDonorStore(t)
-				d.EXPECT().
-					GetAny(mock.Anything).
-					Return(&donordata.Provided{}, nil)
-				d.EXPECT().
-					Put(mock.Anything, mock.Anything).
+			vouchFailer: func(t *testing.T) *mockVouchFailer {
+				vouchFailer := newMockVouchFailer(t)
+				vouchFailer.EXPECT().
+					Execute(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
-				return d
+				return vouchFailer
 			},
 			expectedRedirectURL: voucher.PathUnableToConfirmIdentity.Format("lpa-id"),
 			expectedStatus:      http.StatusFound,
@@ -330,9 +286,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				return oneLoginClient
 			},
 			sessionStore:   sessionRetrieved,
+			vouchFailer:    vouchFailerIgnored,
 			error:          expectedError,
 			voucherStore:   voucherIgnored,
-			donorStore:     donorIgnored,
 			expectedStatus: http.StatusOK,
 		},
 		"errored on userinfo": {
@@ -348,9 +304,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				return oneLoginClient
 			},
 			sessionStore:   sessionRetrieved,
+			vouchFailer:    vouchFailerIgnored,
 			error:          expectedError,
 			voucherStore:   voucherIgnored,
-			donorStore:     donorIgnored,
 			expectedStatus: http.StatusOK,
 		},
 		"errored on exchange": {
@@ -363,9 +319,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				return oneLoginClient
 			},
 			sessionStore:   sessionRetrieved,
+			vouchFailer:    vouchFailerIgnored,
 			error:          expectedError,
 			voucherStore:   voucherIgnored,
-			donorStore:     donorIgnored,
 			expectedStatus: http.StatusOK,
 		},
 		"errored on session store": {
@@ -380,9 +336,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(nil, expectedError)
 				return sessionStore
 			},
+			vouchFailer:    vouchFailerIgnored,
 			error:          expectedError,
 			voucherStore:   voucherIgnored,
-			donorStore:     donorIgnored,
 			expectedStatus: http.StatusOK,
 		},
 		"provider access denied": {
@@ -391,9 +347,9 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				return newMockOneLoginClient(t)
 			},
 			sessionStore:   sessionIgnored,
+			vouchFailer:    vouchFailerIgnored,
 			error:          errors.New("access denied"),
 			voucherStore:   voucherIgnored,
-			donorStore:     donorIgnored,
 			expectedStatus: http.StatusOK,
 		},
 	}
@@ -411,7 +367,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			sessionStore := tc.sessionStore(t)
 			oneLoginClient := tc.oneLoginClient(t)
 
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.voucherStore(t), lpaStoreResolvingService, nil, "www.example.com", tc.donorStore(t))(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.voucherStore(t), lpaStoreResolvingService, tc.vouchFailer(t).Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Equal(t, tc.error, err)
@@ -430,7 +386,7 @@ func TestGetIdentityWithOneLoginCallbackWhenGetLpaStoreResolvingServiceError(t *
 		Get(r.Context()).
 		Return(&lpadata.Lpa{Voucher: lpadata.Voucher{}}, expectedError)
 
-	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStoreResolvingService, nil, "www.example.com", nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -466,73 +422,7 @@ func TestGetIdentityWithOneLoginCallbackWhenPutVoucherStoreError(t *testing.T) {
 		ParseIdentityClaim(mock.Anything).
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
-	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil, "www.example.com", nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
-}
-
-func TestGetIdentityWithOneLoginCallbackFailedIdentityWhenDonorStoreGetAnyError(t *testing.T) {
-	testcases := map[string]struct {
-		donorStore func(t *testing.T) *mockDonorStore
-	}{
-		"GetAny": {
-			donorStore: func(t *testing.T) *mockDonorStore {
-				d := newMockDonorStore(t)
-				d.EXPECT().
-					GetAny(mock.Anything).
-					Return(&donordata.Provided{}, expectedError)
-				return d
-			},
-		},
-		"Put": {
-			donorStore: func(t *testing.T) *mockDonorStore {
-				d := newMockDonorStore(t)
-				d.EXPECT().
-					GetAny(mock.Anything).
-					Return(&donordata.Provided{}, nil)
-				d.EXPECT().
-					Put(mock.Anything, mock.Anything).
-					Return(expectedError)
-				return d
-			},
-		},
-	}
-
-	for donorStoreFuncName, tc := range testcases {
-		t.Run(donorStoreFuncName, func(t *testing.T) {
-			w := httptest.NewRecorder()
-			r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
-			userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-
-			voucherStore := newMockVoucherStore(t)
-			voucherStore.EXPECT().
-				Put(r.Context(), mock.Anything).
-				Return(nil)
-
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{Voucher: lpadata.Voucher{}}, nil)
-
-			sessionStore := newMockSessionStore(t)
-			sessionStore.EXPECT().
-				OneLogin(mock.Anything).
-				Return(&sesh.OneLoginSession{State: "a-state", Nonce: "a-nonce", Redirect: "/redirect"}, nil)
-
-			oneLoginClient := newMockOneLoginClient(t)
-			oneLoginClient.EXPECT().
-				Exchange(mock.Anything, mock.Anything, mock.Anything).
-				Return("id-token", "a-jwt", nil)
-			oneLoginClient.EXPECT().
-				UserInfo(mock.Anything, mock.Anything).
-				Return(userInfo, nil)
-			oneLoginClient.EXPECT().
-				ParseIdentityClaim(mock.Anything).
-				Return(identity.UserData{Status: identity.StatusFailed}, nil)
-
-			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil, "www.example.com", tc.donorStore(t))(testAppData, w, r, &voucherdata.Provided{})
-
-			assert.Equal(t, expectedError, err)
-		})
-	}
 }

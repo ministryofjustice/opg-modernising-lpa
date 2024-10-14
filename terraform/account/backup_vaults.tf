@@ -1,9 +1,15 @@
-resource "aws_backup_vault" "eu_west_1" {
-  name     = "eu-west-1-${local.default_tags.account-name}-backup-vault"
-  provider = aws.eu_west_1
+module "aws_backup_vaults_eu_west_1" {
+  source = "./modules/aws_backup_vault"
+  providers = {
+    aws.region = aws.eu_west_1
+    aws.global = aws.global
+  }
 }
 
-resource "aws_backup_vault" "eu_west_2" {
-  name     = "eu-west-2-${local.default_tags.account-name}-backup-vault"
-  provider = aws.eu_west_2
+module "aws_backup_vaults_eu_west_2" {
+  source = "./modules/aws_backup_vault"
+  providers = {
+    aws.region = aws.eu_west_2
+    aws.global = aws.global
+  }
 }

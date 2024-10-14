@@ -1,4 +1,4 @@
-FROM golang:1.23.1-alpine AS build
+FROM golang:1.23.2-alpine AS build
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
 
 RUN chmod +x /app/install_lambda_insights.sh \
-  && /app/install_lambda_insights.sh ${TARGETPLATFORM}
+  && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang

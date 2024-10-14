@@ -8,6 +8,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -46,8 +47,8 @@ func TestPay(t *testing.T) {
 			payClient.EXPECT().
 				CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
 					Amount:      8200,
-					Reference:   "123456789012",
-					Description: "Property and Finance LPA",
+					Reference:   "lpa-uid",
+					Description: "an-lpa-type",
 					ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
 					Email:       "a@b.com",
 					Language:    "en",
@@ -64,13 +65,30 @@ func TestPay(t *testing.T) {
 				CanRedirect(tc.nextURL).
 				Return(tc.canRedirect)
 
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				T(lpadata.LpaTypePropertyAndAffairs.String()).
+				Return("a-type")
+			localizer.EXPECT().
+				Format("typeLpa", map[string]any{"Type": "a-type"}).
+				Return("an-lpa-type")
+
+			appData := testAppData
+			appData.Localizer = localizer
+
 			logger := newMockLogger(t)
 			if !tc.canRedirect {
 				logger.EXPECT().
 					InfoContext(r.Context(), "skipping payment", slog.String("next_url", tc.nextURL))
 			}
 
-			err := Pay(logger, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", LpaUID: "lpa-uid", Donor: donordata.Donor{Email: "a@b.com"}, FeeType: pay.FullFee})
+			err := Pay(logger, sessionStore, nil, payClient, "http://example.org")(appData, w, r, &donordata.Provided{
+				LpaID:   "lpa-id",
+				LpaUID:  "lpa-uid",
+				Type:    lpadata.LpaTypePropertyAndAffairs,
+				Donor:   donordata.Donor{Email: "a@b.com"},
+				FeeType: pay.FullFee,
+			})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -81,13 +99,18 @@ func TestPay(t *testing.T) {
 }
 
 func TestPayWhenPaymentNotRequired(t *testing.T) {
-	testCases := []pay.FeeType{
-		pay.NoFee,
-		pay.HardshipFee,
+	testCases := map[string]struct {
+		feeType     pay.FeeType
+		previousFee pay.PreviousFee
+	}{
+		"no fee":               {feeType: pay.NoFee},
+		"hardship fee":         {feeType: pay.HardshipFee},
+		"previously hardship":  {feeType: pay.RepeatApplicationFee, previousFee: pay.PreviousFeeHardship},
+		"previously exemption": {feeType: pay.RepeatApplicationFee, previousFee: pay.PreviousFeeExemption},
 	}
 
-	for _, feeType := range testCases {
-		t.Run(feeType.String(), func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -95,15 +118,17 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
-					FeeType:          feeType,
+					FeeType:          tc.feeType,
+					PreviousFee:      tc.previousFee,
 					Tasks:            donordata.Tasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Upload,
 				}).
 				Return(nil)
 
-			err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.Provided{
+			err := Pay(nil, nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{
 				LpaID:            "lpa-id",
-				FeeType:          feeType,
+				FeeType:          tc.feeType,
+				PreviousFee:      tc.previousFee,
 				EvidenceDelivery: pay.Upload,
 			})
 			resp := w.Result()
@@ -136,7 +161,7 @@ func TestPayWhenPostingEvidence(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.Provided{
+			err := Pay(nil, nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{
 				LpaID:            "lpa-id",
 				FeeType:          feeType,
 				EvidenceDelivery: pay.Post,
@@ -164,7 +189,7 @@ func TestPayWhenMoreEvidenceProvided(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.Provided{
+	err := Pay(nil, nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
 		FeeType:          pay.HalfFee,
 		Tasks:            donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
@@ -190,7 +215,7 @@ func TestPayWhenPaymentNotRequiredWhenDonorStorePutError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := Pay(nil, nil, donorStore, nil, nil, "")(testAppData, w, r, &donordata.Provided{
+	err := Pay(nil, nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{
 		LpaID:   "lpa-id",
 		FeeType: pay.NoFee,
 	})
@@ -213,8 +238,8 @@ func TestPayWhenFeeDenied(t *testing.T) {
 	payClient.EXPECT().
 		CreatePayment(r.Context(), "lpa-uid", pay.CreatePaymentBody{
 			Amount:      4100,
-			Reference:   "123456789012",
-			Description: "Property and Finance LPA",
+			Reference:   "lpa-uid",
+			Description: "an-lpa-type",
 			ReturnURL:   "http://example.org/lpa/lpa-id/payment-confirmation",
 			Email:       "a@b.com",
 			Language:    "en",
@@ -231,11 +256,22 @@ func TestPayWhenFeeDenied(t *testing.T) {
 		CanRedirect(donor.PathPaymentConfirmation.Format("lpa-id")).
 		Return(false)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("a-type")
+	localizer.EXPECT().
+		Format(mock.Anything, mock.Anything).
+		Return("an-lpa-type")
+
+	appData := testAppData
+	appData.Localizer = localizer
+
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(r.Context(), mock.Anything, mock.Anything)
 
-	err := Pay(logger, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "http://example.org")(testAppData, w, r, &donordata.Provided{
+	err := Pay(logger, sessionStore, nil, payClient, "http://example.org")(appData, w, r, &donordata.Provided{
 		LpaID:          "lpa-id",
 		LpaUID:         "lpa-uid",
 		Donor:          donordata.Donor{Email: "a@b.com"},
@@ -259,7 +295,18 @@ func TestPayWhenCreatePaymentErrors(t *testing.T) {
 		CreatePayment(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, expectedError)
 
-	err := Pay(nil, nil, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &donordata.Provided{})
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("a-type")
+	localizer.EXPECT().
+		Format(mock.Anything, mock.Anything).
+		Return("an-lpa-type")
+
+	appData := testAppData
+	appData.Localizer = localizer
+
+	err := Pay(nil, nil, nil, payClient, "")(appData, w, r, &donordata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -285,7 +332,18 @@ func TestPayWhenSessionErrors(t *testing.T) {
 			},
 		}, nil)
 
-	err := Pay(nil, sessionStore, nil, payClient, func(int) string { return "123456789012" }, "")(testAppData, w, r, &donordata.Provided{})
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("a-type")
+	localizer.EXPECT().
+		Format(mock.Anything, mock.Anything).
+		Return("an-lpa-type")
+
+	appData := testAppData
+	appData.Localizer = localizer
+
+	err := Pay(nil, sessionStore, nil, payClient, "")(appData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }

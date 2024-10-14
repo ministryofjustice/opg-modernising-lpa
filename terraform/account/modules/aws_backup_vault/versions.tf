@@ -7,8 +7,7 @@ terraform {
       version = "~> 5.71.0"
       configuration_aliases = [
         aws.region,
-        aws.management,
-        aws.global,
+        aws.global
       ]
     }
   }

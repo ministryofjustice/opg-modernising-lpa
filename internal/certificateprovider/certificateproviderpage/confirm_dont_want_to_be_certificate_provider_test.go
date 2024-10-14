@@ -108,8 +108,9 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 	}{
 		"witnessed and signed": {
 			lpa: lpadata.Lpa{
-				LpaUID:   "lpa-uid",
-				SignedAt: time.Now(),
+				LpaUID:                           "lpa-uid",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
@@ -139,8 +140,9 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		},
 		"cannot-register": {
 			lpa: lpadata.Lpa{
-				LpaUID:   "lpa-uid",
-				SignedAt: time.Now(),
+				LpaUID:                           "lpa-uid",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
 				},
@@ -257,7 +259,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
 
 	unsignedLPA := lpadata.Lpa{LpaUID: "lpa-uid"}
-	signedLPA := lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}
+	signedLPA := lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()}
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
