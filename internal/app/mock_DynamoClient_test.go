@@ -239,6 +239,54 @@ func (_c *mockDynamoClient_AllKeysByPK_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// AnyByPK provides a mock function with given fields: ctx, pk, v
+func (_m *mockDynamoClient) AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
+	ret := _m.Called(ctx, pk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AnyByPK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
+		r0 = rf(ctx, pk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_AnyByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AnyByPK'
+type mockDynamoClient_AnyByPK_Call struct {
+	*mock.Call
+}
+
+// AnyByPK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk dynamo.PK
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) AnyByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamoClient_AnyByPK_Call {
+	return &mockDynamoClient_AnyByPK_Call{Call: _e.mock.On("AnyByPK", ctx, pk, v)}
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) Return(_a0 error) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // BatchPut provides a mock function with given fields: ctx, items
 func (_m *mockDynamoClient) BatchPut(ctx context.Context, items []interface{}) error {
 	ret := _m.Called(ctx, items)

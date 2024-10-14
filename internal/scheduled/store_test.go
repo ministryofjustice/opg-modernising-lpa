@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func (c *mockDynamoClient_OneByPK_Call) SetData(row *Event) {
+func (c *mockDynamoClient_AnyByPK_Call) SetData(row *Event) {
 	c.Run(func(_ context.Context, _ dynamo.PK, v any) {
 		b, _ := attributevalue.Marshal(row)
 		attributevalue.Unmarshal(b, v)
@@ -42,7 +42,7 @@ func TestStorePop(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByPK(ctx, dynamo.ScheduledDayKey(testNow), mock.Anything).
+		AnyByPK(ctx, dynamo.ScheduledDayKey(testNow), mock.Anything).
 		Return(nil).
 		SetData(row)
 	dynamoClient.EXPECT().
@@ -55,10 +55,10 @@ func TestStorePop(t *testing.T) {
 	assert.Equal(t, movedRow, result)
 }
 
-func TestStorePopWhenOneByPKErrors(t *testing.T) {
+func TestStorePopWhenAnyByPKErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		AnyByPK(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient}
@@ -69,7 +69,7 @@ func TestStorePopWhenOneByPKErrors(t *testing.T) {
 func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		OneByPK(mock.Anything, mock.Anything, mock.Anything).
+		AnyByPK(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
 		SetData(&Event{
 			Action:            99,
