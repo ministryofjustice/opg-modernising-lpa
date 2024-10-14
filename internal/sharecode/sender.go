@@ -39,8 +39,8 @@ type ShareCodeStore interface {
 }
 
 type NotifyClient interface {
-	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
-	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
+	SendActorEmail(context context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
 }
 
 type EventClient interface {
@@ -321,7 +321,7 @@ func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, 
 }
 
 func (s *Sender) sendEmail(ctx context.Context, to string, lpaUID string, email notify.Email) error {
-	if err := s.notifyClient.SendActorEmail(ctx, to, lpaUID, email); err != nil {
+	if err := s.notifyClient.SendActorEmail(ctx, localize.En, to, lpaUID, email); err != nil {
 		return fmt.Errorf("email failed: %w", err)
 	}
 
@@ -329,7 +329,7 @@ func (s *Sender) sendEmail(ctx context.Context, to string, lpaUID string, email 
 }
 
 func (s *Sender) sendSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error {
-	if err := s.notifyClient.SendActorSMS(ctx, to, lpaUID, sms); err != nil {
+	if err := s.notifyClient.SendActorSMS(ctx, localize.En, to, lpaUID, sms); err != nil {
 		return fmt.Errorf("sms failed: %w", err)
 	}
 

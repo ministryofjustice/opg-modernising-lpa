@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -205,7 +206,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 		Return(&lpadata.Lpa{
 			LpaUID:                           "lpa-uid",
 			CertificateProvider:              lpadata.CertificateProvider{FirstNames: "a", LastName: "b"},
-			Donor:                            lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d"},
+			Donor:                            lpadata.Donor{Email: "a@example.com", FirstNames: "c", LastName: "d", ContactLanguagePreference: localize.En},
 			Type:                             lpadata.LpaTypePersonalWelfare,
 			SignedAt:                         time.Now(),
 			WitnessedByCertificateProviderAt: time.Now(),
@@ -239,7 +240,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("Dear donor")
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderFailedIDCheckEmail{
+		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.CertificateProviderFailedIdentityCheckEmail{
 			Greeting:                    "Dear donor",
 			DonorFullName:               "c d",
 			CertificateProviderFullName: "a b",
@@ -324,7 +325,7 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("")
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	eventClient := newMockEventClient(t)

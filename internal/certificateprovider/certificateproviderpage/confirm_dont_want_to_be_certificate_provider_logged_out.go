@@ -89,7 +89,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 				}
 			}
 
-			if err := notifyClient.SendActorEmail(ctx, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+			if err := notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 

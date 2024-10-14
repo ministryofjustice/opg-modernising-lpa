@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -149,6 +150,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				WitnessedByCertificateProviderAt: time.Now(),
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
+					ContactLanguagePreference: localize.En,
 				},
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
@@ -179,7 +181,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				LpaUID:                           "lpa-uid",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				Donor:                            lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
+				Donor:                            lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com", ContactLanguagePreference: localize.En},
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
@@ -203,6 +205,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
+					ContactLanguagePreference: localize.En,
 				},
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
@@ -283,7 +286,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				EmailGreeting(&tc.lpa).
 				Return("Dear donor")
 			notifyClient.EXPECT().
-				SendActorEmail(ctx, "a@example.com", "lpa-uid", tc.email).
+				SendActorEmail(ctx, localize.En, "a@example.com", "lpa-uid", tc.email).
 				Return(nil)
 
 			localizer := newMockLocalizer(t)
@@ -530,7 +533,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
@@ -577,7 +580,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
