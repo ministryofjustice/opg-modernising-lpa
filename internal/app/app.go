@@ -53,6 +53,7 @@ type DynamoClient interface {
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
+	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	Create(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
