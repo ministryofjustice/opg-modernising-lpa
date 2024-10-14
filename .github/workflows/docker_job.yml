@@ -106,7 +106,7 @@ jobs:
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.26.0
         env:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
@@ -118,13 +118,13 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@v3.26.11
+        uses: github/codeql-action/upload-sarif@v3.26.12
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
         id: trivy_sbom
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.26.0
         with:
           scan-type: 'image'
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
