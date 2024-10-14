@@ -13,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -33,10 +32,10 @@ type ShareCodeStore interface {
 	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
 }
 
-type NotifyClient interface {
-	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
-	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
-}
+// type NotifyClient interface {
+//	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
+//	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
+// }
 
 type OneLoginClient interface {
 	AuthCodeURL(state, nonce, locale string, identity bool) (string, error)

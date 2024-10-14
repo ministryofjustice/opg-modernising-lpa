@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -96,8 +97,8 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
-	SendActorSMS(ctx context.Context, to, lpaUID string, sms notify.SMS) error
-	SendEmail(ctx context.Context, to string, email notify.Email) error
+	SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
+	SendEmail(ctx context.Context, lang localize.Lang, to string, email notify.Email) error
 }
 
 type SessionStore interface {
