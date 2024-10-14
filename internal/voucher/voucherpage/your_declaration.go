@@ -25,31 +25,32 @@ type yourDeclarationData struct {
 }
 
 func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
+	// TODO: shouldn't these be lpa.CorrespondentEmail/Mobile()?
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
 			if !lpa.SignedForDonor() {
-				return notifyClient.SendActorSMS(ctx, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
+				return notifyClient.SendActorSMS(ctx, lpa.Donor.ContactLanguagePreference, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentitySMS{
 					VoucherFullName:   provided.FullName(),
 					DonorFullName:     lpa.Donor.FullName(),
 					DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 				})
 			}
 
-			return notifyClient.SendActorSMS(ctx, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
+			return notifyClient.SendActorSMS(ctx, lpa.Donor.ContactLanguagePreference, lpa.Donor.Mobile, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
 				VoucherFullName:   provided.FullName(),
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			})
 		}
 
 		if !lpa.SignedForDonor() {
-			return notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
+			return notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityEmail{
 				VoucherFullName:   provided.FullName(),
 				DonorFullName:     lpa.Donor.FullName(),
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			})
 		}
 
-		return notifyClient.SendActorEmail(ctx, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
+		return notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.Donor.Email, lpa.LpaUID, notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
 			VoucherFullName:   provided.FullName(),
 			DonorFullName:     lpa.Donor.FullName(),
 			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
