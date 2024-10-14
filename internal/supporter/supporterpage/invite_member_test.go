@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
@@ -73,7 +74,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.OrganisationMemberInviteEmail{
+		SendEmail(r.Context(), localize.En, "email@example.com", notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
@@ -163,7 +164,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), mock.Anything, mock.Anything).
+		SendEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)

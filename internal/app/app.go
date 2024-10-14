@@ -113,7 +113,7 @@ func App(
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
 	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
-	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, notifyClient, localizer)
+	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 

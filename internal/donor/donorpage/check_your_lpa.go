@@ -61,7 +61,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 		}
 	}
 
-	return n.notifyClient.SendActorSMS(ctx, provided.CertificateProvider.Mobile, provided.LpaUID, sms)
+	return n.notifyClient.SendActorSMS(ctx, localize.En, provided.CertificateProvider.Mobile, provided.LpaUID, sms)
 }
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {
@@ -99,7 +99,7 @@ func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appDa
 		}
 	}
 
-	return n.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
+	return n.notifyClient.SendActorSMS(ctx, certificateProvider.ContactLanguagePreference, donor.CertificateProvider.Mobile, donor.LpaUID, sms)
 }
 
 func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender ShareCodeSender, notifyClient NotifyClient, certificateProviderStore CertificateProviderStore, now func() time.Time, appPublicURL string) Handler {

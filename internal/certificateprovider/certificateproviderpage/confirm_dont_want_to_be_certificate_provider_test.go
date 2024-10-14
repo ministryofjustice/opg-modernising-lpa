@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -113,6 +114,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				WitnessedByCertificateProviderAt: time.Now(),
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
+					ContactLanguagePreference: localize.En,
 				},
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
@@ -145,6 +147,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				WitnessedByCertificateProviderAt: time.Now(),
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
+					ContactLanguagePreference: localize.En,
 				},
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
@@ -167,7 +170,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 		"not witnessed and signed": {
 			lpa: lpadata.Lpa{
 				LpaUID: "lpa-uid",
-				Donor:  lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com"},
+				Donor:  lpadata.Donor{FirstNames: "a b", LastName: "c", Email: "a@example.com", ContactLanguagePreference: localize.En},
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore: func() *mockDonorStore {
@@ -241,7 +244,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				EmailGreeting(mock.Anything).
 				Return("Dear donor")
 			notifyClient.EXPECT().
-				SendActorEmail(r.Context(), "a@example.com", "lpa-uid", tc.email).
+				SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", tc.email).
 				Return(nil)
 
 			err := ConfirmDontWantToBeCertificateProvider(nil, lpaStoreResolvingService, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient, "example.com")(testAppData, w, r, nil)
@@ -467,7 +470,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("Dear donor")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
