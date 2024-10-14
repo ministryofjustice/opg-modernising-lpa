@@ -11,6 +11,7 @@ variable "iam_roles" {
     fault_injection_simulator               = any
     create_s3_batch_replication_jobs_lambda = any
     event_received_lambda                   = any
+    schedule_runner_lambda                  = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }

@@ -85,8 +85,8 @@ awslocal lambda wait function-active-v2 --region eu-west-1 --function-name sched
 echo 'create and associate scheduler'
 awslocal scheduler create-schedule \
   --region eu-west-1 \
-  --name schedule-runner-daily-midnight \
-  --schedule-expression 'rate(10 seconds)' \
-  --description "Runs at midnight every day" \
+  --name schedule-runner-minutely \
+  --schedule-expression 'rate(1 minute)' \
+  --description "Runs every minute (to aid testing - deployed infra will run less frequently)" \
   --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
   --flexible-time-window '{ "Mode": "OFF"}'
