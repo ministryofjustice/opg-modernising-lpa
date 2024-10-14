@@ -9,8 +9,9 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -123,12 +124,12 @@ func TestPostDonorAccess(t *testing.T) {
 		Get(r.Context()).
 		Return(&donordata.Provided{
 			Type:  lpadata.LpaTypePropertyAndAffairs,
-			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy"},
+			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", ContactLanguagePreference: localize.En},
 		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			Type:  lpadata.LpaTypePropertyAndAffairs,
-			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com"},
+			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com", ContactLanguagePreference: localize.En},
 		}).
 		Return(nil)
 
@@ -147,7 +148,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), "email@example.com", notify.DonorAccessEmail{
+		SendEmail(r.Context(), localize.En, "email@example.com", notify.DonorAccessEmail{
 			SupporterFullName: "John Smith",
 			OrganisationName:  "Helpers",
 			LpaType:           "translation",
@@ -241,7 +242,7 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), mock.Anything, mock.Anything).
+		SendEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t)
