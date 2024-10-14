@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -23,9 +24,13 @@ type DonorStore interface {
 	Put(context.Context, *donordata.Provided) error
 }
 
+type CertificateProviderStore interface {
+	GetAny(context.Context) (*certificateproviderdata.Provided, error)
+}
+
 type NotifyClient interface {
-	SendActorEmail(context context.Context, to, lpaUID string, email notify.Email) error
-	SendActorSMS(context context.Context, to, lpaUID string, sms notify.SMS) error
+	SendActorEmail(context context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
 }
 
 type Localizer interface {
@@ -43,20 +48,22 @@ type Localizer interface {
 }
 
 type WitnessCodeSender struct {
-	donorStore   DonorStore
-	notifyClient NotifyClient
-	localizer    Localizer
-	randomCode   func(int) string
-	now          func() time.Time
+	donorStore               DonorStore
+	certificateProviderStore CertificateProviderStore
+	notifyClient             NotifyClient
+	localizer                Localizer
+	randomCode               func(int) string
+	now                      func() time.Time
 }
 
-func NewWitnessCodeSender(donorStore DonorStore, notifyClient NotifyClient, localizer Localizer) *WitnessCodeSender {
+func NewWitnessCodeSender(donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, localizer Localizer) *WitnessCodeSender {
 	return &WitnessCodeSender{
-		donorStore:   donorStore,
-		notifyClient: notifyClient,
-		localizer:    localizer,
-		randomCode:   random.Code,
-		now:          time.Now,
+		donorStore:               donorStore,
+		certificateProviderStore: certificateProviderStore,
+		notifyClient:             notifyClient,
+		localizer:                localizer,
+		randomCode:               random.Code,
+		now:                      time.Now,
 	}
 }
 
@@ -76,7 +83,12 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 		return err
 	}
 
-	return s.notifyClient.SendActorSMS(ctx, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	contactLanguage := localize.En
+	if certificateProvider, _ := s.certificateProviderStore.GetAny(ctx); certificateProvider != nil {
+		contactLanguage = certificateProvider.ContactLanguagePreference
+	}
+
+	return s.notifyClient.SendActorSMS(ctx, contactLanguage, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: s.localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(s.localizer.T(donor.Type.String())),
@@ -99,7 +111,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 		return err
 	}
 
-	return s.notifyClient.SendActorSMS(ctx, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	return s.notifyClient.SendActorSMS(ctx, localize.En, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: s.localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(s.localizer.T(donor.Type.String())),
