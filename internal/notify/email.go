@@ -1,7 +1,9 @@
 package notify
 
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+
 type Email interface {
-	emailID(bool) string
+	emailID(bool, localize.Lang) string
 }
 
 type InitialOriginalAttorneyEmail struct {
@@ -15,7 +17,7 @@ type InitialOriginalAttorneyEmail struct {
 	AttorneyOptOutURL         string
 }
 
-func (e InitialOriginalAttorneyEmail) emailID(isProduction bool) string {
+func (e InitialOriginalAttorneyEmail) emailID(isProduction bool, _ localize.Lang) string {
 	if isProduction {
 		return "080071dc-0434-4b13-adb7-c4e5612c4b47"
 	}
@@ -34,7 +36,7 @@ type InitialReplacementAttorneyEmail struct {
 	AttorneyOptOutURL         string
 }
 
-func (e InitialReplacementAttorneyEmail) emailID(isProduction bool) string {
+func (e InitialReplacementAttorneyEmail) emailID(isProduction bool, _ localize.Lang) string {
 	if isProduction {
 		return "8d335239-7002-4825-8393-cc00ad246648"
 	}
@@ -50,9 +52,17 @@ type CertificateProviderCertificateProvidedEmail struct {
 	DonorFirstNamesPossessive   string
 }
 
-func (e CertificateProviderCertificateProvidedEmail) emailID(isProduction bool) string {
+func (e CertificateProviderCertificateProvidedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "64d7d56b-966b-464f-8084-1ac5d91c3d58"
+	}
+
+	if lang.IsCy() {
+		return "ef87ab25-1d4a-4f2d-aaa6-8ef3200c6643"
 	}
 
 	return "76f4370f-1a78-4488-9029-b00fbc292386"
@@ -70,7 +80,7 @@ type CertificateProviderInviteEmail struct {
 	CertificateProviderOptOutURL string
 }
 
-func (e CertificateProviderInviteEmail) emailID(isProduction bool) string {
+func (e CertificateProviderInviteEmail) emailID(isProduction bool, _ localize.Lang) string {
 	if isProduction {
 		return "08a8d89d-e5b7-4bb9-94d2-25139543e962"
 	}
@@ -87,9 +97,17 @@ type CertificateProviderProvideCertificatePromptEmail struct {
 	ShareCode                   string
 }
 
-func (e CertificateProviderProvideCertificatePromptEmail) emailID(isProduction bool) string {
+func (e CertificateProviderProvideCertificatePromptEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "eac04624-f058-411a-be48-854a77022ac8"
+	}
+
+	if lang.IsCy() {
+		return "675b29ff-63ec-4257-923d-8fcd0db057f7"
 	}
 
 	return "3ad5a806-6789-4687-8731-49ff7357372f"
@@ -103,7 +121,7 @@ type OrganisationMemberInviteEmail struct {
 	JoinAnOrganisationURL string
 }
 
-func (e OrganisationMemberInviteEmail) emailID(isProduction bool) string {
+func (e OrganisationMemberInviteEmail) emailID(isProduction bool, _ localize.Lang) string {
 	if isProduction {
 		return "8433502f-7cbd-42de-a075-7f9343531167"
 	}
@@ -120,9 +138,17 @@ type DonorAccessEmail struct {
 	ShareCode         string
 }
 
-func (e DonorAccessEmail) emailID(isProduction bool) string {
+func (e DonorAccessEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "4e7337cd-34aa-41ba-81e3-3c866e3daf4b"
+	}
+
+	if lang.IsCy() {
+		return "12c7981d-9db2-4b5c-8922-0d437cf997e1"
 	}
 
 	return "0d762056-570b-4fca-9871-1f6a69f9da47"
@@ -137,9 +163,17 @@ type CertificateProviderOptedOutPreWitnessingEmail struct {
 	DonorStartPageURL           string
 }
 
-func (e CertificateProviderOptedOutPreWitnessingEmail) emailID(isProduction bool) string {
+func (e CertificateProviderOptedOutPreWitnessingEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "1e85965d-4288-42ea-bdd5-f4a29020cf73"
+	}
+
+	if lang.IsCy() {
+		return "3ad13ea7-aed6-4814-90b1-186ac3b78a14"
 	}
 
 	return "06691e59-899a-4b06-8337-68e4c93d5e29"
@@ -155,15 +189,23 @@ type CertificateProviderOptedOutPostWitnessingEmail struct {
 	DonorStartPageURL             string
 }
 
-func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction bool) string {
+func (e CertificateProviderOptedOutPostWitnessingEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "e284f26e-600a-44f8-b76a-95b93339a054"
+	}
+
+	if lang.IsCy() {
+		return "ce8f18dd-4edf-4289-b98d-a016283217fc"
 	}
 
 	return "654332f4-4e53-4fa1-91d0-f480b577b3d9"
 }
 
-type CertificateProviderFailedIDCheckEmail struct {
+type CertificateProviderFailedIdentityCheckEmail struct {
 	Greeting                    string
 	DonorFullName               string
 	CertificateProviderFullName string
@@ -171,9 +213,17 @@ type CertificateProviderFailedIDCheckEmail struct {
 	DonorStartPageURL           string
 }
 
-func (e CertificateProviderFailedIDCheckEmail) emailID(isProduction bool) string {
+func (e CertificateProviderFailedIdentityCheckEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "4020a281-8b64-45ec-85c6-19a89c08bcdb"
+	}
+
+	if lang.IsCy() {
+		return "de242ce4-ff15-4467-a207-dd2d8f7e2ae5"
 	}
 
 	return "26d337be-eef3-405f-96ed-cb2ed76002b3"
@@ -189,9 +239,17 @@ type PaymentConfirmationEmail struct {
 	AmountPaidWithCurrency   string
 }
 
-func (e PaymentConfirmationEmail) emailID(isProduction bool) string {
+func (e PaymentConfirmationEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "d0946a7d-d7fe-47cb-9b41-464f13727bf3"
+	}
+
+	if lang.IsCy() {
+		return "662548fd-4382-42f3-88eb-7426bd868a23"
 	}
 
 	return "ff757818-f066-4605-8751-af481afe8a2b"
@@ -206,13 +264,13 @@ type AttorneyOptedOutEmail struct {
 	DonorStartPageURL string
 }
 
-func (e AttorneyOptedOutEmail) emailID(isProduction bool) string {
+func (e AttorneyOptedOutEmail) emailID(isProduction bool, _ localize.Lang) string {
 	return "TODO"
 }
 
 type DonorIdentityCheckExpiredEmail struct{}
 
-func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool) string {
+func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool, _ localize.Lang) string {
 	return "TODO"
 }
 
@@ -223,7 +281,7 @@ type VouchingShareCodeEmail struct {
 	LpaType         string
 }
 
-func (s VouchingShareCodeEmail) emailID(isProduction bool) string {
+func (s VouchingShareCodeEmail) emailID(isProduction bool, _ localize.Lang) string {
 	if isProduction {
 		return "38e26a3f-d87d-4b0c-8985-8fb5bed79466"
 	}
@@ -240,9 +298,17 @@ type VoucherInviteEmail struct {
 	VoucherStartPageURL       string
 }
 
-func (s VoucherInviteEmail) emailID(isProduction bool) string {
+func (s VoucherInviteEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "36ad56ad-823b-4852-88a7-8acc4dfd1749"
+	}
+
+	if lang.IsCy() {
+		return "a5d9bc34-a7f4-44c4-8473-376845c5b0b9"
 	}
 
 	return "9af150b5-d9cd-4702-bf97-d3e6bfe81eec"
@@ -254,9 +320,17 @@ type VouchingFailedAttemptEmail struct {
 	DonorStartPageURL string
 }
 
-func (e VouchingFailedAttemptEmail) emailID(isProduction bool) string {
+func (e VouchingFailedAttemptEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "f21ee857-8c3e-43ee-adf2-2d9f1ff1a1a8"
+	}
+
+	if lang.IsCy() {
+		return "6f647fa8-587b-4f49-be75-d85a44f167b2"
 	}
 
 	return "584412e6-f235-4227-aff9-6cb56ba48e31"
@@ -268,9 +342,17 @@ type VoucherHasConfirmedDonorIdentityEmail struct {
 	DonorStartPageURL string
 }
 
-func (e VoucherHasConfirmedDonorIdentityEmail) emailID(isProduction bool) string {
+func (e VoucherHasConfirmedDonorIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "67cd151e-6e7b-4fba-9457-f0252e75dfe2"
+	}
+
+	if lang.IsCy() {
+		return "d81b27c2-07e3-47c3-baa6-a8114673c32d"
 	}
 
 	return "86e6d479-6bef-428c-a09d-02a325b97972"
@@ -282,9 +364,17 @@ type VoucherHasConfirmedDonorIdentityOnSignedLpaEmail struct {
 	DonorStartPageURL string
 }
 
-func (e VoucherHasConfirmedDonorIdentityOnSignedLpaEmail) emailID(isProduction bool) string {
+func (e VoucherHasConfirmedDonorIdentityOnSignedLpaEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
+		if lang.IsCy() {
+			return ""
+		}
+
 		return "8df993ff-e4d9-43f2-b714-39053510c664"
+	}
+
+	if lang.IsCy() {
+		return "3884d77c-09c2-4396-b6df-cd32e76a4bb0"
 	}
 
 	return "efa0ef78-9e65-4edf-88c8-70d3da7a4b0e"
