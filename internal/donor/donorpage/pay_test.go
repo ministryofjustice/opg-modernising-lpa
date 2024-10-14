@@ -99,13 +99,18 @@ func TestPay(t *testing.T) {
 }
 
 func TestPayWhenPaymentNotRequired(t *testing.T) {
-	testCases := []pay.FeeType{
-		pay.NoFee,
-		pay.HardshipFee,
+	testCases := map[string]struct {
+		feeType     pay.FeeType
+		previousFee pay.PreviousFee
+	}{
+		"no fee":               {feeType: pay.NoFee},
+		"hardship fee":         {feeType: pay.HardshipFee},
+		"previously hardship":  {feeType: pay.RepeatApplicationFee, previousFee: pay.PreviousFeeHardship},
+		"previously exemption": {feeType: pay.RepeatApplicationFee, previousFee: pay.PreviousFeeExemption},
 	}
 
-	for _, feeType := range testCases {
-		t.Run(feeType.String(), func(t *testing.T) {
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
@@ -113,7 +118,8 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
-					FeeType:          feeType,
+					FeeType:          tc.feeType,
+					PreviousFee:      tc.previousFee,
 					Tasks:            donordata.Tasks{PayForLpa: task.PaymentStatePending},
 					EvidenceDelivery: pay.Upload,
 				}).
@@ -121,7 +127,8 @@ func TestPayWhenPaymentNotRequired(t *testing.T) {
 
 			err := Pay(nil, nil, donorStore, nil, "")(testAppData, w, r, &donordata.Provided{
 				LpaID:            "lpa-id",
-				FeeType:          feeType,
+				FeeType:          tc.feeType,
+				PreviousFee:      tc.previousFee,
 				EvidenceDelivery: pay.Upload,
 			})
 			resp := w.Result()
