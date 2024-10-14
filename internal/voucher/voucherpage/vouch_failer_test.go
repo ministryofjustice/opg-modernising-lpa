@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -18,7 +19,7 @@ var ctx = context.WithValue(context.Background(), (*string)(nil), "test")
 func TestVouchFailer(t *testing.T) {
 	lpa := &lpadata.Lpa{
 		LpaUID: "lpa-uid",
-		Donor:  lpadata.Donor{Email: "john@example.com"},
+		Donor:  lpadata.Donor{Email: "john@example.com", ContactLanguagePreference: localize.Cy},
 	}
 	provided := &voucherdata.Provided{
 		FirstNames: "Vivian",
@@ -45,7 +46,7 @@ func TestVouchFailer(t *testing.T) {
 		EmailGreeting(lpa).
 		Return("greeting")
 	notifyClient.EXPECT().
-		SendActorEmail(ctx, "john@example.com", "lpa-uid", notify.VouchingFailedAttemptEmail{
+		SendActorEmail(ctx, localize.Cy, "john@example.com", "lpa-uid", notify.VouchingFailedAttemptEmail{
 			Greeting:          "greeting",
 			VoucherFullName:   "Vivian Vaughn",
 			DonorStartPageURL: "app:///start",
@@ -77,7 +78,7 @@ func TestVouchFailerWheNotifyClientErrors(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("greeting")
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
@@ -98,7 +99,7 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("greeting")
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
