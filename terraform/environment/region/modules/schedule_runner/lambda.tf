@@ -51,6 +51,8 @@ resource "aws_scheduler_schedule" "schedule_runner_hourly" {
     arn      = module.schedule_runner.lambda.arn
     role_arn = module.schedule_runner.lambda.role
   }
+
+  provider = aws.region
 }
 
 data "aws_iam_policy_document" "schedule_runner" {
