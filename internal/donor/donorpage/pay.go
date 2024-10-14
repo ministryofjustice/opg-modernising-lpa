@@ -21,7 +21,7 @@ func Pay(
 	appPublicURL string,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		if provided.FeeType.IsNoFee() || provided.FeeType.IsHardshipFee() || provided.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+		if provided.FeeAmount().Pence() == 0 || provided.Tasks.PayForLpa.IsMoreEvidenceRequired() {
 			provided.Tasks.PayForLpa = task.PaymentStatePending
 			if err := donorStore.Put(r.Context(), provided); err != nil {
 				return err
