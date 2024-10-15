@@ -58,7 +58,6 @@ services:
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ./scripts/scheduled-event-and-donor:/opt/imposter/config/
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs

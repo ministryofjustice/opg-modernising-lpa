@@ -66,10 +66,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - LPAS_TABLE=lpas
       - GOVUK_NOTIFY_IS_PRODUCTION=0
-      - APP_PUBLIC_URL=http://localhost:5050
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
-      - UPLOADS_S3_BUCKET_NAME=evidence
-      - UID_BASE_URL=http://mock-uid:8080
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
     ports:
       - "9002:8080"
