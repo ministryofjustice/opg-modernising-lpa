@@ -104,6 +104,21 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: 0
 
+      - name: Trivy Dockerfile Configuration Scanner for ${{ matrix.ecr_repository }}
+        id: trivy_dockerfile_misconfiguration_scan
+        uses: aquasecurity/trivy-action@0.26.0
+        env:
+          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
+        with:
+          scan-type: fs
+          scan-ref: ${{ matrix.path }}
+          severity: 'HIGH,CRITICAL'
+          ignore-policy: '.trivyignore.yaml'
+          scanners: 'misconfig'
+          # format: 'sarif'
+          # output: 'trivy-results.sarif'
+
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.26.0
@@ -113,6 +128,7 @@ jobs:
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
+          ignore-policy: '.trivyignore.yaml'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
