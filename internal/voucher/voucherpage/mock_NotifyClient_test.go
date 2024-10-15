@@ -5,7 +5,9 @@ package voucherpage
 import (
 	context "context"
 
+	localize "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
 	mock "github.com/stretchr/testify/mock"
 
 	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -70,17 +72,17 @@ func (_c *mockNotifyClient_EmailGreeting_Call) RunAndReturn(run func(*lpadata.Lp
 	return _c
 }
 
-// SendActorEmail provides a mock function with given fields: ctx, to, lpaUID, email
-func (_m *mockNotifyClient) SendActorEmail(ctx context.Context, to string, lpaUID string, email notify.Email) error {
-	ret := _m.Called(ctx, to, lpaUID, email)
+// SendActorEmail provides a mock function with given fields: ctx, lang, to, lpaUID, email
+func (_m *mockNotifyClient) SendActorEmail(ctx context.Context, lang localize.Lang, to string, lpaUID string, email notify.Email) error {
+	ret := _m.Called(ctx, lang, to, lpaUID, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendActorEmail")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, notify.Email) error); ok {
-		r0 = rf(ctx, to, lpaUID, email)
+	if rf, ok := ret.Get(0).(func(context.Context, localize.Lang, string, string, notify.Email) error); ok {
+		r0 = rf(ctx, lang, to, lpaUID, email)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -95,16 +97,17 @@ type mockNotifyClient_SendActorEmail_Call struct {
 
 // SendActorEmail is a helper method to define mock.On call
 //   - ctx context.Context
+//   - lang localize.Lang
 //   - to string
 //   - lpaUID string
 //   - email notify.Email
-func (_e *mockNotifyClient_Expecter) SendActorEmail(ctx interface{}, to interface{}, lpaUID interface{}, email interface{}) *mockNotifyClient_SendActorEmail_Call {
-	return &mockNotifyClient_SendActorEmail_Call{Call: _e.mock.On("SendActorEmail", ctx, to, lpaUID, email)}
+func (_e *mockNotifyClient_Expecter) SendActorEmail(ctx interface{}, lang interface{}, to interface{}, lpaUID interface{}, email interface{}) *mockNotifyClient_SendActorEmail_Call {
+	return &mockNotifyClient_SendActorEmail_Call{Call: _e.mock.On("SendActorEmail", ctx, lang, to, lpaUID, email)}
 }
 
-func (_c *mockNotifyClient_SendActorEmail_Call) Run(run func(ctx context.Context, to string, lpaUID string, email notify.Email)) *mockNotifyClient_SendActorEmail_Call {
+func (_c *mockNotifyClient_SendActorEmail_Call) Run(run func(ctx context.Context, lang localize.Lang, to string, lpaUID string, email notify.Email)) *mockNotifyClient_SendActorEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(notify.Email))
+		run(args[0].(context.Context), args[1].(localize.Lang), args[2].(string), args[3].(string), args[4].(notify.Email))
 	})
 	return _c
 }
@@ -114,22 +117,22 @@ func (_c *mockNotifyClient_SendActorEmail_Call) Return(_a0 error) *mockNotifyCli
 	return _c
 }
 
-func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Context, string, string, notify.Email) error) *mockNotifyClient_SendActorEmail_Call {
+func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Context, localize.Lang, string, string, notify.Email) error) *mockNotifyClient_SendActorEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SendActorSMS provides a mock function with given fields: ctx, to, lpaUID, sms
-func (_m *mockNotifyClient) SendActorSMS(ctx context.Context, to string, lpaUID string, sms notify.SMS) error {
-	ret := _m.Called(ctx, to, lpaUID, sms)
+// SendActorSMS provides a mock function with given fields: ctx, lang, to, lpaUID, sms
+func (_m *mockNotifyClient) SendActorSMS(ctx context.Context, lang localize.Lang, to string, lpaUID string, sms notify.SMS) error {
+	ret := _m.Called(ctx, lang, to, lpaUID, sms)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendActorSMS")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, notify.SMS) error); ok {
-		r0 = rf(ctx, to, lpaUID, sms)
+	if rf, ok := ret.Get(0).(func(context.Context, localize.Lang, string, string, notify.SMS) error); ok {
+		r0 = rf(ctx, lang, to, lpaUID, sms)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -144,16 +147,17 @@ type mockNotifyClient_SendActorSMS_Call struct {
 
 // SendActorSMS is a helper method to define mock.On call
 //   - ctx context.Context
+//   - lang localize.Lang
 //   - to string
 //   - lpaUID string
 //   - sms notify.SMS
-func (_e *mockNotifyClient_Expecter) SendActorSMS(ctx interface{}, to interface{}, lpaUID interface{}, sms interface{}) *mockNotifyClient_SendActorSMS_Call {
-	return &mockNotifyClient_SendActorSMS_Call{Call: _e.mock.On("SendActorSMS", ctx, to, lpaUID, sms)}
+func (_e *mockNotifyClient_Expecter) SendActorSMS(ctx interface{}, lang interface{}, to interface{}, lpaUID interface{}, sms interface{}) *mockNotifyClient_SendActorSMS_Call {
+	return &mockNotifyClient_SendActorSMS_Call{Call: _e.mock.On("SendActorSMS", ctx, lang, to, lpaUID, sms)}
 }
 
-func (_c *mockNotifyClient_SendActorSMS_Call) Run(run func(ctx context.Context, to string, lpaUID string, sms notify.SMS)) *mockNotifyClient_SendActorSMS_Call {
+func (_c *mockNotifyClient_SendActorSMS_Call) Run(run func(ctx context.Context, lang localize.Lang, to string, lpaUID string, sms notify.SMS)) *mockNotifyClient_SendActorSMS_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(notify.SMS))
+		run(args[0].(context.Context), args[1].(localize.Lang), args[2].(string), args[3].(string), args[4].(notify.SMS))
 	})
 	return _c
 }
@@ -163,7 +167,7 @@ func (_c *mockNotifyClient_SendActorSMS_Call) Return(_a0 error) *mockNotifyClien
 	return _c
 }
 
-func (_c *mockNotifyClient_SendActorSMS_Call) RunAndReturn(run func(context.Context, string, string, notify.SMS) error) *mockNotifyClient_SendActorSMS_Call {
+func (_c *mockNotifyClient_SendActorSMS_Call) RunAndReturn(run func(context.Context, localize.Lang, string, string, notify.SMS) error) *mockNotifyClient_SendActorSMS_Call {
 	_c.Call.Return(run)
 	return _c
 }
