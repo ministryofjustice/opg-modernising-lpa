@@ -60,7 +60,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
       - AWS_ACCESS_KEY_ID=fakeKeyId
