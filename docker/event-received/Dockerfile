@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=linux GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -tags lambda.norpc -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2 AS dev
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
 
 WORKDIR /app
 
@@ -20,11 +20,10 @@ COPY --link docker/event-received/aws-lambda-rie ./aws-lambda-rie
 
 ENTRYPOINT ["./event-received"]
 
-FROM public.ecr.aws/lambda/provided:al2 AS production
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS production
 
 WORKDIR /app
 COPY --link  docker/event-received/install_lambda_insights.sh /app/
-
 
 RUN chmod +x /app/install_lambda_insights.sh \
   && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
