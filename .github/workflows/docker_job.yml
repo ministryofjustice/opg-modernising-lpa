@@ -106,8 +106,6 @@ jobs:
           scanners: 'misconfig'
           version: v0.56.2
           exit-code: 1
-          # format: 'sarif'
-          # output: 'trivy-results.sarif'
 
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.9.0
@@ -147,6 +145,9 @@ jobs:
       - name: Trivy Image SBOM Generator for ${{ matrix.ecr_repository }} and submit results to Dependency Graph
         id: trivy_sbom
         uses: aquasecurity/trivy-action@0.26.0
+        env:
+          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
         with:
           scan-type: 'image'
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
