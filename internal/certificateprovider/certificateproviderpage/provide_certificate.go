@@ -77,7 +77,7 @@ func ProvideCertificate(
 					certificateProvider.SignedAt = lpa.CertificateProvider.SignedAt
 				}
 
-				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
+				if err := notifyClient.SendActorEmail(r.Context(), certificateProvider.ContactLanguagePreference, certificateProvider.Email, lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{
 					DonorFullNamePossessive:     appData.Localizer.Possessive(lpa.Donor.FullName()),
 					DonorFirstNamesPossessive:   appData.Localizer.Possessive(lpa.Donor.FirstNames),
 					LpaType:                     localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),

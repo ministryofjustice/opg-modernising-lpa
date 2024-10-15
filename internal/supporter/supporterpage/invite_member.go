@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
@@ -46,7 +47,7 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 					return err
 				}
 
-				if err := notifyClient.SendEmail(r.Context(), data.Form.Email, notify.OrganisationMemberInviteEmail{
+				if err := notifyClient.SendEmail(r.Context(), localize.En, data.Form.Email, notify.OrganisationMemberInviteEmail{
 					OrganisationName:      organisation.Name,
 					InviterEmail:          appData.LoginSessionEmail,
 					InviteCode:            inviteCode,
