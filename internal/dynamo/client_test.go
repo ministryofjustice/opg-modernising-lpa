@@ -1051,3 +1051,59 @@ func TestMoveWhenOtherCancellation(t *testing.T) {
 	err := c.Move(ctx, Keys{PK: testPK("a-pk"), SK: testSK("an-sk")}, map[string]string{"hey": "hi"})
 	assert.Equal(t, canceledException, err)
 }
+
+func TestAnyByPK(t *testing.T) {
+	ctx := context.Background()
+
+	expected := map[string]string{"Col": "Val"}
+	pkey, _ := attributevalue.Marshal("a-pk")
+	data, _ := attributevalue.MarshalMap(expected)
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String("this"),
+			ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
+			KeyConditionExpression:    aws.String("#PK = :PK"),
+			Limit:                     aws.Int32(1),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, v)
+}
+
+func TestAnyByPKOnQueryError(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(nil, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestAnyByPKWhenNotFound(t *testing.T) {
+	ctx := context.Background()
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]string
+	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
+	assert.Equal(t, NotFoundError{}, err)
+}
