@@ -98,7 +98,7 @@ jobs:
           scan-type: fs
           scan-ref: ${{ matrix.path }}
           severity: 'HIGH,CRITICAL'
-          trivyignores: '.trivyignore'
+          trivyignores: '.trivyignore.yaml'
           scanners: 'misconfig'
           version: v0.56.2
           # format: 'sarif'
@@ -129,7 +129,7 @@ jobs:
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
-          ignore-policy: '.trivyignore.yaml'
+          trivyignores: '.trivyignore.yaml'
           format: 'sarif'
           output: 'trivy-results.sarif'
 
