@@ -133,7 +133,7 @@ jobs:
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
-          trivyignores: '.trivyignore.yaml'
+          trivyignores: ${{ matrix.trivyignores }}
           format: 'sarif'
           output: 'trivy-results.sarif'
 
