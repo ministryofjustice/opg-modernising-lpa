@@ -88,6 +88,22 @@ jobs:
           mask-password: true
           registries: 311462405659
 
+      - name: Trivy Dockerfile Configuration Scanner for ${{ matrix.ecr_repository }}
+        id: trivy_dockerfile_misconfiguration_scan
+        uses: aquasecurity/trivy-action@0.26.0
+        env:
+          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
+        with:
+          scan-type: fs
+          scan-ref: ${{ matrix.path }}
+          severity: 'HIGH,CRITICAL'
+          trivyignores: ./.trivyignore.yaml
+          scanners: 'misconfig'
+          version: v0.56.2
+          # format: 'sarif'
+          # output: 'trivy-results.sarif'
+
       - name: Build ${{ matrix.ecr_repository }} Image
         uses: docker/build-push-action@v6.9.0
         with:
