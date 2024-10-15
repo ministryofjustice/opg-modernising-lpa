@@ -31,8 +31,4 @@ RUN chmod +x /app/install_lambda_insights.sh \
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
 
-# RUN addgroup -S app && \
-#   adduser -S -g app app && \
-#   chown -R app:app event-received
-# USER app
 ENTRYPOINT ["./event-received"]
