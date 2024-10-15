@@ -35,6 +35,7 @@ module "eu_west_1" {
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
+    schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
@@ -104,6 +105,7 @@ module "eu_west_2" {
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
+    schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider

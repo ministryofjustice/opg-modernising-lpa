@@ -13,5 +13,6 @@ output "iam_roles" {
     event_received_lambda                   = aws_iam_role.event_received_lambda
     schedule_runner_lambda                  = aws_iam_role.schedule_runner_lambda
     opensearch_pipeline                     = aws_iam_role.opensearch_pipeline
+    schedule_runner_scheduler               = aws_iam_role.schedule_runner_scheduler
   }
 }

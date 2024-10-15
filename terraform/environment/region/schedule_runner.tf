@@ -13,6 +13,7 @@ module "schedule_runner" {
   search_endpoint               = var.search_endpoint
   search_index_name             = var.search_index_name
   search_collection_arn         = var.search_collection_arn
+  schedule_runner_scheduler     = var.iam_roles.schedule_runner_scheduler
   schedule_runner_lambda_role   = var.iam_roles.schedule_runner_lambda
   uploads_bucket                = module.uploads_s3_bucket.bucket
   vpc_config = {

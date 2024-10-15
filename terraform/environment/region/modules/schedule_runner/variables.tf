@@ -10,10 +10,6 @@ variable "event_bus_name" {
   type = string
 }
 
-variable "allowed_api_arns" {
-  type = list(string)
-}
-
 variable "schedule_runner_lambda_role" {
   type = any
 }
@@ -43,16 +39,7 @@ variable "search_index_name" {
   description = "Name of the OpenSearch Service index to use"
 }
 
-variable "search_collection_arn" {
-  type        = string
-  description = "ARN of the OpenSearch collection to use"
-  nullable    = true
-}
-
-variable "uploads_bucket" {
-  type = any
-}
-
-variable "event_bus_arn" {
-  type = string
+variable "schedule_runner_scheduler" {
+  description = "IAM role for AWS schedule runner EventBridge Scheduler"
+  type        = any
 }

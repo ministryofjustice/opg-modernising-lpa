@@ -15,7 +15,7 @@ module "schedule_runner" {
   aws_iam_role         = var.schedule_runner_lambda_role
   environment          = data.aws_default_tags.current.tags.environment-name
   kms_key              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
-  iam_policy_documents = [data.aws_iam_policy_document.api_access_policy.json]
+  iam_policy_documents = [data.aws_iam_policy_document.schedule_runner.json]
   timeout              = 360
   memory               = 1024
   vpc_config = {
@@ -27,20 +27,9 @@ module "schedule_runner" {
   }
 }
 
-data "aws_iam_policy_document" "api_access_policy" {
-  statement {
-    sid       = "allowApiAccess"
-    effect    = "Allow"
-    resources = var.allowed_api_arns
-    actions = [
-      "execute-api:Invoke",
-    ]
-  }
-}
-
 resource "aws_scheduler_schedule" "schedule_runner_hourly" {
   name                = "schedule-runner-hourly"
-  schedule_expression = "rate(1 hour)"
+  schedule_expression = "rate(1 minute)"
   description         = "Runs every hour"
 
   flexible_time_window {
@@ -99,8 +88,6 @@ data "aws_iam_policy_document" "schedule_runner" {
 
     resources = [
       data.aws_secretsmanager_secret.gov_uk_notify_api_key.arn,
-      data.aws_secretsmanager_secret.lpa_store_jwt_secret_key.arn,
-      data.aws_secretsmanager_secret.lpa_store_jwt_key.arn,
     ]
   }
 
@@ -110,7 +97,6 @@ data "aws_iam_policy_document" "schedule_runner" {
     resources = [
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
       data.aws_kms_alias.aws_lambda.target_key_arn,
-      data.aws_kms_alias.jwt_key.target_key_arn,
     ]
 
     actions = [
@@ -123,41 +109,18 @@ data "aws_iam_policy_document" "schedule_runner" {
     ]
   }
 
-  statement {
-    effect = "Allow"
-
-    resources = [
-      "${var.uploads_bucket.arn}/*"
-    ]
-
-    actions = [
-      "s3:getObjectTagging",
-    ]
-  }
-
-  statement {
-    sid    = "${local.policy_region_prefix}OpenSearchAccess"
-    effect = "Allow"
-
-    actions = [
-      "aoss:APIAccessAll"
-    ]
-
-    resources = [
-      var.search_collection_arn
-    ]
-  }
-
-  statement {
-    sid    = "${local.policy_region_prefix}CrossAccountPutAccess"
-    effect = "Allow"
-    actions = [
-      "events:PutEvents",
-    ]
-    resources = [
-      var.event_bus_arn
-    ]
-  }
+  #   statement {
+  #     sid    = "${local.policy_region_prefix}OpenSearchAccess"
+  #     effect = "Allow"
+  #
+  #     actions = [
+  #       "aoss:APIAccessAll"
+  #     ]
+  #
+  #     resources = [
+  #       var.search_collection_arn
+  #     ]
+  #   }
 
   provider = aws.region
 }
@@ -184,7 +147,7 @@ data "aws_kms_alias" "aws_lambda" {
   provider = aws.region
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_schedule_runner" {
+resource "aws_lambda_permission" "allow_cloudwatch_scheduler_to_call_schedule_runner" {
   statement_id   = "AllowExecutionFromCloudWatchMlpa"
   action         = "lambda:InvokeFunction"
   function_name  = module.schedule_runner.lambda.function_name
