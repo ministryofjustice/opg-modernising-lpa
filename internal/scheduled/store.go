@@ -9,7 +9,7 @@ import (
 
 type DynamoClient interface {
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 }
 
@@ -27,7 +27,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 
 func (s *Store) Pop(ctx context.Context, day time.Time) (*Event, error) {
 	var row Event
-	if err := s.dynamoClient.OneByPK(ctx, dynamo.ScheduledDayKey(day), &row); err != nil {
+	if err := s.dynamoClient.AnyByPK(ctx, dynamo.ScheduledDayKey(day), &row); err != nil {
 		return nil, err
 	}
 
