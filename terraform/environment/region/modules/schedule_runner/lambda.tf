@@ -16,7 +16,7 @@ module "schedule_runner" {
   environment          = data.aws_default_tags.current.tags.environment-name
   kms_key              = data.aws_kms_alias.cloudwatch_application_logs_encryption.target_key_arn
   iam_policy_documents = [data.aws_iam_policy_document.schedule_runner.json]
-  timeout              = 360
+  timeout              = 900
   memory               = 1024
   vpc_config = {
     subnet_ids         = var.vpc_config.subnet_ids
@@ -109,19 +109,6 @@ data "aws_iam_policy_document" "schedule_runner" {
       "kms:DescribeKey",
     ]
   }
-
-  #   statement {
-  #     sid    = "${local.policy_region_prefix}OpenSearchAccess"
-  #     effect = "Allow"
-  #
-  #     actions = [
-  #       "aoss:APIAccessAll"
-  #     ]
-  #
-  #     resources = [
-  #       var.search_collection_arn
-  #     ]
-  #   }
 
   provider = aws.region
 }

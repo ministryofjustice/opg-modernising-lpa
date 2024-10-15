@@ -78,7 +78,7 @@ awslocal lambda create-function \
   --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --zip-file fileb:///etc/schedule-runner.zip \
-  --timeout 360
+  --timeout 900
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name schedule-runner
 
