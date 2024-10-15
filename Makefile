@@ -158,8 +158,8 @@ set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all 
 		key=$$k $(MAKE) emit-object-tags-added-with-virus ; \
     done
 
-tail-logs: ##@app tails logs for app mock-notify, events-lambda, mock-onelogin, mock-lpa-store and mock-uid and filters out noisy runner logs
-	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify events-lambda mock-onelogin mock-lpa-store mock-uid -f | grep -v 'runner'
+tail-logs: ##@app tails logs for app mock-notify, events-lambda, schedule-runner-lambda, mock-onelogin, mock-lpa-store and mock-uid and filters out noisy runner logs
+	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify events-lambda schedule-runner-lambda mock-onelogin mock-lpa-store mock-uid -f | grep -v 'runner'
 
 terraform-update-docs: ##@terraform updates all terraform-docs managed documentation
 	terraform-docs --config terraform/environment/.terraform-docs.yml ./terraform/environment
@@ -173,3 +173,6 @@ delete-all-from-lpa-index: ##@opensearch clears all items from the lpa index
 
 delete-lpa-index: ##@opensearch deletes the lpa index
 	curl -XDELETE "http://localhost:9200/lpas"
+
+add-scheduled-events:
+	go run ./scripts/add-scheduled-items.go
