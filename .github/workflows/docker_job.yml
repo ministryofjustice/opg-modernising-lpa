@@ -36,26 +36,22 @@ jobs:
           - ecr_repository: modernising-lpa/app
             name: app
             path: ./docker/mlpa/Dockerfile
-            trivyignores: ./.trivyignore.yaml
-            # trivyignores: ./docker/mlpa/.trivyignore.yaml
+            trivyignores: ./docker/mlpa/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/create-s3-batch-replication-job
             name: create-s3-batch-replication-job
             path: ./lambda/create_s3_replication_job/Dockerfile
-            # trivyignores: ./.trivyignore.yaml
             trivyignores: ./lambda/create_s3_replication_job/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/event-received
             name: event-received
             path: ./docker/event-received/Dockerfile
-            trivyignores: ./.trivyignore.yaml
-            # trivyignores: ./docker/event-received/.trivyignore.yaml
+            trivyignores: ./docker/event-received/.trivyignore.yaml
             platforms: linux/amd64
           - ecr_repository: modernising-lpa/mock-pay
             name: mock-pay
             path: ./docker/mock-pay/Dockerfile
-            trivyignores: ./.trivyignore.yaml
-            # trivyignores: ./docker/mock-pay/.trivyignore.yaml
+            trivyignores: ./docker/mock-pay/.trivyignore.yaml
             platforms: linux/amd64
 
     runs-on: ubuntu-latest
@@ -107,7 +103,6 @@ jobs:
           scan-type: fs
           scan-ref: ${{ matrix.path }}
           severity: 'HIGH,CRITICAL'
-          # trivyignores: ${{ matrix.trivyignores }}
           scanners: 'misconfig'
           version: v0.56.2
           exit-code: 1
