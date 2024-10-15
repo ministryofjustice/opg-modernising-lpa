@@ -129,10 +129,10 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
+          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
-          # trivyignores: ${{ matrix.trivyignores }}
           format: 'sarif'
           output: 'trivy-results.sarif'
 
@@ -148,6 +148,7 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
+          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
           scan-type: 'image'
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
