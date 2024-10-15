@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -227,7 +228,7 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorSMS(r.Context(), "07700900000", "lpa-uid", tc.expectedSms).
+				SendActorSMS(r.Context(), localize.Cy, "07700900000", "lpa-uid", tc.expectedSms).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
@@ -239,7 +240,8 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnSubsequentChecks(t *testing
 			certificateProviderStore.EXPECT().
 				GetAny(r.Context()).
 				Return(&certificateproviderdata.Provided{
-					Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: tc.certificateProviderDetailsTaskState},
+					ContactLanguagePreference: localize.Cy,
+					Tasks:                     certificateproviderdata.Tasks{ConfirmYourDetails: tc.certificateProviderDetailsTaskState},
 				}, nil)
 
 			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
@@ -325,7 +327,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorSMS(r.Context(), "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
+				SendActorSMS(r.Context(), localize.En, "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperMeetingPromptSMS{
 					DonorFullName:                   "Teneil Throssell",
 					LpaType:                         "property and affairs",
 					DonorFirstNames:                 "Teneil",
@@ -370,7 +372,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(r.Context(), "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
+		SendActorSMS(r.Context(), localize.En, "07700900000", "lpa-uid", notify.CertificateProviderActingOnPaperDetailsChangedSMS{
 			DonorFullName:   "Teneil Throssell",
 			DonorFirstNames: "Teneil",
 			LpaUID:          "lpa-uid",
@@ -407,7 +409,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		SendActorSMS(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	donorStore := newMockDonorStore(t)
@@ -467,7 +469,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := CheckYourLpa(nil, nil, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{Hash: 5, CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}})

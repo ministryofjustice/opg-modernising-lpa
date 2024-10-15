@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -77,8 +78,7 @@ type SessionStore interface {
 
 type NotifyClient interface {
 	EmailGreeting(lpa *lpadata.Lpa) string
-	SendEmail(ctx context.Context, to string, email notify.Email) error
-	SendActorEmail(ctx context.Context, to, lpaUID string, email notify.Email) error
+	SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
 }
 
 type ShareCodeSender interface {
