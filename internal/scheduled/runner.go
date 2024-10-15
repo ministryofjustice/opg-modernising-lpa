@@ -47,19 +47,17 @@ type Runner struct {
 	logger       Logger
 	store        ScheduledStore
 	now          func() time.Time
-	period       time.Duration
 	donorStore   DonorStore
 	notifyClient NotifyClient
 	actions      map[Action]ActionFunc
 	waiter       Waiter
 }
 
-func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, period time.Duration) *Runner {
+func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient) *Runner {
 	r := &Runner{
 		logger:       logger,
 		store:        store,
 		now:          time.Now,
-		period:       period,
 		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		waiter:       &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
@@ -72,27 +70,16 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 	return r
 }
 
-// Run the Runner, it is expected to be called in a Go routine.
 func (r *Runner) Run(ctx context.Context) error {
-	ticker := time.Tick(r.period)
+	r.logger.InfoContext(ctx, "runner step started")
 
-	for {
-		innerCtx, cancel := context.WithTimeout(ctx, r.period)
-		defer cancel()
-
-		r.logger.InfoContext(ctx, "runner step started")
-		if err := r.step(innerCtx); err != nil {
-			r.logger.ErrorContext(ctx, "runner step error", slog.Any("err", err))
-		}
-		r.logger.InfoContext(ctx, "runner step finished")
-
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-ticker:
-			continue
-		}
+	if err := r.step(ctx); err != nil {
+		r.logger.ErrorContext(ctx, "runner step error", slog.Any("err", err))
+		return err
 	}
+
+	r.logger.InfoContext(ctx, "runner step finished")
+	return nil
 }
 
 func (r *Runner) step(ctx context.Context) error {
@@ -100,16 +87,17 @@ func (r *Runner) step(ctx context.Context) error {
 
 	for {
 		row, err := r.store.Pop(ctx, r.now())
+
 		if errors.Is(err, dynamo.NotFoundError{}) {
+			r.logger.InfoContext(ctx, "not found")
 			return nil
-		} else if errors.Is(err, dynamo.ConditionalCheckFailedError{}) {
-			r.logger.InfoContext(ctx, "runner conditional check failed")
+		} else if errors.Is(err, dynamo.MultipleResultsError{}) {
+			continue
+		} else if err != nil {
 			if err := r.waiter.Wait(); err != nil {
 				return err
 			}
 			continue
-		} else if err != nil {
-			return err
 		}
 
 		r.waiter.Reset()
@@ -135,13 +123,6 @@ func (r *Runner) step(ctx context.Context) error {
 					slog.String("target_pk", row.TargetLpaKey.PK()),
 					slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
 			}
-		}
-
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			continue
 		}
 	}
 }
