@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: AVD-DS-0002
+    # paths:
+    #   - "lambda/create_s3_replication_job/Dockerfile"
+    statement: Lambda creates users with least-privilege permissions.
