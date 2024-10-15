@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -133,7 +134,8 @@ func TestPostProvideCertificate(t *testing.T) {
 		Tasks: certificateproviderdata.Tasks{
 			ProvideTheCertificate: task.StateCompleted,
 		},
-		Email: "a@example.com",
+		ContactLanguagePreference: localize.En,
+		Email:                     "a@example.com",
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -164,7 +166,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -183,7 +185,7 @@ func TestPostProvideCertificate(t *testing.T) {
 		SendCertificateProvider(r.Context(), certificateProvider, lpa).
 		Return(nil)
 
-	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com"})
+	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, func() time.Time { return now })(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -224,7 +226,8 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		Tasks: certificateproviderdata.Tasks{
 			ProvideTheCertificate: task.StateCompleted,
 		},
-		Email: "a@example.com",
+		ContactLanguagePreference: localize.En,
+		Email:                     "a@example.com",
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
@@ -255,7 +258,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -269,7 +272,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 		SendAttorneys(r.Context(), testAppData, lpa).
 		Return(nil)
 
-	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com"})
+	err := ProvideCertificate(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, shareCodeSender, nil, func() time.Time { return now })(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id", Email: "a@example.com", ContactLanguagePreference: localize.En})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -360,7 +363,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -457,7 +460,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	testAppData.Localizer = localizer
@@ -514,7 +517,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)

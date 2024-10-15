@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -94,6 +95,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 			SignedAt: time.Now(),
 			Donor: lpadata.Donor{
 				FirstNames: "a b", LastName: "c", Email: "a@example.com",
+				ContactLanguagePreference: localize.En,
 			},
 			Attorneys: lpadata.Attorneys{
 				Attorneys: []lpadata.Attorney{
@@ -120,7 +122,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("Dear donor")
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
 			Greeting:          "Dear donor",
 			AttorneyFullName:  "d e f",
 			DonorFullName:     "a b c",
@@ -184,7 +186,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
@@ -204,7 +206,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
@@ -232,7 +234,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
