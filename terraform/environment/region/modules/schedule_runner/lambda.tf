@@ -38,7 +38,7 @@ resource "aws_scheduler_schedule" "schedule_runner_hourly" {
 
   target {
     arn      = module.schedule_runner.lambda.arn
-    role_arn = module.schedule_runner.lambda.role
+    role_arn = var.schedule_runner_scheduler.arn
   }
 
   provider = aws.region
