@@ -105,6 +105,7 @@ jobs:
           trivyignores: ${{ matrix.trivyignores }}
           scanners: 'misconfig'
           version: v0.56.2
+          exit-code: 1
           # format: 'sarif'
           # output: 'trivy-results.sarif'
 
