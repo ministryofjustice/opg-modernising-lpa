@@ -1,0 +1,5 @@
+misconfigurations:
+  - id: AVD-DS-0002
+    paths:
+      - "event-received/Dockerfile"
+    statement: Lambda creates users with least-privilege permissions.
