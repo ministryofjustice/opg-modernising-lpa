@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -49,7 +50,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 			}
 		}
 
-		if err := notifyClient.SendEmail(r.Context(), payment.Email, notify.PaymentConfirmationEmail{
+		if err := notifyClient.SendEmail(r.Context(), localize.En, payment.Email, notify.PaymentConfirmationEmail{
 			DonorFullNamesPossessive: appData.Localizer.Possessive(provided.Donor.FullName()),
 			LpaType:                  appData.Localizer.T(provided.Type.String()),
 			PaymentCardFullName:      payment.CardDetails.CardholderName,
