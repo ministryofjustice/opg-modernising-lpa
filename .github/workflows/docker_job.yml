@@ -102,7 +102,7 @@ jobs:
           scan-type: fs
           scan-ref: ${{ matrix.path }}
           severity: 'HIGH,CRITICAL'
-          trivyignores: ${{ matrix.trivyignores }}
+          # trivyignores: ${{ matrix.trivyignores }}
           scanners: 'misconfig'
           version: v0.56.2
           exit-code: 1
@@ -132,7 +132,7 @@ jobs:
         with:
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
-          trivyignores: ${{ matrix.trivyignores }}
+          # trivyignores: ${{ matrix.trivyignores }}
           format: 'sarif'
           output: 'trivy-results.sarif'
 
