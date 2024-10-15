@@ -102,12 +102,12 @@ jobs:
         env:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-          # TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
+          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
           scan-type: fs
           scan-ref: ${{ matrix.path }}
           severity: 'HIGH,CRITICAL'
-          trivyignores: ${{ matrix.trivyignores }}
+          # trivyignores: ${{ matrix.trivyignores }}
           scanners: 'misconfig'
           version: v0.56.2
           exit-code: 1
