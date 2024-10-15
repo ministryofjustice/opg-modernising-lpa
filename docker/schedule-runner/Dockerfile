@@ -25,7 +25,7 @@ FROM public.ecr.aws/lambda/provided:al2023 AS production
 WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
 
-RUN chmod +x /app/install_lambda_insights.sh \
+RUN chmod +x "/app/install_lambda_insights.sh" \
   && /app/install_lambda_insights.sh ${TARGETPLATFORM}
 
 COPY --from=build /app/schedule-runner ./schedule-runner

@@ -88,11 +88,13 @@ func (r *Runner) step(ctx context.Context) error {
 		row, err := r.store.Pop(ctx, r.now())
 
 		if errors.Is(err, dynamo.NotFoundError{}) {
-			r.logger.InfoContext(ctx, "not found")
+			r.logger.InfoContext(ctx, "no scheduled tasks to process")
 			return nil
 		} else if errors.Is(err, dynamo.MultipleResultsError{}) {
 			continue
 		} else if err != nil {
+			r.logger.ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", err))
+
 			if err := r.waiter.Wait(); err != nil {
 				return err
 			}
@@ -139,7 +141,9 @@ func (r *Runner) stepCancelDonorIdentity(ctx context.Context, row *Event) error 
 	provided.IdentityUserData = identity.UserData{Status: identity.StatusExpired}
 	provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateNotStarted
 
-	if err := r.notifyClient.SendActorEmail(ctx, provided.CorrespondentEmail(), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
+	email := notify.DonorIdentityCheckExpiredEmail{}
+
+	if err := r.notifyClient.SendActorEmail(ctx, provided.CorrespondentEmail(), provided.LpaUID, email); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}
 

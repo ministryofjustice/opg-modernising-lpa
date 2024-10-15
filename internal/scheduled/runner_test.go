@@ -58,7 +58,7 @@ func TestRunnerRun(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(ctx, "runner step started", mock.Anything)
 	logger.EXPECT().
-		InfoContext(ctx, "not found")
+		InfoContext(ctx, "no scheduled tasks to process")
 	logger.EXPECT().
 		InfoContext(ctx, "runner step finished", mock.Anything)
 
@@ -93,7 +93,7 @@ func TestRunnerRunMultipleResultsIsIgnored(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(ctx, "runner step started", mock.Anything)
 	logger.EXPECT().
-		InfoContext(ctx, "not found")
+		InfoContext(ctx, "no scheduled tasks to process")
 	logger.EXPECT().
 		InfoContext(ctx, "runner step finished", mock.Anything)
 	logger.EXPECT().
@@ -137,6 +137,8 @@ func TestRunnerRunWhenStepErrors(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(ctx, "runner step started", mock.Anything)
 	logger.EXPECT().
+		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", expectedError))
+	logger.EXPECT().
 		ErrorContext(ctx, "runner step error", slog.Any("err", expectedError))
 
 	store := newMockScheduledStore(t)
@@ -178,7 +180,7 @@ func TestRunnerStep(t *testing.T) {
 			slog.String("target_pk", "LPA#an-lpa"),
 			slog.String("target_sk", "DONOR#a-donor"))
 	logger.EXPECT().
-		InfoContext(ctx, "not found")
+		InfoContext(ctx, "no scheduled tasks to process")
 
 	store := newMockScheduledStore(t)
 	store.EXPECT().
@@ -227,7 +229,7 @@ func TestRunnerStepWhenActionIgnored(t *testing.T) {
 			slog.String("target_pk", "LPA#an-lpa"),
 			slog.String("target_sk", "DONOR#a-donor"))
 	logger.EXPECT().
-		InfoContext(ctx, "not found")
+		InfoContext(ctx, "no scheduled tasks to process")
 
 	store := newMockScheduledStore(t)
 	store.EXPECT().
@@ -277,7 +279,7 @@ func TestRunnerStepWhenActionErrors(t *testing.T) {
 			slog.String("target_sk", "DONOR#a-donor"),
 			slog.Any("err", expectedError))
 	logger.EXPECT().
-		InfoContext(ctx, "not found")
+		InfoContext(ctx, "no scheduled tasks to process")
 
 	store := newMockScheduledStore(t)
 	store.EXPECT().
@@ -328,12 +330,14 @@ func TestRunnerStepWhenWaitingError(t *testing.T) {
 			logger.EXPECT().
 				InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
 			logger.EXPECT().
+				ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", waitingError))
+			logger.EXPECT().
 				InfoContext(ctx, "runner action success",
 					slog.String("action", "Action(99)"),
 					slog.String("target_pk", "LPA#an-lpa"),
 					slog.String("target_sk", "DONOR#a-donor"))
 			logger.EXPECT().
-				InfoContext(ctx, "not found")
+				InfoContext(ctx, "no scheduled tasks to process")
 
 			store := newMockScheduledStore(t)
 			store.ExpectPops(
@@ -376,10 +380,15 @@ func TestRunnerStepWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 	waiter.EXPECT().Wait().Return(nil).Once()
 	waiter.EXPECT().Wait().Return(expectedError).Once()
 
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", dynamo.ConditionalCheckFailedError{}))
+
 	runner := &Runner{
 		now:    testNowFn,
 		store:  store,
 		waiter: waiter,
+		logger: logger,
 	}
 	err := runner.step(ctx)
 	assert.Equal(t, expectedError, err)

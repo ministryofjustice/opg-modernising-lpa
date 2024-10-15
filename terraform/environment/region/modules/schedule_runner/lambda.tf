@@ -65,6 +65,7 @@ data "aws_iam_policy_document" "schedule_runner" {
     sid = "${local.policy_region_prefix}Allow"
 
     actions = [
+      "dynamodb:DeleteItem",
       "dynamodb:PutItem",
       "dynamodb:Query",
       "dynamodb:GetItem",
