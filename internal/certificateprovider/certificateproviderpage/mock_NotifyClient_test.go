@@ -5,7 +5,9 @@ package certificateproviderpage
 import (
 	context "context"
 
+	localize "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
 	mock "github.com/stretchr/testify/mock"
 
 	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -70,17 +72,17 @@ func (_c *mockNotifyClient_EmailGreeting_Call) RunAndReturn(run func(*lpadata.Lp
 	return _c
 }
 
-// SendActorEmail provides a mock function with given fields: ctx, to, lpaUID, email
-func (_m *mockNotifyClient) SendActorEmail(ctx context.Context, to string, lpaUID string, email notify.Email) error {
-	ret := _m.Called(ctx, to, lpaUID, email)
+// SendActorEmail provides a mock function with given fields: ctx, lang, to, lpaUID, email
+func (_m *mockNotifyClient) SendActorEmail(ctx context.Context, lang localize.Lang, to string, lpaUID string, email notify.Email) error {
+	ret := _m.Called(ctx, lang, to, lpaUID, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendActorEmail")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, notify.Email) error); ok {
-		r0 = rf(ctx, to, lpaUID, email)
+	if rf, ok := ret.Get(0).(func(context.Context, localize.Lang, string, string, notify.Email) error); ok {
+		r0 = rf(ctx, lang, to, lpaUID, email)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -95,16 +97,17 @@ type mockNotifyClient_SendActorEmail_Call struct {
 
 // SendActorEmail is a helper method to define mock.On call
 //   - ctx context.Context
+//   - lang localize.Lang
 //   - to string
 //   - lpaUID string
 //   - email notify.Email
-func (_e *mockNotifyClient_Expecter) SendActorEmail(ctx interface{}, to interface{}, lpaUID interface{}, email interface{}) *mockNotifyClient_SendActorEmail_Call {
-	return &mockNotifyClient_SendActorEmail_Call{Call: _e.mock.On("SendActorEmail", ctx, to, lpaUID, email)}
+func (_e *mockNotifyClient_Expecter) SendActorEmail(ctx interface{}, lang interface{}, to interface{}, lpaUID interface{}, email interface{}) *mockNotifyClient_SendActorEmail_Call {
+	return &mockNotifyClient_SendActorEmail_Call{Call: _e.mock.On("SendActorEmail", ctx, lang, to, lpaUID, email)}
 }
 
-func (_c *mockNotifyClient_SendActorEmail_Call) Run(run func(ctx context.Context, to string, lpaUID string, email notify.Email)) *mockNotifyClient_SendActorEmail_Call {
+func (_c *mockNotifyClient_SendActorEmail_Call) Run(run func(ctx context.Context, lang localize.Lang, to string, lpaUID string, email notify.Email)) *mockNotifyClient_SendActorEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(notify.Email))
+		run(args[0].(context.Context), args[1].(localize.Lang), args[2].(string), args[3].(string), args[4].(notify.Email))
 	})
 	return _c
 }
@@ -114,55 +117,7 @@ func (_c *mockNotifyClient_SendActorEmail_Call) Return(_a0 error) *mockNotifyCli
 	return _c
 }
 
-func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Context, string, string, notify.Email) error) *mockNotifyClient_SendActorEmail_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SendEmail provides a mock function with given fields: ctx, to, email
-func (_m *mockNotifyClient) SendEmail(ctx context.Context, to string, email notify.Email) error {
-	ret := _m.Called(ctx, to, email)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SendEmail")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, notify.Email) error); ok {
-		r0 = rf(ctx, to, email)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockNotifyClient_SendEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendEmail'
-type mockNotifyClient_SendEmail_Call struct {
-	*mock.Call
-}
-
-// SendEmail is a helper method to define mock.On call
-//   - ctx context.Context
-//   - to string
-//   - email notify.Email
-func (_e *mockNotifyClient_Expecter) SendEmail(ctx interface{}, to interface{}, email interface{}) *mockNotifyClient_SendEmail_Call {
-	return &mockNotifyClient_SendEmail_Call{Call: _e.mock.On("SendEmail", ctx, to, email)}
-}
-
-func (_c *mockNotifyClient_SendEmail_Call) Run(run func(ctx context.Context, to string, email notify.Email)) *mockNotifyClient_SendEmail_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(notify.Email))
-	})
-	return _c
-}
-
-func (_c *mockNotifyClient_SendEmail_Call) Return(_a0 error) *mockNotifyClient_SendEmail_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockNotifyClient_SendEmail_Call) RunAndReturn(run func(context.Context, string, notify.Email) error) *mockNotifyClient_SendEmail_Call {
+func (_c *mockNotifyClient_SendActorEmail_Call) RunAndReturn(run func(context.Context, localize.Lang, string, string, notify.Email) error) *mockNotifyClient_SendActorEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

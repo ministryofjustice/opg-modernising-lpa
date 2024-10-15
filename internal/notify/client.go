@@ -138,18 +138,15 @@ type emailWrapper struct {
 	Reference       string `json:"reference"`
 }
 
-func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
-	tracer := otel.GetTracerProvider().Tracer("mlpab")
-	ctx, span := tracer.Start(ctx, "Email",
-		trace.WithSpanKind(trace.SpanKindInternal))
-	span.SetAttributes(
-		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(email.emailID(c.isProduction))},
-		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, email Email) error {
+	templateID := email.emailID(c.isProduction, lang)
+
+	ctx, span := newSpan(ctx, "Email", templateID, to)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
 		EmailAddress:    to,
-		TemplateID:      email.emailID(c.isProduction),
+		TemplateID:      templateID,
 		Personalisation: email,
 	})
 	if err != nil {
@@ -166,24 +163,21 @@ func (c *Client) SendEmail(ctx context.Context, to string, email Email) error {
 	return nil
 }
 
-func (c *Client) SendActorEmail(ctx context.Context, to, lpaUID string, email Email) error {
-	tracer := otel.GetTracerProvider().Tracer("mlpab")
-	ctx, span := tracer.Start(ctx, "Email",
-		trace.WithSpanKind(trace.SpanKindInternal))
-	span.SetAttributes(
-		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(email.emailID(c.isProduction))},
-		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+func (c *Client) SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email Email) error {
+	templateID := email.emailID(c.isProduction, lang)
+
+	ctx, span := newSpan(ctx, "Email", templateID, to)
 	defer span.End()
 
-	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, to, email)); err != nil || ok {
+	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, to, templateID)); err != nil || ok {
 		return err
 	}
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
 		EmailAddress:    to,
-		TemplateID:      email.emailID(c.isProduction),
+		TemplateID:      templateID,
 		Personalisation: email,
-		Reference:       c.makeReference(lpaUID, to, email),
+		Reference:       c.makeReference(lpaUID, to, templateID),
 	})
 	if err != nil {
 		return err
@@ -214,18 +208,15 @@ type smsWrapper struct {
 	Personalisation any    `json:"personalisation,omitempty"`
 }
 
-func (c *Client) SendActorSMS(ctx context.Context, to, lpaUID string, sms SMS) error {
-	tracer := otel.GetTracerProvider().Tracer("mlpab")
-	ctx, span := tracer.Start(ctx, "SMS",
-		trace.WithSpanKind(trace.SpanKindInternal))
-	span.SetAttributes(
-		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(sms.smsID(c.isProduction))},
-		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+func (c *Client) SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms SMS) error {
+	templateID := sms.smsID(c.isProduction, lang)
+
+	ctx, span := newSpan(ctx, "SMS", templateID, to)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/sms", smsWrapper{
 		PhoneNumber:     to,
-		TemplateID:      sms.smsID(c.isProduction),
+		TemplateID:      templateID,
 		Personalisation: sms,
 	})
 	if err != nil {
@@ -317,13 +308,23 @@ func (c *Client) do(req *http.Request) (response, error) {
 	return r, nil
 }
 
-func (c *Client) makeReference(lpaUID, to string, email Email) string {
+func (c *Client) makeReference(lpaUID, to, templateID string) string {
 	hash := sha256.New()
 	hash.Write([]byte(lpaUID))
 	hash.Write([]byte{'|'})
 	hash.Write([]byte(to))
 	hash.Write([]byte{'|'})
-	hash.Write([]byte(email.emailID(c.isProduction)))
+	hash.Write([]byte(templateID))
 
 	return base64.RawStdEncoding.EncodeToString(hash.Sum(nil))
+}
+
+func newSpan(ctx context.Context, label, templateID, to string) (context.Context, trace.Span) {
+	tracer := otel.GetTracerProvider().Tracer("mlpab")
+	ctx, span := tracer.Start(ctx, label,
+		trace.WithSpanKind(trace.SpanKindInternal))
+	span.SetAttributes(
+		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(templateID)},
+		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+	return ctx, span
 }

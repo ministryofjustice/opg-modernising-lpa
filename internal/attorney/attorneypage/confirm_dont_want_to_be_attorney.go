@@ -47,7 +47,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 			}
 
-			if err := notifyClient.SendActorEmail(r.Context(), lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+			if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.ContactLanguagePreference, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
 				return err
 			}
 
