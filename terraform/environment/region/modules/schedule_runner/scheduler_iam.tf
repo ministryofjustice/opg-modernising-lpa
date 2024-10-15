@@ -4,7 +4,7 @@ data "aws_iam_policy_document" "lambda_access_policy" {
     effect    = "Allow"
     resources = [module.schedule_runner.lambda.arn]
     actions = [
-      "lambda:Invoke",
+      "lambda:InvokeFunction",
     ]
   }
   provider = aws.region

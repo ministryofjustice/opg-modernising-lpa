@@ -61,7 +61,8 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	scheduledStore := newMockScheduledStore(t)
 	scheduledStore.EXPECT().
 		Put(r.Context(), scheduled.Event{
-			At:                now.AddDate(0, 6, 0),
+			//At:                now.AddDate(0, 6, 0),
+			At:                now,
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
@@ -124,7 +125,8 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 	scheduledStore := newMockScheduledStore(t)
 	scheduledStore.EXPECT().
 		Put(r.Context(), scheduled.Event{
-			At:                now.AddDate(0, 6, 0),
+			//At:                now.AddDate(0, 6, 0),
+			At:                now,
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
