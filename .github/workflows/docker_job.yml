@@ -116,6 +116,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           trivyignores: '.trivyignore.yaml'
           scanners: 'misconfig'
+          version: v0.56.2
           # format: 'sarif'
           # output: 'trivy-results.sarif'
 
