@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o schedule-runner ./cmd/schedule-runner
 
-FROM public.ecr.aws/lambda/provided:al2023 AS dev
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
 ENTRYPOINT ["./schedule-runner"]
 
-FROM public.ecr.aws/lambda/provided:al2023 AS production
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS production
 
 WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
