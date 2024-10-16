@@ -71,18 +71,6 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 }
 
 func (r *Runner) Run(ctx context.Context) error {
-	r.logger.InfoContext(ctx, "runner step started")
-
-	if err := r.step(ctx); err != nil {
-		r.logger.ErrorContext(ctx, "runner step error", slog.Any("err", err))
-		return err
-	}
-
-	r.logger.InfoContext(ctx, "runner step finished")
-	return nil
-}
-
-func (r *Runner) step(ctx context.Context) error {
 	r.waiter.Reset()
 
 	for {

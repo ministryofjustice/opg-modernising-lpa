@@ -55,117 +55,6 @@ func TestNewRunner(t *testing.T) {
 }
 
 func TestRunnerRun(t *testing.T) {
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(ctx, "runner step started", mock.Anything)
-	logger.EXPECT().
-		InfoContext(ctx, "no scheduled tasks to process")
-	logger.EXPECT().
-		InfoContext(ctx, "runner step finished", mock.Anything)
-
-	store := newMockScheduledStore(t)
-	store.EXPECT().
-		Pop(mock.Anything, testNow).
-		Return(nil, dynamo.NotFoundError{}).
-		Once()
-
-	waiter := newMockWaiter(t)
-	waiter.EXPECT().Reset()
-
-	runner := &Runner{
-		now:    testNowFn,
-		logger: logger,
-		store:  store,
-		waiter: waiter,
-	}
-
-	err := runner.Run(ctx)
-	assert.Nil(t, err)
-}
-
-func TestRunnerRunMultipleResultsIsIgnored(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(ctx, "runner step started", mock.Anything)
-	logger.EXPECT().
-		InfoContext(ctx, "no scheduled tasks to process")
-	logger.EXPECT().
-		InfoContext(ctx, "runner step finished", mock.Anything)
-	logger.EXPECT().
-		InfoContext(mock.Anything, "runner action", mock.Anything)
-	logger.EXPECT().
-		InfoContext(mock.Anything, "runner action success", mock.Anything, mock.Anything, mock.Anything)
-
-	store := newMockScheduledStore(t)
-	store.ExpectPops(
-		event, nil,
-		event, nil,
-		nil, dynamo.MultipleResultsError{},
-		event, nil,
-		nil, dynamo.NotFoundError{},
-	)
-
-	waiter := newMockWaiter(t)
-	waiter.EXPECT().Reset()
-
-	var runTimes []time.Time
-	runner := &Runner{
-		now:    time.Now,
-		logger: logger,
-		store:  store,
-		waiter: waiter,
-		actions: map[Action]ActionFunc{
-			Action(99): func(_ context.Context, _ *Event) error {
-				runTimes = append(runTimes, time.Now())
-				return nil
-			},
-		},
-	}
-
-	err := runner.Run(ctx)
-	assert.Nil(t, err)
-	assert.Len(t, runTimes, 3)
-}
-
-func TestRunnerRunWhenStepErrors(t *testing.T) {
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(ctx, "runner step started", mock.Anything)
-	logger.EXPECT().
-		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", expectedError))
-	logger.EXPECT().
-		ErrorContext(ctx, "runner step error", slog.Any("err", expectedError))
-
-	store := newMockScheduledStore(t)
-	store.EXPECT().
-		Pop(mock.Anything, testNow).
-		Return(nil, expectedError).
-		Once()
-
-	waiter := newMockWaiter(t)
-	waiter.EXPECT().Reset()
-	waiter.EXPECT().
-		Wait().
-		Return(expectedError)
-
-	runner := &Runner{
-		now:    testNowFn,
-		logger: logger,
-		store:  store,
-		waiter: waiter,
-	}
-
-	err := runner.Run(ctx)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestRunnerStep(t *testing.T) {
 	event := &Event{
 		Action:            99,
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
@@ -210,11 +99,39 @@ func TestRunnerStep(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.step(ctx)
+	err := runner.Run(ctx)
 	assert.Nil(t, err)
 }
 
-func TestRunnerStepWhenActionIgnored(t *testing.T) {
+func TestRunnerRunWhenStepErrors(t *testing.T) {
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", expectedError))
+
+	store := newMockScheduledStore(t)
+	store.EXPECT().
+		Pop(mock.Anything, testNow).
+		Return(nil, expectedError).
+		Once()
+
+	waiter := newMockWaiter(t)
+	waiter.EXPECT().Reset()
+	waiter.EXPECT().
+		Wait().
+		Return(expectedError)
+
+	runner := &Runner{
+		now:    testNowFn,
+		logger: logger,
+		store:  store,
+		waiter: waiter,
+	}
+
+	err := runner.Run(ctx)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestRunnerRunWhenActionIgnored(t *testing.T) {
 	event := &Event{
 		Action:            99,
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
@@ -259,11 +176,11 @@ func TestRunnerStepWhenActionIgnored(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.step(ctx)
+	err := runner.Run(ctx)
 	assert.Nil(t, err)
 }
 
-func TestRunnerStepWhenActionErrors(t *testing.T) {
+func TestRunnerRunWhenActionErrors(t *testing.T) {
 	event := &Event{
 		Action:            99,
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
@@ -309,11 +226,11 @@ func TestRunnerStepWhenActionErrors(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.step(ctx)
+	err := runner.Run(ctx)
 	assert.Nil(t, err)
 }
 
-func TestRunnerStepWhenWaitingError(t *testing.T) {
+func TestRunnerRunWhenWaitingError(t *testing.T) {
 	testcases := []error{
 		dynamo.ConditionalCheckFailedError{},
 		expectedError,
@@ -364,13 +281,13 @@ func TestRunnerStepWhenWaitingError(t *testing.T) {
 					99: actionFunc.Execute,
 				},
 			}
-			err := runner.step(ctx)
+			err := runner.Run(ctx)
 			assert.Nil(t, err)
 		})
 	}
 }
 
-func TestRunnerStepWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
+func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.ExpectPops(
 		nil, dynamo.ConditionalCheckFailedError{},
@@ -391,11 +308,11 @@ func TestRunnerStepWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 		waiter: waiter,
 		logger: logger,
 	}
-	err := runner.step(ctx)
+	err := runner.Run(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
-func TestRunnerStepCancelDonorIdentity(t *testing.T) {
+func TestRunnerCancelDonorIdentity(t *testing.T) {
 	lpaKey := dynamo.LpaKey("an-lpa")
 	donorKey := dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))
 	event := &Event{
@@ -434,7 +351,7 @@ func TestRunnerStepCancelDonorIdentity(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestRunnerStepCancelDonorIdentityWhenDonorStoreErrors(t *testing.T) {
+func TestRunnerCancelDonorIdentityWhenDonorStoreErrors(t *testing.T) {
 	event := &Event{
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
@@ -453,7 +370,7 @@ func TestRunnerStepCancelDonorIdentityWhenDonorStoreErrors(t *testing.T) {
 	assert.ErrorContains(t, err, "error retrieving donor: hey")
 }
 
-func TestRunnerStepCancelDonorIdentityWhenStepIgnored(t *testing.T) {
+func TestRunnerCancelDonorIdentityWhenStepIgnored(t *testing.T) {
 	testcases := map[string]*donordata.Provided{
 		"identity not confirmed": {
 			IdentityUserData: identity.UserData{Status: identity.StatusFailed},
@@ -488,7 +405,7 @@ func TestRunnerStepCancelDonorIdentityWhenStepIgnored(t *testing.T) {
 	}
 }
 
-func TestRunnerStepCancelDonorIdentityWhenNotifySendErrors(t *testing.T) {
+func TestRunnerCancelDonorIdentityWhenNotifySendErrors(t *testing.T) {
 	event := &Event{
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
@@ -517,7 +434,7 @@ func TestRunnerStepCancelDonorIdentityWhenNotifySendErrors(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestRunnerStepCancelDonorIdentityWhenDonorStorePutErrors(t *testing.T) {
+func TestRunnerCancelDonorIdentityWhenDonorStorePutErrors(t *testing.T) {
 	event := &Event{
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
