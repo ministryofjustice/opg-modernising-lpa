@@ -27,10 +27,10 @@ module "schedule_runner" {
   }
 }
 
-resource "aws_scheduler_schedule" "schedule_runner_twenty_minutes" {
+resource "aws_scheduler_schedule" "schedule_runner_hourly" {
   name                = "schedule-runner-hourly"
-  schedule_expression = "rate(20 minute)"
-  description         = "Runs every 20 minutes"
+  schedule_expression = "rate(1 hour)"
+  description         = "Runs every hour"
 
   flexible_time_window {
     mode = "OFF"
@@ -141,7 +141,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_scheduler_to_call_schedule_ru
   function_name  = module.schedule_runner.lambda.function_name
   principal      = "events.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_scheduler_schedule.schedule_runner_twenty_minutes.arn
+  source_arn     = aws_scheduler_schedule.schedule_runner_hourly.arn
   provider       = aws.region
 }
 
