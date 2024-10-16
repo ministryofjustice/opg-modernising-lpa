@@ -127,6 +127,7 @@ jobs:
             TAG=${{inputs.tag}}
         env:
           SOURCE_DATE_EPOCH: 0
+          DOCKER_CONTENT_TRUST: 1
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
