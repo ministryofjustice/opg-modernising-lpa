@@ -2,7 +2,7 @@
     {{ $donorFullName := .Donor.Donor.FullName }}
     {{ $isPropertyAndAffairs := .Donor.Type.IsPropertyAndAffairs }}
     {{ $isDonor := .App.IsDonor }}
-    {{ $canChange := and $isDonor (not .Donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted) }}
+    {{ $canChange := and $isDonor .Donor.CanChange }}
 
     {{ template "contextual-lpa-warning" . }}
 
