@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --link  docker/install_lambda_insights.sh /app/
 
 RUN chmod +x "/app/install_lambda_insights.sh" \
-  && /app/install_lambda_insights.sh ${TARGETPLATFORM}
+  && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
 COPY --from=build /app/schedule-runner ./schedule-runner
 COPY --link lang ./lang

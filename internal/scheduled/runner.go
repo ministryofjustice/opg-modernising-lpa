@@ -79,10 +79,8 @@ func (r *Runner) Run(ctx context.Context) error {
 		if errors.Is(err, dynamo.NotFoundError{}) {
 			r.logger.InfoContext(ctx, "no scheduled tasks to process")
 			return nil
-		} else if errors.Is(err, dynamo.MultipleResultsError{}) {
-			continue
 		} else if err != nil {
-			r.logger.ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", err))
+			r.logger.ErrorContext(ctx, "error getting scheduled task", slog.Any("err", err))
 
 			if err := r.waiter.Wait(); err != nil {
 				return err

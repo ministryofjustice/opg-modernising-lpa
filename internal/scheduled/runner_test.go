@@ -106,7 +106,7 @@ func TestRunnerRun(t *testing.T) {
 func TestRunnerRunWhenStepErrors(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", expectedError))
+		ErrorContext(ctx, "error getting scheduled task", slog.Any("err", expectedError))
 
 	store := newMockScheduledStore(t)
 	store.EXPECT().
@@ -248,7 +248,7 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 			logger.EXPECT().
 				InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
 			logger.EXPECT().
-				ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", waitingError))
+				ErrorContext(ctx, "error getting scheduled task", slog.Any("err", waitingError))
 			logger.EXPECT().
 				InfoContext(ctx, "runner action success",
 					slog.String("action", "Action(99)"),
@@ -300,7 +300,7 @@ func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
-		ErrorContext(ctx, "error getting scheduled task:", slog.Any("err", dynamo.ConditionalCheckFailedError{}))
+		ErrorContext(ctx, "error getting scheduled task", slog.Any("err", dynamo.ConditionalCheckFailedError{}))
 
 	runner := &Runner{
 		now:    testNowFn,
