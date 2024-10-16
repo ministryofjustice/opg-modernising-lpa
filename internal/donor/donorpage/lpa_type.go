@@ -55,18 +55,20 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 					return err
 				}
 
-				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
-					LpaID:          provided.LpaID,
-					DonorSessionID: session.SessionID,
-					OrganisationID: session.OrganisationID,
-					Type:           provided.Type.String(),
-					Donor: uid.DonorDetails{
-						Name:     provided.Donor.FullName(),
-						Dob:      provided.Donor.DateOfBirth,
-						Postcode: provided.Donor.Address.Postcode,
-					},
-				}); err != nil {
-					return err
+				if provided.LpaUID == "" {
+					if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+						LpaID:          provided.LpaID,
+						DonorSessionID: session.SessionID,
+						OrganisationID: session.OrganisationID,
+						Type:           provided.Type.String(),
+						Donor: uid.DonorDetails{
+							Name:     provided.Donor.FullName(),
+							Dob:      provided.Donor.DateOfBirth,
+							Postcode: provided.Donor.Address.Postcode,
+						},
+					}); err != nil {
+						return err
+					}
 				}
 
 				return donor.PathTaskList.Redirect(w, r, appData, provided)
