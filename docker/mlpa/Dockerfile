@@ -44,6 +44,9 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
+FROM docker/trusttest:testing AS testingcontenttrustfailure
+RUN echo
+
 FROM alpine:3.20.3 AS production
 
 WORKDIR /go/bin

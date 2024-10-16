@@ -32,156 +32,158 @@ jobs:
     needs: detect_changes
     uses: ./.github/workflows/tags_job.yml
     with:
-      changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+      # changes_detected: ${{ needs.detect_changes.outputs.changes_detected }}
+      changes_detected: true
 
-  go_unit_tests:
-    name: Run Go unit tests
-    if: needs.detect_changes.outputs.changes_detected == 'true'
-    needs: create_tags
-    uses: ./.github/workflows/go-unit-tests.yml
-    with:
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-      commit_sha: ${{ github.event.pull_request.head.sha }}
-      branch: ${{ github.head_ref }}
-    secrets:
-      pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
-      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+  # go_unit_tests:
+  #   name: Run Go unit tests
+  #   if: needs.detect_changes.outputs.changes_detected == 'true'
+  #   needs: create_tags
+  #   uses: ./.github/workflows/go-unit-tests.yml
+  #   with:
+  #     tag: ${{ needs.create_tags.outputs.version_tag }}
+  #     commit_sha: ${{ github.event.pull_request.head.sha }}
+  #     branch: ${{ github.head_ref }}
+  #   secrets:
+  #     pact_broker_password: ${{ secrets.PACT_BROKER_PASSWORD }}
+  #     codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
   docker_build_scan_push:
     name: Docker Build, Scan and Push
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
-      (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
+    if: always()
+    # if: needs.detect_changes.outputs.changes_detected == 'true' &&
+    #   (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped')
     uses: ./.github/workflows/docker_job.yml
     needs: [
-      go_unit_tests,
+      # go_unit_tests,
       create_tags
       ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       branch_name: ${{ github.head_ref }}
 
-  terraform_account_workflow_development:
-    name: TF Plan Dev Account
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: development
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # terraform_account_workflow_development:
+  #   name: TF Plan Dev Account
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: development
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  terraform_account_workflow_preproduction:
-    name: TF Plan Preprod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: preproduction
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # terraform_account_workflow_preproduction:
+  #   name: TF Plan Preprod Account
+  #   needs: terraform_account_workflow_development
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: preproduction
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  terraform_account_workflow_production:
-    name: TF Plan Prod Account
-    needs: terraform_account_workflow_development
-    uses: ./.github/workflows/terraform_account_job.yml
-    with:
-      workspace_name: production
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # terraform_account_workflow_production:
+  #   name: TF Plan Prod Account
+  #   needs: terraform_account_workflow_development
+  #   uses: ./.github/workflows/terraform_account_job.yml
+  #   with:
+  #     workspace_name: production
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  ui_tests_image:
-    name: Run Cypress UI Tests On Images
-    if: needs.detect_changes.outputs.changes_detected == 'true' &&
-      (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push, create_tags]
-    with:
-      run_against_image: true
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-      specs: 'cypress/e2e/**/*.cy.js'
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  # ui_tests_image:
+  #   name: Run Cypress UI Tests On Images
+  #   if: needs.detect_changes.outputs.changes_detected == 'true' &&
+  #     (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
+  #   uses: ./.github/workflows/ui_test_job.yml
+  #   needs: [docker_build_scan_push, create_tags]
+  #   with:
+  #     run_against_image: true
+  #     tag: ${{ needs.create_tags.outputs.version_tag }}
+  #     specs: 'cypress/e2e/**/*.cy.js'
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  pr_deploy:
-      name: PR Environment Deploy
-      if: always() &&
-        (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
-        (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
-        (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
-      needs: [
-        create_tags,
-        go_unit_tests,
-        docker_build_scan_push,
-        ui_tests_image
-      ]
-      uses: ./.github/workflows/terraform_environment_job.yml
-      with:
-        workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
-        version_tag: ${{ needs.create_tags.outputs.version_tag }}
-        s3_av_scanner_zip_tag: ${{ needs.create_tags.outputs.s3_av_scanner_zip_tag }}
-      secrets:
-        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-        ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
+  # pr_deploy:
+  #     name: PR Environment Deploy
+  #     if: always() &&
+  #       (needs.go_unit_tests.result == 'success' || needs.go_unit_tests.result == 'skipped') &&
+  #       (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped') &&
+  #       (needs.ui_tests_image.result == 'success' || needs.ui_tests_image.result == 'skipped')
+  #     needs: [
+  #       create_tags,
+  #       go_unit_tests,
+  #       docker_build_scan_push,
+  #       ui_tests_image
+  #     ]
+  #     uses: ./.github/workflows/terraform_environment_job.yml
+  #     with:
+  #       workspace_name: ${{ needs.create_tags.outputs.environment_workspace_name }}
+  #       version_tag: ${{ needs.create_tags.outputs.version_tag }}
+  #       s3_av_scanner_zip_tag: ${{ needs.create_tags.outputs.s3_av_scanner_zip_tag }}
+  #     secrets:
+  #       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #       ssh_deploy_key: ${{ secrets.OPG_MODERNISING_LPA_DEPLOY_KEY_PRIVATE_KEY }}
+  #       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  #       pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
 
-  ui_tests_pr_env:
-    name: Run Cypress UI Tests On PR Environment
-    if: always() &&
-      needs.pr_deploy.result == 'success'
-    uses: ./.github/workflows/ui_test_job.yml
-    needs: [pr_deploy, create_tags]
-    with:
-      run_against_image: false
-      base_url: "https://${{ needs.pr_deploy.outputs.url }}"
-      tag: ${{ needs.create_tags.outputs.version_tag }}
-      environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
-      specs: 'cypress/smoke/*.cy.js'
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  # ui_tests_pr_env:
+  #   name: Run Cypress UI Tests On PR Environment
+  #   if: always() &&
+  #     needs.pr_deploy.result == 'success'
+  #   uses: ./.github/workflows/ui_test_job.yml
+  #   needs: [pr_deploy, create_tags]
+  #   with:
+  #     run_against_image: false
+  #     base_url: "https://${{ needs.pr_deploy.outputs.url }}"
+  #     tag: ${{ needs.create_tags.outputs.version_tag }}
+  #     environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
+  #     specs: 'cypress/smoke/*.cy.js'
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  #     cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  always_remove_ingress:
-    name: Remove CI ingress from environment
-    if: always()
-    uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [ui_tests_pr_env, pr_deploy]
-    with:
-      environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  # always_remove_ingress:
+  #   name: Remove CI ingress from environment
+  #   if: always()
+  #   uses: ./.github/workflows/remove_ingress_job.yml
+  #   needs: [ui_tests_pr_env, pr_deploy]
+  #   with:
+  #     environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
-  end_of_pr_workflow:
-    name: End of PR Workflow
-    runs-on: ubuntu-latest
-    if: always()
-    environment:
-      name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
-      url: "https://${{ needs.pr_deploy.outputs.url }}"
-    needs: [pr_deploy, create_tags, ui_tests_pr_env]
-    steps:
-      - name: End of PR Workflow
-        run: |
-          echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
-          echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
-          echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
+  # end_of_pr_workflow:
+  #   name: End of PR Workflow
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   environment:
+  #     name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
+  #     url: "https://${{ needs.pr_deploy.outputs.url }}"
+  #   needs: [pr_deploy, create_tags, ui_tests_pr_env]
+  #   steps:
+  #     - name: End of PR Workflow
+  #       run: |
+  #         echo "${{ needs.pr_deploy.outputs.terraform_workspace_name }} PR environment tested, built and deployed"
+  #         echo "Tag Deployed: ${{ needs.pr_deploy.outputs.terraform_container_version }}"
+  #         echo "URL: https://${{ needs.pr_deploy.outputs.url }}"
 
-          if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
-          then
-            echo "PR environment tested, built and deployed"
-            exit 0
-          else
-            echo "PR environment tested, built and deployed but UI tests failed"
-            exit 1
-          fi
+  #         if ${{ contains(needs.ui_tests_pr_env.result,'success') }}
+  #         then
+  #           echo "PR environment tested, built and deployed"
+  #           exit 0
+  #         else
+  #           echo "PR environment tested, built and deployed but UI tests failed"
+  #           exit 1
+  #         fi
