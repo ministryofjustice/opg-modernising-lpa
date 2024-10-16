@@ -297,7 +297,6 @@
     "submittedYourLpa": "Rydych wedi cyflwyno eich LPA",
     "whatHappensNext": "Beth fydd yn digwydd nesaf",
     "weWillContactYourCertificateProvider": "Byddwn yn cysylltu â’ch darparwr tystysgrif, {{.FirstNames}}, ac yn gofyn iddynt gadarnhau eu hunaniaeth.",
-    "yourCertificateProviderWillThenNeedTo": "Yna bydd angen i’ch darparwr tystysgrif ‘ddarparu’r dystysgrif’ drwy lofnodi ar-lein.",
     "weWillThenContactAttorneys": {
         "one": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
         "two": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
@@ -307,13 +306,22 @@
     },
     "onceEveryoneHasSigned": "Unwaith y bydd pawb wedi llofnodi a phan fydd eich LPA wedi’n cyrraedd, byddwn yn hysbysu unrhyw bobl y byddwch yn dewis rhoi gwybod iddynt. Bydd cyfnod aros o 4 wythnos yn dechrau. Mae hyn yn ofynnol yn ôl y gyfraith, er mwyn caniatáu i unrhyw un sydd â gwrthwynebiad i’w codi.",
     "wellRegisteredYourLpa": "Byddwn yn cofrestru eich LPA.",
+    "atTheEndOfTheWaitingPeriod": "Welsh",
+    "ifYourLpaIsSuccessfullyReviewed": "Welsh",
     "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn anfon e-bost atoch i roi’r wybodaeth ddiweddaraf i chi am gofrestriad eich LPA. Os oes unrhyw broblemau, byddwn yn rhoi gwybod i chi.</p><p class=\"govuk-body\">Gallwch hefyd gadw golwg ar gynnydd eich LPA drwy fewngofnodi i’r gwasanaeth hwn unrhyw bryd.</p>",
     "signIn4WeeksWarning": {
-        "one": "Rhaid i {{ .CpFirstNames }} a’ch atwrnai lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{ .CpFirstNames }} a llofnodi’ch LPA eto.",
-        "two": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{ .CpFirstNames }} a llofnodi’ch LPA eto.",
-        "few": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{ .CpFirstNames }} a llofnodi’ch LPA eto.",
-        "many": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{ .CpFirstNames }} a llofnodi’ch LPA eto.",
-        "other": "Rhaid i {{ .CpFirstNames }} a’ch atwrneiod lofnodi’r LPA erbyn {{ .AttorneysAndCpSigningDeadline }}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{ .CpFirstNames }} a llofnodi’ch LPA eto."
+        "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "two": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "few": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "many": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "other": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto."
+    },
+    "copSignDeadlineWarning": {
+        "one": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
+        "two": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
+        "few": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
+        "many": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
+        "other": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}"
     },
     "signYourLpa": "Llofnodwch eich LPA",
     "signingYourLpaIsAnImportant": "Mae llofnodi eich LPA yn gam cyfreithiol pwysig a phwerus.",
@@ -1412,5 +1420,7 @@
     "defaultDecisionHasBeenSelected": "Welsh",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh {{possessive .DonorFullName }} Welsh</p></div>",
-    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>"
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
+    "thanksWeCannotRegisterUntilCourtOfProtection": "Welsh",
+    "youCanTrackTheProgressByLoggingBackIn": "Welsh"
 }
