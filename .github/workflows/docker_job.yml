@@ -53,6 +53,11 @@ jobs:
             path: ./docker/mock-pay/Dockerfile
             trivyignores: ./docker/mock-pay/.trivyignore.yaml
             platforms: linux/amd64
+          - ecr_repository: modernising-lpa/schedule-runner
+            name: schedule-runner
+            path: ./docker/schedule-runner/Dockerfile
+            trivyignores: ./docker/schedule-runner/.trivyignore.yaml
+            platforms: linux/amd64
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}

@@ -271,7 +271,11 @@ func (e AttorneyOptedOutEmail) emailID(isProduction bool, _ localize.Lang) strin
 type DonorIdentityCheckExpiredEmail struct{}
 
 func (e DonorIdentityCheckExpiredEmail) emailID(isProduction bool, _ localize.Lang) string {
-	return "TODO"
+	if isProduction {
+		return "c3c4a115-4d07-4e25-926d-a656dc33485a"
+	}
+
+	return "26509ca9-83d0-4417-ab5d-a3844916519e"
 }
 
 type VouchingShareCodeEmail struct {
