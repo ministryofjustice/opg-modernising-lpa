@@ -122,6 +122,7 @@ jobs:
             TAG=${{inputs.tag}}
         env:
           SOURCE_DATE_EPOCH: 0
+          DOCKER_CONTENT_TRUST: 1
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
@@ -180,6 +181,7 @@ jobs:
           provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
+          DOCKER_CONTENT_TRUST: 1
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
@@ -201,3 +203,4 @@ jobs:
           provenance: false
         env:
           SOURCE_DATE_EPOCH: 0
+          DOCKER_CONTENT_TRUST: 1
