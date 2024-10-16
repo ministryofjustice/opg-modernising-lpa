@@ -22,6 +22,11 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
+func TestProvidedCanChange(t *testing.T) {
+	assert.True(t, (&Provided{}).CanChange())
+	assert.False(t, (&Provided{SignedAt: time.Now()}).CanChange())
+}
+
 func TestGenerateHash(t *testing.T) {
 	makeDonor := func(version uint8, hash uint64) *Provided {
 		return &Provided{

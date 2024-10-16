@@ -161,6 +161,11 @@ type Provided struct {
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
+// CanChange returns true if the donor can make changes to their LPA.
+func (p *Provided) CanChange() bool {
+	return p.SignedAt.IsZero()
+}
+
 func (p *Provided) HashInclude(field string, _ any) (bool, error) {
 	if p.HashVersion > currentHashVersion {
 		return false, errors.New("HashVersion too high")
