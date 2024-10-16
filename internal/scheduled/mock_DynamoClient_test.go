@@ -22,6 +22,54 @@ func (_m *mockDynamoClient) EXPECT() *mockDynamoClient_Expecter {
 	return &mockDynamoClient_Expecter{mock: &_m.Mock}
 }
 
+// AnyByPK provides a mock function with given fields: ctx, pk, v
+func (_m *mockDynamoClient) AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
+	ret := _m.Called(ctx, pk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AnyByPK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
+		r0 = rf(ctx, pk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_AnyByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AnyByPK'
+type mockDynamoClient_AnyByPK_Call struct {
+	*mock.Call
+}
+
+// AnyByPK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk dynamo.PK
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) AnyByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamoClient_AnyByPK_Call {
+	return &mockDynamoClient_AnyByPK_Call{Call: _e.mock.On("AnyByPK", ctx, pk, v)}
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) Return(_a0 error) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_AnyByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamoClient_AnyByPK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Move provides a mock function with given fields: ctx, oldKeys, value
 func (_m *mockDynamoClient) Move(ctx context.Context, oldKeys dynamo.Keys, value interface{}) error {
 	ret := _m.Called(ctx, oldKeys, value)
@@ -66,54 +114,6 @@ func (_c *mockDynamoClient_Move_Call) Return(_a0 error) *mockDynamoClient_Move_C
 }
 
 func (_c *mockDynamoClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, interface{}) error) *mockDynamoClient_Move_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// OneByPK provides a mock function with given fields: ctx, pk, v
-func (_m *mockDynamoClient) OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
-	ret := _m.Called(ctx, pk, v)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OneByPK")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
-		r0 = rf(ctx, pk, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_OneByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneByPK'
-type mockDynamoClient_OneByPK_Call struct {
-	*mock.Call
-}
-
-// OneByPK is a helper method to define mock.On call
-//   - ctx context.Context
-//   - pk dynamo.PK
-//   - v interface{}
-func (_e *mockDynamoClient_Expecter) OneByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamoClient_OneByPK_Call {
-	return &mockDynamoClient_OneByPK_Call{Call: _e.mock.On("OneByPK", ctx, pk, v)}
-}
-
-func (_c *mockDynamoClient_OneByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamoClient_OneByPK_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_OneByPK_Call) Return(_a0 error) *mockDynamoClient_OneByPK_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_OneByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamoClient_OneByPK_Call {
 	_c.Call.Return(run)
 	return _c
 }
