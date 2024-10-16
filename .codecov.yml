@@ -11,6 +11,7 @@ coverage:
     - "./cmd/mock-notify/main.go"
     - "./cmd/mock-onelogin/main.go"
     - "./cmd/mock-os-api/main.go"
+    - "./cmd/schedule-runner/main.go"
     - "./internal/identity/yoti*"
     - "./internal/notify/email.go"
     - "./internal/notify/sms.go"
@@ -18,6 +19,7 @@ coverage:
     - "./internal/telemetry"
     - "./internal/validation/error.go"
     - "./mocks/*"
+    - "./scripts/*.go"
   status:
     project:
       default:
