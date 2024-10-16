@@ -254,8 +254,21 @@ func (p *Provided) DonorIdentityConfirmed() bool {
 		p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
 }
 
-func (p *Provided) AttorneysAndCpSigningDeadline() time.Time {
+// SigningDeadline gives the date at which the LPA should be signed by the
+// certificate provider and attorneys.
+func (p *Provided) SigningDeadline() time.Time {
+	if p.RegisteringWithCourtOfProtection {
+		return p.SignedAt.AddDate(0, 4, 14)
+	}
+
 	return p.SignedAt.Add((24 * time.Hour) * 28)
+}
+
+// CourtOfProtectionSubmissionDeadline gives the date at which the signed LPA
+// must be submitted to the Court of Protection, if registering through this
+// route.
+func (p *Provided) CourtOfProtectionSubmissionDeadline() time.Time {
+	return p.SignedAt.AddDate(0, 6, 0)
 }
 
 type Under18ActorDetails struct {
