@@ -3,31 +3,50 @@
 {{ define "pageTitle" }}{{ tr .App "submittedYourLpa" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">{{ tr .App "submittedYourLpa" }}</h1>
-      </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">{{ tr .App "submittedYourLpa" }}</h1>
+            </div>
 
-      <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
-      <ol class="govuk-list govuk-list--number govuk-list--spaced">
-        <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Donor.CertificateProvider.FirstNames }}</li>
-        <li>{{ tr .App "yourCertificateProviderWillThenNeedTo" }}</li>
-        <li>{{ trFormatCount .App "weWillThenContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
-        <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
-        <li>{{ tr .App "wellRegisteredYourLpa" }}</li>
-      </ol>
+            {{ if .Donor.RegisteringWithCourtOfProtection }}
+                <p class="govuk-body">{{ tr .App "thanksWeCannotRegisterUntilCourtOfProtection" }}</p>
 
-      {{ trHtml .App "weWillEmailYou" }}
+                <ol class="govuk-list govuk-list--number govuk-list--spaced">
+                    <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Donor.CertificateProvider.FirstNames }}</li>
+                    <li>{{ trFormatCount .App "weWillThenContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
+                    <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
+                    <li>{{ tr .App "atTheEndOfTheWaitingPeriod" }}</li>
+                    <li>{{ tr .App "ifYourLpaIsSuccessfullyReviewed" }}</li>
+                </ol>
 
-      {{ $formattedDeadline := formatDate .App .Donor.AttorneysAndCpSigningDeadline}}
-      {{ $signIn4WeeksWarning := trFormatCount .App "signIn4WeeksWarning" .Donor.Attorneys.Len "CpFirstNames" .Donor.CertificateProvider.FirstNames "AttorneysAndCpSigningDeadline" $formattedDeadline}}
-      {{ template "warning" (content .App $signIn4WeeksWarning) }}
+                <p class="govuk-body">{{ tr .App "youCanTrackTheProgressByLoggingBackIn" }}</p>
+                
+                {{ template "warning" (content .App (trFormatCount .App "copSignDeadlineWarning" .Donor.Attorneys.Len
+                    "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames
+                    "SigningDeadline" (formatDate .App .Donor.SigningDeadline)
+                    "SubmissionDeadline" (formatDate .App .Donor.CourtOfProtectionSubmissionDeadline))) }}
 
-      <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}" data-module="govuk-button">
-        {{ tr .App "continue" }}
-      </a>
+            {{ else }}      
+                <ol class="govuk-list govuk-list--number govuk-list--spaced">
+                    <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Donor.CertificateProvider.FirstNames }}</li>
+                    <li>{{ trFormatCount .App "weWillThenContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
+                    <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
+                    <li>{{ tr .App "wellRegisteredYourLpa" }}</li>
+                </ol>
+
+                {{ trHtml .App "weWillEmailYou" }}
+
+                {{ template "warning" (content .App (trFormatCount .App "signIn4WeeksWarning" .Donor.Attorneys.Len
+                    "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames
+                    "SigningDeadline" (formatDate .App .Donor.SigningDeadline))) }}
+            {{ end }}
+            
+            <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}" data-module="govuk-button">
+                {{ tr .App "continue" }}
+            </a>
+        </div>
     </div>
-  </div>
 {{ end }}
