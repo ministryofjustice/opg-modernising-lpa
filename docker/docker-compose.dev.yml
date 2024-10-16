@@ -10,6 +10,7 @@ services:
     container_name: app-dev
     depends_on:
       - events-lambda
+      - schedule-runner-lambda
     security_opt:
       - "seccomp:unconfined"
     volumes:
@@ -48,6 +49,28 @@ services:
     ports:
       - "9000:8080"
     entrypoint: aws-lambda-rie /var/task/event-received
+
+  schedule-runner-lambda:
+    build:
+      context: ..
+      dockerfile: docker/schedule-runner/Dockerfile
+      target: dev
+      platforms:
+        - "linux/amd64"
+        - "linux/arm64"
+    container_name: schedule-runner
+    environment:
+      - AWS_ACCESS_KEY_ID=fakeKeyId
+      - AWS_BASE_URL=http://localstack:4566
+      - AWS_REGION=eu-west-1
+      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
+      - LPAS_TABLE=lpas
+      - GOVUK_NOTIFY_IS_PRODUCTION=0
+      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
+    ports:
+      - "9002:8080"
+    entrypoint: aws-lambda-rie /var/task/schedule-runner
 
   mock-pay:
     image: outofcoffee/imposter:latest
