@@ -307,18 +307,23 @@
     "theCodeWeSentCertificateProvider": "The code we sent to the certificate provider",
     "submittedYourLpa": "You’ve submitted your LPA",
     "whatHappensNext": "What happens next",
-    "weWillContactYourCertificateProvider": "We’ll contact your certificate provider, {{.FirstNames}}, and ask them to confirm their identity.",
-    "yourCertificateProviderWillThenNeedTo": "Your certificate provider will then need to ‘provide the certificate’ by signing online.",
+    "weWillContactYourCertificateProvider": "We’ll contact {{.FirstNames}} and ask them to confirm their identity and provide the certificate for your LPA.",
     "weWillThenContactAttorneys": {
-        "one": "We will then contact {{.FullNames}} and ask them to sign your LPA as your attorney.",
-        "other": "We will then contact {{.FullNames}} and ask them to sign your LPA as your attorneys."
+        "one": "We’ll contact {{.FullNames}} and ask them to sign your LPA as your attorney.",
+        "other": "We’ll contact {{.FullNames}} and ask them to sign your LPA as your attorneys."
     },
     "onceEveryoneHasSigned": "Once everyone has signed and we’ve received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.",
     "wellRegisteredYourLpa": "We’ll register your LPA.",
+    "atTheEndOfTheWaitingPeriod": "At the end of the waiting period, we’ll contact you with guidance about getting your LPA reviewed by the Court of Protection.",
+    "ifYourLpaIsSuccessfullyReviewed": "If your LPA is successfully reviewed by the Court of Protection, we’ll be able to register it, and it can then be used.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you to update you with the progress of your LPA’s registration. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signIn4WeeksWarning": {
-        "one": "{{ .CpFirstNames }} and your attorney must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. ",
-        "other": "{{ .CpFirstNames }} and your attorneys must sign your LPA by {{ .AttorneysAndCpSigningDeadline }}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{ .CpFirstNames }} and sign your LPA again. "
+        "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{.CertificateProviderFirstNames}} and sign your LPA again.",
+        "other": "{{.CertificateProviderFirstNames}} and your attorneys must sign your LPA by {{.SigningDeadline}}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{.CertificateProviderFirstNames}} and sign your LPA again."
+    },
+    "copSignDeadlineWarning": {
+        "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee.",
+        "other": "{{.CertificateProviderFirstNames}} and your attorneys must sign your LPA by {{.SigningDeadline}}. After that, you have until {{.SubmissionDeadline}} to submit the LPA to the Court of Protection. If you miss this deadline, you’ll have to fill in a new LPA and pay another registration fee."
     },
     "myLastingPowersOfAttorney": "My lasting powers of attorney",
     "applicationNumber": "Application number",
@@ -1341,5 +1346,7 @@
     "defaultDecisionHasBeenSelected": "A default decision has been selected for you because your answer was missing or your intention unclear.",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those you entered in your LPA.</p></div>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those entered in {{possessive .DonorFullName }} LPA.</p></div>",
-    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p></div>"
+    "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p></div>",
+    "thanksWeCannotRegisterUntilCourtOfProtection": "Thanks for signing and submitting your LPA. We cannot register your LPA until it has been successfully reviewed by the Court of Protection.",
+    "youCanTrackTheProgressByLoggingBackIn": "You can track the progress of your LPA by logging back into the service at any time."
 }
