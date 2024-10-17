@@ -26,10 +26,12 @@ func TestMakeRegisterHandlerHandleUnknownEvent(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("unknown makeregister event"), err)
 }
 
-func TestHandleUidRequested(t *testing.T) {
+func TestHandleUidRequestedDonor(t *testing.T) {
 	e := events.CloudWatchEvent{
 		DetailType: "uid-requested",
-		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","organisationID":"org-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+		Detail: json.RawMessage(
+			`{"lpaID":"lpa-id","donorSessionID":"donor-session-id","organisationID":"","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
+		),
 	}
 
 	dob := date.New("2000", "01", "02")
@@ -48,27 +50,19 @@ func TestHandleUidRequested(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "org-id", "M-1111-2222-3333").
+		Set(ctx, "lpa-id", "donor-session-id", "", "M-1111-2222-3333").
 		Return(nil)
 
 	dynamoClient := newMockDynamodbClient(t)
 	dynamoClient.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
-	dynamoClient.
-		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		On("One", ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("donor-session-id"), mock.Anything).
 		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 			b, _ := attributevalue.Marshal(&donordata.Provided{
 				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
 				Type:      lpadata.LpaTypePersonalWelfare,
 				CreatedAt: testNow,
-				LpaUID:    "M-1111-2222-3333",
-				PK:        dynamo.LpaKey("123"),
-				SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				PK:        dynamo.LpaKey("lpa-id"),
+				SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -109,38 +103,156 @@ func TestHandleUidRequested(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
+func TestHandleUidRequestedOrganisation(t *testing.T) {
+	e := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail: json.RawMessage(
+			`{"lpaID":"lpa-id","donorSessionID":"","organisationID":"organisation-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
+		),
+	}
+
+	dob := date.New("2000", "01", "02")
+
+	uidClient := newMockUidClient(t)
+	uidClient.EXPECT().
+		CreateCase(ctx, &uid.CreateCaseRequestBody{
+			Type: "personal-welfare",
+			Donor: uid.DonorDetails{
+				Name:     "a donor",
+				Dob:      dob,
+				Postcode: "F1 1FF",
+			},
+		}).
+		Return("M-1111-2222-3333", nil)
+
+	uidStore := newMockUidStore(t)
+	uidStore.EXPECT().
+		Set(ctx, "lpa-id", "", "organisation-id", "M-1111-2222-3333").
+		Return(nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("One", ctx, dynamo.LpaKey("lpa-id"), dynamo.OrganisationKey("organisation-id"), mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(&donordata.Provided{
+				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
+				Type:      lpadata.LpaTypePersonalWelfare,
+				CreatedAt: testNow,
+				PK:        dynamo.LpaKey("lpa-id"),
+				SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("organisation-id")),
+			})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendApplicationUpdated(ctx, event.ApplicationUpdated{
+			UID:       "M-1111-2222-3333",
+			Type:      lpadata.LpaTypePersonalWelfare.String(),
+			CreatedAt: testNow,
+			Donor: event.ApplicationUpdatedDonor{
+				FirstNames:  "a",
+				LastName:    "b",
+				DateOfBirth: date.New("2000", "1", "2"),
+				Address:     place.Address{Line1: "a"},
+			},
+		}).
+		Return(nil)
+
+	err := handleUidRequested(ctx, uidStore, uidClient, e, dynamoClient, eventClient)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleUidRequestedWhenLpaUIDExists(t *testing.T) {
+	e := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail: json.RawMessage(
+			`{"lpaID":"lpa-id","donorSessionID":"","organisationID":"organisation-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
+		),
+	}
+
+	dob := date.New("2000", "01", "02")
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.
+		On("One", ctx, dynamo.LpaKey("lpa-id"), dynamo.OrganisationKey("organisation-id"), mock.Anything).
+		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+			b, _ := attributevalue.Marshal(&donordata.Provided{
+				LpaUID:    "M-1111-2222-3333",
+				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
+				Type:      lpadata.LpaTypePersonalWelfare,
+				CreatedAt: testNow,
+				PK:        dynamo.LpaKey("lpa-id"),
+				SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("organisation-id")),
+			})
+			attributevalue.Unmarshal(b, v)
+			return nil
+		})
+
+	err := handleUidRequested(ctx, nil, nil, e, dynamoClient, nil)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleUidRequestedWhenDynamoClientError(t *testing.T) {
+	e := events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleUidRequested(ctx, nil, nil, e, dynamoClient, nil)
+	assert.Equal(t, fmt.Errorf("failed to get donor: %w", expectedError), err)
+}
+
+func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
+	e := events.CloudWatchEvent{
+		DetailType: "uid-requested",
+		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
+	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
 
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
 		CreateCase(ctx, mock.Anything).
 		Return("", expectedError)
 
-	err := handleUidRequested(ctx, nil, uidClient, event, nil, nil)
+	err := handleUidRequested(ctx, nil, uidClient, e, dynamoClient, nil)
 	assert.Equal(t, fmt.Errorf("failed to create case: %w", expectedError), err)
 }
 
 func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
+	e := events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
 		CreateCase(ctx, mock.Anything).
-		Return("M-1111-2222-3333", nil)
+		Return("", nil)
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "an-id", "donor-id", "", "M-1111-2222-3333").
+		Set(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleUidRequested(ctx, uidStore, uidClient, event, nil, nil)
+	err := handleUidRequested(ctx, uidStore, uidClient, e, dynamoClient, nil)
 	assert.Equal(t, fmt.Errorf("failed to set uid: %w", expectedError), err)
 }
 
@@ -150,31 +262,20 @@ func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
 
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
 		CreateCase(ctx, mock.Anything).
-		Return("M-1111-2222-3333", nil)
+		Return("", nil)
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
 		Set(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
-
-	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.
-		On("OneByUID", mock.Anything, mock.Anything, mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
-	dynamoClient.
-		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&donordata.Provided{})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
