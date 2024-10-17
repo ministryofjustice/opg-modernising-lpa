@@ -5,17 +5,33 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveToldUsYouAreApplyingCOP") "heading" ) }}
+            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourLpaMustBeReviewedByCOP") "contents") }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
 
-            {{ $countAttorneys := trCount .App "countAttorneys" (len .Donor.Attorneys.Attorneys)  }}
-            {{ trFormatHtml .App "whatHappensNextRegisteringWithCOPContent" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "CountAttorneys" $countAttorneys }}
+            <ol class="govuk-list govuk-list--number">
+                {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
+                    <li>{{ tr .App "signYourLpaSoCanSubmitToCOP" }}</li>
+                    <li>{{ trFormat .App "opgWillContactYourCertificateProvider" "FullName" .Donor.CertificateProvider.FullName }}</li>
+                    <li>{{ trFormatCount .App "opgWillContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
+                {{ else }}
+                    <li>{{ tr .App "opgWillCompleteOurChecks" }}</li>
+                    <li>{{ tr .App "youCanTrackTheProgressAnyTime" }}</li>
+                {{ end }}
+                <li>{{ tr .App "onceEveryoneHasSignedOpgWill" }}</li>
+                <li>{{ tr .App "atTheEndOfTheWaitingPeriodOpgWill" }}</li>
+                <li>{{ tr .App "ifTheCOPFindsYourLpaIsValid" }}</li>
+            </ol>
 
-            <div class="govuk-button-group">
-                <a href="{{ global.Paths.ReadYourLpa.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "continue" }}</a>
-                <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-            </div>
+            {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
+                <!-- TODO for MLPAB-2568 change this to:
+                  template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID))
+                -->
+
+                {{ template "buttons" (button .App "continue" "link" (global.Paths.ReadYourLpa.Format .App.LpaID)) }}
+            {{ else }}
+                {{ template "buttons" (button .App "trackLpaProgress" "link" (global.Paths.Progress.Format .App.LpaID)) }}
+            {{ end }}
         </div>
     </div>
 {{ end }}
