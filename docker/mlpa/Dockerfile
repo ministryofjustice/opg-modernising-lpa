@@ -54,9 +54,13 @@ COPY --from=build-env /go/bin/mlpab mlpab
 COPY --link web/template web/template
 COPY --link lang lang
 
-RUN addgroup -S app && \
-  adduser -S -g app app && \
-  chown -R app:app mlpab web/template web/static web/robots.txt
-USER app
 
+RUN addgroup -S user && \
+  adduser -S -g user user && \
+  chown -R user:user mlpab web/template web/static web/robots.txt
+
+COPY scripts/docker_hardening/alpine_image_hardening.sh /harden.sh
+RUN /harden.sh && rm /harden.sh
+
+USER user
 ENTRYPOINT ["./mlpab"]
