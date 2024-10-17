@@ -94,21 +94,22 @@ jobs:
   #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
   #     pagerduty_api_key: ${{ secrets.PAGERDUTY_API_KEY }}
 
-  # ui_tests_image:
-  #   name: Run Cypress UI Tests On Images
-  #   if: needs.detect_changes.outputs.changes_detected == 'true' &&
-  #     (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
-  #   uses: ./.github/workflows/ui_test_job.yml
-  #   needs: [docker_build_scan_push, create_tags]
-  #   with:
-  #     run_against_image: true
-  #     tag: ${{ needs.create_tags.outputs.version_tag }}
-  #     specs: 'cypress/e2e/**/*.cy.js'
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
-  #     cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
-  #     github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  ui_tests_image:
+    name: Run Cypress UI Tests On Images
+    if: always()
+    # if: needs.detect_changes.outputs.changes_detected == 'true' &&
+    #   (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
+    uses: ./.github/workflows/ui_test_job.yml
+    needs: [docker_build_scan_push, create_tags]
+    with:
+      run_against_image: true
+      tag: ${{ needs.create_tags.outputs.version_tag }}
+      specs: 'cypress/e2e/**/*.cy.js'
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+      cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   # pr_deploy:
   #     name: PR Environment Deploy
