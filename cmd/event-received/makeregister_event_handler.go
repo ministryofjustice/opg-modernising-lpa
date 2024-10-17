@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -37,6 +39,20 @@ func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidCli
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
+	var sk dynamo.SK = dynamo.DonorKey(v.DonorSessionID)
+	if v.OrganisationID != "" {
+		sk = dynamo.OrganisationKey(v.OrganisationID)
+	}
+
+	var donor donordata.Provided
+	if err := dynamoClient.One(ctx, dynamo.LpaKey(v.LpaID), sk, &donor); err != nil {
+		return fmt.Errorf("failed to get donor: %w", err)
+	}
+
+	if donor.LpaUID != "" {
+		return nil
+	}
+
 	uid, err := uidClient.CreateCase(ctx, &uid.CreateCaseRequestBody{Type: v.Type, Donor: v.Donor})
 	if err != nil {
 		return fmt.Errorf("failed to create case: %w", err)
@@ -46,13 +62,8 @@ func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidCli
 		return fmt.Errorf("failed to set uid: %w", err)
 	}
 
-	donor, err := getDonorByLpaUID(ctx, dynamoClient, uid)
-	if err != nil {
-		return err
-	}
-
 	if err := eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
-		UID:       donor.LpaUID,
+		UID:       uid,
 		Type:      donor.Type.String(),
 		CreatedAt: donor.CreatedAt,
 		Donor: event.ApplicationUpdatedDonor{
