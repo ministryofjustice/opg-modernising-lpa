@@ -308,14 +308,22 @@
     "submittedYourLpa": "You’ve submitted your LPA",
     "whatHappensNext": "What happens next",
     "weWillContactYourCertificateProvider": "We’ll contact {{.FirstNames}} and ask them to confirm their identity and provide the certificate for your LPA.",
+    "opgWillContactYourCertificateProvider": "OPG will contact {{.FullName}} and ask them to confirm their identity and provide the certificate for your LPA.",
     "weWillThenContactAttorneys": {
         "one": "We’ll contact {{.FullNames}} and ask them to sign your LPA as your attorney.",
         "other": "We’ll contact {{.FullNames}} and ask them to sign your LPA as your attorneys."
     },
+    "opgWillContactAttorneys": {
+        "one": "OPG will contact {{.FullNames}} and ask them to sign your LPA as your attorney.",
+        "other": "OPG will contact {{.FullNames}} and ask them to sign your LPA as your attorneys."
+    },
     "onceEveryoneHasSigned": "Once everyone has signed and we’ve received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.",
+    "onceEveryoneHasSignedOpgWill": "Once everyone has signed and OPG have received your LPA, we’ll inform any people you chose to notify. A 4-week waiting period will begin. This is required by law, to allow anyone with objections to raise them.",
     "wellRegisteredYourLpa": "We’ll register your LPA.",
     "atTheEndOfTheWaitingPeriod": "At the end of the waiting period, we’ll contact you with guidance about getting your LPA reviewed by the Court of Protection.",
+    "atTheEndOfTheWaitingPeriodOpgWill": "At the end of the waiting period, OPG will contact you with guidance about getting your LPA reviewed by the Court of Protection.",
     "ifYourLpaIsSuccessfullyReviewed": "If your LPA is successfully reviewed by the Court of Protection, we’ll be able to register it, and it can then be used.",
+    "ifTheCOPFindsYourLpaIsValid": "If the Court of Protection finds your LPA is valid, it will direct OPG to register it. Your LPA can then be used.",
     "weWillEmailYou": "<p class=\"govuk-body\">We’ll email you to update you with the progress of your LPA’s registration. If there are any problems, we’ll let you know.</p><p class=\"govuk-body\">You can also track the progress of your LPA by logging back into this service at any time.</p>",
     "signIn4WeeksWarning": {
         "one": "{{.CertificateProviderFirstNames}} and your attorney must sign your LPA by {{.SigningDeadline}}. If they do not sign by this date, you will have to pay the application fee again. You will also have to meet with {{.CertificateProviderFirstNames}} and sign your LPA again.",
@@ -1195,12 +1203,11 @@
     "ifYouNeedHelpWithGOLContactTheirTeam": "If you need help with GOV.UK One Login, contact their team.",
     "contactGOL": "Contact GOV.UK One Login",
     "whatYouWouldLikeToDo": "what you would like to do",
-    "youHaveToldUsYouAreApplyingCOP": "You have told us that you are applying to the Court of Protection to register this LPA",
+    "yourLpaMustBeReviewedByCOP": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\"> Your LPA must be reviewed by the Court of Protection </p><p class=\"govuk-body\">You have not been able to confirm your identity using our services, so the Office of the Public Guardian (OPG) cannot register your LPA unless we are directed to do so by the Court of Protection.</p></div>",
     "countAttorneys": {
         "one": "attorney",
         "other": "attorneys"
     },
-    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">You should now sign your LPA.</p><ul class=\"govuk-list govuk-list--bullet\"><li>Once you have signed, we will contact {{ .CertificateProviderFullName }} to provide their certificate.</li><li>We will then let your {{ .CountAttorneys }} know they can sign your LPA.</li><li>When your LPA is ready, we will contact you with instructions to submit it to the Court of Protection.</li></ul>",
     "yourConfirmedIdentityDetails": "Your confirmed identity details",
     "theDetailsOnYourLPA": "The details on your LPA",
     "someDetailsDoNotMatchIdentityDetailsWarning": "Some of the details on your LPA do not match your confirmed identity details",
@@ -1348,5 +1355,8 @@
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login. Your details match those entered in {{possessive .DonorFullName }} LPA.</p></div>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">You have successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity using GOV.UK One Login.</p></div>",
     "thanksWeCannotRegisterUntilCourtOfProtection": "Thanks for signing and submitting your LPA. We cannot register your LPA until it has been successfully reviewed by the Court of Protection.",
-    "youCanTrackTheProgressByLoggingBackIn": "You can track the progress of your LPA by logging back into the service at any time."
+    "youCanTrackTheProgressByLoggingBackIn": "You can track the progress of your LPA by logging back into the service at any time.",
+    "signYourLpaSoCanSubmitToCOP": "Sign your LPA – this will allow OPG to complete checks on the LPA so you can submit it to the Court of Protection.",
+    "opgWillCompleteOurChecks": "OPG will complete our checks on your LPA so you can submit it to the Court of Protection.",
+    "youCanTrackTheProgressAnyTime": "You can track the progress of your LPA at any time."
 }
