@@ -3,6 +3,7 @@
     {{ $isPropertyAndAffairs := .Donor.Type.IsPropertyAndAffairs }}
     {{ $isDonor := .App.IsDonor }}
     {{ $canChange := and $isDonor .Donor.CanChange }}
+    {{ $canChangePersonalDetails := and .Donor.IdentityUserData.Status.IsUnknown $canChange }}
 
     {{ template "contextual-lpa-warning" . }}
 
@@ -16,17 +17,17 @@
                     {{ template "summary-row" (summaryRow $.App "name"
                         .FullName
                         (fromLink $.App global.Paths.YourName "#f-first-names")
-                        .FullName $canChange $isDonor) }}
+                        .FullName $canChangePersonalDetails $isDonor) }}
 
                     {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy"
                         .OtherNames
                         (fromLink $.App global.Paths.YourName "#f-other-names")
-                        .FullName $canChange $isDonor) }}
+                        .FullName $canChangePersonalDetails $isDonor) }}
 
                     {{ template "summary-row" (summaryRow $.App "dateOfBirth"
                         (formatDate $.App .DateOfBirth)
                         (fromLink $.App global.Paths.YourDateOfBirth "#f-date-of-birth")
-                        .FullName $canChange $isDonor) }}
+                        .FullName $canChangePersonalDetails $isDonor) }}
 
                     {{ template "summary-row" (summaryRow $.App "email"
                         .Email
