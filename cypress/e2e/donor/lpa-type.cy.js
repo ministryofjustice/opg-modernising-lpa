@@ -1,6 +1,33 @@
+import {AddressFormAssertions} from "../../support/e2e";
+
 describe('LPA type', () => {
     it('can be submitted', () => {
-        cy.visit('/fixtures?redirect=/lpa-type&progress=provideYourDetails');
+        cy.visit('/fixtures?redirect=/your-name');
+
+        cy.get('#f-first-names').type('John');
+        cy.get('#f-last-name').type('Doe');
+
+        cy.contains('button', 'Save and continue').click();
+
+        cy.get('#f-date-of-birth').type('1');
+        cy.get('#f-date-of-birth-month').type('2');
+        cy.get('#f-date-of-birth-year').type('1990');
+
+        cy.contains('button', 'Save and continue').click();
+
+        AddressFormAssertions.assertCanAddAddressFromSelect()
+
+        cy.contains('a', 'Continue').click();
+
+        cy.get('#f-can-sign').check({ force: true });
+        cy.contains('button', 'Save and continue').click();
+
+        cy.get('[name="contact-language"]').check('en', { force: true })
+        cy.get('[name="lpa-language"]').check('en', { force: true })
+
+        cy.contains('button', 'Save and continue').click()
+
+        cy.contains('a', 'Continue').click();
 
         cy.get('#f-lpa-type').check('property-and-affairs');
 
