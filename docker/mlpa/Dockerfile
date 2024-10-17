@@ -60,7 +60,11 @@ RUN addgroup -S user && \
   chown -R user:user mlpab web/template web/static web/robots.txt
 
 COPY scripts/docker_hardening/alpine_image_hardening.sh /harden.sh
+
 RUN /harden.sh && rm /harden.sh
 
 USER user
+
+EXPOSE 8080
+
 ENTRYPOINT ["./mlpab"]
