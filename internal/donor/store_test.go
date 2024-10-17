@@ -296,6 +296,100 @@ func TestDonorStorePut(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDonorStorePutWhenDonorCanChange(t *testing.T) {
+	ctx := appcontext.ContextWithData(ctx, appcontext.Data{ActorType: actor.TypeDonor})
+
+	initial := &donordata.Provided{
+		PK:                             dynamo.LpaKey("5"),
+		SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+		Hash:                           5,
+		LpaID:                          "5",
+		HasSentApplicationUpdatedEvent: true,
+		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+	}
+	initial.UpdateCheckedHash()
+	initial.SignedAt = testNow
+
+	saved := &donordata.Provided{
+		PK:                             dynamo.LpaKey("5"),
+		SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+		CheckedHash:                    initial.CheckedHash,
+		LpaID:                          "5",
+		HasSentApplicationUpdatedEvent: true,
+		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		SignedAt:                       testNow,
+	}
+	saved.UpdateHash()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
+
+	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := donorStore.Put(ctx, initial)
+	assert.Nil(t, err)
+}
+
+func TestDonorStorePutWhenDonorCannotChange(t *testing.T) {
+	ctx := appcontext.ContextWithData(ctx, appcontext.Data{ActorType: actor.TypeDonor})
+
+	initial := &donordata.Provided{
+		PK:                             dynamo.LpaKey("5"),
+		SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+		Hash:                           5,
+		LpaID:                          "5",
+		HasSentApplicationUpdatedEvent: true,
+		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		SignedAt:                       testNow,
+	}
+	initial.UpdateCheckedHash()
+	initial.Donor.FirstNames = "z"
+
+	donorStore := &Store{now: testNowFn}
+
+	err := donorStore.Put(ctx, initial)
+	assert.Error(t, err)
+}
+
+func TestDonorStorePutWhenOtherActorCanChange(t *testing.T) {
+	ctx := appcontext.ContextWithData(ctx, appcontext.Data{ActorType: actor.TypeAttorney})
+
+	initial := &donordata.Provided{
+		PK:                             dynamo.LpaKey("5"),
+		SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+		Hash:                           5,
+		LpaID:                          "5",
+		HasSentApplicationUpdatedEvent: true,
+		Donor:                          donordata.Donor{FirstNames: "x", LastName: "y"},
+		SignedAt:                       testNow,
+	}
+	initial.UpdateCheckedHash()
+	initial.Donor.FirstNames = "z"
+
+	saved := &donordata.Provided{
+		PK:                             dynamo.LpaKey("5"),
+		SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+		CheckedHash:                    initial.CheckedHash,
+		LpaID:                          "5",
+		HasSentApplicationUpdatedEvent: true,
+		Donor:                          donordata.Donor{FirstNames: "z", LastName: "y"},
+		SignedAt:                       testNow,
+	}
+	saved.UpdateHash()
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		Put(ctx, saved).
+		Return(nil)
+
+	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
+
+	err := donorStore.Put(ctx, initial)
+	assert.Nil(t, err)
+}
+
 func TestDonorStorePutWhenUIDSet(t *testing.T) {
 	saved := &donordata.Provided{PK: dynamo.LpaKey("5"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), LpaID: "5", HasSentApplicationUpdatedEvent: true, LpaUID: "M", UpdatedAt: testNow, Donor: donordata.Donor{FirstNames: "x", LastName: "y"}}
 	saved.UpdateHash()
