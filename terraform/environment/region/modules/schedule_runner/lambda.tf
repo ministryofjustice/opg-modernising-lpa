@@ -28,7 +28,7 @@ module "schedule_runner" {
 }
 
 resource "aws_scheduler_schedule" "schedule_runner_hourly" {
-  name                = "schedule-runner-hourly"
+  name                = "schedule-runner-hourly-${data.aws_default_tags.current.tags.environment-name}"
   schedule_expression = "rate(1 hour)"
   description         = "Runs every hour"
 
