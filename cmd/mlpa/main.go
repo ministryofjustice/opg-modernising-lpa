@@ -23,7 +23,6 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -35,7 +34,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
@@ -116,13 +114,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-		scheduledRunnerPeriod = cmp.Or(os.Getenv("SCHEDULED_RUNNER_PERIOD"), "6h")
 	)
-
-	scheduledRunnerPeriodDur, err := time.ParseDuration(scheduledRunnerPeriod)
-	if err != nil {
-		return err
-	}
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
 	if err != nil {
@@ -342,17 +334,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
-
-	donorStore := donor.NewStore(lpasDynamoClient, eventClient, logger, searchClient)
-	scheduledStore := scheduled.NewStore(lpasDynamoClient)
-
-	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, scheduledRunnerPeriodDur)
-	go func() {
-		if err := runner.Run(ctx); err != nil {
-			logger.Error("runner error", slog.Any("err", err))
-			os.Exit(1)
-		}
-	}()
 
 	server := &http.Server{
 		Addr:              ":" + port,

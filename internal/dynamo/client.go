@@ -471,3 +471,25 @@ func (c *Client) Move(ctx context.Context, oldKeys Keys, value any) error {
 
 	return err
 }
+
+func (c *Client) AnyByPK(ctx context.Context, pk PK, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName:                aws.String(c.table),
+		ExpressionAttributeNames: map[string]string{"#PK": "PK"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
+		},
+		KeyConditionExpression: aws.String("#PK = :PK"),
+		Limit:                  aws.Int32(1),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
