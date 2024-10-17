@@ -159,6 +159,40 @@ func TestPostLpaType(t *testing.T) {
 	}
 }
 
+func TestPostLpaTypeWhenLpaUIDExists(t *testing.T) {
+	form := url.Values{
+		"lpa-type": {lpadata.LpaTypePropertyAndAffairs.String()},
+	}
+
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), mock.Anything).
+		Return(nil)
+
+	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
+		LpaID:  "lpa-id",
+		LpaUID: "lpa-uid",
+		Donor: donordata.Donor{
+			FirstNames:  "John",
+			LastName:    "Smith",
+			DateOfBirth: date.New("2000", "01", "01"),
+			Address:     place.Address{Postcode: "F1 1FF"},
+		},
+		HasSentApplicationUpdatedEvent: true,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
 	form := url.Values{
 		"lpa-type": {lpadata.LpaTypePersonalWelfare.String()},
