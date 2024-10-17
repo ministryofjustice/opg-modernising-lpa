@@ -323,6 +323,11 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 		return nil
 	}
 
+	appData := appcontext.DataFromContext(ctx)
+	if appData.IsDonor() && !donor.CanChange() && donor.CheckedHashChanged() {
+		return errors.New("donor tried to change a signed LPA")
+	}
+
 	// Enforces donor to send notifications to certificate provider when LPA data has changed
 	if donor.CheckedHashChanged() && donor.Tasks.CheckYourLpa.IsCompleted() {
 		donor.Tasks.CheckYourLpa = task.StateInProgress
