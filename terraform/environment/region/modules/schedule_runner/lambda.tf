@@ -10,6 +10,7 @@ module "schedule_runner" {
     SEARCH_ENDPOINT            = var.search_endpoint
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
+    XRAY_ENABLED               = 1
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.schedule_runner_lambda_role
