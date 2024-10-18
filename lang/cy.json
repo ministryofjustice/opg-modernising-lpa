@@ -297,6 +297,7 @@
     "submittedYourLpa": "Rydych wedi cyflwyno eich LPA",
     "whatHappensNext": "Beth fydd yn digwydd nesaf",
     "weWillContactYourCertificateProvider": "Byddwn yn cysylltu â’ch darparwr tystysgrif, {{.FirstNames}}, ac yn gofyn iddynt gadarnhau eu hunaniaeth.",
+    "opgWillContactYourCertificateProvider": "Welsh {{.FullName}}",
     "weWillThenContactAttorneys": {
         "one": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
         "two": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
@@ -304,10 +305,20 @@
         "many": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
         "other": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod."
     },
+    "opgWillContactAttorneys": {
+        "one": "Welsh {{.FullNames}}",
+        "two": "Welsh {{.FullNames}}",
+        "few": "Welsh {{.FullNames}}",
+        "many": "Welsh {{.FullNames}}",
+        "other": "Welsh {{.FullNames}}"
+    },
     "onceEveryoneHasSigned": "Unwaith y bydd pawb wedi llofnodi a phan fydd eich LPA wedi’n cyrraedd, byddwn yn hysbysu unrhyw bobl y byddwch yn dewis rhoi gwybod iddynt. Bydd cyfnod aros o 4 wythnos yn dechrau. Mae hyn yn ofynnol yn ôl y gyfraith, er mwyn caniatáu i unrhyw un sydd â gwrthwynebiad i’w codi.",
+    "onceEveryoneHasSignedOpgWill": "Welsh",
     "wellRegisteredYourLpa": "Byddwn yn cofrestru eich LPA.",
     "atTheEndOfTheWaitingPeriod": "Welsh",
+    "atTheEndOfTheWaitingPeriodOpgWill": "Welsh",
     "ifYourLpaIsSuccessfullyReviewed": "Welsh",
+    "ifTheCOPFindsYourLpaIsValid": "Welsh",
     "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn anfon e-bost atoch i roi’r wybodaeth ddiweddaraf i chi am gofrestriad eich LPA. Os oes unrhyw broblemau, byddwn yn rhoi gwybod i chi.</p><p class=\"govuk-body\">Gallwch hefyd gadw golwg ar gynnydd eich LPA drwy fewngofnodi i’r gwasanaeth hwn unrhyw bryd.</p>",
     "signIn4WeeksWarning": {
         "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
@@ -1194,7 +1205,6 @@
     "wouldYouLikeToAddAddressHint": "Welsh",
     "yesToAddAnAddress": "Welsh",
     "correspondent": "Welsh",
-    "theOPG": "Welsh",
     "addMyLpa": "Ychwanegu fy LPA",
     "contactNumber": "Welsh",
     "weSentAnEmailYourLpaIsReadyToRegister": "Welsh {{.SentOn}}",
@@ -1247,6 +1257,7 @@
     "registerYourLpaThroughCOPContent": "<p class=\"govuk-body\">Welsh</p>",
     "registerYourLpaThroughCOPWarning": "Welsh",
     "whatWouldYouLikeToDo": "Welsh",
+    "yourLpaMustBeReviewedByCOP": "Welsh",
     "iNoLongerWantToMakeThisLpa": "Welsh",
     "iNoLongerWantToMakeThisLpaHint": "Welsh",
     "iWillApplyToCourtOfProtectionToRegisterThisLpa": "Welsh",
@@ -1266,7 +1277,6 @@
     "ifYouNeedHelpWithGOLContactTheirTeam": "Welsh",
     "contactGOL": "Welsh",
     "whatYouWouldLikeToDo": "Welsh",
-    "youHaveToldUsYouAreApplyingCOP": "Welsh",
     "countAttorneys": {
         "one": "Welsh",
         "two": "Welsh",
@@ -1274,7 +1284,6 @@
         "many": "Welsh",
         "other": "Welsh"
     },
-    "whatHappensNextRegisteringWithCOPContent": "<p class=\"govuk-body\">Welsh</p><ul class=\"govuk-list govuk-list--bullet\"><li>Welsh {{ .CertificateProviderFullName }} Welsh.</li><li>Welsh {{ .CountAttorneys }} Welsh</li><li>Welsh</li></ul>",
     "yourConfirmedIdentityDetails": "Welsh",
     "theDetailsOnYourLPA": "Welsh",
     "someDetailsDoNotMatchIdentityDetailsWarning": "Welsh",
@@ -1422,5 +1431,8 @@
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh {{possessive .DonorFullName }} Welsh</p></div>",
     "youHaveSuccessfullyConfirmedYourIdentitySuccess:voucher": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
     "thanksWeCannotRegisterUntilCourtOfProtection": "Welsh",
-    "youCanTrackTheProgressByLoggingBackIn": "Welsh"
+    "youCanTrackTheProgressByLoggingBackIn": "Welsh",
+    "signYourLpaSoCanSubmitToCOP": "Welsh",
+    "opgWillCompleteOurChecks": "Welsh",
+    "youCanTrackTheProgressAnyTime": "Welsh"
 }
