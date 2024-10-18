@@ -32,6 +32,36 @@ module "event_received" {
   }
 }
 
+resource "aws_sqs_queue" "receive_events_queue" {
+  name = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.receive_events_deadletter.arn
+    maxReceiveCount = 3
+  })
+}
+
+resource "aws_sqs_queue" "receive_events_deadletter" {
+  name = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
+  # need to figure out best way to handle the retention policy here
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "receive_events_redrive_allow_policy" {
+  queue_url = aws_sqs_queue.receive_events_deadletter.id
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue",
+    sourceQueueArns   = [aws_sqs_queue.receive_events_queue.arn]
+  })
+}
+
+resource "aws_lambda_event_source_mapping" "reveive_events_mapping" {
+  event_source_arn = aws_sqs_queue.receive_events_queue.arn
+  enabled = true
+  function_name = event_received.lambda.arn
+  batch_size = 1
+}
+
 data "aws_iam_policy_document" "api_access_policy" {
   statement {
     sid       = "allowApiAccess"
@@ -66,7 +96,7 @@ resource "aws_cloudwatch_event_target" "receive_events_sirius" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_sirius.name
-  arn            = module.event_received.lambda.arn
+  arn            = module.receive_events_queue.arn
   provider       = aws.region
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
@@ -89,7 +119,7 @@ resource "aws_cloudwatch_event_target" "receive_events_lpa_store" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_lpa_store.name
-  arn            = module.event_received.lambda.arn
+  arn            = module.receive_events_queue.arn
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
   }
@@ -112,7 +142,7 @@ resource "aws_cloudwatch_event_target" "receive_events_mlpa" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_mlpa.name
-  arn            = module.event_received.lambda.arn
+  arn            = module.receive_events_queue.arn
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
   }

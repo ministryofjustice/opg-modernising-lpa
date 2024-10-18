@@ -19,7 +19,7 @@ import (
 
 type siriusEventHandler struct{}
 
-func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent events.CloudWatchEvent) error {
+func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent *events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "evidence-received":
 		return handleEvidenceReceived(ctx, factory.DynamoClient(), cloudWatchEvent)
@@ -74,7 +74,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 	}
 }
 
-func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent) error {
+func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -99,7 +99,7 @@ func handleEvidenceReceived(ctx context.Context, client dynamodbClient, event ev
 func handleFeeApproved(
 	ctx context.Context,
 	client dynamodbClient,
-	e events.CloudWatchEvent,
+	e *events.CloudWatchEvent,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
 	eventClient EventClient,
@@ -149,7 +149,7 @@ func handleFeeApproved(
 	return nil
 }
 
-func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -173,7 +173,7 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 	return nil
 }
 
-func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+func handleFeeDenied(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -198,7 +198,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event events.Cl
 	return nil
 }
 
-func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData appcontext.Data, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
+func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, shareCodeSender ShareCodeSender, appData appcontext.Data, lpaStoreClient LpaStoreClient, uuidString func() string, now func() time.Time) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -246,7 +246,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 	return nil
 }
 
-func handleCertificateProviderSubmissionCompleted(ctx context.Context, event events.CloudWatchEvent, factory factory) error {
+func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *events.CloudWatchEvent, factory factory) error {
 	var v uidEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
