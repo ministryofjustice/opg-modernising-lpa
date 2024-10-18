@@ -19,6 +19,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
+	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func handleRunSchedule(ctx context.Context) error {
@@ -30,6 +33,7 @@ func handleRunSchedule(ctx context.Context) error {
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		tableName             = os.Getenv("LPAS_TABLE")
+		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 	)
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
@@ -57,7 +61,24 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(cfg, eventBusName), bundle)
+	httpClient := http.DefaultClient
+
+	if xrayEnabled {
+		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		if err != nil {
+			return err
+		}
+
+		shutdown, err := telemetry.Setup(ctx, resource)
+		if err != nil {
+			return err
+		}
+		defer shutdown(ctx)
+
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+	}
+
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
 	if err != nil {
 		return err
 	}
