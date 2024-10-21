@@ -65,16 +65,16 @@ func handleRunSchedule(ctx context.Context) error {
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	}
 
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
 			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
 		}))
-
-	if len(awsBaseURL) > 0 {
-		cfg.BaseEndpoint = aws.String(awsBaseURL)
-	}
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
