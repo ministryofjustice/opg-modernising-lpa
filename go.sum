@@ -215,6 +215,8 @@ go.opentelemetry.io/contrib/detectors/aws/ecs v1.30.0 h1:tyAMwh9XYbINOpW62iYo2k7
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.30.0/go.mod h1:NuMawOvkflSsTZAu3iF3ydeF4spFQUnf8DYjK8YdqYI=
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.31.0 h1:9NnVhmpyOhAoqUow2eQADRxU5RXPamxEapA14ZerbiY=
 go.opentelemetry.io/contrib/detectors/aws/ecs v1.31.0/go.mod h1:mt4gForBfLxbUC/ELOFpKVn5+8sxklaJmMBLTH+di3w=
+go.opentelemetry.io/contrib/detectors/aws/lambda v0.56.0/go.mod h1:eeNBumBx4wvpNoi28jNnnh/mfjSAcFxvj7EZTxN747E=
+go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda v0.56.0/go.mod h1:LZFxLDlfl6RRNH8MgtUrqC0ahBuF+euBMSnt6xuKdsE=
 go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.55.0 h1:MnAevUB0SFfKALzF5ApgrArdvHZduRT3/e59L/lNYKE=
 go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.55.0/go.mod h1:MHPbT1EvQOZMGbKeuCovYWcyM9iaxcltRf7+GsU8ziE=
 go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.56.0 h1:bPOyEYm7Lz4W+Koclh4uMeA025PgGvG1lwQeSOrAcJc=
@@ -239,6 +241,7 @@ go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.30.0 h1:m0yTi
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.30.0/go.mod h1:wBQbT4UekBfegL2nx0Xk1vBcnzyBPsIVm9hRG4fYcr4=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.31.0 h1:FFeLy03iVTXP6ffeN2iXrxfGsZGCjVx0/4KlizjyBwU=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.31.0/go.mod h1:TMu73/k1CP8nBUpDLc71Wj/Kf7ZS9FK5b53VapRsP9o=
+go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.31.0/go.mod h1:fcwWuDuaObkkChiDlhEpSq9+X1C0omv+s5mBtToAQ64=
 go.opentelemetry.io/otel/metric v1.30.0 h1:4xNulvn9gjzo4hjg+wzIKG7iNFEaBMX00Qd4QIZs7+w=
 go.opentelemetry.io/otel/metric v1.30.0/go.mod h1:aXTfST94tswhWEb+5QjlSqG+cZlmyXy/u8jFpor3WqQ=
 go.opentelemetry.io/otel/metric v1.31.0 h1:FSErL0ATQAmYHUIzSezZibnyVlft1ybhy4ozRPcF2fE=

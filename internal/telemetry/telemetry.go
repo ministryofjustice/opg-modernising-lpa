@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/felixge/httpsnoop"
@@ -15,18 +16,34 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
-	traceExporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource) (func(context.Context) error, error) {
+	var exporter sdktrace.SpanExporter
+	var err error
+
+	if stdOutOverride {
+		// Create console exporter to be able to retrieve spans
+		exporter, err = stdouttrace.New(
+			stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout),
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to create console exporter: %w", err)
+		}
+	} else {
+		exporter, err = otlptracegrpc.New(ctx,
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+		}
 	}
 
 	idg := xray.NewIDGenerator()
@@ -34,14 +51,14 @@ func Setup(ctx context.Context, resource *resource.Resource) (func(context.Conte
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(resource),
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithIDGenerator(idg),
 	)
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return traceExporter.Shutdown, nil
+	return exporter.Shutdown, nil
 }
 
 func WrapHandler(handler http.Handler) http.HandlerFunc {
