@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/smithy-go/middleware"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -71,6 +72,16 @@ func handleRunSchedule(ctx context.Context) error {
 	if len(awsBaseURL) > 0 {
 		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
+
+	cfg.APIOptions = append(cfg.APIOptions, func(stack *middleware.Stack) error {
+		return stack.Build.Add(middleware.BuildMiddlewareFunc(
+			"debugger",
+			func(ctx context.Context, input middleware.BuildInput, next middleware.BuildHandler) (middleware.BuildOutput, middleware.Metadata, error) {
+				fmt.Printf("Making AWS request to: %s\n", input.Request)
+				return next.HandleBuild(ctx, input)
+			},
+		), middleware.Before)
+	})
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
 
