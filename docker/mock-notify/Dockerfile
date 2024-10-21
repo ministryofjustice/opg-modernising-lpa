@@ -1,6 +1,6 @@
 FROM golang:1.23.2-alpine AS build-env
 
-RUN apk --no-cache add openssl=3.3.2-r0
+RUN apk --no-cache add openssl=3.3.2-r1
 
 WORKDIR /app
 
