@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "schedule_runner" {
   }
 
   statement {
-    sid    = "${local.policy_region_prefix}SecretAccess"
+    sid    = "${local.policy_region_prefix}AllowSecretAccess"
     effect = "Allow"
 
     actions = [
@@ -112,7 +112,7 @@ data "aws_iam_policy_document" "schedule_runner" {
   }
 
   statement {
-    sid    = "${local.policy_region_prefix}Allow"
+    sid    = "${local.policy_region_prefix}AllowEventBusAccess"
     effect = "Allow"
     actions = [
       "events:PutEvents",
@@ -120,6 +120,21 @@ data "aws_iam_policy_document" "schedule_runner" {
     resources = [
       var.event_bus.arn
     ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}XrayAccess"
+    effect = "Allow"
+
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries",
+    ]
+
+    resources = ["*"]
   }
 
   provider = aws.region
