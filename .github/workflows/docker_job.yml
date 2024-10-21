@@ -136,10 +136,13 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
           TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
+          scan-type: 'image'
+          scanners: 'vuln'
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          exit-code: 0
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
