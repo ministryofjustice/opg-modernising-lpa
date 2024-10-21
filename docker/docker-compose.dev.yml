@@ -58,7 +58,7 @@ services:
       platforms:
         - "linux/amd64"
         - "linux/arm64"
-    container_name: schedule-runner
+    container_name: schedule-runner-lambda
     environment:
       - AWS_ACCESS_KEY_ID=fakeKeyId
       - AWS_BASE_URL=http://localstack:4566
@@ -68,6 +68,7 @@ services:
       - GOVUK_NOTIFY_IS_PRODUCTION=0
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
+      - XRAY_ENABLED=1
     ports:
       - "9002:8080"
     entrypoint: aws-lambda-rie /var/task/schedule-runner
