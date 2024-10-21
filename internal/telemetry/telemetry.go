@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/felixge/httpsnoop"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -25,19 +26,33 @@ import (
 
 func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource) (func(context.Context) error, error) {
 	var exporter sdktrace.SpanExporter
+	var bsp sdktrace.SpanProcessor
 	var err error
 
 	if stdOutOverride {
-		// Create console exporter to be able to retrieve spans
 		exporter, err = stdouttrace.New(
 			stdouttrace.WithPrettyPrint(),
 			stdouttrace.WithWriter(os.Stdout),
+		)
+
+		bsp = sdktrace.NewBatchSpanProcessor(
+			exporter,
+			sdktrace.WithBatchTimeout(100*time.Millisecond),
+			sdktrace.WithMaxExportBatchSize(1), // Export immediately for testing
 		)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to create console exporter: %w", err)
 		}
 	} else {
+		bsp = sdktrace.NewBatchSpanProcessor(
+			exporter,
+			sdktrace.WithBatchTimeout(2*time.Second),
+			sdktrace.WithMaxExportBatchSize(1024),
+			sdktrace.WithMaxQueueSize(4096),
+			sdktrace.WithExportTimeout(5*time.Second),
+		)
+
 		exporter, err = otlptracegrpc.New(ctx,
 			otlptracegrpc.WithInsecure(),
 			otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
@@ -53,6 +68,7 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithIDGenerator(idg),
+		sdktrace.WithSpanProcessor(bsp),
 	)
 
 	otel.SetTracerProvider(tp)
