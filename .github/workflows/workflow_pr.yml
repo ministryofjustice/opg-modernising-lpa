@@ -55,7 +55,7 @@ jobs:
     needs: [
       go_unit_tests,
       create_tags
-      ]
+    ]
     with:
       tag: ${{ needs.create_tags.outputs.version_tag }}
       branch_name: ${{ github.head_ref }}
@@ -97,7 +97,10 @@ jobs:
     if: needs.detect_changes.outputs.changes_detected == 'true' &&
       (needs.docker_build_scan_push.result == 'success' || needs.docker_build_scan_push.result == 'skipped')
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [docker_build_scan_push, create_tags]
+    needs: [
+      docker_build_scan_push,
+      create_tags
+    ]
     with:
       run_against_image: true
       tag: ${{ needs.create_tags.outputs.version_tag }}
@@ -138,7 +141,10 @@ jobs:
     if: always() &&
       needs.pr_deploy.result == 'success'
     uses: ./.github/workflows/ui_test_job.yml
-    needs: [pr_deploy, create_tags]
+    needs: [
+      pr_deploy,
+      create_tags
+    ]
     with:
       run_against_image: false
       base_url: "https://${{ needs.pr_deploy.outputs.url }}"
