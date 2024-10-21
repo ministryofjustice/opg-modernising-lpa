@@ -27,6 +27,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 func handleRunSchedule(ctx context.Context) error {
@@ -41,6 +42,8 @@ func handleRunSchedule(ctx context.Context) error {
 		tableName             = os.Getenv("LPAS_TABLE")
 		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 	)
+
+	start := time.Now()
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -116,6 +119,21 @@ func handleRunSchedule(ctx context.Context) error {
 	if err := runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
 		return err
+	}
+
+	// Calculate adaptive flush timeout based on execution time
+	executionTime := time.Since(start)
+	flushTimeout := 200 * time.Millisecond // minimum timeout
+	if executionTime > time.Second {
+		// For longer executions, give more time for flush
+		flushTimeout = 500 * time.Millisecond
+	}
+
+	// Force flush before returning
+	if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
+		flushCtx, cancel := context.WithTimeout(ctx, flushTimeout)
+		defer cancel()
+		_ = tp.ForceFlush(flushCtx)
 	}
 
 	return nil

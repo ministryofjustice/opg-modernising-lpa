@@ -326,5 +326,6 @@ func newSpan(ctx context.Context, label, templateID, to string) (context.Context
 	span.SetAttributes(
 		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(templateID)},
 		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+
 	return ctx, span
 }
