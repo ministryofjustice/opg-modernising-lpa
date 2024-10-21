@@ -5,6 +5,7 @@ import (
 	"cmp"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"log/slog"
@@ -42,7 +43,7 @@ type factory interface {
 }
 
 type Handler interface {
-	Handle(context.Context, factory, events.CloudWatchEvent) error
+	Handle(context.Context, factory, *events.CloudWatchEvent) error
 }
 
 type uidEvent struct {
@@ -73,12 +74,31 @@ type EventClient interface {
 }
 
 type Event struct {
-	events.S3Event
-	events.CloudWatchEvent
+	CloudWatchEvent *events.CloudWatchEvent
+	S3Event         *events.S3Event
+	SQSEvent        *events.SQSEvent
 }
 
-func (e Event) isS3Event() bool {
-	return len(e.Records) > 0
+func (e *Event) UnmarshalJSON(data []byte) error {
+	var cloud events.CloudWatchEvent
+	if err := json.Unmarshal(data, &cloud); err == nil {
+		e.CloudWatchEvent = &cloud
+		return nil
+	}
+
+	var s3 events.S3Event
+	if err := json.Unmarshal(data, &s3); err == nil {
+		e.S3Event = &s3
+		return nil
+	}
+
+	var sqs events.SQSEvent
+	if err := json.Unmarshal(data, &sqs); err == nil {
+		e.SQSEvent = &sqs
+		return nil
+	}
+
+	return errors.New("unknown event type")
 }
 
 func handler(ctx context.Context, event Event) error {
@@ -117,7 +137,7 @@ func handler(ctx context.Context, event Event) error {
 		return fmt.Errorf("failed to create dynamodb client: %w", err)
 	}
 
-	if event.isS3Event() {
+	if event.S3Event != nil {
 		s3Client := s3.NewClient(cfg, evidenceBucketName)
 		documentStore := document.NewStore(dynamoClient, nil, nil)
 
@@ -128,44 +148,54 @@ func handler(ctx context.Context, event Event) error {
 		return nil
 	}
 
-	factory := &Factory{
-		logger:                logger,
-		now:                   time.Now,
-		uuidString:            random.UuidString,
-		cfg:                   cfg,
-		dynamoClient:          dynamoClient,
-		appPublicURL:          appPublicURL,
-		lpaStoreBaseURL:       lpaStoreBaseURL,
-		lpaStoreSecretARN:     lpaStoreSecretARN,
-		uidBaseURL:            uidBaseURL,
-		notifyBaseURL:         notifyBaseURL,
-		notifyIsProduction:    notifyIsProduction,
-		eventBusName:          eventBusName,
-		searchEndpoint:        searchEndpoint,
-		searchIndexName:       searchIndexName,
-		searchIndexingEnabled: searchIndexingEnabled,
+	if event.SQSEvent != nil {
+		for _, record := range event.SQSEvent.Records {
+			logger.InfoContext(ctx, "record", slog.Any("all", record))
+		}
+
+		return nil
 	}
 
-	var handler Handler
-	switch event.Source {
-	case "opg.poas.sirius":
-		handler = &siriusEventHandler{}
-	case "opg.poas.makeregister":
-		handler = &makeregisterEventHandler{}
-	case "opg.poas.lpastore":
-		handler = &lpastoreEventHandler{}
+	if event.CloudWatchEvent != nil {
+		factory := &Factory{
+			logger:                logger,
+			now:                   time.Now,
+			uuidString:            random.UuidString,
+			cfg:                   cfg,
+			dynamoClient:          dynamoClient,
+			appPublicURL:          appPublicURL,
+			lpaStoreBaseURL:       lpaStoreBaseURL,
+			lpaStoreSecretARN:     lpaStoreSecretARN,
+			uidBaseURL:            uidBaseURL,
+			notifyBaseURL:         notifyBaseURL,
+			notifyIsProduction:    notifyIsProduction,
+			eventBusName:          eventBusName,
+			searchEndpoint:        searchEndpoint,
+			searchIndexName:       searchIndexName,
+			searchIndexingEnabled: searchIndexingEnabled,
+		}
+
+		var handler Handler
+		switch event.CloudWatchEvent.Source {
+		case "opg.poas.sirius":
+			handler = &siriusEventHandler{}
+		case "opg.poas.makeregister":
+			handler = &makeregisterEventHandler{}
+		case "opg.poas.lpastore":
+			handler = &lpastoreEventHandler{}
+		}
+
+		if handler == nil {
+			eJson, _ := json.Marshal(event)
+			return fmt.Errorf("unknown event received: %s", string(eJson))
+		}
+
+		if err := handler.Handle(ctx, factory, event.CloudWatchEvent); err != nil {
+			return fmt.Errorf("%s: %w", event.CloudWatchEvent.DetailType, err)
+		}
+		log.Println("successfully handled ", event.CloudWatchEvent.DetailType)
 	}
 
-	if handler == nil {
-		eJson, _ := json.Marshal(event)
-		return fmt.Errorf("unknown event received: %s", string(eJson))
-	}
-
-	if err := handler.Handle(ctx, factory, event.CloudWatchEvent); err != nil {
-		return fmt.Errorf("%s: %w", event.DetailType, err)
-	}
-
-	log.Println("successfully handled ", event.DetailType)
 	return nil
 }
 
