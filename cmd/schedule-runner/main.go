@@ -7,10 +7,13 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/smithy-go/middleware"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -19,10 +22,18 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
+	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 func handleRunSchedule(ctx context.Context) error {
 	var (
+		awsBaseURL            = os.Getenv("AWS_BASE_URL")
 		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
@@ -30,17 +41,54 @@ func handleRunSchedule(ctx context.Context) error {
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		tableName             = os.Getenv("LPAS_TABLE")
+		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 	)
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
-		WithAttrs([]slog.Attr{
-			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
-		}))
+	start := time.Now()
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load default config: %w", err)
 	}
+
+	httpClient := &http.Client{Timeout: time.Second * 30}
+
+	if xrayEnabled {
+		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		if err != nil {
+			return err
+		}
+
+		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		if err != nil {
+			return err
+		}
+
+		defer shutdown(ctx)
+
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+	}
+
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
+	cfg.APIOptions = append(cfg.APIOptions, func(stack *middleware.Stack) error {
+		return stack.Build.Add(middleware.BuildMiddlewareFunc(
+			"debugger",
+			func(ctx context.Context, input middleware.BuildInput, next middleware.BuildHandler) (middleware.BuildOutput, middleware.Metadata, error) {
+				fmt.Printf("Making AWS request to: %s\n", input.Request)
+				return next.HandleBuild(ctx, input)
+			},
+		), middleware.Before)
+	})
+
+	otelaws.AppendMiddlewares(&cfg.APIOptions)
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
+		WithAttrs([]slog.Attr{
+			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
+		}))
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
@@ -57,7 +105,7 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(cfg, eventBusName), bundle)
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
 	if err != nil {
 		return err
 	}
@@ -84,9 +132,27 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
+	// Calculate adaptive flush timeout based on execution time
+	executionTime := time.Since(start)
+	flushTimeout := 200 * time.Millisecond // minimum timeout
+	if executionTime > time.Second {
+		// For longer executions, give more time for flush
+		flushTimeout = 500 * time.Millisecond
+	}
+
+	// Force flush before returning
+	if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
+		flushCtx, cancel := context.WithTimeout(ctx, flushTimeout)
+		defer cancel()
+		_ = tp.ForceFlush(flushCtx)
+	}
+
 	return nil
 }
 
 func main() {
-	lambda.Start(handleRunSchedule)
+	handler := otellambda.InstrumentHandler(handleRunSchedule,
+		otellambda.WithTracerProvider(otel.GetTracerProvider()),
+	)
+	lambda.Start(handler)
 }
