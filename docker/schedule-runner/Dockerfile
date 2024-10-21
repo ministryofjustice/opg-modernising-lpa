@@ -15,7 +15,7 @@ FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
 WORKDIR /app
 
 COPY --from=build /app/schedule-runner /var/task/schedule-runner
-COPY --link lang /var/task/lang
+COPY --link lang ./lang
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
 ENTRYPOINT ["./schedule-runner"]

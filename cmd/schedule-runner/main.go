@@ -7,9 +7,11 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -21,11 +23,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 )
 
 func handleRunSchedule(ctx context.Context) error {
 	var (
+		awsBaseURL            = os.Getenv("AWS_BASE_URL")
 		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
 		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
@@ -36,14 +42,38 @@ func handleRunSchedule(ctx context.Context) error {
 		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 	)
 
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to load default config: %w", err)
+	}
+
+	httpClient := &http.Client{Timeout: time.Second * 30}
+
+	if xrayEnabled {
+		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		if err != nil {
+			return err
+		}
+
+		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		if err != nil {
+			return err
+		}
+
+		defer shutdown(ctx)
+
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+	}
+
+	otelaws.AppendMiddlewares(&cfg.APIOptions)
+
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
 			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
 		}))
 
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to load default config: %w", err)
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
@@ -59,23 +89,6 @@ func handleRunSchedule(ctx context.Context) error {
 	bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 	if err != nil {
 		return err
-	}
-
-	httpClient := http.DefaultClient
-
-	if xrayEnabled {
-		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
-		if err != nil {
-			return err
-		}
-
-		shutdown, err := telemetry.Setup(ctx, resource)
-		if err != nil {
-			return err
-		}
-		defer shutdown(ctx)
-
-		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	}
 
 	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
@@ -109,5 +122,8 @@ func handleRunSchedule(ctx context.Context) error {
 }
 
 func main() {
-	lambda.Start(handleRunSchedule)
+	handler := otellambda.InstrumentHandler(handleRunSchedule,
+		otellambda.WithTracerProvider(otel.GetTracerProvider()),
+	)
+	lambda.Start(handler)
 }
