@@ -3,7 +3,7 @@ module "schedule_runner" {
   lambda_name = "schedule-runner"
   description = "Function to run scheduled tasks on a schedule set by EventBridge Scheduler"
   environment_variables = {
-    EVENT_BUS_NAME             = var.event_bus_name
+    EVENT_BUS_NAME             = var.event_bus.name
     GOVUK_NOTIFY_BASE_URL      = "https://api.notifications.service.gov.uk"
     GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     LPAS_TABLE                 = var.lpas_table.name
@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "schedule_runner" {
   }
 
   statement {
-    sid = "${local.policy_region_prefix}Allow"
+    sid = "${local.policy_region_prefix}AllowDynamoDBAccess"
 
     actions = [
       "dynamodb:DeleteItem",
@@ -108,6 +108,17 @@ data "aws_iam_policy_document" "schedule_runner" {
       "kms:GenerateDataKeyPairWithoutPlaintext",
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:DescribeKey",
+    ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}Allow"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      var.event_bus.arn
     ]
   }
 
