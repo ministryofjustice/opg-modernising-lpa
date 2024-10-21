@@ -14,7 +14,7 @@ import (
 
 type makeregisterEventHandler struct{}
 
-func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent events.CloudWatchEvent) error {
+func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent *events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "uid-requested":
 		uidStore, err := factory.UidStore()
@@ -33,7 +33,7 @@ func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, 
 	}
 }
 
-func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e events.CloudWatchEvent, dynamoClient dynamodbClient, eventClient EventClient) error {
+func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e *events.CloudWatchEvent, dynamoClient dynamodbClient, eventClient EventClient) error {
 	var v event.UidRequested
 	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
