@@ -138,9 +138,8 @@ jobs:
 
   ui_tests_pr_env:
     name: Run Cypress UI Tests On PR Environment
-    if: always()
-    # if: always() &&
-    #   needs.pr_deploy.result == 'success'
+    if: always() &&
+      needs.pr_deploy.result == 'success'
     uses: ./.github/workflows/ui_test_job.yml
     needs: [
       pr_deploy,
