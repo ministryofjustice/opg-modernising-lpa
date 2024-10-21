@@ -7,37 +7,37 @@ require (
 	github.com/MicahParks/keyfunc/v3 v3.3.5
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.32.2
-	github.com/aws/aws-sdk-go-v2/config v1.27.43
+	github.com/aws/aws-sdk-go-v2/config v1.28.0
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.41
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.15.12
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.36.2
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.35.2
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.65.2
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.66.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.34.2
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.36.2
 	github.com/aws/smithy-go v1.22.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
-	github.com/gabriel-vasile/mimetype v1.4.5
+	github.com/gabriel-vasile/mimetype v1.4.6
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/sessions v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.18.0
+	github.com/ministryofjustice/opg-go-common v1.25.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
-	github.com/opensearch-project/opensearch-go/v4 v4.2.0
+	github.com/opensearch-project/opensearch-go/v4 v4.3.0
 	github.com/pact-foundation/pact-go/v2 v2.0.8
 	github.com/stretchr/testify v1.9.0
-	github.com/vektra/mockery/v2 v2.46.2
+	github.com/vektra/mockery/v2 v2.46.3
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.opentelemetry.io/contrib/detectors/aws/ecs v1.30.0
+	go.opentelemetry.io/contrib/detectors/aws/ecs v1.31.0
 	go.opentelemetry.io/contrib/detectors/aws/lambda v0.56.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda v0.56.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.55.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0
-	go.opentelemetry.io/contrib/propagators/aws v1.30.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws v0.56.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.56.0
+	go.opentelemetry.io/contrib/propagators/aws v1.31.0
 	go.opentelemetry.io/otel v1.31.0
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.30.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.31.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.31.0
 	go.opentelemetry.io/otel/sdk v1.31.0
 	go.opentelemetry.io/otel/trace v1.31.0
@@ -99,7 +99,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.30.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.31.0 // indirect
 	go.opentelemetry.io/otel/metric v1.31.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
@@ -110,10 +110,10 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20241007155032-5fefd90f89a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241007155032-5fefd90f89a9 // indirect
 	google.golang.org/grpc v1.67.1 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
