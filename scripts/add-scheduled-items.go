@@ -46,7 +46,7 @@ func main() {
 	var items []any
 	now := time.Now()
 
-	for i := 0; i < 10_000; i++ {
+	for i := 0; i < 1; i++ {
 		now = now.Add(time.Second * 1)
 
 		donor := &donordata.Provided{
@@ -74,6 +74,12 @@ func main() {
 			}
 
 			items = []any{}
+		}
+	}
+
+	if len(items) > 0 {
+		if err := client.BatchPut(ctx, items); err != nil {
+			log.Fatal(err)
 		}
 	}
 }
