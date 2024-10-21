@@ -133,7 +133,7 @@ locals {
       essential              = true,
       image                  = "${var.repository_url}:${var.container_version}",
       mountPoints            = [],
-      readonlyRootFilesystem = true,
+      readonlyRootFilesystem = false,
       name                   = "mock_pay",
       portMappings = [
         {
