@@ -22,12 +22,12 @@ import (
 func TestMakeRegisterHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &makeregisterEventHandler{}
 
-	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
+	err := handler.Handle(ctx, nil, &events.CloudWatchEvent{DetailType: "some-event"})
 	assert.Equal(t, fmt.Errorf("unknown makeregister event"), err)
 }
 
 func TestHandleUidRequestedDonor(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail: json.RawMessage(
 			`{"lpaID":"lpa-id","donorSessionID":"donor-session-id","organisationID":"","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
@@ -104,7 +104,7 @@ func TestHandleUidRequestedDonor(t *testing.T) {
 }
 
 func TestHandleUidRequestedOrganisation(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail: json.RawMessage(
 			`{"lpaID":"lpa-id","donorSessionID":"","organisationID":"organisation-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
@@ -166,7 +166,7 @@ func TestHandleUidRequestedOrganisation(t *testing.T) {
 }
 
 func TestHandleUidRequestedWhenLpaUIDExists(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail: json.RawMessage(
 			`{"lpaID":"lpa-id","donorSessionID":"","organisationID":"organisation-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`,
@@ -197,7 +197,7 @@ func TestHandleUidRequestedWhenLpaUIDExists(t *testing.T) {
 }
 
 func TestHandleUidRequestedWhenDynamoClientError(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
@@ -212,7 +212,7 @@ func TestHandleUidRequestedWhenDynamoClientError(t *testing.T) {
 }
 
 func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
@@ -232,7 +232,7 @@ func TestHandleUidRequestedWhenUidClientErrors(t *testing.T) {
 }
 
 func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
@@ -257,7 +257,7 @@ func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
 }
 
 func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "uid-requested",
 		Detail:     json.RawMessage(`{"lpaID":"an-id","donorSessionID":"donor-id","type":"personal-welfare","donor":{"name":"a donor","dob":"2000-01-02","postcode":"F1 1FF"}}`),
 	}
