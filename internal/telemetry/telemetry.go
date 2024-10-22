@@ -47,15 +47,9 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 	} else {
 		bsp = sdktrace.NewBatchSpanProcessor(
 			exporter,
-			// Short enough for quick executions, but allows batching for longer ones
-			//sdktrace.WithBatchTimeout(200*time.Millisecond),
-			// Medium batch size to handle both scenarios
 			sdktrace.WithBatchTimeout(100*time.Millisecond),
 			sdktrace.WithMaxExportBatchSize(2),
-			// Larger queue to handle spikes in longer executions
-			//sdktrace.WithMaxQueueSize(512),
-			// Reasonable timeout that won't block quick executions
-			//sdktrace.WithExportTimeout(500*time.Millisecond),
+			sdktrace.WithExportTimeout(200*time.Millisecond), // Ensure spans are exported before Lambda freezes
 		)
 
 		exporter, err = otlptracegrpc.New(ctx,
@@ -79,7 +73,16 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return exporter.Shutdown, nil
+	return func(ctx context.Context) error {
+		flushCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		if err := tp.ForceFlush(flushCtx); err != nil {
+			return fmt.Errorf("failed to flush tracer: %w", err)
+		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		return tp.Shutdown(shutdownCtx)
+	}, nil
 }
 
 func WrapHandler(handler http.Handler) http.HandlerFunc {
