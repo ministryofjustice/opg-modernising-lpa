@@ -21,12 +21,16 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/appengine/log"
 )
 
@@ -45,27 +49,56 @@ var (
 	cfg        aws.Config
 )
 
+func setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource) (func(context.Context) error, error) {
+	var exporter sdktrace.SpanExporter
+	var err error
+
+	if stdOutOverride {
+		exporter, err = stdouttrace.New(
+			stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout),
+		)
+	} else {
+		exporter, err = otlptracegrpc.New(ctx,
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint("0.0.0.0:4317"),
+		)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to create exporter: %w", err)
+	}
+
+	bsp := sdktrace.NewBatchSpanProcessor(
+		exporter,
+		sdktrace.WithBatchTimeout(100*time.Millisecond),
+		sdktrace.WithMaxExportBatchSize(2),
+		// Ensure spans are exported before Lambda freezes
+		sdktrace.WithExportTimeout(200*time.Millisecond),
+	)
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(resource),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithIDGenerator(xray.NewIDGenerator()),
+		sdktrace.WithSpanProcessor(bsp),
+	)
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(xray.Propagator{})
+
+	return func(ctx context.Context) error {
+		flushCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		if err := tp.ForceFlush(flushCtx); err != nil {
+			return fmt.Errorf("failed to flush tracer: %w", err)
+		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		return tp.Shutdown(shutdownCtx)
+	}, nil
+}
+
 func handleRunSchedule(ctx context.Context) error {
-	//start := time.Now()
-
-	//if xrayEnabled {
-	//	ctx := context.Background()
-	//
-	//	resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	defer shutdown(ctx)
-	//
-	//	httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
-	//}
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
 			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
@@ -113,21 +146,6 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	//// Calculate adaptive flush timeout based on execution time
-	//executionTime := time.Since(start)
-	//flushTimeout := 200 * time.Millisecond // minimum timeout
-	//if executionTime > time.Second {
-	//	// For longer executions, give more time for flush
-	//	flushTimeout = 500 * time.Millisecond
-	//}
-	//
-	//// Force flush before returning
-	//if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
-	//	flushCtx, cancel := context.WithTimeout(ctx, flushTimeout)
-	//	defer cancel()
-	//	_ = tp.ForceFlush(flushCtx)
-	//}
-
 	return nil
 }
 
@@ -138,6 +156,7 @@ func main() {
 	cfg, err = config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Errorf(ctx, "failed to load default config: %v", err)
+		return
 	}
 
 	httpClient = &http.Client{Timeout: time.Second * 30}
@@ -150,31 +169,32 @@ func main() {
 		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
 		if err != nil {
 			log.Errorf(ctx, "failed to detect resource: %v", err)
+			return
 		}
 
-		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		shutdown, err := setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
 		if err != nil {
 			log.Errorf(ctx, "failed to instrument telemetry: %v", err)
+			return
 		}
 
-		defer func(ctx context.Context) {
-			err := shutdown(ctx)
-			if err != nil {
-				fmt.Printf("error shutting down tracer provider: %v", err)
+		// Wrap handler with proper context and shutdown handling
+		handler := func(ctx context.Context) error {
+			err := handleRunSchedule(ctx)
+			if shutdown != nil {
+				if shutdownErr := shutdown(ctx); shutdownErr != nil {
+					log.Errorf(ctx, "error shutting down tracer provider: %v", shutdownErr)
+				}
 			}
-		}(ctx)
+			return err
+		}
 
 		otelaws.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		tp := otellambda.WithTracerProvider(otel.GetTracerProvider())
-		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, tp))
+		lambda.Start(otellambda.InstrumentHandler(handler, tp))
 	} else {
 		lambda.Start(handleRunSchedule)
 	}
-
-	//handler := otellambda.InstrumentHandler(handleRunSchedule,
-	//	otellambda.WithTracerProvider(otel.GetTracerProvider()),
-	//)
-	//lambda.Start(handler)
 }
