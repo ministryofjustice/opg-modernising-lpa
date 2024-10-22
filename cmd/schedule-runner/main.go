@@ -24,6 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/appengine/log"
@@ -163,6 +164,7 @@ func main() {
 			}
 		}(ctx)
 
+		otelaws.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		tp := otellambda.WithTracerProvider(otel.GetTracerProvider())

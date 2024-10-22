@@ -51,7 +51,7 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 			//sdktrace.WithBatchTimeout(200*time.Millisecond),
 			// Medium batch size to handle both scenarios
 			sdktrace.WithBatchTimeout(100*time.Millisecond),
-			sdktrace.WithMaxExportBatchSize(1),
+			sdktrace.WithMaxExportBatchSize(2),
 			// Larger queue to handle spikes in longer executions
 			//sdktrace.WithMaxQueueSize(512),
 			// Reasonable timeout that won't block quick executions
