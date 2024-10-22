@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
@@ -79,6 +82,28 @@ type Factory struct {
 	lpaStoreClient  LpaStoreClient
 	uidStore        UidStore
 	uidClient       UidClient
+}
+
+func (f *Factory) Handle(ctx context.Context, event *events.CloudWatchEvent) error {
+	var handler Handler
+	switch event.Source {
+	case "opg.poas.sirius":
+		handler = &siriusEventHandler{}
+	case "opg.poas.makeregister":
+		handler = &makeregisterEventHandler{}
+	case "opg.poas.lpastore":
+		handler = &lpastoreEventHandler{}
+	}
+
+	if handler == nil {
+		eJson, _ := json.Marshal(event)
+		return fmt.Errorf("unknown event received: %s", string(eJson))
+	}
+
+	if err := handler.Handle(ctx, f, event); err != nil {
+		return fmt.Errorf("%s: %w", event.DetailType, err)
+	}
+	log.Println("successfully handled ", event.DetailType)
 }
 
 func (f *Factory) Now() func() time.Time {
