@@ -26,7 +26,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 	for scanResult, hasVirus := range testCases {
 		t.Run(scanResult, func(t *testing.T) {
 			event := Event{
-				S3Event: events.S3Event{Records: []events.S3EventRecord{
+				S3Event: &events.S3Event{Records: []events.S3EventRecord{
 					{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
 				}},
 			}
@@ -67,7 +67,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 
 func TestHandleObjectTagsAddedWhenScannedTagMissing(t *testing.T) {
 	event := Event{
-		S3Event: events.S3Event{Records: []events.S3EventRecord{
+		S3Event: &events.S3Event{Records: []events.S3EventRecord{
 			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
 		}},
 	}
@@ -85,7 +85,7 @@ func TestHandleObjectTagsAddedWhenScannedTagMissing(t *testing.T) {
 
 func TestHandleObjectTagsAddedWhenObjectKeyMissing(t *testing.T) {
 	event := Event{
-		S3Event: events.S3Event{Records: []events.S3EventRecord{
+		S3Event: &events.S3Event{Records: []events.S3EventRecord{
 			{S3: events.S3Entity{Object: events.S3Object{}}},
 		}},
 	}
@@ -96,7 +96,7 @@ func TestHandleObjectTagsAddedWhenObjectKeyMissing(t *testing.T) {
 
 func TestHandleObjectTagsAddedWhenS3ClientGetObjectTagsError(t *testing.T) {
 	event := Event{
-		S3Event: events.S3Event{Records: []events.S3EventRecord{
+		S3Event: &events.S3Event{Records: []events.S3EventRecord{
 			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
 		}},
 	}
@@ -112,7 +112,7 @@ func TestHandleObjectTagsAddedWhenS3ClientGetObjectTagsError(t *testing.T) {
 
 func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	event := Event{
-		S3Event: events.S3Event{Records: []events.S3EventRecord{
+		S3Event: &events.S3Event{Records: []events.S3EventRecord{
 			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
 		}},
 	}
@@ -146,7 +146,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 
 func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing.T) {
 	event := Event{
-		S3Event: events.S3Event{Records: []events.S3EventRecord{
+		S3Event: &events.S3Event{Records: []events.S3EventRecord{
 			{S3: events.S3Entity{Object: events.S3Object{Key: "M-1111-2222-3333/evidence/a-uid"}}},
 		}},
 	}
