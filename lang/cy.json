@@ -1327,7 +1327,7 @@
     "iDoNotWantToBeAttorney": "Nid ydw i eisiau bod yn atwrnai",
     "confirmYouDoNotWantToBeAttorney": "Cadarnhau nad ydych chi eisiau bod yn atwrnai",
     "youHaveToldUsYouDoNotWantToBeAttorneyOn": "Welsh {{.DonorFullName}}",
-    "whenYouConfirmWeWillContactToExplain": "Pan fyddwch chi’n cadarnhau, byddwn yn cysylltu â {{.DonorFirstName}} i esbonio beth allant ei wneud nesaf.",
+    "whenYouConfirmWeWillContactToExplain": "Pan fyddwch chi’n cadarnhau, byddwn yn cysylltu â {{.DonorFullName}} i esbonio beth allant ei wneud nesaf.",
     "youHaveConfirmedYouDoNotWantToBeAttorney": "Rydych chi wedi cadarnhau nad ydych chi eisiau bod yn atwrnai",
     "youHaveConfirmedYouDoNotWantToBeDonorsAttorney": "Welsh {{.DonorFullName}}",
     "weHaveLetDonorKnowAboutYourDecision": "<p class=\"govuk-body\">Rydym ni wedi rhoi gwybod i {{.DonorFirstNames}} am eich penderfyniad.</p><p class=\"govuk-body\">Does dim angen i chi wneud unrhyw beth arall.</p>",
