@@ -119,6 +119,26 @@ data "aws_iam_policy_document" "sqs_kms" {
       ]
     }
   }
+
+  statement {
+    sid    = "Allow Breakglass to Decrypt"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
+      ]
+    }
+  }
 }
 
 data "aws_iam_policy_document" "sqs_kms_development_account_operator_admin" {
@@ -143,7 +163,10 @@ data "aws_iam_policy_document" "sqs_kms_development_account_operator_admin" {
       "kms:TagResource",
       "kms:UntagResource",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:CancelKeyDeletion",
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
     ]
 
     principals {
