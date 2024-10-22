@@ -11,7 +11,7 @@ import (
 
 type lpastoreEventHandler struct{}
 
-func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent events.CloudWatchEvent) error {
+func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent *events.CloudWatchEvent) error {
 	switch cloudWatchEvent.DetailType {
 	case "lpa-updated":
 		return handleLpaUpdated(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -26,7 +26,7 @@ type lpaUpdatedEvent struct {
 	ChangeType string `json:"changeType"`
 }
 
-func handleLpaUpdated(ctx context.Context, client dynamodbClient, event events.CloudWatchEvent, now func() time.Time) error {
+func handleLpaUpdated(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time) error {
 	var v lpaUpdatedEvent
 	if err := json.Unmarshal(event.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
