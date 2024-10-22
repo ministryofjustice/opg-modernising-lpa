@@ -48,13 +48,13 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 		bsp = sdktrace.NewBatchSpanProcessor(
 			exporter,
 			// Short enough for quick executions, but allows batching for longer ones
-			sdktrace.WithBatchTimeout(200*time.Millisecond),
+			//sdktrace.WithBatchTimeout(200*time.Millisecond),
 			// Medium batch size to handle both scenarios
-			sdktrace.WithMaxExportBatchSize(64),
+			sdktrace.WithMaxExportBatchSize(1),
 			// Larger queue to handle spikes in longer executions
-			sdktrace.WithMaxQueueSize(512),
+			//sdktrace.WithMaxQueueSize(512),
 			// Reasonable timeout that won't block quick executions
-			sdktrace.WithExportTimeout(500*time.Millisecond),
+			//sdktrace.WithExportTimeout(500*time.Millisecond),
 		)
 
 		exporter, err = otlptracegrpc.New(ctx,
