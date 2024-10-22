@@ -32,15 +32,15 @@ module "event_received" {
   }
 }
 
-data "aws_kms_alias" "sqs" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_sqs_secret_encryption_key"
-  provider = aws.region
-}
+# data "aws_kms_alias" "sqs" {
+#   name     = "alias/${data.aws_default_tags.current.tags.application}_sqs_secret_encryption_key"
+#   provider = aws.region
+# }
 
 resource "aws_sqs_queue" "receive_events_queue" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
-  kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
-  kms_data_key_reuse_period_seconds = 300
+  # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
+  # kms_data_key_reuse_period_seconds = 300
 
   visibility_timeout_seconds = 300
   redrive_policy = jsonencode({
@@ -52,8 +52,8 @@ resource "aws_sqs_queue" "receive_events_queue" {
 
 resource "aws_sqs_queue" "receive_events_deadletter" {
   name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
-  kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
-  kms_data_key_reuse_period_seconds = 300
+  # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
+  # kms_data_key_reuse_period_seconds = 300
   provider                          = aws.region
 }
 
