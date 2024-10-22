@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -20,10 +21,12 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
+	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
-	"go.opentelemetry.io/contrib/propagators/aws/xray"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
+	"google.golang.org/appengine/log"
 )
 
 var (
@@ -36,15 +39,13 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+
+	httpClient *http.Client
+	cfg        aws.Config
 )
 
 func handleRunSchedule(ctx context.Context) error {
 	//start := time.Now()
-
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to load default config: %w", err)
-	}
 
 	//if xrayEnabled {
 	//	ctx := context.Background()
@@ -63,14 +64,6 @@ func handleRunSchedule(ctx context.Context) error {
 	//
 	//	httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 	//}
-
-	httpClient := &http.Client{Timeout: time.Second * 30}
-
-	if len(awsBaseURL) > 0 {
-		cfg.BaseEndpoint = aws.String(awsBaseURL)
-	}
-
-	//otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
@@ -138,24 +131,42 @@ func handleRunSchedule(ctx context.Context) error {
 }
 
 func main() {
+	ctx := context.Background()
+
+	var err error
+	cfg, err = config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Errorf(ctx, "failed to load default config: %v", err)
+	}
+
+	httpClient = &http.Client{Timeout: time.Second * 30}
+
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
 	if xrayEnabled {
-		ctx := context.Background()
-		tp, err := xrayconfig.NewTracerProvider(ctx)
+		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
 		if err != nil {
-			fmt.Printf("error creating tracer provider: %v", err)
+			log.Errorf(ctx, "failed to detect resource: %v", err)
+		}
+
+		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		if err != nil {
+			log.Errorf(ctx, "failed to instrument telemetry: %v", err)
 		}
 
 		defer func(ctx context.Context) {
-			err := tp.Shutdown(ctx)
+			err := shutdown(ctx)
 			if err != nil {
 				fmt.Printf("error shutting down tracer provider: %v", err)
 			}
 		}(ctx)
 
-		otel.SetTracerProvider(tp)
-		otel.SetTextMapPropagator(xray.Propagator{})
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
-		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
+		tp := otellambda.WithTracerProvider(otel.GetTracerProvider())
+		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, tp))
 	} else {
 		lambda.Start(handleRunSchedule)
 	}
