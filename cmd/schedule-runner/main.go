@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -21,58 +20,57 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
-	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
+
+var (
+	awsBaseURL            = os.Getenv("AWS_BASE_URL")
+	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
+	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	tableName             = os.Getenv("LPAS_TABLE")
+	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 )
 
 func handleRunSchedule(ctx context.Context) error {
-	var (
-		awsBaseURL            = os.Getenv("AWS_BASE_URL")
-		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
-		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
-		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-		tableName             = os.Getenv("LPAS_TABLE")
-		xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-	)
-
-	start := time.Now()
+	//start := time.Now()
 
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load default config: %w", err)
 	}
 
+	//if xrayEnabled {
+	//	ctx := context.Background()
+	//
+	//	resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	defer shutdown(ctx)
+	//
+	//	httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+	//}
+
 	httpClient := &http.Client{Timeout: time.Second * 30}
-
-	if xrayEnabled {
-		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
-		if err != nil {
-			return err
-		}
-
-		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
-		if err != nil {
-			return err
-		}
-
-		defer shutdown(ctx)
-
-		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
-	}
 
 	if len(awsBaseURL) > 0 {
 		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
 
-	otelaws.AppendMiddlewares(&cfg.APIOptions)
+	//otelaws.AppendMiddlewares(&cfg.APIOptions)
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
@@ -121,27 +119,49 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	// Calculate adaptive flush timeout based on execution time
-	executionTime := time.Since(start)
-	flushTimeout := 200 * time.Millisecond // minimum timeout
-	if executionTime > time.Second {
-		// For longer executions, give more time for flush
-		flushTimeout = 500 * time.Millisecond
-	}
-
-	// Force flush before returning
-	if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
-		flushCtx, cancel := context.WithTimeout(ctx, flushTimeout)
-		defer cancel()
-		_ = tp.ForceFlush(flushCtx)
-	}
+	//// Calculate adaptive flush timeout based on execution time
+	//executionTime := time.Since(start)
+	//flushTimeout := 200 * time.Millisecond // minimum timeout
+	//if executionTime > time.Second {
+	//	// For longer executions, give more time for flush
+	//	flushTimeout = 500 * time.Millisecond
+	//}
+	//
+	//// Force flush before returning
+	//if tp, ok := otel.GetTracerProvider().(*sdktrace.TracerProvider); ok {
+	//	flushCtx, cancel := context.WithTimeout(ctx, flushTimeout)
+	//	defer cancel()
+	//	_ = tp.ForceFlush(flushCtx)
+	//}
 
 	return nil
 }
 
 func main() {
-	handler := otellambda.InstrumentHandler(handleRunSchedule,
-		otellambda.WithTracerProvider(otel.GetTracerProvider()),
-	)
-	lambda.Start(handler)
+	if xrayEnabled {
+		ctx := context.Background()
+		tp, err := xrayconfig.NewTracerProvider(ctx)
+		if err != nil {
+			fmt.Printf("error creating tracer provider: %v", err)
+		}
+
+		defer func(ctx context.Context) {
+			err := tp.Shutdown(ctx)
+			if err != nil {
+				fmt.Printf("error shutting down tracer provider: %v", err)
+			}
+		}(ctx)
+
+		otel.SetTracerProvider(tp)
+		otel.SetTextMapPropagator(xray.Propagator{})
+
+		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
+	} else {
+		lambda.Start(handleRunSchedule)
+	}
+
+	//handler := otellambda.InstrumentHandler(handleRunSchedule,
+	//	otellambda.WithTracerProvider(otel.GetTracerProvider()),
+	//)
+	//lambda.Start(handler)
 }
