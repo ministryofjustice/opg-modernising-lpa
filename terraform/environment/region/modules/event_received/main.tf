@@ -98,7 +98,7 @@ resource "aws_lambda_event_source_mapping" "reveive_events_mapping" {
   event_source_arn = aws_sqs_queue.receive_events_queue.arn
   enabled          = true
   function_name    = module.event_received.lambda.arn
-  batch_size       = 1
+  batch_size       = 10
   provider         = aws.region
 }
 
@@ -187,26 +187,6 @@ resource "aws_cloudwatch_event_target" "receive_events_mlpa" {
     arn = var.event_bus_dead_letter_queue.arn
   }
   provider = aws.region
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_sirius" {
-  statement_id   = "AllowExecutionFromCloudWatchSirius"
-  action         = "lambda:InvokeFunction"
-  function_name  = module.event_received.lambda.function_name
-  principal      = "events.amazonaws.com"
-  source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_cloudwatch_event_rule.receive_events_sirius.arn
-  provider       = aws.region
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_mlpa" {
-  statement_id   = "AllowExecutionFromCloudWatchMlpa"
-  action         = "lambda:InvokeFunction"
-  function_name  = module.event_received.lambda.function_name
-  principal      = "events.amazonaws.com"
-  source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_cloudwatch_event_rule.receive_events_mlpa.arn
-  provider       = aws.region
 }
 
 resource "aws_iam_role_policy" "event_received" {
@@ -349,9 +329,25 @@ data "aws_iam_policy_document" "event_received" {
   statement {
     sid       = "${local.policy_region_prefix}SqsAccess"
     effect    = "Allow"
-    actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-    resources = [aws_sqs_queue.receive_events_queue.arn]
+    actions   = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [
+      aws_sqs_queue.receive_events_queue.arn
+    ]
   }
 
+  statement {
+    sid = "${local.policy_region_prefix}Tracing"
+    effect = "Allow"
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords"
+    ]
+    resources = ["*"]
+  }
+  
   provider = aws.region
 }
