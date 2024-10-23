@@ -32,6 +32,75 @@ module "event_received" {
   }
 }
 
+# data "aws_kms_alias" "sqs" {
+#   name     = "alias/${data.aws_default_tags.current.tags.application}_sqs_secret_encryption_key"
+#   provider = aws.region
+# }
+
+resource "aws_sqs_queue" "receive_events_queue" {
+  name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
+  # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
+  # kms_data_key_reuse_period_seconds = 300
+
+  visibility_timeout_seconds = 300
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.receive_events_deadletter.arn
+    maxReceiveCount     = 3
+  })
+  policy   = data.aws_iam_policy_document.receive_events_queue_policy.json
+  provider = aws.region
+}
+
+data "aws_iam_policy_document" "receive_events_queue_policy" {
+  statement {
+    sid    = "${local.policy_region_prefix}Send"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = ["sqs:SendMessage"]
+    resources = ["*"]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [
+        aws_cloudwatch_event_rule.receive_events_sirius,
+        aws_cloudwatch_event_rule.receive_events_lpa_store,
+        aws_cloudwatch_event_rule.receive_events_mlpa,
+      ]
+    }
+  }
+}
+
+resource "aws_sqs_queue" "receive_events_deadletter" {
+  name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
+  # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
+  # kms_data_key_reuse_period_seconds = 300
+  provider                          = aws.region
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "receive_events_redrive_allow_policy" {
+  queue_url = aws_sqs_queue.receive_events_deadletter.id
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue",
+    sourceQueueArns   = [aws_sqs_queue.receive_events_queue.arn]
+  })
+  provider = aws.region
+}
+
+resource "aws_lambda_event_source_mapping" "reveive_events_mapping" {
+  event_source_arn = aws_sqs_queue.receive_events_queue.arn
+  enabled          = true
+  function_name    = module.event_received.lambda.arn
+  batch_size       = 10
+  provider         = aws.region
+}
+
 data "aws_iam_policy_document" "api_access_policy" {
   statement {
     sid       = "allowApiAccess"
@@ -66,7 +135,7 @@ resource "aws_cloudwatch_event_target" "receive_events_sirius" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_sirius.name
-  arn            = module.event_received.lambda.arn
+  arn            = aws_sqs_queue.receive_events_queue.arn
   provider       = aws.region
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
@@ -89,7 +158,7 @@ resource "aws_cloudwatch_event_target" "receive_events_lpa_store" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_lpa_store.name
-  arn            = module.event_received.lambda.arn
+  arn            = aws_sqs_queue.receive_events_queue.arn
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
   }
@@ -112,31 +181,11 @@ resource "aws_cloudwatch_event_target" "receive_events_mlpa" {
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa"
   event_bus_name = var.event_bus_name
   rule           = aws_cloudwatch_event_rule.receive_events_mlpa.name
-  arn            = module.event_received.lambda.arn
+  arn            = aws_sqs_queue.receive_events_queue.arn
   dead_letter_config {
     arn = var.event_bus_dead_letter_queue.arn
   }
   provider = aws.region
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_sirius" {
-  statement_id   = "AllowExecutionFromCloudWatchSirius"
-  action         = "lambda:InvokeFunction"
-  function_name  = module.event_received.lambda.function_name
-  principal      = "events.amazonaws.com"
-  source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_cloudwatch_event_rule.receive_events_sirius.arn
-  provider       = aws.region
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_event_received_mlpa" {
-  statement_id   = "AllowExecutionFromCloudWatchMlpa"
-  action         = "lambda:InvokeFunction"
-  function_name  = module.event_received.lambda.function_name
-  principal      = "events.amazonaws.com"
-  source_account = data.aws_caller_identity.current.account_id
-  source_arn     = aws_cloudwatch_event_rule.receive_events_mlpa.arn
-  provider       = aws.region
 }
 
 resource "aws_iam_role_policy" "event_received" {
@@ -227,6 +276,7 @@ data "aws_iam_policy_document" "event_received" {
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
       data.aws_kms_alias.aws_lambda.target_key_arn,
       data.aws_kms_alias.jwt_key.target_key_arn,
+      # data.aws_kms_alias.sqs.target_key_arn,
     ]
 
     actions = [
@@ -275,5 +325,28 @@ data "aws_iam_policy_document" "event_received" {
     ]
   }
 
+  statement {
+    sid       = "${local.policy_region_prefix}SqsAccess"
+    effect    = "Allow"
+    actions   = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = [
+      aws_sqs_queue.receive_events_queue.arn
+    ]
+  }
+
+  statement {
+    sid = "${local.policy_region_prefix}Tracing"
+    effect = "Allow"
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords"
+    ]
+    resources = ["*"]
+  }
+  
   provider = aws.region
 }
