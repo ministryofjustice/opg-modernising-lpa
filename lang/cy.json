@@ -297,7 +297,7 @@
     "submittedYourLpa": "Rydych wedi cyflwyno eich LPA",
     "whatHappensNext": "Beth fydd yn digwydd nesaf",
     "weWillContactYourCertificateProvider": "Byddwn yn cysylltu â’ch darparwr tystysgrif, {{.FirstNames}}, ac yn gofyn iddynt gadarnhau eu hunaniaeth.",
-    "opgWillContactYourCertificateProvider": "Welsh {{.FullName}}",
+    "opgWillContactYourCertificateProvider": "Bydd Swyddfa'r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullName}} ac yn gofyn iddynt gadarnhau pwy ydynt a darparu'r dystysgrif ar gyfer eich LPA.",
     "weWillThenContactAttorneys": {
         "one": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
         "two": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
@@ -306,11 +306,11 @@
         "other": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod."
     },
     "opgWillContactAttorneys": {
-        "one": "Welsh {{.FullNames}}",
+        "one": "Bydd Swyddfa'r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
         "two": "Welsh {{.FullNames}}",
         "few": "Welsh {{.FullNames}}",
         "many": "Welsh {{.FullNames}}",
-        "other": "Welsh {{.FullNames}}"
+        "other": "Bydd Swyddfa'r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod."
     },
     "onceEveryoneHasSigned": "Unwaith y bydd pawb wedi llofnodi a phan fydd eich LPA wedi’n cyrraedd, byddwn yn hysbysu unrhyw bobl y byddwch yn dewis rhoi gwybod iddynt. Bydd cyfnod aros o 4 wythnos yn dechrau. Mae hyn yn ofynnol yn ôl y gyfraith, er mwyn caniatáu i unrhyw un sydd â gwrthwynebiad i’w codi.",
     "onceEveryoneHasSignedOpgWill": "Welsh",
@@ -355,7 +355,7 @@
     "iNameConfirmThat": "Rwyf i, {{ .DonorFullName }}, yn cadarnhau:",
     "wantToApply": "Fy mod eisiau gwneud cais i gofrestru’r LPA hon",
     "howTickingActsAsSignature": "Sut mae ticio’r blychau yn gweithredu fel eich llofnod cyfreithiol",
-    "howTickingActsAsSignatureDeclaration": "Welsh",
+    "howTickingActsAsSignatureDeclaration": "Sut mae ticio'r blwch yn gweithredu fel eich llofnod cyfreithiol",
     "howTickingActsAsSignatureContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod mewn cyfraith yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p><p class=\"govuk-body\">Drwy roi tic yn y ddau flwch a dewis ‘Cyflwyno fy llofnod’, rydych yn darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel a rhwymol mewn cyfraith â llofnodi’ch LPA â llaw.</p>",
     "howTickingActsAsSignatureDeclarationContent": "<p class=\"govuk-body\">Mae llofnodion electronig yn cael eu cydnabod yn gyfreithiol yng Nghymru a Lloegr. Maent yn ei gwneud yn haws i chi lofnodi dogfennau ar-lein.</p><p class=\"govuk-body\">Trwy dicio’r blwch a dewis ‘Cyflwyno fy llofnod’, rydych yn darparu eich llofnod cyfreithiol. Mae hyn yr un mor ddiogel ac yn gyfreithiol rwymol â llofnodi eich datganiad â llaw.</p>",
     "submitMySignature": "Cyflwyno fy llofnod",
