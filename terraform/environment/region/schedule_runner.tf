@@ -7,7 +7,7 @@ module "schedule_runner" {
   source                        = "./modules/schedule_runner"
   lambda_function_image_ecr_url = data.aws_ecr_repository.schedule_runner.repository_url
   lambda_function_image_tag     = var.app_service_container_version
-  event_bus_name                = module.event_bus.event_bus.name
+  event_bus                     = module.event_bus.event_bus
   search_endpoint               = var.search_endpoint
   search_index_name             = var.search_index_name
   schedule_runner_scheduler     = var.iam_roles.schedule_runner_scheduler
