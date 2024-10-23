@@ -7,7 +7,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -21,11 +20,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
-	lambdadetector "go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/appengine/log"
 )
@@ -113,33 +112,37 @@ func main() {
 	}
 
 	if xrayEnabled {
-		resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		//resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		//if err != nil {
+		//	log.Errorf(ctx, "failed to detect resource: %v", err)
+		//	return
+		//}
+
+		//shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		//if err != nil {
+		//	log.Errorf(ctx, "failed to instrument telemetry: %v", err)
+		//	return
+		//}
+
+		tp, err := xrayconfig.NewTracerProvider(ctx)
 		if err != nil {
-			log.Errorf(ctx, "failed to detect resource: %v", err)
-			return
+			fmt.Printf("error creating tracer provider: %v", err)
 		}
 
-		shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
-		if err != nil {
-			log.Errorf(ctx, "failed to instrument telemetry: %v", err)
-			return
-		}
+		otel.SetTracerProvider(tp)
+		otel.SetTextMapPropagator(xray.Propagator{})
 
-		handler := func(ctx context.Context) error {
-			err := handleRunSchedule(ctx)
-			if shutdown != nil {
-				if shutdownErr := shutdown(ctx); shutdownErr != nil {
-					log.Errorf(ctx, "error shutting down tracer provider: %v", shutdownErr)
-				}
+		defer func(ctx context.Context) {
+			err := tp.Shutdown(ctx)
+			if err != nil {
+				fmt.Printf("error shutting down tracer provider: %v", err)
 			}
-			return err
-		}
+		}(ctx)
 
 		otelaws.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
-		tp := otellambda.WithTracerProvider(otel.GetTracerProvider())
-		lambda.Start(otellambda.InstrumentHandler(handler, tp))
+		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
 	} else {
 		lambda.Start(handleRunSchedule)
 	}
