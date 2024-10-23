@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/felixge/httpsnoop"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -15,18 +17,47 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
-	traceExporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource) (func(context.Context) error, error) {
+	var exporter sdktrace.SpanExporter
+	var bsp sdktrace.SpanProcessor
+	var err error
+
+	if stdOutOverride {
+		exporter, err = stdouttrace.New(
+			stdouttrace.WithPrettyPrint(),
+			stdouttrace.WithWriter(os.Stdout),
+		)
+
+		bsp = sdktrace.NewBatchSpanProcessor(
+			exporter,
+			sdktrace.WithBatchTimeout(100*time.Millisecond),
+			sdktrace.WithMaxExportBatchSize(1), // Export immediately for testing
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to create console exporter: %w", err)
+		}
+	} else {
+		bsp = sdktrace.NewBatchSpanProcessor(
+			exporter,
+			sdktrace.WithBatchTimeout(100*time.Millisecond),
+			sdktrace.WithMaxExportBatchSize(2),
+			sdktrace.WithExportTimeout(200*time.Millisecond), // Ensure spans are exported before Lambda freezes
+		)
+
+		exporter, err = otlptracegrpc.New(ctx,
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
+		}
 	}
 
 	idg := xray.NewIDGenerator()
@@ -34,14 +65,24 @@ func Setup(ctx context.Context, resource *resource.Resource) (func(context.Conte
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(resource),
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithIDGenerator(idg),
+		sdktrace.WithSpanProcessor(bsp),
 	)
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return traceExporter.Shutdown, nil
+	return func(ctx context.Context) error {
+		flushCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		if err := tp.ForceFlush(flushCtx); err != nil {
+			return fmt.Errorf("failed to flush tracer: %w", err)
+		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
+		defer cancel()
+		return tp.Shutdown(shutdownCtx)
+	}, nil
 }
 
 func WrapHandler(handler http.Handler) http.HandlerFunc {
