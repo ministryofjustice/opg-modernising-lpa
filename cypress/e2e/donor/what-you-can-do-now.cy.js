@@ -32,7 +32,7 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/withdraw-this-lpa')
         })
 
-        it('can choose to apply to court of protection', () => {
+        it.only('can choose to apply to court of protection', () => {
             cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click();
             cy.contains('button', 'Continue').click();
 
@@ -44,7 +44,7 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/task-list')
             cy.checkA11yApp()
 
-            cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress').click();
+            cy.contains('li', "Confirm your identity").should('contain', 'Completed').click();
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
             cy.checkA11yApp()

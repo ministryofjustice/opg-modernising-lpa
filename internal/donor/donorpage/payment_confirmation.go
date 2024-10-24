@@ -91,7 +91,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 					nextPage = donor.PathWeHaveContactedVoucher
 				}
 
-				if provided.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
+				if provided.Tasks.SignTheLpa.IsCompleted() {
 					if err := shareCodeSender.SendCertificateProviderPrompt(r.Context(), appData, provided); err != nil {
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
