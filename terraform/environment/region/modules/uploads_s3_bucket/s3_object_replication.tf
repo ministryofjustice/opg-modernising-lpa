@@ -70,7 +70,8 @@ data "aws_iam_policy_document" "replication" {
   statement {
     actions = [
       "s3:GetObject",
-      "s3:GetObjectVersion"
+      "s3:GetObjectVersion",
+      "s3:PutObject"
     ]
 
     effect = "Allow"
@@ -83,11 +84,11 @@ data "aws_iam_policy_document" "replication" {
     effect = "Allow"
 
     actions = [
-      "s3:PutObject"
+      "s3:ListBucket"
     ]
 
     resources = [
-      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}/*"
+      "arn:aws:s3:::batch-manifests-${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-${data.aws_region.current.name}"
     ]
   }
   provider = aws.region
