@@ -127,7 +127,7 @@ func main() {
 		}
 	}()
 
-	filterMessages := func(messages []message, detailType, detail string) []message {
+	filterMessages := func(detailType, detail string) []message {
 		if detailType == "" {
 			return messages
 		}
@@ -160,7 +160,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "<!DOCTYPE html><body><table><thead><tr><th>Time</th><th>Source</th><th>DetailType</th><th>Detail</th></thead><tbody>")
 
-		for _, m := range filterMessages(messages, r.FormValue("detail-type"), r.FormValue("detail")) {
+		for _, m := range filterMessages(r.FormValue("detail-type"), r.FormValue("detail")) {
 			fmt.Fprintf(w, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", m.Time, m.Source, m.DetailType, m.Detail)
 		}
 

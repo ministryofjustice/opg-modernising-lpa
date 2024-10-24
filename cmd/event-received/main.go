@@ -5,8 +5,8 @@ import (
 	"cmp"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"time"
@@ -42,7 +42,7 @@ type factory interface {
 }
 
 type Handler interface {
-	Handle(context.Context, factory, events.CloudWatchEvent) error
+	Handle(context.Context, factory, *events.CloudWatchEvent) error
 }
 
 type uidEvent struct {
@@ -73,15 +73,27 @@ type EventClient interface {
 }
 
 type Event struct {
-	events.S3Event
-	events.CloudWatchEvent
+	S3Event  *events.S3Event
+	SQSEvent *events.SQSEvent
 }
 
-func (e Event) isS3Event() bool {
-	return len(e.Records) > 0
+func (e *Event) UnmarshalJSON(data []byte) error {
+	var s3 events.S3Event
+	if err := json.Unmarshal(data, &s3); err == nil && len(s3.Records) > 0 && s3.Records[0].S3.Bucket.Name != "" {
+		e.S3Event = &s3
+		return nil
+	}
+
+	var sqs events.SQSEvent
+	if err := json.Unmarshal(data, &sqs); err == nil && len(sqs.Records) > 0 && sqs.Records[0].MessageId != "" {
+		e.SQSEvent = &sqs
+		return nil
+	}
+
+	return errors.New("unknown event type")
 }
 
-func handler(ctx context.Context, event Event) error {
+func handler(ctx context.Context, event Event) (map[string]any, error) {
 	var (
 		tableName             = os.Getenv("LPAS_TABLE")
 		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
@@ -103,9 +115,11 @@ func handler(ctx context.Context, event Event) error {
 			slog.String("service_name", "opg-modernising-lpa/event-received"),
 		}))
 
+	result := map[string]any{}
+
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to load default config: %w", err)
+		return result, fmt.Errorf("failed to load default config: %w", err)
 	}
 
 	if len(awsBaseURL) > 0 {
@@ -114,18 +128,18 @@ func handler(ctx context.Context, event Event) error {
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
 	if err != nil {
-		return fmt.Errorf("failed to create dynamodb client: %w", err)
+		return result, fmt.Errorf("failed to create dynamodb client: %w", err)
 	}
 
-	if event.isS3Event() {
+	if event.S3Event != nil {
 		s3Client := s3.NewClient(cfg, evidenceBucketName)
 		documentStore := document.NewStore(dynamoClient, nil, nil)
 
 		if err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore); err != nil {
-			return fmt.Errorf("ObjectTagging:Put: %w", err)
+			return result, fmt.Errorf("ObjectTagging:Put: %w", err)
 		}
 
-		return nil
+		return result, nil
 	}
 
 	factory := &Factory{
@@ -146,6 +160,31 @@ func handler(ctx context.Context, event Event) error {
 		searchIndexingEnabled: searchIndexingEnabled,
 	}
 
+	if event.SQSEvent != nil {
+		batchItemFailures := []map[string]any{}
+		for _, record := range event.SQSEvent.Records {
+			var cloud *events.CloudWatchEvent
+			if err := json.Unmarshal([]byte(record.Body), &cloud); err != nil {
+				logger.ErrorContext(ctx, "could not unmarshal event", slog.String("messageID", record.MessageId), slog.Any("err", err))
+				batchItemFailures = append(batchItemFailures, map[string]any{"itemIdentifier": record.MessageId})
+				continue
+			}
+
+			if err := handleCloudWatchEvent(ctx, factory, cloud); err != nil {
+				logger.ErrorContext(ctx, "error processing event", slog.String("messageID", record.MessageId), slog.Any("err", err))
+				batchItemFailures = append(batchItemFailures, map[string]any{"itemIdentifier": record.MessageId})
+				continue
+			}
+		}
+
+		result["batchItemFailures"] = batchItemFailures
+		return result, nil
+	}
+
+	return result, nil
+}
+
+func handleCloudWatchEvent(ctx context.Context, factory *Factory, event *events.CloudWatchEvent) error {
 	var handler Handler
 	switch event.Source {
 	case "opg.poas.sirius":
@@ -161,11 +200,10 @@ func handler(ctx context.Context, event Event) error {
 		return fmt.Errorf("unknown event received: %s", string(eJson))
 	}
 
-	if err := handler.Handle(ctx, factory, event.CloudWatchEvent); err != nil {
+	if err := handler.Handle(ctx, factory, event); err != nil {
 		return fmt.Errorf("%s: %w", event.DetailType, err)
 	}
 
-	log.Println("successfully handled ", event.DetailType)
 	return nil
 }
 
