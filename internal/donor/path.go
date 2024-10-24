@@ -38,6 +38,7 @@ const (
 	PathChooseYourCertificateProvider                        = Path("/choose-your-certificate-provider")
 	PathConfirmPersonAllowedToVouch                          = Path("/confirm-person-allowed-to-vouch")
 	PathConfirmYourCertificateProviderIsNotRelated           = Path("/confirm-your-certificate-provider-is-not-related")
+	PathConfirmYourIdentity                                  = Path("/confirm-your-identity")
 	PathDeleteThisLpa                                        = Path("/delete-this-lpa")
 	PathDoYouWantReplacementAttorneys                        = Path("/do-you-want-replacement-attorneys")
 	PathDoYouWantToNotifyPeople                              = Path("/do-you-want-to-notify-people")
@@ -58,8 +59,8 @@ const (
 	PathHowShouldAttorneysMakeDecisions                      = Path("/how-should-attorneys-make-decisions")
 	PathHowShouldReplacementAttorneysMakeDecisions           = Path("/how-should-replacement-attorneys-make-decisions")
 	PathHowShouldReplacementAttorneysStepIn                  = Path("/how-should-replacement-attorneys-step-in")
-	PathHowToConfirmYourIdentityAndSign                      = Path("/how-to-confirm-your-identity-and-sign")
 	PathHowToSendEvidence                                    = Path("/how-to-send-evidence")
+	PathHowToSignYourLpa                                     = Path("/how-to-sign-your-lpa")
 	PathHowWouldCertificateProviderPreferToCarryOutTheirRole = Path("/how-would-certificate-provider-prefer-to-carry-out-their-role")
 	PathHowWouldYouLikeToSendEvidence                        = Path("/how-would-you-like-to-send-evidence")
 	PathIdentityWithOneLogin                                 = Path("/id/one-login")
@@ -76,7 +77,6 @@ const (
 	PathPreviousApplicationNumber                            = Path("/previous-application-number")
 	PathPreviousFee                                          = Path("/how-much-did-you-previously-pay-for-your-lpa")
 	PathProgress                                             = Path("/progress")
-	PathProveYourIdentity                                    = Path("/prove-your-identity")
 	PathReadYourLpa                                          = Path("/read-your-lpa")
 	PathReceivingUpdatesAboutYourLpa                         = Path("/receiving-updates-about-your-lpa")
 	PathRegisterWithCourtOfProtection                        = Path("/register-with-court-of-protection")
@@ -182,7 +182,8 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 	case PathGettingHelpSigning:
 		return donor.Tasks.CertificateProvider.IsCompleted()
 
-	case PathReadYourLpa,
+	case PathHowToSignYourLpa,
+		PathReadYourLpa,
 		PathSignYourLpa,
 		PathWitnessingYourSignature,
 		PathWitnessingAsCertificateProvider,
@@ -207,7 +208,7 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 	case PathAboutPayment:
 		return section1Completed
 
-	case PathHowToConfirmYourIdentityAndSign,
+	case PathConfirmYourIdentity,
 		PathIdentityWithOneLogin,
 		PathOneLoginIdentityDetails,
 		PathLpaYourLegalRightsAndResponsibilities,
