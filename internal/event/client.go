@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
-	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -90,11 +90,9 @@ func send[T any](ctx context.Context, c *Client, detail any) error {
 		return errors.New("event send of unknown type")
 	}
 
-	tracer := otel.GetTracerProvider().Tracer("mlpab")
-	ctx, span := tracer.Start(ctx, detailType,
-		trace.WithSpanKind(trace.SpanKindInternal),
-	)
-	defer span.End()
+	span := trace.SpanFromContext(ctx)
+	span.SetAttributes(attribute.String("detailType", detailType))
+	ctx = trace.ContextWithSpan(span)
 
 	v, err := json.Marshal(detail)
 	if err != nil {
