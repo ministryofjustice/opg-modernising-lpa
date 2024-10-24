@@ -85,15 +85,15 @@ func TestGetWitnessingAsCertificateProviderWhenTemplateErrors(t *testing.T) {
 
 func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 	testcases := map[string]struct {
-		registeringWithCOP                bool
-		expectedIdentityAndSignTaskStatus task.IdentityState
+		registeringWithCOP         bool
+		expectedIdentityTaskStatus task.IdentityState
 	}{
 		"registering with COP": {
-			registeringWithCOP:                true,
-			expectedIdentityAndSignTaskStatus: task.IdentityStatePending,
+			registeringWithCOP:         true,
+			expectedIdentityTaskStatus: task.IdentityStatePending,
 		},
 		"proved ID": {
-			expectedIdentityAndSignTaskStatus: task.IdentityStateCompleted,
+			expectedIdentityTaskStatus: task.IdentityStateCompleted,
 		},
 	}
 
@@ -115,8 +115,8 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 				CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 				WitnessedByCertificateProviderAt: testNow,
 				Tasks: donordata.Tasks{
-					ConfirmYourIdentityAndSign: tc.expectedIdentityAndSignTaskStatus,
-					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity: tc.expectedIdentityTaskStatus,
+					PayForLpa:           task.PaymentStateCompleted,
 				},
 				RegisteringWithCourtOfProtection: tc.registeringWithCOP,
 			}
@@ -179,8 +179,8 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		WitnessedByCertificateProviderAt: testNow,
 		Tasks: donordata.Tasks{
-			PayForLpa:                  task.PaymentStatePending,
-			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+			PayForLpa:           task.PaymentStatePending,
+			ConfirmYourIdentity: task.IdentityStateCompleted,
 		},
 	}
 	donorStore := newMockDonorStore(t)
