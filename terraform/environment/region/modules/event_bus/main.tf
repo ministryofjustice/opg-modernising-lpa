@@ -53,8 +53,6 @@ data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
   provider = aws.region
 }
 
-
-
 resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -70,7 +68,6 @@ resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
 }
 
 # Send event to remote account event bus
-
 resource "aws_iam_role_policy" "cross_account_put" {
   name     = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}-cross-account-put"
   policy   = data.aws_iam_policy_document.cross_account_put_access.json
