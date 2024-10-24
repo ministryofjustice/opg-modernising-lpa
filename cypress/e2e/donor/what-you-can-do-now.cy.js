@@ -44,7 +44,7 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/task-list')
             cy.checkA11yApp()
 
-            cy.contains('li', "Confirm your identity and sign the LPA").should('contain', 'In progress').click();
+            cy.contains('li', "Confirm your identity").should('contain', 'In progress').click();
 
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
             cy.checkA11yApp()
