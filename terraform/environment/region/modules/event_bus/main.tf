@@ -25,11 +25,11 @@ resource "aws_sqs_queue" "event_bus_dead_letter_queue" {
 
 resource "aws_sqs_queue_policy" "event_bus_dead_letter_queue_policy" {
   queue_url = aws_sqs_queue.event_bus_dead_letter_queue.id
-  policy    = data.aws_iam_policy_document.sqs.json
+  policy    = data.aws_iam_policy_document.event_bus_dead_letter_queue.json
   provider  = aws.region
 }
 
-data "aws_iam_policy_document" "sqs" {
+data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
   statement {
     sid    = "DeadLetterQueueAccess"
     effect = "Allow"
@@ -37,34 +37,13 @@ data "aws_iam_policy_document" "sqs" {
       type        = "Service"
       identifiers = ["events.amazonaws.com"]
     }
-    actions = [
-      "sqs:SendMessage",
-    ]
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values = [
-        aws_cloudwatch_event_rule.cross_account_put.arn
-      ]
-    }
-  }
-
-  statement {
-    sid    = "events-received queue permissions"
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
-    }
-
     actions = ["sqs:SendMessage"]
-    # resources = [aws_sqs_queue.event_bus_dead_letter_queue.arn]
 
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
       values = [
+        aws_cloudwatch_event_rule.cross_account_put.arn,
         "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-lpa-store",
         "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-mlpa",
         "arn:aws:events:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:rule/${data.aws_default_tags.current.tags.environment-name}/${data.aws_default_tags.current.tags.environment-name}-receive-events-sirius",
