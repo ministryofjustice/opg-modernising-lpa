@@ -126,7 +126,7 @@ func (r *Runner) stepCancelDonorIdentity(ctx context.Context, row *Event) error 
 	}
 
 	provided.IdentityUserData = identity.UserData{Status: identity.StatusExpired}
-	provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateNotStarted
+	provided.Tasks.ConfirmYourIdentity = task.IdentityStateNotStarted
 
 	if err := r.notifyClient.SendActorEmail(ctx, provided.Donor.ContactLanguagePreference, provided.CorrespondentEmail(), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
