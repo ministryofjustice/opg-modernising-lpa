@@ -130,7 +130,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 			return err
 		}
 
-		shutdown, err := telemetry.Setup(ctx, strings.Contains(appPublicURL, "localhost"), resource)
+		shutdown, err := telemetry.Setup(ctx, resource, false)
 		if err != nil {
 			return err
 		}

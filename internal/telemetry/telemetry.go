@@ -13,6 +13,7 @@ import (
 
 	"github.com/felixge/httpsnoop"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -24,7 +25,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource) (func(context.Context) error, error) {
+func Setup(ctx context.Context, resource *resource.Resource, stdOutOverride bool) (func(context.Context) error, error) {
 	var exporter sdktrace.SpanExporter
 	var bsp sdktrace.SpanProcessor
 	var err error
@@ -35,29 +36,24 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 			stdouttrace.WithWriter(os.Stdout),
 		)
 
-		bsp = sdktrace.NewBatchSpanProcessor(
-			exporter,
-			sdktrace.WithBatchTimeout(100*time.Millisecond),
-			sdktrace.WithMaxExportBatchSize(1), // Export immediately for testing
-		)
-
 		if err != nil {
-			return nil, fmt.Errorf("failed to create console exporter: %w", err)
+			return nil, fmt.Errorf("failed to create stdout exporter: %w", err)
 		}
-	} else {
+
 		bsp = sdktrace.NewBatchSpanProcessor(
 			exporter,
 			sdktrace.WithBatchTimeout(100*time.Millisecond),
-			sdktrace.WithMaxExportBatchSize(2),
-			sdktrace.WithExportTimeout(200*time.Millisecond), // Ensure spans are exported before Lambda freezes
+			sdktrace.WithMaxExportBatchSize(1),
 		)
-
+	} else {
 		exporter, err = otlptracegrpc.New(ctx,
 			otlptracegrpc.WithInsecure(),
 			otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
 		if err != nil {
 			return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
 		}
+
+		bsp = sdktrace.NewBatchSpanProcessor(exporter)
 	}
 
 	idg := xray.NewIDGenerator()
@@ -73,16 +69,21 @@ func Setup(ctx context.Context, stdOutOverride bool, resource *resource.Resource
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return func(ctx context.Context) error {
-		flushCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
-		defer cancel()
-		if err := tp.ForceFlush(flushCtx); err != nil {
-			return fmt.Errorf("failed to flush tracer: %w", err)
-		}
-		shutdownCtx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
-		defer cancel()
-		return tp.Shutdown(shutdownCtx)
-	}, nil
+	return tp.Shutdown, nil
+}
+
+// SetupLambda requires an ADOT collector lambda extension to be included in the
+// deployed lambda image to support the lack of instrumentation and config below
+func SetupLambda(ctx context.Context) (*sdktrace.TracerProvider, error) {
+	tp, err := xrayconfig.NewTracerProvider(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(xray.Propagator{})
+
+	return tp, nil
 }
 
 func WrapHandler(handler http.Handler) http.HandlerFunc {
