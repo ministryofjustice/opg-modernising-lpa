@@ -388,9 +388,7 @@ func Register(
 	handleWithDonor(donor.PathWhatHappensNextPostEvidence, page.None,
 		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
 
-	handleWithDonor(donor.PathHowToConfirmYourIdentityAndSign, page.None,
-		Guidance(tmpls.Get("how_to_confirm_your_identity_and_sign.gohtml")))
-	handleWithDonor(donor.PathProveYourIdentity, page.CanGoBack,
+	handleWithDonor(donor.PathConfirmYourIdentity, page.CanGoBack,
 		Guidance(tmpls.Get("prove_your_identity.gohtml")))
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
@@ -422,7 +420,9 @@ func Register(
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
 
-	handleWithDonor(donor.PathReadYourLpa, page.None,
+	handleWithDonor(donor.PathHowToSignYourLpa, page.None,
+		Guidance(tmpls.Get("how_to_sign_your_lpa.gohtml")))
+	handleWithDonor(donor.PathReadYourLpa, page.CanGoBack,
 		Guidance(tmpls.Get("read_your_lpa.gohtml")))
 	handleWithDonor(donor.PathYourLpaLanguage, page.CanGoBack,
 		YourLpaLanguage(tmpls.Get("your_lpa_language.gohtml"), donorStore))
