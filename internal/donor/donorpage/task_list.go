@@ -177,64 +177,66 @@ func taskListPaymentSection(provided *donordata.Provided) taskListSection {
 }
 
 func taskListSignSection(provided *donordata.Provided) taskListSection {
-	var signPath donor.Path
+	confirmYourIdentityPath := donor.PathConfirmYourIdentity
+	signTheLpaPath := donor.PathHowToSignYourLpa
 
 	switch provided.IdentityUserData.Status {
 	case identity.StatusConfirmed:
-		signPath = donor.PathOneLoginIdentityDetails
+		confirmYourIdentityPath = donor.PathOneLoginIdentityDetails
 
 		if !provided.WitnessedByCertificateProviderAt.IsZero() {
-			signPath = donor.PathYouHaveSubmittedYourLpa
+			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
 		} else if !provided.SignedAt.IsZero() {
-			signPath = donor.PathWitnessingYourSignature
-		} else if provided.DonorIdentityConfirmed() {
-			signPath = donor.PathReadYourLpa
+			signTheLpaPath = donor.PathWitnessingYourSignature
 		}
 
 	case identity.StatusFailed:
-		signPath = donor.PathRegisterWithCourtOfProtection
+		confirmYourIdentityPath = donor.PathRegisterWithCourtOfProtection
 
 		if provided.RegisteringWithCourtOfProtection {
-			signPath = donor.PathReadYourLpa
+			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+			signTheLpaPath = donor.PathHowToSignYourLpa
 
 			if !provided.WitnessedByCertificateProviderAt.IsZero() {
-				signPath = donor.PathYouHaveSubmittedYourLpa
+				signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
 			} else if !provided.SignedAt.IsZero() {
-				signPath = donor.PathWitnessingYourSignature
+				signTheLpaPath = donor.PathWitnessingYourSignature
 			}
 		}
 
 	case identity.StatusExpired:
-		signPath = donor.PathWhatYouCanDoNowExpired
+		confirmYourIdentityPath = donor.PathWhatYouCanDoNowExpired
 
 	case identity.StatusInsufficientEvidence:
-		signPath = donor.PathUnableToConfirmIdentity
+		confirmYourIdentityPath = donor.PathUnableToConfirmIdentity
 
 		if !provided.WitnessedByCertificateProviderAt.IsZero() {
-			signPath = donor.PathYouHaveSubmittedYourLpa
+			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
 		} else if !provided.SignedAt.IsZero() {
-			signPath = donor.PathWitnessingYourSignature
+			signTheLpaPath = donor.PathWitnessingYourSignature
 		} else if provided.RegisteringWithCourtOfProtection {
-			signPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
-		} else if provided.Voucher.FirstNames != "" {
-			signPath = donor.PathReadYourLpa
+			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+		} else if provided.Voucher.Allowed {
+			confirmYourIdentityPath = donor.PathWeHaveContactedVoucher
 		} else if provided.WantVoucher.IsYes() {
-			signPath = donor.PathEnterVoucher
+			confirmYourIdentityPath = donor.PathEnterVoucher
 		} else if provided.WantVoucher.IsNo() {
-			signPath = donor.PathWhatYouCanDoNow
+			confirmYourIdentityPath = donor.PathWhatYouCanDoNow
 		}
-
-	default:
-		signPath = donor.PathHowToConfirmYourIdentityAndSign
 	}
 
 	return taskListSection{
 		Heading: "confirmYourIdentityAndSign",
 		Items: []taskListItem{
 			{
-				Name:          "confirmYourIdentityAndSign",
-				Path:          signPath.Format(provided.LpaID),
-				IdentityState: provided.Tasks.ConfirmYourIdentityAndSign,
+				Name:          "confirmYourIdentity",
+				Path:          confirmYourIdentityPath.Format(provided.LpaID),
+				IdentityState: provided.Tasks.ConfirmYourIdentity,
+			},
+			{
+				Name:  "signTheLpa",
+				Path:  signTheLpaPath.Format(provided.LpaID),
+				State: provided.Tasks.SignTheLpa,
 			},
 		},
 	}

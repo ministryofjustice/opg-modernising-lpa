@@ -39,7 +39,7 @@ func RegisterWithCourtOfProtection(tmpl template.Template, donorStore DonorStore
 					return err
 				}
 
-				return donor.PathReadYourLpa.Redirect(w, r, appData, provided)
+				return donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Redirect(w, r, appData, provided)
 			}
 		}
 
