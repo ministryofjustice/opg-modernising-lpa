@@ -177,7 +177,6 @@ type appPaths struct {
 	HowShouldAttorneysMakeDecisions                      donor.Path
 	HowShouldReplacementAttorneysMakeDecisions           donor.Path
 	HowShouldReplacementAttorneysStepIn                  donor.Path
-	HowToConfirmYourIdentityAndSign                      donor.Path
 	HowToSendEvidence                                    donor.Path
 	HowWouldCertificateProviderPreferToCarryOutTheirRole donor.Path
 	HowWouldYouLikeToSendEvidence                        donor.Path
@@ -261,7 +260,7 @@ var paths = appPaths{
 		EnterDateOfBirth:                       certificateprovider.PathEnterDateOfBirth,
 		IdentityWithOneLogin:                   certificateprovider.PathIdentityWithOneLogin,
 		IdentityWithOneLoginCallback:           certificateprovider.PathIdentityWithOneLoginCallback,
-		ProveYourIdentity:                      certificateprovider.PathProveYourIdentity,
+		ProveYourIdentity:                      certificateprovider.PathConfirmYourIdentity,
 		OneLoginIdentityDetails:                certificateprovider.PathOneLoginIdentityDetails,
 		ProvideCertificate:                     certificateprovider.PathProvideCertificate,
 		ReadTheLpa:                             certificateprovider.PathReadTheLpa,
@@ -407,7 +406,6 @@ var paths = appPaths{
 	HowShouldAttorneysMakeDecisions:                      donor.PathHowShouldAttorneysMakeDecisions,
 	HowShouldReplacementAttorneysMakeDecisions:           donor.PathHowShouldReplacementAttorneysMakeDecisions,
 	HowShouldReplacementAttorneysStepIn:                  donor.PathHowShouldReplacementAttorneysStepIn,
-	HowToConfirmYourIdentityAndSign:                      donor.PathHowToConfirmYourIdentityAndSign,
 	HowToSendEvidence:                                    donor.PathHowToSendEvidence,
 	HowWouldCertificateProviderPreferToCarryOutTheirRole: donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole,
 	HowWouldYouLikeToSendEvidence:                        donor.PathHowWouldYouLikeToSendEvidence,
@@ -424,7 +422,7 @@ var paths = appPaths{
 	PreviousApplicationNumber:                            donor.PathPreviousApplicationNumber,
 	PreviousFee:                                          donor.PathPreviousFee,
 	Progress:                                             donor.PathProgress,
-	ProveYourIdentity:                                    donor.PathProveYourIdentity,
+	ProveYourIdentity:                                    donor.PathConfirmYourIdentity,
 	ReadYourLpa:                                          donor.PathReadYourLpa,
 	ReceivingUpdatesAboutYourLpa:                         donor.PathReceivingUpdatesAboutYourLpa,
 	RegisterWithCourtOfProtection:                        donor.PathRegisterWithCourtOfProtection,
