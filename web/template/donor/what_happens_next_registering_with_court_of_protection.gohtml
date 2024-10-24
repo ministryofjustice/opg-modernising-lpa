@@ -26,11 +26,7 @@
             </ol>
 
             {{ if .Donor.WitnessedByCertificateProviderAt.IsZero }}
-                <!-- TODO for MLPAB-2568 change this to:
-                  template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID))
-                -->
-
-                {{ template "buttons" (button .App "continue" "link" (global.Paths.ReadYourLpa.Format .App.LpaID)) }}
+                {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
             {{ else }}
                 {{ template "buttons" (button .App "trackLpaProgress" "link" (global.Paths.Progress.Format .App.LpaID)) }}
             {{ end }}

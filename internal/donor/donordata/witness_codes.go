@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	witnessCodeExpireAfter  = 15 * time.Minute
+	witnessCodeExpireAfter  = 30 * time.Minute
 	witnessCodeIgnoreAfter  = 2 * time.Hour
 	witnessCodeRequestAfter = time.Minute
 )
