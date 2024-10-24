@@ -35,6 +35,7 @@ var (
 		"07700900111",
 		"07700900222",
 	}
+	notifyIDAttribute = attribute.Key("notify_id")
 )
 
 type Logger interface {
@@ -141,7 +142,7 @@ type emailWrapper struct {
 func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, email Email) error {
 	templateID := email.emailID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "Email", templateID, to)
+	ctx, span := newSpan(ctx, "SendEmail", templateID, to)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
@@ -158,7 +159,7 @@ func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, e
 		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
-	span.SetAttributes(attribute.KeyValue{Key: "notify_id", Value: attribute.StringValue(resp.ID)})
+	span.SetAttributes(notifyIDAttribute.String(resp.ID))
 
 	return nil
 }
@@ -166,7 +167,7 @@ func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, e
 func (c *Client) SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email Email) error {
 	templateID := email.emailID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "Email", templateID, to)
+	ctx, span := newSpan(ctx, "SendActorEmail", templateID, to)
 	defer span.End()
 
 	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, to, templateID)); err != nil || ok {
@@ -188,7 +189,7 @@ func (c *Client) SendActorEmail(ctx context.Context, lang localize.Lang, to, lpa
 		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
 		return err
 	}
-	span.SetAttributes(attribute.KeyValue{Key: "notify_id", Value: attribute.StringValue(resp.ID)})
+	span.SetAttributes(notifyIDAttribute.String(resp.ID))
 
 	if !slices.Contains(simulatedEmails, to) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
@@ -211,7 +212,7 @@ type smsWrapper struct {
 func (c *Client) SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms SMS) error {
 	templateID := sms.smsID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "SMS", templateID, to)
+	ctx, span := newSpan(ctx, "SendActorSMS", templateID, to)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/sms", smsWrapper{
@@ -227,7 +228,7 @@ func (c *Client) SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUI
 	if err != nil {
 		return err
 	}
-	span.SetAttributes(attribute.KeyValue{Key: "notification_id", Value: attribute.StringValue(resp.ID)})
+	span.SetAttributes(notifyIDAttribute.String(resp.ID))
 
 	if !slices.Contains(simulatedPhones, to) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
@@ -321,10 +322,12 @@ func (c *Client) makeReference(lpaUID, to, templateID string) string {
 
 func newSpan(ctx context.Context, label, templateID, to string) (context.Context, trace.Span) {
 	tracer := otel.GetTracerProvider().Tracer("mlpab")
-	ctx, span := tracer.Start(ctx, label,
-		trace.WithSpanKind(trace.SpanKindInternal))
+	ctx, span := tracer.Start(ctx, "Notify",
+		trace.WithSpanKind(trace.SpanKindClient))
 	span.SetAttributes(
-		attribute.KeyValue{Key: "template_id", Value: attribute.StringValue(templateID)},
-		attribute.KeyValue{Key: "to", Value: attribute.StringValue(to)})
+		attribute.String("aws.operation", label+" "+templateID),
+		attribute.String("rpc.method", label),
+		attribute.String("template_id", templateID),
+		attribute.String("to", to))
 	return ctx, span
 }
