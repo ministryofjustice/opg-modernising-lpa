@@ -17,8 +17,7 @@
       {{ trFormatHtml .App "weHaveContactedVoucherContent" "ContactType" ( tr .App $contactType ) }}
 
       <div class="govuk-button-group">
-        <a href="{{ global.Paths.ReadYourLpa.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "continue" }}</a>
-        <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+        <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
       </div>
     </div>
   </div>

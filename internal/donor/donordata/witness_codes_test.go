@@ -18,16 +18,16 @@ func TestWitnessCodeHasExpired(t *testing.T) {
 			duration: 0,
 			expected: false,
 		},
-		"14m59s ago": {
-			duration: 14*time.Minute + 59*time.Second,
+		"29m59s ago": {
+			duration: 29*time.Minute + 59*time.Second,
 			expected: false,
 		},
-		"15m ago": {
-			duration: 15 * time.Minute,
+		"30m ago": {
+			duration: 30 * time.Minute,
 			expected: false,
 		},
-		"15m01s ago": {
-			duration: 15*time.Minute + time.Second,
+		"30m01s ago": {
+			duration: 30*time.Minute + time.Second,
 			expected: true,
 		},
 	}

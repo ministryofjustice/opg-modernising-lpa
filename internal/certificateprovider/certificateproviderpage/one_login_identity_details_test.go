@@ -121,7 +121,7 @@ func TestPostOneLoginIdentityDetailsWhenDetailsDoNotMatch(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, certificateprovider.PathProveYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathConfirmYourIdentity.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsErrors(t *testing.T) {

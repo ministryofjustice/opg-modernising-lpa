@@ -141,7 +141,7 @@ func TestGetTaskList(t *testing.T) {
 					Lpa: tc.donor,
 					Items: tc.expected([]taskListItem{
 						{Name: "confirmYourDetails", Path: certificateprovider.PathEnterDateOfBirth.Format("lpa-id")},
-						{Name: "confirmYourIdentity", Path: certificateprovider.PathProveYourIdentity.Format("lpa-id")},
+						{Name: "confirmYourIdentity", Path: certificateprovider.PathConfirmYourIdentity.Format("lpa-id")},
 						{Name: "provideYourCertificate", Path: certificateprovider.PathReadTheLpa.Format("lpa-id")},
 					}),
 				}).
