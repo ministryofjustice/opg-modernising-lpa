@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -333,7 +332,6 @@ func TestRunnerCancelDonorIdentity(t *testing.T) {
 			LpaUID:           "lpa-uid",
 			Donor:            donordata.Donor{Email: "donor@example.com", ContactLanguagePreference: localize.Cy},
 			IdentityUserData: identity.UserData{Status: identity.StatusExpired},
-			Tasks:            donordata.Tasks{ConfirmYourIdentityAndSign: task.IdentityStateNotStarted},
 		}).
 		Return(nil)
 
