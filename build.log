@@ -1,0 +1,77 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.29kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/lambda/provided:al2023.2024.10.14.12
+#2 ...
+
+#3 [internal] load metadata for docker.io/library/golang:1.23.2-alpine
+#3 DONE 0.5s
+
+#2 [internal] load metadata for public.ecr.aws/lambda/provided:al2023.2024.10.14.12
+#2 DONE 0.6s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [build 1/7] FROM docker.io/library/golang:1.23.2-alpine@sha256:9dd2625a1ff2859b8d8b01d8f7822c0f528942fe56cfe7a1e7c38d3b8d72d679
+#5 DONE 0.0s
+
+#6 [production 1/8] FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12@sha256:a78429f0c43c54b6fde88a6e49e3b1e14502e65d58133ac8e17fcfe5a74d4f3f
+#6 DONE 0.0s
+
+#7 [build 2/7] WORKDIR /app
+#7 CACHED
+
+#8 [production 2/8] WORKDIR /app
+#8 CACHED
+
+#9 [internal] load build context
+#9 transferring context: 57.63kB 0.0s done
+#9 DONE 0.0s
+
+#10 [production 3/8] COPY --link  docker/install_lambda_insights.sh /app/
+#10 DONE 0.1s
+
+#11 [build 3/7] COPY --link go.mod go.sum ./
+#11 DONE 0.1s
+
+#12 [build 4/7] RUN go mod download
+#12 ...
+
+#13 [production 4/8] RUN chmod +x "/app/install_lambda_insights.sh" && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
+#13 DONE 0.3s
+
+#12 [build 4/7] RUN go mod download
+#12 DONE 4.4s
+
+#14 [build 5/7] COPY --link cmd/schedule-runner ./cmd/schedule-runner
+#14 DONE 0.0s
+
+#15 [build 6/7] COPY --link internal ./internal
+#15 DONE 0.1s
+
+#16 [build 7/7] RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o schedule-runner ./cmd/schedule-runner
+#16 DONE 16.0s
+
+#17 [production 5/8] COPY --from=build /app/schedule-runner ./schedule-runner
+#17 DONE 0.1s
+
+#18 [production 6/8] COPY --link lang ./lang
+#18 DONE 0.1s
+
+#19 [production 7/8] COPY --link docker/adot-collector /opt/
+#19 DONE 0.2s
+
+#20 [production 8/8] RUN chmod 755 /opt/config/config.yaml
+#20 DONE 0.3s
+
+#21 exporting to image
+#21 exporting layers 0.1s done
+#21 writing image sha256:adf60a63bdee1200550e28c597246ce860199a4d0796189ffb77d57dfcee6fd4
+#21 writing image sha256:adf60a63bdee1200550e28c597246ce860199a4d0796189ffb77d57dfcee6fd4 done
+#21 naming to docker.io/library/schedule-runner done
+#21 DONE 0.2s
