@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -19,28 +20,35 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/propagators/aws/xray"
+	"go.opentelemetry.io/otel"
+	"google.golang.org/appengine/log"
+)
+
+var (
+	awsBaseURL            = os.Getenv("AWS_BASE_URL")
+	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
+	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	tableName             = os.Getenv("LPAS_TABLE")
+	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+
+	httpClient *http.Client
+	cfg        aws.Config
 )
 
 func handleRunSchedule(ctx context.Context) error {
-	var (
-		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
-		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
-		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-		tableName             = os.Getenv("LPAS_TABLE")
-	)
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
 		WithAttrs([]slog.Attr{
 			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
 		}))
-
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to load default config: %w", err)
-	}
 
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
@@ -57,7 +65,7 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(cfg, eventBusName), bundle)
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
 	if err != nil {
 		return err
 	}
@@ -88,5 +96,54 @@ func handleRunSchedule(ctx context.Context) error {
 }
 
 func main() {
-	lambda.Start(handleRunSchedule)
+	ctx := context.Background()
+
+	var err error
+	cfg, err = config.LoadDefaultConfig(ctx)
+	if err != nil {
+		log.Errorf(ctx, "failed to load default config: %v", err)
+		return
+	}
+
+	httpClient = &http.Client{Timeout: time.Second * 30}
+
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
+	if xrayEnabled {
+		//resource, err := lambdadetector.NewResourceDetector().Detect(ctx)
+		//if err != nil {
+		//	log.Errorf(ctx, "failed to detect resource: %v", err)
+		//	return
+		//}
+
+		//shutdown, err := telemetry.Setup(ctx, strings.Contains(notifyBaseURL, "mock-notify"), resource)
+		//if err != nil {
+		//	log.Errorf(ctx, "failed to instrument telemetry: %v", err)
+		//	return
+		//}
+
+		tp, err := xrayconfig.NewTracerProvider(ctx)
+		if err != nil {
+			fmt.Printf("error creating tracer provider: %v", err)
+		}
+
+		otel.SetTracerProvider(tp)
+		otel.SetTextMapPropagator(xray.Propagator{})
+
+		defer func(ctx context.Context) {
+			err := tp.Shutdown(ctx)
+			if err != nil {
+				fmt.Printf("error shutting down tracer provider: %v", err)
+			}
+		}(ctx)
+
+		otelaws.AppendMiddlewares(&cfg.APIOptions)
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+
+		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
+	} else {
+		lambda.Start(handleRunSchedule)
+	}
 }
