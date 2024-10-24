@@ -19,6 +19,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
+	"github.com/aws/smithy-go/middleware"
 	"github.com/gorilla/handlers"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -43,6 +46,8 @@ import (
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/mod/sumdb/dirhash"
 )
 
@@ -205,6 +210,28 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
+
+	cfg.APIOptions = append(cfg.APIOptions, func(stack *middleware.Stack) error {
+		return stack.Initialize.Add(middleware.InitializeMiddlewareFunc("appInitializeMiddlewareAfter",
+			func(ctx context.Context, in middleware.InitializeInput, next middleware.InitializeHandler) (middleware.InitializeOutput, middleware.Metadata, error) {
+				span := trace.SpanFromContext(ctx)
+
+				switch v := in.Parameters.(type) {
+				case *dynamodb.GetItemInput:
+					span.SetAttributes(attribute.String("aws.operation", "Query "+*v.TableName))
+					span.SetAttributes(attribute.String("aws.dynamodb.table_name", *v.TableName))
+				case *dynamodb.QueryInput:
+					span.SetAttributes(attribute.String("aws.operation", "Query "+*v.TableName))
+					span.SetAttributes(attribute.String("aws.dynamodb.table_name", *v.TableName))
+				case *eventbridge.PutEventsInput:
+					span.SetAttributes(attribute.String("aws.operation", "PutEvents "+*v.Entries[0].DetailType))
+					span.SetAttributes(attribute.String("aws.events.detail_type", *v.Entries[0].DetailType))
+				}
+
+				return next.HandleInitialize(ctx, in)
+			},
+		), middleware.After)
+	})
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
