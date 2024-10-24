@@ -16,7 +16,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -208,7 +208,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -238,7 +238,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -271,7 +271,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -303,7 +303,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -342,7 +342,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -376,7 +376,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
