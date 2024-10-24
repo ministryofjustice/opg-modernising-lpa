@@ -39,7 +39,7 @@ module "event_received" {
 
 #tfsec:ignore:aws-sqs-enable-queue-encryption:exp:2024-11-24
 resource "aws_sqs_queue" "receive_events_queue" {
-  name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
+  name = "${data.aws_default_tags.current.tags.environment-name}-receive-events-queue"
   # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
   # kms_data_key_reuse_period_seconds = 300
 
@@ -62,13 +62,13 @@ data "aws_iam_policy_document" "receive_events_queue_policy" {
       identifiers = ["events.amazonaws.com"]
     }
 
-    actions = ["sqs:SendMessage"]
+    actions   = ["sqs:SendMessage"]
     resources = ["*"]
 
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [
+      values = [
         aws_cloudwatch_event_rule.receive_events_sirius.arn,
         aws_cloudwatch_event_rule.receive_events_lpa_store.arn,
         aws_cloudwatch_event_rule.receive_events_mlpa.arn,
@@ -79,10 +79,10 @@ data "aws_iam_policy_document" "receive_events_queue_policy" {
 
 #tfsec:ignore:aws-sqs-enable-queue-encryption:exp:2024-11-24
 resource "aws_sqs_queue" "receive_events_deadletter" {
-  name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
+  name = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
   # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
   # kms_data_key_reuse_period_seconds = 300
-  provider                          = aws.region
+  provider = aws.region
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "receive_events_redrive_allow_policy" {
@@ -328,9 +328,9 @@ data "aws_iam_policy_document" "event_received" {
   }
 
   statement {
-    sid       = "${local.policy_region_prefix}SqsAccess"
-    effect    = "Allow"
-    actions   = [
+    sid    = "${local.policy_region_prefix}SqsAccess"
+    effect = "Allow"
+    actions = [
       "sqs:ReceiveMessage",
       "sqs:DeleteMessage",
       "sqs:GetQueueAttributes"
@@ -341,7 +341,7 @@ data "aws_iam_policy_document" "event_received" {
   }
 
   statement {
-    sid = "${local.policy_region_prefix}Tracing"
+    sid    = "${local.policy_region_prefix}Tracing"
     effect = "Allow"
     actions = [
       "xray:PutTraceSegments",
@@ -349,6 +349,6 @@ data "aws_iam_policy_document" "event_received" {
     ]
     resources = ["*"]
   }
-  
+
   provider = aws.region
 }
