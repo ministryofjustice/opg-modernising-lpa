@@ -47,9 +47,11 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		provided.IdentityUserData = userData
 
 		if userData.Status.IsFailed() {
-			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateProblem
+			provided.Tasks.ConfirmYourIdentity = task.IdentityStateProblem
+		} else if provided.DonorIdentityConfirmed() {
+			provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		} else {
-			provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+			provided.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		}
 
 		if (!provided.WitnessedByCertificateProviderAt.IsZero() && !provided.DonorIdentityConfirmed()) || provided.IdentityUserData.Status.IsFailed() {
