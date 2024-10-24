@@ -16,12 +16,12 @@ import (
 func TestLpaStoreEventHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &lpastoreEventHandler{}
 
-	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
+	err := handler.Handle(ctx, nil, &events.CloudWatchEvent{DetailType: "some-event"})
 	assert.Equal(t, fmt.Errorf("unknown lpastore event"), err)
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
@@ -64,7 +64,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotPerfect(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"WHAT"}`),
 	}
@@ -80,7 +80,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotPerfect(t *testing
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
@@ -109,7 +109,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoPutErrors(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
 	}
