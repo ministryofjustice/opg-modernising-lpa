@@ -385,8 +385,8 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					Amount:           8200,
 				}},
 				Tasks: donordata.Tasks{
-					PayForLpa:                  task.PaymentStateCompleted,
-					ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+					PayForLpa:  task.PaymentStateCompleted,
+					SignTheLpa: task.StateCompleted,
 				},
 			}
 
@@ -444,8 +444,8 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					Email: "certificateprovider@example.com",
 				},
 				Tasks: donordata.Tasks{
-					PayForLpa:                  taskState,
-					ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+					PayForLpa:  taskState,
+					SignTheLpa: task.StateCompleted,
 				},
 			})
 			resp := w.Result()
@@ -844,8 +844,8 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.Tasks{
-			PayForLpa:                  task.PaymentStateApproved,
-			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+			PayForLpa:  task.PaymentStateApproved,
+			SignTheLpa: task.StateCompleted,
 		},
 	})
 
@@ -892,8 +892,8 @@ func TestGetPaymentConfirmationWhenEventClientErrors(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.Tasks{
-			PayForLpa:                  task.PaymentStateApproved,
-			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+			PayForLpa:  task.PaymentStateApproved,
+			SignTheLpa: task.StateCompleted,
 		},
 	})
 
@@ -937,8 +937,8 @@ func TestGetPaymentConfirmationWhenShareCodeSenderErrors(t *testing.T) {
 			Email: "certificateprovider@example.com",
 		},
 		Tasks: donordata.Tasks{
-			PayForLpa:                  task.PaymentStateApproved,
-			ConfirmYourIdentityAndSign: task.IdentityStateCompleted,
+			PayForLpa:  task.PaymentStateApproved,
+			SignTheLpa: task.StateCompleted,
 		},
 	})
 

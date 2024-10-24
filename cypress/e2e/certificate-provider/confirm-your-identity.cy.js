@@ -7,7 +7,7 @@ describe('confirm your identity', () => {
 
         cy.contains('li', 'Confirm your identity').should('contain', 'Not started').click();
 
-        cy.url().should('contain', '/prove-your-identity');
+        cy.url().should('contain', '/confirm-your-identity');
         cy.checkA11yApp();
 
         cy.contains('a', 'Continue').click()

@@ -7,9 +7,10 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "confirmYourIdentity" }}</h1>
 
-            {{ trFormatHtml .App "voucherConfirmYourIdentityContent"
-                "DonorFullName" .Lpa.Donor.FullName }}
+            <p class="govuk-body">{{ trFormat .App "voucherConfirmYourIdentityIntro" "DonorFullName" .Lpa.Donor.FullName }}</p>
 
+            {{ trHtml .App "confirmYourIdentityContent" }}
+            
             {{ template "button" (button .App "continue" "link" (global.Paths.Voucher.IdentityWithOneLogin.Format .App.LpaID)) }}
         </div>
     </div>
