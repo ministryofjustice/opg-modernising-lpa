@@ -5,18 +5,12 @@ describe('Confirm your identity and sign', () => {
         });
 
         it('can be completed ', () => {
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
 
-            cy.url().should('contain', '/how-to-confirm-your-identity-and-sign');
-            cy.checkA11yApp();
-
-            cy.contains('h1', 'How to confirm your identity and sign the LPA');
-            cy.contains('a', 'Continue').click();
-
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -90,7 +84,7 @@ describe('Confirm your identity and sign', () => {
         });
 
         it('errors when not witnessed', () => {
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -197,7 +191,7 @@ describe('Confirm your identity and sign', () => {
     describe('when insufficient evidence to prove identity', () => {
         it('can start vouching journey', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -208,7 +202,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -227,7 +221,7 @@ describe('Confirm your identity and sign', () => {
     describe('when any other return code', () => {
         it('shows problem', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -238,7 +232,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -250,7 +244,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('register the LPA through the Court of Protection');
 
             cy.contains('a', 'Return to task list').click();
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'There is a problem')
                 .find('a')
                 .click();
@@ -260,7 +254,7 @@ describe('Confirm your identity and sign', () => {
 
         it('can delete LPA', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -271,7 +265,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -292,7 +286,7 @@ describe('Confirm your identity and sign', () => {
     describe('when identity details do not match LPA', () => {
         it('can update LPA details', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -303,7 +297,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -331,7 +325,7 @@ describe('Confirm your identity and sign', () => {
 
         it('can withdraw LPA', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -342,7 +336,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
@@ -365,7 +359,7 @@ describe('Confirm your identity and sign', () => {
 
         it('errors when option not selected', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity and sign")
+            cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
                 .click();
@@ -376,7 +370,7 @@ describe('Confirm your identity and sign', () => {
             cy.contains('h1', 'How to confirm your identity and sign the LPA');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/prove-your-identity');
+            cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 

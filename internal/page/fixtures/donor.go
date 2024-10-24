@@ -462,7 +462,7 @@ func updateLPAProgress(
 
 		donorDetails.FailedVouchAttempts = attempts
 		donorDetails.IdentityUserData = userData
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateInProgress
+		donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
@@ -470,7 +470,8 @@ func updateLPAProgress(
 		donorDetails.WantToSignLpa = true
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
+		donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+		donorDetails.Tasks.SignTheLpa = task.StateCompleted
 	}
 
 	var certificateProviderUID actoruid.UID
