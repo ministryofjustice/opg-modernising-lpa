@@ -11,9 +11,6 @@ on:
       version_tag:
         description: "Docker Image Tag"
         value: ${{ jobs.consolidate_tags.outputs.docker_tag }}
-      environment_workspace_name:
-        description: "Terraform Environment Workspace Name"
-        value: ${{ jobs.generate_environment_workspace_name.outputs.environment_workspace_name }}
       s3_av_scanner_zip_tag:
         description: "Version tag for S3 antivirus lambda zip packages"
         value: ${{ jobs.pull_s3_av_tag.outputs.s3_av_scanner_zip_tag }}
@@ -51,27 +48,6 @@ jobs:
           WITH_V: true
     outputs:
       docker_tag: ${{ steps.bump_version.outputs.tag }}
-
-  generate_environment_workspace_name:
-    if: github.ref != 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate workspace name
-        id: name_workspace
-        run: |
-          workspace=${{ github.event.number }}${{ github.head_ref }}
-          workspace=${workspace//-}
-          workspace=${workspace//_}
-          workspace=${workspace//\/}
-          workspace=${workspace:0:11}
-          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
-          if ${{ contains(fromJSON('["MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow", "weblate-pr"]'), github.head_ref) }}; then
-            workspace="weblate"
-          fi
-          echo "name=${workspace}" >> $GITHUB_OUTPUT
-          echo ${workspace}
-    outputs:
-      environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
   pull_tags:
     if : |
