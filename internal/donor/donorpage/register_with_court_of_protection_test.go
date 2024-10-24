@@ -72,7 +72,7 @@ func TestPostRegisterWithCourtOfProtection(t *testing.T) {
 					Return(nil)
 				return donorStore
 			},
-			expectedRedirect: donor.PathReadYourLpa.Format("lpa-id"),
+			expectedRedirect: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id"),
 		},
 	}
 

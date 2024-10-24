@@ -130,7 +130,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.NoFee,
-		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
+		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -216,7 +216,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		PK:      dynamo.LpaKey("123"),
 		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 		FeeType: pay.HalfFee,
-		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
+		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
 	}
 
 	completedDonorProvided := donorProvided
@@ -407,7 +407,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -453,7 +453,7 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
@@ -494,7 +494,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 				PK:      dynamo.LpaKey("123"),
 				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 				FeeType: pay.NoFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, ConfirmYourIdentityAndSign: task.IdentityStateCompleted},
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending, SignTheLpa: task.StateCompleted},
 			})
 			attributevalue.Unmarshal(b, v)
 			return nil
