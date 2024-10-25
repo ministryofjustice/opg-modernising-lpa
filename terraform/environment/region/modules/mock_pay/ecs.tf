@@ -61,7 +61,7 @@ resource "aws_service_discovery_service" "mock_pay" {
 }
 
 resource "aws_security_group" "mock_pay_ecs_service" {
-  name_prefix = "${local.name_prefix}-ecs-service"
+  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-ecs-service"
   description = "mock-pay service security group"
   vpc_id      = var.network.vpc_id
   lifecycle {
@@ -115,7 +115,7 @@ resource "aws_security_group_rule" "mock_pay_ecs_service_egress" {
 }
 
 resource "aws_ecs_task_definition" "mock_pay" {
-  family                   = "${local.name_prefix}-mock-pay"
+  family                   = "${data.aws_default_tags.current.tags.environment-name}-mock-pay"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
