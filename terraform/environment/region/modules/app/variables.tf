@@ -1,8 +1,4 @@
 locals {
-  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-}
-
-locals {
   policy_region_prefix = lower(replace(data.aws_region.current.name, "-", ""))
 }
 
