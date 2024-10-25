@@ -9,17 +9,7 @@
 
       {{ template "warning" (content .App "youMustReadLpaCarefully") }}
 
-      <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
-        {{ tr .App "lpaDecisions" }}
-      </h2>
-
-      {{ template "lpa-decisions" (lpaDecisions .App .Lpa false) }}
-
-      <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
-        {{ tr .App "peopleNamedOnTheLpa" }}
-      </h2>
-
-      {{ template "people-named-on-lpa" (lpaDecisions .App .Lpa false) }}
+      {{ template "contextual-lpa" . }}
 
       <form novalidate method="post">
         {{ template "continue-button" . }}
