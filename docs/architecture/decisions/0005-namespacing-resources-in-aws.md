@@ -60,7 +60,7 @@ It isn't necessary to include resource type in the name because the resource typ
 
 `account-name` should be used for resources shared at account level.
 
-`region-name` can be omitted if the resource is not region-specific.
+`region-name` only use region if the resource must be globally unique, for example, S3 bucket names and IAM policy names.
 
 `environment-name` should be used for resources that are environment-specific.
 
@@ -70,3 +70,9 @@ It isn't necessary to include resource type in the name because the resource typ
 
 - Resources will be easier to identify and grant access to
 - some resources will need renaming
+
+resources that must include region name;
+
+- s3 buckets
+- IAM policy names
+- cloudwatch metric alarms
