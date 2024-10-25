@@ -11,7 +11,7 @@ resource "aws_appautoscaling_target" "ecs_service" {
 # Automatically scale capacity up by one
 resource "aws_appautoscaling_policy" "up" {
   provider           = aws.region
-  name               = "${var.environment}-${var.aws_ecs_service_name}-scale-up"
+  name               = "${var.environment_name}-${var.aws_ecs_service_name}-scale-up"
   service_namespace  = "ecs"
   resource_id        = aws_appautoscaling_target.ecs_service.resource_id
   scalable_dimension = aws_appautoscaling_target.ecs_service.scalable_dimension
@@ -33,7 +33,7 @@ resource "aws_appautoscaling_policy" "up" {
 # Automatically scale capacity down by one
 resource "aws_appautoscaling_policy" "down" {
   provider           = aws.region
-  name               = "${var.environment}-${var.aws_ecs_service_name}-scale-down"
+  name               = "${var.environment_name}-${var.aws_ecs_service_name}-scale-down"
   service_namespace  = "ecs"
   resource_id        = aws_appautoscaling_target.ecs_service.resource_id
   scalable_dimension = aws_appautoscaling_target.ecs_service.scalable_dimension
@@ -54,7 +54,7 @@ resource "aws_appautoscaling_policy" "down" {
 
 resource "aws_cloudwatch_metric_alarm" "scale_up" {
   provider                  = aws.region
-  alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-scale-up"
+  alarm_name                = "${var.environment_name}-${var.region_name}-${var.aws_ecs_service_name}-scale-up"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
   threshold                 = "1"
@@ -121,7 +121,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up" {
 
 resource "aws_cloudwatch_metric_alarm" "scale_down" {
   provider                  = aws.region
-  alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-scale-down"
+  alarm_name                = "${var.environment_name}-${var.region_name}-${var.aws_ecs_service_name}-scale-down"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
   threshold                 = "1"
@@ -188,7 +188,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_down" {
 
 resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
   provider                  = aws.region
-  alarm_name                = "${var.environment}-${var.aws_ecs_service_name}-max-scaling-reached"
+  alarm_name                = "${var.environment_name}-${var.region_name}-${var.aws_ecs_service_name}-max-scaling-reached"
   alarm_actions             = var.max_scaling_alarm_actions
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "2"
@@ -197,7 +197,7 @@ resource "aws_cloudwatch_metric_alarm" "max_scaling_reached" {
   period                    = "30"
   statistic                 = "Average"
   threshold                 = var.ecs_task_autoscaling_maximum
-  alarm_description         = "This metric monitors ecs running task count for the ${var.environment} ${var.aws_ecs_service_name} service"
+  alarm_description         = "This metric monitors ecs running task count for the ${var.environment_name}-${var.region_name} ${var.aws_ecs_service_name} service"
   insufficient_data_actions = []
   dimensions = {
     ServiceName = var.aws_ecs_service_name

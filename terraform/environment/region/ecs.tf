@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "main" {
-  name = local.name_prefix
+  name = data.aws_default_tags.current.tags.environment-name
   setting {
     name  = "containerInsights"
     value = "enabled"
