@@ -16,7 +16,7 @@ const (
 	PathIdentityWithOneLogin                   = Path("/identity-with-one-login")
 	PathIdentityWithOneLoginCallback           = Path("/identity-with-one-login-callback")
 	PathOneLoginIdentityDetails                = Path("/one-login-identity-details")
-	PathProveYourIdentity                      = Path("/prove-your-identity")
+	PathConfirmYourIdentity                    = Path("/confirm-your-identity")
 	PathProvideCertificate                     = Path("/provide-certificate")
 	PathReadTheLpa                             = Path("/read-the-lpa")
 	PathTaskList                               = Path("/task-list")
@@ -50,7 +50,7 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 
 func (p Path) canVisit(certificateProvider *certificateproviderdata.Provided) bool {
 	switch p {
-	case PathProveYourIdentity,
+	case PathConfirmYourIdentity,
 		PathIdentityWithOneLogin,
 		PathIdentityWithOneLoginCallback:
 		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted()
