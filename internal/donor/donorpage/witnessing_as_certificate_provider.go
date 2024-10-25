@@ -56,10 +56,7 @@ func WitnessingAsCertificateProvider(
 			}
 
 			if data.Errors.None() {
-				provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStateCompleted
-				if provided.RegisteringWithCourtOfProtection {
-					provided.Tasks.ConfirmYourIdentityAndSign = task.IdentityStatePending
-				}
+				provided.Tasks.SignTheLpa = task.StateCompleted
 
 				provided.WitnessCodeLimiter = nil
 				if provided.WitnessedByCertificateProviderAt.IsZero() {
