@@ -23,8 +23,8 @@ variable "environment_name" {
   type        = string
 }
 
-variable "name_prefix" {
-  description = "a name prefix for the resources that includes the environment name, and region name"
+variable "region_name" {
+  description = "region name"
   type        = string
 }
 

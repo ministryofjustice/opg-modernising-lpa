@@ -65,7 +65,7 @@ locals {
 }
 
 resource "aws_security_group" "mock_onelogin_ecs_service" {
-  name_prefix = "${local.name_prefix}-ecs-service"
+  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-ecs-service"
   description = "mock-onelogin service security group"
   vpc_id      = var.network.vpc_id
   lifecycle {
@@ -119,7 +119,7 @@ resource "aws_security_group_rule" "mock_onelogin_ecs_service_egress" {
 }
 
 resource "aws_ecs_task_definition" "mock_onelogin" {
-  family                   = "${local.name_prefix}-mock-onelogin"
+  family                   = "${data.aws_default_tags.current.tags.environment-name}-mock-onelogin"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256

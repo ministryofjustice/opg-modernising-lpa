@@ -11,7 +11,7 @@ data "aws_sns_topic" "ecs_autoscaling_alarms" {
 module "app_ecs_autoscaling" {
   source                           = "./modules/ecs_autoscaling"
   environment_name                 = data.aws_default_tags.current.tags.environment-name
-  name_prefix                      = local.name_prefix
+  region_name                      = data.aws_region.current.name
   aws_ecs_cluster_name             = aws_ecs_cluster.main.name
   aws_ecs_service_name             = module.app.ecs_service.name
   ecs_autoscaling_service_role_arn = data.aws_iam_role.ecs_autoscaling_service_role.arn
