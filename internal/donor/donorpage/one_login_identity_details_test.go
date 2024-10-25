@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -111,6 +112,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 		LpaID:            "lpa-id",
 		Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
 		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+		Tasks:            donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 	updated.UpdateCheckedHash()
 
@@ -156,7 +158,7 @@ func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *tes
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {

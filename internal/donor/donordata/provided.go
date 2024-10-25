@@ -39,7 +39,8 @@ type Tasks struct {
 	ChooseYourSignatory        task.State // if .Donor.CanSign.IsNo only
 	CheckYourLpa               task.State
 	PayForLpa                  task.PaymentState
-	ConfirmYourIdentityAndSign task.IdentityState
+	ConfirmYourIdentity        task.IdentityState
+	SignTheLpa                 task.State
 }
 
 // Provided contains all the data related to the LPA application
