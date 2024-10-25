@@ -18,8 +18,13 @@ variable "ecs_autoscaling_service_role_arn" {
   type        = string
 }
 
-variable "environment" {
+variable "environment_name" {
   description = "Name of the environment."
+  type        = string
+}
+
+variable "name_prefix" {
+  description = "a name prefix for the resources that includes the environment name, and region name"
   type        = string
 }
 

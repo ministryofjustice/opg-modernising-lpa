@@ -70,3 +70,9 @@ It isn't necessary to include resource type in the name because the resource typ
 
 - Resources will be easier to identify and grant access to
 - some resources will need renaming
+
+resources that must include region name;
+
+- s3 buckets
+- IAM policy names
+- cloudwatch metric alarms
