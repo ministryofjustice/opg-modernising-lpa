@@ -227,20 +227,18 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return err
 	}
 
-	if lpa.CertificateProvider.Channel.IsOnline() {
-		if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
-			LpaKey:                      lpa.LpaKey,
-			LpaOwnerKey:                 lpa.LpaOwnerKey,
-			LpaUID:                      lpa.LpaUID,
-			Type:                        lpa.Type,
-			DonorFirstNames:             lpa.Donor.FirstNames,
-			DonorFullName:               lpa.Donor.FullName(),
-			CertificateProviderUID:      lpa.CertificateProvider.UID,
-			CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-			CertificateProviderEmail:    lpa.CertificateProvider.Email,
-		}); err != nil {
-			return fmt.Errorf("failed to send share code to certificate provider: %w", err)
-		}
+	if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
+		LpaKey:                      lpa.LpaKey,
+		LpaOwnerKey:                 lpa.LpaOwnerKey,
+		LpaUID:                      lpa.LpaUID,
+		Type:                        lpa.Type,
+		DonorFirstNames:             lpa.Donor.FirstNames,
+		DonorFullName:               lpa.Donor.FullName(),
+		CertificateProviderUID:      lpa.CertificateProvider.UID,
+		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+		CertificateProviderEmail:    lpa.CertificateProvider.Email,
+	}); err != nil {
+		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 
 	return nil

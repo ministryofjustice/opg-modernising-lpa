@@ -789,32 +789,6 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
-	appData := appcontext.Data{}
-
-	lpa := &lpadata.Lpa{
-		CertificateProvider: lpadata.CertificateProvider{
-			Channel: lpadata.ChannelPaper,
-		},
-	}
-
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(lpa, nil)
-
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
-	assert.Nil(t, err)
-}
-
 func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
 	appData := appcontext.Data{}
 
