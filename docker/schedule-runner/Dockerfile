@@ -10,16 +10,6 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o schedule-runner ./cmd/schedule-runner
 
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
-
-WORKDIR /app
-
-COPY --from=build /app/schedule-runner /var/task/schedule-runner
-COPY --link lang /var/task/lang
-COPY --link docker/aws-lambda-rie ./aws-lambda-rie
-
-ENTRYPOINT ["./schedule-runner"]
-
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS production
 
 WORKDIR /app
@@ -30,5 +20,23 @@ RUN chmod +x "/app/install_lambda_insights.sh" \
 
 COPY --from=build /app/schedule-runner ./schedule-runner
 COPY --link lang ./lang
+COPY ./docker/adot-collector/ /opt
+
+RUN chmod 755 /opt/config/config.yaml
+
+ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
+
+ENTRYPOINT ["./schedule-runner"]
+
+FROM production AS dev
+
+WORKDIR /app
+
+RUN mv ./schedule-runner /var/task/schedule-runner
+COPY --link docker/aws-lambda-rie ./aws-lambda-rie
+
+ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
 
 ENTRYPOINT ["./schedule-runner"]

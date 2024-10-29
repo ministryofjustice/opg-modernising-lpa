@@ -6,8 +6,8 @@ variable "lambda_function_image_tag" {
   type = string
 }
 
-variable "event_bus_name" {
-  type = string
+variable "event_bus" {
+  type = any
 }
 
 variable "schedule_runner_lambda_role" {
