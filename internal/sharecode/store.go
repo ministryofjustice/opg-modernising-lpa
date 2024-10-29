@@ -55,7 +55,11 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string,
 	}
 
 	data.PK = pk
-	data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode))
+	if actorType.IsVoucher() {
+		data.SK = dynamo.ShareSortKey(dynamo.VoucherShareSortKey(data.LpaKey))
+	} else {
+		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode))
+	}
 
 	return s.dynamoClient.Put(ctx, data)
 }
