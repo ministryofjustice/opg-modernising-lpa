@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -44,7 +45,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 
 		if r.Method == http.MethodPost {
 			if provided.DonorIdentityConfirmed() {
-				return donor.PathReadYourLpa.Redirect(w, r, appData, provided)
+				return donor.PathTaskList.Redirect(w, r, appData, provided)
 			}
 
 			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
@@ -56,6 +57,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 					provided.Donor.LastName = provided.IdentityUserData.LastName
 					provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
 					provided.Donor.Address = provided.IdentityUserData.CurrentAddress
+					provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 					if err := provided.UpdateCheckedHash(); err != nil {
 						return err
 					}

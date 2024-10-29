@@ -45,7 +45,7 @@ func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 				return certificateprovider.PathReadTheLpa.Redirect(w, r, appData, certificateProvider.LpaID)
 			} else {
 				// TODO: will be changed in MLPAB-2234
-				return certificateprovider.PathProveYourIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
+				return certificateprovider.PathConfirmYourIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
 			}
 		}
 

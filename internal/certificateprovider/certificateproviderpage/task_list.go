@@ -33,7 +33,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
-		identityTaskPage := certificateprovider.PathProveYourIdentity
+		identityTaskPage := certificateprovider.PathConfirmYourIdentity
 		if certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() {
 			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
