@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -39,27 +40,39 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				nextPage := handleDoNext(data.Form.DoNext, provided)
+				var nextPage string
+				if provided.Voucher.Allowed {
+					nextPage = donor.PathAreYouSureYouNoLongerNeedVoucher.FormatQuery(provided.LpaID, url.Values{
+						"choice": {data.Form.DoNext.String()},
+					})
+				} else {
+					nextPage = handleDoNext(data.Form.DoNext, provided).Format(provided.LpaID)
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return nextPage.Redirect(w, r, appData, provided)
+				return appData.Redirect(w, r, nextPage)
 			}
 		}
 
-		switch provided.FailedVouchAttempts {
-		case 0:
-			data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
-			data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
-			data.ProveOwnIDLabel = "iWillReturnToOneLogin"
-		case 1:
-			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
+		if !provided.Voucher.Allowed {
+			switch provided.FailedVouchAttempts {
+			case 0:
+				data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
+				data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
+				data.ProveOwnIDLabel = "iWillReturnToOneLogin"
+			case 1:
+				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinue"
+				data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
+				data.ProveOwnIDLabel = "iWillGetOrFindID"
+			default:
+				data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
+				data.ProveOwnIDLabel = "iWillGetOrFindID"
+			}
+		} else {
 			data.NewVoucherLabel = "iHaveSomeoneElseWhoCanVouch"
-			data.ProveOwnIDLabel = "iWillGetOrFindID"
-		default:
-			data.BannerContent = "thePersonYouAskedToVouchHasBeenUnableToContinueSecondAttempt"
 			data.ProveOwnIDLabel = "iWillGetOrFindID"
 		}
 
@@ -67,22 +80,22 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 	}
 }
 
-func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provided) (nextPage donor.Path) {
+func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provided) donor.Path {
 	switch doNext {
 	case donordata.ProveOwnID:
 		provided.IdentityUserData = identity.UserData{}
-		nextPage = donor.PathTaskList
+		return donor.PathTaskList
 	case donordata.SelectNewVoucher:
 		provided.WantVoucher = form.Yes
-		nextPage = donor.PathEnterVoucher
+		return donor.PathEnterVoucher
 	case donordata.WithdrawLPA:
-		nextPage = donor.PathWithdrawThisLpa
+		return donor.PathWithdrawThisLpa
 	case donordata.ApplyToCOP:
 		provided.RegisteringWithCourtOfProtection = true
-		nextPage = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
+		return donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 	}
 
-	return nextPage
+	panic("doNext invalid")
 }
 
 type whatYouCanDoNowForm struct {

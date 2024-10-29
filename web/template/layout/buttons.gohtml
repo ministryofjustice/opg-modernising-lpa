@@ -15,9 +15,9 @@
 
     <div class="govuk-button-group">
         {{ if .link }}
-            <a href="{{ link .app .link }}" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</a>
+            <a href="{{ link .app .link }}" class="govuk-button {{ if .warning }}govuk-button--warning{{ end }}" data-module="govuk-button">{{ tr .app .label }}</a>
         {{ else }}
-            <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .app .label }}</button>
+            <button type="submit" class="govuk-button {{ if .warning }}govuk-button--warning{{ end }}" data-module="govuk-button">{{ tr .app .label }}</button>
         {{ end }}
         <a id="return-to-tasklist-btn" href="{{ link .app ($path.Format .app.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .app "returnToTaskList" }}</a>
     </div>

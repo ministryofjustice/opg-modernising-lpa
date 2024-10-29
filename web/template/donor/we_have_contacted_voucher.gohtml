@@ -1,25 +1,47 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "weHaveContactedVoucherTitle" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "weHaveContactedVoucher") "success" "heading")  }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                {{ if .Donor.Tasks.PayForLpa.IsPending }}
+                    {{ trFormat .App "weWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
+                {{ else }}
+                    {{ trFormat .App "weHaveContactedVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
+                {{ end }}
+            </h1>
 
-      <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
+            <div class="govuk-inset-text">
+                <dl class="govuk-summary-list  govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "theirName" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.FullName }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "theirEmailAddress" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.Email }}</dd>
+                    </div>
+                </dl>
+            </div>
 
-      {{ $contactType := "anEmail" }}
-      {{ if .Donor.Donor.Mobile }}
-        {{ $contactType = "aTextMessage" }}
-      {{ end }}
+            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
-      {{ trFormatHtml .App "weHaveContactedVoucherContent" "ContactType" ( tr .App $contactType ) }}
+            <ol class="govuk-list govuk-list--number">
+                {{ if .Donor.Tasks.PayForLpa.IsPending }}
+                    <li>{{ tr .App "weAreProcessingFeeWhenResolvedWillContactVoucher" }}</li>
+                {{ end }}
+                
+                {{ trFormatHtml .App "voucherWhatHappensNextBullets" "VoucherFullName" .Donor.Voucher.FullName }}
+            </ol>
 
-      <div class="govuk-button-group">
-        <a href="{{ global.Paths.ReadYourLpa.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "continue" }}</a>
-        <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
-      </div>
+            {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
+            
+            <div class="govuk-button-group">
+                <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+                <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>
+            </div>
+        </div>
     </div>
-  </div>
 {{ end }}
