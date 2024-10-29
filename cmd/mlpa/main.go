@@ -205,6 +205,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	}
 
 	otelaws.AppendMiddlewares(&cfg.APIOptions)
+	telemetry.AppendMiddlewares(&cfg.APIOptions)
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
