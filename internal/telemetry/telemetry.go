@@ -30,6 +30,7 @@ func Setup(ctx context.Context, resource *resource.Resource, stdOutOverride bool
 	var bsp sdktrace.SpanProcessor
 	var err error
 
+	// to enable local trace/span debugging
 	if stdOutOverride {
 		exporter, err = stdouttrace.New(
 			stdouttrace.WithPrettyPrint(),
@@ -73,7 +74,7 @@ func Setup(ctx context.Context, resource *resource.Resource, stdOutOverride bool
 }
 
 // SetupLambda requires an ADOT collector lambda extension to be included in the
-// deployed lambda image to support the lack of instrumentation and config below
+// deployed lambda image for the below instrumentation to work
 func SetupLambda(ctx context.Context) (*sdktrace.TracerProvider, error) {
 	tp, err := xrayconfig.NewTracerProvider(ctx)
 	if err != nil {
