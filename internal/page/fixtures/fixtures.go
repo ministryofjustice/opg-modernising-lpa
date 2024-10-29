@@ -278,6 +278,7 @@ func createVoucher(ctx context.Context, shareCodeStore ShareCodeStore, voucherSt
 		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
 		ActorUID:    donor.Voucher.UID,
 		LpaOwnerKey: donor.SK,
+		LpaKey:      donor.PK,
 	}
 
 	err := shareCodeStore.Put(ctx, actor.TypeVoucher, shareCode, shareCodeData)

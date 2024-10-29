@@ -20,30 +20,30 @@ import (
 
 func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 	testcases := map[int]struct {
-		BannerContent      string
-		NewVoucherLabel    string
-		ProveOwnIDLabel    string
-		CanHaveVoucher     bool
-		VouchedForIdentity bool
+		BannerContent         string
+		NewVoucherLabel       string
+		ProveOwnIdentityLabel string
+		CanHaveVoucher        bool
+		VouchedForIdentity    bool
 	}{
 		0: {
-			BannerContent:   "yourConfirmedIdentityHasExpired",
-			NewVoucherLabel: "iHaveSomeoneWhoCanVouch",
-			ProveOwnIDLabel: "iWillReturnToOneLogin",
-			CanHaveVoucher:  true,
+			BannerContent:         "yourConfirmedIdentityHasExpired",
+			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
+			ProveOwnIdentityLabel: "iWillReturnToOneLogin",
+			CanHaveVoucher:        true,
 		},
 		1: {
-			BannerContent:      "yourVouchedForIdentityHasExpired",
-			NewVoucherLabel:    "iHaveSomeoneWhoCanVouch",
-			ProveOwnIDLabel:    "iWillGetOrFindID",
-			CanHaveVoucher:     true,
-			VouchedForIdentity: true,
+			BannerContent:         "yourVouchedForIdentityHasExpired",
+			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			VouchedForIdentity:    true,
 		},
 		2: {
-			BannerContent:      "yourVouchedForIdentityHasExpiredSecondAttempt",
-			NewVoucherLabel:    "iHaveSomeoneWhoCanVouch",
-			ProveOwnIDLabel:    "iWillGetOrFindID",
-			VouchedForIdentity: true,
+			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
+			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			VouchedForIdentity:    true,
 		},
 	}
 
@@ -60,10 +60,10 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					FailedVouchAttempts: failedVouchAttempts,
-					BannerContent:       tc.BannerContent,
-					NewVoucherLabel:     tc.NewVoucherLabel,
-					ProveOwnIDLabel:     tc.ProveOwnIDLabel,
+					FailedVouchAttempts:   failedVouchAttempts,
+					BannerContent:         tc.BannerContent,
+					NewVoucherLabel:       tc.NewVoucherLabel,
+					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 				}).
 				Return(nil)
 
@@ -97,7 +97,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		donordata.ProveOwnID: {
+		donordata.ProveOwnIdentity: {
 			expectedPath: donor.PathTaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
