@@ -5,7 +5,9 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App .BannerContent) "contents" "1" ) }}
+            {{ if .BannerContent }}
+                {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App .BannerContent) "contents" "1" ) }}
+            {{ end }}
 
             <h1 class="govuk-heading-xl">{{ tr .App "whatYouCanDoNow" }}</h1>
 
@@ -25,14 +27,14 @@
 
                         {{ if .Form.CanHaveVoucher }}
                             {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnID.String .ProveOwnIDLabel)
+                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
                             (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
                             (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
                             (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
                             ) }}
                         {{ else }}
                             {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnID.String .ProveOwnIDLabel)
+                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
                             (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
                             (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
                             ) }}

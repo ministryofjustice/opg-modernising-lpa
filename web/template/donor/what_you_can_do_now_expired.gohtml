@@ -31,14 +31,14 @@
 
                         {{ if .Form.CanHaveVoucher }}
                             {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnID.String .ProveOwnIDLabel)
+                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
                             (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
                             (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
                             (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
                             ) }}
                         {{ else }}
                             {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnID.String .ProveOwnIDLabel)
+                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
                             (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
                             (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
                             ) }}

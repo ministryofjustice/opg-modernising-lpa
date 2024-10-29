@@ -144,4 +144,85 @@ describe('what you can do now', () => {
             cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
         })
     })
+
+    context('want a different voucher', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures?redirect=/what-is-vouching&progress=payForTheLpa');
+            cy.get('input[name="yes-no"]').check('yes', { force: true });
+            cy.contains('button', 'Save and continue').click();
+            cy.get('#f-first-names').type('Shopping');
+            cy.get('#f-last-name').type('Voucher');
+            cy.get('#f-email').type('voucher@example.com');
+            cy.contains('button', 'Save and continue').click();
+            cy.contains('button', 'Continue').click();
+            cy.contains('a', 'Confirm my identity another way').click();
+        })
+
+        it('keeps the voucher until choice is made', () => {
+            cy.visitLpa('/enter-voucher');
+            cy.get('#f-first-names').should('have.value', 'Shopping');
+            cy.get('#f-last-name').should('have.value', 'Voucher');
+            cy.get('#f-email').should('have.value', 'voucher@example.com');
+        });
+
+        it('can choose to get ID documents', () => {
+            cy.contains('label', 'I will get or find ID documents and confirm my own identity').click();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/are-you-sure-you-no-longer-need-voucher');
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Shopping Voucher no longer needed').click();
+
+            cy.contains('You have chosen to find, replace or get new ID');
+            cy.contains('a', 'Continue').click();
+
+            cy.url().should('contain', '/task-list')
+        });
+
+        it('can choose to add a voucher', () => {
+            cy.contains('label', 'I have someone else who can vouch for me').click();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/are-you-sure-you-no-longer-need-voucher');
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Shopping Voucher no longer needed').click();
+
+            cy.contains('You have chosen to ask someone else');
+            cy.contains('a', 'Continue').click();
+
+            cy.url().should('contain', '/enter-voucher')
+        })
+
+        it('can choose to withdraw LPA', () => {
+            cy.contains('label', 'I no longer want to make this LPA').click();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/are-you-sure-you-no-longer-need-voucher');
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Shopping Voucher no longer needed').click();
+
+            cy.contains('You have told us you no longer want to make this LPA');
+            cy.contains('a', 'Continue').click();
+
+            cy.url().should('contain', '/withdraw-this-lpa')
+        })
+
+        it('can choose to apply to court of protection', () => {
+            cy.contains('label', 'I will apply to the Court of Protection to register this LPA').click();
+            cy.contains('button', 'Continue').click();
+
+            cy.url().should('contain', '/are-you-sure-you-no-longer-need-voucher');
+            cy.checkA11yApp();
+
+            cy.contains('button', 'Shopping Voucher no longer needed').click();
+
+            cy.contains('You have chosen to have your LPA reviewed by the Court of Protection');
+            cy.contains('a', 'Continue').click();
+
+            cy.url().should('contain', '/what-happens-next-registering-with-court-of-protection')
+        });
+    });
 })

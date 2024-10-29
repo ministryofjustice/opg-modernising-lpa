@@ -1,0 +1,17 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "weHaveInformedThePersonYouWantedToVouchForYouTheyAreNoLongerNeeded" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "weHaveInformedVoucherTheyNoLongerNeedTo" "VoucherFullName" (.App.Query.Get "voucherFullName")) "success" "heading") }}
+            
+            <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
+
+            <p class="govuk-body">{{ trFormat .App (printf "youHaveChosen:%s" (.App.Query.Get "choice")) }}</p>
+
+            {{ template "buttons" (button .App "continue" "link" (.App.Query.Get "next")) }}
+        </div>
+    </div>
+{{ end }}
