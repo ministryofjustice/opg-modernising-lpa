@@ -23,6 +23,7 @@ const (
 	memberIDPrefix                 = "MEMBERID"
 	voucherPrefix                  = "VOUCHER"
 	metadataPrefix                 = "METADATA"
+	voucherShareSortPrefix         = "VOUCHERSHARESORT"
 	donorSharePrefix               = "DONORSHARE"
 	donorInvitePrefix              = "DONORINVITE"
 	certificateProviderSharePrefix = "CERTIFICATEPROVIDERSHARE"
@@ -71,6 +72,8 @@ func readKey(s string) (any, error) {
 		return MemberIDKeyType(s), nil
 	case metadataPrefix:
 		return MetadataKeyType(s), nil
+	case voucherShareSortPrefix:
+		return VoucherShareSortKeyType(s), nil
 	case donorInvitePrefix:
 		return DonorInviteKeyType(s), nil
 	case voucherPrefix:
@@ -220,9 +223,21 @@ type MetadataKeyType string
 func (t MetadataKeyType) SK() string { return string(t) }
 func (t MetadataKeyType) shareSort() {} // mark as usable with ShareSortKey
 
-// MetadataKey is used as the SK when the value of the SK is not used for any purpose.
+// Metadata is used as the SK when the value of the SK is not used for any
+// purpose.
 func MetadataKey(s string) MetadataKeyType {
 	return MetadataKeyType(metadataPrefix + "#" + s)
+}
+
+type VoucherShareSortKeyType string
+
+func (t VoucherShareSortKeyType) SK() string { return string(t) }
+func (t VoucherShareSortKeyType) shareSort() {} // mark as usable with ShareSortKey
+
+// VoucherShareSortKey is used as the SK (with ShareKey as PK) for sharing an Lpa
+// with an actor.
+func VoucherShareSortKey(lpa LpaKeyType) VoucherShareSortKeyType {
+	return VoucherShareSortKeyType(voucherShareSortPrefix + "#" + lpa.ID())
 }
 
 type DonorShareKeyType string
