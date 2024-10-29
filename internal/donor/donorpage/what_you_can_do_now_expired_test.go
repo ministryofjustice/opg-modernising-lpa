@@ -97,7 +97,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		donordata.ProveOwnID: {
+		donordata.ProveOwnIdentity: {
 			expectedPath: donor.PathTaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
