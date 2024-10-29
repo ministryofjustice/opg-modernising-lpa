@@ -3,37 +3,27 @@
 {{ define "pageTitle" }}{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
 
-      {{ if and .App.IsCertificateProvider .Lpa.SignedAt.IsZero }}
-        {{ template "warning" (content .App "youShouldReadLpaCarefully") }}
-      {{ else }}
-        {{ template "warning" (content .App "youMustReadLpaCarefully") }}
-      {{ end }}
+            {{ if and .App.IsCertificateProvider .Lpa.SignedAt.IsZero }}
+                {{ template "warning" (content .App "youShouldReadLpaCarefully") }}
+            {{ else }}
+                {{ template "warning" (content .App "youMustReadLpaCarefully") }}
+            {{ end }}
 
-      <h2 id="decisions" class="govuk-heading-l govuk-!-margin-bottom-2">
-        {{ tr .App "lpaDecisions" }}
-      </h2>
+            {{ template "contextual-lpa" . }}
 
-      {{ template "lpa-decisions" (lpaDecisions .App .Lpa false) }}
+            <form novalidate method="post">
+                {{ if .Lpa.SignedAt.IsZero }}
+                    {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.CertificateProvider.TaskList.Format .App.LpaID)) }}
+                {{ else }}
+                    {{ template "buttons" (button .App "continue") }}
+                {{ end }}
 
-      <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
-        {{ tr .App "peopleNamedOnTheLpa" }}
-      </h2>
-
-      {{ template "people-named-on-lpa" (lpaDecisions .App .Lpa false) }}
-
-      <form novalidate method="post">
-        <div class="govuk-button-group">
-          {{ if not .Lpa.SignedAt.IsZero }}
-            {{ template "continue-button" . }}
-          {{ end }}
-          <a href="{{ link .App (global.Paths.CertificateProvider.TaskList.Format .App.LpaID) }}" class="govuk-button {{ if not .Lpa.SignedAt.IsZero }}govuk-button--secondary{{ end }}">{{ tr .App "returnToTaskList" }}</a>
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
