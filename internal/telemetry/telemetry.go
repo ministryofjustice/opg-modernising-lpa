@@ -30,7 +30,7 @@ func Setup(ctx context.Context, resource *resource.Resource, stdOutOverride bool
 	var bsp sdktrace.SpanProcessor
 	var err error
 
-	// to enable local trace/span debugging
+	// to enable local trace/span debugging in container output
 	if stdOutOverride {
 		exporter, err = stdouttrace.New(
 			stdouttrace.WithPrettyPrint(),

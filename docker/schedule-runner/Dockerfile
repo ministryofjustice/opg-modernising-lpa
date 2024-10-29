@@ -18,7 +18,7 @@ COPY --link  docker/install_lambda_insights.sh /app/
 RUN chmod +x "/app/install_lambda_insights.sh" \
   && /app/install_lambda_insights.sh "${TARGETPLATFORM}"
 
-COPY --from=build /app/schedule-runner /var/task/schedule-runner
+COPY --from=build /app/schedule-runner ./schedule-runner
 COPY --link lang ./lang
 COPY ./docker/adot-collector/ /opt
 
@@ -31,8 +31,11 @@ ENTRYPOINT ["./schedule-runner"]
 
 FROM production AS dev
 
+WORKDIR /app
+
+RUN mv ./schedule-runner /var/task/schedule-runner
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
-#
+
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
 ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
 

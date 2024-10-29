@@ -120,8 +120,7 @@ func main() {
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		defer func(ctx context.Context) {
-			err := tp.Shutdown(ctx)
-			if err != nil {
+			if err := tp.Shutdown(ctx); err != nil {
 				fmt.Printf("error shutting down tracer provider: %v", err)
 			}
 		}(ctx)
