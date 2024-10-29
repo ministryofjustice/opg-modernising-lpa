@@ -33,7 +33,7 @@ FROM production AS dev
 
 WORKDIR /app
 
-RUN mv ./schedule-runner /var/task/schedule-runner
+COPY --from=build /app/schedule-runner /var/task/schedule-runner
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
