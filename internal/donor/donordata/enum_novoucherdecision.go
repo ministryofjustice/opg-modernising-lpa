@@ -11,15 +11,15 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[ProveOwnID-1]
+	_ = x[ProveOwnIdentity-1]
 	_ = x[SelectNewVoucher-2]
 	_ = x[WithdrawLPA-3]
 	_ = x[ApplyToCOP-4]
 }
 
-const _NoVoucherDecision_name = "prove-own-idselect-new-voucherwithdraw-lpaapply-to-cop"
+const _NoVoucherDecision_name = "prove-own-identityselect-new-voucherwithdraw-lpaapply-to-cop"
 
-var _NoVoucherDecision_index = [...]uint8{0, 12, 30, 42, 54}
+var _NoVoucherDecision_index = [...]uint8{0, 18, 36, 48, 60}
 
 func (i NoVoucherDecision) String() string {
 	if i == 0 {
@@ -46,8 +46,8 @@ func (i *NoVoucherDecision) UnmarshalText(text []byte) error {
 	return nil
 }
 
-func (i NoVoucherDecision) IsProveOwnID() bool {
-	return i == ProveOwnID
+func (i NoVoucherDecision) IsProveOwnIdentity() bool {
+	return i == ProveOwnIdentity
 }
 
 func (i NoVoucherDecision) IsSelectNewVoucher() bool {
@@ -66,8 +66,8 @@ func ParseNoVoucherDecision(s string) (NoVoucherDecision, error) {
 	switch s {
 	case "":
 		return NoVoucherDecision(0), nil
-	case "prove-own-id":
-		return ProveOwnID, nil
+	case "prove-own-identity":
+		return ProveOwnIdentity, nil
 	case "select-new-voucher":
 		return SelectNewVoucher, nil
 	case "withdraw-lpa":
@@ -80,14 +80,14 @@ func ParseNoVoucherDecision(s string) (NoVoucherDecision, error) {
 }
 
 type NoVoucherDecisionOptions struct {
-	ProveOwnID       NoVoucherDecision
+	ProveOwnIdentity NoVoucherDecision
 	SelectNewVoucher NoVoucherDecision
 	WithdrawLPA      NoVoucherDecision
 	ApplyToCOP       NoVoucherDecision
 }
 
 var NoVoucherDecisionValues = NoVoucherDecisionOptions{
-	ProveOwnID:       ProveOwnID,
+	ProveOwnIdentity: ProveOwnIdentity,
 	SelectNewVoucher: SelectNewVoucher,
 	WithdrawLPA:      WithdrawLPA,
 	ApplyToCOP:       ApplyToCOP,
