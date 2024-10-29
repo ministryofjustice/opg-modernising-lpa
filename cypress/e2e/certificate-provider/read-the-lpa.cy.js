@@ -7,11 +7,14 @@ describe('Read the LPA', () => {
         it('displays the LPA details and goes to provide certificate', () => {
             cy.checkA11yApp();
 
-            cy.contains('dt', "When attorneys can use the LPA")
-            cy.contains('dt', "Their attorneys")
-            cy.contains('dt', "Their replacement attorneys")
+            cy.contains('Donor: Sam Smith');
+            cy.contains('Certificate provider: Charlie Cooper');
+            cy.contains('Attorney: Jessie Jones');
+            cy.contains('Attorney: Robin Redcar');
+            cy.contains('Signed by Sam Smith on: 2 January 2023');
+            cy.contains('Witnessed by Charlie Cooper on: 2 January 2023');
 
-            cy.contains('Continue').click();
+            cy.contains('button', 'Continue').click();
             cy.url().should('contain', '/what-happens-next');
         });
     });
@@ -24,12 +27,13 @@ describe('Read the LPA', () => {
         it('displays the LPA details and goes to task list', () => {
             cy.checkA11yApp();
 
-            cy.contains('dt', "When attorneys can use the LPA")
-            cy.contains('dt', "Their attorneys")
-            cy.contains('dt', "Their replacement attorneys")
+            cy.contains('Donor: Sam Smith');
+            cy.contains('Certificate provider: Charlie Cooper');
+            cy.contains('Attorney: Jessie Jones');
+            cy.contains('Attorney: Robin Redcar');
 
-            cy.get('button').should('not.contain', 'Continue');
-            cy.contains('Return to task list').click();
+            cy.contains('button', 'Continue').should('not.exist');
+            cy.contains('a', 'Return to task list').click();
             cy.url().should('contain', '/task-list');
         });
     });
