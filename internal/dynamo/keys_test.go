@@ -80,6 +80,7 @@ func TestSK(t *testing.T) {
 		"MemberIDKey":            {MemberIDKey("S"), "MEMBERID#S"},
 		"OrganisationKey":        {OrganisationKey("S"), "ORGANISATION#S"},
 		"MetadataKey":            {MetadataKey("S"), "METADATA#S"},
+		"VoucherShareSortKey":    {VoucherShareSortKey(LpaKey("S")), "VOUCHERSHARESORT#S"},
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
 		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), 99), "SCHEDULED#2024-01-02T12:13:14Z#99"},
@@ -117,13 +118,21 @@ func TestLpaOwnerKeyTypes(t *testing.T) {
 }
 
 func TestShareKeyTypes(t *testing.T) {
-	for _, key := range []interface{ share() }{DonorShareKey("hey"), CertificateProviderShareKey("what"), AttorneyShareKey("hello")} {
+	for _, key := range []interface{ share() }{
+		DonorShareKey("hey"),
+		CertificateProviderShareKey("what"),
+		AttorneyShareKey("hello"),
+	} {
 		key.share()
 	}
 }
 
 func TestShareSortKeyTypes(t *testing.T) {
-	for _, key := range []interface{ shareSort() }{MetadataKey("hey"), DonorInviteKey(OrganisationKey("what"), LpaKey("hello"))} {
+	for _, key := range []interface{ shareSort() }{
+		MetadataKey("hey"),
+		DonorInviteKey(OrganisationKey("what"), LpaKey("hello")),
+		VoucherShareSortKey(LpaKey("hi")),
+	} {
 		key.shareSort()
 	}
 }
