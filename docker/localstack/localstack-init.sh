@@ -31,6 +31,7 @@ awslocal s3api create-bucket --bucket evidence --create-bucket-configuration Loc
 
 echo 'configuring events'
 awslocal sqs create-queue --region eu-west-1 --queue-name event-queue
+awslocal sqs create-queue --region eu-west-1 --queue-name event-bus-queue
 awslocal events create-event-bus --region eu-west-1 --name default
 
 awslocal events put-rule \
@@ -45,6 +46,18 @@ awslocal events put-targets \
   --rule send-events-to-queue-rule \
   --targets "Id"="event-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-queue"
 
+awslocal events put-rule \
+  --region eu-west-1 \
+  --name send-events-to-bus-queue-rule \
+  --event-bus-name default \
+  --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
+
+awslocal events put-targets \
+  --region eu-west-1 \
+  --event-bus-name default \
+  --rule send-events-to-bus-queue-rule \
+  --targets "Id"="event-bus-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-bus-queue"
+
 echo 'creating event-received lambda'
 awslocal lambda create-function \
   --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1}" \
@@ -56,18 +69,6 @@ awslocal lambda create-function \
   --zip-file fileb:///etc/event-received.zip
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event-received
-
-awslocal events put-rule \
-  --region eu-west-1 \
-  --name receive-events-mlpa \
-  --event-bus-name default \
-  --event-pattern '{"source":["opg.poas.makeregister"],"detail-type":["uid-requested"]}'
-
-awslocal events put-targets \
-  --region eu-west-1 \
-  --event-bus-name default \
-  --rule receive-events-mlpa \
-  --targets "Id"="receive-events-sirius","Arn"="arn:aws:lambda:eu-west-1:000000000000:function:event-received"
 
 echo 'creating schedule-runner lambda'
 awslocal lambda create-function \
@@ -91,3 +92,9 @@ awslocal scheduler create-schedule \
   --description "Runs every minute (to aid testing - deployed infra will run less frequently)" \
   --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
   --flexible-time-window '{ "Mode": "OFF"}'
+
+echo 'createing event source mapping'
+awslocal lambda create-event-source-mapping \
+         --function-name "arn:aws:lambda:eu-west-1:000000000000:function:event-received" \
+         --batch-size 1 \
+         --event-source-arn "arn:aws:sqs:eu-west-1:000000000000:event-bus-queue"

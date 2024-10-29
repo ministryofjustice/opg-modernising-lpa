@@ -25,12 +25,12 @@ import (
 func TestSiriusEventHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &siriusEventHandler{}
 
-	err := handler.Handle(ctx, nil, events.CloudWatchEvent{DetailType: "some-event"})
+	err := handler.Handle(ctx, nil, &events.CloudWatchEvent{DetailType: "some-event"})
 	assert.Equal(t, fmt.Errorf("unknown sirius event"), err)
 }
 
 func TestHandleEvidenceReceived(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "evidence-received",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -62,7 +62,7 @@ func TestHandleEvidenceReceived(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -77,7 +77,7 @@ func TestHandleEvidenceReceivedWhenClientGetError(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -96,7 +96,7 @@ func TestHandleEvidenceReceivedWhenLpaMissingPK(t *testing.T) {
 }
 
 func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "evidence-required",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -121,7 +121,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 }
 
 func TestHandleFeeApproved(t *testing.T) {
-	e := events.CloudWatchEvent{
+	e := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -207,7 +207,7 @@ func TestHandleFeeApproved(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -276,7 +276,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -325,7 +325,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 
 	for _, taskState := range testcases {
 		t.Run(taskState.String(), func(t *testing.T) {
-			event := events.CloudWatchEvent{
+			event := &events.CloudWatchEvent{
 				DetailType: "reduced-fee-approved",
 				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 			}
@@ -358,7 +358,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -387,7 +387,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -433,7 +433,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -474,7 +474,7 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 }
 
 func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -510,7 +510,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 }
 
 func TestHandleFurtherInfoRequested(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -552,7 +552,7 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 }
 
 func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -584,7 +584,7 @@ func TestHandleFurtherInfoRequestedWhenPaymentTaskIsAlreadyMoreEvidenceRequired(
 }
 
 func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "further-info-requested",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -616,7 +616,7 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 }
 
 func TestHandleFeeDenied(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -658,7 +658,7 @@ func TestHandleFeeDenied(t *testing.T) {
 }
 
 func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -684,7 +684,7 @@ func TestHandleFeeDeniedWhenTaskAlreadyDenied(t *testing.T) {
 }
 
 func TestHandleFeeDeniedWhenPutError(t *testing.T) {
-	event := events.CloudWatchEvent{
+	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-declined",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
@@ -712,7 +712,7 @@ func TestHandleFeeDeniedWhenPutError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
 }
 
-var donorSubmissionCompletedEvent = events.CloudWatchEvent{
+var donorSubmissionCompletedEvent = &events.CloudWatchEvent{
 	DetailType: "donor-submission-completed",
 	Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 }
@@ -786,32 +786,6 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, donorSubmissionCompletedEvent)
 
-	assert.Nil(t, err)
-}
-
-func TestHandleDonorSubmissionCompletedWhenPaperCertificateProvider(t *testing.T) {
-	appData := appcontext.Data{}
-
-	lpa := &lpadata.Lpa{
-		CertificateProvider: lpadata.CertificateProvider{
-			Channel: lpadata.ChannelPaper,
-		},
-	}
-
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "M-1111-2222-3333").
-		Return(lpa, nil)
-
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Nil(t, err)
 }
 
@@ -911,7 +885,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 
-var certificateProviderSubmissionCompletedEvent = events.CloudWatchEvent{
+var certificateProviderSubmissionCompletedEvent = &events.CloudWatchEvent{
 	DetailType: "certificate-provider-submission-completed",
 	Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 }

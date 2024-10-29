@@ -1,7 +1,3 @@
-locals {
-  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-${data.aws_region.current.name}"
-}
-
 variable "ecs_execution_role" {
   type = object({
     id  = string

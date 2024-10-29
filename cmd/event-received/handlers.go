@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
-func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, event events.S3Event, s3Client s3Client, documentStore DocumentStore) error {
+func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, event *events.S3Event, s3Client s3Client, documentStore DocumentStore) error {
 	objectKey := event.Records[0].S3.Object.Key
 	if objectKey == "" {
 		return fmt.Errorf("object key missing")

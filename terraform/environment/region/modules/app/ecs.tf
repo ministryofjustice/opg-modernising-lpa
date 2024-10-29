@@ -48,7 +48,7 @@ resource "aws_ecs_service" "app" {
 }
 
 resource "aws_security_group" "app_ecs_service" {
-  name_prefix = "${local.name_prefix}-ecs-service"
+  name_prefix = "${data.aws_default_tags.current.tags.environment-name}-ecs-service"
   description = "app service security group"
   vpc_id      = var.network.vpc_id
   lifecycle {
@@ -86,7 +86,7 @@ resource "aws_security_group_rule" "app_ecs_service_egress" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "${local.name_prefix}-app"
+  family                   = "${data.aws_default_tags.current.tags.environment-name}-app"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
@@ -534,7 +534,7 @@ locals {
       portMappings           = [],
       essential              = false,
       entryPoint             = [],
-      readonlyRootFilesystem = false
+      readonlyRootFilesystem = true
       command = [
         "/bin/bash",
         "-c",

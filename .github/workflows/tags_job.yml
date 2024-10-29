@@ -59,13 +59,8 @@ jobs:
       - name: Generate workspace name
         id: name_workspace
         run: |
-          workspace=${{ github.event.number }}${{ github.head_ref }}
-          workspace=${workspace//-}
-          workspace=${workspace//_}
-          workspace=${workspace//\/}
-          workspace=${workspace:0:11}
-          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
-          if ${{ contains(fromJSON('["MLPAB-1419-use-a-single-persistent-environment-for-weblate-changes-optimise-workflow", "weblate-pr"]'), github.head_ref) }}; then
+          workspace=${{ github.event.number }}
+          if ${{ contains(fromJSON('["weblate-pr"]'), github.head_ref) }}; then
             workspace="weblate"
           fi
           echo "name=${workspace}" >> $GITHUB_OUTPUT
