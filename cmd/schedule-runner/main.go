@@ -41,10 +41,11 @@ var (
 
 	httpClient *http.Client
 	cfg        aws.Config
+	logHandler slog.Handler
 )
 
 func handleRunSchedule(ctx context.Context) error {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
+	logger := slog.New(logHandler.
 		WithAttrs([]slog.Attr{
 			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
 		}))
@@ -125,8 +126,26 @@ func main() {
 			}
 		}(ctx)
 
+		logHandler = telemetry.NewSlogHandler(slog.
+			NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+				ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
+					switch a.Value.Kind() {
+					case slog.KindAny:
+						switch v := a.Value.Any().(type) {
+						case *http.Request:
+							return slog.Group(a.Key,
+								slog.String("method", v.Method),
+								slog.String("uri", v.URL.String()))
+						}
+					}
+
+					return a
+				},
+			}))
+
 		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
 	} else {
+		logHandler = slog.NewJSONHandler(os.Stdout, nil)
 		lambda.Start(handleRunSchedule)
 	}
 }
