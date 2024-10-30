@@ -6,9 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
-	"time"
 
 	"github.com/felixge/httpsnoop"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
@@ -16,47 +14,22 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func Setup(ctx context.Context, resource *resource.Resource, stdOutOverride bool) (func(context.Context) error, error) {
-	var exporter sdktrace.SpanExporter
-	var bsp sdktrace.SpanProcessor
-	var err error
-
-	// to enable local trace/span debugging in container output
-	if stdOutOverride {
-		exporter, err = stdouttrace.New(
-			stdouttrace.WithPrettyPrint(),
-			stdouttrace.WithWriter(os.Stdout),
-		)
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to create stdout exporter: %w", err)
-		}
-
-		bsp = sdktrace.NewBatchSpanProcessor(
-			exporter,
-			sdktrace.WithBatchTimeout(100*time.Millisecond),
-			sdktrace.WithMaxExportBatchSize(1),
-		)
-	} else {
-		exporter, err = otlptracegrpc.New(ctx,
-			otlptracegrpc.WithInsecure(),
-			otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
-		if err != nil {
-			return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
-		}
-
-		bsp = sdktrace.NewBatchSpanProcessor(exporter)
+func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
+	exporter, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
 	}
 
+	bsp := sdktrace.NewBatchSpanProcessor(exporter)
 	idg := xray.NewIDGenerator()
-
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(resource),
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
