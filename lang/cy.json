@@ -1379,6 +1379,7 @@
     "youHaveToldUsDetailsDoNotMatchIdentity": "Welsh {{.DonorFullName}}",
     "youHaveToldUsDetailsDoNotMatchIdentityContent": "<p class=\"govuk-body\">Rydym wedi cysylltu â {{.DonorFirstNames}} i roi gwybod iddynt. Does dim angen i chi wneud dim byd arall.</p><p class=\"govuk-body\">Gallwch gau’r ffenestr bori hon nawr.</p>",
     "voucherConfirmYourIdentityIntro": "Welsh {{.DonorFullName}}",
+    "voucherConfirmYourIdentityContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
     "voucherUnableToConfirmIdentityContent": "<p class=\"govuk-body\">Mae hyn yn golygu nad ydych chi’n gallu tystio dros {{.DonorFullName}}. Rydyn ni wedi cysylltu â {{.DonorFirstNames}} i roi gwybod iddyn nhw.</p><p class=\"govuk-body\">Nid oes angen i chi wneud unrhyw beth arall.</p><p class=\"govuk-body\">Gallwch gau’r ffenestr bori hon nawr.</p>",
     "yourDeclaration": "Eich datganiad",
     "yourDeclarationContent": "<p class=\"govuk-body govuk-!-font-weight-bold\">Welsh {{.DonorFullName}} {{.DonorFirstNames}} {{.DonorFirstNames}} {{.DonorFirstNames}}</p>",
