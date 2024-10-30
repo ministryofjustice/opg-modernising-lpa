@@ -3,13 +3,14 @@ module "schedule_runner" {
   lambda_name = "schedule-runner"
   description = "Function to run scheduled tasks on a schedule set by EventBridge Scheduler"
   environment_variables = {
-    EVENT_BUS_NAME             = var.event_bus_name
+    EVENT_BUS_NAME             = var.event_bus.name
     GOVUK_NOTIFY_BASE_URL      = "https://api.notifications.service.gov.uk"
     GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     LPAS_TABLE                 = var.lpas_table.name
     SEARCH_ENDPOINT            = var.search_endpoint
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
+    XRAY_ENABLED               = 1
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.schedule_runner_lambda_role
@@ -62,7 +63,7 @@ data "aws_iam_policy_document" "schedule_runner" {
   }
 
   statement {
-    sid = "${local.policy_region_prefix}Allow"
+    sid = "${local.policy_region_prefix}AllowDynamoDBAccess"
 
     actions = [
       "dynamodb:DeleteItem",
@@ -79,7 +80,7 @@ data "aws_iam_policy_document" "schedule_runner" {
   }
 
   statement {
-    sid    = "${local.policy_region_prefix}SecretAccess"
+    sid    = "${local.policy_region_prefix}AllowSecretAccess"
     effect = "Allow"
 
     actions = [
@@ -108,6 +109,32 @@ data "aws_iam_policy_document" "schedule_runner" {
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:DescribeKey",
     ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}AllowEventBusAccess"
+    effect = "Allow"
+    actions = [
+      "events:PutEvents",
+    ]
+    resources = [
+      var.event_bus.arn
+    ]
+  }
+
+  statement {
+    sid    = "${local.policy_region_prefix}XrayAccess"
+    effect = "Allow"
+
+    actions = [
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries",
+    ]
+
+    resources = ["*"]
   }
 
   provider = aws.region
