@@ -1274,7 +1274,7 @@
     "vouchForSomeonesIdentity": "Vouch for someone’s identity",
     "confirmYourName": "Confirm your name",
     "signTheDeclaration": "Sign the declaration",
-    "thisIsTheNameDonorProvidedForYou": "This is the name {{.DonorFullName}} provided for you. Change these details if they are incorrect before you continue.",
+    "thisIsTheNameDonorProvidedForYou": "This is the name {{.DonorFullNames}} provided for you. Change these details if they are incorrect before you continue.",
     "thisNameMustMatchYourConfirmIdentityDetailsWarning": "This name must match your confirmed identity details. It may cause delays if the details do not match.",
     "confirmThatYouAreAllowedToVouch": "Confirm that you are allowed to vouch",
     "theDonorsLastNameMatchesYours": "{{possessive .DonorFullName}} surname matches your surname.",
