@@ -176,3 +176,6 @@ delete-lpa-index: ##@opensearch deletes the lpa index
 
 add-scheduled-events:
 	go run ./scripts/add-scheduled-items.go
+
+run-schedule-runner: ##@scheduler invokes the schedule-runner lambda
+	curl "http://localhost:9002/2015-03-31/functions/function/invocations"
