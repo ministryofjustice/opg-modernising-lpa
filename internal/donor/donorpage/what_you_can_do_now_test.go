@@ -68,7 +68,28 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 			assert.Nil(t, err)
 		})
 	}
+}
 
+func TestGetWhatYouCanDoNowWhenChangingVoucher(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(w, &whatYouCanDoNowData{
+			App: testAppData,
+			Form: &whatYouCanDoNowForm{
+				Options:        donordata.NoVoucherDecisionValues,
+				CanHaveVoucher: true,
+			},
+			NewVoucherLabel: "iHaveSomeoneElseWhoCanVouch",
+			ProveOwnIDLabel: "iWillGetOrFindID",
+		}).
+		Return(nil)
+
+	err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Voucher: donordata.Voucher{Allowed: true}})
+
+	assert.Nil(t, err)
 }
 
 func TestGetWhatYouCanDoNowWhenTemplateError(t *testing.T) {
@@ -90,7 +111,7 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 		expectedPath  string
 		expectedDonor *donordata.Provided
 	}{
-		donordata.ProveOwnID: {
+		donordata.ProveOwnIdentity: {
 			expectedPath: donor.PathTaskList.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
@@ -145,6 +166,38 @@ func TestPostWhatYouCanDoNow(t *testing.T) {
 			assert.Equal(t, tc.expectedPath, resp.Header.Get("Location"))
 		})
 	}
+}
+
+func TestPostWhatYouCanDoNowWhenChangingVoucher(t *testing.T) {
+	f := url.Values{
+		"do-next": {donordata.ApplyToCOP.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID:            "lpa-id",
+			IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			Voucher:          donordata.Voucher{Allowed: true},
+		}).
+		Return(nil)
+
+	err := WhatYouCanDoNow(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+		LpaID:            "lpa-id",
+		IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+		Voucher:          donordata.Voucher{Allowed: true},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathAreYouSureYouNoLongerNeedVoucher.FormatQuery("lpa-id", url.Values{
+		"choice": {donordata.ApplyToCOP.String()},
+	}), resp.Header.Get("Location"))
 }
 
 func TestPostWhatYouCanDoNowWhenDonorStoreError(t *testing.T) {

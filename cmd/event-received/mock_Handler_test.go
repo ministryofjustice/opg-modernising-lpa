@@ -23,7 +23,7 @@ func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
 }
 
 // Handle provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockHandler) Handle(_a0 context.Context, _a1 factory, _a2 events.CloudWatchEvent) error {
+func (_m *mockHandler) Handle(_a0 context.Context, _a1 factory, _a2 *events.CloudWatchEvent) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
@@ -31,7 +31,7 @@ func (_m *mockHandler) Handle(_a0 context.Context, _a1 factory, _a2 events.Cloud
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, factory, events.CloudWatchEvent) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, factory, *events.CloudWatchEvent) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -48,14 +48,14 @@ type mockHandler_Handle_Call struct {
 // Handle is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 factory
-//   - _a2 events.CloudWatchEvent
+//   - _a2 *events.CloudWatchEvent
 func (_e *mockHandler_Expecter) Handle(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockHandler_Handle_Call {
 	return &mockHandler_Handle_Call{Call: _e.mock.On("Handle", _a0, _a1, _a2)}
 }
 
-func (_c *mockHandler_Handle_Call) Run(run func(_a0 context.Context, _a1 factory, _a2 events.CloudWatchEvent)) *mockHandler_Handle_Call {
+func (_c *mockHandler_Handle_Call) Run(run func(_a0 context.Context, _a1 factory, _a2 *events.CloudWatchEvent)) *mockHandler_Handle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(factory), args[2].(events.CloudWatchEvent))
+		run(args[0].(context.Context), args[1].(factory), args[2].(*events.CloudWatchEvent))
 	})
 	return _c
 }
@@ -65,7 +65,7 @@ func (_c *mockHandler_Handle_Call) Return(_a0 error) *mockHandler_Handle_Call {
 	return _c
 }
 
-func (_c *mockHandler_Handle_Call) RunAndReturn(run func(context.Context, factory, events.CloudWatchEvent) error) *mockHandler_Handle_Call {
+func (_c *mockHandler_Handle_Call) RunAndReturn(run func(context.Context, factory, *events.CloudWatchEvent) error) *mockHandler_Handle_Call {
 	_c.Call.Return(run)
 	return _c
 }

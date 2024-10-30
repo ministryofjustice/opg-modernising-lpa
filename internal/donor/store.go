@@ -458,3 +458,23 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodeda
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
+
+func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided) error {
+	sessionData, err := appcontext.SessionFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var link sharecodedata.Link
+	if err := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link); err != nil {
+		return err
+	}
+
+	provided.Voucher = donordata.Voucher{}
+
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
+		Put(provided)
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
+}
