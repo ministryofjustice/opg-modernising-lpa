@@ -50,7 +50,7 @@ func TestLpaPathRedirect(t *testing.T) {
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
-			expected: PathHowToConfirmYourIdentityAndSign.Format("lpa-id"),
+			expected: PathConfirmYourIdentity.Format("lpa-id"),
 		},
 		"redirect with from": {
 			url:      "/?from=" + PathRestrictions.Format("lpa-id"),
@@ -64,7 +64,7 @@ func TestLpaPathRedirect(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
 			w := httptest.NewRecorder()
 
-			err := PathHowToConfirmYourIdentityAndSign.Redirect(w, r, appcontext.Data{Lang: localize.En}, tc.donor)
+			err := PathConfirmYourIdentity.Redirect(w, r, appcontext.Data{Lang: localize.En}, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)

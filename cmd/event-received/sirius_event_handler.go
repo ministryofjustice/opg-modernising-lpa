@@ -123,7 +123,7 @@ func handleFeeApproved(
 	if donor.FeeAmount() == 0 {
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
 
-		if donor.Tasks.ConfirmYourIdentityAndSign.IsCompleted() {
+		if donor.Tasks.SignTheLpa.IsCompleted() {
 			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
 				return fmt.Errorf("failed to send to lpastore: %w", err)
 			}

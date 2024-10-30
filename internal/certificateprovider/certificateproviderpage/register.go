@@ -162,8 +162,8 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathYourRole, page.CanGoBack,
 		Guidance(tmpls.Get("your_role.gohtml"), lpaStoreResolvingService))
 
-	handleCertificateProvider(certificateprovider.PathProveYourIdentity, page.None,
-		Guidance(tmpls.Get("prove_your_identity.gohtml"), nil))
+	handleCertificateProvider(certificateprovider.PathConfirmYourIdentity, page.None,
+		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
