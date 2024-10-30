@@ -70,6 +70,53 @@ func (_c *mockDonorStore_Delete_Call) RunAndReturn(run func(context.Context) err
 	return _c
 }
 
+// DeleteVoucher provides a mock function with given fields: ctx, provided
+func (_m *mockDonorStore) DeleteVoucher(ctx context.Context, provided *donordata.Provided) error {
+	ret := _m.Called(ctx, provided)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteVoucher")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
+		r0 = rf(ctx, provided)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDonorStore_DeleteVoucher_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteVoucher'
+type mockDonorStore_DeleteVoucher_Call struct {
+	*mock.Call
+}
+
+// DeleteVoucher is a helper method to define mock.On call
+//   - ctx context.Context
+//   - provided *donordata.Provided
+func (_e *mockDonorStore_Expecter) DeleteVoucher(ctx interface{}, provided interface{}) *mockDonorStore_DeleteVoucher_Call {
+	return &mockDonorStore_DeleteVoucher_Call{Call: _e.mock.On("DeleteVoucher", ctx, provided)}
+}
+
+func (_c *mockDonorStore_DeleteVoucher_Call) Run(run func(ctx context.Context, provided *donordata.Provided)) *mockDonorStore_DeleteVoucher_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockDonorStore_DeleteVoucher_Call) Return(_a0 error) *mockDonorStore_DeleteVoucher_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDonorStore_DeleteVoucher_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockDonorStore_DeleteVoucher_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: ctx
 func (_m *mockDonorStore) Get(ctx context.Context) (*donordata.Provided, error) {
 	ret := _m.Called(ctx)
