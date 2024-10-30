@@ -10,7 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	sharecodedata "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -126,29 +126,34 @@ func TestShareCodeStorePut(t *testing.T) {
 	testcases := map[string]struct {
 		actor actor.Type
 		pk    dynamo.ShareKeyType
+		sk    dynamo.ShareSortKeyType
 	}{
 		"attorney": {
 			actor: actor.TypeAttorney,
 			pk:    dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+			sk:    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 		},
 		"replacement attorney": {
 			actor: actor.TypeReplacementAttorney,
 			pk:    dynamo.ShareKey(dynamo.AttorneyShareKey("123")),
+			sk:    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 		},
 		"certificate provider": {
 			actor: actor.TypeCertificateProvider,
 			pk:    dynamo.ShareKey(dynamo.CertificateProviderShareKey("123")),
+			sk:    dynamo.ShareSortKey(dynamo.MetadataKey("123")),
 		},
 		"voucher": {
 			actor: actor.TypeVoucher,
 			pk:    dynamo.ShareKey(dynamo.VoucherShareKey("123")),
+			sk:    dynamo.ShareSortKey(dynamo.VoucherShareSortKey("lpa-id")),
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
-			data := sharecodedata.Link{PK: tc.pk, SK: dynamo.ShareSortKey(dynamo.MetadataKey("123")), LpaKey: "lpa-id"}
+			data := sharecodedata.Link{PK: tc.pk, SK: tc.sk, LpaKey: "lpa-id"}
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
