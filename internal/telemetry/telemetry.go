@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/felixge/httpsnoop"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -20,26 +21,41 @@ import (
 )
 
 func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
-	traceExporter, err := otlptracegrpc.New(ctx,
+	exporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithInsecure(),
 		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new OTLP trace exporter: %w", err)
 	}
 
+	bsp := sdktrace.NewBatchSpanProcessor(exporter)
 	idg := xray.NewIDGenerator()
-
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(resource),
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
-		sdktrace.WithBatcher(traceExporter),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithIDGenerator(idg),
+		sdktrace.WithSpanProcessor(bsp),
 	)
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
-	return traceExporter.Shutdown, nil
+	return tp.Shutdown, nil
+}
+
+// SetupLambda requires an ADOT collector lambda extension to be included in the
+// deployed lambda image for the below instrumentation to work
+func SetupLambda(ctx context.Context) (*sdktrace.TracerProvider, error) {
+	tp, err := xrayconfig.NewTracerProvider(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(xray.Propagator{})
+
+	return tp, nil
 }
 
 func WrapHandler(handler http.Handler) http.HandlerFunc {
