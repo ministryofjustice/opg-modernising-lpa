@@ -129,17 +129,18 @@ func (s *Store) Create(ctx context.Context) (*donordata.Provided, error) {
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, donor); err != nil {
-		return nil, err
-	}
+	transaction := dynamo.NewTransaction().
+		Create(dynamo.Keys{PK: donor.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)}).
+		Create(donor).
+		Create(dashboarddata.LpaLink{
+			PK:        dynamo.LpaKey(lpaID),
+			SK:        dynamo.SubKey(data.SessionID),
+			DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
+			ActorType: actor.TypeDonor,
+			UpdatedAt: s.now(),
+		})
 
-	if err := s.dynamoClient.Create(ctx, dashboarddata.LpaLink{
-		PK:        dynamo.LpaKey(lpaID),
-		SK:        dynamo.SubKey(data.SessionID),
-		DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey(data.SessionID)),
-		ActorType: actor.TypeDonor,
-		UpdatedAt: s.now(),
-	}); err != nil {
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err
 	}
 
@@ -158,10 +159,9 @@ type lpaReference struct {
 // Link allows a donor to access an Lpa created by a supporter. It adds the donor's email to
 // the share code and creates two records:
 //
-//  1. an lpaReference which allows the donor's session ID to be queried
-//     for the organisation ID that holds the Lpa data;
-//  2. an lpaLink which allows
-//     the Lpa to be shown on the donor's dashboard.
+//  1. an lpaReference which allows the donor's session ID to be queried for the
+//     organisation ID that holds the Lpa data;
+//  2. an lpaLink which allows the Lpa to be shown on the donor's dashboard.
 func (s *Store) Link(ctx context.Context, shareCode sharecodedata.Link, donorEmail string) error {
 	organisationKey, ok := shareCode.LpaOwnerKey.Organisation()
 	if !ok {
@@ -178,6 +178,9 @@ func (s *Store) Link(ctx context.Context, shareCode sharecodedata.Link, donorEma
 	}
 
 	var link dashboarddata.LpaLink
+	// TODO: I think this should be using AllByPartialSK, as once the Lpa has been
+	// linked to the donor, and the other actors invited, the `link` returned here
+	// may not be the donor one. Which would allow another link to be made.
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
 		return err
 	} else if link.ActorType == actor.TypeDonor {
@@ -438,6 +441,8 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodeda
 	}
 
 	var link dashboarddata.LpaLink
+	// TODO: this needs to check all, as it may not bring back the donor access if
+	// other actors have been invited.
 	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
 		return err
 	}

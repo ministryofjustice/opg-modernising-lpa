@@ -64,6 +64,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 	}
 
 	transaction := dynamo.NewTransaction().
+		Create(dynamo.Keys{PK: certificateProvider.PK, SK: dynamo.ReservedKey(dynamo.CertificateProviderKey)}).
 		Create(certificateProvider).
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
@@ -128,7 +129,12 @@ func (s *Store) Delete(ctx context.Context) error {
 		return errors.New("certificateProviderStore.Delete requires LpaID and SessionID")
 	}
 
-	if err := s.dynamoClient.DeleteOne(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID)); err != nil {
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{PK: dynamo.LpaKey(data.LpaID), SK: dynamo.CertificateProviderKey(data.SessionID)}).
+		Delete(dynamo.Keys{PK: dynamo.LpaKey(data.LpaID), SK: dynamo.SubKey(data.SessionID)}).
+		Delete(dynamo.Keys{PK: dynamo.LpaKey(data.LpaID), SK: dynamo.ReservedKey(dynamo.CertificateProviderKey)})
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return fmt.Errorf("error deleting certificate provider: %w", err)
 	}
 

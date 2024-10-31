@@ -217,6 +217,7 @@ func TestOneByPK(t *testing.T) {
 			ExpressionAttributeNames:  map[string]string{"#PK": "PK"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey},
 			KeyConditionExpression:    aws.String("#PK = :PK"),
+			Limit:                     aws.Int32(1),
 		}).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
 
@@ -258,23 +259,6 @@ func TestOneByPKWhenNotFound(t *testing.T) {
 	assert.Equal(t, NotFoundError{}, err)
 }
 
-func TestOneByPKWhenMultipleResults(t *testing.T) {
-	ctx := context.Background()
-
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.OneByPK(ctx, testPK("a-pk"), &v)
-	assert.Equal(t, MultipleResultsError{}, err)
-}
-
 func TestOneByPartialSK(t *testing.T) {
 	ctx := context.Background()
 
@@ -290,6 +274,7 @@ func TestOneByPartialSK(t *testing.T) {
 			ExpressionAttributeNames:  map[string]string{"#PK": "PK", "#SK": "SK"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":PK": pkey, ":SK": skey},
 			KeyConditionExpression:    aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+			Limit:                     aws.Int32(1),
 		}).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
 
@@ -329,23 +314,6 @@ func TestOneByPartialSKWhenNotFound(t *testing.T) {
 	var v map[string]string
 	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
-}
-
-func TestOneByPartialSKWhenMultipleResults(t *testing.T) {
-	ctx := context.Background()
-
-	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		Query(ctx, mock.Anything).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data}}, nil)
-
-	c := &Client{table: "this", svc: dynamoDB}
-
-	var v map[string]string
-	err := c.OneByPartialSK(ctx, testPK("a-pk"), testSK("a-partial-sk"), &v)
-	assert.Equal(t, MultipleResultsError{}, err)
 }
 
 func TestAllByPartialSK(t *testing.T) {
