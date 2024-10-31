@@ -195,12 +195,13 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 
 		if provided.RegisteringWithCourtOfProtection {
 			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
-			signTheLpaPath = donor.PathHowToSignYourLpa
 
 			if !provided.WitnessedByCertificateProviderAt.IsZero() {
 				signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
 			} else if !provided.SignedAt.IsZero() {
 				signTheLpaPath = donor.PathWitnessingYourSignature
+			} else {
+				signTheLpaPath = donor.PathHowToSignYourLpa
 			}
 		}
 
@@ -208,13 +209,13 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		confirmYourIdentityPath = donor.PathWhatYouCanDoNowExpired
 
 	case identity.StatusInsufficientEvidence:
-		confirmYourIdentityPath = donor.PathUnableToConfirmIdentity
-
 		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
 		} else if !provided.SignedAt.IsZero() {
 			signTheLpaPath = donor.PathWitnessingYourSignature
-		} else if provided.RegisteringWithCourtOfProtection {
+		}
+
+		if provided.RegisteringWithCourtOfProtection {
 			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 		} else if provided.Voucher.Allowed {
 			confirmYourIdentityPath = donor.PathWeHaveContactedVoucher
@@ -222,6 +223,8 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 			confirmYourIdentityPath = donor.PathEnterVoucher
 		} else if provided.WantVoucher.IsNo() {
 			confirmYourIdentityPath = donor.PathWhatYouCanDoNow
+		} else {
+			confirmYourIdentityPath = donor.PathUnableToConfirmIdentity
 		}
 	}
 
