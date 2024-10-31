@@ -4,72 +4,69 @@
     {{ tr .App "yourConfirmedIdentityDetails" }}
 {{ end }}
 
-{{ define "providedDetails" }}
-    <h1 class="govuk-heading-m">{{ tr .App "theDetailsOnYourLPA" }}</h1>
-
-    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-        <div
-            class="govuk-summary-list__row {{ if .FirstNamesMatch }}govuk-summary-list__row--no-actions{{end}}">
-            <dt class="govuk-summary-list__key">{{ tr .App "firstNames" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Provided.Donor.FirstNames }}</dd>
-            {{ if not .FirstNamesMatch }}
-                <dd class="govuk-summary-list__actions"><span
-                        class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
-                </dd>
-            {{ end }}
-        </div>
-        <div
-            class="govuk-summary-list__row {{ if .LastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
-            <dt class="govuk-summary-list__key">{{ tr .App "lastName" }}</dt>
-            <dd class="govuk-summary-list__value">{{ .Provided.Donor.LastName }}</dd>
-            {{ if not .LastNameMatch }}
-                <dd class="govuk-summary-list__actions"><span
-                        class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
-                </dd>
-            {{ end}}
-        </div>
-        <div
-            class="govuk-summary-list__row {{ if .DateOfBirthMatch }}govuk-summary-list__row--no-actions{{end}}">
-            <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
-            <dd class="govuk-summary-list__value">{{ (formatDate .App .Provided.Donor.DateOfBirth) }}</dd>
-            {{ if not .DateOfBirthMatch }}
-                <dd class="govuk-summary-list__actions"><span
-                        class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
-                </dd>
-            {{ end}}
-        </div>
-        <div
-            class="govuk-summary-list__row {{ if .AddressMatch }}govuk-summary-list__row--no-actions{{end}}">
-            <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
-            <dd class="govuk-summary-list__value">{{ template "address-lines" .Provided.Donor.Address }}</dd>
-            {{ if not .AddressMatch }}
-                <dd class="govuk-summary-list__actions"><span
-                        class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
-                </dd>
-            {{ end }}
-        </div>
-    </dl>
-{{ end }}
-
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ if .DetailsUpdated }}
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
 
-                {{ template "providedDetails" . }}
             {{ else if .DetailsMatch }}
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
             {{ else }}
                 {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
-
-                {{ template "providedDetails" . }}
             {{ end}}
 
+            {{ if or .DetailsUpdated (not .DetailsMatch) }}
+                <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                    <div
+                        class="govuk-summary-list__row {{ if .FirstNamesMatch }}govuk-summary-list__row--no-actions{{end}}">
+                        <dt class="govuk-summary-list__key">{{ tr .App "firstNames" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ .Provided.Donor.FirstNames }}</dd>
+                        {{ if not .FirstNamesMatch }}
+                            <dd class="govuk-summary-list__actions">
+                                <span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
+                            </dd>
+                        {{ end }}
+                    </div>
+                    <div
+                        class="govuk-summary-list__row {{ if .LastNameMatch }}govuk-summary-list__row--no-actions{{end}}">
+                        <dt class="govuk-summary-list__key">{{ tr .App "lastName" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ .Provided.Donor.LastName }}</dd>
+                        {{ if not .LastNameMatch }}
+                            <dd class="govuk-summary-list__actions">
+                                <span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
+                            </dd>
+                        {{ end}}
+                    </div>
+                    <div
+                        class="govuk-summary-list__row {{ if .DateOfBirthMatch }}govuk-summary-list__row--no-actions{{end}}">
+                        <dt class="govuk-summary-list__key">{{ tr .App "dateOfBirth" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ (formatDate .App .Provided.Donor.DateOfBirth) }}</dd>
+                        {{ if not .DateOfBirthMatch }}
+                            <dd class="govuk-summary-list__actions">
+                                <span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
+                            </dd>
+                        {{ end}}
+                    </div>
+                    <div
+                        class="govuk-summary-list__row {{ if .AddressMatch }}govuk-summary-list__row--no-actions{{end}}">
+                        <dt class="govuk-summary-list__key">{{ tr .App "address" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ template "address-lines" .Provided.Donor.Address }}</dd>
+                        {{ if not .AddressMatch }}
+                            <dd class="govuk-summary-list__actions">
+                                <span class="moj-badge moj-badge--red app-08rem-font-size">{{ tr .App "doesNotMatch" }}</span>
+                            </dd>
+                        {{ end }}
+                    </div>
+                </dl>
+            {{ end }}
+            
             {{ template "identity-details" . }}
 
-            <form novalidate method="post">
-                {{ if not .DetailsMatch }}
+            {{ if .DetailsMatch }}
+                {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .Provided.LpaID)) }}
+            {{ else }}
+                <form novalidate method="post">
                     {{ template "warning" (content .App "youCanOnlyContinueIfDetailsMatchWarning") }}
 
                     <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
@@ -80,20 +77,16 @@
                             {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
                             {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-                            (item .Form.Options.Yes.String "yes" "hint" "updateMyLPADetailsToMatchIdentityHint")
-                            (item .Form.Options.No.String "no" "hint" "iUnderstandThisWillWithdrawLPAHint")
-                            ) }}
+                                (item .Form.Options.Yes.String "yes" "hint" "updateMyLPADetailsToMatchIdentityHint")
+                                (item .Form.Options.No.String "no" "hint" "iUnderstandThisWillWithdrawLPAHint")
+                                ) }}
                         </fieldset>
                     </div>
-                {{ end }}
 
-                {{ if not .DetailsUpdated }}
                     {{ template "buttons" (button .App "continue") }}
-                {{ else }}
-                    {{ template "continue-button" . }}
-                {{ end }}
-                {{ template "csrf-field" . }}
-            </form>
+                    {{ template "csrf-field" . }}
+                </form>
+            {{ end }}
         </div>
     </div>
 {{ end }}
