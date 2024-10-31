@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 
@@ -26,6 +27,7 @@ type whatYouCanDoNowData struct {
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		log.Println("sdds")
 		data := &whatYouCanDoNowData{
 			App: appData,
 			Form: &whatYouCanDoNowForm{
