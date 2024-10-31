@@ -215,7 +215,6 @@ type appPaths struct {
 	UseExistingAddress                                   donor.Path
 	ViewLPA                                              donor.Path
 	WeHaveContactedVoucher                               donor.Path
-	WeHaveReceivedVoucherDetails                         donor.Path
 	WeHaveUpdatedYourDetails                             donor.Path
 	WhatACertificateProviderDoes                         donor.Path
 	WhatHappensNextPostEvidence                          donor.Path
@@ -444,7 +443,6 @@ var paths = appPaths{
 	UseExistingAddress:                                   donor.PathUseExistingAddress,
 	ViewLPA:                                              donor.PathViewLPA,
 	WeHaveContactedVoucher:                               donor.PathWeHaveContactedVoucher,
-	WeHaveReceivedVoucherDetails:                         donor.PathWeHaveReceivedVoucherDetails,
 	WeHaveUpdatedYourDetails:                             donor.PathWeHaveUpdatedYourDetails,
 	WhatACertificateProviderDoes:                         donor.PathWhatACertificateProviderDoes,
 	WhatHappensNextPostEvidence:                          donor.PathWhatHappensNextPostEvidence,
