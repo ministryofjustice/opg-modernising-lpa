@@ -54,6 +54,7 @@ type DonorStore interface {
 	Put(ctx context.Context, donor *donordata.Provided) error
 	Delete(ctx context.Context) error
 	Link(ctx context.Context, data sharecodedata.Link, donorEmail string) error
+	DeleteVoucher(ctx context.Context, provided *donordata.Provided) error
 }
 
 type GetDonorStore interface {
@@ -409,8 +410,6 @@ func Register(
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
 		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender))
-	handleWithDonor(donor.PathWeHaveReceivedVoucherDetails, page.None,
-		Guidance(tmpls.Get("we_have_received_voucher_details.gohtml")))
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
@@ -419,6 +418,10 @@ func Register(
 		WhatYouCanDoNowExpired(tmpls.Get("what_you_can_do_now_expired.gohtml"), donorStore))
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
+	handleWithDonor(donor.PathAreYouSureYouNoLongerNeedVoucher, page.CanGoBack,
+		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore))
+	handleWithDonor(donor.PathWeHaveInformedVoucherNoLongerNeeded, page.None,
+		Guidance(tmpls.Get("we_have_informed_voucher_no_longer_needed.gohtml")))
 
 	handleWithDonor(donor.PathHowToSignYourLpa, page.None,
 		Guidance(tmpls.Get("how_to_sign_your_lpa.gohtml")))
