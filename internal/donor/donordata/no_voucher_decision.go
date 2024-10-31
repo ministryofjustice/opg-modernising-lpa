@@ -4,7 +4,7 @@ package donordata
 type NoVoucherDecision uint8
 
 const (
-	ProveOwnID       NoVoucherDecision = iota + 1 // prove-own-id
+	ProveOwnIdentity NoVoucherDecision = iota + 1 // prove-own-identity
 	SelectNewVoucher                              // select-new-voucher
 	WithdrawLPA                                   // withdraw-lpa
 	ApplyToCOP                                    // apply-to-cop

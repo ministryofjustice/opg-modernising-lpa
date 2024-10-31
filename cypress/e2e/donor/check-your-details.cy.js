@@ -21,8 +21,8 @@ describe('Check your details', () => {
         cy.visit('/fixtures?redirect=/check-your-details&progress=payForTheLpa&feeType=NoFee&paymentTaskProgress=Pending');
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/we-have-received-voucher-details');
+        cy.url().should('contain', '/we-have-contacted-voucher');
         cy.checkA11yApp();
-        cy.contains('no fee (exemption)');
+        cy.contains('We are processing your LPA fee request');
     });
 });

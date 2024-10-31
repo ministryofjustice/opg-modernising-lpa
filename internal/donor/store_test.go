@@ -1029,3 +1029,56 @@ func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 	err := donorStore.DeleteDonorAccess(ctx, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
 	assert.Error(t, err)
 }
+
+func TestDonorStoreDeleteVoucher(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+			sharecodedata.Link{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}, nil)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}},
+			Puts: []any{
+				&donordata.Provided{},
+			},
+		}).
+		Return(expectedError)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
+		Voucher: donordata.Voucher{FirstNames: "a"},
+	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreDeleteVoucherWhenSessionMissing(t *testing.T) {
+	donorStore := &Store{}
+
+	err := donorStore.DeleteVoucher(context.Background(), &donordata.Provided{})
+	assert.Equal(t, appcontext.SessionMissingError{}, err)
+}
+
+func TestDonorStoreDeleteVoucherWhenOneBySKErrors(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+			sharecodedata.Link{}, expectedError)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
+		Voucher: donordata.Voucher{FirstNames: "a"},
+	})
+	assert.Equal(t, expectedError, err)
+}
