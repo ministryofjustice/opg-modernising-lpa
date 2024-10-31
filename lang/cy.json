@@ -1249,8 +1249,6 @@
     "checkYourDetailsAreCorrectBeforeYouContinue": "Cadarnhewch fod eich manylion yn gywir cyn parhau.",
     "youHaveBeenUnableToConfirmYourIdentity": "Dydych chi ddim wedi gallu cadarnhau pwy ydych chi drwy ddefnyddio GOV.UK One Login.",
     "vouchingLandingPageContent": "<p class=\"govuk-body\">Mae angen i chi gadarnhau pwy ydych chi cyn y gall Swyddfa’r Gwarcheidwad Cyhoeddus gofrestru eich atwrneiaeth arhosol.</p> <p class=\"govuk-body\">Gallwch naill ai:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>mynd yn ôl i GOV.UK One Login a cheisio cadarnhau pwy ydych chi eto</li> <li>gofyn i rywun rydych chi’n ei adnabod gadarnhau pwy ydych chi drwy dystio drosoch chi</li> </ul> <p class=\"govuk-body\">Bwrw ymlaen i gael gwybodaeth am dystio dros rywun a phwy sy’n cael cadarnhau pwy ydych chi.</p>",
-    "weHaveReceivedDetailsOfVoucher": "Rydym wedi derbyn manylion yr unigolyn yr hoffech iddynt dystio drosoch chi.",
-    "weHaveReceivedDetailsOfVoucherContent": "<ul class=\"govuk-list govuk-list--bullet\"><li>Byddwn yn cysylltu â’r unigolyn sy’n tystio drosoch chi ar ôl i’ch cais am {{.FeeType}} gael ei ddatrys</li><li>Pan fyddwn yn cysylltu â’r unigolyn sy’n tystio drosoch chi, byddwn yn anfon cod atoch chi drwy neges testun/e-bost</li><li>Rhaid i chi roi’r cod hwn i’r unigolyn sy’n tystio drosoch chi, er mwyn iddyn nhw allu cwblhau eu tasgau</li><li>Gallwch fwrw ymlaen i lofnodi eich LPA</li></ul>",
     "payingNoFee": "talu dim ffi (esemptiad)",
     "payingHalfFee": "talu hanner ffi (gostyngiad)",
     "aRepeatApplicationDiscount": "disgownt am ail gais",
