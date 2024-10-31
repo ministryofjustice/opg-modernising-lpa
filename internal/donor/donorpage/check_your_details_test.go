@@ -76,7 +76,7 @@ func TestPostCheckYourDetailsWhenUnpaid(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathWeHaveReceivedVoucherDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathWeHaveContactedVoucher.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestPostCheckYourDetailsWhenShareCodeStoreError(t *testing.T) {
