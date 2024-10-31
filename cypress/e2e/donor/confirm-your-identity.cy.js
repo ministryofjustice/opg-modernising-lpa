@@ -22,7 +22,7 @@ describe('Confirm your identity', () => {
 
             cy.contains('Sam');
             cy.contains('Smith');
-            cy.contains('button', 'Continue').click();
+            cy.contains('a', 'Return to task list').click();
 
             cy.url().should('contain', '/task-list');
         });
