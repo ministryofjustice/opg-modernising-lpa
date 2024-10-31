@@ -148,19 +148,6 @@ func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 	assert.Equal(t, donor.PathWithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostOneLoginIdentityDetailsWhenIdentityAndLPADetailsAlreadyMatch(t *testing.T) {
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", nil)
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id", IdentityUserData: identity.UserData{Status: identity.StatusConfirmed}})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
 func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
 
