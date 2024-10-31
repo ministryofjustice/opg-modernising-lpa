@@ -410,8 +410,6 @@ func Register(
 		ConfirmPersonAllowedToVouch(tmpls.Get("confirm_person_allowed_to_vouch.gohtml"), donorStore))
 	handleWithDonor(donor.PathCheckYourDetails, page.CanGoBack,
 		CheckYourDetails(tmpls.Get("check_your_details.gohtml"), shareCodeSender))
-	handleWithDonor(donor.PathWeHaveReceivedVoucherDetails, page.None,
-		Guidance(tmpls.Get("we_have_received_voucher_details.gohtml")))
 	handleWithDonor(donor.PathWeHaveContactedVoucher, page.None,
 		Guidance(tmpls.Get("we_have_contacted_voucher.gohtml")))
 	handleWithDonor(donor.PathWhatYouCanDoNow, page.CanGoBack,
