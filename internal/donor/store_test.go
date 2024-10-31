@@ -538,10 +538,13 @@ func TestDonorStoreCreate(t *testing.T) {
 			dynamoClient.
 				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), previousDetails, nil)
 			dynamoClient.EXPECT().
-				Create(ctx, donor).
-				Return(nil)
-			dynamoClient.EXPECT().
-				Create(ctx, dashboarddata.LpaLink{PK: dynamo.LpaKey("10100000"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor, UpdatedAt: testNow}).
+				WriteTransaction(ctx, &dynamo.Transaction{
+					Creates: []any{
+						dynamo.Keys{PK: dynamo.LpaKey("10100000"), SK: dynamo.ReservedKey(dynamo.DonorKey)},
+						donor,
+						dashboarddata.LpaLink{PK: dynamo.LpaKey("10100000"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor, UpdatedAt: testNow},
+					},
+				}).
 				Return(nil)
 
 			donorStore := &Store{dynamoClient: dynamoClient, uuidString: func() string { return "10100000" }, now: testNowFn, newUID: testUIDFn}
@@ -571,26 +574,12 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 
 			return dynamoClient
 		},
-		"donor record": func(t *testing.T) *mockDynamoClient {
+		"transaction": func(t *testing.T) *mockDynamoClient {
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.
 				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), donordata.Provided{}, nil)
 			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(expectedError)
-
-			return dynamoClient
-		},
-		"link record": func(t *testing.T) *mockDynamoClient {
-			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				ExpectLatestForActor(ctx, dynamo.DonorKey("an-id"), donordata.Provided{}, nil)
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
-				Return(nil).
-				Once()
-			dynamoClient.EXPECT().
-				Create(ctx, mock.Anything).
+				WriteTransaction(ctx, mock.Anything).
 				Return(expectedError)
 
 			return dynamoClient
