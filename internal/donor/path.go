@@ -13,6 +13,7 @@ const (
 	PathAboutPayment                                         = Path("/about-payment")
 	PathAddCorrespondent                                     = Path("/add-correspondent")
 	PathAreYouApplyingForFeeDiscountOrExemption              = Path("/are-you-applying-for-fee-discount-or-exemption")
+	PathAreYouSureYouNoLongerNeedVoucher                     = Path("/are-you-sure-you-no-longer-need-voucher")
 	PathBecauseYouHaveChosenJointly                          = Path("/because-you-have-chosen-jointly")
 	PathBecauseYouHaveChosenJointlyForSomeSeverallyForOthers = Path("/because-you-have-chosen-jointly-for-some-severally-for-others")
 	PathCanYouSignYourLpa                                    = Path("/can-you-sign-your-lpa")
@@ -98,7 +99,7 @@ const (
 	PathUseExistingAddress                                   = Path("/use-existing-address")
 	PathViewLPA                                              = Path("/view-lpa")
 	PathWeHaveContactedVoucher                               = Path("/we-have-contacted-voucher")
-	PathWeHaveReceivedVoucherDetails                         = Path("/we-have-received-voucher-details")
+	PathWeHaveInformedVoucherNoLongerNeeded                  = Path("/we-have-informed-voucher-no-longer-needed")
 	PathWeHaveUpdatedYourDetails                             = Path("/we-have-updated-your-details")
 	PathWhatACertificateProviderDoes                         = Path("/what-a-certificate-provider-does")
 	PathWhatHappensNextPostEvidence                          = Path("/what-happens-next-post-evidence")
@@ -139,6 +140,10 @@ func (p Path) Format(id string) string {
 	return "/lpa/" + id + string(p)
 }
 
+func (p Path) FormatQuery(id string, query url.Values) string {
+	return p.Format(id) + "?" + query.Encode()
+}
+
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided) error {
 	rurl := p.Format(donor.LpaID)
 	if fromURL := r.FormValue("from"); fromURL != "" {
@@ -150,7 +155,7 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 }
 
 func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided, query url.Values) error {
-	rurl := p.Format(donor.LpaID) + "?" + query.Encode()
+	rurl := p.FormatQuery(donor.LpaID, query)
 	if fromURL := r.FormValue("from"); fromURL != "" {
 		rurl = fromURL
 	}
