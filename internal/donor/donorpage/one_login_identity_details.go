@@ -44,10 +44,6 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 		}
 
 		if r.Method == http.MethodPost {
-			if provided.DonorIdentityConfirmed() {
-				return donor.PathTaskList.Redirect(w, r, appData, provided)
-			}
-
 			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
 			data.Errors = f.Validate()
 

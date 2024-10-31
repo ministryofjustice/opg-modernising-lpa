@@ -314,7 +314,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathUnableToConfirmIdentity.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
 					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature.Format("lpa-id")},
 				}
 
@@ -334,7 +334,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathUnableToConfirmIdentity.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
 					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id")},
 				}
 
