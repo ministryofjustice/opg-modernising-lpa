@@ -100,7 +100,6 @@ const (
 	PathViewLPA                                              = Path("/view-lpa")
 	PathWeHaveContactedVoucher                               = Path("/we-have-contacted-voucher")
 	PathWeHaveInformedVoucherNoLongerNeeded                  = Path("/we-have-informed-voucher-no-longer-needed")
-	PathWeHaveReceivedVoucherDetails                         = Path("/we-have-received-voucher-details")
 	PathWeHaveUpdatedYourDetails                             = Path("/we-have-updated-your-details")
 	PathWhatACertificateProviderDoes                         = Path("/what-a-certificate-provider-does")
 	PathWhatHappensNextPostEvidence                          = Path("/what-happens-next-post-evidence")
