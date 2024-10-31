@@ -157,7 +157,7 @@ func TestShareCodeStorePut(t *testing.T) {
 
 			dynamoClient := newMockDynamoClient(t)
 			dynamoClient.EXPECT().
-				Put(ctx, data).
+				CreateOnly(ctx, data).
 				Return(nil)
 
 			shareCodeStore := &Store{dynamoClient: dynamoClient}
@@ -181,7 +181,7 @@ func TestShareCodeStorePutOnError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, mock.Anything).
+		CreateOnly(ctx, mock.Anything).
 		Return(expectedError)
 
 	shareCodeStore := &Store{dynamoClient: dynamoClient}
@@ -230,7 +230,7 @@ func TestShareCodeStorePutDonor(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, sharecodedata.Link{
+		CreateOnly(ctx, sharecodedata.Link{
 			PK:          dynamo.ShareKey(dynamo.DonorShareKey("123")),
 			SK:          dynamo.ShareSortKey(dynamo.DonorInviteKey(dynamo.OrganisationKey("org-id"), dynamo.LpaKey("lpa-id"))),
 			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
