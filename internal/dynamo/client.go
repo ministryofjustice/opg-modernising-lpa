@@ -76,14 +76,13 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 			":LpaUID": &types.AttributeValueMemberS{Value: uid},
 		},
 		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+		Limit:                  aws.Int32(1),
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to query UID: %w", err)
 	}
-
-	if len(response.Items) != 1 {
-		return fmt.Errorf("expected to resolve LpaUID but got %d items", len(response.Items))
+	if len(response.Items) == 0 {
+		return NotFoundError{}
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)

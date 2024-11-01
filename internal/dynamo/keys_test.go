@@ -37,6 +37,7 @@ func TestPK(t *testing.T) {
 		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
 		"VoucherShareKey":             {VoucherShareKey("S"), "VOUCHERSHARE#S"},
 		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
+		"UIDKey":                      {UIDKey("S"), "UID#S"},
 	}
 
 	for name, tc := range testcases {
