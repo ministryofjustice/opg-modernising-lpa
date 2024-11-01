@@ -57,6 +57,8 @@ type dynamodbClient interface {
 	Put(ctx context.Context, v interface{}) error
 	UpdateReturn(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	CreateOnly(ctx context.Context, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type s3Client interface {

@@ -19,6 +19,13 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func (c *mockDynamodbClient_One_Call) SetData(data any) {
+	c.Run(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
+}
+
 func TestMakeRegisterHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &makeregisterEventHandler{}
 
@@ -34,7 +41,13 @@ func TestHandleUidRequestedDonor(t *testing.T) {
 		),
 	}
 
-	dob := date.New("2000", "01", "02")
+	provided := &donordata.Provided{
+		Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: date.New("2000", "1", "2")},
+		Type:      lpadata.LpaTypePersonalWelfare,
+		CreatedAt: testNow,
+		PK:        dynamo.LpaKey("lpa-id"),
+		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
+	}
 
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
@@ -42,7 +55,7 @@ func TestHandleUidRequestedDonor(t *testing.T) {
 			Type: "personal-welfare",
 			Donor: uid.DonorDetails{
 				Name:     "a donor",
-				Dob:      dob,
+				Dob:      date.New("2000", "01", "02"),
 				Postcode: "F1 1FF",
 			},
 		}).
@@ -50,23 +63,14 @@ func TestHandleUidRequestedDonor(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "lpa-id", "donor-session-id", "", "M-1111-2222-3333").
+		Set(ctx, provided, "M-1111-2222-3333").
 		Return(nil)
 
 	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.
-		On("One", ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("donor-session-id"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&donordata.Provided{
-				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
-				Type:      lpadata.LpaTypePersonalWelfare,
-				CreatedAt: testNow,
-				PK:        dynamo.LpaKey("lpa-id"),
-				SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("donor-session-id")),
-			})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("donor-session-id"), mock.Anything).
+		Return(nil).
+		SetData(provided)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
@@ -111,7 +115,13 @@ func TestHandleUidRequestedOrganisation(t *testing.T) {
 		),
 	}
 
-	dob := date.New("2000", "01", "02")
+	provided := &donordata.Provided{
+		Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: date.New("2000", "1", "2")},
+		Type:      lpadata.LpaTypePersonalWelfare,
+		CreatedAt: testNow,
+		PK:        dynamo.LpaKey("lpa-id"),
+		SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("organisation-id")),
+	}
 
 	uidClient := newMockUidClient(t)
 	uidClient.EXPECT().
@@ -119,7 +129,7 @@ func TestHandleUidRequestedOrganisation(t *testing.T) {
 			Type: "personal-welfare",
 			Donor: uid.DonorDetails{
 				Name:     "a donor",
-				Dob:      dob,
+				Dob:      date.New("2000", "01", "02"),
 				Postcode: "F1 1FF",
 			},
 		}).
@@ -127,23 +137,14 @@ func TestHandleUidRequestedOrganisation(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, "lpa-id", "", "organisation-id", "M-1111-2222-3333").
+		Set(ctx, provided, "M-1111-2222-3333").
 		Return(nil)
 
 	dynamoClient := newMockDynamodbClient(t)
-	dynamoClient.
-		On("One", ctx, dynamo.LpaKey("lpa-id"), dynamo.OrganisationKey("organisation-id"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := attributevalue.Marshal(&donordata.Provided{
-				Donor:     donordata.Donor{FirstNames: "a", LastName: "b", Address: place.Address{Line1: "a"}, DateOfBirth: dob},
-				Type:      lpadata.LpaTypePersonalWelfare,
-				CreatedAt: testNow,
-				PK:        dynamo.LpaKey("lpa-id"),
-				SK:        dynamo.LpaOwnerKey(dynamo.OrganisationKey("organisation-id")),
-			})
-			attributevalue.Unmarshal(b, v)
-			return nil
-		})
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("lpa-id"), dynamo.OrganisationKey("organisation-id"), mock.Anything).
+		Return(nil).
+		SetData(provided)
 
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
@@ -249,7 +250,7 @@ func TestHandleUidRequestedWhenUidStoreErrors(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Set(ctx, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleUidRequested(ctx, uidStore, uidClient, e, dynamoClient, nil)
@@ -274,7 +275,7 @@ func TestHandleUidRequestedWhenEventClientErrors(t *testing.T) {
 
 	uidStore := newMockUidStore(t)
 	uidStore.EXPECT().
-		Set(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Set(ctx, mock.Anything, mock.Anything).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)

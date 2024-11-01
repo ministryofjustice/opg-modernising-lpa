@@ -37,6 +37,7 @@ func TestPK(t *testing.T) {
 		"AttorneyShareKey":            {AttorneyShareKey("S"), "ATTORNEYSHARE#S"},
 		"VoucherShareKey":             {VoucherShareKey("S"), "VOUCHERSHARE#S"},
 		"ScheduledDayKey":             {ScheduledDayKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)), "SCHEDULEDDAY#2024-01-02"},
+		"UIDKey":                      {UIDKey("S"), "UID#S"},
 	}
 
 	for name, tc := range testcases {
@@ -84,6 +85,7 @@ func TestSK(t *testing.T) {
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
 		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), 99), "SCHEDULED#2024-01-02T12:13:14Z#99"},
+		"ReservedKey":            {ReservedKey(VoucherKey), "RESERVED#VOUCHER#"},
 	}
 
 	for name, tc := range testcases {
