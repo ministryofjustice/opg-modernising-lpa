@@ -5,6 +5,7 @@ package main
 import (
 	context "context"
 
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -21,17 +22,17 @@ func (_m *mockUidStore) EXPECT() *mockUidStore_Expecter {
 	return &mockUidStore_Expecter{mock: &_m.Mock}
 }
 
-// Set provides a mock function with given fields: ctx, lpaID, sessionID, organisationID, uid
-func (_m *mockUidStore) Set(ctx context.Context, lpaID string, sessionID string, organisationID string, uid string) error {
-	ret := _m.Called(ctx, lpaID, sessionID, organisationID, uid)
+// Set provides a mock function with given fields: ctx, provided, uid
+func (_m *mockUidStore) Set(ctx context.Context, provided *donordata.Provided, uid string) error {
+	ret := _m.Called(ctx, provided, uid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Set")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
-		r0 = rf(ctx, lpaID, sessionID, organisationID, uid)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided, string) error); ok {
+		r0 = rf(ctx, provided, uid)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,17 +47,15 @@ type mockUidStore_Set_Call struct {
 
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
-//   - lpaID string
-//   - sessionID string
-//   - organisationID string
+//   - provided *donordata.Provided
 //   - uid string
-func (_e *mockUidStore_Expecter) Set(ctx interface{}, lpaID interface{}, sessionID interface{}, organisationID interface{}, uid interface{}) *mockUidStore_Set_Call {
-	return &mockUidStore_Set_Call{Call: _e.mock.On("Set", ctx, lpaID, sessionID, organisationID, uid)}
+func (_e *mockUidStore_Expecter) Set(ctx interface{}, provided interface{}, uid interface{}) *mockUidStore_Set_Call {
+	return &mockUidStore_Set_Call{Call: _e.mock.On("Set", ctx, provided, uid)}
 }
 
-func (_c *mockUidStore_Set_Call) Run(run func(ctx context.Context, lpaID string, sessionID string, organisationID string, uid string)) *mockUidStore_Set_Call {
+func (_c *mockUidStore_Set_Call) Run(run func(ctx context.Context, provided *donordata.Provided, uid string)) *mockUidStore_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(string))
+		run(args[0].(context.Context), args[1].(*donordata.Provided), args[2].(string))
 	})
 	return _c
 }
@@ -66,7 +65,7 @@ func (_c *mockUidStore_Set_Call) Return(_a0 error) *mockUidStore_Set_Call {
 	return _c
 }
 
-func (_c *mockUidStore_Set_Call) RunAndReturn(run func(context.Context, string, string, string, string) error) *mockUidStore_Set_Call {
+func (_c *mockUidStore_Set_Call) RunAndReturn(run func(context.Context, *donordata.Provided, string) error) *mockUidStore_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }
