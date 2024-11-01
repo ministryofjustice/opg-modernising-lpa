@@ -13,6 +13,7 @@ set for an LPA is:
 	| LPA#...      | RESERVED#CERTIFICATE_PROVIDER# | Ensure an LPA only has one certificate provider                 |                                  |
 	| LPA#...      | ATTORNEY#...                   | Data entered online by an attorney (or replacement/trust corp.) | attorneydata.Provided            |
 	| LPA#...      | VOUCHER#...                    | Data entered online by a voucher                                | voucherdata.Provided             |
+	| LPA#...      | RESERVED#VOUCHER#              | Ensure an LPA only has one voucher                              |                                  |
 	| LPA#...      | DOCUMENT#...                   | A document uploaded as evidence for a reduced fee               | document.Document                |
 	| LPA#...      | EVIDENCE_RECEIVED#             | Marker to show paper evidence has been sent in to the OPG       |                                  |
 	| UID#...      | METADATA#                      | Ensure a UID is only set once                                   |                                  |
@@ -37,7 +38,7 @@ For sharing an LPA with each actor we generate records like:
 	| CERTIFICATEPROVIDERSHARE#... | METADATA#...             | A share of the LPA to a certificate provider                   | sharecodedata.Link |
 	| ATTORNEYSHARE#...            | METADATA#...             | A share of the LPA to an attorney (or replacement/trust corp.) | sharecodedata.Link |
 
-	 The scheduler uses the following structure:
+The scheduler uses the following structure:
 
 	| PK               | SK            | Description                          | Type            |
 	| ---------------- | ------------- | ------------------------------------ | --------------- |

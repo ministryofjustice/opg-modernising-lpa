@@ -48,8 +48,9 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 
 	transaction := dynamo.NewTransaction().
 		Create(provided).
+		Create(dynamo.Keys{PK: provided.PK, SK: dynamo.ReservedKey(dynamo.VoucherKey)}).
 		Create(dashboarddata.LpaLink{
-			PK:        dynamo.LpaKey(data.LpaID),
+			PK:        provided.PK,
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
 			ActorType: actor.TypeVoucher,
