@@ -794,47 +794,6 @@ func TestUpdateOnServiceError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestUpdateReturn(t *testing.T) {
-	ctx := context.Background()
-
-	returned, _ := attributevalue.MarshalMap(map[string]any{"a": "b"})
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		UpdateItem(ctx, &dynamodb.UpdateItemInput{
-			TableName: aws.String("table-name"),
-			Key: map[string]types.AttributeValue{
-				"PK": &types.AttributeValueMemberS{Value: "a-pk"},
-				"SK": &types.AttributeValueMemberS{Value: "a-sk"},
-			},
-			ExpressionAttributeValues: map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}},
-			UpdateExpression:          aws.String("some = expression"),
-			ReturnValues:              types.ReturnValueAllNew,
-		}).
-		Return(&dynamodb.UpdateItemOutput{Attributes: returned}, nil)
-
-	c := &Client{table: "table-name", svc: dynamoDB}
-
-	result, err := c.UpdateReturn(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"prop": &types.AttributeValueMemberS{Value: "val"}}, "some = expression")
-	assert.Nil(t, err)
-	assert.Equal(t, returned, result)
-}
-
-func TestUpdateReturnOnServiceError(t *testing.T) {
-	ctx := context.Background()
-
-	dynamoDB := newMockDynamoDB(t)
-	dynamoDB.EXPECT().
-		UpdateItem(ctx, mock.Anything).
-		Return(nil, expectedError)
-
-	c := &Client{table: "table-name", svc: dynamoDB}
-
-	_, err := c.UpdateReturn(ctx, testPK("a-pk"), testSK("a-sk"), map[string]types.AttributeValue{"Col": &types.AttributeValueMemberS{Value: "Val"}}, "some = expression")
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestBatchPutOneBatch(t *testing.T) {
 	ctx := context.Background()
 

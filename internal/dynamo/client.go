@@ -389,24 +389,6 @@ func (c *Client) Update(ctx context.Context, pk PK, sk SK, values map[string]typ
 	return err
 }
 
-func (c *Client) UpdateReturn(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error) {
-	resp, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
-		TableName: aws.String(c.table),
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
-			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
-		},
-		ExpressionAttributeValues: values,
-		UpdateExpression:          aws.String(expression),
-		ReturnValues:              types.ReturnValueAllNew,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Attributes, nil
-}
-
 func (c *Client) BatchPut(ctx context.Context, values []interface{}) error {
 	items := make([]types.TransactWriteItem, len(values))
 
