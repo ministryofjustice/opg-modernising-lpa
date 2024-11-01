@@ -32,6 +32,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 
 	expectedTransaction := &dynamo.Transaction{
 		Creates: []any{
+			dynamo.Keys{PK: details.PK, SK: dynamo.ReservedKey(dynamo.CertificateProviderKey)},
 			details,
 			dashboarddata.LpaLink{
 				PK:        dynamo.LpaKey("lpa-id"),
@@ -228,7 +229,13 @@ func TestCertificateProviderStoreDelete(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteOne(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey("456")).
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456")},
+				{PK: dynamo.LpaKey("123"), SK: dynamo.SubKey("456")},
+				{PK: dynamo.LpaKey("123"), SK: dynamo.ReservedKey(dynamo.CertificateProviderKey)},
+			},
+		}).
 		Return(nil)
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient}
@@ -267,7 +274,7 @@ func TestCertificateProviderStoreDeleteWhenDynamoClientError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		DeleteOne(mock.Anything, mock.Anything, mock.Anything).
+		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	certificateProviderStore := &Store{dynamoClient: dynamoClient}

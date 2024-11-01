@@ -192,7 +192,9 @@ func TestOrganisationStoreCreateLPA(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, expectedDonor).
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Creates: []any{dynamo.Keys{PK: expectedDonor.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)}, expectedDonor},
+		}).
 		Return(nil)
 
 	organisationStore := &OrganisationStore{
@@ -229,7 +231,7 @@ func TestOrganisationStoreCreateLPAWhenDynamoError(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, mock.Anything).
+		WriteTransaction(ctx, mock.Anything).
 		Return(expectedError)
 
 	organisationStore := &OrganisationStore{

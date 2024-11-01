@@ -22,6 +22,7 @@ type DynamoClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type MemberStore struct {
