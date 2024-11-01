@@ -15,7 +15,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
@@ -55,8 +54,9 @@ type dynamodbClient interface {
 	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	UpdateReturn(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) (map[string]dynamodbtypes.AttributeValue, error)
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	CreateOnly(ctx context.Context, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type s3Client interface {

@@ -56,6 +56,7 @@ type DynamoClient interface {
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	BatchPut(ctx context.Context, items []interface{}) error
 	Create(ctx context.Context, v interface{}) error
+	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error

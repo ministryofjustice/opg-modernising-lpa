@@ -64,6 +64,7 @@ func TestVoucherStoreCreate(t *testing.T) {
 	expectedTransaction := &dynamo.Transaction{
 		Creates: []any{
 			details,
+			dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.ReservedKey(dynamo.VoucherKey)},
 			dashboarddata.LpaLink{
 				PK:        dynamo.LpaKey("123"),
 				SK:        dynamo.SubKey("456"),

@@ -1,4 +1,3 @@
-// Package dynamo provides a client for AWS DyanmoDB.
 package dynamo
 
 import (
@@ -39,12 +38,6 @@ func (n NotFoundError) Error() string {
 	return "No results found"
 }
 
-type MultipleResultsError struct{}
-
-func (n MultipleResultsError) Error() string {
-	return "A single result was expected but multiple results found"
-}
-
 type ConditionalCheckFailedError struct{}
 
 func (c ConditionalCheckFailedError) Error() string {
@@ -82,14 +75,13 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 			":LpaUID": &types.AttributeValueMemberS{Value: uid},
 		},
 		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+		Limit:                  aws.Int32(1),
 	})
-
 	if err != nil {
 		return fmt.Errorf("failed to query UID: %w", err)
 	}
-
-	if len(response.Items) != 1 {
-		return fmt.Errorf("expected to resolve LpaUID but got %d items", len(response.Items))
+	if len(response.Items) == 0 {
+		return NotFoundError{}
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
@@ -215,6 +207,7 @@ func (c *Client) OneByPK(ctx context.Context, pk PK, v interface{}) error {
 			":PK": &types.AttributeValueMemberS{Value: pk.PK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK"),
+		Limit:                  aws.Int32(1),
 	})
 
 	if err != nil {
@@ -223,10 +216,6 @@ func (c *Client) OneByPK(ctx context.Context, pk PK, v interface{}) error {
 
 	if len(response.Items) == 0 {
 		return NotFoundError{}
-	}
-
-	if len(response.Items) > 1 {
-		return MultipleResultsError{}
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
@@ -241,6 +230,7 @@ func (c *Client) OneByPartialSK(ctx context.Context, pk PK, partialSK SK, v inte
 			":SK": &types.AttributeValueMemberS{Value: partialSK.SK()},
 		},
 		KeyConditionExpression: aws.String("#PK = :PK and begins_with(#SK, :SK)"),
+		Limit:                  aws.Int32(1),
 	})
 
 	if err != nil {
@@ -249,10 +239,6 @@ func (c *Client) OneByPartialSK(ctx context.Context, pk PK, partialSK SK, v inte
 
 	if len(response.Items) == 0 {
 		return NotFoundError{}
-	}
-
-	if len(response.Items) > 1 {
-		return MultipleResultsError{}
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
@@ -323,6 +309,7 @@ func (c *Client) Put(ctx context.Context, v interface{}) error {
 	return nil
 }
 
+// Create writes data ensuring that the (PK, SK) combination is unique.
 func (c *Client) Create(ctx context.Context, v interface{}) error {
 	item, err := attributevalue.MarshalMap(v)
 	if err != nil {
@@ -333,6 +320,22 @@ func (c *Client) Create(ctx context.Context, v interface{}) error {
 		TableName:           aws.String(c.table),
 		Item:                item,
 		ConditionExpression: aws.String("attribute_not_exists(PK) AND attribute_not_exists(SK)"),
+	})
+
+	return err
+}
+
+// CreateOnly writes data ensuring that the PK is unique.
+func (c *Client) CreateOnly(ctx context.Context, v interface{}) error {
+	item, err := attributevalue.MarshalMap(v)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
+		TableName:           aws.String(c.table),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_not_exists(PK)"),
 	})
 
 	return err
@@ -384,24 +387,6 @@ func (c *Client) Update(ctx context.Context, pk PK, sk SK, values map[string]typ
 	})
 
 	return err
-}
-
-func (c *Client) UpdateReturn(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error) {
-	resp, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
-		TableName: aws.String(c.table),
-		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
-			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
-		},
-		ExpressionAttributeValues: values,
-		UpdateExpression:          aws.String(expression),
-		ReturnValues:              types.ReturnValueAllNew,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Attributes, nil
 }
 
 func (c *Client) BatchPut(ctx context.Context, values []interface{}) error {
