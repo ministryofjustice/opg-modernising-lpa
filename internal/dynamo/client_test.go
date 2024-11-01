@@ -105,6 +105,7 @@ func TestOneByUID(t *testing.T) {
 			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
 			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
 			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
+			Limit:                     aws.Int32(1),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
@@ -127,13 +128,7 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
-		Query(ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(lpaUIDIndex),
-			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
-		}).
+		Query(ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{}, expectedError)
 
 	c := &Client{table: "this", svc: dynamoDB}
@@ -143,36 +138,18 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
 }
 
-func TestOneByUIDWhenNot1Item(t *testing.T) {
+func TestOneByUIDWhenNoItems(t *testing.T) {
 	ctx := context.Background()
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
-		Query(ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(lpaUIDIndex),
-			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
-		}).
-		Return(&dynamodb.QueryOutput{
-			Items: []map[string]types.AttributeValue{
-				{
-					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-				{
-					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
-					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
-				},
-			},
-		}, nil)
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{}, nil)
 
 	c := &Client{table: "this", svc: dynamoDB}
 
 	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
-
-	assert.Equal(t, errors.New("expected to resolve LpaUID but got 2 items"), err)
+	assert.ErrorIs(t, err, NotFoundError{})
 }
 
 func TestOneByUIDWhenUnmarshalError(t *testing.T) {
@@ -180,13 +157,7 @@ func TestOneByUIDWhenUnmarshalError(t *testing.T) {
 
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
-		Query(ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(lpaUIDIndex),
-			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
-		}).
+		Query(ctx, mock.Anything).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{
 				{

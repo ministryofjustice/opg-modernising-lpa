@@ -421,6 +421,53 @@ func (_c *mockDynamodbClient_UpdateReturn_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// WriteTransaction provides a mock function with given fields: ctx, transaction
+func (_m *mockDynamodbClient) WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error {
+	ret := _m.Called(ctx, transaction)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WriteTransaction")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamo.Transaction) error); ok {
+		r0 = rf(ctx, transaction)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_WriteTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteTransaction'
+type mockDynamodbClient_WriteTransaction_Call struct {
+	*mock.Call
+}
+
+// WriteTransaction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - transaction *dynamo.Transaction
+func (_e *mockDynamodbClient_Expecter) WriteTransaction(ctx interface{}, transaction interface{}) *mockDynamodbClient_WriteTransaction_Call {
+	return &mockDynamodbClient_WriteTransaction_Call{Call: _e.mock.On("WriteTransaction", ctx, transaction)}
+}
+
+func (_c *mockDynamodbClient_WriteTransaction_Call) Run(run func(ctx context.Context, transaction *dynamo.Transaction)) *mockDynamodbClient_WriteTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*dynamo.Transaction))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_WriteTransaction_Call) Return(_a0 error) *mockDynamodbClient_WriteTransaction_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_WriteTransaction_Call) RunAndReturn(run func(context.Context, *dynamo.Transaction) error) *mockDynamodbClient_WriteTransaction_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // newMockDynamodbClient creates a new instance of mockDynamodbClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockDynamodbClient(t interface {
