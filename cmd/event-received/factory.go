@@ -45,7 +45,7 @@ type ShareCodeSender interface {
 }
 
 type UidStore interface {
-	Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error
+	Set(ctx context.Context, provided *donordata.Provided, uid string) error
 }
 
 type UidClient interface {

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -204,24 +203,6 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	var key dynamo.Keys
-	if err := client.OneByUID(ctx, v.UID, &key); !errors.Is(err, dynamo.NotFoundError{}) {
-		return err
-	}
-
-	lpaID := uuidString()
-
-	if err := client.Put(ctx, &donordata.Provided{
-		PK:        dynamo.LpaKey(lpaID),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-		LpaID:     lpaID,
-		LpaUID:    v.UID,
-		CreatedAt: now(),
-		Version:   1,
-	}); err != nil {
-		return err
-	}
-
 	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
 	if err != nil {
 		return err
@@ -239,6 +220,23 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		CertificateProviderEmail:    lpa.CertificateProvider.Email,
 	}); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
+	}
+
+	lpaID := uuidString()
+
+	transaction := dynamo.NewTransaction().
+		Create(&donordata.Provided{
+			PK:        dynamo.LpaKey(lpaID),
+			SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+			LpaID:     lpaID,
+			LpaUID:    v.UID,
+			CreatedAt: now(),
+			Version:   1,
+		}).
+		Create(dynamo.Keys{PK: dynamo.UIDKey(v.UID), SK: dynamo.MetadataKey("")})
+
+	if err := client.WriteTransaction(ctx, transaction); err != nil {
+		return err
 	}
 
 	return nil

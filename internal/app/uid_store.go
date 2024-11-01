@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 )
 
 type DynamoUpdateClient interface {
-	UpdateReturn(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]types.AttributeValue, expression string) (map[string]types.AttributeValue, error)
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type SearchClient interface {
@@ -30,40 +28,27 @@ func NewUidStore(dynamoClient DynamoUpdateClient, searchClient SearchClient, now
 	return &uidStore{dynamoClient: dynamoClient, searchClient: searchClient, now: now}
 }
 
-func (s *uidStore) Set(ctx context.Context, lpaID, sessionID, organisationID, uid string) error {
-	values, err := attributevalue.MarshalMap(map[string]any{
-		":uid": uid,
-		":now": s.now(),
-	})
-	if err != nil {
-		return err
-	}
-
-	var sk dynamo.SK = dynamo.DonorKey(sessionID)
-	if organisationID != "" {
-		sk = dynamo.OrganisationKey(organisationID)
-	}
-
-	newAttrs, err := s.dynamoClient.UpdateReturn(ctx, dynamo.LpaKey(lpaID), sk, values,
-		"set LpaUID = :uid, UpdatedAt = :now")
-	if err != nil {
-		return fmt.Errorf("uidStore update failed: %w", err)
-	}
-
-	var donor *donordata.Provided
-	if err := attributevalue.UnmarshalMap(newAttrs, &donor); err != nil {
-		return fmt.Errorf("uidStore unmarshal failed: %w", err)
-	}
+func (s *uidStore) Set(ctx context.Context, provided *donordata.Provided, uid string) error {
+	provided.LpaUID = uid
+	provided.UpdatedAt = s.now()
 
 	if err := s.searchClient.Index(ctx, search.Lpa{
-		PK: dynamo.LpaKey(lpaID).PK(),
-		SK: sk.SK(),
+		PK: provided.PK.PK(),
+		SK: provided.SK.SK(),
 		Donor: search.LpaDonor{
-			FirstNames: donor.Donor.FirstNames,
-			LastName:   donor.Donor.LastName,
+			FirstNames: provided.Donor.FirstNames,
+			LastName:   provided.Donor.LastName,
 		},
 	}); err != nil {
 		return fmt.Errorf("uidStore index failed: %w", err)
+	}
+
+	transaction := dynamo.NewTransaction().
+		Put(provided).
+		Create(dynamo.Keys{PK: dynamo.UIDKey(uid), SK: dynamo.MetadataKey("")})
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
+		return fmt.Errorf("uidStore update failed: %w", err)
 	}
 
 	return nil
