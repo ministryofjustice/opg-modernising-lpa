@@ -31,6 +31,7 @@ const (
 	voucherSharePrefix             = "VOUCHERSHARE"
 	scheduledDayPrefix             = "SCHEDULEDDAY"
 	scheduledPrefix                = "SCHEDULED"
+	reservedPrefix                 = "RESERVED"
 )
 
 func readKey(s string) (any, error) {
@@ -82,6 +83,8 @@ func readKey(s string) (any, error) {
 		return ScheduledDayKeyType(s), nil
 	case scheduledPrefix:
 		return ScheduledKeyType(s), nil
+	case reservedPrefix:
+		return ReservedKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -311,4 +314,15 @@ func (t ScheduledKeyType) SK() string { return string(t) }
 // ScheduledKey is used as the SK for a scheduled.Event.
 func ScheduledKey(at time.Time, action int) ScheduledKeyType {
 	return ScheduledKeyType(scheduledPrefix + "#" + at.Format(time.RFC3339) + "#" + strconv.Itoa(action))
+}
+
+type ReservedKeyType string
+
+func (t ReservedKeyType) SK() string { return string(t) }
+
+// ReservedKey is used to mark a key prefix as used. This allows creates for
+// (A#abc, B#def) to check for the presence of any (A#abc, B#*) by instead using
+// a transaction that writes [(A#abc, B#def), (A#abc, Reserved#B#)].
+func ReservedKey[T SK](sk func(string) T) ReservedKeyType {
+	return ReservedKeyType(reservedPrefix + "#" + sk("").SK())
 }

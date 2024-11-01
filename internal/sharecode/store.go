@@ -16,7 +16,7 @@ type DynamoClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	Put(ctx context.Context, v interface{}) error
+	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 }
 
@@ -61,7 +61,7 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string,
 		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode))
 	}
 
-	return s.dynamoClient.Put(ctx, data)
+	return s.dynamoClient.CreateOnly(ctx, data)
 }
 
 func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error {
@@ -74,7 +74,7 @@ func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodeda
 	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	data.UpdatedAt = s.now()
 
-	return s.dynamoClient.Put(ctx, data)
+	return s.dynamoClient.CreateOnly(ctx, data)
 }
 
 func (s *Store) GetDonor(ctx context.Context) (sharecodedata.Link, error) {
