@@ -156,6 +156,21 @@ type lpaReference struct {
 	ReferencedSK dynamo.OrganisationKeyType
 }
 
+func (s *Store) findDonorLink(ctx context.Context, lpaKey dynamo.LpaKeyType) (*dashboarddata.LpaLink, error) {
+	var links []dashboarddata.LpaLink
+	if err := s.dynamoClient.AllByPartialSK(ctx, lpaKey, dynamo.SubKey(""), &links); err != nil {
+		return nil, err
+	}
+
+	for _, link := range links {
+		if link.ActorType == actor.TypeDonor {
+			return &link, nil
+		}
+	}
+
+	return nil, nil
+}
+
 // Link allows a donor to access an Lpa created by a supporter. It adds the donor's email to
 // the share code and creates two records:
 //
@@ -177,13 +192,9 @@ func (s *Store) Link(ctx context.Context, shareCode sharecodedata.Link, donorEma
 		return errors.New("donorStore.Link requires SessionID")
 	}
 
-	var link dashboarddata.LpaLink
-	// TODO: I think this should be using AllByPartialSK, as once the Lpa has been
-	// linked to the donor, and the other actors invited, the `link` returned here
-	// may not be the donor one. Which would allow another link to be made.
-	if err := s.dynamoClient.OneByPartialSK(ctx, shareCode.LpaKey, dynamo.SubKey(""), &link); err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+	if link, err := s.findDonorLink(ctx, shareCode.LpaKey); err != nil {
 		return err
-	} else if link.ActorType == actor.TypeDonor {
+	} else if link != nil {
 		return errors.New("a donor link already exists for " + shareCode.LpaKey.ID())
 	}
 
@@ -440,10 +451,8 @@ func (s *Store) DeleteDonorAccess(ctx context.Context, shareCodeData sharecodeda
 		return errors.New("cannot remove access to another organisations LPA")
 	}
 
-	var link dashboarddata.LpaLink
-	// TODO: this needs to check all, as it may not bring back the donor access if
-	// other actors have been invited.
-	if err := s.dynamoClient.OneByPartialSK(ctx, shareCodeData.LpaKey, dynamo.SubKey(""), &link); err != nil {
+	link, err := s.findDonorLink(ctx, shareCodeData.LpaKey)
+	if err != nil {
 		return err
 	}
 
