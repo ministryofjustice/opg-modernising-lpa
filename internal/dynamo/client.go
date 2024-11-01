@@ -1,4 +1,3 @@
-// Package dynamo provides a client for AWS DyanmoDB.
 package dynamo
 
 import (

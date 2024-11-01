@@ -272,7 +272,7 @@ type CertificateProviderShareKeyType string
 func (t CertificateProviderShareKeyType) PK() string { return string(t) }
 func (t CertificateProviderShareKeyType) share()     {} // mark as usable with ShareKey
 
-// CertificateProviderShareKey is used as the PK for sharing an Lpa with a donor.
+// CertificateProviderShareKey is used as the PK for sharing an Lpa with a certificate provider.
 func CertificateProviderShareKey(code string) CertificateProviderShareKeyType {
 	return CertificateProviderShareKeyType(certificateProviderSharePrefix + "#" + code)
 }
@@ -282,7 +282,7 @@ type AttorneyShareKeyType string
 func (t AttorneyShareKeyType) PK() string { return string(t) }
 func (t AttorneyShareKeyType) share()     {} // mark as usable with ShareKey
 
-// AttorneyShareKey is used as the PK for sharing an Lpa with a donor.
+// AttorneyShareKey is used as the PK for sharing an Lpa with an attorney.
 func AttorneyShareKey(code string) AttorneyShareKeyType {
 	return AttorneyShareKeyType(attorneySharePrefix + "#" + code)
 }
@@ -292,7 +292,7 @@ type VoucherShareKeyType string
 func (t VoucherShareKeyType) PK() string { return string(t) }
 func (t VoucherShareKeyType) share()     {} // mark as usable with ShareKey
 
-// VoucherShareKey is used as the PK for sharing an Lpa with a donor.
+// VoucherShareKey is used as the PK for sharing an Lpa with a voucher.
 func VoucherShareKey(code string) VoucherShareKeyType {
 	return VoucherShareKeyType(voucherSharePrefix + "#" + code)
 }
