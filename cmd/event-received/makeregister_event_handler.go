@@ -58,7 +58,7 @@ func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidCli
 		return fmt.Errorf("failed to create case: %w", err)
 	}
 
-	if err := uidStore.Set(ctx, v.LpaID, v.DonorSessionID, v.OrganisationID, uid); err != nil {
+	if err := uidStore.Set(ctx, &donor, uid); err != nil {
 		return fmt.Errorf("failed to set uid: %w", err)
 	}
 
