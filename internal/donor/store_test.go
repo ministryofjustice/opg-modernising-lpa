@@ -604,23 +604,16 @@ func TestDonorStoreCreateWhenError(t *testing.T) {
 }
 
 func TestDonorStoreLink(t *testing.T) {
-	testcases := map[string]struct {
-		oneByPartialSKError error
-		link                dashboarddata.LpaLink
-	}{
-		"no link": {
-			oneByPartialSKError: dynamo.NotFoundError{},
-		},
-		"not a donor link": {
-			link: dashboarddata.LpaLink{
-				PK:        dynamo.LpaKey(""),
-				SK:        dynamo.SubKey("a-sub"),
-				ActorType: actor.TypeCertificateProvider,
-			},
-		},
+	testcases := map[string][]dashboarddata.LpaLink{
+		"no link": {},
+		"not a donor link": []dashboarddata.LpaLink{{
+			PK:        dynamo.LpaKey(""),
+			SK:        dynamo.SubKey("a-sub"),
+			ActorType: actor.TypeCertificateProvider,
+		}},
 	}
 
-	for name, tc := range testcases {
+	for name, links := range testcases {
 		t.Run(name, func(t *testing.T) {
 			ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "session-id"})
 			shareCode := sharecodedata.Link{
@@ -654,8 +647,10 @@ func TestDonorStoreLink(t *testing.T) {
 			}
 
 			dynamoClient := newMockDynamoClient(t)
-			dynamoClient.
-				ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), tc.link, tc.oneByPartialSKError)
+			dynamoClient.EXPECT().
+				AllByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
+				Return(nil).
+				SetData(links)
 			dynamoClient.EXPECT().
 				WriteTransaction(ctx, expectedTransaction).
 				Return(nil)
@@ -694,8 +689,12 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.
-		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeDonor}, nil)
+	dynamoClient.EXPECT().
+		AllByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
+		Return(nil).
+		SetData([]dashboarddata.LpaLink{
+			{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeDonor},
+		})
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
@@ -710,13 +709,18 @@ func TestDonorStoreLinkWhenDonorLinkAlreadyExists(t *testing.T) {
 
 func TestDonorStoreLinkWhenError(t *testing.T) {
 	testcases := map[string]func(*mockDynamoClient){
-		"OneByPartialSK errors": func(dynamoClient *mockDynamoClient) {
-			dynamoClient.
-				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeAttorney}, expectedError)
+		"AllByPartialSK errors": func(dynamoClient *mockDynamoClient) {
+			dynamoClient.EXPECT().
+				AllByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
+				Return(expectedError)
 		},
 		"WriteTransaction errors": func(dynamoClient *mockDynamoClient) {
-			dynamoClient.
-				ExpectOneByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeAttorney}, nil)
+			dynamoClient.EXPECT().
+				AllByPartialSK(mock.Anything, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
+				Return(nil).
+				SetData([]dashboarddata.LpaLink{
+					{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("a-sub"), ActorType: actor.TypeAttorney},
+				})
 			dynamoClient.EXPECT().
 				WriteTransaction(mock.Anything, mock.Anything).
 				Return(expectedError)
@@ -939,11 +943,17 @@ func TestDonorStoreDeleteWhenSessionMissing(t *testing.T) {
 func TestDonorStoreDeleteDonorAccess(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", OrganisationID: "org-id"})
 
-	link := dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}
+	link := dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub"), ActorType: actor.TypeDonor}
 	shareCodeData := sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")}
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), link, nil)
+	dynamoClient.EXPECT().
+		AllByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), mock.Anything).
+		Return(nil).
+		SetData([]dashboarddata.LpaLink{
+			dashboarddata.LpaLink{PK: dynamo.LpaKey("no"), SK: dynamo.SubKey("no"), ActorType: actor.TypeCertificateProvider},
+			link,
+		})
 	dynamoClient.EXPECT().
 		WriteTransaction(ctx, &dynamo.Transaction{
 			Deletes: []dynamo.Keys{
@@ -996,11 +1006,16 @@ func TestDonorStoreDeleteDonorAccessWhenOneByPartialSKError(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, expectedError)
+	dynamoClient.EXPECT().
+		AllByPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, sharecodedata.Link{
+		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
+		LpaKey:      dynamo.LpaKey("lpa-id"),
+	})
 	assert.Error(t, err)
 }
 
@@ -1008,14 +1023,22 @@ func TestDonorStoreDeleteDonorAccessWhenWriteTransactionError(t *testing.T) {
 	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", OrganisationID: "org-id"})
 
 	dynamoClient := newMockDynamoClient(t)
-	dynamoClient.ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.SubKey(""), dashboarddata.LpaLink{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub")}, nil)
+	dynamoClient.EXPECT().
+		AllByPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]dashboarddata.LpaLink{
+			{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.SubKey("donor-sub"), ActorType: actor.TypeDonor},
+		})
 	dynamoClient.EXPECT().
 		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
-	err := donorStore.DeleteDonorAccess(ctx, sharecodedata.Link{LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")), LpaKey: dynamo.LpaKey("lpa-id")})
+	err := donorStore.DeleteDonorAccess(ctx, sharecodedata.Link{
+		LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
+		LpaKey:      dynamo.LpaKey("lpa-id"),
+	})
 	assert.Error(t, err)
 }
 

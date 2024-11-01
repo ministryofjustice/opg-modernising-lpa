@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -97,4 +98,11 @@ func (m *mockDynamoClient) ExpectOneBySK(ctx, sk, data interface{}, err error) {
 			json.Unmarshal(b, v)
 			return err
 		})
+}
+
+func (c *mockDynamoClient_AllByPartialSK_Call) SetData(data any) {
+	c.Run(func(_ context.Context, _ dynamo.PK, _ dynamo.SK, v any) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
 }
