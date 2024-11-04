@@ -1379,5 +1379,6 @@
     "youHaveChosen:prove-own-identity": "You have chosen to find, replace or get new ID documents and confirm your identity using GOV.UK One Login.",
     "youHaveChosen:select-new-voucher": "You have chosen to ask someone else to confirm your identity by vouching for you.",
     "youHaveChosen:withdraw-lpa": "You have told us you no longer want to make this LPA.",
-    "youHaveChosen:apply-to-cop": "You have chosen to have your LPA reviewed by the Court of Protection."
+    "youHaveChosen:apply-to-cop": "You have chosen to have your LPA reviewed by the Court of Protection.",
+    "confirmYourIdentityThroughVouching": "Confirm your identity through vouching"
 }
