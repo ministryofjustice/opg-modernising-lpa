@@ -732,21 +732,6 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		},
 	}
 
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, &donordata.Provided{
-			PK:        dynamo.LpaKey(testUuidString),
-			SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-			LpaID:     testUuidString,
-			LpaUID:    "M-1111-2222-3333",
-			CreatedAt: testNow,
-			Version:   1,
-		}).
-		Return(nil)
-
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
@@ -760,6 +745,23 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 			CertificateProviderUID:      uid,
 			CertificateProviderFullName: "John Smith",
 			CertificateProviderEmail:    "john@example.com",
+		}).
+		Return(nil)
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Creates: []any{
+				&donordata.Provided{
+					PK:        dynamo.LpaKey(testUuidString),
+					SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+					LpaID:     testUuidString,
+					LpaUID:    "M-1111-2222-3333",
+					CreatedAt: testNow,
+					Version:   1,
+				},
+				dynamo.Keys{PK: dynamo.UIDKey("M-1111-2222-3333"), SK: dynamo.MetadataKey("")},
+			},
 		}).
 		Return(nil)
 
@@ -789,42 +791,25 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestHandleDonorSubmissionCompletedWhenDynamoExists(t *testing.T) {
+func TestHandleDonorSubmissionCompletedWhenWriteTransactionError(t *testing.T) {
 	appData := appcontext.Data{}
 
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendCertificateProviderInvite(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, nil, nil)
-	assert.Nil(t, err)
-}
-
-func TestHandleDonorSubmissionCompletedWhenDynamoOneByUIDError(t *testing.T) {
-	appData := appcontext.Data{}
-
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		WriteTransaction(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, nil, nil)
-	assert.Equal(t, expectedError, err)
-}
-
-func TestHandleDonorSubmissionCompletedWhenDynamoPutError(t *testing.T) {
-	appData := appcontext.Data{}
-
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(expectedError)
-
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, nil, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -837,20 +822,12 @@ func TestHandleDonorSubmissionCompletedWhenLpaStoreError(t *testing.T) {
 		},
 	}
 
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(nil)
-
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(lpa, expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, nil, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -863,14 +840,6 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 		},
 	}
 
-	client := newMockDynamodbClient(t)
-	client.EXPECT().
-		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
-		Return(dynamo.NotFoundError{})
-	client.EXPECT().
-		Put(ctx, mock.Anything).
-		Return(nil)
-
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
@@ -881,7 +850,7 @@ func TestHandleDonorSubmissionCompletedWhenShareCodeSenderError(t *testing.T) {
 		SendCertificateProviderInvite(ctx, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := handleDonorSubmissionCompleted(ctx, client, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
+	err := handleDonorSubmissionCompleted(ctx, nil, donorSubmissionCompletedEvent, shareCodeSender, appData, lpaStoreClient, testUuidStringFn, testNowFn)
 	assert.Equal(t, fmt.Errorf("failed to send share code to certificate provider: %w", expectedError), err)
 }
 

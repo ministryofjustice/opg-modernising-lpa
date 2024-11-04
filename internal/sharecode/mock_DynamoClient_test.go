@@ -22,6 +22,53 @@ func (_m *mockDynamoClient) EXPECT() *mockDynamoClient_Expecter {
 	return &mockDynamoClient_Expecter{mock: &_m.Mock}
 }
 
+// CreateOnly provides a mock function with given fields: ctx, v
+func (_m *mockDynamoClient) CreateOnly(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOnly")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_CreateOnly_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateOnly'
+type mockDynamoClient_CreateOnly_Call struct {
+	*mock.Call
+}
+
+// CreateOnly is a helper method to define mock.On call
+//   - ctx context.Context
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) CreateOnly(ctx interface{}, v interface{}) *mockDynamoClient_CreateOnly_Call {
+	return &mockDynamoClient_CreateOnly_Call{Call: _e.mock.On("CreateOnly", ctx, v)}
+}
+
+func (_c *mockDynamoClient_CreateOnly_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamoClient_CreateOnly_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_CreateOnly_Call) Return(_a0 error) *mockDynamoClient_CreateOnly_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_CreateOnly_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamoClient_CreateOnly_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteOne provides a mock function with given fields: ctx, pk, sk
 func (_m *mockDynamoClient) DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error {
 	ret := _m.Called(ctx, pk, sk)
@@ -211,53 +258,6 @@ func (_c *mockDynamoClient_OneBySK_Call) Return(_a0 error) *mockDynamoClient_One
 }
 
 func (_c *mockDynamoClient_OneBySK_Call) RunAndReturn(run func(context.Context, dynamo.SK, interface{}) error) *mockDynamoClient_OneBySK_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Put provides a mock function with given fields: ctx, v
-func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
-	ret := _m.Called(ctx, v)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Put")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
-type mockDynamoClient_Put_Call struct {
-	*mock.Call
-}
-
-// Put is a helper method to define mock.On call
-//   - ctx context.Context
-//   - v interface{}
-func (_e *mockDynamoClient_Expecter) Put(ctx interface{}, v interface{}) *mockDynamoClient_Put_Call {
-	return &mockDynamoClient_Put_Call{Call: _e.mock.On("Put", ctx, v)}
-}
-
-func (_c *mockDynamoClient_Put_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamoClient_Put_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(interface{}))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_Put_Call) Return(_a0 error) *mockDynamoClient_Put_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_Put_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamoClient_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

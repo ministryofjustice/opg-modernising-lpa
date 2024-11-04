@@ -3,7 +3,6 @@ package app
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -12,91 +11,65 @@ import (
 )
 
 func TestUidStoreSet(t *testing.T) {
-	testcases := map[string]struct {
-		organisationID string
-		sk             dynamo.SK
-	}{
-		"donor": {
-			sk: dynamo.DonorKey("session-id"),
-		},
-		"organisation": {
-			organisationID: "org-id",
-			sk:             dynamo.OrganisationKey("org-id"),
-		},
-	}
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(ctx, search.Lpa{
+			PK:    dynamo.LpaKey("lpa-id").PK(),
+			SK:    dynamo.DonorKey("a-donor").SK(),
+			Donor: search.LpaDonor{FirstNames: "x", LastName: "y"},
+		}).
+		Return(nil)
 
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			values, _ := attributevalue.MarshalMap(map[string]any{
-				":uid": "uid",
-				":now": testNow,
-			})
-
-			returnValues, _ := attributevalue.MarshalMap(donordata.Provided{
-				Donor: donordata.Donor{
-					FirstNames: "x",
-					LastName:   "y",
+	dynamoClient := newMockDynamoUpdateClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Puts: []any{
+				&donordata.Provided{
+					PK:        dynamo.LpaKey("lpa-id"),
+					SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+					Donor:     donordata.Donor{FirstNames: "x", LastName: "y"},
+					LpaUID:    "uid",
+					UpdatedAt: testNow,
 				},
-			})
+			},
+			Creates: []any{dynamo.Keys{PK: dynamo.UIDKey("uid"), SK: dynamo.MetadataKey("")}},
+		}).
+		Return(nil)
 
-			dynamoClient := newMockDynamoUpdateClient(t)
-			dynamoClient.EXPECT().
-				UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), tc.sk, values,
-					"set LpaUID = :uid, UpdatedAt = :now").
-				Return(returnValues, nil)
+	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 
-			searchClient := newMockSearchClient(t)
-			searchClient.EXPECT().
-				Index(ctx, search.Lpa{
-					PK:    dynamo.LpaKey("lpa-id").PK(),
-					SK:    tc.sk.SK(),
-					Donor: search.LpaDonor{FirstNames: "x", LastName: "y"},
-				}).
-				Return(nil)
-
-			uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
-
-			assert.Nil(t, uidStore.Set(ctx, "lpa-id", "session-id", tc.organisationID, "uid"))
-		})
-	}
+	err := uidStore.Set(ctx, &donordata.Provided{
+		PK:    dynamo.LpaKey("lpa-id"),
+		SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+		Donor: donordata.Donor{FirstNames: "x", LastName: "y"},
+	}, "uid")
+	assert.Nil(t, err)
 }
 
 func TestUidStoreSetWhenDynamoClientError(t *testing.T) {
-	values, _ := attributevalue.MarshalMap(map[string]any{
-		":uid": "uid",
-		":now": testNow,
-	})
+	searchClient := newMockSearchClient(t)
+	searchClient.EXPECT().
+		Index(mock.Anything, mock.Anything).
+		Return(nil)
 
 	dynamoClient := newMockDynamoUpdateClient(t)
 	dynamoClient.EXPECT().
-		UpdateReturn(ctx, dynamo.LpaKey("lpa-id"), dynamo.DonorKey("session-id"), values,
-			"set LpaUID = :uid, UpdatedAt = :now").
-		Return(nil, expectedError)
+		WriteTransaction(mock.Anything, mock.Anything).
+		Return(expectedError)
 
-	uidStore := NewUidStore(dynamoClient, nil, testNowFn)
+	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
 
-	assert.ErrorIs(t, uidStore.Set(ctx, "lpa-id", "session-id", "", "uid"), expectedError)
+	err := uidStore.Set(ctx, &donordata.Provided{}, "uid")
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestUidStoreSetWhenSearchIndexErrors(t *testing.T) {
-	returnValues, _ := attributevalue.MarshalMap(donordata.Provided{
-		Donor: donordata.Donor{
-			FirstNames: "x",
-			LastName:   "y",
-		},
-	})
-
-	dynamoClient := newMockDynamoUpdateClient(t)
-	dynamoClient.EXPECT().
-		UpdateReturn(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(returnValues, nil)
-
 	searchClient := newMockSearchClient(t)
 	searchClient.EXPECT().
 		Index(ctx, mock.Anything).
 		Return(expectedError)
 
-	uidStore := NewUidStore(dynamoClient, searchClient, testNowFn)
-	err := uidStore.Set(ctx, "lpa-id", "session-id", "", "uid")
+	uidStore := NewUidStore(nil, searchClient, testNowFn)
+	err := uidStore.Set(ctx, &donordata.Provided{}, "uid")
 	assert.ErrorIs(t, err, expectedError)
 }
