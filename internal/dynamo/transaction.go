@@ -11,7 +11,7 @@ import (
 )
 
 func (c *Client) WriteTransaction(ctx context.Context, transaction *Transaction) error {
-	if len(transaction.Puts) == 0 && len(transaction.Deletes) == 0 {
+	if len(transaction.Creates) == 0 && len(transaction.Puts) == 0 && len(transaction.Deletes) == 0 {
 		return errors.New("WriteTransaction requires at least one transaction")
 	}
 

@@ -126,7 +126,11 @@ func (s *OrganisationStore) CreateLPA(ctx context.Context) (*donordata.Provided,
 		return nil, err
 	}
 
-	if err := s.dynamoClient.Create(ctx, donor); err != nil {
+	transaction := dynamo.NewTransaction().
+		Create(dynamo.Keys{PK: donor.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)}).
+		Create(donor)
+
+	if err := s.dynamoClient.WriteTransaction(ctx, transaction); err != nil {
 		return nil, err
 	}
 
