@@ -15,6 +15,7 @@ module "event_received" {
     SEARCH_INDEXING_DISABLED   = 1
     EVENT_BUS_NAME             = var.event_bus_name
     JWT_KEY_SECRET_ARN         = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
+    XRAY_ENABLED               = 1
   }
   image_uri            = "${var.lambda_function_image_ecr_url}:${var.lambda_function_image_tag}"
   aws_iam_role         = var.event_received_lambda_role
@@ -345,7 +346,10 @@ data "aws_iam_policy_document" "event_received" {
     effect = "Allow"
     actions = [
       "xray:PutTraceSegments",
-      "xray:PutTelemetryRecords"
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries",
     ]
     resources = ["*"]
   }
