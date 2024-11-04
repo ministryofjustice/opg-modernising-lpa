@@ -55,7 +55,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 		provided *donordata.Provided
 	}{
 		donordata.ProveOwnIdentity: {
-			redirect: donor.PathTaskList,
+			redirect: donor.PathConfirmYourIdentity,
 			provided: &donordata.Provided{
 				LpaID:   "lpa-id",
 				Voucher: donordata.Voucher{FirstNames: "a", LastName: "b"},
