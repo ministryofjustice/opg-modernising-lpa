@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
@@ -22,11 +23,98 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 const (
 	virusFound = "infected"
 )
+
+var (
+	tableName             = os.Getenv("LPAS_TABLE")
+	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
+	appPublicURL          = os.Getenv("APP_PUBLIC_URL")
+	awsBaseURL            = os.Getenv("AWS_BASE_URL")
+	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
+	uidBaseURL            = os.Getenv("UID_BASE_URL")
+	lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
+	lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
+	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
+	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
+	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+
+	cfg        aws.Config
+	httpClient *http.Client
+	logger     *slog.Logger
+	handlerFn  any
+)
+
+func init() {
+	var (
+		err error
+		ctx = context.Background()
+	)
+
+	httpClient = &http.Client{Timeout: 30 * time.Second}
+
+	logger = slog.New(telemetry.NewSlogHandler(slog.
+		NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
+				switch a.Value.Kind() {
+				case slog.KindAny:
+					switch v := a.Value.Any().(type) {
+					case *http.Request:
+						return slog.Group(a.Key,
+							slog.String("method", v.Method),
+							slog.String("uri", v.URL.String()))
+					}
+				}
+
+				return a
+			},
+		})).
+		WithAttrs([]slog.Attr{
+			slog.String("service_name", "opg-modernising-lpa/event-received"),
+		}))
+
+	cfg, err = config.LoadDefaultConfig(ctx)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to load default config", slog.Any("err", err))
+		return
+	}
+
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
+	if xrayEnabled {
+		tp, err := telemetry.SetupLambda(ctx)
+		if err != nil {
+			logger.WarnContext(ctx, "error creating tracer provider", slog.Any("err", err))
+		}
+
+		otelaws.AppendMiddlewares(&cfg.APIOptions)
+		telemetry.AppendMiddlewares(&cfg.APIOptions)
+		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
+
+		defer func(ctx context.Context) {
+			if err := tp.Shutdown(ctx); err != nil {
+				logger.WarnContext(ctx, "error shutting down tracer provider", slog.Any("err", err))
+			}
+		}(ctx)
+
+		handlerFn = otellambda.InstrumentHandler(handler, xrayconfig.WithRecommendedOptions(tp)...)
+	} else {
+		handlerFn = handler
+	}
+}
 
 type factory interface {
 	Now() func() time.Time
@@ -94,37 +182,7 @@ func (e *Event) UnmarshalJSON(data []byte) error {
 }
 
 func handler(ctx context.Context, event Event) (map[string]any, error) {
-	var (
-		tableName             = os.Getenv("LPAS_TABLE")
-		notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
-		appPublicURL          = os.Getenv("APP_PUBLIC_URL")
-		awsBaseURL            = os.Getenv("AWS_BASE_URL")
-		notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
-		evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
-		uidBaseURL            = os.Getenv("UID_BASE_URL")
-		lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
-		lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
-		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
-		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
-		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
-		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
-	)
-
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil).
-		WithAttrs([]slog.Attr{
-			slog.String("service_name", "opg-modernising-lpa/event-received"),
-		}))
-
 	result := map[string]any{}
-
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return result, fmt.Errorf("failed to load default config: %w", err)
-	}
-
-	if len(awsBaseURL) > 0 {
-		cfg.BaseEndpoint = aws.String(awsBaseURL)
-	}
 
 	dynamoClient, err := dynamo.NewClient(cfg, tableName)
 	if err != nil {
@@ -158,6 +216,7 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 		searchEndpoint:        searchEndpoint,
 		searchIndexName:       searchIndexName,
 		searchIndexingEnabled: searchIndexingEnabled,
+		httpClient:            httpClient,
 	}
 
 	if event.SQSEvent != nil {
@@ -208,5 +267,5 @@ func handleCloudWatchEvent(ctx context.Context, factory *Factory, event *events.
 }
 
 func main() {
-	lambda.Start(handler)
+	lambda.Start(handlerFn)
 }
