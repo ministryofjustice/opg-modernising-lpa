@@ -15,7 +15,7 @@ describe('what you can do now', () => {
             cy.contains('label', 'I will return to GOV.UK One Login and confirm my identity').click();
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/task-list')
+            cy.url().should('contain', '/confirm-your-identity')
         })
 
         it('can choose to add a voucher', () => {
@@ -177,7 +177,7 @@ describe('what you can do now', () => {
             cy.contains('You have chosen to find, replace or get new ID');
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/task-list')
+            cy.url().should('contain', '/confirm-your-identity')
         });
 
         it('can choose to add a voucher', () => {
