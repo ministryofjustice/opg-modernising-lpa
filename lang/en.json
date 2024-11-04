@@ -844,7 +844,7 @@
     "certificateProviderAddress": "certificate provider address",
     "certificateProviderContactPreference": "certificate provider contact preference",
     "youHaveDeletedFile": "You have deleted file {{ .Filename }}",
-    "confirmYourIdentity": "Confirm your identity",
+    "confirmYourIdentity": "Confirm your identity through vouching",
     "confirmYourIdentityContent": "<p class=\"govuk-body\">Use the GOV.UK One Login service to confirm your identity either online, or at a Post Office. You will need an identity document, for example:</p><ul class=\"govuk-list govuk-list--bullet\"><li>your payslip, P60 or a benefits letter</li><li>a UK passport</li><li>a UK driving licence</li></ul><p class=\"govuk-body\">If you are unable to confirm your identity using GOV.UK One Login, you’ll be given guidance on what to do next.</p>",
     "beforeYouSignYourLpa": "Before you sign your LPA, you must confirm your identity.",
     "beforeYouCanProvideYourCertificateForThisLpa": "Before you can provide a certificate for {{possessive .DonorFullName}} LPA, you must confirm your identity.",
