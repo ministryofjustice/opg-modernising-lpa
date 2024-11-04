@@ -25,7 +25,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"google.golang.org/appengine/log"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 var (
@@ -41,15 +41,10 @@ var (
 
 	httpClient *http.Client
 	cfg        aws.Config
-	logHandler slog.Handler
+	logger     *slog.Logger
 )
 
 func handleRunSchedule(ctx context.Context) error {
-	logger := slog.New(logHandler.
-		WithAttrs([]slog.Attr{
-			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
-		}))
-
 	secretsClient, err := secrets.NewClient(cfg, time.Hour)
 	if err != nil {
 		return err
@@ -98,54 +93,60 @@ func handleRunSchedule(ctx context.Context) error {
 func main() {
 	ctx := context.Background()
 
+	httpClient = &http.Client{Timeout: time.Second * 30}
+
+	logger = slog.New(telemetry.NewSlogHandler(slog.
+		NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
+				switch a.Value.Kind() {
+				case slog.KindAny:
+					switch v := a.Value.Any().(type) {
+					case *http.Request:
+						return slog.Group(a.Key,
+							slog.String("method", v.Method),
+							slog.String("uri", v.URL.String()))
+					}
+				}
+
+				return a
+			},
+		})).
+		WithAttrs([]slog.Attr{
+			slog.String("service_name", "opg-modernising-lpa/schedule-runner"),
+		}))
+
 	var err error
 	cfg, err = config.LoadDefaultConfig(ctx)
 	if err != nil {
-		log.Errorf(ctx, "failed to load default config: %v", err)
+		logger.ErrorContext(ctx, "failed to load default config", slog.Any("err", err))
 		return
 	}
-
-	httpClient = &http.Client{Timeout: time.Second * 30}
 
 	if len(awsBaseURL) > 0 {
 		cfg.BaseEndpoint = aws.String(awsBaseURL)
 	}
 
+	var tp *trace.TracerProvider
 	if xrayEnabled {
-		tp, err := telemetry.SetupLambda(ctx)
+		tp, err = telemetry.SetupLambda(ctx)
 		if err != nil {
-			fmt.Printf("error creating tracer provider: %v", err)
+			logger.WarnContext(ctx, "error creating tracer provider", slog.Any("err", err))
 		}
+	}
 
+	if tp != nil {
 		otelaws.AppendMiddlewares(&cfg.APIOptions)
+		telemetry.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		defer func(ctx context.Context) {
 			if err := tp.Shutdown(ctx); err != nil {
-				fmt.Printf("error shutting down tracer provider: %v", err)
+				logger.WarnContext(ctx, "error shutting down tracer provider", slog.Any("err", err))
 			}
 		}(ctx)
 
-		logHandler = telemetry.NewSlogHandler(slog.
-			NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-				ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
-					switch a.Value.Kind() {
-					case slog.KindAny:
-						switch v := a.Value.Any().(type) {
-						case *http.Request:
-							return slog.Group(a.Key,
-								slog.String("method", v.Method),
-								slog.String("uri", v.URL.String()))
-						}
-					}
-
-					return a
-				},
-			}))
-
 		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
 	} else {
-		logHandler = slog.NewJSONHandler(os.Stdout, nil)
 		lambda.Start(handleRunSchedule)
 	}
 }
