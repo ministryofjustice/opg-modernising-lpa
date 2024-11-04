@@ -84,7 +84,7 @@ func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provid
 	switch doNext {
 	case donordata.ProveOwnIdentity:
 		provided.IdentityUserData = identity.UserData{}
-		return donor.PathTaskList
+		return donor.PathConfirmYourIdentity
 	case donordata.SelectNewVoucher:
 		provided.WantVoucher = form.Yes
 		return donor.PathEnterVoucher
