@@ -52,7 +52,7 @@ jobs:
       - name: Generate workspace name
         id: name_workspace
         run: |
-          workspace=${{ github.event.pull_request.number }}${{ github.event.pull_request.head.ref }}
+          workspace=${{ github.event.pull_request.number }}
           workspace=${workspace//-}
           workspace=${workspace//_}
           workspace=${workspace//\/}
@@ -148,7 +148,7 @@ jobs:
           role-session-name: OPGModernisingLPALogGroupDeleteGithubAction
       - name: Remove container insights log group
         run: |
-          aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}-eu-west-1/performance
+          aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}/performance
       - name: Configure AWS Credentials For opensearch
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
