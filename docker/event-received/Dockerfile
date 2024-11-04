@@ -16,7 +16,11 @@ WORKDIR /app
 
 COPY --from=build /app/event-received /var/task/event-received
 COPY --link lang /var/task/lang
+COPY --link ./docker/adot-collector/ /opt
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
+
+ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
 
 ENTRYPOINT ["./event-received"]
 
@@ -30,5 +34,11 @@ RUN chmod +x /app/install_lambda_insights.sh \
 
 COPY --from=build /app/event-received ./event-received
 COPY --link lang ./lang
+COPY --link ./docker/adot-collector/ /opt
+
+RUN chmod 755 /opt/config/config.yaml
+
+ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
 
 ENTRYPOINT ["./event-received"]
