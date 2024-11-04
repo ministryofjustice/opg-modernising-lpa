@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -25,7 +26,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"google.golang.org/appengine/log"
 )
 
 var (
@@ -101,7 +101,7 @@ func main() {
 	var err error
 	cfg, err = config.LoadDefaultConfig(ctx)
 	if err != nil {
-		log.Errorf(ctx, "failed to load default config: %v", err)
+		log.Printf("failed to load default config: %v", err)
 		return
 	}
 
@@ -114,15 +114,16 @@ func main() {
 	if xrayEnabled {
 		tp, err := telemetry.SetupLambda(ctx)
 		if err != nil {
-			fmt.Printf("error creating tracer provider: %v", err)
+			log.Printf("error creating tracer provider: %v", err)
 		}
 
 		otelaws.AppendMiddlewares(&cfg.APIOptions)
+		telemetry.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		defer func(ctx context.Context) {
 			if err := tp.Shutdown(ctx); err != nil {
-				fmt.Printf("error shutting down tracer provider: %v", err)
+				log.Printf("error shutting down tracer provider: %v", err)
 			}
 		}(ctx)
 
