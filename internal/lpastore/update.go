@@ -204,7 +204,7 @@ func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.
 	body := updateRequest{
 		Type: "DONOR_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{
-			{Key: "/donor/identityCheck/checkedAt", New: donor.IdentityUserData.RetrievedAt, Old: nil},
+			{Key: "/donor/identityCheck/checkedAt", New: donor.IdentityUserData.CheckedAt, Old: nil},
 			{Key: "/donor/identityCheck/type", New: "one-login", Old: nil},
 		},
 	}
@@ -216,7 +216,7 @@ func (c *Client) SendCertificateProviderConfirmIdentity(ctx context.Context, lpa
 	body := updateRequest{
 		Type: "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
 		Changes: []updateRequestChange{
-			{Key: "/certificateProvider/identityCheck/checkedAt", New: certificateProvider.IdentityUserData.RetrievedAt, Old: nil},
+			{Key: "/certificateProvider/identityCheck/checkedAt", New: certificateProvider.IdentityUserData.CheckedAt, Old: nil},
 			{Key: "/certificateProvider/identityCheck/type", New: "one-login", Old: nil},
 		},
 	}
