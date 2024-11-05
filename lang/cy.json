@@ -1270,7 +1270,6 @@
     "thePersonYouHaveChosenHasSameSurname": "Mae gan yr unigolyn rydych chi wedi’i ddewis i gadarnhau pwy ydych chi yr un cyfenw â chi.",
     "checkYourDetails": "Gwirio eich manylion",
     "weWillShareYourDetailsWithVoucher": "Byddwn yn rhannu eich manylion ac yn gofyn i’r person sy’n tystio drosoch chi eu dilysu.",
-    "checkYourDetailsAreCorrectBeforeYouContinue": "Cadarnhewch fod eich manylion yn gywir cyn parhau.",
     "youHaveBeenUnableToConfirmYourIdentity": "Nid oeddech yn gallu cadarnhau pwy ydych gan ddefnyddio GOV.UK One Login.",
     "vouchingLandingPageContent": "<p class=\"govuk-body\">Mae angen i chi gadarnhau pwy ydych chi cyn y gall Swyddfa’r Gwarcheidwad Cyhoeddus gofrestru eich atwrneiaeth arhosol.</p> <p class=\"govuk-body\">Gallwch naill ai:</p> <ul class=\"govuk-list govuk-list--bullet\"> <li>mynd yn ôl i GOV.UK One Login a cheisio cadarnhau pwy ydych chi eto</li> <li>gofyn i rywun rydych chi’n ei adnabod gadarnhau pwy ydych chi drwy dystio drosoch chi</li> </ul> <p class=\"govuk-body\">Bwrw ymlaen i gael gwybodaeth am dystio dros rywun a phwy sy’n cael cadarnhau pwy ydych chi.</p>",
     "payingNoFee": "talu dim ffi (esemptiad)",
