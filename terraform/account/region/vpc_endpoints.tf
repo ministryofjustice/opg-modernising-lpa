@@ -1,9 +1,9 @@
 resource "aws_security_group" "vpc_endpoints_private" {
   provider    = aws.region
-  name        = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}"
+  name        = "vpc-endpoint-access-private-subnets"
   description = "VPC Interface Endpoints Security Group"
   vpc_id      = module.network.vpc.id
-  tags        = { Name = "vpc-endpoint-access-private-subnets-${data.aws_region.current.name}" }
+  tags        = { Name = "vpc-endpoint-access-private-subnets" }
 }
 
 resource "aws_security_group_rule" "vpc_endpoints_private_subnet_ingress" {
@@ -53,7 +53,7 @@ resource "aws_vpc_endpoint" "private" {
   private_dns_enabled = true
   security_group_ids  = aws_security_group.vpc_endpoints_private[*].id
   subnet_ids          = module.network.application_subnets[*].id
-  tags                = { Name = "${each.value}-private-${data.aws_region.current.name}" }
+  tags                = { Name = "${each.value}-private" }
 }
 
 resource "aws_vpc_endpoint_policy" "private" {
@@ -93,7 +93,7 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = tolist(data.aws_route_tables.application.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.s3.json
-  tags              = { Name = "s3-private-${data.aws_region.current.name}" }
+  tags              = { Name = "s3-private" }
 }
 
 resource "aws_vpc_endpoint" "dynamodb" {
@@ -103,7 +103,7 @@ resource "aws_vpc_endpoint" "dynamodb" {
   route_table_ids   = tolist(data.aws_route_tables.application.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.allow_account_access.json
-  tags              = { Name = "dynamodb-private-${data.aws_region.current.name}" }
+  tags              = { Name = "dynamodb-private" }
 }
 
 
@@ -148,7 +148,7 @@ data "aws_iam_policy_document" "s3_bucket_access" {
 }
 
 resource "aws_opensearchserverless_vpc_endpoint" "lpas_collection_vpc_endpoint" {
-  name               = "opensearch-${data.aws_region.current.name}"
+  name               = "opensearch"
   vpc_id             = module.network.vpc.id
   subnet_ids         = module.network.application_subnets[*].id
   security_group_ids = aws_security_group.vpc_endpoints_private[*].id
