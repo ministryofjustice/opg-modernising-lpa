@@ -402,8 +402,8 @@ func Register(
 
 	handleWithDonor(donor.PathUnableToConfirmIdentity, page.None,
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
-	handleWithDonor(donor.PathWhatIsVouching, page.CanGoBack,
-		WhatIsVouching(tmpls.Get("what_is_vouching.gohtml"), donorStore))
+	handleWithDonor(donor.PathChooseSomeoneToVouchForYou, page.CanGoBack,
+		ChooseSomeoneToVouchForYou(tmpls.Get("choose_someone_to_vouch_for_you.gohtml"), donorStore))
 	handleWithDonor(donor.PathEnterVoucher, page.CanGoBack,
 		EnterVoucher(tmpls.Get("enter_voucher.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathConfirmPersonAllowedToVouch, page.CanGoBack,

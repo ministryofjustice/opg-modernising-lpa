@@ -3,34 +3,35 @@
 {{ define "pageTitle" }}{{ tr .App "checkYourDetails" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "checkYourDetails" }}</h1>
-      <p class="govuk-body">{{ tr .App "weWillShareYourDetailsWithVoucher" }}</p>
-      <p class="govuk-body">{{ tr .App "checkYourDetailsAreCorrectBeforeYouContinue" }}</p>
+    {{ $hasNoIdentity := and .Donor.IdentityUserData.Status.IsUnknown .Donor.CanChange }}
 
-      <dl class="govuk-summary-list">
-        {{ template "summary-row" (summaryRow .App "name"
-          .Donor.Donor.FullName
-          (fromLink .App global.Paths.YourDetails "#f-first-names")
-          "" true true
-        ) }}
-        {{ template "summary-row" (summaryRow .App "dateOfBirth"
-          (formatDate .App .Donor.Donor.DateOfBirth)
-          (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
-          "" true true
-        ) }}
-        {{ template "address-summary-row" (summaryRow .App "address"
-          .Donor.Donor.Address
-          (fromLink .App global.Paths.YourAddress "#f-address-line-1")
-          "" true true
-        ) }}
-      </dl>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "checkYourDetails" }}</h1>
+            <p class="govuk-body">{{ tr .App "weWillShareYourDetailsWithVoucher" }}</p>
 
-      <form novalidate method="post">
-        {{ template "buttons" (button .App "continue") }}
-        {{ template "csrf-field" . }}
-      </form>
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "name"
+                    .Donor.Donor.FullName
+                    (fromLink .App global.Paths.YourDetails "#f-first-names")
+                    "" $hasNoIdentity true
+                    ) }}
+                {{ template "summary-row" (summaryRow .App "dateOfBirth"
+                    (formatDate .App .Donor.Donor.DateOfBirth)
+                    (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
+                    "" $hasNoIdentity true
+                    ) }}
+                {{ template "address-summary-row" (summaryRow .App "address"
+                    .Donor.Donor.Address
+                    (fromLink .App global.Paths.YourAddress "#f-address-line-1")
+                    "" .Donor.CanChange true
+                    ) }}
+            </dl>
+
+            <form novalidate method="post">
+                {{ template "buttons" (button .App "continue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 {{ end }}
