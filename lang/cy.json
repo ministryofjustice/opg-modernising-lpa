@@ -299,7 +299,7 @@
     "weWillContactYourCertificateProvider": "Byddwn yn cysylltu â’ch darparwr tystysgrif, {{.FirstNames}}, ac yn gofyn iddynt gadarnhau eu hunaniaeth.",
     "opgWillContactYourCertificateProvider": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullName}} ac yn gofyn iddynt gadarnhau pwy ydynt a darparu’r dystysgrif ar gyfer eich LPA.",
     "weWillThenContactAttorneys": {
-        "one": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
+        "one": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
         "two": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
         "few": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
         "many": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
