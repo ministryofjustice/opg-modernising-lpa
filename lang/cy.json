@@ -80,11 +80,12 @@
     "cantFindMyAddressInList": "Ni allaf ddod o hyd i’m cyfeiriad yn y rhestr",
     "cantFindTheirAddressInList": "Ni allaf ddod o hyd i’w cyfeiriad yn y rhestr",
     "addressesFound": {
-        "one": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
+        "zero": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
+        "one": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
         "two": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
         "few": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
-        "many": "Daethpwyd o hyd i {{.PluralCount}} o gyfeiriadau",
-        "other": "{{.PluralCount}} o gyfeiriadau wedi’u canfod"
+        "many": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
+        "other": ""
     },
     "addressLine1": "Llinell cyfeiriad 1",
     "addressLine1OfYourAddress": "Llinell 1 eich cyfeiriad",
@@ -134,11 +135,12 @@
     "payForTheLpa": "Talu am yr LPA",
     "confirmYourIdentityAndSign": "Cadarnhau eich hunaniaeth a llofnodi’r LPA",
     "attorneysAdded": {
-        "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
+        "zero": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai",
+        "one": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "two": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "few": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
         "many": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod",
-        "other": "Rydych wedi ychwanegu {{.PluralCount}} o atwrneiod"
+        "other": ""
     },
     "doYouWantToAddAnotherAttorney": "Ydych chi eisiau ychwanegu atwrnai arall?",
     "yesToAddAnotherAttorney": "ydw i ychwanegu atwrnai arall",
@@ -158,11 +160,12 @@
     "yesToAddReplacementAttorneys": "ydw i ychwanegu atwrneiod wrth gefn",
     "replacementAttorneysStepIn": "Dim ond os bydd un o’ch atwrneiod yn camu i lawr neu’n methu â gweithredu mwyach y bydd atwrneiod wrth gefn yn gallu dechrau gweithredu. Er enghraifft, oherwydd eu bod yn marw neu’n colli galluedd.",
     "replacementAttorneysStepInExplanation": {
-        "one": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrnai) weithredu mwyach.",
+        "zero": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrnai) weithredu mwyach.",
+        "one": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os oes rhaid i {{.AttorneysFullNames}} (eich atwrneiod gwreiddiol) roi’r gorau iddi.",
         "two": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os oes rhaid i {{.AttorneysFullNames}} (eich atwrneiod gwreiddiol) roi’r gorau iddi.",
         "few": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os oes rhaid i {{.AttorneysFullNames}} (eich atwrneiod gwreiddiol) roi’r gorau iddi.",
-        "many": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os oes rhaid i {{.AttorneysFullNames}} (eich atwrneiod gwreiddiol) roi’r gorau iddi.",
-        "other": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod) weithredu mwyach."
+        "many": "Mae cael atwrneiod wrth gefn yn ddewisol. Serch hynny, mae cael un neu fwy o atwrneiod wrth gefn yn helpu i sicrhau y bydd eich LPA yn parhau i weithio os na all {{.AttorneysFullNames}} (eich atwrneiod) weithredu mwyach.",
+        "other": ""
     },
     "replacementAttorneyRequirements": "Rhaid i atwrnai wrth gefn fodloni’r un gofynion ag atwrnai. Mae hyn yn cynnwys bod yn 18 oed neu’n hŷn.",
     "findOutMoreAboutReplacementAttorneysContent": "<p class=\"govuk-body\"><a href=\"#\" class=\"govuk-link\">Darllenwch fwy am atwrneiod wrth gefn.</a></p>",
@@ -172,11 +175,12 @@
     "replacementAttorney": "Atwrnai wrth gefn",
     "whenYourAttorneysCanUseYourLpaContent": "<p class=\"govuk-body-l\">Gallwch benderfynu a ydych eisiau i’ch atwrneiod allu defnyddio eich LPA cyn gynted ag y caiff ei chofrestru neu dim ond ar gyfer unrhyw benderfyniadau nad oes gennych y galluedd meddyliol i’w gwneud drosoch eich hun.</p><h2 class=\"govuk-heading-m\">Pan fydd gennyf alluedd meddyliol i wneud penderfyniad penodol fy hun neu ddim</h2><p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu y gall eich atwrneiod ddefnyddio eich LPA unrhyw bryd ar ôl ei chofrestru, gan gynnwys pan fydd gennych alluedd meddyliol o hyd. Er enghraifft, os byddwch yn gofyn iddynt wneud penderfyniad penodol ar eich rhan.</p><p class=\"govuk-body\">Mae’r opsiwn hwn yn ddefnyddiol rhag ofn y bydd adegau yn y dyfodol pan fyddwch yn gallu gwneud eich penderfyniadau eich hun ond eich bod angen help gyda rhai pethau. Er enghraifft, os nad ydych yn gallu mynd i’r banc neu siarad ar y ffôn, gallai eich atwrneiod wneud y pethau hyn ar eich rhan. Serch hynny, ni ddylent wneud hyn heb eich caniatâd.</p><p class=\"govuk-body\">Mae’r rhan fwyaf o bobl yn dewis yr opsiwn hwn gan mai dyma’r opsiwn mwyaf ymarferol.</p><h2 class=\"govuk-heading-m\">Os nad oes gennych alluedd meddyliol </h2><p class=\"govuk-body\">Mae’r opsiwn hwn yn golygu y gall eich atwrneiod ddefnyddio eich LPA dim ond os nad oes gennych alluedd meddyliol i wneud penderfyniad penodol eich hun. </p><p class=\"govuk-body\">Bob tro y byddant yn defnyddio eich LPA, efallai y gofynnir iddynt brofi nad oes gennych chi alluedd meddyliol i wneud y penderfyniad hwnnw ar eich pen eich hun. Gall hyn ei gwneud yn anodd i’ch atwrneiod ddefnyddio eich LPA.</p>",
     "whenDoYouWantAttorneysToUse": {
-        "one": "Pryd ydych chi eisiau i’ch atwrnai allu defnyddio eich LPA?",
+        "zero": "Pryd ydych chi eisiau i’ch atwrnai allu defnyddio eich LPA?",
+        "one": "Pryd ydych chi eisiau i’ch atwrneiod allu defnyddio eich LPA?",
         "two": "Pryd ydych chi eisiau i’ch atwrneiod allu defnyddio eich LPA?",
         "few": "Pryd ydych chi eisiau i’ch atwrneiod allu defnyddio eich LPA?",
         "many": "Pryd ydych chi eisiau i’ch atwrneiod allu defnyddio eich LPA?",
-        "other": "Pryd ydych chi eisiau i’ch atwrneiod allu defnyddio eich LPA?"
+        "other": ""
     },
     "restrictionsOnYourAttorneysPowerTitle": "Cyfyngu ar y penderfyniadau y gall eich atwrneiod eu gwneud",
     "restrictionsOnYourAttorneysPowerContent": "<p class=\"govuk-body\">Gallwch gyfyngu ar y penderfyniadau y gall eich atwrneiod eu gwneud drwy ychwanegu cyfyngiadau neu amodau at eich LPA.</p><p class=\"govuk-body\">Mae’r adran hon yn ddewisol.</p><p class=\"govuk-body\">Bydd yr hyn a ddywedwch yma yn dweud wrth eich atwrneiod am y pethau:</p><ul class=\"govuk-list govuk-list--bullet\"><li>na allant eu gwneud (‘cyfyngiadau’)</li><li>y gellir eu gwneud mewn rhai amgylchiadau yn unig (‘amodau’)</li></ul><p class=\"govuk-body\">Nid oes rhaid i chi ychwanegu cyfyngiadau neu amodau at eich LPA.</p><p class=\"govuk-body\">Mae yna reolau cyfreithiol ynglŷn â sut dylid geirio eich cyfyngiadau a’ch amodau, felly mae’n bwysig <a href=\"#\" class=\"govuk-link\">darllen ein canllawiau ar ysgrifennu cyfyngiadau ac amodau</a>.</p><p class=\"govuk-body\">Os ydych yn ansicr, neu os oes gennych gyfyngiadau neu amodau manwl, dylech gael cyngor cyfreithiol.</p>",
@@ -242,11 +246,12 @@
     "typeOfLpa": "Math o LPA",
     "whenYourAttorneysCanUseYourLpa": "Pryd gall eich atwrneiod ddefnyddio eich LPA",
     "whoAreYourAttorneys": {
-        "one": "Pwy yw eich atwrnai",
+        "zero": "Pwy yw eich atwrnai",
+        "one": "Pwy yw eich atwrneiod",
         "two": "Pwy yw eich atwrneiod",
         "few": "Pwy yw eich atwrneiod",
         "many": "Pwy yw eich atwrneiod",
-        "other": "Pwy yw eich atwrneiod"
+        "other": ""
     },
     "howYourAttorneysMustMakeDecisions": "Sut mae’n rhaid i’ch atwrneiod wneud penderfyniadau",
     "howYourReplacementAttorneysMustMakeDecisions": "Sut mae’n rhaid i’ch atwrneiod wrth gefn wneud penderfyniadau",
@@ -299,18 +304,20 @@
     "weWillContactYourCertificateProvider": "Byddwn yn cysylltu â {{.FirstNames}}, ac yn gofyn iddynt gadarnhau eu hunaniaeth a darparu’r dystysgrif ar gyfer eich LPA.",
     "opgWillContactYourCertificateProvider": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullName}} ac yn gofyn iddynt gadarnhau pwy ydynt a darparu’r dystysgrif ar gyfer eich LPA.",
     "weWillThenContactAttorneys": {
-        "one": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
-        "two": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
-        "few": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
-        "many": "Yna byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
-        "other": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod."
+        "zero": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
+        "one": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
+        "two": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
+        "few": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
+        "many": "Byddwn yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
+        "other": ""
     },
     "opgWillContactAttorneys": {
-        "one": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
+        "zero": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrnai.",
+        "one": "Welsh {{.FullNames}}",
         "two": "Welsh {{.FullNames}}",
         "few": "Welsh {{.FullNames}}",
-        "many": "Welsh {{.FullNames}}",
-        "other": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod."
+        "many": "Bydd Swyddfa’r Gwarcheidwad Cyhoeddus yn cysylltu â {{.FullNames}} ac yn gofyn iddynt lofnodi eich LPA fel eich atwrneiod.",
+        "other": ""
     },
     "onceEveryoneHasSigned": "Unwaith y bydd pawb wedi llofnodi a phan fydd eich LPA wedi’n cyrraedd, byddwn yn hysbysu unrhyw bobl y byddwch yn dewis rhoi gwybod iddynt. Bydd cyfnod aros o 4 wythnos yn dechrau. Mae hyn yn ofynnol yn ôl y gyfraith, er mwyn caniatáu i unrhyw un sydd â gwrthwynebiad i’w codi.",
     "onceEveryoneHasSignedOpgWill": "Welsh",
@@ -321,18 +328,20 @@
     "ifTheCOPFindsYourLpaIsValid": "Welsh",
     "weWillEmailYou": "<p class=\"govuk-body\">Byddwn yn anfon e-bost atoch i roi’r wybodaeth ddiweddaraf i chi am gofrestriad eich LPA. Os oes unrhyw broblemau, byddwn yn rhoi gwybod i chi.</p><p class=\"govuk-body\">Gallwch hefyd gadw golwg ar gynnydd eich LPA drwy fewngofnodi i’r gwasanaeth hwn unrhyw bryd.</p>",
     "signIn4WeeksWarning": {
-        "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "zero": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
+        "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
         "two": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
         "few": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
         "many": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto.",
-        "other": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto."
+        "other": ""
     },
     "copSignDeadlineWarning": {
+        "zero": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
         "one": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
         "two": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
         "few": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
         "many": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "other": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}"
+        "other": ""
     },
     "signYourLpa": "Llofnodwch eich LPA",
     "signingYourLpaIsAnImportant": "Mae llofnodi eich LPA yn gam cyfreithiol pwysig a phwerus.",
@@ -396,11 +405,12 @@
     "whoWouldYouLikeToBeTheReplacementAttorneys": "Pwy hoffech i’ch atwrnai wrth gefn fod?",
     "doYouWantToAddAnotherReplacementAttorney": "Ydych chi eisiau ychwanegu atwrnai wrth gefn arall?",
     "replacementAttorneysAdded": {
-        "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
+        "zero": "Rydych wedi ychwanegu {{.PluralCount}} atwrnai wrth gefn",
+        "one": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
         "two": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
         "few": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
         "many": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn",
-        "other": "Rydych wedi ychwanegu {{.PluralCount}} atwrneiod wrth gefn"
+        "other": ""
     },
     "howShouldReplacementAttorneysMakeDecisions": "Sut dylai eich atwrneiod wrth gefn wneud penderfyniadau?",
     "howShouldReplacementAttorneysMakeDecisionsDetail": "Gan fod gennych fwy nag un atwrnai wrth gefn, mae angen i chi benderfynu a all pob atwrnai wrth gefn ddefnyddio eich LPA ar eu pen eu hunain neu a oes rhaid i bob un ohonynt gytuno ar bob penderfyniad gyda’i gilydd, neu gyfuniad.",
@@ -437,11 +447,12 @@
     "weWillOnlyTellThem": "Byddwn ond yn dweud wrthyn nhw:",
     "thatYouHaveMadeALpaType": "eich bod wedi gwneud LPA {{lowerFirst .LpaType}}",
     "thatYourAttorneysAre": {
+        "zero": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}",
         "one": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}",
         "two": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}",
         "few": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}",
         "many": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}",
-        "other": "mai eich atwrneiod yw {{.AllAttorneysFirstNames }}"
+        "other": ""
     },
     "jointlyDescription": "eich bod am i’ch atwrneiod gydweithio i wneud penderfyniadau",
     "jointlyAndSeverallyDescription": "eich bod eisiau i’ch atwrneiod weithio ar y cyd ac yn unigol i wneud penderfyniadau",
@@ -457,19 +468,21 @@
     "yourCertificateProviderMustBeWithYou": "Rhaid i {{.CertificateProviderName}}, eich darparwr tystysgrif, fod gyda chi yn bersonol pan fyddwch yn trafod ac yn llofnodi eich LPA.",
     "discussWithCertificateProviderStep": "1. Trafod eich LPA gyda {{.CertificateProviderFullName}}",
     "meetFaceToFaceWithoutAttorneys": {
+        "zero": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
         "one": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
         "two": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
         "few": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
         "many": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
-        "other": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}"
+        "other": ""
     },
     "meetFaceToFaceWithoutTrustCorporation": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}}",
     "meetFaceToFaceWithoutAttorneysAndTrustCorporation": {
+        "zero": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
         "one": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
         "two": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
         "few": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
         "many": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
-        "other": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}"
+        "other": ""
     },
     "discussWithCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}</p>>",
     "signYourLpaStep": "<h2 class=\"govuk-heading-m\">Welsh {{.CertificateProviderFullName}} {{.CertificateProviderFullName}}</h2>",
@@ -478,11 +491,12 @@
     "certificateProviderHasDeclared": "Mae {{.CertificateProviderFullName}} wedi darparu eu tystysgrif",
     "yourCertificateProviderHasDeclared": "Mae’ch darparwr tystysgrif wedi darparu eu tystysgrif",
     "attorneysHaveDeclared": {
-        "one": "Mae’ch atwrnai wedi llofnodi’ch LPA",
+        "zero": "Mae’ch atwrnai wedi llofnodi’ch LPA",
+        "one": "Mae’ch atwrneiod wedi llofnodi’ch LPA",
         "two": "Mae’ch atwrneiod wedi llofnodi’ch LPA",
         "few": "Mae’ch atwrneiod wedi llofnodi’ch LPA",
         "many": "Mae’ch atwrneiod wedi llofnodi’ch LPA",
-        "other": "Mae’ch atwrneiod wedi llofnodi’ch LPA"
+        "other": ""
     },
     "weHaveReceivedYourLpa": "Rydym wedi cael eich LPA",
     "yourWaitingPeriodHasStarted": "Mae’ch cyfnod aros o 4 wythnos wedi dechrau",
@@ -525,34 +539,38 @@
     "theReferenceNumberYouEnter": "Y cyfeirnod rydych yn ei roi",
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {
+        "zero": "Yr atwrneiod",
         "one": "Yr atwrneiod",
         "two": "Yr atwrneiod",
         "few": "Yr atwrneiod",
         "many": "Yr atwrneiod",
-        "other": "Yr atwrneiod"
+        "other": ""
     },
     "attorneyNames": {
-        "one": "Enw’r atwrnai",
+        "zero": "Enw’r atwrnai",
+        "one": "Enwau’r atwrneiod",
         "two": "Enwau’r atwrneiod",
         "few": "Enwau’r atwrneiod",
         "many": "Enwau’r atwrneiod",
-        "other": "Enwau’r atwrneiod"
+        "other": ""
     },
     "howAttorneysMustMakeDecisions": "Sut y mae’n rhaid i atwrneiod wneud penderfyniadau",
     "howReplacementAttorneysMustMakeDecisions": "Sut y mae’n rhaid i atwrneiod wrth gefn wneud penderfyniadau",
     "theirReplacementAttorneys": {
+        "zero": "Yr atwrneiod wrth gefn",
         "one": "Yr atwrneiod wrth gefn",
         "two": "Yr atwrneiod wrth gefn",
         "few": "Yr atwrneiod wrth gefn",
         "many": "Yr atwrneiod wrth gefn",
-        "other": "Yr atwrneiod wrth gefn"
+        "other": ""
     },
     "replacementAttorneyNames": {
-        "one": "Enw’r atwrnai wrth gefn",
+        "zero": "Enw’r atwrnai wrth gefn",
+        "one": "Enwau’r atwrneiod wrth gefn",
         "two": "Enwau’r atwrneiod wrth gefn",
         "few": "Enwau’r atwrneiod wrth gefn",
         "many": "Enwau’r atwrneiod wrth gefn",
-        "other": "Enwau’r atwrneiod wrth gefn"
+        "other": ""
     },
     "readDonorNameLpa": "Darllen LPA {{.DonorFullName}}",
     "youMustReadLpaCarefully": "Rhaid i chi ddarllen yr LPA hon yn ofalus; dylai gynrychioli’n gywir yr hyn a dystioch. (Efallai bod mân wallau wedi’u cywiro).",
@@ -828,11 +846,12 @@
     "errorFileNotSelected": "Does dim ffeiliau wedi cael eu dewis – dewiswch ‘Dewis ffeiliau’ i uwchlwytho eich tystiolaeth",
     "errorGenericUploadProblemFile": "{{.Filename}}: Gwall ffeil cyffredinol",
     "errorFilesInfected": {
-        "one": "Ni ellir uwchlwytho {{.Filenames}} am ei bod yn cynnwys feirws",
+        "zero": "Ni ellir uwchlwytho {{.Filenames}} am ei bod yn cynnwys feirws",
+        "one": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
         "two": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
         "few": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
         "many": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "other": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws"
+        "other": ""
     },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Y camau nesaf</h2><p class=\"govuk-body\">Cynnwys yn disgrifio’r camau nesaf pan fydd rhoddwr wedi talu hanner y ffi a’i fod yn aros i dystiolaeth gael ei gwirio gan weithiwr achosion</p>",
     "referenceNumber": "Cyfeirnod",
@@ -1020,25 +1039,28 @@
     "youCannotSignYourLpaYet": "Allwch chi ddim llofnodi eich LPA eto",
     "actorsMustBeOver18WarningBanner": "Rhaid i bawb a enwir ar yr LPA hon fod yn 18 oed cyn y gallwch ei llofnodi.",
     "theDetailsYouHaveGivenIndicateUnder18": {
-        "one": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "zero": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "one": "Welsh",
         "two": "Welsh",
         "few": "Welsh",
-        "many": "Welsh",
-        "other": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed."
+        "many": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
+        "other": ""
     },
     "youCannotSignYourLpaYetContent": {
-        "one": "Ni allwch lofnodi eich LPA nes eu bod yn 18 oed. Os gwnaethoch gamgymeriad, gallwch newid y dyddiad.",
+        "zero": "Ni allwch lofnodi eich LPA nes eu bod yn 18 oed. Os gwnaethoch gamgymeriad, gallwch newid y dyddiad.",
+        "one": "Welsh",
         "two": "Welsh",
         "few": "Welsh",
-        "many": "Welsh",
-        "other": "Ni allwch lofnodi eich LPA nes eu bod i gyd yn 18 oed. Os gwnaethoch gamgymeriad, gallwch newid y dyddiadau hyn."
+        "many": "Ni allwch lofnodi eich LPA nes eu bod i gyd yn 18 oed. Os gwnaethoch gamgymeriad, gallwch newid y dyddiadau hyn.",
+        "other": ""
     },
     "ifDateYouEnteredIsCorrectYouMustWaitContent": {
-        "one": "Os yw’r dyddiad a roddwyd gennych yn gywir, rhaid i chi aros nes bydd yr unigolyn hwn yn 18 oed cyn y gallwch ei llofnodi.",
+        "zero": "Os yw’r dyddiad a roddwyd gennych yn gywir, rhaid i chi aros nes bydd yr unigolyn hwn yn 18 oed cyn y gallwch ei llofnodi.",
+        "one": "Welsh",
         "two": "Welsh",
         "few": "Welsh",
-        "many": "Welsh",
-        "other": "Os yw’r dyddiadau a roddwyd gennych yn gywir, rhaid i chi aros nes bydd pawb a enwir ar eich LPA yn 18 oed cyn y gallwch ei llofnodi."
+        "many": "Os yw’r dyddiadau a roddwyd gennych yn gywir, rhaid i chi aros nes bydd pawb a enwir ar eich LPA yn 18 oed cyn y gallwch ei llofnodi.",
+        "other": ""
     },
     "uploadedFilesContent": "<h2 class=\"govuk-heading-m\">Ffeiliau wedi’u huwchlwytho</h2><p class=\"govuk-body\">Bydd y ffeiliau hyn yn cael eu hanfon at weithiwr achos i’w hadolygu.</p>",
     "previouslyUploadedFiles": "Ffeiliau sydd wedi’u huwchlwytho o’r blaen",
@@ -1144,18 +1166,20 @@
     "deleteOrganisation": "Dileu sefydliad",
     "deleteOrganisationContent": "<p class=\"govuk-body\">Os byddwch chi’n dileu <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> nawr, byddwch chi a phob aelod o’r tîm yn colli mynediad at y sefydliad hwn ar unwaith.</p><p class=\"govuk-body\">Mae hyn yn cynnwys:</p>",
     "countLPAs": {
-        "one": "{{ .PluralCount }} LPA",
+        "zero": "{{ .PluralCount }} LPA",
+        "one": "{{ .PluralCount }} Welsh",
         "two": "{{ .PluralCount }} Welsh",
         "few": "{{ .PluralCount }} Welsh",
-        "many": "{{ .PluralCount }} Welsh",
-        "other": "{{ .PluralCount }} LPA"
+        "many": "{{ .PluralCount }} LPA",
+        "other": ""
     },
     "stillInProgress": {
-        "one": "mae hyn dal i fynd rhagddo",
+        "zero": "mae hyn dal i fynd rhagddo",
+        "one": "Welsh",
         "two": "Welsh",
         "few": "Welsh",
-        "many": "Welsh",
-        "other": "sy’n dal i fynd rhagddynt"
+        "many": "sy’n dal i fynd rhagddynt",
+        "other": ""
     },
     "anyCompletedLPAsMadeInThisOrganisation": "unrhyw LPAau wedi’u cwblhau a wnaed yn y sefydliad hwn",
     "theOrganisationHasBeenDeleted": "<p class=\"govuk-body app-full-width\">Mae’r sefydliad <span class=\"govuk-!-font-weight-bold\">{{ .OrganisationName }}</span> wedi cael ei ddileu. Rydym ni hefyd wedi anfon e-bost atoch yn cadarnhau hyn.</p><p class=\"govuk-body app-full-width\">Mae holl aelodau’r tîm bellach wedi colli mynediad at bob LPA a wneir yn y sefydliad hwn.</p>",
@@ -1287,11 +1311,12 @@
     "contactGOL": "Cysylltu â GOV.UK One Login",
     "whatYouWouldLikeToDo": "beth hoffech chi ei wneud",
     "countAttorneys": {
-        "one": "atwrnai",
+        "zero": "atwrnai",
+        "one": "Welsh",
         "two": "Welsh",
         "few": "Welsh",
-        "many": "Welsh",
-        "other": "atwrneiod"
+        "many": "atwrneiod",
+        "other": ""
     },
     "yourConfirmedIdentityDetails": "Eich manylion adnabod wedi’u cadarnhau",
     "theDetailsOnYourLPA": "Y manylion ar eich LPA",
