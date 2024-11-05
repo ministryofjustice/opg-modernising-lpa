@@ -1,6 +1,6 @@
 data "aws_vpc_endpoint" "opensearch" {
   tags = {
-    Name = "opensearch-eu-west-1"
+    Name = "opensearch"
   }
   provider = aws.eu_west_1
 }
