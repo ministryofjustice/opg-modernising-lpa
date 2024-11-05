@@ -17,7 +17,7 @@ import (
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, scheduledStore ScheduledStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.DonorIdentityConfirmed() {
-			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
+			return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -92,7 +92,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				return err
 			}
 
-			return donor.PathOneLoginIdentityDetails.Redirect(w, r, appData, provided)
+			return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
 		}
 	}
 }

@@ -24,7 +24,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 		NewVoucherLabel       string
 		ProveOwnIdentityLabel string
 		CanHaveVoucher        bool
-		VouchedForIdentity    bool
+		WantVoucher           form.YesNo
 	}{
 		0: {
 			BannerContent:         "yourConfirmedIdentityHasExpired",
@@ -37,13 +37,13 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
-			VouchedForIdentity:    true,
+			WantVoucher:           form.Yes,
 		},
 		2: {
 			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
-			VouchedForIdentity:    true,
+			WantVoucher:           form.Yes,
 		},
 	}
 
@@ -69,7 +69,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 
 			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 				FailedVouchAttempts: failedVouchAttempts,
-				IdentityUserData:    identity.UserData{VouchedFor: tc.VouchedForIdentity},
+				WantVoucher:         tc.WantVoucher,
 			})
 
 			assert.Nil(t, err)

@@ -43,7 +43,6 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		provided.IdentityUserData = userData
-		provided.IdentityUserData.VouchedFor = true
 
 		if provided.NameMatches(lpa).IsNone() {
 			provided.Tasks.ConfirmYourIdentity = task.StateCompleted

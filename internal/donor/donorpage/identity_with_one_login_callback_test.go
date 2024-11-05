@@ -78,7 +78,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
@@ -159,7 +159,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *testing.T) {
@@ -530,5 +530,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
