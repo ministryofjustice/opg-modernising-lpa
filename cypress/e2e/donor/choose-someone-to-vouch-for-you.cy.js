@@ -1,14 +1,14 @@
-describe('what is vouching', () => {
+describe('Choose someone to vouch for you', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/what-is-vouching&progress=payForTheLpa')
-        cy.url().should('contain', '/what-is-vouching')
+        cy.visit('/fixtures?redirect=/choose-someone-to-vouch-for-you&progress=payForTheLpa')
+        cy.url().should('contain', '/choose-someone-to-vouch-for-you')
         cy.checkA11yApp()
     })
 
     it('errors when option not selected', () => {
         cy.contains('button', 'Save and continue').click();
 
-        cy.url().should('contain', '/what-is-vouching')
+        cy.url().should('contain', '/choose-someone-to-vouch-for-you')
         cy.checkA11yApp()
 
         cy.get('.govuk-error-summary').within(() => {

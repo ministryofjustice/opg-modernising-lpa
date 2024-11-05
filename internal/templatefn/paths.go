@@ -219,7 +219,7 @@ type appPaths struct {
 	WhatACertificateProviderDoes                         donor.Path
 	WhatHappensNextPostEvidence                          donor.Path
 	WhatHappensNextRegisteringWithCourtOfProtection      donor.Path
-	WhatIsVouching                                       donor.Path
+	ChooseSomeoneToVouchForYou                           donor.Path
 	WhatYouCanDoNow                                      donor.Path
 	WhenCanTheLpaBeUsed                                  donor.Path
 	WhichFeeTypeAreYouApplyingFor                        donor.Path
@@ -447,7 +447,7 @@ var paths = appPaths{
 	WhatACertificateProviderDoes:                         donor.PathWhatACertificateProviderDoes,
 	WhatHappensNextPostEvidence:                          donor.PathWhatHappensNextPostEvidence,
 	WhatHappensNextRegisteringWithCourtOfProtection:      donor.PathWhatHappensNextRegisteringWithCourtOfProtection,
-	WhatIsVouching:                                       donor.PathWhatIsVouching,
+	ChooseSomeoneToVouchForYou:                           donor.PathChooseSomeoneToVouchForYou,
 	WhatYouCanDoNow:                                      donor.PathWhatYouCanDoNow,
 	WhenCanTheLpaBeUsed:                                  donor.PathWhenCanTheLpaBeUsed,
 	WhichFeeTypeAreYouApplyingFor:                        donor.PathWhichFeeTypeAreYouApplyingFor,
