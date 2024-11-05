@@ -118,9 +118,10 @@ type UserData struct {
 	FirstNames     string
 	LastName       string
 	DateOfBirth    date.Date
-	RetrievedAt    time.Time
 	CurrentAddress place.Address
-	VouchedFor     bool
+	// CheckedAt records when identity information was taken from OneLogin or
+	// when the identity data was vouched for.
+	CheckedAt time.Time
 }
 
 func (u UserData) MatchName(firstNames, lastName string) bool {
