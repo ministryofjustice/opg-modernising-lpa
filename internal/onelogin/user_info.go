@@ -250,7 +250,7 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 		FirstNames:     strings.Join(givenName, " "),
 		LastName:       strings.Join(familyName, " "),
 		DateOfBirth:    birthDates[0].Value,
-		RetrievedAt:    claims.IssuedAt.Time,
+		CheckedAt:      claims.IssuedAt.Time,
 		CurrentAddress: currentAddress.transformToAddress(),
 	}, nil
 }

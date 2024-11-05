@@ -39,8 +39,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					PayForLpa:    task.PaymentStateCompleted,
 				},
 				IdentityUserData: identity.UserData{
-					Status:      identity.StatusConfirmed,
-					RetrievedAt: time.Now(),
+					Status:    identity.StatusConfirmed,
+					CheckedAt: time.Now(),
 				},
 				Correspondent:       donordata.Correspondent{Email: "x"},
 				AuthorisedSignatory: donordata.AuthorisedSignatory{UID: actorUID, FirstNames: "A", LastName: "S"},
@@ -88,8 +88,8 @@ func TestResolvingServiceGet(t *testing.T) {
 					TrustCorporation: donordata.TrustCorporation{Name: "d"},
 				},
 				IdentityUserData: identity.UserData{
-					Status:      identity.StatusConfirmed,
-					RetrievedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
+					Status:    identity.StatusConfirmed,
+					CheckedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 				},
 				Correspondent:       donordata.Correspondent{Email: "x"},
 				AuthorisedSignatory: donordata.AuthorisedSignatory{UID: actorUID, FirstNames: "A", LastName: "S"},
