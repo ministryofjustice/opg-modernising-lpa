@@ -69,6 +69,7 @@ type Factory struct {
 	searchIndexName       string
 	searchIndexingEnabled bool
 	eventClient           EventClient
+	httpClient            *http.Client
 
 	// previously constructed values
 	appData         *appcontext.Data
@@ -122,7 +123,7 @@ func (f *Factory) AppData() (appcontext.Data, error) {
 
 func (f *Factory) LambdaClient() LambdaClient {
 	if f.lambdaClient == nil {
-		f.lambdaClient = lambda.New(f.cfg, v4.NewSigner(), &http.Client{Timeout: 10 * time.Second}, time.Now)
+		f.lambdaClient = lambda.New(f.cfg, v4.NewSigner(), f.httpClient, time.Now)
 	}
 
 	return f.lambdaClient
@@ -158,7 +159,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, http.DefaultClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
 		if err != nil {
 			return nil, err
 		}
