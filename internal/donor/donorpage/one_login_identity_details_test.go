@@ -130,7 +130,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
 }
 
 func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {

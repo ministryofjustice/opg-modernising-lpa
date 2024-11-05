@@ -246,7 +246,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
-				RetrievedAt: issuedAt,
+				CheckedAt:   issuedAt,
 				CurrentAddress: place.Address{
 					Line1:    "1 Fake Road",
 					Postcode: "B14 7ED",
@@ -264,7 +264,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
-				RetrievedAt: issuedAt,
+				CheckedAt:   issuedAt,
 				CurrentAddress: place.Address{
 					Line1:    "1 Fake Road",
 					Postcode: "B14 7ED",
@@ -283,7 +283,7 @@ func TestParseIdentityClaim(t *testing.T) {
 				FirstNames:  "Alice Jane Laura",
 				LastName:    "Doe",
 				DateOfBirth: date.New("1970", "01", "02"),
-				RetrievedAt: issuedAt,
+				CheckedAt:   issuedAt,
 				CurrentAddress: place.Address{
 					Line1:    "1 Fake Road",
 					Postcode: "B14 7ED",

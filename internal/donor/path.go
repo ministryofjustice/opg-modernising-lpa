@@ -72,7 +72,7 @@ const (
 	PathLpaYourLegalRightsAndResponsibilities                = Path("/your-legal-rights-and-responsibilities")
 	PathMakeANewLPA                                          = Path("/make-a-new-lpa")
 	PathNeedHelpSigningConfirmation                          = Path("/need-help-signing-confirmation")
-	PathOneLoginIdentityDetails                              = Path("/one-login-identity-details")
+	PathIdentityDetails                                      = Path("/one-login-identity-details")
 	PathPaymentConfirmation                                  = Path("/payment-confirmation")
 	PathPaymentSuccessful                                    = Path("/payment-successful")
 	PathPreviousApplicationNumber                            = Path("/previous-application-number")
@@ -215,7 +215,7 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 
 	case PathConfirmYourIdentity,
 		PathIdentityWithOneLogin,
-		PathOneLoginIdentityDetails,
+		PathIdentityDetails,
 		PathLpaYourLegalRightsAndResponsibilities,
 		PathSignTheLpaOnBehalf:
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())

@@ -27,7 +27,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	now := time.Now()
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", CheckedAt: now}
 	updatedDonor := &donordata.Provided{
 		PK:               dynamo.LpaKey("hey"),
 		SK:               dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
@@ -78,7 +78,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
@@ -88,7 +88,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	actorUID := actoruid.New()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Does", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Does", CheckedAt: now}
 	updatedDonor := &donordata.Provided{
 		PK:                               dynamo.LpaKey("hey"),
 		SK:                               dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
@@ -159,7 +159,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *testing.T) {
@@ -169,7 +169,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *tes
 
 	actorUID := actoruid.New()
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Does", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Does", CheckedAt: now}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -209,7 +209,7 @@ func TestGetIdentityWithOneLoginCallbackWhenScheduledStoreErrors(t *testing.T) {
 	now := time.Now()
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", CheckedAt: now}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
@@ -519,7 +519,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-name", LastName: "last-name", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-name", LastName: "last-name", CheckedAt: now}
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
@@ -530,5 +530,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
