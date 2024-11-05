@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -24,7 +25,7 @@ type yourDeclarationData struct {
 	Voucher *voucherdata.Provided
 }
 
-func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
+func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, donorStore DonorStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
 			if !lpa.SignedForDonor() {
@@ -79,6 +80,24 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 
 			if data.Errors.None() {
 				if err := sendNotification(r.Context(), lpa, provided); err != nil {
+					return err
+				}
+
+				donor, err := donorStore.GetAny(r.Context())
+				if err != nil {
+					return err
+				}
+
+				donor.IdentityUserData = identity.UserData{
+					Status:         identity.StatusConfirmed,
+					FirstNames:     donor.Donor.FirstNames,
+					LastName:       donor.Donor.LastName,
+					DateOfBirth:    donor.Donor.DateOfBirth,
+					CurrentAddress: donor.Donor.Address,
+					CheckedAt:      now(),
+				}
+				donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+				if err := donorStore.Put(r.Context(), donor); err != nil {
 					return err
 				}
 

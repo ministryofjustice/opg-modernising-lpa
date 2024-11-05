@@ -62,7 +62,7 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 						return err
 					}
 
-					return donor.PathOneLoginIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{"detailsUpdated": {"1"}})
+					return donor.PathIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{"detailsUpdated": {"1"}})
 				} else {
 					return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
 				}

@@ -29,7 +29,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "John", LastName: "Doe", CheckedAt: now}
 
 	updatedCertificateProvider := &certificateproviderdata.Provided{
 		IdentityUserData: userData,
@@ -81,7 +81,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "Jonathan", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "Jonathan", LastName: "Doe", CheckedAt: now}
 	actorUID := actoruid.New()
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -144,7 +144,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *tes
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "Jonathan", LastName: "Doe", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "Jonathan", LastName: "Doe", CheckedAt: now}
 	actorUID := actoruid.New()
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -575,7 +575,7 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/?code=a-code", nil)
 	now := time.Date(2012, time.January, 1, 2, 3, 4, 5, time.UTC)
-	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-names", LastName: "last-name", RetrievedAt: now}
+	userData := identity.UserData{Status: identity.StatusConfirmed, FirstNames: "first-names", LastName: "last-name", CheckedAt: now}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
