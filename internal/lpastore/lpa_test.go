@@ -270,7 +270,7 @@ func TestClientSendLpa(t *testing.T) {
 					FirstNames:  "John Johnson",
 					LastName:    "Smith",
 					DateOfBirth: date.New("2000", "1", "2"),
-					RetrievedAt: time.Date(2002, time.January, 2, 12, 14, 16, 9, time.UTC),
+					CheckedAt:   time.Date(2002, time.January, 2, 12, 14, 16, 9, time.UTC),
 				},
 				SignedAt:                                 time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC),
 				WitnessedByCertificateProviderAt:         time.Date(2000, time.February, 3, 4, 5, 6, 7, time.UTC),
