@@ -1,8 +1,8 @@
 describe('what you can do now', () => {
     context('donor failed ID check', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/what-is-vouching&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence')
-            cy.url().should('contain', '/what-is-vouching')
+            cy.visit('/fixtures?redirect=/choose-someone-to-vouch-for-you&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence')
+            cy.url().should('contain', '/choose-someone-to-vouch-for-you')
             cy.checkA11yApp()
 
             cy.get('input[name="yes-no"]').check('no', { force: true });
@@ -147,7 +147,7 @@ describe('what you can do now', () => {
 
     context('want a different voucher', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/what-is-vouching&progress=payForTheLpa');
+            cy.visit('/fixtures?redirect=/choose-someone-to-vouch-for-you&progress=payForTheLpa');
             cy.get('input[name="yes-no"]').check('yes', { force: true });
             cy.contains('button', 'Save and continue').click();
             cy.get('#f-first-names').type('Shopping');
