@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     "schedule:earlyMondays"
   ],
   "branchPrefix": "renovate-",
@@ -16,7 +16,9 @@
   "prConcurrentLimit": 0,
   "branchConcurrentLimit": 0,
   "separateMultipleMajor": true,
-  "lockFileMaintenance": { "enabled": false },
+  "lockFileMaintenance": {
+    "enabled": false
+  },
   "packageRules": [
     {
       "automerge": true,
@@ -26,26 +28,26 @@
         "Dependencies",
         "Renovate"
       ],
-      "matchPackagePatterns": [
-        "*"
-      ],
       "matchUpdateTypes": [
         "minor",
         "patch"
       ],
       "prCreation": "immediate",
       "prPriority": 4,
-      "stabilityDays": 3
+      "minimumReleaseAge": "3 days",
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
   "major": {
     "automerge": false,
     "labels": [
-        "Dependencies",
-        "Renovate"
+      "Dependencies",
+      "Renovate"
     ],
     "prCreation": "immediate",
-    "stabilityDays": 3
+    "minimumReleaseAge": "3 days"
   },
   "vulnerabilityAlerts": {
     "enabled": false
