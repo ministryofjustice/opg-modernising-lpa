@@ -104,7 +104,7 @@ const (
 	PathWhatACertificateProviderDoes                         = Path("/what-a-certificate-provider-does")
 	PathWhatHappensNextPostEvidence                          = Path("/what-happens-next-post-evidence")
 	PathWhatHappensNextRegisteringWithCourtOfProtection      = Path("/what-happens-next-registering-with-court-of-protection")
-	PathWhatIsVouching                                       = Path("/what-is-vouching")
+	PathChooseSomeoneToVouchForYou                           = Path("/choose-someone-to-vouch-for-you")
 	PathWhatYouCanDoNow                                      = Path("/what-you-can-do-now")
 	PathWhatYouCanDoNowExpired                               = Path("/what-you-can-do-now-expired")
 	PathWhenCanTheLpaBeUsed                                  = Path("/when-can-the-lpa-be-used")
