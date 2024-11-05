@@ -1,10 +1,3 @@
-data "aws_vpc_endpoint" "opensearch" {
-  tags = {
-    Name = "opensearch-eu-west-1"
-  }
-  provider = aws.eu_west_1
-}
-
 resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_policy" {
   name        = "policy-shared-${local.account_name}"
   type        = "encryption"
@@ -44,7 +37,7 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       ],
       AllowFromPublic = false,
       SourceVPCEs = [
-        data.aws_vpc_endpoint.opensearch.id
+        module.eu_west_1[0].opensearch_lpas_collection_vpc_endpoint.id,
       ]
     },
     {
