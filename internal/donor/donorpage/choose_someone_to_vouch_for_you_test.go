@@ -15,13 +15,13 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetWhatIsVouching(t *testing.T) {
+func TestGetChooseSomeoneToVouchForYou(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &whatIsVouchingData{
+		Execute(w, &chooseSomeoneToVouchForYouData{
 			App: testAppData,
 			Form: &form.YesNoForm{
 				YesNo:     form.Yes,
@@ -31,12 +31,12 @@ func TestGetWhatIsVouching(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &donordata.Provided{WantVoucher: form.Yes})
+	err := ChooseSomeoneToVouchForYou(template.Execute, nil)(testAppData, w, r, &donordata.Provided{WantVoucher: form.Yes})
 
 	assert.Nil(t, err)
 }
 
-func TestGetWhatIsVouchingWhenTemplateError(t *testing.T) {
+func TestGetChooseSomeoneToVouchForYouWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -45,12 +45,12 @@ func TestGetWhatIsVouchingWhenTemplateError(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsVouching(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := ChooseSomeoneToVouchForYou(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Error(t, err)
 }
 
-func TestPostWhatIsVouching(t *testing.T) {
+func TestPostChooseSomeoneToVouchForYou(t *testing.T) {
 	testcases := map[form.YesNo]string{
 		form.Yes: donor.PathEnterVoucher.Format("lpa-id"),
 		form.No:  donor.PathWhatYouCanDoNow.Format("lpa-id"),
@@ -74,7 +74,7 @@ func TestPostWhatIsVouching(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+			err := ChooseSomeoneToVouchForYou(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -84,7 +84,7 @@ func TestPostWhatIsVouching(t *testing.T) {
 	}
 }
 
-func TestPostWhatIsVouchingWhenDonorStoreError(t *testing.T) {
+func TestPostChooseSomeoneToVouchForYouWhenDonorStoreError(t *testing.T) {
 	f := url.Values{
 		"yes-no": {form.Yes.String()},
 	}
@@ -98,7 +98,7 @@ func TestPostWhatIsVouchingWhenDonorStoreError(t *testing.T) {
 		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsVouching(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := ChooseSomeoneToVouchForYou(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Error(t, err)
