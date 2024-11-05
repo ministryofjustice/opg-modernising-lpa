@@ -446,7 +446,6 @@ func updateLPAProgress(
 		}
 
 		if idActor == "voucher" {
-			userData.VouchedFor = true
 			donorDetails.WantVoucher = form.Yes
 		}
 

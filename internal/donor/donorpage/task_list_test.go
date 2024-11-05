@@ -108,7 +108,7 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathOneLoginIdentityDetails.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id")},
 					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
 				}
 
@@ -123,7 +123,7 @@ func TestGetTaskList(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathOneLoginIdentityDetails.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathIdentityDetails.Format("lpa-id")
 
 				return sections
 			},
@@ -467,7 +467,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathOneLoginIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
 					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
 				}
 
@@ -522,7 +522,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathOneLoginIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
 					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature.Format("lpa-id"), State: task.StateCompleted},
 				}
 
@@ -578,7 +578,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathOneLoginIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
 					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id"), State: task.StateCompleted},
 				}
 

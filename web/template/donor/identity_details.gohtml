@@ -11,7 +11,9 @@
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
 
             {{ else if .DetailsMatch }}
-                {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
+                {{ if .Provided.WantVoucher.IsYes }}
+                    {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
+                {{ end }}
             {{ else }}
                 {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
             {{ end}}
