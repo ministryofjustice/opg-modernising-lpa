@@ -5,7 +5,7 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ template "information-banner" (content .App "youMustReviewTheInformationYouHaveEntered") }}
+      {{ template "information-banner" (content .App "pleaseReviewTheInformationYouHaveEntered") }}
 
       <h1 class="govuk-heading-xl">{{ tr .App "confirmThisPersonIsAllowedToVouchForYou" }}</h1>
 
@@ -44,7 +44,7 @@
 
             {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
               (item .Form.Options.Yes.String "yes")
-              (item .Form.Options.No.String "noINeedToChooseSomeoneElse")
+              (item .Form.Options.No.String "no" "hint" "youCanChooseSomeoneElseToVouchForYou")
             ) }}
           </fieldset>
         </div>

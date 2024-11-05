@@ -11,15 +11,15 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type whatIsVouchingData struct {
+type chooseSomeoneToVouchForYouData struct {
 	App    appcontext.Data
 	Errors validation.List
 	Form   *form.YesNoForm
 }
 
-func WhatIsVouching(tmpl template.Template, donorStore DonorStore) Handler {
+func ChooseSomeoneToVouchForYou(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		data := &whatIsVouchingData{
+		data := &chooseSomeoneToVouchForYouData{
 			App:  appData,
 			Form: form.NewYesNoForm(provided.WantVoucher),
 		}
