@@ -146,7 +146,7 @@ func Register(
 		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
-		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, notifyClient, time.Now, appPublicURL))
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, time.Now, appPublicURL))
 	handleVoucher(voucher.PathThankYou, None,
 		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }

@@ -438,7 +438,7 @@ func updateLPAProgress(
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
-				RetrievedAt: time.Now(),
+				CheckedAt:   time.Now(),
 				FirstNames:  donorDetails.Donor.FirstNames,
 				LastName:    donorDetails.Donor.LastName,
 				DateOfBirth: donorDetails.Donor.DateOfBirth,
@@ -446,7 +446,6 @@ func updateLPAProgress(
 		}
 
 		if idActor == "voucher" {
-			userData.VouchedFor = true
 			donorDetails.WantVoucher = form.Yes
 		}
 

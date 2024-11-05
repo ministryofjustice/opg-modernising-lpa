@@ -414,7 +414,7 @@ func TestClientSendDonorConfirmIdentity(t *testing.T) {
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{UID: uid},
 		IdentityUserData: identity.UserData{
-			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
+			CheckedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
 		},
 	})
 
@@ -458,7 +458,7 @@ func TestClientSendCertificateProviderConfirmIdentity(t *testing.T) {
 	err := client.SendCertificateProviderConfirmIdentity(ctx, "lpa-uid", &certificateproviderdata.Provided{
 		UID: uid,
 		IdentityUserData: identity.UserData{
-			RetrievedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
+			CheckedAt: time.Date(2024, time.January, 2, 12, 13, 14, 6, time.UTC),
 		},
 	})
 
