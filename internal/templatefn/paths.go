@@ -416,7 +416,7 @@ var paths = appPaths{
 	LpaYourLegalRightsAndResponsibilities:                donor.PathLpaYourLegalRightsAndResponsibilities,
 	MakeANewLPA:                                          donor.PathMakeANewLPA,
 	NeedHelpSigningConfirmation:                          donor.PathNeedHelpSigningConfirmation,
-	OneLoginIdentityDetails:                              donor.PathOneLoginIdentityDetails,
+	OneLoginIdentityDetails:                              donor.PathIdentityDetails,
 	PaymentConfirmation:                                  donor.PathPaymentConfirmation,
 	PreviousApplicationNumber:                            donor.PathPreviousApplicationNumber,
 	PreviousFee:                                          donor.PathPreviousFee,

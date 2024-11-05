@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -24,7 +25,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 		NewVoucherLabel       string
 		ProveOwnIdentityLabel string
 		CanHaveVoucher        bool
-		VouchedForIdentity    bool
+		VouchedAt             time.Time
 	}{
 		0: {
 			BannerContent:         "yourConfirmedIdentityHasExpired",
@@ -37,13 +38,13 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
-			VouchedForIdentity:    true,
+			VouchedAt:             time.Now(),
 		},
 		2: {
 			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
-			VouchedForIdentity:    true,
+			VouchedAt:             time.Now(),
 		},
 	}
 
@@ -69,7 +70,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 
 			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
 				FailedVouchAttempts: failedVouchAttempts,
-				IdentityUserData:    identity.UserData{VouchedFor: tc.VouchedForIdentity},
+				IdentityUserData:    identity.UserData{VouchedAt: tc.VouchedAt},
 			})
 
 			assert.Nil(t, err)

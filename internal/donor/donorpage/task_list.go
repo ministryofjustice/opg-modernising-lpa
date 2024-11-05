@@ -182,7 +182,7 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 
 	switch provided.IdentityUserData.Status {
 	case identity.StatusConfirmed:
-		confirmYourIdentityPath = donor.PathOneLoginIdentityDetails
+		confirmYourIdentityPath = donor.PathIdentityDetails
 
 		if !provided.WitnessedByCertificateProviderAt.IsZero() {
 			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
