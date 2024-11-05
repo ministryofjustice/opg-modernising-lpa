@@ -8,15 +8,12 @@
             {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveBeenUnableToConfirmYourIdentity") "heading" ) }}
 
             <h1 class="govuk-heading-xl">
-                {{ tr .App "confirmYourIdentity" }}
+                {{ tr .App "confirmYourIdentityThroughVouching" }}
             </h1>
 
             {{ trHtml .App "vouchingLandingPageContent" }}
 
-            <div class="govuk-button-group">
-                <a href="{{ link .App (global.Paths.WhatIsVouching.Format .App.LpaID ) }}" class="govuk-button govuk-button">{{ tr .App "continue" }}</a>
-                <a href="{{ link .App (global.Paths.Dashboard.Format ) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
-            </div>
+            {{ template "buttons" (button .App "continue" "link" (global.Paths.ChooseSomeoneToVouchForYou.Format .App.LpaID)) }}
         </div>
     </div>
 {{ end }}

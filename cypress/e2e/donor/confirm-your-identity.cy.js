@@ -47,7 +47,7 @@ describe('Confirm your identity', () => {
             cy.checkA11yApp();
             cy.contains('a', 'Continue').click();
 
-            cy.url().should('contain', '/what-is-vouching');
+            cy.url().should('contain', '/choose-someone-to-vouch-for-you');
             cy.checkA11yApp();
         })
     })
