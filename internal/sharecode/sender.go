@@ -340,7 +340,7 @@ func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType act
 	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 		UID:        lpaUID,
 		ActorType:  actorType.String(),
-		ActorUID:   actoruid.Prefixed(actorUID),
+		ActorUID:   actorUID,
 		AccessCode: shareCode,
 	})
 }
@@ -348,6 +348,6 @@ func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType act
 func (s *Sender) sendAttorneyStarted(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
 	return s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{
 		LpaUID:   lpaUID,
-		ActorUID: actoruid.Prefixed(actorUID),
+		ActorUID: actorUID,
 	})
 }

@@ -62,27 +62,27 @@ var eventTests = map[string]map[string]any{
 	"paper-form-requested": {
 		"certificate provider": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  actoruid.Prefixed(actoruid.New()),
+			ActorUID:  actoruid.New(),
 			ActorType: "certificateProvider",
 		},
 		"attorney": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  actoruid.Prefixed(actoruid.New()),
+			ActorUID:  actoruid.New(),
 			ActorType: "attorney",
 		},
 		"replacement attorney": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  actoruid.Prefixed(actoruid.New()),
+			ActorUID:  actoruid.New(),
 			ActorType: "replacementAttorney",
 		},
 		"trust corporation": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  actoruid.Prefixed(actoruid.New()),
+			ActorUID:  actoruid.New(),
 			ActorType: "trustCorporation",
 		},
 		"replacement trust corporation": PaperFormRequested{
 			UID:       "M-0000-0000-0000",
-			ActorUID:  actoruid.Prefixed(actoruid.New()),
+			ActorUID:  actoruid.New(),
 			ActorType: "replacementTrustCorporation",
 		},
 	},
@@ -94,7 +94,7 @@ var eventTests = map[string]map[string]any{
 	"attorney-started": {
 		"valid": AttorneyStarted{
 			LpaUID:   "M-0000-0000-0000",
-			ActorUID: actoruid.Prefixed(actoruid.New()),
+			ActorUID: actoruid.New(),
 		},
 	},
 	"certificate-provider-started": {
@@ -125,7 +125,7 @@ var eventTests = map[string]map[string]any{
 	"identity-check-mismatched": {
 		"valid": IdentityCheckMismatched{
 			LpaUID:   "M-1111-1111-1111",
-			ActorUID: actoruid.Prefixed(actoruid.New()),
+			ActorUID: actoruid.New(),
 			Provided: IdentityCheckMismatchedDetails{
 				FirstNames:  "a",
 				LastName:    "b",
