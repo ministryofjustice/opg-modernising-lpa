@@ -53,10 +53,10 @@ type NotificationSent struct {
 }
 
 type PaperFormRequested struct {
-	UID        string            `json:"uid"`
-	ActorType  string            `json:"actorType"`
-	ActorUID   actoruid.Prefixed `json:"actorUID"`
-	AccessCode string            `json:"accessCode"`
+	UID        string       `json:"uid"`
+	ActorType  string       `json:"actorType"`
+	ActorUID   actoruid.UID `json:"actorUID"`
+	AccessCode string       `json:"accessCode"`
 }
 
 type PaymentReceived struct {
@@ -70,13 +70,13 @@ type CertificateProviderStarted struct {
 }
 
 type AttorneyStarted struct {
-	LpaUID   string            `json:"uid"`
-	ActorUID actoruid.Prefixed `json:"actorUID"`
+	LpaUID   string       `json:"uid"`
+	ActorUID actoruid.UID `json:"actorUID"`
 }
 
 type IdentityCheckMismatched struct {
 	LpaUID   string                         `json:"uid"`
-	ActorUID actoruid.Prefixed              `json:"actorUID"`
+	ActorUID actoruid.UID                   `json:"actorUID"`
 	Provided IdentityCheckMismatchedDetails `json:"provided"`
 	Verified IdentityCheckMismatchedDetails `json:"verified"`
 }

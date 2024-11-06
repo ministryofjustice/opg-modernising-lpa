@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
@@ -66,7 +65,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		if certificateProvider.IdentityUserData.Status.IsConfirmed() || certificateProvider.IdentityUserData.Status.IsFailed() {
 			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 				LpaUID:   lpa.LpaUID,
-				ActorUID: actoruid.Prefixed(certificateProvider.UID),
+				ActorUID: certificateProvider.UID,
 				Provided: event.IdentityCheckMismatchedDetails{
 					FirstNames:  lpa.CertificateProvider.FirstNames,
 					LastName:    lpa.CertificateProvider.LastName,

@@ -381,7 +381,7 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 		SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:        "lpa-uid",
 			ActorType:  actor.TypeCertificateProvider.String(),
-			ActorUID:   actoruid.Prefixed(actorUID),
+			ActorUID:   actorUID,
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
@@ -755,7 +755,7 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:        "lpa-uid",
 			ActorType:  "attorney",
-			ActorUID:   actoruid.Prefixed(attorney3UID),
+			ActorUID:   attorney3UID,
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
@@ -763,50 +763,50 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:        "lpa-uid",
 			ActorType:  "replacementAttorney",
-			ActorUID:   actoruid.Prefixed(replacement2UID),
+			ActorUID:   replacement2UID,
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(attorney1UID),
+			ActorUID: attorney1UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(attorney2UID),
+			ActorUID: attorney2UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(attorney3UID),
+			ActorUID: attorney3UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(trustCorporationUID),
+			ActorUID: trustCorporationUID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(replacementTrustCorporationUID),
+			ActorUID: replacementTrustCorporationUID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(replacement1UID),
+			ActorUID: replacement1UID,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(replacement2UID),
+			ActorUID: replacement2UID,
 		}).
 		Return(nil)
 
@@ -868,7 +868,7 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:        "lpa-uid",
 			ActorType:  "trustCorporation",
-			ActorUID:   actoruid.Prefixed(uid1),
+			ActorUID:   uid1,
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
@@ -876,20 +876,20 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		SendPaperFormRequested(ctx, event.PaperFormRequested{
 			UID:        "lpa-uid",
 			ActorType:  "replacementTrustCorporation",
-			ActorUID:   actoruid.Prefixed(uid2),
+			ActorUID:   uid2,
 			AccessCode: testRandomString,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(uid1),
+			ActorUID: uid1,
 		}).
 		Return(nil)
 	eventClient.EXPECT().
 		SendAttorneyStarted(ctx, event.AttorneyStarted{
 			LpaUID:   donor.LpaUID,
-			ActorUID: actoruid.Prefixed(uid2),
+			ActorUID: uid2,
 		}).
 		Return(nil)
 
@@ -993,13 +993,13 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 			eventClient.EXPECT().
 				SendAttorneyStarted(ctx, event.AttorneyStarted{
 					LpaUID:   donor.LpaUID,
-					ActorUID: actoruid.Prefixed(uid),
+					ActorUID: uid,
 				}).
 				Return(nil)
 			eventClient.EXPECT().
 				SendAttorneyStarted(ctx, event.AttorneyStarted{
 					LpaUID:   donor.LpaUID,
-					ActorUID: actoruid.Prefixed(uid),
+					ActorUID: uid,
 				}).
 				Return(nil)
 
