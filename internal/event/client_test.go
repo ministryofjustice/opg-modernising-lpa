@@ -49,7 +49,7 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendNotificationSent(ctx, event) }, event
 		},
 		"paper-form-requested": func() (func(*Client) error, any) {
-			event := PaperFormRequested{UID: "a", ActorType: "attorney", ActorUID: actoruid.Prefixed(actoruid.New())}
+			event := PaperFormRequested{UID: "a", ActorType: "attorney", ActorUID: actoruid.New()}
 
 			return func(client *Client) error { return client.SendPaperFormRequested(ctx, event) }, event
 		},
@@ -64,12 +64,12 @@ func TestClientSendEvents(t *testing.T) {
 			return func(client *Client) error { return client.SendCertificateProviderStarted(ctx, event) }, event
 		},
 		"attorney-started": func() (func(*Client) error, any) {
-			event := AttorneyStarted{LpaUID: "a", ActorUID: actoruid.Prefixed(uid)}
+			event := AttorneyStarted{LpaUID: "a", ActorUID: uid}
 
 			return func(client *Client) error { return client.SendAttorneyStarted(ctx, event) }, event
 		},
 		"identity-check-mismatched": func() (func(*Client) error, any) {
-			event := IdentityCheckMismatched{LpaUID: "a", ActorUID: actoruid.Prefixed(uid)}
+			event := IdentityCheckMismatched{LpaUID: "a", ActorUID: uid}
 
 			return func(client *Client) error { return client.SendIdentityCheckMismatched(ctx, event) }, event
 		},

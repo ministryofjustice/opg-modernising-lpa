@@ -17,7 +17,7 @@
     "actorUID": {
       "type": "string",
       "description": "The UID of the actor that needs a paper form",
-      "pattern": "^urn:opg:poas:makeregister:users:([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
+      "pattern": "^([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
     },
     "accessCode": {
       "type": "string",
