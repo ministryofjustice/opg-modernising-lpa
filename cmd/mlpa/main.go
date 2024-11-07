@@ -41,7 +41,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/templatefn"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/mod/sumdb/dirhash"
 )
@@ -124,13 +123,22 @@ func run(ctx context.Context, logger *slog.Logger) error {
 
 	httpClient := &http.Client{Timeout: 30 * time.Second}
 
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to load SDK config: %w", err)
+	}
+
+	if len(awsBaseURL) > 0 {
+		cfg.BaseEndpoint = aws.String(awsBaseURL)
+	}
+
 	if xrayEnabled {
 		resource, err := ecs.NewResourceDetector().Detect(ctx)
 		if err != nil {
 			return err
 		}
 
-		shutdown, err := telemetry.Setup(ctx, resource)
+		shutdown, err := telemetry.Setup(ctx, resource, &cfg.APIOptions)
 		if err != nil {
 			return err
 		}
@@ -194,18 +202,6 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if err != nil {
 		return err
 	}
-
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("unable to load SDK config: %w", err)
-	}
-
-	if len(awsBaseURL) > 0 {
-		cfg.BaseEndpoint = aws.String(awsBaseURL)
-	}
-
-	otelaws.AppendMiddlewares(&cfg.APIOptions)
-	telemetry.AppendMiddlewares(&cfg.APIOptions)
 
 	lpasDynamoClient, err := dynamo.NewClient(cfg, dynamoTableLpas)
 	if err != nil {
