@@ -272,7 +272,6 @@ func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang
 		appData.Query = r.URL.Query()
 		appData.Localizer = localizer
 		appData.Lang = lang
-		appData.CanToggleWelsh = true
 
 		_, cookieErr := r.Cookie("cookies-consent")
 		appData.CookieConsentSet = cookieErr != http.ErrNoCookie
