@@ -1,4 +1,0 @@
-requests==2.32.3
-boto3==1.35.53
-aws-xray-sdk==2.14.0
-awslambdaric==2.2.1
