@@ -5,6 +5,7 @@ coverage:
   ignore:
     - "**/*_test.go"
     - "**/enum_*.go"
+    - "./cmd/create-s3-replication-job/main.go"
     - "./cmd/event-logger/main.go"
     - "./cmd/event-received/main.go"
     - "./cmd/mlpa/main.go"
