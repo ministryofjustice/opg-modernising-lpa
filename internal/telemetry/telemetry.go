@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aws/smithy-go/middleware"
 	"github.com/felixge/httpsnoop"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -20,7 +22,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func Setup(ctx context.Context, resource *resource.Resource) (func(context.Context) error, error) {
+func Setup(ctx context.Context, resource *resource.Resource, apiOptions *[]func(*middleware.Stack) error) (func(context.Context) error, error) {
 	exporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithInsecure(),
 		otlptracegrpc.WithEndpoint("0.0.0.0:4317"))
@@ -41,12 +43,15 @@ func Setup(ctx context.Context, resource *resource.Resource) (func(context.Conte
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
 
+	otelaws.AppendMiddlewares(apiOptions)
+	AppendMiddlewares(apiOptions)
+
 	return tp.Shutdown, nil
 }
 
 // SetupLambda requires an ADOT collector lambda extension to be included in the
 // deployed lambda image for the below instrumentation to work
-func SetupLambda(ctx context.Context) (*sdktrace.TracerProvider, error) {
+func SetupLambda(ctx context.Context, apiOptions *[]func(*middleware.Stack) error) (*sdktrace.TracerProvider, error) {
 	tp, err := xrayconfig.NewTracerProvider(ctx)
 	if err != nil {
 		return nil, err
@@ -54,6 +59,9 @@ func SetupLambda(ctx context.Context) (*sdktrace.TracerProvider, error) {
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(xray.Propagator{})
+
+	otelaws.AppendMiddlewares(apiOptions)
+	AppendMiddlewares(apiOptions)
 
 	return tp, nil
 }
