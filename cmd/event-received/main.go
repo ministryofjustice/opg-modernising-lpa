@@ -26,7 +26,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-sdk-go-v2/otelaws"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
@@ -246,15 +245,13 @@ func main() {
 
 	var tp *trace.TracerProvider
 	if xrayEnabled {
-		tp, err = telemetry.SetupLambda(ctx)
+		tp, err = telemetry.SetupLambda(ctx, &cfg.APIOptions)
 		if err != nil {
 			logger.WarnContext(ctx, "error creating tracer provider", slog.Any("err", err))
 		}
 	}
 
 	if tp != nil {
-		otelaws.AppendMiddlewares(&cfg.APIOptions)
-		telemetry.AppendMiddlewares(&cfg.APIOptions)
 		httpClient.Transport = otelhttp.NewTransport(httpClient.Transport)
 
 		defer func(ctx context.Context) {
