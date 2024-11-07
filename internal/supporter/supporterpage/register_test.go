@@ -28,7 +28,7 @@ func TestRegister(t *testing.T) {
 }
 
 func TestMakeHandle(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/path?a=b", nil)
 
@@ -118,7 +118,7 @@ func TestMakeHandleWhenRequireSessionErrors(t *testing.T) {
 }
 
 func TestMakeSupporterHandle(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -168,7 +168,7 @@ func TestMakeSupporterHandle(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path/xyz", nil)
 
@@ -219,7 +219,7 @@ func TestMakeSupporterHandleWithLpaPath(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -268,7 +268,7 @@ func TestMakeSupporterHandleWhenRequireAdmin(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -300,7 +300,7 @@ func TestMakeSupporterHandleWhenRequireAdminAsNonAdmin(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 
@@ -344,7 +344,7 @@ func TestMakeSupporterHandleWhenSuspended(t *testing.T) {
 }
 
 func TestMakeSupporterHandleWhenSuspendedTemplateErrors(t *testing.T) {
-	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{CanToggleWelsh: true})
+	ctx := appcontext.ContextWithData(context.Background(), appcontext.Data{})
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/supporter/path", nil)
 

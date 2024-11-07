@@ -245,7 +245,6 @@ func TestWithAppData(t *testing.T) {
 					Localizer:        localizer,
 					Lang:             localize.En,
 					CookieConsentSet: tc.cookieConsentSet,
-					CanToggleWelsh:   true,
 				}, appcontext.DataFromContext(hr.Context()))
 				assert.Equal(t, w, hw)
 			})
