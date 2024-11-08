@@ -15,18 +15,14 @@
                 "DonorFullName" .Lpa.Donor.FullName }}
             
             <dl class="govuk-summary-list">
-                {{ template "summary-row" (summaryRow .App "firstNames"
-                    .Lpa.Donor.FirstNames
-                    "" "" false false) }}
-                {{ template "summary-row" (summaryRow .App "lastName"
-                    .Lpa.Donor.LastName
-                    "" "" false false) }}
-                {{ template "summary-row" (summaryRow .App "dateOfBirth"
-                    (formatDate .App .Lpa.Donor.DateOfBirth)
-                    "" "" false false) }}
-                {{ template "address-summary-row" (summaryRow .App "address"
-                    .Lpa.Donor.Address
-                    "" "" false false) }}
+                {{ template "summary-row" (staticSummaryRow .App "firstNames"
+                    .Lpa.Donor.FirstNames) }}
+                {{ template "summary-row" (staticSummaryRow .App "lastName"
+                    .Lpa.Donor.LastName) }}
+                {{ template "summary-row" (staticSummaryRow .App "dateOfBirth"
+                    (formatDate .App .Lpa.Donor.DateOfBirth)) }}
+                {{ template "address-summary-row" (staticSummaryRow .App "address"
+                    .Lpa.Donor.Address) }}
             </dl>
             
             <form novalidate method="post">
@@ -39,8 +35,8 @@
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
                         {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-                            (item .Form.Options.Yes.String "yes")
-                            (item .Form.Options.No.String "no")) }}
+                            (item .Form.Options.Yes.String "yesYdynt")
+                            (item .Form.Options.No.String "noNacYdynt")) }}
                     </fieldset>
                 </div>
 

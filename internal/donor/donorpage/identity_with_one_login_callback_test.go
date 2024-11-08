@@ -135,7 +135,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 	eventClient.EXPECT().
 		SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 			LpaUID:   "lpa-uid",
-			ActorUID: actoruid.Prefixed(actorUID),
+			ActorUID: actorUID,
 			Provided: event.IdentityCheckMismatchedDetails{
 				FirstNames: "John",
 				LastName:   "Doe",
@@ -464,7 +464,7 @@ func TestGetIdentityWithOneLoginCallbackWhenAnyOtherReturnCodeClaimPresent(t *te
 	eventClient.EXPECT().
 		SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 			LpaUID:   "lpa-uid",
-			ActorUID: actoruid.Prefixed(actorUID),
+			ActorUID: actorUID,
 			Provided: event.IdentityCheckMismatchedDetails{
 				FirstNames: "John",
 				LastName:   "Doe",
