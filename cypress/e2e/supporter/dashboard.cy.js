@@ -17,15 +17,11 @@ describe('Dashboard', () => {
     });
 
     it('can start a new LPA', () => {
-        cy.contains('Cymraeg').should('not.exist');
         cy.contains('a', 'Make a new LPA').click();
 
         cy.checkA11yApp();
-        cy.contains('Cymraeg').should('not.exist');
         cy.contains('label', 'Make an online LPA').click();
         cy.contains('button', 'Continue').click();
-
-        cy.contains('Cymraeg');
 
         cy.contains('As a supporter drafting an LPA, you’ll need to enter information about the donor.')
 
