@@ -55,8 +55,8 @@ func TestClientSendRegister(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestClientSendPerfect(t *testing.T) {
-	json := `{"type":"PERFECT","changes":null}`
+func TestClientSendStatutoryWaitingPeriod(t *testing.T) {
+	json := `{"type":"STATUTORY_WAITING_PERIOD","changes":null}`
 
 	ctx := context.Background()
 
@@ -84,7 +84,7 @@ func TestClientSendPerfect(t *testing.T) {
 
 	client := New("http://base", secretsClient, "secret", doer)
 	client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-	err := client.SendPerfect(ctx, "lpa-uid")
+	err := client.SendStatutoryWaitingPeriod(ctx, "lpa-uid")
 
 	assert.Nil(t, err)
 }
