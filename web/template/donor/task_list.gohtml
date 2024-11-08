@@ -1,115 +1,115 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .App.SupporterData }}
-    {{ tr .App "lpaTaskList" }}
-  {{ else }}
-    {{ tr .App "yourTaskList" }}
-  {{ end }}
+    {{ if .App.SupporterData }}
+        {{ tr .App "lpaTaskList" }}
+    {{ else }}
+        {{ tr .App "yourTaskList" }}
+    {{ end }}
 {{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      {{ if .App.SupporterData }}
-        <div class="govuk-breadcrumbs">
-          <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-              <a class="govuk-breadcrumbs__link" href="{{ link .App (global.Paths.Supporter.ViewLPA.Format .Donor.LpaID) }}">{{ trFormat .App "donorsTypeLpa" "DonorFullName" .Donor.Donor.FullName "LpaType" (tr .App .Donor.Type.String) }}</a>
-            </li>
-          </ol>
-        </div>
-
-        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-
-        <div class="govuk-inset-text">
-          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
-              <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
-            </div>
-          </dl>
-        </div>
-      {{ else }}
-        <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String) }}</span>
-        <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-
-        <div class="govuk-inset-text">
-          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
-            </div>
-            <div class="govuk-summary-list__row">
-              <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
-              <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
-            </div>
-          </dl>
-        </div>
-      {{ end }}
-
-      {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
-
-      {{ if .EvidenceReceived }}
-        <p class="govuk-body">
-          {{ tr .App "weHaveReceivedYourEvidence" }}
-        </p>
-      {{ end }}
-
-      {{ range $i, $e := .Sections }}
-        <h2 class="govuk-heading-m">{{ if gt (len $.Sections) 1 }}{{ inc $i }}. {{ end }}{{ tr $.App $e.Heading }}</h2>
-        <ul class="govuk-task-list">
-          {{ range $e.Items }}
-            {{ if not .Hidden }}
-              {{ $hasLink := donorCanGoTo $.Donor .Path }}
-
-              <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
-                <span class="govuk-task-list__name-and-hint">
-                  {{ if $hasLink }}
-                    <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
-                  {{ else }}
-                    <div>{{ tr $.App .Name }}</div>
-                  {{ end }}
-
-                  {{ if gt .Count 0 }}
-                    <div class="govuk-task-list__hint">{{ trFormat $.App "added" "Count" .Count }}</div>
-                  {{ end }}
-                </span>
-
-                <div class="govuk-task-list__status">
-                  {{ if or .State.IsCompleted .PaymentState.IsCompleted .IdentityState.IsCompleted }}
-                    {{ tr $.App "completed" }}
-                  {{ else if or .State.IsInProgress .PaymentState.IsInProgress .PaymentState.IsApproved .IdentityState.IsInProgress }}
-                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
-                  {{ else if .PaymentState.IsPending }}
-                    <strong class="app-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
-                  {{ else if .PaymentState.IsDenied }}
-                    <strong class="app-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
-                  {{ else if .PaymentState.IsMoreEvidenceRequired }}
-                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
-                  {{ else if .IdentityState.IsProblem }}
-                    <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "thereIsAProblem" }}</strong>
-                  {{ else if .IdentityState.IsPending }}
-                      <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
-                  {{ else if not (donorCanGoTo $.Donor .Path) }}
-                    <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
-                  {{ else }}
-                    <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
-                  {{ end }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ if .App.SupporterData }}
+                <div class="govuk-breadcrumbs">
+                    <ol class="govuk-breadcrumbs__list">
+                        <li class="govuk-breadcrumbs__list-item">
+                            <a class="govuk-breadcrumbs__link" href="{{ link .App (global.Paths.Supporter.ViewLPA.Format .Donor.LpaID) }}">{{ trFormat .App "donorsTypeLpa" "DonorFullName" .Donor.Donor.FullName "LpaType" (tr .App .Donor.Type.String) }}</a>
+                        </li>
+                    </ol>
                 </div>
-              </li>
+
+                <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+                <div class="govuk-inset-text">
+                    <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ tr .App .Donor.Type.String }}</dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            {{ else }}
+                <span class="govuk-caption-xl">{{ trFormat .App "makeYourTypeLpa" "Type" (tr .App .Donor.Type.String) }}</span>
+                <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+                <div class="govuk-inset-text">
+                    <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "donor" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ .Donor.Donor.FullName }}</dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ .Donor.LpaUID }}</dd>
+                        </div>
+                    </dl>
+                </div>
             {{ end }}
-          {{ end }}
-        </ul>
-      {{ end }}
+
+            {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
+
+            {{ if .EvidenceReceived }}
+                <p class="govuk-body">
+                    {{ tr .App "weHaveReceivedYourEvidence" }}
+                </p>
+            {{ end }}
+
+            {{ range $i, $_ := .Sections }}
+                <h2 class="govuk-heading-m">{{ if gt (len $.Sections) 1 }}{{ inc $i }}. {{ end }}{{ tr $.App .Heading }}</h2>
+                <ul class="govuk-task-list">
+                    {{ range $j, $_ := .Items }}
+                        {{ if not .Hidden }}
+                            {{ $hasLink := donorCanGoTo $.Donor .Path }}
+
+                            <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
+                                <span class="govuk-task-list__name-and-hint">
+                                    {{ if $hasLink }}
+                                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $j }} {{ if gt .Count 0 }}{{ fieldID "task-hint" $j }}{{ end }}">{{ tr $.App .Name }}</a>
+                                    {{ else }}
+                                        <div aria-describedby="{{ fieldID "status" $j }}">{{ tr $.App .Name }}</div>
+                                    {{ end }}
+
+                                    {{ if gt .Count 0 }}
+                                        <div id="{{ fieldID "task-hint" $j }}" class="govuk-task-list__hint">{{ trFormat $.App "added" "Count" .Count }}</div>
+                                    {{ end }}
+                                </span>
+
+                                <div id="{{ fieldID "status" $j }}" class="govuk-task-list__status">
+                                    {{ if or .State.IsCompleted .PaymentState.IsCompleted .IdentityState.IsCompleted }}
+                                        {{ tr $.App "completed" }}
+                                    {{ else if or .State.IsInProgress .PaymentState.IsInProgress .PaymentState.IsApproved .IdentityState.IsInProgress }}
+                                        <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                                    {{ else if .PaymentState.IsPending }}
+                                        <strong class="app-tag govuk-tag--yellow">{{ tr $.App "pending" }}</strong>
+                                    {{ else if .PaymentState.IsDenied }}
+                                        <strong class="app-tag govuk-tag--red">{{ tr $.App "denied" }}</strong>
+                                    {{ else if .PaymentState.IsMoreEvidenceRequired }}
+                                        <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "evidenceRequired" }}</strong>
+                                    {{ else if .IdentityState.IsProblem }}
+                                        <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "thereIsAProblem" }}</strong>
+                                    {{ else if .IdentityState.IsPending }}
+                                        <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
+                                    {{ else if not (donorCanGoTo $.Donor .Path) }}
+                                        <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
+                                    {{ else }}
+                                        <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
+                                    {{ end }}
+                                </div>
+                            </li>
+                        {{ end }}
+                    {{ end }}
+                </ul>
+            {{ end }}
+        </div>
     </div>
-  </div>
 {{ end }}
