@@ -61,7 +61,7 @@ var progressValues = []string{
 	"signedByCertificateProvider",
 	"signedByAttorneys",
 	"submitted",
-	"perfect",
+	"statutoryWaitingPeriod",
 	"withdrawn",
 	"certificateProviderOptedOut",
 	"registered",
@@ -575,11 +575,11 @@ func updateLPAProgress(
 		donorDetails.SubmittedAt = time.Now()
 	}
 
-	if data.Progress >= slices.Index(progressValues, "perfect") {
+	if data.Progress >= slices.Index(progressValues, "statutoryWaitingPeriod") {
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
-			return client.SendPerfect(ctx, donorDetails.LpaUID)
+			return client.SendStatutoryWaitingPeriod(ctx, donorDetails.LpaUID)
 		})
-		donorDetails.PerfectAt = time.Now()
+		donorDetails.StatutoryWaitingPeriodAt = time.Now()
 	}
 
 	if data.Progress == slices.Index(progressValues, "withdrawn") {

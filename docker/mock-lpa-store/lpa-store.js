@@ -67,12 +67,12 @@ switch (context.request.method) {
                     lpa.certificateProvider.signedAt = signedAt;
                     break;
 
-                case 'PERFECT':
-                    lpa.status = 'perfect';
+                case 'STATUTORY_WAITING_PERIOD':
+                    lpa.status = 'statutory-waiting-period';
                     break;
 
                 case 'REGISTER':
-                    if (lpa.status === 'perfect') {
+                    if (lpa.status === 'statutory-waiting-period') {
                         lpa.status = 'registered';
                         lpa.registrationDate = new Date(Date.now()).toISOString();
                     }

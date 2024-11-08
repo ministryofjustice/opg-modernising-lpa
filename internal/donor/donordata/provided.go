@@ -122,8 +122,9 @@ type Provided struct {
 	SubmittedAt time.Time
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time
-	// PerfectAt is when the Lpa transitioned to the PERFECT status in the lpa-store
-	PerfectAt time.Time
+	// StatutoryWaitingPeriodAt is when the Lpa transitioned to the STATUTORY_WAITING_PERIOD
+	// status in the lpa-store
+	StatutoryWaitingPeriodAt time.Time
 	// RegisteringWithCourtOfProtection is set when the donor wishes to take the
 	// Lpa to the Court of Protection for registration.
 	RegisteringWithCourtOfProtection bool
@@ -198,7 +199,7 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"SignedAt",
 		"SubmittedAt",
 		"WithdrawnAt",
-		"PerfectAt",
+		"StatutoryWaitingPeriodAt",
 		"CertificateProviderCodes",
 		"WitnessedByCertificateProviderAt",
 		"IndependentWitnessCodes",

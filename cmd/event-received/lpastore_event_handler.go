@@ -32,7 +32,7 @@ func handleLpaUpdated(ctx context.Context, client dynamodbClient, event *events.
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
 
-	if v.ChangeType != "PERFECT" {
+	if v.ChangeType != "STATUTORY_WAITING_PERIOD" {
 		return nil
 	}
 
@@ -41,7 +41,7 @@ func handleLpaUpdated(ctx context.Context, client dynamodbClient, event *events.
 		return err
 	}
 
-	donor.PerfectAt = now()
+	donor.StatutoryWaitingPeriodAt = now()
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update donor details: %w", err)

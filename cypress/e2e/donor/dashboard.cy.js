@@ -43,7 +43,7 @@ describe('Dashboard', () => {
         });
     });
 
-    context('with perfect LPA', () => {
+    context('with statutory waiting period LPA', () => {
         it('shows the correct options', () => {
             cy.visit('/fixtures?redirect=&progress=submitted');
 

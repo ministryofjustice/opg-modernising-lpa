@@ -82,7 +82,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 	lpa.LpaOwnerKey = donor.SK
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
-	lpa.PerfectAt = donor.PerfectAt
+	lpa.StatutoryWaitingPeriodAt = donor.StatutoryWaitingPeriodAt
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Drafted = true
 		lpa.Submitted = true
