@@ -23,14 +23,14 @@ func TestLpaStoreEventHandlerHandleUnknownEvent(t *testing.T) {
 func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"STATUTORY_WAITING_PERIOD"}`),
 	}
 
 	updated := &donordata.Provided{
-		PK:        dynamo.LpaKey("123"),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		PerfectAt: testNow,
-		UpdatedAt: testNow,
+		PK:                       dynamo.LpaKey("123"),
+		SK:                       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		StatutoryWaitingPeriodAt: testNow,
+		UpdatedAt:                testNow,
 	}
 	updated.UpdateHash()
 
@@ -63,7 +63,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdated(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotPerfect(t *testing.T) {
+func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotStatutoryWaitingPeriod(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"WHAT"}`),
@@ -82,14 +82,14 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotPerfect(t *testing
 func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"STATUTORY_WAITING_PERIOD"}`),
 	}
 
 	updated := &donordata.Provided{
-		PK:        dynamo.LpaKey("123"),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		PerfectAt: testNow,
-		UpdatedAt: testNow,
+		PK:                       dynamo.LpaKey("123"),
+		SK:                       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		StatutoryWaitingPeriodAt: testNow,
+		UpdatedAt:                testNow,
 	}
 	updated.UpdateHash()
 
@@ -111,14 +111,14 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoGetErrors(t *testing.T) {
 func TestLpaStoreEventHandlerHandleLpaUpdatedWhenDynamoPutErrors(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "lpa-updated",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"PERFECT"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"STATUTORY_WAITING_PERIOD"}`),
 	}
 
 	updated := &donordata.Provided{
-		PK:        dynamo.LpaKey("123"),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-		PerfectAt: testNow,
-		UpdatedAt: testNow,
+		PK:                       dynamo.LpaKey("123"),
+		SK:                       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		StatutoryWaitingPeriodAt: testNow,
+		UpdatedAt:                testNow,
 	}
 	updated.UpdateHash()
 

@@ -192,12 +192,12 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 
 	progress.LpaSubmitted.State = StateCompleted
 
-	if lpa.PerfectAt.IsZero() {
+	if lpa.StatutoryWaitingPeriodAt.IsZero() {
 		return progress
 	}
 
 	progress.NoticesOfIntentSent.Label = pt.Localizer.Format(labels["noticesOfIntentSent"], map[string]any{
-		"SentOn": pt.Localizer.FormatDate(lpa.PerfectAt),
+		"SentOn": pt.Localizer.FormatDate(lpa.StatutoryWaitingPeriodAt),
 	})
 	progress.NoticesOfIntentSent.State = StateCompleted
 	progress.StatutoryWaitingPeriod.State = StateInProgress

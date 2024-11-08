@@ -245,7 +245,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 					Return("AttorneysSigned translation")
 			},
 		},
-		"perfect": {
+		"statutory waiting period": {
 			lpa: &lpadata.Lpa{
 				Paid:                             true,
 				Donor:                            lpadata.Donor{FirstNames: "a", LastName: "b"},
@@ -254,7 +254,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Submitted:                        true,
-				PerfectAt:                        lpaSignedAt,
+				StatutoryWaitingPeriodAt:         lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -276,11 +276,11 @@ func TestProgressTrackerProgress(t *testing.T) {
 					Count("attorneysHaveDeclared", 1).
 					Return("AttorneysSigned translation")
 				localizer.EXPECT().
-					Format("weSentAnEmailYourLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Format("weSentAnEmailYourLpaIsReadyToRegister", map[string]any{"SentOn": "statutory-waiting-period-on"}).
 					Return("NoticesOfIntentSent translation")
 				localizer.EXPECT().
 					FormatDate(lpaSignedAt).
-					Return("perfect-on")
+					Return("statutory-waiting-period-on")
 			},
 		},
 		"registered": {
@@ -292,7 +292,7 @@ func TestProgressTrackerProgress(t *testing.T) {
 				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid1, SignedAt: lpaSignedAt.Add(time.Minute)}}},
 				CertificateProvider:              lpadata.CertificateProvider{SignedAt: lpaSignedAt},
 				Submitted:                        true,
-				PerfectAt:                        lpaSignedAt,
+				StatutoryWaitingPeriodAt:         lpaSignedAt,
 				RegisteredAt:                     lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
@@ -316,11 +316,11 @@ func TestProgressTrackerProgress(t *testing.T) {
 					Count("attorneysHaveDeclared", 1).
 					Return("AttorneysSigned translation")
 				localizer.EXPECT().
-					Format("weSentAnEmailYourLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Format("weSentAnEmailYourLpaIsReadyToRegister", map[string]any{"SentOn": "statutory-waiting-period-on"}).
 					Return("NoticesOfIntentSent translation")
 				localizer.EXPECT().
 					FormatDate(lpaSignedAt).
-					Return("perfect-on")
+					Return("statutory-waiting-period-on")
 			},
 		},
 	}
@@ -525,7 +525,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				return progress
 			},
 		},
-		"perfect": {
+		"statutory waiting period": {
 			lpa: &lpadata.Lpa{
 				IsOrganisationDonor: true,
 				Donor: lpadata.Donor{
@@ -540,7 +540,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Submitted:                        true,
-				PerfectAt:                        lpaSignedAt,
+				StatutoryWaitingPeriodAt:         lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
 				progress := initialProgress
@@ -558,11 +558,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			setupLocalizer: func(localizer *mockLocalizer) {
 				localizer.EXPECT().
-					Format("weSentAnEmailTheLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Format("weSentAnEmailTheLpaIsReadyToRegister", map[string]any{"SentOn": "statutory-waiting-period-on"}).
 					Return("NoticesOfIntentSent translation")
 				localizer.EXPECT().
 					FormatDate(lpaSignedAt).
-					Return("perfect-on")
+					Return("statutory-waiting-period-on")
 			},
 		},
 		"registered": {
@@ -580,7 +580,7 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Submitted:                        true,
-				PerfectAt:                        lpaSignedAt,
+				StatutoryWaitingPeriodAt:         lpaSignedAt,
 				RegisteredAt:                     lpaSignedAt,
 			},
 			expectedProgress: func() Progress {
@@ -600,11 +600,11 @@ func TestLpaProgressAsSupporter(t *testing.T) {
 			},
 			setupLocalizer: func(localizer *mockLocalizer) {
 				localizer.EXPECT().
-					Format("weSentAnEmailTheLpaIsReadyToRegister", map[string]any{"SentOn": "perfect-on"}).
+					Format("weSentAnEmailTheLpaIsReadyToRegister", map[string]any{"SentOn": "statutory-waiting-period-on"}).
 					Return("NoticesOfIntentSent translation")
 				localizer.EXPECT().
 					FormatDate(lpaSignedAt).
-					Return("perfect-on")
+					Return("statutory-waiting-period-on")
 			},
 		},
 	}
