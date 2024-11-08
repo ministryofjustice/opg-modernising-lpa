@@ -19,9 +19,11 @@
         {{ end }}
 
         <div class="govuk-form-group {{ if .Errors.Has "restrictions" }}govuk-form-group--error{{ end }}">
-          <label class="govuk-label govuk-label--m" for="f-restrictions">{{ tr .App "restrictionsOptional" }}</label>
+          <label class="govuk-label govuk-label--m" for="f-restrictions" aria-describedby="restrictions-hint">
+              {{ tr .App "restrictionsOptional" }}
+          </label>
           <p class="govuk-body">{{ tr .App "restrictionsHelp" }}</p>
-          <div class="govuk-hint">{{ tr .App "restrictionsHint" }}</div>
+          <div id="restrictions-hint" class="govuk-hint">{{ tr .App "restrictionsHint" }}</div>
           {{ template "error-message" (errorMessage . "restrictions") }}
           <textarea class="govuk-textarea {{ if .Errors.Has "restrictions" }}govuk-textarea--error{{ end }}" id="f-restrictions" name="restrictions" rows="5">{{ .Donor.Restrictions }}</textarea>
         </div>
