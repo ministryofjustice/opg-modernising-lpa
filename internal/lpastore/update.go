@@ -64,9 +64,9 @@ func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
 }
 
-func (c *Client) SendPerfect(ctx context.Context, lpaUID string) error {
+func (c *Client) SendStatutoryWaitingPeriod(ctx context.Context, lpaUID string) error {
 	body := updateRequest{
-		Type: "PERFECT",
+		Type: "STATUTORY_WAITING_PERIOD",
 	}
 
 	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)

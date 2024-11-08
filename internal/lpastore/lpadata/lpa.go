@@ -16,7 +16,7 @@ type Lpa struct {
 	LpaUID                                     string
 	RegisteredAt                               time.Time
 	WithdrawnAt                                time.Time
-	PerfectAt                                  time.Time
+	StatutoryWaitingPeriodAt                   time.Time
 	UpdatedAt                                  time.Time
 	Type                                       LpaType
 	Donor                                      Donor
