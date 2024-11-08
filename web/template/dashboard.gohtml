@@ -16,7 +16,7 @@
                         <strong class="app-tag govuk-tag--red">{{ tr .App "cannotRegister" }}</strong>
                     {{ else if not .Item.Lpa.RegisteredAt.IsZero }}
                         <strong class="app-tag govuk-tag--green">{{ tr .App "registered" }}</strong>
-                    {{ else if not .Item.Lpa.PerfectAt.IsZero }}
+                    {{ else if not .Item.Lpa.StatutoryWaitingPeriodAt.IsZero }}
                         <strong class="app-tag govuk-tag--turquoise">{{ tr .App "waitingPeriod" }}</strong>
                     {{ else if .Item.Lpa.Drafted }}
                         <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
