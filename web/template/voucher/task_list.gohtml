@@ -9,19 +9,19 @@
             <h1 class="govuk-heading-xl">{{ tr .App "yourTaskList" }}</h1>
 
             <ul class="govuk-task-list">
-                {{ range .Items }}
+                {{ range $i, $_ := .Items }}
                     {{ $hasLink := .Path.CanGoTo $.Voucher }}
                     
                     <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                         <span class="govuk-task-list__name-and-hint">
                             {{ if $hasLink }}
-                                <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link">{{ tr $.App .Name }}</a>
+                                <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</a>
                             {{ else }}
-                                <div>{{ tr $.App .Name }}</div>
+                                <div aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</div>
                             {{ end }}
                         </span>
 
-                        <div class="govuk-task-list__status">
+                        <div id="{{ fieldID "status" $i }}" class="govuk-task-list__status">
                             {{ if or .State.IsCompleted }}
                                 {{ tr $.App "completed" }}
                             {{ else if or .State.IsInProgress }}
