@@ -3,45 +3,45 @@
 {{ define "pageTitle" }}{{ tr .App "wantReplacementAttorneys" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
-            </legend>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ $hasError := .Errors.Has .Form.FieldName }}
+                <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="{{.Form.FieldName}}-error"{{ end }}>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ tr .App "wantReplacementAttorneys" }}</h1>
+                        </legend>
 
-            <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
+                        <p class="govuk-body-l">{{ tr .App "replacementAttorneysStepIn" }}</p>
 
-            <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" .Donor.Attorneys.Len "AttorneysFullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</p>
+                        <p class="govuk-body">{{ trFormatCount .App "replacementAttorneysStepInExplanation" .Donor.Attorneys.Len "AttorneysFullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</p>
 
-            <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
+                        <p class="govuk-body">{{ tr .App "replacementAttorneyRequirements" }}</p>
 
-            {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
+                        {{ trHtml .App "findOutMoreAboutReplacementAttorneysContent" }}
 
-            {{ if .Donor.AttorneyDecisions.How.IsJointly }}
-              {{ template "warning" (content .App "jointlyReplacementWarning") }}
-              {{ trHtml .App "jointlyReplacementWarningContent" }}
-            {{ else if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
-              {{ template "warning" (content .App "mixedReplacementWarning") }}
-              {{ trHtml .App "mixedReplacementWarningContent" }}
-            {{ end }}
+                        {{ if .Donor.AttorneyDecisions.How.IsJointly }}
+                            {{ template "warning" (content .App "jointlyReplacementWarning") }}
+                            {{ trHtml .App "jointlyReplacementWarningContent" }}
+                        {{ else if .Donor.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
+                            {{ template "warning" (content .App "mixedReplacementWarning") }}
+                            {{ trHtml .App "mixedReplacementWarningContent" }}
+                        {{ end }}
 
-            {{ template "error-message" (errorMessage . .Form.FieldName) }}
+                        {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-            {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-              (item .Form.Options.Yes.String "yesReplacementAttorneys")
-              (item .Form.Options.No.String "noReplacementAttorneys")
-            ) }}
-          </fieldset>
+                        {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
+                            (item .Form.Options.Yes.String "yesReplacementAttorneys")
+                            (item .Form.Options.No.String "noReplacementAttorneys")
+                            ) }}
+                    </fieldset>
+                </div>
+
+                {{ template "button" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
-        </div>
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
+

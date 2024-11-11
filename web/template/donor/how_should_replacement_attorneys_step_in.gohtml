@@ -11,7 +11,7 @@
 
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "when-to-step-in" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
+          <fieldset class="govuk-fieldset" {{ if .Errors.Has "when-to-step-in" }}aria-describedby="when-to-step-in-error"{{ end }}>
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
               {{ tr .App "howShouldYourReplacementAttorneysStepIn" }}
             </legend>
@@ -40,7 +40,7 @@
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="when-to-step-in-3-conditional-div">
                 <div class="govuk-form-group {{ if .Errors.Has "other-details" }}govuk-form-group--error{{ end }}">
                   <p class="govuk-body">{{ tr .App "otherWayHint" }}</p>
-                  <label class="govuk-label" for="f-other-details">
+                  <label class="govuk-label" for="f-other-details" {{ if .Errors.Has "other-details" }}aria-describedby="other-details-error"{{ end }}>
                     {{ tr .App "details" }}
                   </label>
                   {{ template "error-message" (errorMessage . "other-details") }}

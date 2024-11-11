@@ -3,37 +3,38 @@
 {{ define "pageTitle" }}{{ tr .App "enterCorrespondentDetails" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <h1 class="govuk-heading-xl">{{ tr .App "enterCorrespondentDetails" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                <h1 class="govuk-heading-xl">{{ tr .App "enterCorrespondentDetails" }}</h1>
 
-        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
-        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
-        {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-25" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-        {{ template "input" (input . "organisation" "organisationOptional" .Form.Organisation "classes" "govuk-input--width-25") }}
-        {{ template "input" (input . "phone" "phoneNumberOptional" .Form.Phone "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
+                {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
+                {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+                {{ template "input" (input . "email" "email" .Form.Email "classes" "govuk-input--width-25" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+                {{ template "input" (input . "organisation" "organisationOptional" .Form.Organisation "classes" "govuk-input--width-25") }}
+                {{ template "input" (input . "phone" "phoneNumberOptional" .Form.Phone "classes" "govuk-input--width-20 govuk-input--extra-letter-spacing" "type" "tel" "autocomplete" "tel") }}
 
-        <div class="govuk-form-group {{ if .Errors.Has .Form.WantAddress.FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset" aria-describedby="address-hint">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-              {{ tr .App "wouldYouLikeToAddAddress" }}
-            </legend>
+                {{ $hasError := .Errors.Has .Form.WantAddress.FieldName }}
+                <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset" aria-describedby="address-hint {{ if $hasError }}{{.Form.WantAddress.FieldName}}-error{{ end }}">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            {{ tr .App "wouldYouLikeToAddAddress" }}
+                        </legend>
 
-            <div id="address-hint" class="govuk-hint">{{ tr .App "wouldYouLikeToAddAddressHint" }}</div>
+                        <div id="address-hint" class="govuk-hint">{{ tr .App "wouldYouLikeToAddAddressHint" }}</div>
 
-            {{ template "error-message" (errorMessage . .Form.WantAddress.FieldName) }}
+                        {{ template "error-message" (errorMessage . .Form.WantAddress.FieldName) }}
 
-            {{ template "radios" (items . .Form.WantAddress.FieldName .Form.WantAddress.YesNo.String
-              (item .Form.WantAddress.Options.Yes.String "yes")
-              (item .Form.WantAddress.Options.No.String "no")
-            ) }}
-          </fieldset>
+                        {{ template "radios" (items . .Form.WantAddress.FieldName .Form.WantAddress.YesNo.String
+                            (item .Form.WantAddress.Options.Yes.String "yes")
+                            (item .Form.WantAddress.Options.No.String "no")
+                            ) }}
+                    </fieldset>
+                </div>
+
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
