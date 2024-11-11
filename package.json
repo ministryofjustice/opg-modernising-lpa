@@ -15,7 +15,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@ministryofjustice/frontend": "2.2.5",
+        "@ministryofjustice/frontend": "3.0.2",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.24.0",
         "govuk-frontend": "5.7.1",
