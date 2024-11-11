@@ -3,36 +3,29 @@
 {{ define "pageTitle" }}{{ tr .App "confirmIfTheDonorCanInteractOnline" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-      {{ trHtml .App "confirmIfTheDonorCanInteractOnlineContent" }}
+            {{ trHtml .App "confirmIfTheDonorCanInteractOnlineContent" }}
 
-      {{ template "warning" (content .App "youCannotSwitchBetweenPaperAndOnlineWarning") }}
+            {{ template "warning" (content .App "youCannotSwitchBetweenPaperAndOnlineWarning") }}
 
-      {{ trHtml .App "checkTheDonorCanInteractOnlineContent" }}
-      
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "howWouldYouLikeToContinue" }}</legend>
-
-            {{ template "error-message" (errorMessage . .Form.FieldName) }}
+            {{ trHtml .App "checkTheDonorCanInteractOnlineContent" }}
             
-            {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-              (item .Form.Options.Yes.String "makeAnOnlineLPA" "hint" "chooseThisIfYourDonorCanInteractOnline")
-              (item .Form.Options.No.String "offlineUsingPaperFormsAndByPhone" "hint" "wellGiveYouMoreInformationAboutHowToGetPaperForms")
-            ) }}
-          </fieldset>
-        </div>
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                    (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
+                    (item .Form.Options.Yes.String "makeAnOnlineLPA" "hint" "chooseThisIfYourDonorCanInteractOnline")
+                    (item .Form.Options.No.String "offlineUsingPaperFormsAndByPhone" "hint" "wellGiveYouMoreInformationAboutHowToGetPaperForms")
+                    ) }}
 
-        <div class="govuk-button-group">
-          {{ template "continue-button" . }}
-          <a href="{{ link .App global.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+                <div class="govuk-button-group">
+                    {{ template "continue-button" . }}
+                    <a href="{{ link .App global.Paths.Supporter.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToDashboard" }}</a>
+                </div>
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

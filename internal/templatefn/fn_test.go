@@ -597,3 +597,30 @@ func TestStaticSummaryRow(t *testing.T) {
 		"Static": true,
 	}, staticSummaryRow(app, label, value))
 }
+
+func TestLegend(t *testing.T) {
+	assert.Equal(t, legendData{
+		Label:   "a-label",
+		Classes: "class-1 class-2",
+	}, legend("a-label", "class-1", "class-2"))
+}
+
+func TestLegendHeading(t *testing.T) {
+	assert.Equal(t, legendData{
+		Label:   "a-label",
+		Classes: "class-1 class-2",
+		H1:      true,
+	}, legendHeading("a-label", "class-1", "class-2"))
+}
+
+func TestFieldset(t *testing.T) {
+	aLegend := legend("a-label")
+	anItem := item("a-value", "another-label")
+
+	assert.Equal(t, fieldsetData{
+		Top:    "top",
+		Name:   "a-name",
+		Legend: aLegend,
+		Items:  items("top", "a-name", "a-value", anItem),
+	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
+}
