@@ -1,4 +1,4 @@
-FROM outofcoffee/imposter:4.2.0
+FROM outofcoffee/imposter:4.2.1
 
 COPY ./docker/mock-pay /opt/imposter/config/
 

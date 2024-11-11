@@ -1,4 +1,4 @@
-FROM golang:1.23.2-alpine AS build
+FROM golang:1.23.3-alpine AS build
 
 RUN apk add --no-cache zip=3.0-r12 unzip=6.0-r14
 
