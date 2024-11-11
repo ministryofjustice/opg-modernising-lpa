@@ -1,115 +1,117 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ if .App.IsTrustCorporation }}
-    {{ tr .App "signOnBehalfOfTrustCorporation" }}
-  {{ else if .IsReplacement }}
-    {{ tr .App "signAsReplacementAttorney" }}
-  {{ else }}
-    {{ tr .App "signAsAttorney" }}
-  {{ end }}
+    {{ if .App.IsTrustCorporation }}
+        {{ tr .App "signOnBehalfOfTrustCorporation" }}
+    {{ else if .IsReplacement }}
+        {{ tr .App "signAsReplacementAttorney" }}
+    {{ else }}
+        {{ tr .App "signAsAttorney" }}
+    {{ end }}
 {{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">
-        {{ template "pageTitle" . }}
-      </h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">
+                {{ template "pageTitle" . }}
+            </h1>
 
-      {{ if .App.IsTrustCorporation }}
-        {{ if .IsSecondSignatory }}
-          <p class="govuk-body">
-            <a href="{{ link .App (global.Paths.Attorney.WouldLikeSecondSignatory.Format .LpaID) }}" class="govuk-link">
-              {{ tr .App "theTrustCorporationNoLongerRequiresSecondSignatory" }}
-            </a>
-          </p>
-        {{ else }}
-          <p class="govuk-body">{{ tr .App "youCanChooseToAddSignatoryOnNextPage" }}</p>
-        {{ end }}
-      {{ end }}
-
-      {{ template "warning" (content .App "lpaCantBeRegisteredUntilAttorneysSign") }}
-
-      <form novalidate method="post">
-        {{ if .App.IsTrustCorporation }}
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-              {{ tr .App "authorisedSignatory" }}
-            </legend>
-
-            {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
-            {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
-            {{ template "input" (input . "professional-title" "professionalTitle" .Form.ProfessionalTitle "hint" "professionalTitleHint" "classes" "govuk-input--width-20") }}
-          </fieldset>
-        {{ end }}
-
-        <p class="govuk-body govuk-!-font-weight-bold">
-          {{ tr .App "bySigningIUnderstandAndConfirmAllOfTheFollowing" }}
-        </p>
-
-        <ul class="govuk-list govuk-list--bullet">
-          {{ if .App.IsTrustCorporation }}
-            {{ trHtml .App "signAsTrustCorporationBullets" }}
-          {{ else }}
-            {{ trHtml .App "signAsAttorneyBullets" }}
-          {{ end }}
-          <li>
-            {{ if .LpaCanBeUsedWhenHasCapacity }}
-              {{ if .App.IsTrustCorporation }}
-                {{ tr .App "signAsTrustCorporationWhenRegisteredBullet" }}
-              {{ else }}
-                {{ tr .App "signAsAttorneyWhenRegisteredBullet" }}
-              {{ end }}
-            {{ else }}
-              {{ if .App.IsTrustCorporation }}
-                {{ tr .App "signAsTrustCorporationWhenCapacityLostBullet" }}
-              {{ else }}
-                {{ tr .App "signAsAttorneyWhenCapacityLostBullet" }}
-              {{ end }}
-            {{ end }}
-          </li>
-        </ul>
-
-        {{ if .IsReplacement }}
             {{ if .App.IsTrustCorporation }}
-                {{ trFormatHtml .App "asReplacementTrustCorporationAlsoConfirmThat" "Name" .TrustCorporation.Name }}
-            {{ else }}
-                {{ trHtml .App "asReplacementAttorneyAlsoConfirmThat" }}
+                {{ if .IsSecondSignatory }}
+                    <p class="govuk-body">
+                        <a href="{{ link .App (global.Paths.Attorney.WouldLikeSecondSignatory.Format .LpaID) }}" class="govuk-link">
+                            {{ tr .App "theTrustCorporationNoLongerRequiresSecondSignatory" }}
+                        </a>
+                    </p>
+                {{ else }}
+                    <p class="govuk-body">{{ tr .App "youCanChooseToAddSignatoryOnNextPage" }}</p>
+                {{ end }}
             {{ end }}
-        {{ end }}
 
-        <div class="govuk-summary-card">
-          <div class="govuk-summary-card__title-wrapper">
-            <span class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
-          </div>
-          <div class="govuk-summary-card__content">
-            <div class="govuk-form-group  govuk-!-margin-bottom-0 {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
-              {{ template "error-message" (errorMessage . "confirm") }}
+            {{ template "warning" (content .App "lpaCantBeRegisteredUntilAttorneysSign") }}
 
-              <div class="govuk-checkboxes">
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
-                  <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+            <form novalidate method="post">
+                {{ if .App.IsTrustCorporation }}
+                    <fieldset class="govuk-fieldset">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                            {{ tr .App "authorisedSignatory" }}
+                        </legend>
+
+                        {{ template "input" (input . "first-names" "firstNames" .Form.FirstNames "classes" "govuk-input--width-20" "hint" "firstNamesHint") }}
+                        {{ template "input" (input . "last-name" "lastName" .Form.LastName "classes" "govuk-input--width-20") }}
+                        {{ template "input" (input . "professional-title" "professionalTitle" .Form.ProfessionalTitle "hint" "professionalTitleHint" "classes" "govuk-input--width-20") }}
+                    </fieldset>
+                {{ end }}
+
+                <p class="govuk-body govuk-!-font-weight-bold">
+                    {{ tr .App "bySigningIUnderstandAndConfirmAllOfTheFollowing" }}
+                </p>
+
+                <ul class="govuk-list govuk-list--bullet">
                     {{ if .App.IsTrustCorporation }}
-                      {{ trFormat .App "iTrustCorporationConfirmTheseStatements" "TrustCorporationName" .TrustCorporation.Name }}
+                        {{ trHtml .App "signAsTrustCorporationBullets" }}
                     {{ else }}
-                      {{ trFormat .App "iAttorneyConfirmTheseStatements" "AttorneyFullName" .Attorney.FullName }}
+                        {{ trHtml .App "signAsAttorneyBullets" }}
                     {{ end }}
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                    <li>
+                        {{ if .LpaCanBeUsedWhenHasCapacity }}
+                            {{ if .App.IsTrustCorporation }}
+                                {{ tr .App "signAsTrustCorporationWhenRegisteredBullet" }}
+                            {{ else }}
+                                {{ tr .App "signAsAttorneyWhenRegisteredBullet" }}
+                            {{ end }}
+                        {{ else }}
+                            {{ if .App.IsTrustCorporation }}
+                                {{ tr .App "signAsTrustCorporationWhenCapacityLostBullet" }}
+                            {{ else }}
+                                {{ tr .App "signAsAttorneyWhenCapacityLostBullet" }}
+                            {{ end }}
+                        {{ end }}
+                    </li>
+                </ul>
 
-        <div class="govuk-button-group">
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "submitSignature" }}</button>
-          <a href="{{ link .App (global.Paths.Attorney.ConfirmDontWantToBeAttorney.Format .LpaID) }}" class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "iDoNotWantToBeAttorney" }}</a>
+                {{ if .IsReplacement }}
+                    {{ if .App.IsTrustCorporation }}
+                        {{ trFormatHtml .App "asReplacementTrustCorporationAlsoConfirmThat" "Name" .TrustCorporation.Name }}
+                    {{ else }}
+                        {{ trHtml .App "asReplacementAttorneyAlsoConfirmThat" }}
+                    {{ end }}
+                {{ end }}
+
+                <div class="govuk-summary-card">
+                    <div class="govuk-summary-card__title-wrapper">
+                        <span id="fieldset-legend" class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
+                    </div>
+                    <div class="govuk-summary-card__content">
+                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
+                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if .Errors.Has "confirm" }}aria-describedby="confirm-error"{{ end }}>
+                                {{ template "error-message" (errorMessage . "confirm") }}
+
+                                <div class="govuk-checkboxes">
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+                                            {{ if .App.IsTrustCorporation }}
+                                                {{ trFormat .App "iTrustCorporationConfirmTheseStatements" "TrustCorporationName" .TrustCorporation.Name }}
+                                            {{ else }}
+                                                {{ trFormat .App "iAttorneyConfirmTheseStatements" "AttorneyFullName" .Attorney.FullName }}
+                                            {{ end }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "submitSignature" }}</button>
+                    <a href="{{ link .App (global.Paths.Attorney.ConfirmDontWantToBeAttorney.Format .LpaID) }}" class="govuk-button govuk-button--warning" data-module="govuk-button">{{ tr .App "iDoNotWantToBeAttorney" }}</a>
+                </div>
+                
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-        
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

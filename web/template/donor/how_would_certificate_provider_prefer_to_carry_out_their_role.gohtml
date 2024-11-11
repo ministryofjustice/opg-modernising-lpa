@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <form novalidate method="post">
         <div class="govuk-form-group {{ if .Errors.Has "carry-out-by" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
+          <fieldset class="govuk-fieldset" {{ if .Errors.Has "carry-out-by" }}aria-describedby="carry-out-by-error"{{ end }}>
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
               <h1 class="govuk-fieldset__heading govuk-!-margin-bottom-6">{{ trFormat .App "howWouldCertificateProviderPreferToCarryOutTheirRole" "FirstNames" .CertificateProvider.FirstNames }}</h1>
             </legend>

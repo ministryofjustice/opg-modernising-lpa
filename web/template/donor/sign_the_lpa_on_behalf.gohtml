@@ -3,81 +3,84 @@
 {{ define "pageTitle" }}{{ tr .App "signYourLpa" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "signYourLpa" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "signYourLpa" }}</h1>
 
-      <h2 class="govuk-heading-m">{{ tr .App "signingYourLpaIsAnImportant" }}</h2>
+            <h2 class="govuk-heading-m">{{ tr .App "signingYourLpaIsAnImportant" }}</h2>
 
-      {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
+            {{ template "details" (details . "whatHappensIfIWantToMakeChanges" "whatHappensIfIWantToMakeChangesContent" false) }}
 
-      <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Donor.Donor.FullName }}</p>
+            <p class="govuk-body govuk-!-font-weight-bold">{{ trFormat .App "bySigningOnBehalfIConfirm" "DonorFullName" .Donor.Donor.FullName }}</p>
 
-      <ul class="govuk-list govuk-list--bullet">
-        <li>{{ tr .App "iHaveReadLpa" }}</li>
-        {{ if .Donor.Type.IsPersonalWelfare }}
-          <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" (tr .App .Donor.Type.String) }}</li>
-        {{ else }}
-          {{ if .Donor.WhenCanTheLpaBeUsed.IsHasCapacity }}
-            <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
-          {{ else }}
-            <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
-          {{ end }}
-        {{ end }}
-        {{ if .Donor.Type.IsPersonalWelfare }}
-          {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
-            <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
-          {{ else }}
-            <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
-          {{ end }}
-        {{ end }}
-        {{ if gt (len .Donor.PeopleToNotify) 0 }}
-          <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Donor.PeopleToNotify) }}</li>
-        {{ else }}
-          <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
-        {{ end }}
-        <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
-      </ul>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>{{ tr .App "iHaveReadLpa" }}</li>
+                {{ if .Donor.Type.IsPersonalWelfare }}
+                    <li>{{ trFormat .App "iGiveAttorneysAuthority" "LpaType" (tr .App .Donor.Type.String) }}</li>
+                {{ else }}
+                    {{ if .Donor.WhenCanTheLpaBeUsed.IsHasCapacity }}
+                        <li>{{ tr .App "iGiveAttorneysAuthorityWhenRegistered" }}</li>
+                    {{ else }}
+                        <li>{{ tr .App "iGiveAttorneysAuthorityWhenLostMentalCapacity" }}</li>
+                    {{ end }}
+                {{ end }}
+                {{ if .Donor.Type.IsPersonalWelfare }}
+                    {{ if .Donor.LifeSustainingTreatmentOption.IsOptionA }}
+                        <li>{{ tr .App "iGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+                    {{ else }}
+                        <li>{{ trHtml .App "iDoNotGiveMyAttorneysAuthorityLifeSustainingTreatment" }}</li>
+                    {{ end }}
+                {{ end }}
+                {{ if gt (len .Donor.PeopleToNotify) 0 }}
+                    <li>{{ trFormatCount .App "iHaveChosenNPeopleToNotify" (len .Donor.PeopleToNotify) }}</li>
+                {{ else }}
+                    <li>{{ tr .App "iHaveNotChosenToNotifyAnyone" }}</li>
+                {{ end }}
+                <li>{{ tr .App "infoIProvidedCanBeUsedByOpg" }}</li>
+            </ul>
 
-      <form novalidate method="post">
-        <div class="govuk-summary-card">
-          <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</h2>
-          </div>
-          <div class="govuk-summary-card__content">
-            <p class="govuk-body govuk-!-font-weight-bold">
-              {{ trFormat .App "iConfirmAsAuthorisedSignatoryThat" "SignatoryFullName" .Donor.AuthorisedSignatory.FullName }}
-            </p>
+            <form novalidate method="post">
+                <div class="govuk-summary-card">
+                    <div class="govuk-summary-card__title-wrapper">
+                        <h2 id="fieldset-legend" class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</h2>
+                    </div>
+                    <div class="govuk-summary-card__content">
+                        <p class="govuk-body govuk-!-font-weight-bold">
+                            {{ trFormat .App "iConfirmAsAuthorisedSignatoryThat" "SignatoryFullName" .Donor.AuthorisedSignatory.FullName }}
+                        </p>
 
-            <div class="govuk-form-group {{ if .Errors.Has "sign-lpa" }}govuk-form-group--error{{ end }}">
-              {{ template "error-message" (errorMessage . "sign-lpa") }}
+                        {{ $hasError := .Errors.Has "sign-lpa" }}
+                        <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if $hasError }}aria-describedby="sign-lpa-error"{{ end }}>
+                                {{ template "error-message" (errorMessage . "sign-lpa") }}
 
-              <div class="govuk-checkboxes">
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if .Donor.WantToSignLpa }}checked{{ end }}>
-                  <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
-                    {{ trFormat .App "donorWantsToSignThisLpa" "DonorFullName" .Donor.Donor.FullName }}
-                  </label>
+                                <div class="govuk-checkboxes">
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="f-sign-lpa" name="sign-lpa" type="checkbox" value="{{ .WantToSignFormValue }}" {{ if .Donor.WantToSignLpa }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa">
+                                            {{ trFormat .App "donorWantsToSignThisLpa" "DonorFullName" .Donor.Donor.FullName }}
+                                        </label>
+                                    </div>
+
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if .Donor.WantToApplyForLpa }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
+                                            {{ trFormat .App "donorWantsToApply" "DonorFullName" .Donor.Donor.FullName }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="govuk-body">{{ tr .App "whenYouTickAsAuthorisedSignatory" }}</div>
+                    </div>
                 </div>
 
-                <div class="govuk-checkboxes__item">
-                  <input class="govuk-checkboxes__input" id="f-sign-lpa-2" name="sign-lpa" type="checkbox" value="{{ .WantToApplyFormValue }}" {{ if .Donor.WantToApplyForLpa }}checked{{ end }}>
-                  <label class="govuk-label govuk-checkboxes__label" for="f-sign-lpa-2">
-                    {{ trFormat .App "donorWantsToApply" "DonorFullName" .Donor.Donor.FullName }}
-                  </label>
-                </div>
-              </div>
-            </div>
+                {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
 
-            <div class="govuk-body">{{ tr .App "whenYouTickAsAuthorisedSignatory" }}</div>
-          </div>
+                {{ template "buttons" (button .App "submitSignature") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "details" (details . "howTickingActsAsSignature" "howTickingActsAsSignatureContent" false) }}
-
-        {{ template "buttons" (button .App "submitSignature") }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

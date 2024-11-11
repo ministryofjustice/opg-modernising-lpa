@@ -19,29 +19,22 @@
             {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}
 
             <form novalidate method="post">
-                <div class="govuk-form-group {{ if .Errors.Has "do-next" }}govuk-form-group--error{{ end }}">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">{{ tr .App "whatWouldYouLikeToDo" }}</legend>
-
-                        {{ template "error-message" (errorMessage . "do-next") }}
-
-                        {{ if .Form.CanHaveVoucher }}
-                            {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
-                            (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
-                            (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                            (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
-                            ) }}
-                        {{ else }}
-                            {{ template "radios" (items . "do-next" ""
-                            (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
-                            (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
-                            (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
-                            ) }}
-                        {{ end }}
-
-                    </fieldset>
-                </div>
+                {{ if .Form.CanHaveVoucher }}
+                    {{ template "radios-fieldset" (fieldset . "do-next" ""
+                        (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
+                        (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
+                        (item .Form.Options.SelectNewVoucher.String .NewVoucherLabel)
+                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                        ) }}
+                {{ else }}
+                    {{ template "radios-fieldset" (fieldset . "do-next" ""
+                        (legend "whatWouldYouLikeToDo" "govuk-fieldset__legend--m")
+                        (item .Form.Options.ProveOwnIdentity.String .ProveOwnIdentityLabel)
+                        (item .Form.Options.WithdrawLPA.String "iNoLongerWantToMakeThisLPA" "hint" "iUnderstandIWillNotGetRefundHint" "orDivider" "1")
+                        (item .Form.Options.ApplyToCOP.String "iWillApplyToCOPToRegister" "hint" "iUnderstandICannotChangeMyMind")
+                        ) }}
+                {{ end }}
 
                 <div class="govuk-inset-text">
                     <p class="govuk-body">{{ tr .App "ifYouNeedHelpWithGOLContactTheirTeam" }}</p>

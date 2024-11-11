@@ -22,19 +22,11 @@
       {{ trHtml .App "findOutMoreAboutPeopleToNotifyLink" }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-              {{ tr .App "wantPeopleToNotify" }}
-            </legend>
-            {{ template "error-message" (errorMessage . .Form.FieldName) }}
-
-            {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
+          {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+              (legend "wantPeopleToNotify" "govuk-fieldset__legend--m")
               (item .Form.Options.Yes.String "yes")
               (item .Form.Options.No.String "no")
-            ) }}
-          </fieldset>
-        </div>
+              ) }}
 
         {{ template "buttons" (button .App "saveAndContinue") }}
         {{ template "csrf-field" . }}
