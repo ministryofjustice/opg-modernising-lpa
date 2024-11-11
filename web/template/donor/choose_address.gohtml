@@ -43,7 +43,7 @@
                 {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
                     <div id="select" class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
                         <fieldset class="govuk-fieldset">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl" {{ if .Errors.Has "select-address" }}aria-describedby="select-address-error"{{ end }}>
                                 <h1 class="govuk-fieldset__heading">
                                     {{ if .FullName }}
                                         {{ trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullName" .FullName }}
@@ -56,6 +56,7 @@
                             <label class="govuk-label" for="f-select-address">
                                 {{ tr .App "selectAnAddress" }}
                             </label>
+
                             {{ template "error-message" (errorMessage . "select-address") }}
 
                             <select class="govuk-select {{ if .Errors.Has "select-address" }}govuk-select--error{{ end }}" id="f-select-address" name="select-address">
@@ -81,7 +82,7 @@
                 {{ else if eq .Form.Action "postcode" }}
                     <div id="find" class="govuk-form-group {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
                         <fieldset class="govuk-fieldset">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl" {{ if .Errors.Has "lookup-postcode" }}aria-describedby="lookup-postcode-error"{{ end }}>
                                 <h1 class="govuk-fieldset__heading">
                                     {{ if .FullName }}
                                         {{ trFormat .App .TitleKeys.Postcode "FullName" .FullName }}
@@ -94,6 +95,7 @@
                             <label class="govuk-label" for="f-lookup-postcode">
                                 {{ tr .App "postcode" }}
                             </label>
+
                             {{ template "error-message" (errorMessage . "lookup-postcode") }}
 
                             <input class="govuk-input govuk-input--width-10  {{ if .Errors.Has "lookup-postcode" }}govuk-input--error{{ end }}" id="f-lookup-postcode" name="lookup-postcode" type="text" autocomplete="postal-code" value="{{ .Form.LookupPostcode }}">
@@ -111,7 +113,7 @@
 
                 {{ else if eq .Form.Action "reuse" "reuse-select" }}
                     <div class="govuk-form-group {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
-                        <fieldset class="govuk-fieldset">
+                        <fieldset class="govuk-fieldset" {{ if .Errors.Has "select-address" }}aria-describedby="select-address-error"{{ end }}>
                             <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
                                 <h1 class="govuk-fieldset__heading">
                                     {{ if .FullName }}
@@ -121,6 +123,7 @@
                                     {{ end }}
                                 </h1>
                             </legend>
+
                             {{ template "error-message" (errorMessage . "select-address") }}
 
                             <div class="govuk-radios govuk-radios--small {{ if .Errors.Has "select-address" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
@@ -140,25 +143,28 @@
                     <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="reuse-select" />
 
                 {{ else }}
-                    <div class="govuk-form-group {{ if .Errors.Has .Form.FieldNames.Action }}govuk-form-group--error{{ end }}">
-                        <fieldset class="govuk-fieldset">
-                            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                                <h1 class="govuk-fieldset__heading">
-                                    {{ if .FullName }}
-                                        {{ trFormat .App .TitleKeys.ReuseOrNew "FullName" .FullName }}
-                                    {{ else }}
-                                        {{ template "pageTitle" . }}
-                                    {{ end }}
-                                </h1>
-                            </legend>
-                            {{ template "error-message" (errorMessage . .Form.FieldNames.Action) }}
+                    {{ $title := "" }}
+                    {{ if .FullName }}
+                        {{ $title = trFormat .App .TitleKeys.ReuseOrNew "FullName" .FullName }}
+                    {{ else }}
+                        {{ if eq .Form.Action "manual" }}
+                            {{ $title = trFormat .App .TitleKeys.Manual "FullName" (tr .App .ActorLabel) }}
+                        {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
+                            {{ $title = trFormat .App .TitleKeys.PostcodeSelectAndPostcodeLookup "FullName" (tr .App .ActorLabel | lowerFirst) }}
+                        {{ else if eq .Form.Action "postcode" }}
+                            {{ $title = trFormat .App .TitleKeys.Postcode "FullName" (tr .App .ActorLabel | lowerFirst) }}
+                        {{ else if eq .Form.Action "reuse" "reuse-select" }}
+                            {{ $title = trFormat .App .TitleKeys.ReuseAndReuseSelect "FullName" (tr .App .ActorLabel | lowerFirst) }}
+                        {{ else }}
+                            {{ $title = trFormat .App .TitleKeys.ReuseOrNew "FullName" (tr .App .ActorLabel | lowerFirst) }}
+                        {{ end }}                    
+                    {{ end }}
 
-                            {{ template "radios" (items . .Form.FieldNames.Action .Form.Action
-                                (item "reuse" "useAnAddressYouAlreadyEntered")
-                                (item "postcode" "enterNewAddress")
-                                ) }}
-                        </fieldset>
-                    </div>
+                    {{ template "radios-fieldset" (fieldset . .Form.FieldNames.Action .Form.Action
+                        (legendHeading $title "govuk-fieldset__legend--xl")
+                        (item "reuse" "useAnAddressYouAlreadyEntered")
+                        (item "postcode" "enterNewAddress")
+                        ) }}
 
                     {{ template "buttons" (button .App "continue") }}
                 {{ end }}

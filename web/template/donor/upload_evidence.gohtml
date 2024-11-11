@@ -90,7 +90,7 @@
                     <input type="hidden" id="f-upload-action" name="action" value="upload" />
 
                     <div class="govuk-form-group {{ if .Errors.Has "upload" }}govuk-form-group--error{{ end }}">
-                        <label class="govuk-label govuk-label--m" for="f-upload">{{ tr .App "uploadAFile" }}</label>
+                        <label class="govuk-label govuk-label--m" for="f-upload" {{ if .Errors.Has "upload" }}aria-describedby="upload-error"{{ end }}>{{ tr .App "uploadAFile" }}</label>
 
                         {{ template "error-message" (errorMessage . "upload") }}
 

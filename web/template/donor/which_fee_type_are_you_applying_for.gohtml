@@ -6,21 +6,13 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
-                <fieldset class="govuk-fieldset">
-                    <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-                        <h1 class="govuk-fieldset__heading">{{ tr .App "whatWouldYouLikeToApplyFor" }}</h1>
-                    </legend>
-                    <div class="govuk-form-group {{ if .Errors.Has "fee-type" }}govuk-form-group--error{{ end }}">
-                        {{ template "error-message" (errorMessage . "fee-type") }}
-
-                        {{ template "radios" (items . "fee-type" ""
-                        (item .Options.NoFee.String "noFeeAnExemption")
-                        (item .Options.HalfFee.String "halfFeeARemission")
-                        (item .Options.RepeatApplicationFee.String "repeatApplicationDiscount")
-                        (item .Options.HardshipFee.String "hardshipFeeWaiver")
-                        ) }}
-                    </div>
-                </fieldset>
+                {{ template "radios-fieldset" (fieldset . "fee-type" ""
+                    (legendHeading "whatWouldYouLikeToApplyFor" "govuk-fieldset__legend--xl")
+                    (item .Options.NoFee.String "noFeeAnExemption")
+                    (item .Options.HalfFee.String "halfFeeARemission")
+                    (item .Options.RepeatApplicationFee.String "repeatApplicationDiscount")
+                    (item .Options.HardshipFee.String "hardshipFeeWaiver")
+                    ) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}
                 {{ template "csrf-field" . }}

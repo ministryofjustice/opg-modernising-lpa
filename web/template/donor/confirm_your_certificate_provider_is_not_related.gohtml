@@ -20,12 +20,15 @@
             {{ trHtml .App "confirmYourCertificateProviderIsNotRelatedContent" }}
 
             <form novalidate method="post">
-                <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-                    {{ template "error-message" (errorMessage . .Form.FieldName) }}
+                {{ $hasError := .Errors.Has .Form.FieldName }}
+                <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="{{.Form.FieldName}}-error"{{ end }}>
+                        {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
-                    {{ template "checkboxes" (items . .Form.FieldName nil
-                        (item .Form.Options.Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
-                        ) }}
+                        {{ template "checkboxes" (items . .Form.FieldName nil
+                            (item .Form.Options.Yes.String "iConfirmThatMyCertificateProviderIsNotRelated")
+                            ) }}
+                    </fieldset>
                 </div>
 
                 <p class="govuk-body">{{ tr .App "ifYourCertificateProviderIsRelated" }} <button name="action" value="choose-new" class="app-button-link"><span>{{ tr .App "deleteYourCurrentCertificateProvider" }}</span></button>.</p>

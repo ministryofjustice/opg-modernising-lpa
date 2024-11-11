@@ -1,5 +1,7 @@
 {{ define "input" }}
-    <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }}">
+    {{ $hasError := .top.Errors.Has .name }}
+    
+    <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
         {{ if .heading }}
             <h1 class="govuk-label-wrapper">
                 <label class="govuk-label govuk-label--xl {{.labelClasses}}" for="f-{{ .name }}">{{ tr .top.App .label }}</label>
@@ -19,10 +21,10 @@
         {{ end }}
         {{ template "error-message" (errorMessage .top .name) }}
         <input id="f-{{ .name }}" name="{{ .name }}" value="{{ .value }}"
-            class="govuk-input {{ .classes }} {{ if .top.Errors.Has .name }}govuk-input--error{{ end }}"
+            class="govuk-input {{ .classes }} {{ if $hasError }}govuk-input--error{{ end }}"
             {{ if .autocomplete }}autocomplete="{{ .autocomplete }}"{{ end }}
             {{ if .spellcheck }}spellcheck="{{ .spellcheck }}"{{ end }}
             {{ if .type }}type="{{ .type }}"{{ end }}
-            {{ if .hint }}aria-describedby="{{ .name }}-hint"{{ end }} />
+            {{ if or .hint $hasError }}aria-describedby="{{ if .hint }}{{ .name }}-hint{{ end }} {{ if $hasError }}{{ .name  }}-error{{ end }}"{{ end }} />
     </div>
 {{ end }}

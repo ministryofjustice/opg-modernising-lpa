@@ -3,65 +3,47 @@
 {{ define "pageTitle" }}{{ tr .App "yourPreferredLanguage" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "yourPreferredLanguage" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ tr .App "yourPreferredLanguage" }}</h1>
 
-      <form novalidate method="post">
-        <h2 class="govuk-heading-m">{{ tr .App "usingThisService" }}</h2>
-        
-        {{ trHtml .App "yourPreferredLanguageIntroContent" }}
+            <form novalidate method="post">
+                <h2 class="govuk-heading-m">{{ tr .App "usingThisService" }}</h2>
+                
+                {{ trHtml .App "yourPreferredLanguageIntroContent" }}
 
-        {{ template "details" (details . "howToChangeLanguageToWelsh" "howToChangeLanguageToWelshContent" false) }}
+                {{ template "details" (details . "howToChangeLanguageToWelsh" "howToChangeLanguageToWelshContent" false) }}
 
-        {{ trHtml .App "gettingInTouchWithYouContentIsDonor" }}
+                {{ trHtml .App "gettingInTouchWithYouContentIsDonor" }}
 
-        <div class="govuk-form-group {{ if .Errors.Has "contact-language" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-              {{ tr .App "whichLanguageWouldYouPreferWhenWeContactYou" }}
-            </legend>
+                {{ template "radios-fieldset" (fieldset . "contact-language" .Form.Contact.String
+                    (legend "whichLanguageWouldYouPreferWhenWeContactYou" "govuk-fieldset__legend--s")
+                    (item .Options.En.String .Options.En.String)
+                    (item .Options.Cy.String .Options.Cy.String)
+                    ) }}
 
-            {{ template "error-message" (errorMessage . "contact-language") }}
+                {{ trHtml .App "yourRegisteredLpaLanguageContent" }}
 
-            {{ template "radios" (items . "contact-language" .Form.Contact.String
-              (item .Options.En.String .Options.En.String)
-              (item .Options.Cy.String .Options.Cy.String)
-            ) }}
-          </fieldset>
+                {{ template "warning" (content .App "youCanOnlyChangeLanguageWarning")  }}
+
+                <div class="govuk-inset-text">
+                    {{ tr .App "youCanReturnToThisPageFromProvideDetails" }}
+                </div>
+
+                {{ template "radios-fieldset" (fieldset . "lpa-language" .Form.Lpa.String
+                    (legend "inWhichLanguageWouldYouLikeYourLpaRegistered" "govuk-fieldset__legend--s")
+                    (item .Options.En.String .Options.En.String)
+                    (item .Options.Cy.String .Options.Cy.String)
+                    ) }}
+
+                {{ if .CanTaskList }}
+                    {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ else }}
+                    {{ template "button" (button .App "saveAndContinue") }}
+                {{ end }}
+                
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ trHtml .App "yourRegisteredLpaLanguageContent" }}
-
-        {{ template "warning" (content .App "youCanOnlyChangeLanguageWarning")  }}
-
-        <div class="govuk-inset-text">
-          {{ tr .App "youCanReturnToThisPageFromProvideDetails" }}
-        </div>
-        
-        <div class="govuk-form-group {{ if .Errors.Has "lpa-language" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-              {{ tr .App "inWhichLanguageWouldYouLikeYourLpaRegistered" }}
-            </legend>
-
-            {{ template "error-message" (errorMessage . "lpa-language") }}
-
-            {{ template "radios" (items . "lpa-language" .Form.Lpa.String
-              (item .Options.En.String .Options.En.String)
-              (item .Options.Cy.String .Options.Cy.String)
-            ) }}
-          </fieldset>
-        </div>
-
-        {{ if .CanTaskList }}
-            {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ else }}
-            {{ template "button" (button .App "saveAndContinue") }}
-        {{ end }}
-        
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
