@@ -18,25 +18,16 @@
       {{ end }}
 
       <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has .FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-              <h2 class="govuk-fieldset__heading">{{ tr .App "whichLanguageWouldYouPreferWhenWeContactYou" }}</h2>
-            </legend>
-
-            {{ template "error-message" (errorMessage . .FieldName) }}
-
-            {{ template "radios" (items . .FieldName .Form.Preference.String
+          {{ template "radios-fieldset" (fieldset . .FieldName .Form.Preference.String
+              (legend "whichLanguageWouldYouPreferWhenWeContactYou" "govuk-fieldset__legend--s")
               (item .Options.En.String .Options.En.String)
               (item .Options.Cy.String .Options.Cy.String)
-            ) }}
-          </fieldset>
-        </div>
+              ) }}
 
         {{ if .App.IsAttorneyType }}
           {{ template "buttons" (button .App "saveAndContinue") }}
         {{ else }}
-          <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "saveAndContinue" }}</button>
+          {{ template "button" (button .App "saveAndContinue") }}
         {{ end }}
         {{ template "csrf-field" . }}
       </form>

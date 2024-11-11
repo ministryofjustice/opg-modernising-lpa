@@ -88,6 +88,9 @@ func All(globals *Globals) map[string]any {
 		"lpaDecisions":       lpaDecisions,
 		"summaryRow":         summaryRow,
 		"staticSummaryRow":   staticSummaryRow,
+		"legend":             legend,
+		"legendHeading":      legendHeading,
+		"fieldset":           fieldset,
 	}
 }
 
@@ -522,5 +525,42 @@ func staticSummaryRow(app appcontext.Data, label string, value any) map[string]a
 		"Label":  label,
 		"Value":  value,
 		"Static": true,
+	}
+}
+
+type legendData struct {
+	Label   string
+	Classes string
+	H1      bool
+}
+
+func legend(label string, classes ...string) legendData {
+	return legendData{
+		Label:   label,
+		Classes: strings.Join(classes, " "),
+	}
+}
+
+func legendHeading(label string, classes ...string) legendData {
+	return legendData{
+		Label:   label,
+		Classes: strings.Join(classes, " "),
+		H1:      true,
+	}
+}
+
+type fieldsetData struct {
+	Top    any
+	Name   string
+	Legend legendData
+	Items  map[string]any
+}
+
+func fieldset(top any, name string, value any, legend legendData, is ...any) fieldsetData {
+	return fieldsetData{
+		Top:    top,
+		Name:   name,
+		Legend: legend,
+		Items:  items(top, name, value, is...),
 	}
 }

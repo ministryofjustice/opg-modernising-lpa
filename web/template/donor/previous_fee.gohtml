@@ -4,26 +4,31 @@
 
 {{ define "main" }}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ tr .App "howMuchDidYouPreviouslyPayForYourLpa" }}</h1>
+      <div class="govuk-grid-column-two-thirds">
+          <form novalidate method="post">
+              {{ $hasError := .Errors.Has "previous-fee" }}
+              <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                  <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="previous-fee-error"{{ end }}>
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                          <h1 class="govuk-fieldset-heading">{{ tr .App "howMuchDidYouPreviouslyPayForYourLpa" }}</h1>
+                      </legend>
 
-      <p class="govuk-body">{{ tr .App "toCalculateYourFeeForThisLpa" }}</p>
+                      <p class="govuk-body">{{ tr .App "toCalculateYourFeeForThisLpa" }}</p>
 
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "previous-fee" }}govuk-form-group--error{{ end }}">
-          {{ template "error-message" (errorMessage . "previous-fee") }}
+                      {{ template "error-message" (errorMessage . "previous-fee") }}
 
-          {{ template "radios" (items . "previous-fee" .Form.PreviousFee.String
-            (item .Options.PreviousFeeFull.String "fullFee")
-            (item .Options.PreviousFeeHalf.String "halfFee")
-            (item .Options.PreviousFeeExemption.String "nothingExemption")
-            (item .Options.PreviousFeeHardship.String "nothingHardship")
-          ) }}
-        </div>
+                      {{ template "radios" (items . "previous-fee" .Form.PreviousFee.String
+                          (item .Options.PreviousFeeFull.String "fullFee")
+                          (item .Options.PreviousFeeHalf.String "halfFee")
+                          (item .Options.PreviousFeeExemption.String "nothingExemption")
+                          (item .Options.PreviousFeeHardship.String "nothingHardship")
+                          ) }}
+                  </fieldset>
+              </div>
 
-        {{ template "buttons" (button .App "continue") }}
-        {{ template "csrf-field" . }}
-      </form>
-    </div>
+              {{ template "buttons" (button .App "continue") }}
+              {{ template "csrf-field" . }}
+          </form>
+      </div>
   </div>
 {{ end }}

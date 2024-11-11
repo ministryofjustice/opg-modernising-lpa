@@ -1,0 +1,18 @@
+{{ define "radios-fieldset" }}
+    {{ $hasError := .Top.Errors.Has .Name }}
+    <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+        <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="{{ .Name }}-error"{{ end }}>
+            <legend class="govuk-fieldset__legend {{ .Legend.Classes }}">
+                {{ if .Legend.H1 }}
+                    <h1 class="govuk-fieldset__heading">
+                        {{ tr .Top.App .Legend.Label }}
+                    </h1>
+                {{ else }}
+                    {{ tr .Top.App .Legend.Label }}
+                {{ end }}
+            </legend>
+            {{ template "error-message" (errorMessage .Top .Name) }}
+            {{ template "radios" .Items }}
+        </fieldset>
+    </div>
+{{ end }}
