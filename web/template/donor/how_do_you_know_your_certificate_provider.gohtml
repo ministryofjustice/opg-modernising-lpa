@@ -3,25 +3,18 @@
 {{ define "pageTitle" }}{{ tr .App "howDoYouKnowYourCertificateProviderTitle" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "how" }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
-          <fieldset class="govuk-fieldset">
-            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                    (legendHeading (trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName) "govuk-fieldset__legend--xl")
+                    (item .Options.Personally.String "personally" "hint" "personallyHint")
+                    (item .Options.Professionally.String "professionally" "hint" "professionallyHint")
+                    ) }}
 
-            {{ template "error-message" (errorMessage . "how") }}
-
-            {{ template "radios" (items . "how" .Form.How.String
-              (item .Options.Personally.String "personally" "hint" "personallyHint")
-              (item .Options.Professionally.String "professionally" "hint" "professionallyHint")
-            ) }}
-          </fieldset>
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

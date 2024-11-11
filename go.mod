@@ -45,7 +45,6 @@ require (
 	golang.org/x/mod v0.22.0
 	golang.org/x/time v0.8.0
 	golang.org/x/tools v0.26.0
-	google.golang.org/appengine v1.6.8
 )
 
 require (
@@ -71,7 +70,6 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect

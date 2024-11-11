@@ -3,27 +3,18 @@
 {{ define "pageTitle" }}{{ tr .App "wouldYouLikeToAddSecondSignatory" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading">{{ tr .App "wouldYouLikeToAddSecondSignatory" }}</h1>
-            </legend>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                    (legendHeading "wouldYouLikeToAddSecondSignatory" "govuk-fieldset__legend--xl")
+                    (item .Form.Options.Yes.String "yesByddwn")
+                    (item .Form.Options.No.String "noNaFyddwn")
+                    ) }}
 
-            {{ template "error-message" (errorMessage . .Form.FieldName) }}
-
-            {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-              (item .Form.Options.Yes.String "yesByddwn")
-              (item .Form.Options.No.String "noNaFyddwn")
-            ) }}
-          </fieldset>
+                {{ template "continue-button" . }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "continue-button" . }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}
