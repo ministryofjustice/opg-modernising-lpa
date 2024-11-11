@@ -26,19 +26,10 @@
             </dl>
             
             <form novalidate method="post">
-                <div class="govuk-form-group {{ if .Errors.Has .Form.FieldName }}govuk-form-group--error{{ end }}">
-                    <fieldset class="govuk-fieldset">
-                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">
-                            {{ trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullName" .Lpa.Donor.FullName }}
-                        </legend>
-
-                        {{ template "error-message" (errorMessage . .Form.FieldName) }}
-
-                        {{ template "radios" (items . .Form.FieldName .Form.YesNo.String
-                            (item .Form.Options.Yes.String "yesYdynt")
-                            (item .Form.Options.No.String "noNacYdynt")) }}
-                    </fieldset>
-                </div>
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                    (legend (trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullName" .Lpa.Donor.FullName) "govuk-fieldset__legend--s")
+                    (item .Form.Options.Yes.String "yesYdynt")
+                    (item .Form.Options.No.String "noNacYdynt")) }}
 
                 {{ template "warning" (content .App "theseDetailsMustMatchThePersonWhoAskedYouToVouch") }}
                 

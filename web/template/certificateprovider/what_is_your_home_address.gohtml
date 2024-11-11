@@ -34,7 +34,7 @@
                         <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
                         <div id="select" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "select-address" }}govuk-form-group--error{{ end }}">
-                            <label class="govuk-label" for="f-select-address">
+                            <label class="govuk-label" for="f-select-address" {{ if .Errors.Has "select-address" }}aria-describedby="select-address-error"{{ end }}>
                                 {{ tr .App "selectAnAddress" }}
                             </label>
                             {{ template "error-message" (errorMessage . "select-address") }}
@@ -59,7 +59,7 @@
                         <p class="govuk-body">{{ tr .App "thisIsRequiredToCheckAndProtect" }}</p>
 
                         <div id="find" class="govuk-form-group govuk-!-margin-bottom-6 {{ if .Errors.Has "lookup-postcode" }}govuk-form-group--error{{ end }}">
-                            <label class="govuk-label govuk-label--s" for="f-lookup-postcode">
+                            <label class="govuk-label govuk-label--s" for="f-lookup-postcode" {{ if .Errors.Has "lookup-postcode" }}aria-describedby="lookup-postcode-error"{{ end }}>
                                 {{ tr .App "homePostcode" }}
                             </label>
                             {{ template "error-message" (errorMessage . "lookup-postcode") }}

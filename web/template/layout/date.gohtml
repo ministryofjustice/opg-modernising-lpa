@@ -1,6 +1,7 @@
 {{ define "date" }}
-  <div class="govuk-form-group {{ if .top.Errors.Has .name }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
-    <fieldset class="govuk-fieldset" role="group" aria-describedby="{{ .name }}-hint">
+    {{ $hasError := .top.Errors.Has .name }}
+  <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }} govuk-!-margin-bottom-6">
+    <fieldset class="govuk-fieldset" role="group" aria-describedby="{{ .name }}-hint {{ if $hasError }}{{ .name }}-error{{ end }}">
       {{ if .heading }}
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
           <h1 class="govuk-fieldset__heading">{{ tr .top.App .label }}</h1>

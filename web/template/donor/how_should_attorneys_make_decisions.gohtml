@@ -3,71 +3,72 @@
 {{ define "pageTitle" }}{{ tr .App "howShouldAttorneysMakeDecisions" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <form novalidate method="post">
-        <div class="govuk-form-group {{ if .Errors.Has "decision-type" }}govuk-form-group--error{{ end }}">
-          <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
-              <h1 class="govuk-fieldset__heading">
-                {{ tr .App "howShouldAttorneysMakeDecisions" }}
-              </h1>
-            </legend>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post">
+                {{ $hasError := .Errors.Has "decision-type" }}
+                <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                    <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="decision-type-error"{{ end }}>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--xl">
+                            <h1 class="govuk-fieldset__heading">
+                                {{ tr .App "howShouldAttorneysMakeDecisions" }}
+                            </h1>
+                        </legend>
 
-            <p class="govuk-body">{{ tr .App "asYouHaveMoreThanOneAttorney" }}</p>
+                        <p class="govuk-body">{{ tr .App "asYouHaveMoreThanOneAttorney" }}</p>
 
-            {{ template "error-message" (errorMessage . "decision-type") }}
+                        {{ template "error-message" (errorMessage . "decision-type") }}
 
-            <div class="govuk-radios {{ if .Errors.Has "decision-type" }}govuk-radios--error{{ end }}" data-module="govuk-radios">
-              <div class="govuk-radios__item govuk-!-margin-top-6">
-                <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="{{ .Options.JointlyAndSeverally.String }}" aria-describedby="decision-type-item-hint" {{ if .Form.DecisionsType.IsJointlyAndSeverally }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type">
-                  {{ tr .App "your-jointly-and-severally" }}
-                </label>
+                        <div class="govuk-radios {{ if $hasError }}govuk-radios--error{{ end }}" data-module="govuk-radios">
+                            <div class="govuk-radios__item govuk-!-margin-top-6">
+                                <input class="govuk-radios__input" id="f-decision-type" name="decision-type" type="radio" value="{{ .Options.JointlyAndSeverally.String }}" aria-describedby="decision-type-item-hint" {{ if .Form.DecisionsType.IsJointlyAndSeverally }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type">
+                                    {{ tr .App "your-jointly-and-severally" }}
+                                </label>
 
-                <div id="decision-type-item-hint" class="govuk-radios__hint">
-                  <p class="govuk-body">{{ tr .App "jointlyAndSeverallyHint" }}</p>
+                                <div id="decision-type-item-hint" class="govuk-radios__hint">
+                                    <p class="govuk-body">{{ tr .App "jointlyAndSeverallyHint" }}</p>
+                                </div>
+                            </div>
+                            <div class="govuk-radios__item govuk-!-margin-top-6">
+                                <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="{{ .Options.Jointly.String }}" aria-describedby="decision-type-2-item-hint" {{ if .Form.DecisionsType.IsJointly }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-2">
+                                    {{ tr .App "your-jointly" }}
+                                </label>
+
+                                <div id="decision-type-2-item-hint" class="govuk-radios__hint">
+                                    <p class="govuk-body">{{ tr .App "jointlyHintAttorneys" }}</p>
+                                </div>
+                            </div>
+                            <div class="govuk-radios__item govuk-!-margin-top-6">
+                                <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="{{ .Options.JointlyForSomeSeverallyForOthers.String }}" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or .Form.DecisionsType.IsJointlyForSomeSeverallyForOthers (.Errors.Has "mixed-details") }}checked{{ end }}>
+                                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-3">
+                                    {{ tr .App "your-jointly-for-some-severally-for-others" }}
+                                </label>
+
+                                <div id="decision-type-3-item-hint" class="govuk-radios__hint">
+                                    <p class="govuk-body">{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
+                                    <p class="govuk-body">{{ tr .App (printf "jointlyAndSeverallyMixedHintExample:%s" .Donor.Type.String) }}</p>
+                                    <p class="govuk-body">{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedJointly" }}</p>
+                                </div>
+                            </div>
+                            <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
+                                <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
+                                    <p class="govuk-body">{{ trHtml .App "decisionDetailsHint" }}</p>
+                                    <label class="govuk-label" for="f-mixed-details" {{ if .Errors.Has "mixed-details" }}aria-describedby="mixed-details-error"{{ end }}>
+                                        {{ tr .App "details" }}
+                                    </label>
+                                    {{ template "error-message" (errorMessage . "mixed-details") }}
+                                    <textarea class="govuk-textarea {{ if .Errors.Has "mixed-details" }}govuk-input--error{{ end }}" id="f-mixed-details" name="mixed-details" rows="10">{{ .Form.DecisionsDetails }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
                 </div>
-              </div>
-              <div class="govuk-radios__item govuk-!-margin-top-6">
-                <input class="govuk-radios__input" id="f-decision-type-2" name="decision-type" type="radio" value="{{ .Options.Jointly.String }}" aria-describedby="decision-type-2-item-hint" {{ if .Form.DecisionsType.IsJointly }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-2">
-                  {{ tr .App "your-jointly" }}
-                </label>
 
-                <div id="decision-type-2-item-hint" class="govuk-radios__hint">
-                  <p class="govuk-body">{{ tr .App "jointlyHintAttorneys" }}</p>
-                </div>
-              </div>
-              <div class="govuk-radios__item govuk-!-margin-top-6">
-                <input class="govuk-radios__input" id="f-decision-type-3" name="decision-type" type="radio" value="{{ .Options.JointlyForSomeSeverallyForOthers.String }}" aria-describedby="decision-type-3-item-hint" aria-controls="decision-type-3-conditional-div" {{ if or .Form.DecisionsType.IsJointlyForSomeSeverallyForOthers (.Errors.Has "mixed-details") }}checked{{ end }}>
-                <label class="govuk-label govuk-radios__label govuk-label--s" for="f-decision-type-3">
-                  {{ tr .App "your-jointly-for-some-severally-for-others" }}
-                </label>
-
-                <div id="decision-type-3-item-hint" class="govuk-radios__hint">
-                  <p class="govuk-body">{{ tr .App "jointlyAndSeverallyMixedHint" }}</p>
-                  <p class="govuk-body">{{ tr .App (printf "jointlyAndSeverallyMixedHintExample:%s" .Donor.Type.String) }}</p>
-                  <p class="govuk-body">{{ tr .App "ifYouChooseThisOptionMustStateDecisionsAgreedJointly" }}</p>
-                </div>
-              </div>
-              <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
-                  <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
-                    <p class="govuk-body">{{ trHtml .App "decisionDetailsHint" }}</p>
-                    <label class="govuk-label" for="f-mixed-details">
-                      {{ tr .App "details" }}
-                    </label>
-                    {{ template "error-message" (errorMessage . "mixed-details") }}
-                    <textarea class="govuk-textarea {{ if .Errors.Has "mixed-details" }}govuk-input--error{{ end }}" id="f-mixed-details" name="mixed-details" rows="10">{{ .Form.DecisionsDetails }}</textarea>
-                  </div>
-                </div>
-            </div>
-          </fieldset>
+                {{ template "buttons" (button .App "saveAndContinue") }}
+                {{ template "csrf-field" . }}
+            </form>
         </div>
-
-        {{ template "buttons" (button .App "saveAndContinue") }}
-        {{ template "csrf-field" . }}
-      </form>
     </div>
-  </div>
 {{ end }}

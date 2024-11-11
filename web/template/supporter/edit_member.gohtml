@@ -22,13 +22,13 @@
 
         {{ if .CanEditAll }}
           <div class="govuk-form-group {{ if .Errors.Has "permission" }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
+            <fieldset class="govuk-fieldset" {{ if .Errors.Has "permission" }}aria-describedby="permission-error"{{ end }}>
               <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
                 {{ tr .App "permissions" }}
               </legend>
 
               <p class="govuk-body">{{ tr .App "allUsersCanCreateAndEditLPAs" }}</p>
-              
+
               {{ template "error-message" (errorMessage . "permission") }}
               {{ template "checkboxes" (items . "permission" .Form.Permission.String
                 (item .Form.PermissionOptions.Admin.String "admin" "hint" "adminPermissionHint")
@@ -36,19 +36,11 @@
             </fieldset>
           </div>
 
-          <div class="govuk-form-group {{ if .Errors.Has "status" }}govuk-form-group--error{{ end }}">
-            <fieldset class="govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                {{ tr .App "status" }}
-              </legend>
-
-              {{ template "error-message" (errorMessage . "status") }}
-              {{ template "radios" (items . "status" .Form.Status.String
-                (item .Form.StatusOptions.Active.String "allowAccessToThisOrganisation")
-                (item .Form.StatusOptions.Suspended.String "suspendAccessToThisOrganisation" "hint" "forExampleExtendedLeave")
+          {{ template "radios-fieldset" (fieldset . "status" .Form.Status.String
+              (legend "status" "govuk-fieldset__legend--m")
+              (item .Form.StatusOptions.Active.String "allowAccessToThisOrganisation")
+              (item .Form.StatusOptions.Suspended.String "suspendAccessToThisOrganisation" "hint" "forExampleExtendedLeave")
               ) }}
-            </fieldset>
-          </div>
         {{ end }}
 
         <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "save" }}</button>

@@ -14,24 +14,27 @@
             <form novalidate method="post">
                 <div class="govuk-summary-card">
                     <div class="govuk-summary-card__title-wrapper">
-                        <span class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
+                        <span id="fieldset-legend" class="govuk-summary-card__title">{{ tr .App "yourSignature" }}</span>
                     </div>
                     <div class="govuk-summary-card__content">
                         <p class="govuk-body govuk-!-font-weight-bold">
                             {{ trFormat .App "iAmVouchingThat" "VoucherFullName" .Voucher.FullName }}
                         </p>
-                        
-                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if .Errors.Has "confirm" }}govuk-form-group--error{{ end }}">
-                            {{ template "error-message" (errorMessage . "confirm") }}
 
-                            <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-                                <div class="govuk-checkboxes__item">
-                                    <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
-                                    <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
-                                        {{ trFormat .App "toTheBestOfMyKnowledgeDeclaration" "DonorFullName" .Lpa.Donor.FullName }}
-                                    </label>
+                        {{ $hasError := .Errors.Has "confirm" }}
+                        <div class="govuk-form-group govuk-!-margin-bottom-0 {{ if $hasError }}govuk-form-group--error{{ end }}">
+                            <fieldset class="govuk-fieldset" aria-labelledby="fieldset-legend" {{ if $hasError }}aria-describedby="confirm-error"{{ end }}>
+                                {{ template "error-message" (errorMessage . "confirm") }}
+
+                                <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+                                    <div class="govuk-checkboxes__item">
+                                        <input class="govuk-checkboxes__input" id="f-confirm" name="confirm" type="checkbox" value="1" {{ if .Form.Confirm }}checked{{ end }}>
+                                        <label class="govuk-label govuk-checkboxes__label" for="f-confirm">
+                                            {{ trFormat .App "toTheBestOfMyKnowledgeDeclaration" "DonorFullName" .Lpa.Donor.FullName }}
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
