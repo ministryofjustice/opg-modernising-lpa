@@ -13,8 +13,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.36.3
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.35.3
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.66.2
+	github.com/aws/aws-sdk-go-v2/service/s3control v1.50.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.34.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.36.3
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.55.4
 	github.com/aws/smithy-go v1.22.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
@@ -43,7 +45,7 @@ require (
 	golang.org/x/mod v0.21.0
 	golang.org/x/time v0.7.0
 	golang.org/x/tools v0.26.0
-	google.golang.org/appengine v1.6.8
+	google.golang.org/appengine/v2 v2.0.6
 )
 
 require (
@@ -59,8 +61,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.10.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.18.4 // indirect
-	github.com/aws/aws-sdk-go-v2/service/s3control v1.50.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.55.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.24.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.32.3 // indirect
