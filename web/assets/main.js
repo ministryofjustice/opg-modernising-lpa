@@ -14,6 +14,8 @@ if (document.readyState !== "loading") {
 }
 
 function init() {
+    document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+
     window.$ = $
 
     GOVUKFrontend.initAll();
