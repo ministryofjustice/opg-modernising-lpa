@@ -67,16 +67,20 @@ func (e InvalidSessionError) Error() string {
 	return fmt.Sprintf("%s session invalid", string(e))
 }
 
-type cookieStore interface {
+type sessionsStore interface {
 	sessions.Store
 }
 
 type Store struct {
-	s cookieStore
+	s sessionsStore
+	d sessionsStore
 }
 
-func NewStore(keyPairs [][]byte) *Store {
-	return &Store{s: sessions.NewCookieStore(keyPairs...)}
+func NewStore(dynamoClient DynamoClient, keyPairs [][]byte) *Store {
+	return &Store{
+		s: sessions.NewCookieStore(keyPairs...),
+		d: NewDynamoStore(dynamoClient, keyPairs...),
+	}
 }
 
 type isValid interface {
@@ -151,6 +155,9 @@ type LoginSession struct {
 	OrganisationName string
 }
 
+// SessionID is a safe version of the OneLogin sub, that is used to form
+// DynamoDB keys. Note: this is not the identifier stored in the "session"
+// cookie.
 func (s LoginSession) SessionID() string {
 	return base64.StdEncoding.EncodeToString([]byte(s.Sub))
 }
@@ -160,15 +167,15 @@ func (s LoginSession) Valid() bool {
 }
 
 func (s *Store) Login(r *http.Request) (*LoginSession, error) {
-	return getSession[*LoginSession](s.s, cookieSession, "session", r)
+	return getSession[*LoginSession](s.d, cookieSession, "session", r)
 }
 
 func (s *Store) SetLogin(r *http.Request, w http.ResponseWriter, donorSession *LoginSession) error {
-	return setSession(s.s, cookieSession, "session", r, w, donorSession, sessionCookieOptions)
+	return setSession(s.d, cookieSession, "session", r, w, donorSession, sessionCookieOptions)
 }
 
 func (s *Store) ClearLogin(r *http.Request, w http.ResponseWriter) error {
-	return clearSession(s.s, cookieSession, r, w)
+	return clearSession(s.d, cookieSession, r, w)
 }
 
 type PaymentSession struct {
