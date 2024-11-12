@@ -572,7 +572,7 @@ func (_c *mockDynamoClient_LatestForActor_Call) RunAndReturn(run func(context.Co
 }
 
 // Move provides a mock function with given fields: ctx, oldKeys, value
-func (_m *mockDynamoClient) Move(ctx context.Context, oldKeys dynamo.Keys, value interface{}) error {
+func (_m *mockDynamoClient) Move(ctx context.Context, oldKeys dynamo.Keys, value any) error {
 	ret := _m.Called(ctx, oldKeys, value)
 
 	if len(ret) == 0 {
@@ -580,7 +580,7 @@ func (_m *mockDynamoClient) Move(ctx context.Context, oldKeys dynamo.Keys, value
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Keys, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Keys, any) error); ok {
 		r0 = rf(ctx, oldKeys, value)
 	} else {
 		r0 = ret.Error(0)
@@ -597,14 +597,14 @@ type mockDynamoClient_Move_Call struct {
 // Move is a helper method to define mock.On call
 //   - ctx context.Context
 //   - oldKeys dynamo.Keys
-//   - value interface{}
+//   - value any
 func (_e *mockDynamoClient_Expecter) Move(ctx interface{}, oldKeys interface{}, value interface{}) *mockDynamoClient_Move_Call {
 	return &mockDynamoClient_Move_Call{Call: _e.mock.On("Move", ctx, oldKeys, value)}
 }
 
-func (_c *mockDynamoClient_Move_Call) Run(run func(ctx context.Context, oldKeys dynamo.Keys, value interface{})) *mockDynamoClient_Move_Call {
+func (_c *mockDynamoClient_Move_Call) Run(run func(ctx context.Context, oldKeys dynamo.Keys, value any)) *mockDynamoClient_Move_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.Keys), args[2].(interface{}))
+		run(args[0].(context.Context), args[1].(dynamo.Keys), args[2].(any))
 	})
 	return _c
 }
@@ -614,7 +614,7 @@ func (_c *mockDynamoClient_Move_Call) Return(_a0 error) *mockDynamoClient_Move_C
 	return _c
 }
 
-func (_c *mockDynamoClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, interface{}) error) *mockDynamoClient_Move_Call {
+func (_c *mockDynamoClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, any) error) *mockDynamoClient_Move_Call {
 	_c.Call.Return(run)
 	return _c
 }

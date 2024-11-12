@@ -106,20 +106,22 @@
                         <a class="govuk-back-link" href="#">Back</a>
                     {{ end }}
 
-                    <ul class="trans-switch app-hide-print" id="language-switch" aria-label="Change your language">
-                        <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
-                            {{ if isWelsh .App.Lang }}<a href="{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
-                                {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
-                                English
-                                {{ if isWelsh .App.Lang }}</a>{{ end }}
-                        </li>
-                        <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
-                            {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
-                                Cymraeg
-                                {{ if isEnglish .App.Lang }}</a>{{ end }}
-                                {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
-                        </li>
-                    </ul>
+                    {{ block "languageSwitch" . }}
+                        <ul class="trans-switch app-hide-print" id="language-switch" aria-label="Change your language">
+                            <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-en" lang="en-gb">
+                                {{ if isWelsh .App.Lang }}<a href="{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link"><span class="govuk-visually-hidden">Change language to </span>{{ end }}
+                                    {{ if isEnglish .App.Lang }}<span class="govuk-visually-hidden">Current language is </span>{{ end }}
+                                    English
+                                    {{ if isWelsh .App.Lang }}</a>{{ end }}
+                            </li>
+                            <li class="govuk-list trans-switch__list govuk-body-s" id="language-switch-cy" lang="cy-gb">
+                                {{ if isEnglish .App.Lang }}<a href="/cy{{ .App.Path }}{{ .App.EncodeQuery }}" class="govuk-link" aria-label="Newid iaith i'r Gymraeg">{{ end }}
+                                    Cymraeg
+                                    {{ if isEnglish .App.Lang }}</a>{{ end }}
+                                    {{ if isWelsh .App.Lang }}<span class="govuk-visually-hidden"> yw'r iaith bresennol</span>{{ end }}
+                            </li>
+                        </ul>
+                    {{ end }}
                 </div>
 
                 <main class="govuk-main-wrapper app-main-class" id="main-content" role="main">

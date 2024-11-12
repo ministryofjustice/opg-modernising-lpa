@@ -230,7 +230,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	sessionStore := sesh.NewStore(sessionKeys)
+	sessionStore := sesh.NewStore(lpasDynamoClient, sessionKeys)
 
 	redirectURL := authRedirectBaseURL + page.PathAuthRedirect.Format()
 
