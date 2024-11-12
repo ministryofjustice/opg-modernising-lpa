@@ -20,6 +20,7 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gorilla/handlers"
+	"github.com/ministryofjustice/opg-go-common/securityheaders"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
@@ -331,6 +332,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
+	handler = securityheaders.Use(handler)
 
 	server := &http.Server{
 		Addr:              ":" + port,
