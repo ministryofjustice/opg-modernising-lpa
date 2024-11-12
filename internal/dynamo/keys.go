@@ -33,6 +33,7 @@ const (
 	scheduledPrefix                = "SCHEDULED"
 	reservedPrefix                 = "RESERVED"
 	uidPrefix                      = "UID"
+	sessionPrefix                  = "SESSION"
 )
 
 func readKey(s string) (any, error) {
@@ -88,6 +89,8 @@ func readKey(s string) (any, error) {
 		return ReservedKeyType(s), nil
 	case uidPrefix:
 		return UIDKeyType(s), nil
+	case sessionPrefix:
+		return SessionKeyType(s), nil
 	default:
 		return nil, errors.New("unknown key prefix")
 	}
@@ -338,4 +341,13 @@ func (t UIDKeyType) PK() string { return string(t) }
 // used once.
 func UIDKey(uid string) UIDKeyType {
 	return UIDKeyType(uidPrefix + "#" + uid)
+}
+
+type SessionKeyType string
+
+func (t SessionKeyType) PK() string { return string(t) }
+
+// SessionKey is used as the PK (with MetadataKey as SK) to store a session.
+func SessionKey(uid string) SessionKeyType {
+	return SessionKeyType(sessionPrefix + "#" + uid)
 }
