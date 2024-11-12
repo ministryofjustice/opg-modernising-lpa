@@ -12,8 +12,6 @@ import (
 
 var (
 	expectedError = errors.New("err")
-	r, _          = http.NewRequest(http.MethodGet, "/path?a=b", nil)
-	w             = httptest.NewRecorder()
 )
 
 func (m *mockCookieStore) expectGet(r *http.Request, cookie, param string, values any) *mockCookieStore {
@@ -55,7 +53,10 @@ func (m *mockCookieStore) expectClear(r *http.Request, w http.ResponseWriter, co
 }
 
 func TestOneLogin(t *testing.T) {
-	values := &OneLoginSession{State: "a", Nonce: "b", Redirect: "c", SessionID: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		values = &OneLoginSession{State: "a", Nonce: "b", Redirect: "c", SessionID: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectGet(r, cookieSignIn, "one-login", values)
@@ -68,7 +69,11 @@ func TestOneLogin(t *testing.T) {
 }
 
 func TestSetOneLogin(t *testing.T) {
-	values := &OneLoginSession{SessionID: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w      = httptest.NewRecorder()
+		values = &OneLoginSession{SessionID: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectSet(r, w, cookieSignIn, "one-login", values, oneLoginCookieOptions)
@@ -79,13 +84,20 @@ func TestSetOneLogin(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestLoginSessionSessionID(t *testing.T) {
+	assert.Equal(t, "aGV5", LoginSession{Sub: "hey"}.SessionID())
+}
+
 func TestLogin(t *testing.T) {
-	values := &LoginSession{Sub: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		values = &LoginSession{Sub: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectGet(r, cookieSession, "session", values)
 
-	store := &Store{s: cookieStore}
+	store := &Store{d: cookieStore}
 
 	result, err := store.Login(r)
 	assert.Nil(t, err)
@@ -93,29 +105,41 @@ func TestLogin(t *testing.T) {
 }
 
 func TestSetLogin(t *testing.T) {
-	values := &LoginSession{Sub: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w      = httptest.NewRecorder()
+		values = &LoginSession{Sub: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectSet(r, w, cookieSession, "session", values, sessionCookieOptions)
 
-	store := &Store{s: cookieStore}
+	store := &Store{d: cookieStore}
 
 	err := store.SetLogin(r, w, values)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestClearLogin(t *testing.T) {
+	var (
+		r, _ = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w    = httptest.NewRecorder()
+	)
+
 	cookieStore := newMockCookieStore(t).
 		expectClear(r, w, cookieSession)
 
-	store := &Store{s: cookieStore}
+	store := &Store{d: cookieStore}
 
 	err := store.ClearLogin(r, w)
 	assert.Equal(t, expectedError, err)
 }
 
 func TestPayment(t *testing.T) {
-	values := &PaymentSession{PaymentID: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		values = &PaymentSession{PaymentID: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectGet(r, cookiePayment, "payment", values)
@@ -128,7 +152,11 @@ func TestPayment(t *testing.T) {
 }
 
 func TestSetPayment(t *testing.T) {
-	values := &PaymentSession{PaymentID: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w      = httptest.NewRecorder()
+		values = &PaymentSession{PaymentID: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectSet(r, w, cookiePayment, "payment", values, paymentCookieOptions)
@@ -140,6 +168,11 @@ func TestSetPayment(t *testing.T) {
 }
 
 func TestClearPayment(t *testing.T) {
+	var (
+		r, _ = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w    = httptest.NewRecorder()
+	)
+
 	cookieStore := newMockCookieStore(t).
 		expectClear(r, w, cookiePayment)
 
@@ -150,7 +183,10 @@ func TestClearPayment(t *testing.T) {
 }
 
 func TestCsrf(t *testing.T) {
-	values := &CsrfSession{Token: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		values = &CsrfSession{Token: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectGet(r, cookieCsrf, "csrf", values)
@@ -163,7 +199,11 @@ func TestCsrf(t *testing.T) {
 }
 
 func TestSetCsrf(t *testing.T) {
-	values := &CsrfSession{Token: "x"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w      = httptest.NewRecorder()
+		values = &CsrfSession{Token: "x"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectSet(r, w, cookieCsrf, "csrf", values, sessionCookieOptions)
@@ -175,7 +215,10 @@ func TestSetCsrf(t *testing.T) {
 }
 
 func TestLpaData(t *testing.T) {
-	values := &LpaDataSession{LpaID: "lpa-id"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		values = &LpaDataSession{LpaID: "lpa-id"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectGet(r, cookieLPAData, "lpa-data", values)
@@ -188,7 +231,11 @@ func TestLpaData(t *testing.T) {
 }
 
 func TestSetLpaDataSession(t *testing.T) {
-	values := &LpaDataSession{LpaID: "lpa-id"}
+	var (
+		r, _   = http.NewRequest(http.MethodGet, "/path?a=b", nil)
+		w      = httptest.NewRecorder()
+		values = &LpaDataSession{LpaID: "lpa-id"}
+	)
 
 	cookieStore := newMockCookieStore(t).
 		expectSet(r, w, cookieLPAData, "lpa-data", values, sessionCookieOptions)
