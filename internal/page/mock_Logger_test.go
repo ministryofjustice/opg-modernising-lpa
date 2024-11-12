@@ -22,7 +22,7 @@ func (_m *mockLogger) EXPECT() *mockLogger_Expecter {
 }
 
 // ErrorContext provides a mock function with given fields: ctx, msg, args
-func (_m *mockLogger) ErrorContext(ctx context.Context, msg string, args ...interface{}) {
+func (_m *mockLogger) ErrorContext(ctx context.Context, msg string, args ...any) {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, msg)
 	_ca = append(_ca, args...)
@@ -37,18 +37,18 @@ type mockLogger_ErrorContext_Call struct {
 // ErrorContext is a helper method to define mock.On call
 //   - ctx context.Context
 //   - msg string
-//   - args ...interface{}
+//   - args ...any
 func (_e *mockLogger_Expecter) ErrorContext(ctx interface{}, msg interface{}, args ...interface{}) *mockLogger_ErrorContext_Call {
 	return &mockLogger_ErrorContext_Call{Call: _e.mock.On("ErrorContext",
 		append([]interface{}{ctx, msg}, args...)...)}
 }
 
-func (_c *mockLogger_ErrorContext_Call) Run(run func(ctx context.Context, msg string, args ...interface{})) *mockLogger_ErrorContext_Call {
+func (_c *mockLogger_ErrorContext_Call) Run(run func(ctx context.Context, msg string, args ...any)) *mockLogger_ErrorContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]interface{}, len(args)-2)
+		variadicArgs := make([]any, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(interface{})
+				variadicArgs[i] = a.(any)
 			}
 		}
 		run(args[0].(context.Context), args[1].(string), variadicArgs...)
@@ -61,13 +61,13 @@ func (_c *mockLogger_ErrorContext_Call) Return() *mockLogger_ErrorContext_Call {
 	return _c
 }
 
-func (_c *mockLogger_ErrorContext_Call) RunAndReturn(run func(context.Context, string, ...interface{})) *mockLogger_ErrorContext_Call {
+func (_c *mockLogger_ErrorContext_Call) RunAndReturn(run func(context.Context, string, ...any)) *mockLogger_ErrorContext_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // InfoContext provides a mock function with given fields: ctx, msg, args
-func (_m *mockLogger) InfoContext(ctx context.Context, msg string, args ...interface{}) {
+func (_m *mockLogger) InfoContext(ctx context.Context, msg string, args ...any) {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, msg)
 	_ca = append(_ca, args...)
@@ -82,18 +82,18 @@ type mockLogger_InfoContext_Call struct {
 // InfoContext is a helper method to define mock.On call
 //   - ctx context.Context
 //   - msg string
-//   - args ...interface{}
+//   - args ...any
 func (_e *mockLogger_Expecter) InfoContext(ctx interface{}, msg interface{}, args ...interface{}) *mockLogger_InfoContext_Call {
 	return &mockLogger_InfoContext_Call{Call: _e.mock.On("InfoContext",
 		append([]interface{}{ctx, msg}, args...)...)}
 }
 
-func (_c *mockLogger_InfoContext_Call) Run(run func(ctx context.Context, msg string, args ...interface{})) *mockLogger_InfoContext_Call {
+func (_c *mockLogger_InfoContext_Call) Run(run func(ctx context.Context, msg string, args ...any)) *mockLogger_InfoContext_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]interface{}, len(args)-2)
+		variadicArgs := make([]any, len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
-				variadicArgs[i] = a.(interface{})
+				variadicArgs[i] = a.(any)
 			}
 		}
 		run(args[0].(context.Context), args[1].(string), variadicArgs...)
@@ -106,7 +106,7 @@ func (_c *mockLogger_InfoContext_Call) Return() *mockLogger_InfoContext_Call {
 	return _c
 }
 
-func (_c *mockLogger_InfoContext_Call) RunAndReturn(run func(context.Context, string, ...interface{})) *mockLogger_InfoContext_Call {
+func (_c *mockLogger_InfoContext_Call) RunAndReturn(run func(context.Context, string, ...any)) *mockLogger_InfoContext_Call {
 	_c.Call.Return(run)
 	return _c
 }
