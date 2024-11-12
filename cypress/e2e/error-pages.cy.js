@@ -2,6 +2,7 @@ describe('Error pages', () => {
     it('shows for 404s', () => {
         cy.visit('/not-a-real-page', { failOnStatusCode: false });
         cy.contains('Page not found');
+        cy.contains('Welsh').should('not.exist');
         cy.checkA11yApp();
 
         cy.visit('/lpa', { failOnStatusCode: false });
@@ -19,6 +20,7 @@ describe('Error pages', () => {
         cy.visitLpa('/payment-confirmation', { failOnStatusCode: false });
 
         cy.contains('Sorry, there is a problem with the service');
+        cy.contains('Welsh').should('not.exist');
         cy.checkA11yApp();
     });
 
@@ -32,5 +34,6 @@ describe('Error pages', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.contains('Sorry, there is a problem with the service');
+        cy.contains('Welsh').should('not.exist');
     });
 });
