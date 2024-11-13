@@ -11,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
-var expectedError = errors.New("err")
+var ErrAccessDenied = errors.New("access denied")
 
 type Doer interface {
 	Do(r *http.Request) (*http.Response, error)

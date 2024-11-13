@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -22,23 +23,22 @@ func TestVouchFailer(t *testing.T) {
 		Donor:  lpadata.Donor{Email: "john@example.com", ContactLanguagePreference: localize.Cy},
 	}
 	provided := &voucherdata.Provided{
+		SK:         dynamo.VoucherKey("a-voucher"),
 		FirstNames: "Vivian",
 		LastName:   "Vaughn",
+	}
+	donor := &donordata.Provided{
+		FailedVouchAttempts: 1,
+		WantVoucher:         form.Yes,
+		Voucher:             donordata.Voucher{FirstNames: "A"},
 	}
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(ctx).
-		Return(&donordata.Provided{
-			FailedVouchAttempts: 1,
-			WantVoucher:         form.Yes,
-			Voucher:             donordata.Voucher{FirstNames: "A"},
-		}, nil)
+		Return(donor, nil)
 	donorStore.EXPECT().
-		Put(ctx, &donordata.Provided{
-			FailedVouchAttempts: 2,
-			WantVoucher:         form.No,
-		}).
+		FailVoucher(ctx, donor, provided.SK).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -64,7 +64,7 @@ func TestVouchFailerWhenDonorStoreGetErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	err := makeVouchFailer(donorStore, nil, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestVouchFailerWheNotifyClientErrors(t *testing.T) {
@@ -82,7 +82,7 @@ func TestVouchFailerWheNotifyClientErrors(t *testing.T) {
 		Return(expectedError)
 
 	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
@@ -91,7 +91,7 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(&donordata.Provided{}, nil)
 	donorStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
+		FailVoucher(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	notifyClient := newMockNotifyClient(t)
@@ -103,5 +103,5 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		Return(nil)
 
 	err := makeVouchFailer(donorStore, notifyClient, "app://")(ctx, &voucherdata.Provided{}, &lpadata.Lpa{})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
