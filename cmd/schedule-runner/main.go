@@ -81,10 +81,19 @@ func handleRunSchedule(ctx context.Context) error {
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
+	start := time.Now()
+
 	if err := runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
+
+		elapsed := time.Since(start)
+		logger.InfoContext(ctx, "runner finished", slog.String("run time", fmt.Sprintf("%s", elapsed)))
+
 		return err
 	}
+
+	elapsed := time.Since(start)
+	logger.InfoContext(ctx, "runner finished", slog.String("run time", fmt.Sprintf("%s", elapsed)))
 
 	return nil
 }

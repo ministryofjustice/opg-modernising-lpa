@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -43,43 +44,65 @@ func main() {
 		log.Fatal("failed to create dynamo client: %w", err)
 	}
 
-	var items []any
-	now := time.Now()
+	const batchSize = 100
+	itemChan := make(chan any, batchSize)
+	var wg sync.WaitGroup
 
-	for i := 0; i < 1; i++ {
-		now = now.Add(time.Second * 1)
+	start := time.Now()
 
-		donor := &donordata.Provided{
-			LpaUID:           uuid.NewString(),
-			PK:               dynamo.LpaKey(uuid.NewString()),
-			SK:               dynamo.LpaOwnerKey(dynamo.DonorKey(uuid.NewString())),
-			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-			Donor:            donordata.Donor{Email: "a@b.com"},
-		}
+	go func() {
+		now := time.Now()
+		for i := 0; i < 10000; i++ {
+			now = now.Add(time.Second * 1)
 
-		event := scheduled.Event{
-			At:                now,
-			Action:            scheduled.ActionExpireDonorIdentity,
-			TargetLpaKey:      donor.PK,
-			TargetLpaOwnerKey: donor.SK,
-			PK:                dynamo.ScheduledDayKey(now),
-			SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
-		}
-
-		items = append(items, donor, event)
-
-		if len(items) == 100 {
-			if err := client.BatchPut(ctx, items); err != nil {
-				log.Fatal(err)
+			donor := &donordata.Provided{
+				LpaUID:           uuid.NewString(),
+				PK:               dynamo.LpaKey(uuid.NewString()),
+				SK:               dynamo.LpaOwnerKey(dynamo.DonorKey(uuid.NewString())),
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				Donor:            donordata.Donor{Email: "a@b.com"},
 			}
 
-			items = []any{}
+			event := scheduled.Event{
+				At:                now,
+				Action:            scheduled.ActionExpireDonorIdentity,
+				TargetLpaKey:      donor.PK,
+				TargetLpaOwnerKey: donor.SK,
+				PK:                dynamo.ScheduledDayKey(now),
+				SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
+			}
+
+			itemChan <- donor
+			itemChan <- event
 		}
+		close(itemChan)
+	}()
+
+	// Consumer: Consume items from the channel and write them to DynamoDB in batches
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			batchItems := make([]any, 0, batchSize)
+			for item := range itemChan {
+				batchItems = append(batchItems, item)
+				if len(batchItems) == batchSize {
+					if err := client.BatchPut(ctx, batchItems); err != nil {
+						log.Printf("failed to write batch: %v", err)
+					}
+					batchItems = batchItems[:0]
+				}
+			}
+			if len(batchItems) > 0 {
+				if err := client.BatchPut(ctx, batchItems); err != nil {
+					log.Printf("failed to write batch: %v", err)
+				}
+			}
+		}()
 	}
 
-	if len(items) > 0 {
-		if err := client.BatchPut(ctx, items); err != nil {
-			log.Fatal(err)
-		}
-	}
+	wg.Wait()
+
+	elapsed := time.Since(start)
+	log.Printf("Execution time: %s", elapsed)
 }
