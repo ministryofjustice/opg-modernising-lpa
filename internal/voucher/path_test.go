@@ -34,7 +34,7 @@ func TestPathRedirect(t *testing.T) {
 }
 
 func TestPathRedirectWhenFrom(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/?from=/x", nil)
+	r, _ := http.NewRequest(http.MethodGet, "/?from=/voucher/lpa-id/x", nil)
 	w := httptest.NewRecorder()
 	p := Path("/something")
 
@@ -43,7 +43,7 @@ func TestPathRedirectWhenFrom(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, "/x", resp.Header.Get("Location"))
+	assert.Equal(t, "/voucher/lpa-id/x", resp.Header.Get("Location"))
 }
 
 func TestCanGoTo(t *testing.T) {
