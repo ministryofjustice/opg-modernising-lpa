@@ -1,21 +1,21 @@
 FROM golang:1.23.3-alpine AS build-env
 
-RUN apk --no-cache add openssl=3.3.2-r1
-
 WORKDIR /app
 
-COPY go.mod go.sum ./
+RUN apk --no-cache add openssl=3.3.2-r1
+
+COPY --link go.mod go.sum ./
 RUN go mod download
 
-COPY cmd/mock-os-api ./cmd/mock-os-api
-COPY docker/mock-os-api/data ./data
+COPY --link cmd/mock-os-api ./cmd/mock-os-api
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o mock-os-api ./cmd/mock-os-api
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o /go/bin/mock-os-api ./cmd/mock-os-api
 
-RUN addgroup --system app && \
-  adduser --system --gecos app app && \
-  chown -R app:app /app
+FROM scratch AS production
 
-USER app
+WORKDIR /go/bin
 
-CMD [ "/app/mock-os-api" ]
+COPY --from=build-env /go/bin/mock-os-api mock-os-api
+COPY --link docker/mock-os-api/data data
+
+CMD [ "./mock-os-api" ]
