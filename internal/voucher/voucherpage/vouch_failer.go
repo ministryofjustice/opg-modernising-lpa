@@ -2,9 +2,8 @@ package voucherpage
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -17,12 +16,8 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublic
 	return func(ctx context.Context, provided *voucherdata.Provided, lpa *lpadata.Lpa) error {
 		donor, err := donorStore.GetAny(ctx)
 		if err != nil {
-			return err
+			return fmt.Errorf("could not get donor: %w", err)
 		}
-
-		donor.FailedVouchAttempts++
-		donor.WantVoucher = form.No
-		donor.Voucher = donordata.Voucher{}
 
 		email := notify.VouchingFailedAttemptEmail{
 			Greeting:          notifyClient.EmailGreeting(lpa),
@@ -30,12 +25,12 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublic
 			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 		}
 
-		if err := notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.Donor.Email, lpa.LpaUID, email); err != nil {
-			return err
+		if err := notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+			return fmt.Errorf("could not send email: %w", err)
 		}
 
-		if err := donorStore.Put(ctx, donor); err != nil {
-			return err
+		if err := donorStore.FailVoucher(ctx, donor, provided.SK); err != nil {
+			return fmt.Errorf("could not fail vouch: %w", err)
 		}
 
 		return nil

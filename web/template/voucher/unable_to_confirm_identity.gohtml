@@ -10,8 +10,8 @@
                 "heading") }}
 
             {{ trFormatHtml .App "voucherUnableToConfirmIdentityContent"
-                "DonorFullName" .Lpa.Donor.FullName
-                "DonorFirstNames" .Lpa.Donor.FirstNames }}
+                "DonorFullName" (.App.Query.Get "donorFullName")
+                "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
         </div>
     </div>
 {{ end }}
