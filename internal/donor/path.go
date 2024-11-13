@@ -146,7 +146,7 @@ func (p Path) FormatQuery(id string, query url.Values) string {
 
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided) error {
 	rurl := p.Format(donor.LpaID)
-	if fromURL := r.FormValue("from"); fromURL != "" {
+	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, donor.LpaID) {
 		rurl = fromURL
 	}
 
@@ -156,7 +156,7 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 
 func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appcontext.Data, donor *donordata.Provided, query url.Values) error {
 	rurl := p.FormatQuery(donor.LpaID, query)
-	if fromURL := r.FormValue("from"); fromURL != "" {
+	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, donor.LpaID) {
 		rurl = fromURL
 	}
 
@@ -240,4 +240,8 @@ func CanGoTo(donor *donordata.Provided, url string) bool {
 	}
 
 	return true
+}
+
+func canFrom(fromURL string, lpaID string) bool {
+	return strings.HasPrefix(fromURL, Path("").Format(lpaID))
 }

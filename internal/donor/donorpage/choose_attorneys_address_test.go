@@ -742,8 +742,8 @@ func TestPostChooseAttorneysManuallyFromAnotherPage(t *testing.T) {
 		expectedNextUrl string
 	}{
 		"with from value": {
-			"/?from=/test&id=" + uid.String(),
-			"/test",
+			"/?from=/lpa/lpa-id/test&id=" + uid.String(),
+			"/lpa/lpa-id/test",
 		},
 		"without from value": {
 			"/?from=&id=" + uid.String(),
