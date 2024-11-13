@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
@@ -488,6 +489,19 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 
 	transaction := dynamo.NewTransaction().
 		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
+		Put(provided)
+
+	return s.dynamoClient.WriteTransaction(ctx, transaction)
+}
+
+func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error {
+	provided.FailedVouchAttempts++
+	provided.WantVoucher = form.No
+	provided.Voucher = donordata.Voucher{}
+
+	transaction := dynamo.NewTransaction().
+		Delete(dynamo.Keys{PK: provided.PK, SK: voucherKey}).
+		Delete(dynamo.Keys{PK: provided.PK, SK: dynamo.ReservedKey(dynamo.VoucherKey)}).
 		Put(provided)
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
