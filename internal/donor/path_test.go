@@ -31,30 +31,13 @@ func TestLpaPathRedirect(t *testing.T) {
 		expected string
 	}{
 		"redirect": {
-			url: "/",
-			donor: &donordata.Provided{
-				LpaID: "lpa-id",
-				Donor: donordata.Donor{
-					CanSign: form.Yes,
-				},
-				Type: lpadata.LpaTypePersonalWelfare,
-				Tasks: donordata.Tasks{
-					YourDetails:                task.StateCompleted,
-					ChooseAttorneys:            task.StateCompleted,
-					ChooseReplacementAttorneys: task.StateCompleted,
-					LifeSustainingTreatment:    task.StateCompleted,
-					Restrictions:               task.StateCompleted,
-					CertificateProvider:        task.StateCompleted,
-					PeopleToNotify:             task.StateCompleted,
-					CheckYourLpa:               task.StateCompleted,
-					PayForLpa:                  task.PaymentStateCompleted,
-				},
-			},
+			url:      "/",
+			donor:    &donordata.Provided{LpaID: "lpa-id"},
 			expected: PathConfirmYourIdentity.Format("lpa-id"),
 		},
 		"redirect with from": {
 			url:      "/?from=" + PathRestrictions.Format("lpa-id"),
-			donor:    &donordata.Provided{LpaID: "lpa-id", Tasks: donordata.Tasks{YourDetails: task.StateCompleted, ChooseAttorneys: task.StateCompleted}},
+			donor:    &donordata.Provided{LpaID: "lpa-id"},
 			expected: PathRestrictions.Format("lpa-id"),
 		},
 	}
@@ -75,15 +58,36 @@ func TestLpaPathRedirect(t *testing.T) {
 }
 
 func TestLpaPathRedirectQuery(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
+	testCases := map[string]struct {
+		url      string
+		donor    *donordata.Provided
+		expected string
+	}{
+		"redirect": {
+			url:      "/",
+			donor:    &donordata.Provided{LpaID: "lpa-id"},
+			expected: PathConfirmYourIdentity.Format("lpa-id") + "?q=1",
+		},
+		"redirect with from": {
+			url:      "/?from=" + PathRestrictions.Format("lpa-id"),
+			donor:    &donordata.Provided{LpaID: "lpa-id"},
+			expected: PathRestrictions.Format("lpa-id"),
+		},
+	}
 
-	err := PathTaskList.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, &donordata.Provided{LpaID: "lpa-id"}, url.Values{"q": {"1"}})
-	resp := w.Result()
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, tc.url, nil)
+			w := httptest.NewRecorder()
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, PathTaskList.Format("lpa-id")+"?q=1", resp.Header.Get("Location"))
+			err := PathConfirmYourIdentity.RedirectQuery(w, r, appcontext.Data{Lang: localize.En}, tc.donor, url.Values{"q": {"1"}})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.expected, resp.Header.Get("Location"))
+		})
+	}
 }
 
 func TestDonorCanGoTo(t *testing.T) {
