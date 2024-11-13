@@ -2,6 +2,7 @@ package sesh
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 
 	"github.com/gorilla/securecookie"
@@ -67,7 +68,7 @@ func (s *DynamoStore) Save(r *http.Request, w http.ResponseWriter, session *sess
 	}
 
 	if session.ID == "" {
-		session.ID = string(securecookie.GenerateRandomKey(32))
+		session.ID = base64.RawStdEncoding.EncodeToString(securecookie.GenerateRandomKey(32))
 	}
 	if err := s.save(r.Context(), session); err != nil {
 		return err
