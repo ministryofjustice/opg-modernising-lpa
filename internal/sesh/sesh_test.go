@@ -14,7 +14,7 @@ var (
 	expectedError = errors.New("err")
 )
 
-func (m *mockCookieStore) expectGet(r *http.Request, cookie, param string, values any) *mockCookieStore {
+func (m *mockSessionsStore) expectGet(r *http.Request, cookie, param string, values any) *mockSessionsStore {
 	session := sessions.NewSession(m, cookie)
 	session.Values = map[any]any{param: values}
 
@@ -25,7 +25,7 @@ func (m *mockCookieStore) expectGet(r *http.Request, cookie, param string, value
 	return m
 }
 
-func (m *mockCookieStore) expectSet(r *http.Request, w http.ResponseWriter, cookie, param string, values any, options *sessions.Options) *mockCookieStore {
+func (m *mockSessionsStore) expectSet(r *http.Request, w http.ResponseWriter, cookie, param string, values any, options *sessions.Options) *mockSessionsStore {
 	session := sessions.NewSession(m, cookie)
 	session.Options = options
 	session.Values = map[any]any{param: values}
@@ -37,7 +37,7 @@ func (m *mockCookieStore) expectSet(r *http.Request, w http.ResponseWriter, cook
 	return m
 }
 
-func (m *mockCookieStore) expectClear(r *http.Request, w http.ResponseWriter, cookie string) *mockCookieStore {
+func (m *mockSessionsStore) expectClear(r *http.Request, w http.ResponseWriter, cookie string) *mockSessionsStore {
 	session := sessions.NewSession(m, cookie)
 	session.Options.MaxAge = -1
 	session.Values = map[any]any{}
@@ -58,7 +58,7 @@ func TestOneLogin(t *testing.T) {
 		values = &OneLoginSession{State: "a", Nonce: "b", Redirect: "c", SessionID: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectGet(r, cookieSignIn, "one-login", values)
 
 	store := &Store{s: cookieStore}
@@ -75,7 +75,7 @@ func TestSetOneLogin(t *testing.T) {
 		values = &OneLoginSession{SessionID: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectSet(r, w, cookieSignIn, "one-login", values, oneLoginCookieOptions)
 
 	store := &Store{s: cookieStore}
@@ -94,7 +94,7 @@ func TestLogin(t *testing.T) {
 		values = &LoginSession{Sub: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectGet(r, cookieSession, "session", values)
 
 	store := &Store{d: cookieStore}
@@ -111,7 +111,7 @@ func TestSetLogin(t *testing.T) {
 		values = &LoginSession{Sub: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectSet(r, w, cookieSession, "session", values, sessionCookieOptions)
 
 	store := &Store{d: cookieStore}
@@ -126,7 +126,7 @@ func TestClearLogin(t *testing.T) {
 		w    = httptest.NewRecorder()
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectClear(r, w, cookieSession)
 
 	store := &Store{d: cookieStore}
@@ -141,7 +141,7 @@ func TestPayment(t *testing.T) {
 		values = &PaymentSession{PaymentID: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectGet(r, cookiePayment, "payment", values)
 
 	store := &Store{s: cookieStore}
@@ -158,7 +158,7 @@ func TestSetPayment(t *testing.T) {
 		values = &PaymentSession{PaymentID: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectSet(r, w, cookiePayment, "payment", values, paymentCookieOptions)
 
 	store := &Store{s: cookieStore}
@@ -173,7 +173,7 @@ func TestClearPayment(t *testing.T) {
 		w    = httptest.NewRecorder()
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectClear(r, w, cookiePayment)
 
 	store := &Store{s: cookieStore}
@@ -188,7 +188,7 @@ func TestCsrf(t *testing.T) {
 		values = &CsrfSession{Token: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectGet(r, cookieCsrf, "csrf", values)
 
 	store := &Store{s: cookieStore}
@@ -205,7 +205,7 @@ func TestSetCsrf(t *testing.T) {
 		values = &CsrfSession{Token: "x"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectSet(r, w, cookieCsrf, "csrf", values, sessionCookieOptions)
 
 	store := &Store{s: cookieStore}
@@ -220,7 +220,7 @@ func TestLpaData(t *testing.T) {
 		values = &LpaDataSession{LpaID: "lpa-id"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectGet(r, cookieLPAData, "lpa-data", values)
 
 	store := &Store{s: cookieStore}
@@ -237,7 +237,7 @@ func TestSetLpaDataSession(t *testing.T) {
 		values = &LpaDataSession{LpaID: "lpa-id"}
 	)
 
-	cookieStore := newMockCookieStore(t).
+	cookieStore := newMockSessionsStore(t).
 		expectSet(r, w, cookieLPAData, "lpa-data", values, sessionCookieOptions)
 
 	store := &Store{s: cookieStore}

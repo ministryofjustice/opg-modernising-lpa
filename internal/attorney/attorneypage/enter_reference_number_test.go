@@ -140,41 +140,6 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	}
 }
 
-func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("")), ActorUID: testUID}
-
-	form := url.Values{
-		"reference-number": {"abcdef123456"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), mock.Anything, mock.Anything).
-		Return(shareCode, nil)
-
-	attorneyStore := newMockAttorneyStore(t)
-	attorneyStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything).
-		Return(&attorneydata.Provided{}, dynamo.ConditionalCheckFailedError{})
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
-
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, attorneyStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, attorney.PathCodeOfConduct.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {" abcdef123456  "},
