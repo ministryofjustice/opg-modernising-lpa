@@ -23,8 +23,8 @@ func TestAttorneyPathFormat(t *testing.T) {
 
 func TestAttorneyPathRedirect(t *testing.T) {
 	testcases := map[Path]string{
-		Path("/something"):                "/attorney/lpa-id/something",
-		Path("/something?from=somewhere"): "/attorney/lpa-id/somewhere",
+		Path("/something"): "/attorney/lpa-id/something",
+		Path("/something?from=/attorney/lpa-id/somewhere"): "/attorney/lpa-id/somewhere",
 	}
 
 	for path, expectedURL := range testcases {
@@ -44,8 +44,8 @@ func TestAttorneyPathRedirect(t *testing.T) {
 
 func TestAttorneyPathRedirectQuery(t *testing.T) {
 	testcases := map[Path]string{
-		Path("/something"):                "/attorney/lpa-id/something",
-		Path("/something?from=somewhere"): "/attorney/lpa-id/somewhere",
+		Path("/something"): "/attorney/lpa-id/something",
+		Path("/something?from=/attorney/lpa-id/somewhere"): "/attorney/lpa-id/somewhere",
 	}
 
 	for path, expectedURL := range testcases {
