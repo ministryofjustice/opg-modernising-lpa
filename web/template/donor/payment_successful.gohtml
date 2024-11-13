@@ -12,9 +12,9 @@
         </div>
       </div>
 
-      <h2 class="govuk-heading-m">{{ tr .App "thankYouHeader" }}</h2>
+      <h2 class="govuk-heading-m">{{ tr .App "thankYou" }}</h2>
 
-      {{ trHtml .App "paymentConfirmationContent" }}
+      {{ trFormatHtml .App "paymentConfirmationContent" "LpaType" (tr .App .Donor.Type.String) }}
 
       <a class="govuk-button" href="{{ link .App (.App.Query.Get "next") }}">{{ tr .App "continue" }}</a>
     </div>
