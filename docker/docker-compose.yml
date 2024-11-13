@@ -1,3 +1,4 @@
+name: mrlpa
 services:
   app:
     build:
