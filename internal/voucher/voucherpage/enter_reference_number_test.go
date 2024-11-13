@@ -103,41 +103,6 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostEnterReferenceNumberWhenConditionalCheckFailed(t *testing.T) {
-	shareCode := sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}
-
-	form := url.Values{
-		"reference-number": {"abcdef123456"},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	shareCodeStore := newMockShareCodeStore(t)
-	shareCodeStore.EXPECT().
-		Get(r.Context(), mock.Anything, mock.Anything).
-		Return(shareCode, nil)
-
-	voucherStore := newMockVoucherStore(t)
-	voucherStore.EXPECT().
-		Create(mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, dynamo.ConditionalCheckFailedError{})
-
-	sessionStore := newMockSessionStore(t)
-	sessionStore.EXPECT().
-		Login(r).
-		Return(&sesh.LoginSession{Sub: "hey", Email: "a@example.com"}, nil)
-
-	err := EnterReferenceNumber(nil, shareCodeStore, sessionStore, voucherStore)(testAppData, w, r)
-
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
-}
-
 func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 	form := url.Values{
 		"reference-number": {" abcdef123456  "},
