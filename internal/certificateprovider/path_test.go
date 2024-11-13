@@ -22,8 +22,8 @@ func TestCertificateProviderPathFormat(t *testing.T) {
 
 func TestCertificateProviderPathRedirect(t *testing.T) {
 	testcases := map[Path]string{
-		Path("/something"):                "/certificate-provider/lpa-id/something",
-		Path("/something?from=somewhere"): "/certificate-provider/lpa-id/somewhere",
+		Path("/something"): "/certificate-provider/lpa-id/something",
+		Path("/something?from=/certificate-provider/lpa-id/somewhere"): "/certificate-provider/lpa-id/somewhere",
 	}
 
 	for path, expectedURL := range testcases {

@@ -2,6 +2,7 @@ package voucher
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -36,7 +37,7 @@ func (p Path) Format(id string) string {
 
 func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontext.Data, lpaID string) error {
 	rurl := p.Format(lpaID)
-	if fromURL := r.FormValue("from"); fromURL != "" {
+	if fromURL := r.FormValue("from"); fromURL != "" && canFrom(fromURL, lpaID) {
 		rurl = fromURL
 	}
 
@@ -65,4 +66,8 @@ func (p Path) CanGoTo(provided *voucherdata.Provided) bool {
 	default:
 		return true
 	}
+}
+
+func canFrom(fromURL string, lpaID string) bool {
+	return strings.HasPrefix(fromURL, Path("").Format(lpaID))
 }

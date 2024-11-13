@@ -646,8 +646,8 @@ func TestPostEnterTrustCorporationAddressManuallyFromAnotherPage(t *testing.T) {
 		expectedNextUrl string
 	}{
 		"with from value": {
-			"/?from=/test",
-			"/test",
+			"/?from=/lpa/lpa-id/test",
+			"/lpa/lpa-id/test",
 		},
 		"without from value": {
 			"/?from=",
