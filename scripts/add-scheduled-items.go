@@ -1,9 +1,11 @@
 package main
 
 import (
+	"cmp"
 	"context"
+	"flag"
 	"log"
-	"sync"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -17,9 +19,12 @@ import (
 )
 
 func main() {
+	taskCount := flag.Int("taskCount", 10, "the number of scheduled tasks to generate")
+	flag.Parse()
+
 	ctx := context.Background()
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
+	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion("eu-west-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 			"test",
@@ -28,7 +33,8 @@ func main() {
 		)),
 	)
 
-	cfg.BaseEndpoint = aws.String("http://localhost:4566")
+	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localhost:4566")
+	cfg.BaseEndpoint = aws.String(awsBaseURL)
 
 	if err != nil {
 		log.Fatal("failed to load default config: %w", err)
@@ -40,14 +46,14 @@ func main() {
 	}
 
 	const batchSize = 100
-	itemChan := make(chan any, batchSize)
-	var wg sync.WaitGroup
+	donorChan := make(chan any, batchSize)
+	eventChan := make(chan any, batchSize)
 
 	start := time.Now()
 
 	go func() {
 		now := time.Now()
-		for i := 0; i < 10000; i++ {
+		for i := 0; i < *taskCount; i++ {
 			now = now.Add(time.Second * 1)
 
 			donor := &donordata.Provided{
@@ -67,36 +73,66 @@ func main() {
 				SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
 			}
 
-			itemChan <- donor
-			itemChan <- event
+			eventChan <- event
+			donorChan <- donor
 		}
-		close(itemChan)
+		close(eventChan)
+		close(donorChan)
 	}()
 
-	for i := 0; i < 5; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			batchItems := make([]any, 0, batchSize)
-			for item := range itemChan {
-				batchItems = append(batchItems, item)
-				if len(batchItems) == batchSize {
-					if err := client.BatchPut(ctx, batchItems); err != nil {
-						log.Printf("failed to write batch: %v", err)
+	addedEvents := 0
+
+	var donorBatch, eventBatch []any
+
+	for {
+		select {
+		case donor, ok := <-donorChan:
+			if !ok {
+				if len(donorBatch) > 0 {
+					if err := client.BatchPut(ctx, donorBatch); err != nil {
+						log.Printf("failed to write remaining donors: %v", err)
 					}
-					batchItems = batchItems[:0]
 				}
+
+				break
 			}
-			if len(batchItems) > 0 {
-				if err := client.BatchPut(ctx, batchItems); err != nil {
-					log.Printf("failed to write batch: %v", err)
+
+			donorBatch = append(donorBatch, donor)
+			if len(donorBatch) == batchSize {
+				if err := client.BatchPut(ctx, donorBatch); err != nil {
+					log.Printf("failed to write batched donors: %v", err)
 				}
+
+				donorBatch = donorBatch[:0]
 			}
-		}()
+
+		case event, ok := <-eventChan:
+			if !ok {
+				if len(eventBatch) > 0 {
+					if err := client.BatchPut(ctx, eventBatch); err != nil {
+						log.Printf("failed to write batched events: %v", err)
+					}
+
+					addedEvents += len(eventBatch)
+				}
+
+				elapsed := time.Since(start)
+				log.Printf("Execution time: %s", elapsed)
+				log.Printf("Added %d tasks", addedEvents)
+
+				return
+			}
+
+			eventBatch = append(eventBatch, event)
+			if len(eventBatch) == batchSize {
+				if err := client.BatchPut(ctx, eventBatch); err != nil {
+					log.Printf("failed to write batched events: %v", err)
+				}
+
+				addedEvents += batchSize
+				eventBatch = eventBatch[:0]
+			}
+		}
 	}
 
-	wg.Wait()
-
-	elapsed := time.Since(start)
-	log.Printf("Execution time: %s", elapsed)
 }
