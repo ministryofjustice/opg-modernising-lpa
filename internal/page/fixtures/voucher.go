@@ -109,11 +109,6 @@ func Voucher(
 			}
 		}
 
-		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
-		if err != nil {
-			return err
-		}
-
 		if progress == slices.Index(progressValues, "") {
 			if shareCode != "" {
 				shareCodeSender.UseTestCode(shareCode)
@@ -133,6 +128,11 @@ func Voucher(
 
 			http.Redirect(w, r, redirect, http.StatusFound)
 			return nil
+		}
+
+		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
+		if err != nil {
+			return err
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourName") {

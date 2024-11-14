@@ -36,6 +36,7 @@ const (
 	PathVoucherLogin                                                       = Path("/voucher-login")
 	PathVoucherLoginCallback                                               = Path("/voucher-login-callback")
 	PathVoucherEnterReferenceNumber                                        = Path("/voucher-enter-reference-number")
+	PathVoucherUnableToConfirmIdentity                                     = Path("/voucher-unable-to-confirm-identity")
 
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
 	PathAuthRedirect                = Path("/auth/redirect")
