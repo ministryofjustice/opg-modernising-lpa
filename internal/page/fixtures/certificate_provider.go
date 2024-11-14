@@ -185,11 +185,6 @@ func CertificateProvider(
 			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
 		}
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
-		if err != nil {
-			return err
-		}
-
 		if progress >= slices.Index(progressValues, "paid") {
 			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
@@ -205,7 +200,22 @@ func CertificateProvider(
 			donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		}
 
+		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
+			return err
+		}
+
+		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
+		}
+
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
+			certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
+			if err != nil {
+				return err
+			}
+
 			certificateProvider.DateOfBirth = date.New("1990", "1", "2")
 			certificateProvider.ContactLanguagePreference = localize.En
 			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
@@ -219,31 +229,21 @@ func CertificateProvider(
 					Postcode:   "B14 7ED",
 				}
 			}
-		}
 
-		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
-			certificateProvider.IdentityUserData = identity.UserData{
-				Status:      identity.StatusConfirmed,
-				CheckedAt:   time.Now(),
-				FirstNames:  donorDetails.CertificateProvider.FirstNames,
-				LastName:    donorDetails.CertificateProvider.LastName,
-				DateOfBirth: certificateProvider.DateOfBirth,
+			if progress >= slices.Index(progressValues, "confirmYourIdentity") {
+				certificateProvider.IdentityUserData = identity.UserData{
+					Status:      identity.StatusConfirmed,
+					CheckedAt:   time.Now(),
+					FirstNames:  donorDetails.CertificateProvider.FirstNames,
+					LastName:    donorDetails.CertificateProvider.LastName,
+					DateOfBirth: certificateProvider.DateOfBirth,
+				}
+				certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
-		}
 
-		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
-			return err
-		}
-
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+			if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 				return err
 			}
-		}
-
-		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
-			return err
 		}
 
 		// should only be used in tests as otherwise people can read their emails...

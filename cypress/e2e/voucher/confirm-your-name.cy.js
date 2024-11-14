@@ -1,6 +1,6 @@
 describe('Confirm your name', () => {
     beforeEach(() => {
-        cy.visit('/fixtures/voucher?redirect=/confirm-your-name');
+        cy.visit('/fixtures/voucher?progress=notStarted&redirect=/confirm-your-name');
     });
 
     it('shows my name', () => {

@@ -2,6 +2,7 @@ package voucherpage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -39,13 +40,13 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 						return tmpl(w, data)
 					} else {
-						return err
+						return fmt.Errorf("error getting sharecode: %w", err)
 					}
 				}
 
 				session, err := sessionStore.Login(r)
 				if err != nil {
-					return err
+					return fmt.Errorf("error getting login session: %w", err)
 				}
 
 				ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{
@@ -53,9 +54,8 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 					LpaID:     shareCode.LpaKey.ID(),
 				})
 
-				if _, err := voucherStore.Create(ctx, shareCode, session.Email); err != nil &&
-					!errors.Is(err, dynamo.ConditionalCheckFailedError{}) {
-					return err
+				if _, err := voucherStore.Create(ctx, shareCode, session.Email); err != nil {
+					return fmt.Errorf("error creating voucher: %w", err)
 				}
 
 				appData.LpaID = shareCode.LpaKey.ID()
