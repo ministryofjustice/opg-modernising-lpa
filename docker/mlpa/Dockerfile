@@ -44,7 +44,7 @@ COPY --link internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags="-X main.Tag=${TAG}" -o /go/bin/mlpab ./cmd/mlpa
 
-FROM alpine:3.20.3 AS production
+FROM scratch AS production
 
 WORKDIR /go/bin
 
@@ -53,17 +53,6 @@ COPY --from=asset-env /app/web/static web/static
 COPY --from=build-env /go/bin/mlpab mlpab
 COPY --link web/template web/template
 COPY --link lang lang
-
-
-RUN addgroup -S user && \
-  adduser -S -g user user && \
-  chown -R user:user mlpab web/template web/static web/robots.txt
-
-COPY scripts/docker_hardening/alpine_image_hardening.sh /harden.sh
-
-RUN /harden.sh && rm /harden.sh
-
-USER user
 
 EXPOSE 8080
 
