@@ -2,15 +2,14 @@
 package main
 
 import (
+	"cmp"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/ministryofjustice/opg-go-common/env"
 )
 
 func main() {
-	port := env.Get("PORT", "8080")
+	port := cmp.Or(os.Getenv("PORT"), "8080")
 
 	http.HandleFunc("/search/places/v1/postcode", func(w http.ResponseWriter, r *http.Request) {
 		postcode := r.URL.Query().Get("postcode")
