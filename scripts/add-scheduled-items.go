@@ -21,19 +21,14 @@ func main() {
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion("eu-west-1"),
-		config.WithEndpointResolver(aws.EndpointResolverFunc(
-			func(service, region string) (aws.Endpoint, error) {
-				return aws.Endpoint{
-					URL: "http://localhost:4566",
-				}, nil
-			},
-		)),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
 			"test",
 			"test",
 			"test",
 		)),
 	)
+
+	cfg.BaseEndpoint = aws.String("http://localhost:4566")
 
 	if err != nil {
 		log.Fatal("failed to load default config: %w", err)
@@ -78,7 +73,6 @@ func main() {
 		close(itemChan)
 	}()
 
-	// Consumer: Consume items from the channel and write them to DynamoDB in batches
 	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
