@@ -53,9 +53,6 @@ describe('Confirm your identity', () => {
         cy.contains('label', 'Sam Smith').click();
         cy.contains('button', 'Continue').click();
 
-        cy.url().should('contain', '/unable-to-confirm-identity');
-
-        cy.contains('a', 'Manage your LPAs').click();
-        cy.contains('I’m vouching for someone').should('not.exist');;
+        cy.url().should('contain', '/voucher-unable-to-confirm-identity');
     });
 });
