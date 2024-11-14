@@ -24,20 +24,24 @@ func main() {
 
 	ctx := context.Background()
 
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion("eu-west-1"),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-			"test",
-			"test",
-			"test",
-		)),
-	)
-
-	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localhost:4566")
-	cfg.BaseEndpoint = aws.String(awsBaseURL)
+	cfg, err := config.LoadDefaultConfig(ctx)
 
 	if err != nil {
 		log.Fatal("failed to load default config: %w", err)
+	}
+
+	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localhost:4566")
+
+	cfg.BaseEndpoint = aws.String(awsBaseURL)
+
+	if awsBaseURL == "http://localhost:4566" {
+		cfg.Credentials = credentials.NewStaticCredentialsProvider(
+			"test",
+			"test",
+			"test",
+		)
+
+		cfg.Region = "eu-west-1"
 	}
 
 	client, err := dynamo.NewClient(cfg, "lpas")
