@@ -130,10 +130,13 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 			for i, matches := range enMatches {
 				enGroups[i] = matches[1]
 			}
+			slices.Sort(enGroups)
+
 			cyGroups := make([]string, len(cyMatches))
 			for i, matches := range cyMatches {
 				cyGroups[i] = matches[1]
 			}
+			slices.Sort(cyGroups)
 
 			if !slices.Equal(enGroups, cyGroups) {
 				t.Fail()
