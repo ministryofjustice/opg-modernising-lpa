@@ -1384,5 +1384,16 @@
     "youHaveChosen:apply-to-cop": "You have chosen to have your LPA reviewed by the Court of Protection.",
     "confirmYourIdentityThroughVouching": "Confirm your identity through vouching",
     "chooseSomeoneToVouchForYou": "Choose someone to vouch for you",
-    "pleaseReviewTheInformationYouHaveEntered": "Please review the information you have entered."
+    "pleaseReviewTheInformationYouHaveEntered": "Please review the information you have entered.",
+    "weNeedMoreInformationAboutHowYouWillConfirmYourIdentity": "We need more information about how you will confirm your identity",
+    "youCanConfirmYourIdentityAtPostOffice": "You can confirm your identity at a Post Office. You may have already started or completed this.",
+    "howToConfirmYourIdentityAtPostOffice": "How to confirm your identity at a Post Office",
+    "howToConfirmYourIdentityAtPostOfficeContent": "<p class=\"govuk-body\">You will need to:</p><ul class=\"govuk-list govuk-list--bullet\"><li>enter details from your photo ID on GOV.UK</li><li>go to <a href=\"https://www.postoffice.co.uk/identity/in-branch-verification-service\" class=\"govuk-link\">a Post Office that offers ‘in branch verification’</a>, where they’ll scan your photo ID and take a photo of you</li></ul><p class=\"govuk-body\">You’ll get an email about the result of your identity check - usually within a day of going to the Post Office.</p><p class=\"govuk-body\">You need one of the following types of photo ID:</p><ul class=\"govuk-list govuk-list--bullet\"><li>UK passport</li><li>non-UK passport</li><li>UK photocard driving licence</li><li>European Union (EU) photocard driving licence</li><li>UK biometric residence permit (BRP)</li><li>national identity photocard from an EU country, Norway, Iceland or Liechtenstein</li></ul>",
+    "tellUsHowYouWillConfirmYourIdentity": "Tell us how you will confirm your identity",
+    "iWillConfirmAtPostOffice": "I will confirm my identity at a Post Office",
+    "iHaveConfirmedAtPostOffice": "I have successfully confirmed my identity at a Post Office",
+    "iWantToReturnToOneLogin": "I want to return to GOV.UK One Login to confirm my identity",
+    "howYouWillConfirmYourIdentity": "how you will confirm your identity",
+    "viewFullLpa": "View full LPA",
+    "weHaveNotReceivedAnyInformationFromOneLogin": "We have not received any information from GOV.UK One Login about your identity."
 }

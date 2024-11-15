@@ -226,6 +226,11 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		} else {
 			confirmYourIdentityPath = donor.PathUnableToConfirmIdentity
 		}
+
+	case identity.StatusUnknown:
+		if provided.Tasks.ConfirmYourIdentity.IsInProgress() {
+			confirmYourIdentityPath = donor.PathHowWillYouConfirmYourIdentity
+		}
 	}
 
 	return taskListSection{

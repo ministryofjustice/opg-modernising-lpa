@@ -150,6 +150,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -602,7 +604,7 @@ func (g *Generator) createIndexAndNameDecl(run []Value, typeName string, suffix 
 
 func (g *Generator) buildTextMethods(typeName string) {
 	if !g.bits {
-		g.Printf(textMethods, typeName)
+		g.Printf(textMethods, typeName, upperFirst(typeName))
 	}
 }
 
@@ -612,7 +614,7 @@ func (i %[1]s) MarshalText() ([]byte, error) {
 }
 
 func (i *%[1]s) UnmarshalText(text []byte) error {
-  val, err := Parse%[1]s(string(text))
+  val, err := Parse%[2]s(string(text))
   if err != nil {
     return err
   }
@@ -654,12 +656,12 @@ func (g *Generator) buildParseMethod(runs [][]Value, typeName string) {
 	g.Printf("\n")
 
 	if g.bits {
-		g.Printf(`func Parse%[1]s(strs []string) (%[1]s, error) {
-  var result %[1]s
+		g.Printf(`func Parse%[1]s(strs []string) (%[2]s, error) {
+  var result %[2]s
 
   for _, s := range strs {
 	  switch s {
-`, typeName)
+`, upperFirst(typeName), typeName)
 		for _, values := range runs {
 			for _, value := range values {
 				g.Printf(`  case "%[1]s":
@@ -676,9 +678,9 @@ func (g *Generator) buildParseMethod(runs [][]Value, typeName string) {
 }
 `, typeName)
 	} else {
-		g.Printf(`func Parse%[1]s(s string) (%[1]s, error) {
+		g.Printf(`func Parse%[1]s(s string) (%[2]s, error) {
 	switch s {
-`, typeName)
+`, upperFirst(typeName), typeName)
 		if g.empty {
 			g.Printf(`  case "":
 		return %[1]s(0), nil
@@ -862,4 +864,9 @@ func (g *Generator) buildStrings(runs [][]Value, typeName string) {
 	g.Printf(`  return result
 }
 `)
+}
+
+func upperFirst(s string) string {
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToUpper(r)) + s[n:]
 }

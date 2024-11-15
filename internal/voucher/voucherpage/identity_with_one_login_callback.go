@@ -48,9 +48,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		provided.IdentityUserData = userData
 
 		if provided.NameMatches(lpa).IsNone() {
-			provided.Tasks.ConfirmYourIdentity = task.StateCompleted
-		} else {
-			provided.Tasks.ConfirmYourIdentity = task.StateInProgress
+			provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
 		if err := voucherStore.Put(r.Context(), provided); err != nil {
