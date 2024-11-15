@@ -36,7 +36,7 @@ func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 				lpa.CertificateProvider.FirstNames,
 				lpa.CertificateProvider.LastName,
 			) {
-				certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
+				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 
 				if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err

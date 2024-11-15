@@ -73,6 +73,29 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"identity confirmation in progress": {
+			donor: &lpadata.Lpa{
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				Paid:                             true,
+			},
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
+					ConfirmYourDetails:  task.StateCompleted,
+					ConfirmYourIdentity: task.IdentityStateInProgress,
+				},
+			},
+			appData: testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = task.StateCompleted
+				items[1].IdentityState = task.IdentityStateInProgress
+				items[1].Path = certificateprovider.PathHowWillYouConfirmYourIdentity.Format("lpa-id")
+				items[2].Disabled = true
+
+				return items
+			},
+		},
 		"identity confirmed": {
 			donor: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
@@ -84,14 +107,14 @@ func TestGetTaskList(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:    task.StateCompleted,
-					ConfirmYourIdentity:   task.StateCompleted,
+					ConfirmYourIdentity:   task.IdentityStateCompleted,
 					ProvideTheCertificate: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[1].State = task.StateCompleted
+				items[1].IdentityState = task.IdentityStateCompleted
 				items[1].Path = certificateprovider.PathReadTheLpa.Format("lpa-id")
 				items[2].State = task.StateCompleted
 
@@ -108,14 +131,14 @@ func TestGetTaskList(t *testing.T) {
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:    task.StateCompleted,
-					ConfirmYourIdentity:   task.StateCompleted,
+					ConfirmYourIdentity:   task.IdentityStateCompleted,
 					ProvideTheCertificate: task.StateCompleted,
 				},
 			},
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[1].State = task.StateCompleted
+				items[1].IdentityState = task.IdentityStateCompleted
 				items[1].Path = certificateprovider.PathReadTheLpa.Format("lpa-id")
 				items[2].State = task.StateCompleted
 
