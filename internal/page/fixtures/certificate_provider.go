@@ -276,7 +276,7 @@ func CertificateProvider(
 				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
+			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {

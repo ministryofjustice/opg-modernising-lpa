@@ -21,7 +21,7 @@ type unableToConfirmIdentityData struct {
 func UnableToConfirmIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
 		if r.Method == http.MethodPost {
-			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
+			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 
 			if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 				return err

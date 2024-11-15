@@ -128,6 +128,7 @@ const (
 	PathYourMobile                                           = Path("/your-mobile")
 	PathYourName                                             = Path("/your-name")
 	PathYourPreferredLanguage                                = Path("/your-preferred-language")
+	PathHowWillYouConfirmYourIdentity                        = Path("/how-will-you-confirm-your-identity")
 )
 
 type Path string
@@ -214,6 +215,7 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 		return section1Completed
 
 	case PathConfirmYourIdentity,
+		PathHowWillYouConfirmYourIdentity,
 		PathIdentityWithOneLogin,
 		PathIdentityDetails,
 		PathLpaYourLegalRightsAndResponsibilities,
