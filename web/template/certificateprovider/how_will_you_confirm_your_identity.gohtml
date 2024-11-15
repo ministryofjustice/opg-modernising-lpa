@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "weNeedMoreInformationAboutHowYouWillConfirmYourIdentity" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weHaveNotReceivedAnyInformationFromOneLogin") "heading") }}
+            
+            <h1 class="govuk-heading-xl">{{ tr .App "weNeedMoreInformationAboutHowYouWillConfirmYourIdentity" }}</h1>
+
+            <p class="govuk-body">{{ tr .App "youCanConfirmYourIdentityAtPostOffice" }}</p>
+
+            {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
+  
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                    (legend "tellUsHowYouWillConfirmYourIdentity" "govuk-fieldset__legend--m")
+                    (item .Options.AtPostOffice.String "iWillConfirmAtPostOffice")
+                    (item .Options.PostOfficeSuccessfully.String "iHaveConfirmedAtPostOffice")
+                    (item .Options.OneLogin.String "iWantToReturnToOneLogin")
+                    ) }}
+
+                {{ template "buttons" (button .App "continue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}
