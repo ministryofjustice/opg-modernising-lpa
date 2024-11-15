@@ -48,7 +48,7 @@ func (c *Provided) CertificateProviderIdentityConfirmed(firstNames, lastName str
 
 type Tasks struct {
 	ConfirmYourDetails    task.State
-	ConfirmYourIdentity   task.State
+	ConfirmYourIdentity   task.IdentityState
 	ReadTheLpa            task.State
 	ProvideTheCertificate task.State
 }

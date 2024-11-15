@@ -151,7 +151,7 @@ func Voucher(
 				FirstNames: voucherDetails.FirstNames,
 				LastName:   voucherDetails.LastName,
 			}
-			voucherDetails.Tasks.ConfirmYourIdentity = task.StateCompleted
+			voucherDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
 		if err := voucherStore.Put(voucherCtx, voucherDetails); err != nil {

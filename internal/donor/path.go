@@ -128,6 +128,7 @@ const (
 	PathYourMobile                                           = Path("/your-mobile")
 	PathYourName                                             = Path("/your-name")
 	PathYourPreferredLanguage                                = Path("/your-preferred-language")
+	PathHowWillYouConfirmYourIdentity                        = Path("/how-will-you-confirm-your-identity")
 )
 
 type Path string
