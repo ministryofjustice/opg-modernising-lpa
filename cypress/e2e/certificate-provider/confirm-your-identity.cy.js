@@ -10,7 +10,7 @@ describe('confirm your identity', () => {
         cy.url().should('contain', '/confirm-your-identity');
         cy.checkA11yApp();
 
-        cy.contains('a', 'Continue').click()
+        cy.contains('button', 'Continue').click()
     })
 
     it('can see details of a successful ID check', () => {

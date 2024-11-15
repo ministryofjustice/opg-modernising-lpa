@@ -3,14 +3,18 @@
 {{ define "pageTitle" }}{{ tr .App "confirmYourIdentity" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "confirmYourIdentity" }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl govuk-!-margin-bottom-6">{{ tr .App "confirmYourIdentity" }}</h1>
 
-      <p class="govuk-body">{{ trFormat .App "beforeYouCanProvideYourCertificateForThisLpa" "DonorFullName" .Lpa.Donor.FullName }}</p>
-      
-      {{ trHtml .App "confirmYourIdentityContent" }}
+            <p class="govuk-body">{{ trFormat .App "beforeYouCanProvideYourCertificateForThisLpa" "DonorFullName" .Lpa.Donor.FullName }}</p>
+            
+            {{ trHtml .App "confirmYourIdentityContent" }}
 
-      {{ template "buttons" (button .App "continue" "link" (global.Paths.CertificateProvider.IdentityWithOneLogin.Format .App.LpaID)) }}
+            <form novalidate method="post">
+                {{ template "buttons" (button .App "continue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
 {{ end }}

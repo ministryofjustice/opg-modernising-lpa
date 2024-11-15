@@ -22,10 +22,12 @@
                         </span>
 
                         <div id="{{ fieldID "status" $i }}" class="govuk-task-list__status">
-                            {{ if or .State.IsCompleted }}
+                            {{ if or .State.IsCompleted .IdentityState.IsCompleted }}
                                 {{ tr $.App "completed" }}
-                            {{ else if or .State.IsInProgress }}
+                            {{ else if or .State.IsInProgress .IdentityState.IsInProgress }}
                                 <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                            {{ else if .IdentityState.IsPending }}
+                                <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
                             {{ else if not $hasLink }}
                                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                             {{ else }}

@@ -5,7 +5,7 @@ describe('Confirm your identity', () => {
 
     it('can be confirmed', () => {
         cy.checkA11yApp();
-        cy.contains('a', 'Continue').click();
+        cy.contains('button', 'Continue').click();
         cy.contains('label', 'Vivian Vaughn').click();
         cy.contains('button', 'Continue').click();
 
@@ -35,7 +35,7 @@ describe('Confirm your identity', () => {
         cy.visitLpa('/confirm-your-identity');
 
         cy.checkA11yApp();
-        cy.contains('a', 'Continue').click();
+        cy.contains('button', 'Continue').click();
         cy.contains('label', 'Charlie Cooper').click();
         cy.contains('button', 'Continue').click();
 
@@ -49,7 +49,7 @@ describe('Confirm your identity', () => {
     });
 
     it('can fail', () => {
-        cy.contains('a', 'Continue').click();
+        cy.contains('button', 'Continue').click();
         cy.contains('label', 'Sam Smith').click();
         cy.contains('button', 'Continue').click();
 

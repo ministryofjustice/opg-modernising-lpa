@@ -12,7 +12,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Sam Smith (donor)').click();
             cy.contains('button', 'Continue').click();
@@ -38,7 +38,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Unable to prove identity (X)').click();
             cy.contains('button', 'Continue').click();
@@ -62,7 +62,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Failed identity check (T)').click();
             cy.contains('button', 'Continue').click();
@@ -89,7 +89,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Failed identity check (T)').click();
             cy.contains('button', 'Continue').click();
@@ -115,7 +115,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Charlie Cooper (certificate provider)').click();
             cy.contains('button', 'Continue').click();
@@ -148,7 +148,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Charlie Cooper (certificate provider)').click();
             cy.contains('button', 'Continue').click();
@@ -176,7 +176,7 @@ describe('Confirm your identity', () => {
 
             cy.url().should('contain', '/confirm-your-identity');
             cy.checkA11yApp();
-            cy.contains('a', 'Continue').click();
+            cy.contains('button', 'Continue').click();
 
             cy.contains('label', 'Charlie Cooper (certificate provider)').click();
             cy.contains('button', 'Continue').click();
