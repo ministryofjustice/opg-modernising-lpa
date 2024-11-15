@@ -1492,5 +1492,16 @@
     "youHaveChosen:apply-to-cop": "Welsh",
     "confirmYourIdentityThroughVouching": "Welsh",
     "chooseSomeoneToVouchForYou": "Welsh",
-    "pleaseReviewTheInformationYouHaveEntered": "Welsh"
+    "pleaseReviewTheInformationYouHaveEntered": "Welsh",
+    "weNeedMoreInformationAboutHowYouWillConfirmYourIdentity": "Welsh",
+    "youCanConfirmYourIdentityAtPostOffice": "Welsh",
+    "howToConfirmYourIdentityAtPostOffice": "Welsh",
+    "howToConfirmYourIdentityAtPostOfficeContent": "<p class=\"govuk-body\">Welsh</p>",
+    "tellUsHowYouWillConfirmYourIdentity": "Welsh",
+    "iWillConfirmAtPostOffice": "Welsh",
+    "iHaveConfirmedAtPostOffice": "Welsh",
+    "iWantToReturnToOneLogin": "Welsh",
+    "howYouWillConfirmYourIdentity": "Welsh",
+    "viewFullLpa": "Welsh",
+    "weHaveNotReceivedAnyInformationFromOneLogin": "Welsh"
 }

@@ -139,7 +139,9 @@ func Register(
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
-		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
+		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), voucherStore, lpaStoreResolvingService))
+	handleVoucher(voucher.PathHowWillYouConfirmYourIdentity, None,
+		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), voucherStore))
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,

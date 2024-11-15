@@ -70,7 +70,7 @@ func TestGetConfirmAllowedToVouch(t *testing.T) {
 				FirstNames: "V",
 				LastName:   "W",
 				Tasks: voucherdata.Tasks{
-					ConfirmYourIdentity: task.StateInProgress,
+					ConfirmYourIdentity: task.IdentityStateInProgress,
 				},
 			},
 			data: &confirmAllowedToVouchData{
@@ -146,9 +146,9 @@ func TestGetConfirmAllowedToVouchWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostConfirmAllowedToVouch(t *testing.T) {
-	testcases := map[task.State]voucherdata.Tasks{
-		task.StateNotStarted: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
-		task.StateInProgress: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+	testcases := map[task.IdentityState]voucherdata.Tasks{
+		task.IdentityStateNotStarted: voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
+		task.IdentityStateInProgress: voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 
 	for taskState, tasks := range testcases {
