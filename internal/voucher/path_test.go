@@ -69,7 +69,7 @@ func TestCanGoTo(t *testing.T) {
 		},
 		"your name when identity completed": {
 			provided: &voucherdata.Provided{
-				Tasks: voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+				Tasks: voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 			},
 			path:     PathYourName,
 			expected: false,
@@ -127,7 +127,7 @@ func TestCanGoTo(t *testing.T) {
 				Tasks: voucherdata.Tasks{
 					ConfirmYourName:     task.StateCompleted,
 					VerifyDonorDetails:  task.StateCompleted,
-					ConfirmYourIdentity: task.StateCompleted,
+					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
 			},
 			path:     PathSignTheDeclaration,

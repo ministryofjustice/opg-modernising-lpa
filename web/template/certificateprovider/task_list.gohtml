@@ -51,10 +51,12 @@
                         <div id="{{ fieldID "status" $i }}" class="govuk-task-list__status">
                             {{ if .Disabled }}
                                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
-                            {{ else if .State.IsCompleted }}
+                            {{ else if or .State.IsCompleted .IdentityState.IsCompleted }}
                                 {{ tr $.App "completed" }}
-                            {{ else if .State.IsInProgress }}
+                            {{ else if or .State.IsInProgress .IdentityState.IsInProgress }}
                                 <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "inProgress" }}</strong>
+                            {{ else if .IdentityState.IsPending }}
+                                <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
                             {{ else }}
                                 <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
                             {{ end }}

@@ -78,7 +78,7 @@ func TestPostOneLoginIdentityDetails(t *testing.T) {
 		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, FirstNames: "a", LastName: "b", DateOfBirth: date.New("2000", "1", "1")},
 		LpaID:            "lpa-id",
 		DateOfBirth:      date.New("2000", "1", "1"),
-		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
