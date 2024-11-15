@@ -92,7 +92,7 @@ func TestPostUnableToConfirmIdentity(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), &certificateproviderdata.Provided{
 			LpaID: "lpa-id",
-			Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+			Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 		}).
 		Return(nil)
 

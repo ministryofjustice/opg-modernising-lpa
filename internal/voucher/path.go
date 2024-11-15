@@ -9,19 +9,20 @@ import (
 )
 
 const (
-	PathTaskList                     = Path("/task-list")
-	PathConfirmAllowedToVouch        = Path("/confirm-allowed-to-vouch")
-	PathYouCannotVouchForDonor       = Path("/you-cannot-vouch-for-donor")
-	PathConfirmYourName              = Path("/confirm-your-name")
-	PathYourName                     = Path("/your-name")
-	PathVerifyDonorDetails           = Path("/verify-donor-details")
-	PathDonorDetailsDoNotMatch       = Path("/donor-details-do-not-match")
-	PathConfirmYourIdentity          = Path("/confirm-your-identity")
-	PathSignTheDeclaration           = Path("/sign-the-declaration")
-	PathIdentityWithOneLogin         = Path("/identity-with-one-login")
-	PathIdentityWithOneLoginCallback = Path("/identity-with-one-login-callback")
-	PathOneLoginIdentityDetails      = Path("/one-login-identity-details")
-	PathThankYou                     = Path("/thank-you")
+	PathConfirmAllowedToVouch         = Path("/confirm-allowed-to-vouch")
+	PathConfirmYourIdentity           = Path("/confirm-your-identity")
+	PathConfirmYourName               = Path("/confirm-your-name")
+	PathDonorDetailsDoNotMatch        = Path("/donor-details-do-not-match")
+	PathHowWillYouConfirmYourIdentity = Path("/how-will-you-confirm-your-identity")
+	PathIdentityWithOneLogin          = Path("/identity-with-one-login")
+	PathIdentityWithOneLoginCallback  = Path("/identity-with-one-login-callback")
+	PathOneLoginIdentityDetails       = Path("/one-login-identity-details")
+	PathSignTheDeclaration            = Path("/sign-the-declaration")
+	PathTaskList                      = Path("/task-list")
+	PathThankYou                      = Path("/thank-you")
+	PathVerifyDonorDetails            = Path("/verify-donor-details")
+	PathYouCannotVouchForDonor        = Path("/you-cannot-vouch-for-donor")
+	PathYourName                      = Path("/your-name")
 )
 
 type Path string
@@ -53,7 +54,10 @@ func (p Path) CanGoTo(provided *voucherdata.Provided) bool {
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&
 			!provided.Tasks.VerifyDonorDetails.IsCompleted()
 
-	case PathConfirmYourIdentity:
+	case PathConfirmYourIdentity,
+		PathHowWillYouConfirmYourIdentity,
+		PathIdentityWithOneLogin,
+		PathOneLoginIdentityDetails:
 		return provided.Tasks.ConfirmYourName.IsCompleted() &&
 			provided.Tasks.VerifyDonorDetails.IsCompleted()
 
