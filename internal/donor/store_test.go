@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -1092,5 +1093,35 @@ func TestDonorStoreDeleteVoucherWhenOneBySKErrors(t *testing.T) {
 	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
 		Voucher: donordata.Voucher{FirstNames: "a"},
 	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorFailVoucher(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{
+				{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.VoucherKey("a-voucher")},
+				{PK: dynamo.LpaKey("lpa-id"), SK: dynamo.ReservedKey(dynamo.VoucherKey)},
+			},
+			Puts: []any{
+				&donordata.Provided{
+					PK:                  dynamo.LpaKey("lpa-id"),
+					WantVoucher:         form.No,
+					FailedVouchAttempts: 1,
+				},
+			},
+		}).
+		Return(expectedError)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.FailVoucher(ctx, &donordata.Provided{
+		PK:          dynamo.LpaKey("lpa-id"),
+		Voucher:     donordata.Voucher{FirstNames: "a"},
+		WantVoucher: form.Yes,
+	}, dynamo.VoucherKey("a-voucher"))
 	assert.Equal(t, expectedError, err)
 }
