@@ -52,7 +52,7 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 				}
 
 				if provided.Tasks.ConfirmYourIdentity.IsInProgress() {
-					provided.Tasks.ConfirmYourIdentity = task.StateCompleted
+					provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 				} else {
 					provided.Tasks.ConfirmYourName = task.StateCompleted
 				}
