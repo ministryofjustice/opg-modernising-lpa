@@ -121,8 +121,9 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"channel": matchers.Regex("online", "online|paper"),
-							"status":  matchers.Regex("active", "active|replacement"),
+							"channel":         matchers.Regex("online", "online|paper"),
+							"status":          matchers.Regex("active", "active|inactive|removed|replacement"),
+							"appointmentType": matchers.Regex("original", "original|replacement"),
 						}, 1),
 						"trustCorporations": matchers.EachLike(map[string]any{
 							"uid":           matchers.UUID(),
