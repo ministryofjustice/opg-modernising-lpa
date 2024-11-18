@@ -157,7 +157,7 @@ func TestReadHowWillYouConfirmYourIdentityForm(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	result := readHowWillYouConfirmYourIdentityForm(r)
+	result := readHowWillYouConfirmYourIdentityForm(r, "blah")
 	assert.Equal(t, howYouWillConfirmYourIdentityAtPostOffice, result.How)
 }
 
@@ -172,8 +172,8 @@ func TestHowWillYouConfirmYourIdentityFormValidate(t *testing.T) {
 			},
 		},
 		"invalid": {
-			form:   &howWillYouConfirmYourIdentityForm{},
-			errors: validation.With("how", validation.SelectError{Label: "howYouWillConfirmYourIdentity"}),
+			form:   &howWillYouConfirmYourIdentityForm{errorLabel: "blah"},
+			errors: validation.With("how", validation.SelectError{Label: "blah"}),
 		},
 	}
 

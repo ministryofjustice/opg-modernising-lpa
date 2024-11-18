@@ -45,6 +45,16 @@ func (p *Provided) IdentityConfirmed() bool {
 	return p.IdentityUserData.Status.IsConfirmed() && p.IdentityUserData.MatchName(p.FirstNames, p.LastName)
 }
 
+// IdentityDeadline gives the date which the voucher must complete their
+// identity confirmation, otherwise the signature will expire.
+func (p *Provided) IdentityDeadline(donorSignedAt time.Time) time.Time {
+	if donorSignedAt.IsZero() {
+		return time.Time{}
+	}
+
+	return donorSignedAt.AddDate(0, 6, 0)
+}
+
 func (p *Provided) NameMatches(lpa *lpadata.Lpa) actor.Type {
 	if p.FirstNames == "" && p.LastName == "" {
 		return actor.TypeNone

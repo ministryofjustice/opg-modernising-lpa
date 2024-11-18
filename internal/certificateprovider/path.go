@@ -10,6 +10,7 @@ import (
 
 const (
 	PathCertificateProvided                    = Path("/certificate-provided")
+	PathCompletingYourIdentityConfirmation     = Path("/completing-your-identity-confirmation")
 	PathConfirmDontWantToBeCertificateProvider = Path("/confirm-you-do-not-want-to-be-a-certificate-provider")
 	PathConfirmYourDetails                     = Path("/confirm-your-details")
 	PathConfirmYourIdentity                    = Path("/confirm-your-identity")
@@ -62,7 +63,8 @@ func (p Path) canVisit(certificateProvider *certificateproviderdata.Provided) bo
 		PathProvideCertificate,
 		PathConfirmDontWantToBeCertificateProvider,
 		PathCertificateProvided:
-		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() && certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted()
+		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() &&
+			(certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() || certificateProvider.Tasks.ConfirmYourIdentity.IsPending())
 
 	default:
 		return true
