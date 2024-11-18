@@ -72,6 +72,21 @@ func TestPostConfirmYourIdentity(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
+	err := ConfirmYourIdentity(nil, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{
+		LpaID: "lpa-id",
+		Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateInProgress},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, certificateprovider.PathIdentityWithOneLogin.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostConfirmYourIdentityWhenNotStarted(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), &certificateproviderdata.Provided{
