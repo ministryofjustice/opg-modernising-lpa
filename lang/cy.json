@@ -1503,5 +1503,12 @@
     "iWantToReturnToOneLogin": "Welsh",
     "howYouWillConfirmYourIdentity": "Welsh",
     "viewFullLpa": "Welsh",
-    "weHaveNotReceivedAnyInformationFromOneLogin": "Welsh"
+    "weHaveNotReceivedAnyInformationFromOneLogin": "Welsh",
+    "youHaveChosenToConfirmAtPostOfficeContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "youHaveChosenToConfirmAtPostOfficeHeading": "Welsh",
+    "completingYourIdentityConfirmation": "Welsh",
+    "completingYourIdentityConfirmationContent": "<p class=\"govuk-body\">Welsh</p>",
+    "iWantToReturnToPostOffice": "Welsh",
+    "iWantToReturnToOneLoginAnotherWay": "Welsh",
+    "nowThatYouHaveSignedConfirmIdentityBy": "Welsh"
 }

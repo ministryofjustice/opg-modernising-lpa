@@ -393,6 +393,8 @@ func Register(
 		ConfirmYourIdentity(tmpls.Get("prove_your_identity.gohtml"), donorStore))
 	handleWithDonor(donor.PathHowWillYouConfirmYourIdentity, page.None,
 		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), donorStore))
+	handleWithDonor(donor.PathCompletingYourIdentityConfirmation, page.None,
+		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml")))
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
