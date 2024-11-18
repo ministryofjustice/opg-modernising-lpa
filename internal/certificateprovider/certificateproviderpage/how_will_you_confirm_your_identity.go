@@ -50,7 +50,6 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, certificateProviderSt
 						return fmt.Errorf("error updating certificate provider: %w", err)
 					}
 
-					// TODO page will be created in MLPAB-2454
 					return certificateprovider.PathTaskList.Redirect(w, r, appData, provided.LpaID)
 
 				default:
