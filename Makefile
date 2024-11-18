@@ -227,7 +227,6 @@ run-schedule-runner: ##@scheduler invokes the schedule-runner lambda
     	 --endpoint-url=http://localhost:4566 \
     	 --region eu-west-1 \
     	 --function-name schedule-runner text
-	#curl "http://localhost:9002/2015-03-31/functions/function/invocations"
 
 test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds scheduled tasks and runs the schedule-runner (defaults to 10 seeded tasks) e.g. test-schedule-runner count=100
 	docker compose -f docker/docker-compose.yml exec localstack awslocal cloudwatch get-metric-data \

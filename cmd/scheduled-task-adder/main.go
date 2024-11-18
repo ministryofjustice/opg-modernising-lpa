@@ -160,7 +160,7 @@ func main() {
 	if entryPoint == "local" {
 		ctx := context.Background()
 
-		if err := handleAddScheduledTasks(ctx, TaskCountEvent{TaskCount: 10}); err != nil {
+		if err := handleAddScheduledTasks(ctx, TaskCountEvent{TaskCount: taskCount}); err != nil {
 			log.Fatal(err)
 		}
 	} else {
