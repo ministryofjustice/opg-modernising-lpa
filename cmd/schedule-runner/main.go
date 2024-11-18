@@ -12,8 +12,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -83,7 +81,11 @@ func handleRunSchedule(ctx context.Context) error {
 	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	scheduledStore := scheduled.NewStore(dynamoClient)
 
-	cloudwatchClient := cloudwatch.NewFromConfig(cfg)
+	if Tag == "" {
+		Tag = os.Getenv("TAG")
+	}
+
+	metricsClient := telemetry.NewMetricsClient(cfg, Tag)
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
@@ -95,23 +97,7 @@ func handleRunSchedule(ctx context.Context) error {
 	}
 
 	if metrics.Namespace != nil {
-		if Tag == "" {
-			Tag = os.Getenv("TAG")
-		}
-
-		for i, metricDatum := range metrics.MetricData {
-			metricDatum.Dimensions = []types.Dimension{
-				{
-					Name:  aws.String("Version"),
-					Value: aws.String(Tag),
-				},
-			}
-
-			metrics.MetricData[i] = metricDatum
-		}
-
-		_, err = cloudwatchClient.PutMetricData(ctx, &metrics)
-		if err != nil {
+		if err = metricsClient.PutMetrics(ctx, &metrics); err != nil {
 			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))
 		}
 	}
