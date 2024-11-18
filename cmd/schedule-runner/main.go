@@ -37,6 +37,8 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+	// TODO remove in MLPAB-2690
+	metricsEnabled = os.Getenv("METRICS_ENABLED") == "1"
 
 	Tag string
 
@@ -81,12 +83,6 @@ func handleRunSchedule(ctx context.Context) error {
 	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	scheduledStore := scheduled.NewStore(dynamoClient)
 
-	if Tag == "" {
-		Tag = os.Getenv("TAG")
-	}
-
-	metricsClient := telemetry.NewMetricsClient(cfg, Tag)
-
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
 	err, metrics := runner.Run(ctx)
@@ -96,7 +92,13 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	if metrics.Namespace != nil {
+	if metricsEnabled {
+		if Tag == "" {
+			Tag = os.Getenv("TAG")
+		}
+
+		metricsClient := telemetry.NewMetricsClient(cfg, Tag)
+
 		if err = metricsClient.PutMetrics(ctx, &metrics); err != nil {
 			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))
 		}

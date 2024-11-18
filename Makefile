@@ -235,4 +235,4 @@ test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds
 		--region eu-west-1 \
 		--metric-data-queries file://schedule-runner-metrics-query.json \
 		--start-time "$(shell date -v-1H -u +"%Y-%m-%dT%H:%M:%SZ")" \
-		--end-time "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"
+		--end-time "$(shell date -v+1M -u +"%Y-%m-%dT%H:%M:%SZ")"

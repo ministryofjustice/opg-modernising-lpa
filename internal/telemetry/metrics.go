@@ -30,13 +30,17 @@ func NewMetricsClient(cfg aws.Config, versionTag string) *MetricsClient {
 }
 
 func (c *MetricsClient) PutMetrics(ctx context.Context, input *cloudwatch.PutMetricDataInput) error {
-	for i, metricDatum := range input.MetricData {
-		metricDatum.Dimensions = c.baseDimensions
+	if input.Namespace != nil {
+		for i, metricDatum := range input.MetricData {
+			metricDatum.Dimensions = c.baseDimensions
 
-		input.MetricData[i] = metricDatum
+			input.MetricData[i] = metricDatum
+		}
+
+		_, err := c.cloudwatchClient.PutMetricData(ctx, input)
+
+		return err
 	}
 
-	_, err := c.cloudwatchClient.PutMetricData(ctx, input)
-
-	return err
+	return nil
 }

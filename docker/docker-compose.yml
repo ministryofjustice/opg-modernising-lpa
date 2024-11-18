@@ -80,6 +80,7 @@ services:
       - UPLOAD_S3_BUCKET=evidence
       - UID_BASE_URL=http://mock-uid:8080
       - XRAY_ENABLED=0
+      - METRICS_ENABLED=1
     networks:
       default:
         aliases:
