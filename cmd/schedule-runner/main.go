@@ -12,6 +12,8 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -37,6 +39,8 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+
+	Tag string
 
 	httpClient *http.Client
 	cfg        aws.Config
@@ -79,21 +83,38 @@ func handleRunSchedule(ctx context.Context) error {
 	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	scheduledStore := scheduled.NewStore(dynamoClient)
 
+	cloudwatchClient := cloudwatch.NewFromConfig(cfg)
+
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
-	start := time.Now()
+	err, metrics := runner.Run(ctx)
 
-	if err := runner.Run(ctx); err != nil {
+	if err != nil {
 		logger.Error("runner error", slog.Any("err", err))
-
-		elapsed := time.Since(start)
-		logger.InfoContext(ctx, "runner finished", slog.String("run time", fmt.Sprintf("%s", elapsed)))
-
 		return err
 	}
 
-	elapsed := time.Since(start)
-	logger.InfoContext(ctx, "runner finished", slog.String("run time", fmt.Sprintf("%s", elapsed)))
+	if metrics.Namespace != nil {
+		if Tag == "" {
+			Tag = os.Getenv("TAG")
+		}
+
+		for i, metricDatum := range metrics.MetricData {
+			metricDatum.Dimensions = []types.Dimension{
+				{
+					Name:  aws.String("Version"),
+					Value: aws.String(Tag),
+				},
+			}
+
+			metrics.MetricData[i] = metricDatum
+		}
+
+		_, err = cloudwatchClient.PutMetricData(ctx, &metrics)
+		if err != nil {
+			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))
+		}
+	}
 
 	return nil
 }

@@ -26,6 +26,14 @@ awslocal dynamodb create-table \
          --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
          --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
 
+awslocal dynamodb create-table \
+         --region eu-west-1 \
+         --table-name lpas-test \
+         --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+         --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+         --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+         --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
+
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
 
@@ -58,9 +66,14 @@ awslocal events put-targets \
   --rule send-events-to-bus-queue-rule \
   --targets "Id"="event-bus-queue","Arn"="arn:aws:sqs:eu-west-1:000000000000:event-bus-queue"
 
+echo 'creating log groups'
+awslocal logs create-log-group \
+  --region eu-west-1 \
+  --log-group-name "local_application_logs"
+
 echo 'creating event-received lambda'
 awslocal lambda create-function \
-  --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,APP_PUBLIC_URL=localhost:5050,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,UPLOADS_S3_BUCKET_NAME=evidence,UID_BASE_URL=http://mock-uid:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1}" \
+  --environment Variables="{LPAS_TABLE=$LPAS_TABLE,GOVUK_NOTIFY_IS_PRODUCTION=$GOVUK_NOTIFY_IS_PRODUCTION,APP_PUBLIC_URL=$APP_PUBLIC_URL,GOVUK_NOTIFY_BASE_URL=$GOVUK_NOTIFY_BASE_URL,UPLOADS_S3_BUCKET_NAME=$UPLOAD_S3_BUCKET,UID_BASE_URL=$UID_BASE_URL,SEARCH_ENDPOINT=$SEARCH_ENDPOINT,SEARCH_INDEXING_DISABLED=$SEARCH_INDEXING_DISABLED}" \
   --region eu-west-1 \
   --function-name event-received \
   --handler bootstrap \
@@ -72,7 +85,7 @@ awslocal lambda wait function-active-v2 --region eu-west-1 --function-name event
 
 echo 'creating schedule-runner lambda'
 awslocal lambda create-function \
-  --environment Variables="{LPAS_TABLE=lpas,GOVUK_NOTIFY_IS_PRODUCTION=0,GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080,SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566,SEARCH_INDEXING_ENABLED=1,SEARCH_INDEX_NAME=lpas}" \
+  --environment Variables="{AWS_BASE_URL=$AWS_BASE_URL,TAG=$TAG,LPAS_TABLE=$LPAS_TABLE,GOVUK_NOTIFY_IS_PRODUCTION=$GOVUK_NOTIFY_IS_PRODUCTION,GOVUK_NOTIFY_BASE_URL=$GOVUK_NOTIFY_BASE_URL,SEARCH_ENDPOINT=$SEARCH_ENDPOINT,SEARCH_INDEXING_DISABLED=$SEARCH_INDEXING_DISABLED,SEARCH_INDEX_NAME=$SEARCH_INDEX_NAME,XRAY_ENABLED=$XRAY_ENABLED}" \
   --region eu-west-1 \
   --function-name schedule-runner \
   --handler bootstrap \
@@ -80,9 +93,22 @@ awslocal lambda create-function \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --zip-file fileb:///etc/schedule-runner.zip \
   --timeout 900 \
-  --tracing-config Mode=Active
+  --tracing-config Mode=Active \
+  --logging-config LogGroup="local_application_logs"
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name schedule-runner
+
+echo 'creating scheduled-task-adder lambda'
+awslocal lambda create-function \
+  --environment Variables="{AWS_BASE_URL=$AWS_BASE_URL}" \
+  --region eu-west-1 \
+  --function-name scheduled-task-adder \
+  --handler bootstrap \
+  --runtime provided.al2023 \
+  --role arn:aws:iam::000000000000:role/lambda-role \
+  --zip-file fileb:///etc/scheduled-task-adder.zip
+
+awslocal lambda wait function-active-v2 --region eu-west-1 --function-name scheduled-task-adder
 
 echo 'create and associate scheduler'
 awslocal scheduler create-schedule \
@@ -93,7 +119,8 @@ awslocal scheduler create-schedule \
   --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
   --flexible-time-window '{ "Mode": "OFF"}'
 
-echo 'createing event source mapping'
+
+echo 'creating event source mapping'
 awslocal lambda create-event-source-mapping \
          --function-name "arn:aws:lambda:eu-west-1:000000000000:function:event-received" \
          --batch-size 1 \
