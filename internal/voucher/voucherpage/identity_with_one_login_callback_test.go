@@ -36,7 +36,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				FirstNames:       "John",
 				LastName:         "Doe",
 				IdentityUserData: userData,
-				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 			},
 			redirect: voucher.PathOneLoginIdentityDetails,
 		},
@@ -51,7 +51,6 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				FirstNames:       "John",
 				LastName:         "Doe",
 				IdentityUserData: userData,
-				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateInProgress},
 			},
 			redirect: voucher.PathConfirmAllowedToVouch,
 		},
@@ -253,7 +252,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				voucherStore.EXPECT().
 					Put(context.Background(), &voucherdata.Provided{
 						LpaID:            "lpa-id",
-						Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+						Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 						IdentityUserData: identity.UserData{},
 					}).
 					Return(nil)
