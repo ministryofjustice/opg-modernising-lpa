@@ -46,6 +46,16 @@ func (c *Provided) CertificateProviderIdentityConfirmed(firstNames, lastName str
 		c.IdentityUserData.DateOfBirth.Equals(c.DateOfBirth)
 }
 
+// IdentityDeadline gives the date which the certificate provider must complete
+// their identity confirmation, otherwise the signature will expire.
+func (c *Provided) IdentityDeadline() time.Time {
+	if c.SignedAt.IsZero() {
+		return time.Time{}
+	}
+
+	return c.SignedAt.AddDate(0, 6, 0)
+}
+
 type Tasks struct {
 	ConfirmYourDetails    task.State
 	ConfirmYourIdentity   task.IdentityState

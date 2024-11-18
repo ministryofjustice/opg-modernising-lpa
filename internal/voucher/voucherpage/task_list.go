@@ -40,6 +40,8 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			} else {
 				confirmYourIdentityPath = voucher.PathConfirmAllowedToVouch
 			}
+		case task.IdentityStatePending:
+			confirmYourIdentityPath = voucher.PathCompletingYourIdentityConfirmation
 		case task.IdentityStateCompleted:
 			confirmYourIdentityPath = voucher.PathOneLoginIdentityDetails
 		}
@@ -52,7 +54,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			},
 			{
 				Name: appData.Localizer.Format("verifyPersonDetails", map[string]any{
-					"DonorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
+					"DonorFullName": lpa.Donor.FullName(),
 				}),
 				Path:  voucher.PathVerifyDonorDetails,
 				State: provided.Tasks.VerifyDonorDetails,
