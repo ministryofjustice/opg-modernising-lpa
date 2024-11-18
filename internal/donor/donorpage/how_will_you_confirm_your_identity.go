@@ -51,7 +51,6 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore
 						return fmt.Errorf("error updating donor: %w", err)
 					}
 
-					// TODO page will be created in MLPAB-2454
 					return donor.PathTaskList.Redirect(w, r, appData, provided)
 
 				case howYouWillConfirmYourIdentityWithdraw:
