@@ -230,6 +230,8 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 	case identity.StatusUnknown:
 		if provided.Tasks.ConfirmYourIdentity.IsInProgress() {
 			confirmYourIdentityPath = donor.PathHowWillYouConfirmYourIdentity
+		} else if provided.Tasks.ConfirmYourIdentity.IsPending() {
+			confirmYourIdentityPath = donor.PathCompletingYourIdentityConfirmation
 		}
 	}
 
