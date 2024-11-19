@@ -1,4 +1,4 @@
-import {AddressFormAssertions} from "../../support/e2e";
+import { AddressFormAssertions } from "../../support/e2e";
 
 describe('LPA type', () => {
     it('can be submitted', () => {
@@ -19,7 +19,7 @@ describe('LPA type', () => {
 
         cy.contains('a', 'Continue').click();
 
-        cy.get('#f-can-sign').check({ force: true });
+        cy.get('#f-selected').check({ force: true });
         cy.contains('button', 'Save and continue').click();
 
         cy.get('[name="contact-language"]').check('en', { force: true })

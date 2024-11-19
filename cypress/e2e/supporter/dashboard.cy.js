@@ -40,7 +40,7 @@ describe('Dashboard', () => {
         cy.get('#f-email').type('john@example.com');
         cy.contains('button', 'Save and continue').click()
 
-        cy.get('#f-can-sign').check({ force: true });
+        cy.get('#f-selected').check({ force: true });
         cy.contains('button', 'Save and continue').click()
 
         cy.get('[name="contact-language"]').check('en', { force: true })

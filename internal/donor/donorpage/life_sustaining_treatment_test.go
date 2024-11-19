@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -24,9 +25,8 @@ func TestGetLifeSustainingTreatment(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &lifeSustainingTreatmentData{
-			App:     testAppData,
-			Form:    &lifeSustainingTreatmentForm{},
-			Options: lpadata.LifeSustainingTreatmentValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[lpadata.LifeSustainingTreatment](lpadata.LifeSustainingTreatmentValues, "ifTheDonorGivesConsentToLifeSustainingTreatment"),
 		}).
 		Return(nil)
 
@@ -44,11 +44,8 @@ func TestGetLifeSustainingTreatmentFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &lifeSustainingTreatmentData{
-			App: testAppData,
-			Form: &lifeSustainingTreatmentForm{
-				Option: lpadata.LifeSustainingTreatmentOptionA,
-			},
-			Options: lpadata.LifeSustainingTreatmentValues,
+			App:  testAppData,
+			Form: form.NewSelectForm(lpadata.LifeSustainingTreatmentOptionA, lpadata.LifeSustainingTreatmentValues, "ifTheDonorGivesConsentToLifeSustainingTreatment"),
 		}).
 		Return(nil)
 
@@ -77,7 +74,7 @@ func TestGetLifeSustainingTreatmentWhenTemplateErrors(t *testing.T) {
 
 func TestPostLifeSustainingTreatment(t *testing.T) {
 	form := url.Values{
-		"option": {lpadata.LifeSustainingTreatmentOptionA.String()},
+		form.FieldNames.Select: {lpadata.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -106,7 +103,7 @@ func TestPostLifeSustainingTreatment(t *testing.T) {
 
 func TestPostLifeSustainingTreatmentWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"option": {lpadata.LifeSustainingTreatmentOptionA.String()},
+		form.FieldNames.Select: {lpadata.LifeSustainingTreatmentOptionA.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -131,7 +128,7 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *lifeSustainingTreatmentData) bool {
-			return assert.Equal(t, validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -140,40 +137,4 @@ func TestPostLifeSustainingTreatmentWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadLifeSustainingTreatmentForm(t *testing.T) {
-	form := url.Values{
-		"option": {lpadata.LifeSustainingTreatmentOptionA.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readLifeSustainingTreatmentForm(r)
-
-	assert.Equal(t, lpadata.LifeSustainingTreatmentOptionA, result.Option)
-}
-
-func TestLifeSustainingTreatmentFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *lifeSustainingTreatmentForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &lifeSustainingTreatmentForm{
-				Option: lpadata.LifeSustainingTreatmentOptionA,
-			},
-		},
-		"invalid": {
-			form:   &lifeSustainingTreatmentForm{},
-			errors: validation.With("option", validation.SelectError{Label: "ifTheDonorGivesConsentToLifeSustainingTreatment"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

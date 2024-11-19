@@ -23,9 +23,8 @@ func TestGetCanYouSignYourLpa(t *testing.T) {
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, &canYouSignYourLpaData{
-			App:               testAppData,
-			Form:              &canYouSignYourLpaForm{},
-			YesNoMaybeOptions: donordata.YesNoMaybeValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[donordata.YesNoMaybe](donordata.YesNoMaybeValues, "yesIfCanSign"),
 		}).
 		Return(nil)
 
@@ -60,7 +59,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 	}{
 		"can sign": {
 			form: url.Values{
-				"can-sign": {donordata.Yes.String()},
+				form.FieldNames.Select: {donordata.Yes.String()},
 			},
 			person: donordata.Donor{
 				ThinksCanSign: donordata.Yes,
@@ -70,7 +69,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 		},
 		"cannot sign": {
 			form: url.Values{
-				"can-sign": {donordata.No.String()},
+				form.FieldNames.Select: {donordata.No.String()},
 			},
 			person: donordata.Donor{
 				ThinksCanSign: donordata.No,
@@ -79,7 +78,7 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 		},
 		"maybe can sign": {
 			form: url.Values{
-				"can-sign": {donordata.Maybe.String()},
+				form.FieldNames.Select: {donordata.Maybe.String()},
 			},
 			person: donordata.Donor{
 				ThinksCanSign: donordata.Maybe,
@@ -116,18 +115,18 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 }
 
 func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
-	form := url.Values{
-		"can-sign": {"what"},
+	f := url.Values{
+		form.FieldNames.Select: {"what"},
 	}
 
 	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	template := newMockTemplate(t)
 	template.
 		On("Execute", w, mock.MatchedBy(func(data *canYouSignYourLpaData) bool {
-			return assert.Equal(t, validation.With("can-sign", validation.SelectError{Label: "yesIfCanSign"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "yesIfCanSign"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -140,7 +139,7 @@ func TestPostCanYouSignYourLpaWhenValidationError(t *testing.T) {
 
 func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"can-sign": {donordata.Yes.String()},
+		form.FieldNames.Select: {donordata.Yes.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -154,38 +153,4 @@ func TestPostCanYouSignYourLpaWhenStoreErrors(t *testing.T) {
 
 	err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
-}
-
-func TestReadCanYouSignYourLpaForm(t *testing.T) {
-	f := url.Values{
-		"can-sign": {donordata.Yes.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readCanYouSignYourLpaForm(r)
-
-	assert.Equal(t, donordata.Yes, result.CanSign)
-}
-
-func TestCanYouSignYourLpaFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *canYouSignYourLpaForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &canYouSignYourLpaForm{CanSign: donordata.Yes},
-		},
-		"invalid": {
-			form:   &canYouSignYourLpaForm{},
-			errors: validation.With("can-sign", validation.SelectError{Label: "yesIfCanSign"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
