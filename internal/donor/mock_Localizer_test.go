@@ -164,7 +164,7 @@ func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]in
 }
 
 // FormatCount provides a mock function with given fields: messageID, count, data
-func (_m *mockLocalizer) FormatCount(messageID string, count int, data map[string]any) string {
+func (_m *mockLocalizer) FormatCount(messageID string, count int, data map[string]interface{}) string {
 	ret := _m.Called(messageID, count, data)
 
 	if len(ret) == 0 {
@@ -172,7 +172,7 @@ func (_m *mockLocalizer) FormatCount(messageID string, count int, data map[strin
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, int, map[string]any) string); ok {
+	if rf, ok := ret.Get(0).(func(string, int, map[string]interface{}) string); ok {
 		r0 = rf(messageID, count, data)
 	} else {
 		r0 = ret.Get(0).(string)
@@ -189,14 +189,14 @@ type mockLocalizer_FormatCount_Call struct {
 // FormatCount is a helper method to define mock.On call
 //   - messageID string
 //   - count int
-//   - data map[string]any
+//   - data map[string]interface{}
 func (_e *mockLocalizer_Expecter) FormatCount(messageID interface{}, count interface{}, data interface{}) *mockLocalizer_FormatCount_Call {
 	return &mockLocalizer_FormatCount_Call{Call: _e.mock.On("FormatCount", messageID, count, data)}
 }
 
-func (_c *mockLocalizer_FormatCount_Call) Run(run func(messageID string, count int, data map[string]any)) *mockLocalizer_FormatCount_Call {
+func (_c *mockLocalizer_FormatCount_Call) Run(run func(messageID string, count int, data map[string]interface{})) *mockLocalizer_FormatCount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int), args[2].(map[string]any))
+		run(args[0].(string), args[1].(int), args[2].(map[string]interface{}))
 	})
 	return _c
 }
@@ -206,7 +206,7 @@ func (_c *mockLocalizer_FormatCount_Call) Return(_a0 string) *mockLocalizer_Form
 	return _c
 }
 
-func (_c *mockLocalizer_FormatCount_Call) RunAndReturn(run func(string, int, map[string]any) string) *mockLocalizer_FormatCount_Call {
+func (_c *mockLocalizer_FormatCount_Call) RunAndReturn(run func(string, int, map[string]interface{}) string) *mockLocalizer_FormatCount_Call {
 	_c.Call.Return(run)
 	return _c
 }

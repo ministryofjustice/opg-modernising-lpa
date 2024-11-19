@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -97,7 +98,9 @@ func handleRunSchedule(ctx context.Context) error {
 			Tag = os.Getenv("TAG")
 		}
 
-		metricsClient := telemetry.NewMetricsClient(cfg, Tag)
+		client := cloudwatch.NewFromConfig(cfg)
+
+		metricsClient := telemetry.NewMetricsClient(client, Tag)
 
 		if err = metricsClient.PutMetrics(ctx, &metrics); err != nil {
 			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))

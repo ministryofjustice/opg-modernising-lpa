@@ -17,9 +17,9 @@ type CloudwatchClient interface {
 	PutMetricData(ctx context.Context, params *cloudwatch.PutMetricDataInput, optFns ...func(*cloudwatch.Options)) (*cloudwatch.PutMetricDataOutput, error)
 }
 
-func NewMetricsClient(cfg aws.Config, versionTag string) *MetricsClient {
+func NewMetricsClient(cloudwatchClient CloudwatchClient, versionTag string) *MetricsClient {
 	return &MetricsClient{
-		cloudwatchClient: cloudwatch.NewFromConfig(cfg),
+		cloudwatchClient: cloudwatchClient,
 		baseDimensions: []types.Dimension{
 			{
 				Name:  aws.String("Version"),
@@ -32,7 +32,7 @@ func NewMetricsClient(cfg aws.Config, versionTag string) *MetricsClient {
 func (c *MetricsClient) PutMetrics(ctx context.Context, input *cloudwatch.PutMetricDataInput) error {
 	if input.Namespace != nil {
 		for i, metricDatum := range input.MetricData {
-			metricDatum.Dimensions = c.baseDimensions
+			metricDatum.Dimensions = append(metricDatum.Dimensions, c.baseDimensions...)
 
 			input.MetricData[i] = metricDatum
 		}
