@@ -1,0 +1,39 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "completingYourIdentityConfirmation" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveChosenToConfirmAtPostOfficeHeading") "heading") }}
+            
+            <h1 class="govuk-heading-xl">{{ tr .App "completingYourIdentityConfirmation" }}</h1>
+
+            {{ trFormatHtml .App "completingYourIdentityConfirmationVoucherContent" "DonorFullName" .Donor.FullName }}
+
+            {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
+
+            {{ if not .Deadline.IsZero }}
+                <div class="govuk-inset-text">
+                    <p class="govuk-body">
+                        {{ trFormat .App "nowThatDonorHasSignedConfirmIdentityBy"
+                            "DonorFullName" .Donor.FullName
+                            "DonorFirstNames" .Donor.FirstNames}}
+                    </p>
+                    <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Deadline }}</p>
+                </div>
+            {{ end }}
+            
+            <form novalidate method="post">
+                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                    (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
+                    (item .Options.PostOfficeSuccessfully.String "iWantToReturnToPostOffice")
+                    (item .Options.OneLogin.String "iWantToReturnToOneLoginAnotherWay")
+                    ) }}
+
+                {{ template "buttons" (button .App "continue") }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
+    </div>
+{{ end }}

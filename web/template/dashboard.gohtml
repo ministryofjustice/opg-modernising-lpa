@@ -61,9 +61,9 @@
                 </div>
             {{ else if not .Item.Lpa.SignedAt.IsZero }}
                 <div class="app-not-small-screen">
-                    <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
-                    <div class="moj-button-menu">
-                        <div class="moj-button-menu__wrapper">
+                    <div class="moj-button-group moj-button-group--inline">
+                        <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .Item.Lpa.LpaID) }}">{{ tr .App "goToTaskList" }}</a>
+                        <div class="moj-button-menu" data-module="moj-button-menu" data-button-classes="govuk-button--secondary">
                             <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                             <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                             <a class="govuk-button moj-button-menu__item govuk-button--secondary" href="{{ link .App (global.Paths.WithdrawThisLpa.Format .Item.Lpa.LpaID) }}">{{ tr .App "withdrawLpa" }}</a>
