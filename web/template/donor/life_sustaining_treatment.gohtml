@@ -16,10 +16,10 @@
             <p class="govuk-body">{{ tr .App "ifYouDoGiveAttorneysAuthority" }}</p>
 
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "option" .Form.Option.String
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legend "doYouWantYourAttorneysToMakeDecisionsAboutLifeSustainingTreatment" "govuk-fieldset__legend--m")
-                    (item .Options.OptionA.String "optionA" "hint" "optionAHint")
-                    (item .Options.OptionB.String "optionB" "hint" "optionBHint")
+                    (item .Form.Options.OptionA.String "optionA" "hint" "optionAHint")
+                    (item .Form.Options.OptionB.String "optionB" "hint" "optionBHint")
                     ) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}

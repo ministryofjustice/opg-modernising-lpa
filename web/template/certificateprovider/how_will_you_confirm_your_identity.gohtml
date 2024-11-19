@@ -14,11 +14,11 @@
             {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
   
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legend "tellUsHowYouWillConfirmYourIdentity" "govuk-fieldset__legend--m")
-                    (item .Options.AtPostOffice.String "iWillConfirmAtPostOffice")
-                    (item .Options.PostOfficeSuccessfully.String "iHaveConfirmedAtPostOffice")
-                    (item .Options.OneLogin.String "iWantToReturnToOneLogin")
+                    (item .Form.Options.AtPostOffice.String "iWillConfirmAtPostOffice")
+                    (item .Form.Options.PostOfficeSuccessfully.String "iHaveConfirmedAtPostOffice")
+                    (item .Form.Options.OneLogin.String "iWantToReturnToOneLogin")
                     ) }}
 
                 {{ template "buttons" (button .App "continue") }}
