@@ -64,14 +64,15 @@ type lpaRequestDonor struct {
 }
 
 type lpaRequestAttorney struct {
-	UID         actoruid.UID    `json:"uid"`
-	FirstNames  string          `json:"firstNames"`
-	LastName    string          `json:"lastName"`
-	DateOfBirth date.Date       `json:"dateOfBirth"`
-	Email       string          `json:"email,omitempty"`
-	Address     place.Address   `json:"address"`
-	Status      string          `json:"status"`
-	Channel     lpadata.Channel `json:"channel"`
+	UID             actoruid.UID    `json:"uid"`
+	FirstNames      string          `json:"firstNames"`
+	LastName        string          `json:"lastName"`
+	DateOfBirth     date.Date       `json:"dateOfBirth"`
+	Email           string          `json:"email,omitempty"`
+	Address         place.Address   `json:"address"`
+	Status          string          `json:"status"`
+	AppointmentType string          `json:"appointmentType"`
+	Channel         lpadata.Channel `json:"channel"`
 }
 
 type lpaRequestTrustCorporation struct {
@@ -182,14 +183,15 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 
 	for _, attorney := range donor.Attorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
-			UID:         attorney.UID,
-			FirstNames:  attorney.FirstNames,
-			LastName:    attorney.LastName,
-			DateOfBirth: attorney.DateOfBirth,
-			Email:       attorney.Email,
-			Address:     attorney.Address,
-			Status:      statusActive,
-			Channel:     attorney.Channel(),
+			UID:             attorney.UID,
+			FirstNames:      attorney.FirstNames,
+			LastName:        attorney.LastName,
+			DateOfBirth:     attorney.DateOfBirth,
+			Email:           attorney.Email,
+			Address:         attorney.Address,
+			Status:          statusActive,
+			AppointmentType: appointmentTypeOriginal,
+			Channel:         attorney.Channel(),
 		})
 	}
 
@@ -207,14 +209,15 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
-			UID:         attorney.UID,
-			FirstNames:  attorney.FirstNames,
-			LastName:    attorney.LastName,
-			DateOfBirth: attorney.DateOfBirth,
-			Email:       attorney.Email,
-			Address:     attorney.Address,
-			Status:      statusReplacement,
-			Channel:     attorney.Channel(),
+			UID:             attorney.UID,
+			FirstNames:      attorney.FirstNames,
+			LastName:        attorney.LastName,
+			DateOfBirth:     attorney.DateOfBirth,
+			Email:           attorney.Email,
+			Address:         attorney.Address,
+			Status:          statusReplacement,
+			AppointmentType: appointmentTypeReplacement,
+			Channel:         attorney.Channel(),
 		})
 	}
 
