@@ -1395,5 +1395,17 @@
     "iWantToReturnToOneLogin": "I want to return to GOV.UK One Login to confirm my identity",
     "howYouWillConfirmYourIdentity": "how you will confirm your identity",
     "viewFullLpa": "View full LPA",
-    "weHaveNotReceivedAnyInformationFromOneLogin": "We have not received any information from GOV.UK One Login about your identity."
+    "weHaveNotReceivedAnyInformationFromOneLogin": "We have not received any information from GOV.UK One Login about your identity.",
+    "youHaveChosenToConfirmAtPostOfficeContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">You have chosen to confirm your identity at a Post Office.</p><p class=\"govuk-body\">You can now return to your task list to sign your LPA.</p><p class=\"govuk-body\">You must complete your identity confirmation within 6 months of signing your LPA.</p></div>",
+    "youHaveChosenToConfirmAtPostOfficeHeading": "You have chosen to confirm your identity at a Post Office.",
+    "completingYourIdentityConfirmation": "Completing your identity confirmation",
+    "completingYourIdentityConfirmationContent": "<p class=\"govuk-body\">When you have confirmed your identity at the Post Office, the Post Office will email you and inform GOV.UK One Login.</p><p class=\"govuk-body\">To complete your identity confirmation, you must return to GOV.UK One Login. This updates your LPA task list to show your identity is confirmed.</p>",
+    "completingYourIdentityConfirmationVoucherContent": "<p class=\"govuk-body\">When you have confirmed your identity at the Post Office, the Post Office will email you and inform GOV.UK One Login.</p><p class=\"govuk-body\">To complete your identity confirmation, you must return to GOV.UK One Login. This updates your task list to show your identity is confirmed.</p><p class=\"govuk-body\">You can then sign the declaration confirming {{possessive .DonorFullName}} identity.</p>",
+    "iWantToReturnToPostOffice": "I want to return to GOV.UK One Login to complete my Post Office identity confirmation",
+    "iWantToReturnToOneLoginAnotherWay": "I want to return to GOV.UK One Login to confirm my identity another way",
+    "nowThatYouHaveSignedConfirmIdentityBy": "Now that you have signed your LPA, you must complete your identity confirmation by:",
+    "youHaveChosenToConfirmAtPostOfficeCertificateProviderContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">You have chosen to confirm your identity at a Post Office.</p><p class=\"govuk-body\">You can now return to your task list to provide the certificate for this LPA.</p><p class=\"govuk-body\">You must complete your identity confirmation within 6 months of providing the certificate.</p></div>",
+    "nowThatYouHaveProvidedCertificateConfirmIdentityBy": "Now that you have provided the certificate for this LPA, you must complete your identity confirmation by:",
+    "nowThatDonorHasSignedConfirmIdentityBy": "Now that {{.DonorFullName}} has signed their LPA, you must complete you identity confirmation and confirm {{possessive .DonorFirstNames}} identity by:",
+    "howYouWouldLikeToContinue": "how you would like to continue"
 }

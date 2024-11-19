@@ -39,7 +39,7 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowWillYouConfirmYourIdentityForm(r)
+			data.Form = readHowWillYouConfirmYourIdentityForm(r, "howYouWillConfirmYourIdentity")
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
@@ -51,7 +51,6 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore
 						return fmt.Errorf("error updating donor: %w", err)
 					}
 
-					// TODO page will be created in MLPAB-2454
 					return donor.PathTaskList.Redirect(w, r, appData, provided)
 
 				case howYouWillConfirmYourIdentityWithdraw:
@@ -72,21 +71,23 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore
 }
 
 type howWillYouConfirmYourIdentityForm struct {
-	How howYouWillConfirmYourIdentity
+	How        howYouWillConfirmYourIdentity
+	errorLabel string
 }
 
-func readHowWillYouConfirmYourIdentityForm(r *http.Request) *howWillYouConfirmYourIdentityForm {
+func readHowWillYouConfirmYourIdentityForm(r *http.Request, errorLabel string) *howWillYouConfirmYourIdentityForm {
 	howWillYouConfirmYourIdentity, _ := ParseHowYouWillConfirmYourIdentity(page.PostFormString(r, "how"))
 
 	return &howWillYouConfirmYourIdentityForm{
-		How: howWillYouConfirmYourIdentity,
+		How:        howWillYouConfirmYourIdentity,
+		errorLabel: errorLabel,
 	}
 }
 
 func (f *howWillYouConfirmYourIdentityForm) Validate() validation.List {
 	var errors validation.List
 
-	errors.Enum("how", "howYouWillConfirmYourIdentity", f.How,
+	errors.Enum("how", f.errorLabel, f.How,
 		validation.Selected())
 
 	return errors
