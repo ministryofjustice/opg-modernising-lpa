@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -17,10 +20,12 @@ import (
 )
 
 var (
-	ctx           = context.WithValue(context.Background(), (*string)(nil), "value")
-	expectedError = errors.New("hey")
-	testNow       = time.Now()
-	testNowFn     = func() time.Time { return testNow }
+	ctx               = context.WithValue(context.Background(), (*string)(nil), "value")
+	expectedError     = errors.New("hey")
+	testNow           = time.Now()
+	testNowFn         = func() time.Time { return testNow }
+	testSinceDuration = time.Millisecond * 5
+	testSinceFn       = func(t time.Time) time.Duration { return testSinceDuration }
 )
 
 func (m *mockScheduledStore) ExpectPops(returns ...any) {
@@ -91,6 +96,7 @@ func TestRunnerRun(t *testing.T) {
 
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
@@ -98,8 +104,36 @@ func TestRunnerRun(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.Run(ctx)
+
+	metrics, err := runner.Run(ctx)
+
 	assert.Nil(t, err)
+	assert.Equal(t, "schedule-runner", *metrics.Namespace)
+	assertMetricData(t, metrics, 1, 0, 0)
+}
+
+func assertMetricData(t *testing.T, actual cloudwatch.PutMetricDataInput, processed, ignored, errors float64) {
+	assert.Equal(t, "schedule-runner", *actual.Namespace)
+	assert.Contains(t, actual.MetricData, types.MetricDatum{
+		MetricName: aws.String("TasksProcessed"),
+		Unit:       types.StandardUnitCount,
+		Value:      aws.Float64(processed),
+	}, "Expected TasksProcessed is not in slice")
+	assert.Contains(t, actual.MetricData, types.MetricDatum{
+		MetricName: aws.String("TasksIgnored"),
+		Unit:       types.StandardUnitCount,
+		Value:      aws.Float64(ignored),
+	}, "Expected TasksIgnored is not in slice")
+	assert.Contains(t, actual.MetricData, types.MetricDatum{
+		MetricName: aws.String("Errors"),
+		Unit:       types.StandardUnitCount,
+		Value:      aws.Float64(errors),
+	}, "Expected Errors is not in slice")
+	assert.Contains(t, actual.MetricData, types.MetricDatum{
+		MetricName: aws.String("ProcessingTime"),
+		Unit:       types.StandardUnitMilliseconds,
+		Value:      aws.Float64(float64(testSinceDuration.Milliseconds())),
+	}, "Expected ProcessingTime is not in slice")
 }
 
 func TestRunnerRunWhenStepErrors(t *testing.T) {
@@ -126,7 +160,7 @@ func TestRunnerRunWhenStepErrors(t *testing.T) {
 		waiter: waiter,
 	}
 
-	err := runner.Run(ctx)
+	_, err := runner.Run(ctx)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -168,6 +202,7 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
@@ -175,8 +210,10 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.Run(ctx)
+	metrics, err := runner.Run(ctx)
+
 	assert.Nil(t, err)
+	assertMetricData(t, metrics, 0, 1, 0)
 }
 
 func TestRunnerRunWhenActionErrors(t *testing.T) {
@@ -218,6 +255,7 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
@@ -225,65 +263,62 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 			99: actionFunc.Execute,
 		},
 	}
-	err := runner.Run(ctx)
+	metrics, err := runner.Run(ctx)
+
 	assert.Nil(t, err)
+	assertMetricData(t, metrics, 0, 0, 1)
 }
 
 func TestRunnerRunWhenWaitingError(t *testing.T) {
-	testcases := []error{
-		dynamo.ConditionalCheckFailedError{},
-		expectedError,
+	event := &Event{
+		Action:            99,
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
 	}
 
-	for _, waitingError := range testcases {
-		t.Run(waitingError.Error(), func(t *testing.T) {
-			event := &Event{
-				Action:            99,
-				TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-				TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-			}
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
+	logger.EXPECT().
+		ErrorContext(ctx, "error getting scheduled task", slog.Any("err", expectedError))
+	logger.EXPECT().
+		InfoContext(ctx, "runner action success",
+			slog.String("action", "Action(99)"),
+			slog.String("target_pk", "LPA#an-lpa"),
+			slog.String("target_sk", "DONOR#a-donor"))
+	logger.EXPECT().
+		InfoContext(ctx, "no scheduled tasks to process")
 
-			logger := newMockLogger(t)
-			logger.EXPECT().
-				InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
-			logger.EXPECT().
-				ErrorContext(ctx, "error getting scheduled task", slog.Any("err", waitingError))
-			logger.EXPECT().
-				InfoContext(ctx, "runner action success",
-					slog.String("action", "Action(99)"),
-					slog.String("target_pk", "LPA#an-lpa"),
-					slog.String("target_sk", "DONOR#a-donor"))
-			logger.EXPECT().
-				InfoContext(ctx, "no scheduled tasks to process")
+	store := newMockScheduledStore(t)
+	store.ExpectPops(
+		nil, expectedError,
+		event, nil,
+		nil, dynamo.NotFoundError{})
 
-			store := newMockScheduledStore(t)
-			store.ExpectPops(
-				nil, waitingError,
-				event, nil,
-				nil, dynamo.NotFoundError{})
+	waiter := newMockWaiter(t)
+	waiter.EXPECT().Reset().Twice()
+	waiter.EXPECT().Wait().Return(nil).Once()
 
-			waiter := newMockWaiter(t)
-			waiter.EXPECT().Reset().Twice()
-			waiter.EXPECT().Wait().Return(nil).Once()
+	actionFunc := newMockActionFunc(t)
+	actionFunc.EXPECT().
+		Execute(mock.Anything, mock.Anything).
+		Return(nil)
 
-			actionFunc := newMockActionFunc(t)
-			actionFunc.EXPECT().
-				Execute(mock.Anything, mock.Anything).
-				Return(nil)
-
-			runner := &Runner{
-				now:    testNowFn,
-				logger: logger,
-				store:  store,
-				waiter: waiter,
-				actions: map[Action]ActionFunc{
-					99: actionFunc.Execute,
-				},
-			}
-			err := runner.Run(ctx)
-			assert.Nil(t, err)
-		})
+	runner := &Runner{
+		now:    testNowFn,
+		since:  testSinceFn,
+		logger: logger,
+		store:  store,
+		waiter: waiter,
+		actions: map[Action]ActionFunc{
+			99: actionFunc.Execute,
+		},
 	}
+
+	metrics, err := runner.Run(ctx)
+
+	assert.Nil(t, err)
+	assertMetricData(t, metrics, 1, 0, 0)
 }
 
 func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
@@ -307,7 +342,8 @@ func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 		waiter: waiter,
 		logger: logger,
 	}
-	err := runner.Run(ctx)
+
+	_, err := runner.Run(ctx)
 	assert.Equal(t, expectedError, err)
 }
 

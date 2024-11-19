@@ -86,7 +86,7 @@ func handleRunSchedule(ctx context.Context) error {
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
-	err, metrics := runner.Run(ctx)
+	metrics, err := runner.Run(ctx)
 
 	if err != nil {
 		logger.Error("runner error", slog.Any("err", err))

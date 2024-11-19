@@ -50,6 +50,7 @@ type Runner struct {
 	logger       Logger
 	store        ScheduledStore
 	now          func() time.Time
+	since        func(time.Time) time.Duration
 	donorStore   DonorStore
 	notifyClient NotifyClient
 	actions      map[Action]ActionFunc
@@ -62,6 +63,7 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 		logger:       logger,
 		store:        store,
 		now:          time.Now,
+		since:        time.Since,
 		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		waiter:       &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
@@ -74,13 +76,13 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 	return r
 }
 
-func (r *Runner) Run(ctx context.Context) (error, cloudwatch.PutMetricDataInput) {
+func (r *Runner) Run(ctx context.Context) (cloudwatch.PutMetricDataInput, error) {
 	r.waiter.Reset()
 
 	processedTasks := float64(0)
 	ignoredTasks := float64(0)
 	errorTasks := float64(0)
-	start := time.Now()
+	start := r.now()
 
 	for {
 		row, err := r.store.Pop(ctx, r.now())
@@ -90,8 +92,8 @@ func (r *Runner) Run(ctx context.Context) (error, cloudwatch.PutMetricDataInput)
 
 			var metrics cloudwatch.PutMetricDataInput
 
-			if processedTasks > 0 || errorTasks > 0 {
-				elapsed := time.Since(start)
+			if processedTasks > 0 || errorTasks > 0 || ignoredTasks > 0 {
+				elapsed := r.since(start)
 
 				metrics = cloudwatch.PutMetricDataInput{
 					Namespace: aws.String("schedule-runner"),
@@ -120,12 +122,12 @@ func (r *Runner) Run(ctx context.Context) (error, cloudwatch.PutMetricDataInput)
 				}
 			}
 
-			return nil, metrics
+			return metrics, nil
 		} else if err != nil {
 			r.logger.ErrorContext(ctx, "error getting scheduled task", slog.Any("err", err))
 
 			if err := r.waiter.Wait(); err != nil {
-				return err, cloudwatch.PutMetricDataInput{}
+				return cloudwatch.PutMetricDataInput{}, err
 			}
 			continue
 		}
