@@ -38,6 +38,8 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		switch certificateProvider.Tasks.ConfirmYourIdentity {
 		case task.IdentityStateInProgress:
 			identityTaskPage = certificateprovider.PathHowWillYouConfirmYourIdentity
+		case task.IdentityStatePending:
+			identityTaskPage = certificateprovider.PathCompletingYourIdentityConfirmation
 		case task.IdentityStateCompleted:
 			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
@@ -60,10 +62,11 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Disabled:      !lpa.Paid || !lpa.SignedForDonor(),
 				},
 				{
-					Name:     "provideYourCertificate",
-					Path:     certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
-					State:    tasks.ProvideTheCertificate,
-					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() || !tasks.ConfirmYourIdentity.IsCompleted(),
+					Name:  "provideYourCertificate",
+					Path:  certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
+					State: tasks.ProvideTheCertificate,
+					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() ||
+						!(tasks.ConfirmYourIdentity.IsCompleted() || tasks.ConfirmYourIdentity.IsPending()),
 				},
 			},
 		}

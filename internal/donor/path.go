@@ -36,7 +36,9 @@ const (
 	PathChooseReplacementAttorneys                           = Path("/choose-replacement-attorneys")
 	PathChooseReplacementAttorneysAddress                    = Path("/choose-replacement-attorneys-address")
 	PathChooseReplacementAttorneysSummary                    = Path("/choose-replacement-attorneys-summary")
+	PathChooseSomeoneToVouchForYou                           = Path("/choose-someone-to-vouch-for-you")
 	PathChooseYourCertificateProvider                        = Path("/choose-your-certificate-provider")
+	PathCompletingYourIdentityConfirmation                   = Path("/completing-your-identity-confirmation")
 	PathConfirmPersonAllowedToVouch                          = Path("/confirm-person-allowed-to-vouch")
 	PathConfirmYourCertificateProviderIsNotRelated           = Path("/confirm-your-certificate-provider-is-not-related")
 	PathConfirmYourIdentity                                  = Path("/confirm-your-identity")
@@ -62,8 +64,10 @@ const (
 	PathHowShouldReplacementAttorneysStepIn                  = Path("/how-should-replacement-attorneys-step-in")
 	PathHowToSendEvidence                                    = Path("/how-to-send-evidence")
 	PathHowToSignYourLpa                                     = Path("/how-to-sign-your-lpa")
+	PathHowWillYouConfirmYourIdentity                        = Path("/how-will-you-confirm-your-identity")
 	PathHowWouldCertificateProviderPreferToCarryOutTheirRole = Path("/how-would-certificate-provider-prefer-to-carry-out-their-role")
 	PathHowWouldYouLikeToSendEvidence                        = Path("/how-would-you-like-to-send-evidence")
+	PathIdentityDetails                                      = Path("/one-login-identity-details")
 	PathIdentityWithOneLogin                                 = Path("/id/one-login")
 	PathIdentityWithOneLoginCallback                         = Path("/id/one-login/callback")
 	PathLifeSustainingTreatment                              = Path("/life-sustaining-treatment")
@@ -72,7 +76,6 @@ const (
 	PathLpaYourLegalRightsAndResponsibilities                = Path("/your-legal-rights-and-responsibilities")
 	PathMakeANewLPA                                          = Path("/make-a-new-lpa")
 	PathNeedHelpSigningConfirmation                          = Path("/need-help-signing-confirmation")
-	PathIdentityDetails                                      = Path("/one-login-identity-details")
 	PathPaymentConfirmation                                  = Path("/payment-confirmation")
 	PathPaymentSuccessful                                    = Path("/payment-successful")
 	PathPreviousApplicationNumber                            = Path("/previous-application-number")
@@ -104,7 +107,6 @@ const (
 	PathWhatACertificateProviderDoes                         = Path("/what-a-certificate-provider-does")
 	PathWhatHappensNextPostEvidence                          = Path("/what-happens-next-post-evidence")
 	PathWhatHappensNextRegisteringWithCourtOfProtection      = Path("/what-happens-next-registering-with-court-of-protection")
-	PathChooseSomeoneToVouchForYou                           = Path("/choose-someone-to-vouch-for-you")
 	PathWhatYouCanDoNow                                      = Path("/what-you-can-do-now")
 	PathWhatYouCanDoNowExpired                               = Path("/what-you-can-do-now-expired")
 	PathWhenCanTheLpaBeUsed                                  = Path("/when-can-the-lpa-be-used")
@@ -128,7 +130,6 @@ const (
 	PathYourMobile                                           = Path("/your-mobile")
 	PathYourName                                             = Path("/your-name")
 	PathYourPreferredLanguage                                = Path("/your-preferred-language")
-	PathHowWillYouConfirmYourIdentity                        = Path("/how-will-you-confirm-your-identity")
 )
 
 type Path string
@@ -197,7 +198,7 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 		PathYouHaveSubmittedYourLpa:
 		return section1Completed &&
 			(donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending()) &&
-			(donor.DonorIdentityConfirmed() || donor.RegisteringWithCourtOfProtection || donor.Voucher.FirstNames != "")
+			(donor.DonorIdentityConfirmed() || donor.Tasks.ConfirmYourIdentity.IsPending() || donor.RegisteringWithCourtOfProtection || donor.Voucher.FirstNames != "")
 
 	case PathConfirmYourCertificateProviderIsNotRelated,
 		PathCheckYourLpa:

@@ -271,6 +271,16 @@ func (p *Provided) SigningDeadline() time.Time {
 	return p.SignedAt.AddDate(0, 0, 28)
 }
 
+// IdentityDeadline gives the date which the donor must complete their identity
+// confirmation, otherwise the signature will expire.
+func (p *Provided) IdentityDeadline() time.Time {
+	if p.WitnessedByCertificateProviderAt.IsZero() {
+		return time.Time{}
+	}
+
+	return p.WitnessedByCertificateProviderAt.AddDate(0, 6, 0)
+}
+
 // CourtOfProtectionSubmissionDeadline gives the date at which the signed LPA
 // must be submitted to the Court of Protection, if registering through this
 // route.
