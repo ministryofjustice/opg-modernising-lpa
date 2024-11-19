@@ -7,35 +7,31 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
 type lifeSustainingTreatmentData struct {
-	App     appcontext.Data
-	Errors  validation.List
-	Form    *lifeSustainingTreatmentForm
-	Options lpadata.LifeSustainingTreatmentOptions
+	App    appcontext.Data
+	Errors validation.List
+	Form   *form.SelectForm[lpadata.LifeSustainingTreatment, lpadata.LifeSustainingTreatmentOptions, *lpadata.LifeSustainingTreatment]
 }
 
 func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &lifeSustainingTreatmentData{
-			App: appData,
-			Form: &lifeSustainingTreatmentForm{
-				Option: provided.LifeSustainingTreatmentOption,
-			},
-			Options: lpadata.LifeSustainingTreatmentValues,
+			App:  appData,
+			Form: form.NewSelectForm(provided.LifeSustainingTreatmentOption, lpadata.LifeSustainingTreatmentValues, "ifTheDonorGivesConsentToLifeSustainingTreatment"),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readLifeSustainingTreatmentForm(r)
+			data.Form.Read(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.LifeSustainingTreatmentOption = data.Form.Option
+				provided.LifeSustainingTreatmentOption = data.Form.Selected
 				provided.Tasks.LifeSustainingTreatment = task.StateCompleted
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
@@ -47,25 +43,4 @@ func LifeSustainingTreatment(tmpl template.Template, donorStore DonorStore) Hand
 
 		return tmpl(w, data)
 	}
-}
-
-type lifeSustainingTreatmentForm struct {
-	Option lpadata.LifeSustainingTreatment
-}
-
-func readLifeSustainingTreatmentForm(r *http.Request) *lifeSustainingTreatmentForm {
-	option, _ := lpadata.ParseLifeSustainingTreatment(page.PostFormString(r, "option"))
-
-	return &lifeSustainingTreatmentForm{
-		Option: option,
-	}
-}
-
-func (f *lifeSustainingTreatmentForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Enum("option", "ifTheDonorGivesConsentToLifeSustainingTreatment", f.Option,
-		validation.Selected())
-
-	return errors
 }

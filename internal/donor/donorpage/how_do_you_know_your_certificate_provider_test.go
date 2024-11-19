@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -25,9 +26,8 @@ func TestGetHowDoYouKnowYourCertificateProvider(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howDoYouKnowYourCertificateProviderData{
-			App:     testAppData,
-			Form:    &howDoYouKnowYourCertificateProviderForm{},
-			Options: lpadata.CertificateProviderRelationshipValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[lpadata.CertificateProviderRelationship](lpadata.CertificateProviderRelationshipValues, "howYouKnowCertificateProvider"),
 		}).
 		Return(nil)
 
@@ -51,8 +51,7 @@ func TestGetHowDoYouKnowYourCertificateProviderFromStore(t *testing.T) {
 		Execute(w, &howDoYouKnowYourCertificateProviderData{
 			App:                 testAppData,
 			CertificateProvider: certificateProvider,
-			Form:                &howDoYouKnowYourCertificateProviderForm{How: lpadata.Personally},
-			Options:             lpadata.CertificateProviderRelationshipValues,
+			Form:                form.NewSelectForm(lpadata.Personally, lpadata.CertificateProviderRelationshipValues, "howYouKnowCertificateProvider"),
 		}).
 		Return(nil)
 
@@ -88,7 +87,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 		redirect                   donor.Path
 	}{
 		"professionally": {
-			form: url.Values{"how": {lpadata.Professionally.String()}},
+			form: url.Values{form.FieldNames.Select: {lpadata.Professionally.String()}},
 			certificateProviderDetails: donordata.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: lpadata.Professionally,
@@ -96,7 +95,7 @@ func TestPostHowDoYouKnowYourCertificateProvider(t *testing.T) {
 			redirect: donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"personally": {
-			form: url.Values{"how": {lpadata.Personally.String()}},
+			form: url.Values{form.FieldNames.Select: {lpadata.Personally.String()}},
 			certificateProviderDetails: donordata.CertificateProvider{
 				FirstNames:   "John",
 				Relationship: lpadata.Personally,
@@ -149,7 +148,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 		taskState                          task.State
 	}{
 		"personally to professionally": {
-			form: url.Values{"how": {lpadata.Professionally.String()}},
+			form: url.Values{form.FieldNames.Select: {lpadata.Professionally.String()}},
 			existingCertificateProviderDetails: donordata.CertificateProvider{
 				RelationshipLength: donordata.GreaterThanEqualToTwoYears,
 				Relationship:       lpadata.Personally,
@@ -162,7 +161,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 			redirect: donor.PathHowWouldCertificateProviderPreferToCarryOutTheirRole,
 		},
 		"professionally to personally": {
-			form: url.Values{"how": {lpadata.Personally.String()}},
+			form: url.Values{form.FieldNames.Select: {lpadata.Personally.String()}},
 			existingCertificateProviderDetails: donordata.CertificateProvider{
 				Relationship: lpadata.Professionally,
 				Address:      testAddress,
@@ -214,7 +213,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenSwitchingRelationship(t *tes
 
 func TestPostHowDoYouKnowYourCertificateProviderWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"how": {lpadata.Personally.String()},
+		form.FieldNames.Select: {lpadata.Personally.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -239,7 +238,7 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *howDoYouKnowYourCertificateProviderData) bool {
-			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouKnowCertificateProvider"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -248,40 +247,4 @@ func TestPostHowDoYouKnowYourCertificateProviderWhenValidationErrors(t *testing.
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadHowDoYouKnowYourCertificateProviderForm(t *testing.T) {
-	form := url.Values{
-		"how": {lpadata.Personally.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readHowDoYouKnowYourCertificateProviderForm(r)
-
-	assert.Equal(t, lpadata.Personally, result.How)
-}
-
-func TestHowDoYouKnowYourCertificateProviderFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *howDoYouKnowYourCertificateProviderForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &howDoYouKnowYourCertificateProviderForm{
-				How: lpadata.Personally,
-			},
-		},
-		"invalid": {
-			form:   &howDoYouKnowYourCertificateProviderForm{},
-			errors: validation.With("how", validation.SelectError{Label: "howYouKnowCertificateProvider"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
