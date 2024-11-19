@@ -5,6 +5,6 @@ tmp_dir = "tmp"
 
 [build]
 exclude_dir = ["cypress", "docs", "tmp", "web/assets", "web/static", "node_modules", "scripts", "terraform", "cmd/event-received", "cmd/enumerator", "cmd/event-mock-notify", "cmd/mock-onelogin", "cmd/mock-os-api", "cmd/event-logger"]
-cmd = "cd cmd/mlpa && go build -ldflags='-X main.Tag=${TAG}' -gcflags='all=-N -l' -o /tmp/mlpa ."
+cmd = "cd cmd/mlpa && go build -ldflags='-X main.Tag=v0.0.0' -gcflags='all=-N -l' -o /tmp/mlpa ."
 full_bin = "pkill -9 'dlv|mlpa'; sleep 0.1; dlv exec --accept-multiclient --log --headless --continue --listen :2345 --api-version 2 /tmp/mlpa"
 include_ext = ["go", "gohtml", "json", "scss"]

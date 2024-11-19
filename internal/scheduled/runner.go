@@ -7,6 +7,9 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -47,10 +50,12 @@ type Runner struct {
 	logger       Logger
 	store        ScheduledStore
 	now          func() time.Time
+	since        func(time.Time) time.Duration
 	donorStore   DonorStore
 	notifyClient NotifyClient
 	actions      map[Action]ActionFunc
 	waiter       Waiter
+	metrics      map[string]cloudwatch.PutMetricDataInput
 }
 
 func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient) *Runner {
@@ -58,6 +63,7 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 		logger:       logger,
 		store:        store,
 		now:          time.Now,
+		since:        time.Since,
 		donorStore:   donorStore,
 		notifyClient: notifyClient,
 		waiter:       &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
@@ -70,26 +76,67 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 	return r
 }
 
-func (r *Runner) Run(ctx context.Context) error {
+func (r *Runner) Run(ctx context.Context) (cloudwatch.PutMetricDataInput, error) {
 	r.waiter.Reset()
+
+	processedTasks := float64(0)
+	ignoredTasks := float64(0)
+	errorTasks := float64(0)
+	start := r.now()
 
 	for {
 		row, err := r.store.Pop(ctx, r.now())
 
 		if errors.Is(err, dynamo.NotFoundError{}) {
 			r.logger.InfoContext(ctx, "no scheduled tasks to process")
-			return nil
+
+			var metrics cloudwatch.PutMetricDataInput
+
+			if processedTasks > 0 || errorTasks > 0 || ignoredTasks > 0 {
+				elapsed := r.since(start)
+
+				metrics = cloudwatch.PutMetricDataInput{
+					Namespace: aws.String("schedule-runner"),
+					MetricData: []types.MetricDatum{
+						{
+							MetricName: aws.String("TasksProcessed"),
+							Unit:       types.StandardUnitCount,
+							Value:      aws.Float64(processedTasks),
+						},
+						{
+							MetricName: aws.String("TasksIgnored"),
+							Unit:       types.StandardUnitCount,
+							Value:      aws.Float64(ignoredTasks),
+						},
+						{
+							MetricName: aws.String("Errors"),
+							Unit:       types.StandardUnitCount,
+							Value:      aws.Float64(errorTasks),
+						},
+						{
+							MetricName: aws.String("ProcessingTime"),
+							Unit:       types.StandardUnitMilliseconds,
+							Value:      aws.Float64(float64(elapsed.Milliseconds())),
+						},
+					},
+				}
+			}
+
+			return metrics, nil
 		} else if err != nil {
 			r.logger.ErrorContext(ctx, "error getting scheduled task", slog.Any("err", err))
 
 			if err := r.waiter.Wait(); err != nil {
-				return err
+				return cloudwatch.PutMetricDataInput{}, err
 			}
 			continue
 		}
 
 		r.waiter.Reset()
-		r.logger.InfoContext(ctx, "runner action", slog.String("action", row.Action.String()))
+		r.logger.InfoContext(ctx,
+			"runner action",
+			slog.String("action", row.Action.String()),
+		)
 
 		if fn, ok := r.actions[row.Action]; ok {
 			if err := fn(ctx, row); err != nil {
@@ -98,18 +145,24 @@ func (r *Runner) Run(ctx context.Context) error {
 						slog.String("action", row.Action.String()),
 						slog.String("target_pk", row.TargetLpaKey.PK()),
 						slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
+
+					ignoredTasks++
 				} else {
 					r.logger.ErrorContext(ctx, "runner action error",
 						slog.String("action", row.Action.String()),
 						slog.String("target_pk", row.TargetLpaKey.PK()),
 						slog.String("target_sk", row.TargetLpaOwnerKey.SK()),
 						slog.Any("err", err))
+
+					errorTasks++
 				}
 			} else {
 				r.logger.InfoContext(ctx, "runner action success",
 					slog.String("action", row.Action.String()),
 					slog.String("target_pk", row.TargetLpaKey.PK()),
 					slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
+
+				processedTasks++
 			}
 		}
 	}
