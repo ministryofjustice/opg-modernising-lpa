@@ -108,10 +108,7 @@ func TestGetTaskList(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				Possessive("John Smith").
-				Return("John Smith's")
-			localizer.EXPECT().
-				Format("verifyPersonDetails", map[string]any{"DonorFullNamePossessive": "John Smith's"}).
+				Format("verifyPersonDetails", map[string]any{"DonorFullName": "John Smith"}).
 				Return("verifyJohnSmithsDetails")
 
 			appData := testAppData
@@ -164,9 +161,6 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("oi")
 	localizer.EXPECT().
 		Format(mock.Anything, mock.Anything).
 		Return("hey")

@@ -142,6 +142,8 @@ func Register(
 		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), voucherStore, lpaStoreResolvingService))
 	handleVoucher(voucher.PathHowWillYouConfirmYourIdentity, None,
 		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), voucherStore))
+	handleVoucher(voucher.PathCompletingYourIdentityConfirmation, None,
+		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,

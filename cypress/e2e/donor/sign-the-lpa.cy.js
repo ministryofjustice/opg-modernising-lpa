@@ -5,6 +5,12 @@ describe('Sign the LPA', () => {
         });
 
         it('can be completed ', () => {
+            Cypress.on('uncaught:exception', () => {
+                // TODO: remove this if this test works without, it is a problem
+                // in the moj-frontend package
+                return false
+            })
+
             cy.contains('li', "Sign the LPA")
                 .should('contain', 'Not started')
                 .find('a')
