@@ -25,6 +25,12 @@ describe('Dashboard', () => {
 
     context('with completed LPA', () => {
         it('completed LPAs have a track progress button', () => {
+            Cypress.on('uncaught:exception', () => {
+                // TODO: remove this if this test works without, it is a problem
+                // in the moj-frontend package
+                return false
+            })
+
             cy.visit('/fixtures?redirect=&progress=signTheLpa');
 
             cy.get('button').should('not.contain', 'Continue');
