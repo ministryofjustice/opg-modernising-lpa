@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -24,10 +25,9 @@ func TestGetWhenCanTheLpaBeUsed(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &whenCanTheLpaBeUsedData{
-			App:     testAppData,
-			Donor:   &donordata.Provided{},
-			Form:    &whenCanTheLpaBeUsedForm{},
-			Options: lpadata.CanBeUsedWhenValues,
+			App:   testAppData,
+			Donor: &donordata.Provided{},
+			Form:  form.NewEmptySelectForm[lpadata.CanBeUsedWhen](lpadata.CanBeUsedWhenValues, "whenYourAttorneysCanUseYourLpa"),
 		}).
 		Return(nil)
 
@@ -47,10 +47,7 @@ func TestGetWhenCanTheLpaBeUsedFromStore(t *testing.T) {
 		Execute(w, &whenCanTheLpaBeUsedData{
 			App:   testAppData,
 			Donor: &donordata.Provided{WhenCanTheLpaBeUsed: lpadata.CanBeUsedWhenHasCapacity},
-			Form: &whenCanTheLpaBeUsedForm{
-				When: lpadata.CanBeUsedWhenHasCapacity,
-			},
-			Options: lpadata.CanBeUsedWhenValues,
+			Form:  form.NewSelectForm(lpadata.CanBeUsedWhenHasCapacity, lpadata.CanBeUsedWhenValues, "whenYourAttorneysCanUseYourLpa"),
 		}).
 		Return(nil)
 
@@ -79,7 +76,7 @@ func TestGetWhenCanTheLpaBeUsedWhenTemplateErrors(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 	form := url.Values{
-		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
+		form.FieldNames.Select: {lpadata.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -108,7 +105,7 @@ func TestPostWhenCanTheLpaBeUsed(t *testing.T) {
 
 func TestPostWhenCanTheLpaBeUsedWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
+		form.FieldNames.Select: {lpadata.CanBeUsedWhenHasCapacity.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -133,7 +130,7 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *whenCanTheLpaBeUsedData) bool {
-			return assert.Equal(t, validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -142,40 +139,4 @@ func TestPostWhenCanTheLpaBeUsedWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadWhenCanTheLpaBeUsedForm(t *testing.T) {
-	form := url.Values{
-		"when": {lpadata.CanBeUsedWhenHasCapacity.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readWhenCanTheLpaBeUsedForm(r)
-
-	assert.Equal(t, lpadata.CanBeUsedWhenHasCapacity, result.When)
-}
-
-func TestWhenCanTheLpaBeUsedFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *whenCanTheLpaBeUsedForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &whenCanTheLpaBeUsedForm{
-				When: lpadata.CanBeUsedWhenHasCapacity,
-			},
-		},
-		"error": {
-			form:   &whenCanTheLpaBeUsedForm{},
-			errors: validation.With("when", validation.SelectError{Label: "whenYourAttorneysCanUseYourLpa"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }

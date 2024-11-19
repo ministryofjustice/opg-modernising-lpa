@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,9 +24,8 @@ func TestGetPreviousFee(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &previousFeeData{
-			App:     testAppData,
-			Form:    &previousFeeForm{},
-			Options: pay.PreviousFeeValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[pay.PreviousFee](pay.PreviousFeeValues, "howMuchYouPreviouslyPaid"),
 		}).
 		Return(nil)
 
@@ -43,11 +43,8 @@ func TestGetPreviousFeeFromStore(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &previousFeeData{
-			App: testAppData,
-			Form: &previousFeeForm{
-				PreviousFee: pay.PreviousFeeHalf,
-			},
-			Options: pay.PreviousFeeValues,
+			App:  testAppData,
+			Form: form.NewSelectForm(pay.PreviousFeeHalf, pay.PreviousFeeValues, "howMuchYouPreviouslyPaid"),
 		}).
 		Return(nil)
 
@@ -76,7 +73,7 @@ func TestGetPreviousFeeWhenTemplateErrors(t *testing.T) {
 
 func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {pay.PreviousFeeFull.String()},
+		form.FieldNames.Select: {pay.PreviousFeeFull.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -104,7 +101,7 @@ func TestPostPreviousFeeWhenFullFee(t *testing.T) {
 
 func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {pay.PreviousFeeHalf.String()},
+		form.FieldNames.Select: {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -129,7 +126,7 @@ func TestPostPreviousFeeWhenOtherFee(t *testing.T) {
 
 func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {pay.PreviousFeeHalf.String()},
+		form.FieldNames.Select: {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -149,7 +146,7 @@ func TestPostPreviousFeeWhenNotChanged(t *testing.T) {
 
 func TestPostPreviousFeeWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"previous-fee": {pay.PreviousFeeHalf.String()},
+		form.FieldNames.Select: {pay.PreviousFeeHalf.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -174,7 +171,7 @@ func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *previousFeeData) bool {
-			return assert.Equal(t, validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howMuchYouPreviouslyPaid"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -183,39 +180,4 @@ func TestPostPreviousFeeWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadPreviousFeeForm(t *testing.T) {
-	form := url.Values{
-		"previous-fee": {pay.PreviousFeeHalf.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readPreviousFeeForm(r)
-	assert.Equal(t, pay.PreviousFeeHalf, result.PreviousFee)
-}
-
-func TestPreviousFeeFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *previousFeeForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &previousFeeForm{
-				PreviousFee: pay.PreviousFeeFull,
-			},
-		},
-		"invalid": {
-			form:   &previousFeeForm{},
-			errors: validation.With("previous-fee", validation.SelectError{Label: "howMuchYouPreviouslyPaid"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
