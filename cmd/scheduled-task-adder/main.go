@@ -58,7 +58,6 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 		cfg.Region = "eu-west-1"
 	}
 
-	//client, err := dynamo.NewClient(cfg, "lpas-test")
 	client, err := dynamo.NewClient(cfg, "lpas")
 	if err != nil {
 		return fmt.Errorf("failed to create dynamo client: %w", err)
