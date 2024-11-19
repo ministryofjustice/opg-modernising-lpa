@@ -12,10 +12,10 @@
             {{ trHtml .App "whenYourAttorneysCanUseYourLpaContent" }}
 
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "when" .Form.When.String
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.When.String
                     (legend (trFormatCount .App "whenDoYouWantAttorneysToUse" .Donor.Attorneys.Len) "govuk-fieldset__legend--l")
-                    (item .Options.HasCapacity.String .Options.HasCapacity.String)
-                    (item .Options.CapacityLost.String .Options.CapacityLost.String)
+                    (item .Form.Options.HasCapacity.String .Options.HasCapacity.String)
+                    (item .Form.Options.CapacityLost.String .Options.CapacityLost.String)
                     ) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}

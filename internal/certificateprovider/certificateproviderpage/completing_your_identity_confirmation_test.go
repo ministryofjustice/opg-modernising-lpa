@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
@@ -22,9 +23,8 @@ func TestGetCompletingYourIdentityConfirmation(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &completingYourIdentityConfirmationData{
-			App:     testAppData,
-			Form:    &howWillYouConfirmYourIdentityForm{},
-			Options: howYouWillConfirmYourIdentityValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWouldLikeToContinue"),
 		}).
 		Return(nil)
 
@@ -69,7 +69,7 @@ func TestPostCompletingYourIdentityConfirmation(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"how": {tc.how.String()},
+				form.FieldNames.Select: {tc.how.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -94,7 +94,7 @@ func TestPostCompletingYourIdentityConfirmationWhenValidationErrors(t *testing.T
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *completingYourIdentityConfirmationData) bool {
-			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouWouldLikeToContinue"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWouldLikeToContinue"}), data.Errors)
 		})).
 		Return(nil)
 
