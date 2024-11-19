@@ -13,9 +13,11 @@ import (
 )
 
 const (
-	issuer            = "opg.poas.makeregister"
-	statusActive      = "active"
-	statusReplacement = "replacement"
+	issuer                     = "opg.poas.makeregister"
+	statusActive               = "active"
+	statusReplacement          = "replacement"
+	appointmentTypeOriginal    = "original"
+	appointmentTypeReplacement = "replacement"
 )
 
 var ErrNotFound = errors.New("lpa not found in lpa-store")
