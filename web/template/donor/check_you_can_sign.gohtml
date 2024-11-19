@@ -23,13 +23,18 @@
 
         {{ trHtml .App "ifYouCannotTickTheBoxGuidance" }}
 
-        {{ template "radios-fielset" (fieldset . .Form.FieldName .Form.YesNo.String
+        {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
             (legend "willYouBeAbleToSign" "govuk-fieldset__legend--m")
             (item .Form.Options.Yes.String "yesByddaf")
             (item .Form.Options.No.String "noNaFyddaf" "hint" "wellGiveYouMoreInformationAboutWhatToDo")
             ) }}
 
-        {{ template "continue-button" . }}
+        {{ if .CanTaskList }}
+            {{ template "buttons" (button .App "saveAndContinue")  }}
+        {{ else }}
+            {{ template "button" (button .App "saveAndContinue")  }}
+        {{ end }}
+
         {{ template "csrf-field" . }}
       </form>
     </div>
