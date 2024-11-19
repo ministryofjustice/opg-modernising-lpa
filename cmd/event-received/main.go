@@ -202,7 +202,7 @@ func handleCloudWatchEvent(ctx context.Context, factory *Factory, event *events.
 	if err := handler.Handle(ctx, factory, event); err != nil {
 		return fmt.Errorf("%s: %w", event.DetailType, err)
 	}
-	logger.InfoContext(ctx, "successfully handled event")
+	logger.InfoContext(ctx, "successfully handled event", slog.String("source", event.Source), slog.String("detailType", event.DetailType))
 
 	return nil
 }
