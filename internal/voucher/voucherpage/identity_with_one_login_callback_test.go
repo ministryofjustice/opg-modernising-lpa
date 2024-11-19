@@ -2,7 +2,6 @@ package voucherpage
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -36,7 +36,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				FirstNames:       "John",
 				LastName:         "Doe",
 				IdentityUserData: userData,
-				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 			},
 			redirect: voucher.PathOneLoginIdentityDetails,
 		},
@@ -51,7 +51,6 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 				FirstNames:       "John",
 				LastName:         "Doe",
 				IdentityUserData: userData,
-				Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateInProgress},
 			},
 			redirect: voucher.PathConfirmAllowedToVouch,
 		},
@@ -153,7 +152,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailedIdentityCheck(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathUnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathVoucherUnableToConfirmIdentity.Format()+"?donorFirstNames=c&donorFullName=c+d", resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenFailVouchError(t *testing.T) {
@@ -203,7 +202,7 @@ func TestGetIdentityWithOneLoginCallbackWhenFailVouchError(t *testing.T) {
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -253,7 +252,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 				voucherStore.EXPECT().
 					Put(context.Background(), &voucherdata.Provided{
 						LpaID:            "lpa-id",
-						Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.StateCompleted},
+						Tasks:            voucherdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 						IdentityUserData: identity.UserData{},
 					}).
 					Return(nil)
@@ -267,7 +266,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 					Return(nil)
 				return vouchFailer
 			},
-			expectedRedirectURL: voucher.PathUnableToConfirmIdentity.Format("lpa-id"),
+			expectedRedirectURL: page.PathVoucherUnableToConfirmIdentity.Format() + "?donorFirstNames=&donorFullName=+",
 			expectedStatus:      http.StatusFound,
 		},
 		"errored on parse": {
@@ -348,7 +347,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			},
 			sessionStore:   sessionIgnored,
 			vouchFailer:    vouchFailerIgnored,
-			error:          errors.New("access denied"),
+			error:          onelogin.ErrAccessDenied,
 			voucherStore:   voucherIgnored,
 			expectedStatus: http.StatusOK,
 		},
@@ -370,7 +369,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, tc.voucherStore(t), lpaStoreResolvingService, tc.vouchFailer(t).Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 			resp := w.Result()
 
-			assert.Equal(t, tc.error, err)
+			assert.ErrorIs(t, err, tc.error)
 			assert.Equal(t, tc.expectedStatus, resp.StatusCode)
 			assert.Equal(t, tc.expectedRedirectURL, resp.Header.Get("Location"))
 		})
@@ -387,8 +386,7 @@ func TestGetIdentityWithOneLoginCallbackWhenGetLpaStoreResolvingServiceError(t *
 		Return(&lpadata.Lpa{Voucher: lpadata.Voucher{}}, expectedError)
 
 	err := IdentityWithOneLoginCallback(nil, nil, nil, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
-
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenPutVoucherStoreError(t *testing.T) {
@@ -423,6 +421,5 @@ func TestGetIdentityWithOneLoginCallbackWhenPutVoucherStoreError(t *testing.T) {
 		Return(identity.UserData{Status: identity.StatusConfirmed}, nil)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{})
-
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }

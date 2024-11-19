@@ -1,20 +1,20 @@
 FROM golang:1.23.3-alpine AS build-env
 
-RUN apk --no-cache add openssl=3.3.2-r1
-
 WORKDIR /app
 
-COPY go.mod go.sum ./
+RUN apk --no-cache add openssl=3.3.2-r1
+
+COPY --link go.mod go.sum ./
 RUN go mod download
 
-COPY cmd/mock-notify ./cmd/mock-notify
+COPY --link cmd/mock-notify ./cmd/mock-notify
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o mock-notify ./cmd/mock-notify
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -a -installsuffix cgo -o /go/bin/mock-notify ./cmd/mock-notify 
 
-RUN addgroup --system app && \
-  adduser --system --gecos app app && \
-  chown -R app:app /app
+FROM scratch AS production
 
-USER app
+WORKDIR /go/bin
 
-CMD [ "/app/mock-notify" ]
+COPY --from=build-env /go/bin/mock-notify mock-notify
+
+CMD [ "./mock-notify" ]

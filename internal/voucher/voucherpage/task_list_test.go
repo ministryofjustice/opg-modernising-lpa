@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -29,7 +31,7 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
-		"identity in progress": {
+		"identity confirmation in progress": {
 			lpa: &lpadata.Lpa{
 				LpaID: "lpa-id",
 				Donor: lpadata.Donor{FirstNames: "John", LastName: "Smith"},
@@ -38,13 +40,34 @@ func TestGetTaskList(t *testing.T) {
 				Tasks: voucherdata.Tasks{
 					ConfirmYourName:     task.StateCompleted,
 					VerifyDonorDetails:  task.StateCompleted,
-					ConfirmYourIdentity: task.StateInProgress,
+					ConfirmYourIdentity: task.IdentityStateInProgress,
 				},
 			},
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
-				items[2].State = task.StateInProgress
+				items[2].IdentityState = task.IdentityStateInProgress
+				items[2].Path = voucher.PathHowWillYouConfirmYourIdentity
+				return items
+			},
+		},
+		"identity checked but matches actor": {
+			lpa: &lpadata.Lpa{
+				LpaID: "lpa-id",
+				Donor: lpadata.Donor{FirstNames: "John", LastName: "Smith"},
+			},
+			voucher: &voucherdata.Provided{
+				Tasks: voucherdata.Tasks{
+					ConfirmYourName:     task.StateCompleted,
+					VerifyDonorDetails:  task.StateCompleted,
+					ConfirmYourIdentity: task.IdentityStateInProgress,
+				},
+				IdentityUserData: identity.UserData{CheckedAt: time.Now()},
+			},
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = task.StateCompleted
+				items[1].State = task.StateCompleted
+				items[2].IdentityState = task.IdentityStateInProgress
 				items[2].Path = voucher.PathConfirmAllowedToVouch
 				return items
 			},
@@ -58,14 +81,14 @@ func TestGetTaskList(t *testing.T) {
 				Tasks: voucherdata.Tasks{
 					ConfirmYourName:     task.StateCompleted,
 					VerifyDonorDetails:  task.StateCompleted,
-					ConfirmYourIdentity: task.StateCompleted,
+					ConfirmYourIdentity: task.IdentityStateCompleted,
 					SignTheDeclaration:  task.StateCompleted,
 				},
 			},
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
 				items[1].State = task.StateCompleted
-				items[2].State = task.StateCompleted
+				items[2].IdentityState = task.IdentityStateCompleted
 				items[2].Path = voucher.PathOneLoginIdentityDetails
 				items[3].State = task.StateCompleted
 				return items
@@ -85,10 +108,7 @@ func TestGetTaskList(t *testing.T) {
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
-				Possessive("John Smith").
-				Return("John Smith's")
-			localizer.EXPECT().
-				Format("verifyPersonDetails", map[string]any{"DonorFullNamePossessive": "John Smith's"}).
+				Format("verifyPersonDetails", map[string]any{"DonorFullName": "John Smith"}).
 				Return("verifyJohnSmithsDetails")
 
 			appData := testAppData
@@ -141,9 +161,6 @@ func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	localizer := newMockLocalizer(t)
-	localizer.EXPECT().
-		Possessive(mock.Anything).
-		Return("oi")
 	localizer.EXPECT().
 		Format(mock.Anything, mock.Anything).
 		Return("hey")

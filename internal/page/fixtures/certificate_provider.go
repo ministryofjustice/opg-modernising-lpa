@@ -185,11 +185,6 @@ func CertificateProvider(
 			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
 		}
 
-		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
-		if err != nil {
-			return err
-		}
-
 		if progress >= slices.Index(progressValues, "paid") {
 			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
@@ -203,6 +198,58 @@ func CertificateProvider(
 			donorDetails.Tasks.SignTheLpa = task.StateCompleted
 			donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 			donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+		}
+
+		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
+			return err
+		}
+
+		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+				return err
+			}
+		}
+
+		// should only be used in tests as otherwise people can read their emails...
+		if shareCode != "" {
+			shareCodeSender.UseTestCode(shareCode)
+		}
+
+		if email != "" {
+			shareCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
+				SessionID: donorSessionID,
+				LpaID:     donorDetails.LpaID,
+				Localizer: appData.Localizer,
+			}, sharecode.CertificateProviderInvite{
+				LpaKey:                      donorDetails.PK,
+				LpaOwnerKey:                 donorDetails.SK,
+				LpaUID:                      donorDetails.LpaUID,
+				Type:                        donorDetails.Type,
+				DonorFirstNames:             donorDetails.Donor.FirstNames,
+				DonorFullName:               donorDetails.Donor.FullName(),
+				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
+				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
+				CertificateProviderEmail:    donorDetails.CertificateProvider.Email,
+			})
+
+			switch redirect {
+			case "":
+				redirect = page.PathDashboard.Format()
+			case page.PathCertificateProviderStart.Format():
+				redirect = page.PathCertificateProviderStart.Format()
+			case page.PathCertificateProviderEnterReferenceNumberOptOut.Format():
+				redirect = page.PathCertificateProviderEnterReferenceNumberOptOut.Format()
+			default:
+				redirect = "/certificate-provider/" + donorDetails.LpaID + redirect
+			}
+
+			http.Redirect(w, r, redirect, http.StatusFound)
+			return nil
+		}
+
+		certificateProvider, err := createCertificateProvider(certificateProviderCtx, shareCodeStore, certificateProviderStore, donorDetails.CertificateProvider.UID, donorDetails.SK, donorDetails.CertificateProvider.Email)
+		if err != nil {
+			return err
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
@@ -229,44 +276,11 @@ func CertificateProvider(
 				LastName:    donorDetails.CertificateProvider.LastName,
 				DateOfBirth: certificateProvider.DateOfBirth,
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = task.StateCompleted
-		}
-
-		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
-			return err
-		}
-
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
-				return err
-			}
+			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
-		}
-
-		// should only be used in tests as otherwise people can read their emails...
-		if shareCode != "" {
-			shareCodeSender.UseTestCode(shareCode)
-		}
-
-		if email != "" {
-			shareCodeSender.SendCertificateProviderInvite(donorCtx, appcontext.Data{
-				SessionID: donorSessionID,
-				LpaID:     donorDetails.LpaID,
-				Localizer: appData.Localizer,
-			}, sharecode.CertificateProviderInvite{
-				LpaKey:                      donorDetails.PK,
-				LpaOwnerKey:                 donorDetails.SK,
-				LpaUID:                      donorDetails.LpaUID,
-				Type:                        donorDetails.Type,
-				DonorFirstNames:             donorDetails.Donor.FirstNames,
-				DonorFullName:               donorDetails.Donor.FullName(),
-				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
-				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
-				CertificateProviderEmail:    donorDetails.CertificateProvider.Email,
-			})
 		}
 
 		switch redirect {

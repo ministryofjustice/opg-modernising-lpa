@@ -20,10 +20,11 @@ type taskListData struct {
 }
 
 type taskListItem struct {
-	Name     string
-	Path     string
-	State    task.State
-	Disabled bool
+	Name          string
+	Path          string
+	State         task.State
+	IdentityState task.IdentityState
+	Disabled      bool
 }
 
 func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
@@ -34,7 +35,12 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		identityTaskPage := certificateprovider.PathConfirmYourIdentity
-		if certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() {
+		switch certificateProvider.Tasks.ConfirmYourIdentity {
+		case task.IdentityStateInProgress:
+			identityTaskPage = certificateprovider.PathHowWillYouConfirmYourIdentity
+		case task.IdentityStatePending:
+			identityTaskPage = certificateprovider.PathCompletingYourIdentityConfirmation
+		case task.IdentityStateCompleted:
 			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
 
@@ -50,16 +56,17 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					State: tasks.ConfirmYourDetails,
 				},
 				{
-					Name:     "confirmYourIdentity",
-					Path:     identityTaskPage.Format(lpa.LpaID),
-					State:    tasks.ConfirmYourIdentity,
-					Disabled: !lpa.Paid || !lpa.SignedForDonor(),
+					Name:          "confirmYourIdentity",
+					Path:          identityTaskPage.Format(lpa.LpaID),
+					IdentityState: tasks.ConfirmYourIdentity,
+					Disabled:      !lpa.Paid || !lpa.SignedForDonor(),
 				},
 				{
-					Name:     "provideYourCertificate",
-					Path:     certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
-					State:    tasks.ProvideTheCertificate,
-					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() || !tasks.ConfirmYourIdentity.IsCompleted(),
+					Name:  "provideYourCertificate",
+					Path:  certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
+					State: tasks.ProvideTheCertificate,
+					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() ||
+						!(tasks.ConfirmYourIdentity.IsCompleted() || tasks.ConfirmYourIdentity.IsPending()),
 				},
 			},
 		}

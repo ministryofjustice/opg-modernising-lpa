@@ -29,10 +29,11 @@ go-test: ##@testing Runs full go test suite
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
 go-generate: ##@testing Runs go generate for mocks and enums
-	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm
-	GODEBUG=gotypesalias=0 mockery
+	git ls-files | grep '.*/enum_.*\.go' | xargs rm -f
 	go install ./cmd/enumerator
 	go generate ./...
+	git ls-files | grep '.*/mock_.*_test\.go' | xargs rm -f
+	mockery
 
 update-event-schemas: ##@testing Gets the latest event schemas from OPG event catalog that we have tests for
 	sh ./scripts/get_event_schemas.sh

@@ -421,6 +421,110 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"identity confirmation in progress": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:               "lpa-id",
+				Donor:               donordata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				Tasks: donordata.Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					WhenCanTheLpaBeUsed:        task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateInProgress,
+				},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items = []taskListItem{
+					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+				}
+
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+				}
+
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentity", Path: donor.PathHowWillYouConfirmYourIdentity.Format("lpa-id"), IdentityState: task.IdentityStateInProgress},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
+		"identity confirmation pending": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:               "lpa-id",
+				Donor:               donordata.Donor{FirstNames: "a", LastName: "b"},
+				CertificateProvider: donordata.CertificateProvider{LastName: "a", Address: place.Address{Line1: "x"}},
+				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
+					{DateOfBirth: date.Today().AddDate(-20, 0, 0)},
+				}},
+				Tasks: donordata.Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					WhenCanTheLpaBeUsed:        task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStatePending,
+				},
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[0].Items = []taskListItem{
+					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+				}
+
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+				}
+
+				sections[2].Items = []taskListItem{
+					{Name: "confirmYourIdentity", Path: donor.PathCompletingYourIdentityConfirmation.Format("lpa-id"), IdentityState: task.IdentityStatePending},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+				}
+
+				return sections
+			},
+		},
 		"identity confirmed, not signed": {
 			appData: testAppData,
 			donor: &donordata.Provided{

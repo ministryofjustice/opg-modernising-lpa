@@ -1,5 +1,6 @@
+disable-version-string: true
 with-expecter: true
-inpackage: True
+inpackage: true
 dir: "{{.InterfaceDir}}"
 mockname: "mock{{.InterfaceName|firstUpper}}"
 outpkg: "{{.PackageName}}"

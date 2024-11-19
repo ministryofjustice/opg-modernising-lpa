@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -42,6 +43,7 @@ type LpaStoreResolvingService interface {
 type DonorStore interface {
 	GetAny(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
+	FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error
 }
 
 type NotifyClient interface {
@@ -114,6 +116,8 @@ func Register(
 		page.LoginCallback(logger, oneLoginClient, sessionStore, page.PathVoucherEnterReferenceNumber, dashboardStore, actor.TypeVoucher))
 	handleRoot(page.PathVoucherEnterReferenceNumber, RequireSession,
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, voucherStore))
+	handleRoot(page.PathVoucherUnableToConfirmIdentity, None,
+		page.Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
 
 	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler, voucherStore)
 
@@ -135,15 +139,17 @@ func Register(
 		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
-		Guidance(tmpls.Get("confirm_your_identity.gohtml"), lpaStoreResolvingService))
+		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), voucherStore, lpaStoreResolvingService))
+	handleVoucher(voucher.PathHowWillYouConfirmYourIdentity, None,
+		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), voucherStore))
+	handleVoucher(voucher.PathCompletingYourIdentityConfirmation, None,
+		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml"), lpaStoreResolvingService))
 	handleVoucher(voucher.PathIdentityWithOneLogin, None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleVoucher(voucher.PathIdentityWithOneLoginCallback, None,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, voucherStore, lpaStoreResolvingService, vouchFailed))
 	handleVoucher(voucher.PathOneLoginIdentityDetails, None,
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
-	handleVoucher(voucher.PathUnableToConfirmIdentity, None,
-		Guidance(tmpls.Get("unable_to_confirm_identity.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
 		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, time.Now, appPublicURL))

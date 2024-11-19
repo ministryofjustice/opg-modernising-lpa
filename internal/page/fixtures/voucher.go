@@ -109,11 +109,6 @@ func Voucher(
 			}
 		}
 
-		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
-		if err != nil {
-			return err
-		}
-
 		if progress == slices.Index(progressValues, "") {
 			if shareCode != "" {
 				shareCodeSender.UseTestCode(shareCode)
@@ -135,6 +130,11 @@ func Voucher(
 			return nil
 		}
 
+		voucherDetails, err := createVoucher(voucherCtx, shareCodeStore, voucherStore, donorDetails)
+		if err != nil {
+			return err
+		}
+
 		if progress >= slices.Index(progressValues, "confirmYourName") {
 			voucherDetails.FirstNames = donorDetails.Voucher.FirstNames
 			voucherDetails.LastName = donorDetails.Voucher.LastName
@@ -151,7 +151,7 @@ func Voucher(
 				FirstNames: voucherDetails.FirstNames,
 				LastName:   voucherDetails.LastName,
 			}
-			voucherDetails.Tasks.ConfirmYourIdentity = task.StateCompleted
+			voucherDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 
 		if err := voucherStore.Put(voucherCtx, voucherDetails); err != nil {

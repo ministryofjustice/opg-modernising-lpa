@@ -89,7 +89,7 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 			certificateProvider: &certificateproviderdata.Provided{
 				Tasks: certificateproviderdata.Tasks{
 					ConfirmYourDetails:  task.StateCompleted,
-					ConfirmYourIdentity: task.StateCompleted,
+					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
 			},
 			url:      PathProvideCertificate.Format("123"),

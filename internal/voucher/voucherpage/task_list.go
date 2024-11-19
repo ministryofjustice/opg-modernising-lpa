@@ -19,9 +19,10 @@ type taskListData struct {
 }
 
 type taskListItem struct {
-	Name  string
-	Path  voucher.Path
-	State task.State
+	Name          string
+	Path          voucher.Path
+	State         task.State
+	IdentityState task.IdentityState
 }
 
 func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
@@ -33,9 +34,15 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 
 		confirmYourIdentityPath := voucher.PathConfirmYourIdentity
 		switch provided.Tasks.ConfirmYourIdentity {
-		case task.StateInProgress:
-			confirmYourIdentityPath = voucher.PathConfirmAllowedToVouch
-		case task.StateCompleted:
+		case task.IdentityStateInProgress:
+			if provided.IdentityUserData.CheckedAt.IsZero() {
+				confirmYourIdentityPath = voucher.PathHowWillYouConfirmYourIdentity
+			} else {
+				confirmYourIdentityPath = voucher.PathConfirmAllowedToVouch
+			}
+		case task.IdentityStatePending:
+			confirmYourIdentityPath = voucher.PathCompletingYourIdentityConfirmation
+		case task.IdentityStateCompleted:
 			confirmYourIdentityPath = voucher.PathOneLoginIdentityDetails
 		}
 
@@ -47,15 +54,15 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			},
 			{
 				Name: appData.Localizer.Format("verifyPersonDetails", map[string]any{
-					"DonorFullNamePossessive": appData.Localizer.Possessive(lpa.Donor.FullName()),
+					"DonorFullName": lpa.Donor.FullName(),
 				}),
 				Path:  voucher.PathVerifyDonorDetails,
 				State: provided.Tasks.VerifyDonorDetails,
 			},
 			{
-				Name:  "confirmYourIdentity",
-				Path:  confirmYourIdentityPath,
-				State: provided.Tasks.ConfirmYourIdentity,
+				Name:          "confirmYourIdentity",
+				Path:          confirmYourIdentityPath,
+				IdentityState: provided.Tasks.ConfirmYourIdentity,
 			},
 			{
 				Name:  "signTheDeclaration",
