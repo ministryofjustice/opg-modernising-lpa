@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -37,6 +38,10 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+	// TODO remove in MLPAB-2690
+	metricsEnabled = os.Getenv("METRICS_ENABLED") == "1"
+
+	Tag string
 
 	httpClient *http.Client
 	cfg        aws.Config
@@ -81,9 +86,25 @@ func handleRunSchedule(ctx context.Context) error {
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
 
-	if err := runner.Run(ctx); err != nil {
+	metrics, err := runner.Run(ctx)
+
+	if err != nil {
 		logger.Error("runner error", slog.Any("err", err))
 		return err
+	}
+
+	if metricsEnabled {
+		if Tag == "" {
+			Tag = os.Getenv("TAG")
+		}
+
+		client := cloudwatch.NewFromConfig(cfg)
+
+		metricsClient := telemetry.NewMetricsClient(client, Tag)
+
+		if err = metricsClient.PutMetrics(ctx, &metrics); err != nil {
+			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))
+		}
 	}
 
 	return nil
