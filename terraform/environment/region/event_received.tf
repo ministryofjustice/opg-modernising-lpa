@@ -8,6 +8,11 @@ data "aws_security_group" "lambda_egress" {
   provider = aws.region
 }
 
+data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
+  name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
+
 module "event_received" {
   source                        = "./modules/event_received"
   lambda_function_image_ecr_url = data.aws_ecr_repository.event_received.repository_url
@@ -18,6 +23,7 @@ module "event_received" {
   uploads_bucket                = module.uploads_s3_bucket.bucket
   uid_base_url                  = var.uid_service.base_url
   lpa_store_base_url            = var.lpa_store_service.base_url
+  lpa_store_secret_arn          = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   allowed_api_arns              = var.uid_service.api_arns
   search_endpoint               = var.search_endpoint
   search_index_name             = var.search_index_name
