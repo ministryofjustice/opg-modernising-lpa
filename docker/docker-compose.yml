@@ -26,7 +26,7 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
-      - SEARCH_INDEXING_ENABLED=1
+      - SEARCH_INDEXING_DISABLED=0
       - DEV_MODE=1
       - SCHEDULED_RUNNER_PERIOD=1m
       - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
@@ -61,7 +61,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs
+      - SERVICES=s3,secretsmanager,sqs,dynamodb,events,kms,lambda,opensearch,scheduler,logs,cloudwatch
       - DATA_DIR=/tmp/localstack/data
       - DEBUG=1
       - AWS_ACCESS_KEY_ID=fakeKeyId
@@ -69,6 +69,18 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
+      - LPAS_TABLE=lpas
+      - TAG=0.0.0
+      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
+      - GOVUK_NOTIFY_IS_PRODUCTION=0
+      - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
+      - SEARCH_INDEXING_DISABLED=0
+      - SEARCH_INDEX_NAME=lpas
+      - APP_PUBLIC_URL=localhost:5050
+      - UPLOAD_S3_BUCKET=evidence
+      - UID_BASE_URL=http://mock-uid:8080
+      - XRAY_ENABLED=0
+      - METRICS_ENABLED=1
     networks:
       default:
         aliases:
