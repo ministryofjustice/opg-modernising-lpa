@@ -1515,5 +1515,8 @@
     "youHaveChosenToConfirmAtPostOfficeCertificateProviderContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
     "nowThatYouHaveProvidedCertificateConfirmIdentityBy": "Welsh",
     "nowThatDonorHasSignedConfirmIdentityBy": "Welsh {{.DonorFullName}} {{.DonorFirstNames}}",
-    "howYouWouldLikeToContinue": "Welsh"
+    "howYouWouldLikeToContinue": "Welsh",
+    "enterYourPostcode": "Rhowch eich cod post",
+    "selectYourAddress": "Dewiswch eich cyfeiriad",
+    "confirmYourAddress": "Cadarnhewch eich cyfeiriad"
 }
