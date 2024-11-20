@@ -90,12 +90,22 @@ func TestPostHowShouldReplacementAttorneysMakeDecisions(t *testing.T) {
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{LpaID: "lpa-id", ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly}}).
+		Put(r.Context(), &donordata.Provided{
+			LpaID:                        "lpa-id",
+			Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+			ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{{}, {}}},
+			ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
+			Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
+		}).
 		Return(nil)
 
 	template := newMockTemplate(t)
 
-	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &donordata.Provided{
+		LpaID:                "lpa-id",
+		Attorneys:            donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
+		ReplacementAttorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{}, {}}},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -110,7 +120,6 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 		attorneys donordata.Attorneys
 		updated   donordata.AttorneyDecisions
 		taskState task.State
-		redirect  donor.Path
 	}{
 		"existing details not set": {
 			form: url.Values{
@@ -118,10 +127,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				"mixed-details": {"some details"},
 			},
 			existing:  donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally},
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
+			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}, {}}},
 			updated:   donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			taskState: task.StateCompleted,
-			redirect:  donor.PathTaskList,
+			taskState: task.StateInProgress,
 		},
 		"existing details set": {
 			form: url.Values{
@@ -129,10 +137,9 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 				"mixed-details": {"some details"},
 			},
 			existing:  donordata.AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "some details"},
-			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}}},
+			attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{{FirstNames: "a", Address: testAddress, Email: "a"}, {}}},
 			updated:   donordata.AttorneyDecisions{How: lpadata.Jointly},
-			taskState: task.StateCompleted,
-			redirect:  donor.PathTaskList,
+			taskState: task.StateInProgress,
 		},
 	}
 
@@ -146,6 +153,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
 					LpaID:                        "lpa-id",
+					Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 					ReplacementAttorneys:         tc.attorneys,
 					ReplacementAttorneyDecisions: tc.updated,
 					Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: tc.taskState},
@@ -156,6 +164,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			err := HowShouldReplacementAttorneysMakeDecisions(template.Execute, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID:                        "lpa-id",
+				Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{{}}},
 				ReplacementAttorneys:         tc.attorneys,
 				ReplacementAttorneyDecisions: tc.existing,
 			})
@@ -163,7 +172,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsFromStore(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -225,7 +234,7 @@ func TestPostHowShouldReplacementAttorneysMakeDecisionsErrorOnPutStore(t *testin
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{ReplacementAttorneyDecisions: donordata.AttorneyDecisions{Details: "", How: lpadata.Jointly}}).
+		Put(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	template := newMockTemplate(t)

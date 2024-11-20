@@ -38,6 +38,7 @@ func ChooseAttorneysAddress(logger Logger, tmpl template.Template, addressClient
 			setAddress := func(address place.Address) error {
 				attorney.Address = address
 				provided.Attorneys.Put(attorney)
+				provided.UpdateDecisions()
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
