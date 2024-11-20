@@ -1,6 +1,6 @@
 describe('How should attorneys make decisions', () => {
     beforeEach(() => {
-        cy.visit('/fixtures?redirect=/how-should-attorneys-make-decisions');
+        cy.visit('/fixtures?progress=chooseYourAttorneys&redirect=/how-should-attorneys-make-decisions');
 
         // see https://github.com/alphagov/govuk-frontend/issues/979
         cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
@@ -44,6 +44,7 @@ describe('How should attorneys make decisions', () => {
     });
 
     it('errors when unselected', () => {
+        cy.visit('/fixtures?progress=chooseYourAttorneys&attorneys=single&redirect=/how-should-attorneys-make-decisions');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {
