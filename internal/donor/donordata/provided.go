@@ -535,3 +535,32 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 func (p *Provided) CanHaveVoucher() bool {
 	return p.FailedVouchAttempts < 2
 }
+
+func (p *Provided) UpdateDecisions() {
+	if p.Attorneys.Len() <= 1 {
+		p.AttorneyDecisions = AttorneyDecisions{}
+	} else {
+		if !p.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() {
+			p.AttorneyDecisions.Details = ""
+		}
+	}
+
+	if p.ReplacementAttorneys.Len() <= 1 {
+		p.ReplacementAttorneyDecisions = AttorneyDecisions{}
+	} else {
+		if !p.ReplacementAttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers() {
+			p.ReplacementAttorneyDecisions.Details = ""
+		}
+
+		if p.Attorneys.Len() == 1 || p.AttorneyDecisions.How.IsJointly() {
+			p.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepIn(0)
+		} else if p.AttorneyDecisions.How.IsJointlyAndSeverally() {
+			if p.ReplacementAttorneys.Len() <= 1 || !p.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct() {
+				p.ReplacementAttorneyDecisions = AttorneyDecisions{}
+			}
+		} else {
+			p.ReplacementAttorneyDecisions = AttorneyDecisions{}
+			p.HowShouldReplacementAttorneysStepIn = lpadata.ReplacementAttorneysStepIn(0)
+		}
+	}
+}

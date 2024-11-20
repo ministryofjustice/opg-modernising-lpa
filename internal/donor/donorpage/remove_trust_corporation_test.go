@@ -92,14 +92,16 @@ func TestPostRemoveTrustCorporation(t *testing.T) {
 			isReplacement: true,
 			donor: &donordata.Provided{
 				LpaID:                        "lpa-id",
+				Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 				ReplacementAttorneys:         donordata.Attorneys{TrustCorporation: trustCorporation, Attorneys: []donordata.Attorney{attorney, attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
 			},
 			updatedDonor: &donordata.Provided{
 				LpaID:                        "lpa-id",
+				Attorneys:                    donordata.Attorneys{Attorneys: []donordata.Attorney{attorney}},
 				ReplacementAttorneys:         donordata.Attorneys{Attorneys: []donordata.Attorney{attorney, attorney}},
 				ReplacementAttorneyDecisions: donordata.AttorneyDecisions{How: lpadata.Jointly},
-				Tasks:                        donordata.Tasks{ChooseReplacementAttorneys: task.StateInProgress},
+				Tasks:                        donordata.Tasks{ChooseAttorneys: task.StateInProgress, ChooseReplacementAttorneys: task.StateInProgress},
 			},
 			redirect: donor.PathChooseReplacementAttorneysSummary,
 		},

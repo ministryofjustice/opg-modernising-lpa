@@ -47,7 +47,6 @@ func ChooseReplacementAttorneysSummary(tmpl template.Template, newUID func() act
 					return donor.PathTaskList.Redirect(w, r, appData, provided)
 				}
 			}
-
 		}
 
 		return tmpl(w, data)
