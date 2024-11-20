@@ -6,10 +6,10 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legendHeading (trFormat .App "howDoYouKnowYourCertificateProvider" "FirstNames" .CertificateProvider.FirstNames "LastName" .CertificateProvider.LastName) "govuk-fieldset__legend--xl")
-                    (item .Options.Personally.String "personally" "hint" "personallyHint")
-                    (item .Options.Professionally.String "professionally" "hint" "professionallyHint")
+                    (item .Form.Options.Personally.String "personally" "hint" "personallyHint")
+                    (item .Form.Options.Professionally.String "professionally" "hint" "professionallyHint")
                     ) }}
 
                 {{ template "buttons" (button .App "saveAndContinue") }}

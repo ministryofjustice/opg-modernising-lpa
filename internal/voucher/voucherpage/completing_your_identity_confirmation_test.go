@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -32,8 +33,7 @@ func TestGetCompletingYourIdentityConfirmation(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &completingYourIdentityConfirmationData{
 			App:      testAppData,
-			Form:     &howWillYouConfirmYourIdentityForm{},
-			Options:  howYouWillConfirmYourIdentityValues,
+			Form:     form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWouldLikeToContinue"),
 			Donor:    lpadata.Donor{FirstNames: "A", LastName: "B"},
 			Deadline: testNow.AddDate(0, 6, 0),
 		}).
@@ -85,7 +85,7 @@ func TestPostCompletingYourIdentityConfirmation(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"how": {tc.how.String()},
+				form.FieldNames.Select: {tc.how.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -115,7 +115,7 @@ func TestPostCompletingYourIdentityConfirmationWhenValidationErrors(t *testing.T
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *completingYourIdentityConfirmationData) bool {
-			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouWouldLikeToContinue"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWouldLikeToContinue"}), data.Errors)
 		})).
 		Return(nil)
 

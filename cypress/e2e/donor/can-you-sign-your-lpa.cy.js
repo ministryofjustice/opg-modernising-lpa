@@ -8,7 +8,7 @@ describe('Can you sign your LPA', () => {
             cy.checkA11yApp();
             cy.contains('a', 'Return to task list').should('not.exist');
 
-            cy.get('#f-can-sign').check({ force: true });
+            cy.get('#f-selected').check({ force: true });
 
             cy.contains('button', 'Save and continue').click();
             cy.url().should('contain', '/your-preferred-language');
