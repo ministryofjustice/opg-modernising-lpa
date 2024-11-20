@@ -8,9 +8,6 @@ services:
         - "linux/amd64"
         - "linux/arm64"
     container_name: app-dev
-    depends_on:
-      - events-lambda
-      - schedule-runner-lambda
     security_opt:
       - "seccomp:unconfined"
     volumes:
@@ -24,54 +21,6 @@ services:
       - SYS_PTRACE
     ports:
       - "2345:2345"
-
-  events-lambda:
-    build:
-      context: ..
-      dockerfile: docker/event-received/Dockerfile
-      target: dev
-      platforms:
-        - "linux/amd64"
-        - "linux/arm64"
-    container_name: events-lambda
-    environment:
-      - AWS_ACCESS_KEY_ID=fakeKeyId
-      - AWS_BASE_URL=http://localstack:4566
-      - AWS_REGION=eu-west-1
-      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - LPAS_TABLE=lpas
-      - GOVUK_NOTIFY_IS_PRODUCTION=0
-      - APP_PUBLIC_URL=http://localhost:5050
-      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
-      - UPLOADS_S3_BUCKET_NAME=evidence
-      - UID_BASE_URL=http://mock-uid:8080
-      - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
-    ports:
-      - "9000:8080"
-    entrypoint: aws-lambda-rie /var/task/event-received
-
-  schedule-runner-lambda:
-    build:
-      context: ..
-      dockerfile: docker/schedule-runner/Dockerfile
-      target: dev
-      platforms:
-        - "linux/amd64"
-        - "linux/arm64"
-    container_name: schedule-runner-lambda
-    environment:
-      - AWS_ACCESS_KEY_ID=fakeKeyId
-      - AWS_BASE_URL=http://localstack:4566
-      - AWS_REGION=eu-west-1
-      - AWS_SECRET_ACCESS_KEY=fakeAccessKey
-      - LPAS_TABLE=lpas
-      - GOVUK_NOTIFY_IS_PRODUCTION=0
-      - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
-      - SEARCH_ENDPOINT=http://my-domain.eu-west-1.opensearch.localhost.localstack.cloud:4566
-      - XRAY_ENABLED=1
-    ports:
-      - "9002:8080"
-    entrypoint: aws-lambda-rie /var/task/schedule-runner
 
   mock-pay:
     image: outofcoffee/imposter:latest
