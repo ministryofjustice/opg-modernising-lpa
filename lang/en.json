@@ -1407,5 +1407,8 @@
     "youHaveChosenToConfirmAtPostOfficeCertificateProviderContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">You have chosen to confirm your identity at a Post Office.</p><p class=\"govuk-body\">You can now return to your task list to provide the certificate for this LPA.</p><p class=\"govuk-body\">You must complete your identity confirmation within 6 months of providing the certificate.</p></div>",
     "nowThatYouHaveProvidedCertificateConfirmIdentityBy": "Now that you have provided the certificate for this LPA, you must complete your identity confirmation by:",
     "nowThatDonorHasSignedConfirmIdentityBy": "Now that {{.DonorFullName}} has signed their LPA, you must complete you identity confirmation and confirm {{possessive .DonorFirstNames}} identity by:",
-    "howYouWouldLikeToContinue": "how you would like to continue"
+    "howYouWouldLikeToContinue": "how you would like to continue",
+    "confirmYourAddress": "Confirm your address",
+    "selectYourAddress": "Select your address",
+    "enterYourPostcode": "Enter your postcode"
 }

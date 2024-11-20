@@ -63,7 +63,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-would-you-like-to-send-evidence')
         cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
+        cy.get('input[name="selected"]').check('upload', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/upload-evidence')
@@ -148,7 +148,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-would-you-like-to-send-evidence')
         cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
+        cy.get('input[name="selected"]').check('upload', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/upload-evidence')
@@ -223,7 +223,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-would-you-like-to-send-evidence')
         cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('upload', { force: true });
+        cy.get('input[name="selected"]').check('upload', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/upload-evidence')
@@ -329,7 +329,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-would-you-like-to-send-evidence')
         cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('post', { force: true });
+        cy.get('input[name="selected"]').check('post', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/send-us-your-evidence-by-post')
@@ -435,7 +435,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-much-did-you-previously-pay-for-your-lpa')
         cy.checkA11yApp();
 
-        cy.get('input[name="previous-fee"]').check('Half', { force: true });
+        cy.get('input[name="selected"]').check('Half', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/evidence-required')
@@ -447,7 +447,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/how-would-you-like-to-send-evidence')
         cy.checkA11yApp();
 
-        cy.get('input[name="evidence-delivery"]').check('post', { force: true });
+        cy.get('input[name="selected"]').check('post', { force: true });
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contains', '/send-us-your-evidence-by-post')
