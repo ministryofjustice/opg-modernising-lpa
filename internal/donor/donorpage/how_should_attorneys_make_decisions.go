@@ -37,10 +37,9 @@ func HowShouldAttorneysMakeDecisions(tmpl template.Template, donorStore DonorSto
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.AttorneyDecisions = donordata.MakeAttorneyDecisions(
-					provided.AttorneyDecisions,
-					data.Form.DecisionsType,
-					data.Form.DecisionsDetails)
+				provided.AttorneyDecisions.How = data.Form.DecisionsType
+				provided.AttorneyDecisions.Details = data.Form.DecisionsDetails
+				provided.UpdateDecisions()
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
