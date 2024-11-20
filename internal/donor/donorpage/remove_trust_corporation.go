@@ -18,19 +18,13 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 		titleLabel = "removeReplacementTrustCorporation"
 	}
 
-	updateDonor := func(donor *donordata.Provided) {
+	setTrustCorporation := func(donor *donordata.Provided) {
 		donor.Attorneys.TrustCorporation = donordata.TrustCorporation{}
-		if donor.Attorneys.Len() == 1 {
-			donor.AttorneyDecisions = donordata.AttorneyDecisions{}
-		}
 	}
 
 	if isReplacement {
-		updateDonor = func(donor *donordata.Provided) {
+		setTrustCorporation = func(donor *donordata.Provided) {
 			donor.ReplacementAttorneys.TrustCorporation = donordata.TrustCorporation{}
-			if donor.ReplacementAttorneys.Len() == 1 {
-				donor.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
-			}
 		}
 	}
 
@@ -53,8 +47,8 @@ func RemoveTrustCorporation(tmpl template.Template, donorStore DonorStore, isRep
 
 			if data.Errors.None() {
 				if data.Form.YesNo.IsYes() {
-					updateDonor(donor)
-
+					setTrustCorporation(donor)
+					donor.UpdateDecisions()
 					donor.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(donor.Attorneys, donor.AttorneyDecisions)
 					donor.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(donor)
 

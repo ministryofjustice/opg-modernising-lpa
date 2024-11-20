@@ -41,7 +41,7 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 				trustCorporation.CompanyNumber = data.Form.CompanyNumber
 				trustCorporation.Email = data.Form.Email
 				provided.Attorneys.TrustCorporation = trustCorporation
-
+				provided.UpdateDecisions()
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 

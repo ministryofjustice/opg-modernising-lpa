@@ -82,7 +82,7 @@ func ChooseAttorneys(tmpl template.Template, donorStore DonorStore) Handler {
 				attorney.DateOfBirth = data.Form.Dob
 
 				provided.Attorneys.Put(attorney)
-
+				provided.UpdateDecisions()
 				provided.Tasks.ChooseAttorneys = donordata.ChooseAttorneysState(provided.Attorneys, provided.AttorneyDecisions)
 				provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 
