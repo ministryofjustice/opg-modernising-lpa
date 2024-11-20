@@ -10,25 +10,6 @@ type AttorneyDecisions struct {
 	Details string
 }
 
-func MakeAttorneyDecisions(existing AttorneyDecisions, how lpadata.AttorneysAct, details string) AttorneyDecisions {
-	if existing.How == how {
-		if how == lpadata.JointlyForSomeSeverallyForOthers {
-			existing.Details = details
-		}
-
-		return existing
-	}
-
-	if how != lpadata.JointlyForSomeSeverallyForOthers {
-		return AttorneyDecisions{How: how}
-	}
-
-	return AttorneyDecisions{
-		How:     how,
-		Details: details,
-	}
-}
-
 func (d AttorneyDecisions) IsComplete() bool {
 	return !d.How.Empty()
 }
