@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/stretchr/testify/assert"
 )
@@ -501,4 +502,183 @@ func TestProvidedCanHaveVoucher(t *testing.T) {
 
 	provided.FailedVouchAttempts++
 	assert.False(t, provided.CanHaveVoucher())
+}
+
+func TestProvidedUpdateDecisions(t *testing.T) {
+	t.Run("no attorneys means no decisions", func(t *testing.T) {
+		actual := &Provided{
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{}, actual)
+	})
+
+	t.Run("one attorney means no decisions", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:         Attorneys{Attorneys: []Attorney{{}}},
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys: Attorneys{Attorneys: []Attorney{{}}},
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly means no details", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly, Details: "what"},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly for some means no change", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "what"},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions: AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "what"},
+		}, actual)
+	})
+
+	t.Run("no replacement attorneys means no decisions", func(t *testing.T) {
+		actual := &Provided{
+			ReplacementAttorneys:         Attorneys{Attorneys: []Attorney{{}}},
+			ReplacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}}},
+		}, actual)
+	})
+
+	t.Run("one replacement attorney means no decisions", func(t *testing.T) {
+		actual := &Provided{
+			ReplacementAttorneys:         Attorneys{Attorneys: []Attorney{{}}},
+			ReplacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}}},
+		}, actual)
+	})
+
+	t.Run("many replacement attorneys and one attorney means no details and no step in", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}}},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly, Details: "hey"},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:                    Attorneys{Attorneys: []Attorney{{}}},
+			ReplacementAttorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}, actual)
+	})
+
+	t.Run("many replacement attorneys and jointly attorney means no details and no step in", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.Jointly},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly, Details: "hey"},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:                    Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:            AttorneyDecisions{How: lpadata.Jointly},
+			ReplacementAttorneys:         Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions: AttorneyDecisions{How: lpadata.Jointly},
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly and severally and many replacement attorneys one can act means step in but no decisions", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly, Details: "hey"},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenOneCanNoLongerAct,
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly and severally and one replacement attorney all can act means step in but no decisions", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly, Details: "hey"},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}}},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly and severally and many replacement attorneys all can no longer act means step in and decisions", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly, Details: "hey"},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyAndSeverally},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}, actual)
+	})
+
+	t.Run("many attorneys jointly for some means no step in and no decisions", func(t *testing.T) {
+		actual := &Provided{
+			Attorneys:                           Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:                   AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "hey"},
+			ReplacementAttorneys:                Attorneys{Attorneys: []Attorney{{}, {}}},
+			ReplacementAttorneyDecisions:        AttorneyDecisions{How: lpadata.Jointly},
+			HowShouldReplacementAttorneysStepIn: lpadata.ReplacementAttorneysStepInWhenAllCanNoLongerAct,
+		}
+		actual.UpdateDecisions()
+
+		assert.Equal(t, &Provided{
+			Attorneys:            Attorneys{Attorneys: []Attorney{{}, {}}},
+			AttorneyDecisions:    AttorneyDecisions{How: lpadata.JointlyForSomeSeverallyForOthers, Details: "hey"},
+			ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}, {}}},
+		}, actual)
+	})
 }
