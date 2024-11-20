@@ -84,27 +84,19 @@ func handleRunSchedule(ctx context.Context) error {
 	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	scheduledStore := scheduled.NewStore(dynamoClient)
 
-	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient)
-
-	metrics, err := runner.Run(ctx)
-
-	if err != nil {
-		logger.Error("runner error", slog.Any("err", err))
-		return err
+	if Tag == "" {
+		Tag = os.Getenv("TAG")
 	}
 
-	if metricsEnabled {
-		if Tag == "" {
-			Tag = os.Getenv("TAG")
-		}
+	client := cloudwatch.NewFromConfig(cfg)
 
-		client := cloudwatch.NewFromConfig(cfg)
+	metricsClient := telemetry.NewMetricsClient(client, Tag)
 
-		metricsClient := telemetry.NewMetricsClient(client, Tag)
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled)
 
-		if err = metricsClient.PutMetrics(ctx, &metrics); err != nil {
-			logger.ErrorContext(ctx, "failed to put metric data", slog.Any("err", err))
-		}
+	if err = runner.Run(ctx); err != nil {
+		logger.Error("runner error", slog.Any("err", err))
+		return err
 	}
 
 	return nil

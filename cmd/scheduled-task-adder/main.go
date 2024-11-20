@@ -44,7 +44,7 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 		return fmt.Errorf("failed to load default config: %w", err)
 	}
 
-	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localstack:4566")
+	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localhost:4566")
 
 	cfg.BaseEndpoint = aws.String(awsBaseURL)
 
