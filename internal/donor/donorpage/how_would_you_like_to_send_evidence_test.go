@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -23,27 +24,8 @@ func TestGetHowWouldYouLikeToSendEvidence(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howWouldYouLikeToSendEvidenceData{
-			App:     testAppData,
-			Options: pay.EvidenceDeliveryValues,
-		}).
-		Return(nil)
-
-	err := HowWouldYouLikeToSendEvidence(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
-
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetHowWouldYouLikeToSendEvidenceFromStore(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &howWouldYouLikeToSendEvidenceData{
-			App:     testAppData,
-			Options: pay.EvidenceDeliveryValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[pay.EvidenceDelivery](pay.EvidenceDeliveryValues, "howYouWouldLikeToSendUsYourEvidence"),
 		}).
 		Return(nil)
 
@@ -79,7 +61,7 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 	for evidenceDelivery, redirect := range testcases {
 		t.Run(evidenceDelivery.String(), func(t *testing.T) {
 			form := url.Values{
-				"evidence-delivery": {evidenceDelivery.String()},
+				form.FieldNames.Select: {evidenceDelivery.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -103,7 +85,7 @@ func TestPostHowWouldYouLikeToSendEvidence(t *testing.T) {
 
 func TestPostHowWouldYouLikeToSendEvidenceWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"evidence-delivery": {pay.Upload.String()},
+		form.FieldNames.Select: {pay.Upload.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -127,7 +109,7 @@ func TestPostHowWouldYouLikeToSendEvidenceWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *howWouldYouLikeToSendEvidenceData) bool {
-			return assert.Equal(t, validation.With("evidence-delivery", validation.SelectError{Label: "howYouWouldLikeToSendUsYourEvidence"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWouldLikeToSendUsYourEvidence"}), data.Errors)
 		})).
 		Return(nil)
 

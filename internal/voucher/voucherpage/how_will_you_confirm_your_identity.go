@@ -6,7 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -23,26 +23,24 @@ const (
 )
 
 type howWillYouConfirmYourIdentityData struct {
-	App     appcontext.Data
-	Errors  validation.List
-	Form    *howWillYouConfirmYourIdentityForm
-	Options howYouWillConfirmYourIdentityOptions
+	App    appcontext.Data
+	Errors validation.List
+	Form   *form.SelectForm[howYouWillConfirmYourIdentity, howYouWillConfirmYourIdentityOptions, *howYouWillConfirmYourIdentity]
 }
 
 func HowWillYouConfirmYourIdentity(tmpl template.Template, voucherStore VoucherStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		data := &howWillYouConfirmYourIdentityData{
-			App:     appData,
-			Form:    &howWillYouConfirmYourIdentityForm{},
-			Options: howYouWillConfirmYourIdentityValues,
+			App:  appData,
+			Form: form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWillConfirmYourIdentity"),
 		}
 
 		if r.Method == http.MethodPost {
-			data.Form = readHowWillYouConfirmYourIdentityForm(r, "howYouWillConfirmYourIdentity")
+			data.Form.Read(r)
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				switch data.Form.How {
+				switch data.Form.Selected {
 				case howYouWillConfirmYourIdentityAtPostOffice:
 					provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 
@@ -60,27 +58,4 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, voucherStore VoucherS
 
 		return tmpl(w, data)
 	}
-}
-
-type howWillYouConfirmYourIdentityForm struct {
-	How        howYouWillConfirmYourIdentity
-	errorLabel string
-}
-
-func readHowWillYouConfirmYourIdentityForm(r *http.Request, errorLabel string) *howWillYouConfirmYourIdentityForm {
-	howWillYouConfirmYourIdentity, _ := ParseHowYouWillConfirmYourIdentity(page.PostFormString(r, "how"))
-
-	return &howWillYouConfirmYourIdentityForm{
-		How:        howWillYouConfirmYourIdentity,
-		errorLabel: errorLabel,
-	}
-}
-
-func (f *howWillYouConfirmYourIdentityForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Enum("how", f.errorLabel, f.How,
-		validation.Selected())
-
-	return errors
 }

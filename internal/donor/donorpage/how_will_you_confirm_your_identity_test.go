@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -24,9 +25,8 @@ func TestGetHowWillYouConfirmYourIdentity(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &howWillYouConfirmYourIdentityData{
-			App:     testAppData,
-			Form:    &howWillYouConfirmYourIdentityForm{},
-			Options: howYouWillConfirmYourIdentityValues,
+			App:  testAppData,
+			Form: form.NewEmptySelectForm[howYouWillConfirmYourIdentity](howYouWillConfirmYourIdentityValues, "howYouWillConfirmYourIdentity"),
 		}).
 		Return(nil)
 
@@ -81,7 +81,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			form := url.Values{
-				"how": {tc.how.String()},
+				form.FieldNames.Select: {tc.how.String()},
 			}
 
 			w := httptest.NewRecorder()
@@ -100,7 +100,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 
 func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T) {
 	form := url.Values{
-		"how": {howYouWillConfirmYourIdentityAtPostOffice.String()},
+		form.FieldNames.Select: {howYouWillConfirmYourIdentityAtPostOffice.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T)
 
 func TestPostHowWillYouConfirmYourIdentityWhenStoreErrors(t *testing.T) {
 	form := url.Values{
-		"how": {howYouWillConfirmYourIdentityAtPostOffice.String()},
+		form.FieldNames.Select: {howYouWillConfirmYourIdentityAtPostOffice.String()},
 	}
 
 	w := httptest.NewRecorder()
@@ -149,7 +149,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenValidationErrors(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.MatchedBy(func(data *howWillYouConfirmYourIdentityData) bool {
-			return assert.Equal(t, validation.With("how", validation.SelectError{Label: "howYouWillConfirmYourIdentity"}), data.Errors)
+			return assert.Equal(t, validation.With(form.FieldNames.Select, validation.SelectError{Label: "howYouWillConfirmYourIdentity"}), data.Errors)
 		})).
 		Return(nil)
 
@@ -158,39 +158,4 @@ func TestPostHowWillYouConfirmYourIdentityWhenValidationErrors(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestReadHowWillYouConfirmYourIdentityForm(t *testing.T) {
-	form := url.Values{
-		"how": {howYouWillConfirmYourIdentityAtPostOffice.String()},
-	}
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	result := readHowWillYouConfirmYourIdentityForm(r, "blah")
-	assert.Equal(t, howYouWillConfirmYourIdentityAtPostOffice, result.How)
-}
-
-func TestHowWillYouConfirmYourIdentityFormValidate(t *testing.T) {
-	testCases := map[string]struct {
-		form   *howWillYouConfirmYourIdentityForm
-		errors validation.List
-	}{
-		"valid": {
-			form: &howWillYouConfirmYourIdentityForm{
-				How: howYouWillConfirmYourIdentityAtPostOffice,
-			},
-		},
-		"invalid": {
-			form:   &howWillYouConfirmYourIdentityForm{errorLabel: "blah"},
-			errors: validation.With("how", validation.SelectError{Label: "blah"}),
-		},
-	}
-
-	for name, tc := range testCases {
-		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.errors, tc.form.Validate())
-		})
-	}
 }
