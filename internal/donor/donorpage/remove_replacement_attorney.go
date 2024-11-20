@@ -34,9 +34,7 @@ func RemoveReplacementAttorney(tmpl template.Template, donorStore DonorStore) Ha
 			if data.Errors.None() {
 				if data.Form.YesNo == form.Yes {
 					provided.ReplacementAttorneys.Delete(attorney)
-					if provided.ReplacementAttorneys.Len() == 1 {
-						provided.ReplacementAttorneyDecisions = donordata.AttorneyDecisions{}
-					}
+					provided.UpdateDecisions()
 
 					provided.Tasks.ChooseReplacementAttorneys = donordata.ChooseReplacementAttorneysState(provided)
 

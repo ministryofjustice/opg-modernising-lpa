@@ -13,24 +13,24 @@ import (
 )
 
 type howWouldYouLikeToSendEvidenceData struct {
-	App     appcontext.Data
-	Errors  validation.List
-	Options pay.EvidenceDeliveryOptions
+	App    appcontext.Data
+	Errors validation.List
+	Form   *form.SelectForm[pay.EvidenceDelivery, pay.EvidenceDeliveryOptions, *pay.EvidenceDelivery]
 }
 
 func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howWouldYouLikeToSendEvidenceData{
-			App:     appData,
-			Options: pay.EvidenceDeliveryValues,
+			App:  appData,
+			Form: form.NewEmptySelectForm[pay.EvidenceDelivery](pay.EvidenceDeliveryValues, "howYouWouldLikeToSendUsYourEvidence"),
 		}
 
 		if r.Method == http.MethodPost {
-			form := readHowWouldYouLikeToSendEvidenceForm(r)
-			data.Errors = form.Validate()
+			data.Form.Read(r)
+			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.EvidenceDelivery = form.EvidenceDelivery
+				provided.EvidenceDelivery = data.Form.Selected
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
@@ -46,27 +46,4 @@ func HowWouldYouLikeToSendEvidence(tmpl template.Template, donorStore DonorStore
 
 		return tmpl(w, data)
 	}
-}
-
-type evidenceDeliveryForm struct {
-	EvidenceDelivery pay.EvidenceDelivery
-	ErrorLabel       string
-}
-
-func readHowWouldYouLikeToSendEvidenceForm(r *http.Request) *evidenceDeliveryForm {
-	evidenceDelivery, _ := pay.ParseEvidenceDelivery(form.PostFormString(r, "evidence-delivery"))
-
-	return &evidenceDeliveryForm{
-		EvidenceDelivery: evidenceDelivery,
-		ErrorLabel:       "howYouWouldLikeToSendUsYourEvidence",
-	}
-}
-
-func (f *evidenceDeliveryForm) Validate() validation.List {
-	var errors validation.List
-
-	errors.Enum("evidence-delivery", f.ErrorLabel, f.EvidenceDelivery,
-		validation.Selected())
-
-	return errors
 }

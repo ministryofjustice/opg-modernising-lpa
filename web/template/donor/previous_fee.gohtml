@@ -17,11 +17,11 @@
 
                       {{ template "error-message" (errorMessage . "previous-fee") }}
 
-                      {{ template "radios" (items . "previous-fee" .Form.PreviousFee.String
-                          (item .Options.PreviousFeeFull.String "fullFee")
-                          (item .Options.PreviousFeeHalf.String "halfFee")
-                          (item .Options.PreviousFeeExemption.String "nothingExemption")
-                          (item .Options.PreviousFeeHardship.String "nothingHardship")
+                      {{ template "radios" (items . .Form.FieldName .Form.Selected.String
+                          (item .Form.Options.PreviousFeeFull.String "fullFee")
+                          (item .Form.Options.PreviousFeeHalf.String "halfFee")
+                          (item .Form.Options.PreviousFeeExemption.String "nothingExemption")
+                          (item .Form.Options.PreviousFeeHardship.String "nothingHardship")
                           ) }}
                   </fieldset>
               </div>

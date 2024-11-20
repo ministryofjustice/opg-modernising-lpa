@@ -4,7 +4,13 @@
     {{ if .MakingAnotherLPA }}
         {{ tr .App "yourAddress" }}
     {{ else }}
-        {{ tr .App "whatIsYourAddress" }}
+        {{ if eq .Form.Action "manual" }}
+            {{ tr .App "confirmYourAddress" }}
+        {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
+            {{ tr .App "selectYourAddress" }}
+        {{ else }}
+            {{ tr .App "enterYourPostcode" }}
+        {{ end }}
     {{ end }}
 {{ end }}
 
