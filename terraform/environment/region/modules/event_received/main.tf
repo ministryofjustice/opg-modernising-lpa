@@ -10,6 +10,7 @@ module "event_received" {
     UPLOADS_S3_BUCKET_NAME     = var.uploads_bucket.bucket
     UID_BASE_URL               = var.uid_base_url
     LPA_STORE_BASE_URL         = var.lpa_store_base_url
+    LPA_STORE_SECRET_ARN       = var.lpa_store_secret_arn
     SEARCH_ENDPOINT            = var.search_endpoint
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
