@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -19,6 +20,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 )
+
+const batchSize = 100
 
 var taskCount int
 var entryPoint string
@@ -48,7 +51,7 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 
 	cfg.BaseEndpoint = aws.String(awsBaseURL)
 
-	if awsBaseURL == "http://localhost:4566" {
+	if !strings.Contains(awsBaseURL, "https") {
 		cfg.Credentials = credentials.NewStaticCredentialsProvider(
 			"test",
 			"test",
@@ -63,96 +66,49 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 		return fmt.Errorf("failed to create dynamo client: %w", err)
 	}
 
-	const batchSize = 100
-	donorChan := make(chan any, batchSize)
-	eventChan := make(chan any, batchSize)
-
+	var items []any
+	now := time.Now()
 	start := time.Now()
 
-	go func() {
-		now := time.Now()
-		for i := 0; i < taskCount; i++ {
-			now = now.Add(time.Second * 1)
+	for i := 0; i < taskCount; i++ {
+		now = now.Add(time.Second * 1)
 
-			donor := &donordata.Provided{
-				LpaUID:           uuid.NewString(),
-				PK:               dynamo.LpaKey(uuid.NewString()),
-				SK:               dynamo.LpaOwnerKey(dynamo.DonorKey(uuid.NewString())),
-				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-				Donor:            donordata.Donor{Email: fmt.Sprintf("a%d@example.com", i)},
-			}
-
-			event := scheduled.Event{
-				At:                now,
-				Action:            scheduled.ActionExpireDonorIdentity,
-				TargetLpaKey:      donor.PK,
-				TargetLpaOwnerKey: donor.SK,
-				PK:                dynamo.ScheduledDayKey(now),
-				SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
-			}
-
-			eventChan <- event
-			donorChan <- donor
+		donor := &donordata.Provided{
+			LpaUID:           uuid.NewString(),
+			PK:               dynamo.LpaKey(uuid.NewString()),
+			SK:               dynamo.LpaOwnerKey(dynamo.DonorKey(uuid.NewString())),
+			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			Donor:            donordata.Donor{Email: "a@b.com"},
 		}
-		close(eventChan)
-		close(donorChan)
-	}()
 
-	addedEvents := 0
+		event := scheduled.Event{
+			At:                now,
+			Action:            scheduled.ActionExpireDonorIdentity,
+			TargetLpaKey:      donor.PK,
+			TargetLpaOwnerKey: donor.SK,
+			PK:                dynamo.ScheduledDayKey(now),
+			SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
+		}
 
-	var donorBatch, eventBatch []any
+		items = append(items, donor, event)
 
-	for {
-		select {
-		case donor, ok := <-donorChan:
-			if !ok {
-				if len(donorBatch) > 0 {
-					if err := client.BatchPut(ctx, donorBatch); err != nil {
-						return fmt.Errorf("failed to write remaining donors: %v", err)
-					}
-				}
-
-				break
+		if len(items) == batchSize {
+			if err := client.BatchPut(ctx, items); err != nil {
+				log.Fatal(err)
 			}
 
-			donorBatch = append(donorBatch, donor)
-			if len(donorBatch) == batchSize {
-				if err := client.BatchPut(ctx, donorBatch); err != nil {
-					return fmt.Errorf("failed to write batched donors: %v", err)
-				}
-
-				donorBatch = donorBatch[:0]
-			}
-
-		case event, ok := <-eventChan:
-			if !ok {
-				if len(eventBatch) > 0 {
-					if err := client.BatchPut(ctx, eventBatch); err != nil {
-						return fmt.Errorf("failed to write batched events: %v", err)
-					}
-
-					addedEvents += len(eventBatch)
-				}
-
-				// as donor channel breaks when finished, this should be the last thing printed
-				elapsed := time.Since(start)
-				log.Printf("Execution time: %s", elapsed)
-				log.Printf("Added %d tasks", addedEvents)
-
-				return nil
-			}
-
-			eventBatch = append(eventBatch, event)
-			if len(eventBatch) == batchSize {
-				if err := client.BatchPut(ctx, eventBatch); err != nil {
-					return fmt.Errorf("failed to write batched events: %v", err)
-				}
-
-				addedEvents += batchSize
-				eventBatch = eventBatch[:0]
-			}
+			items = []any{}
 		}
 	}
+
+	if len(items) > 0 {
+		if err := client.BatchPut(ctx, items); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	log.Printf("Time taken: %s", time.Since(start))
+	return nil
 }
 
 func main() {
