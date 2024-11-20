@@ -7,6 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -17,10 +20,12 @@ import (
 )
 
 var (
-	ctx           = context.WithValue(context.Background(), (*string)(nil), "value")
-	expectedError = errors.New("hey")
-	testNow       = time.Now()
-	testNowFn     = func() time.Time { return testNow }
+	ctx               = context.WithValue(context.Background(), (*string)(nil), "value")
+	expectedError     = errors.New("hey")
+	testNow           = time.Now()
+	testNowFn         = func() time.Time { return testNow }
+	testSinceDuration = time.Millisecond * 5
+	testSinceFn       = func(t time.Time) time.Duration { return testSinceDuration }
 )
 
 func (m *mockScheduledStore) ExpectPops(returns ...any) {
@@ -44,13 +49,48 @@ func TestNewRunner(t *testing.T) {
 	store := newMockScheduledStore(t)
 	donorStore := newMockDonorStore(t)
 	notifyClient := newMockNotifyClient(t)
+	metricsClient := newMockMetricsClient(t)
 
-	runner := NewRunner(logger, store, donorStore, notifyClient)
+	runner := NewRunner(logger, store, donorStore, notifyClient, metricsClient, true)
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
 	assert.Equal(t, donorStore, runner.donorStore)
 	assert.Equal(t, notifyClient, runner.notifyClient)
+	assert.Equal(t, metricsClient, runner.metricsClient)
+	assert.Equal(t, true, runner.metricsEnabled)
+}
+
+func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64, err error) {
+	expected := &cloudwatch.PutMetricDataInput{
+		Namespace: aws.String("schedule-runner"),
+		MetricData: []types.MetricDatum{
+			{
+				MetricName: aws.String("TasksProcessed"),
+				Unit:       types.StandardUnitCount,
+				Value:      aws.Float64(processed),
+			},
+			{
+				MetricName: aws.String("TasksIgnored"),
+				Unit:       types.StandardUnitCount,
+				Value:      aws.Float64(ignored),
+			},
+			{
+				MetricName: aws.String("Errors"),
+				Unit:       types.StandardUnitCount,
+				Value:      aws.Float64(errored),
+			},
+			{
+				MetricName: aws.String("ProcessingTime"),
+				Unit:       types.StandardUnitMilliseconds,
+				Value:      aws.Float64(float64(testSinceDuration.Milliseconds())),
+			},
+		},
+	}
+
+	m.EXPECT().
+		PutMetrics(ctx, expected).
+		Return(err)
 }
 
 func TestRunnerRun(t *testing.T) {
@@ -89,16 +129,24 @@ func TestRunnerRun(t *testing.T) {
 		Execute(ctx, event).
 		Return(nil)
 
+	metricsClient := newMockMetricsClient(t)
+	metricsClient.assertPutMetrics(1, 0, 0, nil)
+
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
 		actions: map[Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
+		metricsClient:  metricsClient,
+		metricsEnabled: true,
 	}
+
 	err := runner.Run(ctx)
+
 	assert.Nil(t, err)
 }
 
@@ -166,16 +214,23 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(errStepIgnored)
 
+	metricsClient := newMockMetricsClient(t)
+	metricsClient.assertPutMetrics(0, 1, 0, nil)
+
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
 		actions: map[Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
+		metricsClient:  metricsClient,
+		metricsEnabled: true,
 	}
 	err := runner.Run(ctx)
+
 	assert.Nil(t, err)
 }
 
@@ -216,74 +271,187 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	metricsClient := newMockMetricsClient(t)
+	metricsClient.assertPutMetrics(0, 0, 1, nil)
+
 	runner := &Runner{
 		now:    testNowFn,
+		since:  testSinceFn,
 		logger: logger,
 		store:  store,
 		waiter: waiter,
 		actions: map[Action]ActionFunc{
 			99: actionFunc.Execute,
 		},
+		metricsClient:  metricsClient,
+		metricsEnabled: true,
 	}
 	err := runner.Run(ctx)
+
 	assert.Nil(t, err)
 }
 
 func TestRunnerRunWhenWaitingError(t *testing.T) {
-	testcases := []error{
-		dynamo.ConditionalCheckFailedError{},
-		expectedError,
+	event := &Event{
+		Action:            99,
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
 	}
 
-	for _, waitingError := range testcases {
-		t.Run(waitingError.Error(), func(t *testing.T) {
-			event := &Event{
-				Action:            99,
-				TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-				TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-			}
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
+	logger.EXPECT().
+		ErrorContext(ctx, "error getting scheduled task", slog.Any("err", expectedError))
+	logger.EXPECT().
+		InfoContext(ctx, "runner action success",
+			slog.String("action", "Action(99)"),
+			slog.String("target_pk", "LPA#an-lpa"),
+			slog.String("target_sk", "DONOR#a-donor"))
+	logger.EXPECT().
+		InfoContext(ctx, "no scheduled tasks to process")
 
-			logger := newMockLogger(t)
-			logger.EXPECT().
-				InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
-			logger.EXPECT().
-				ErrorContext(ctx, "error getting scheduled task", slog.Any("err", waitingError))
-			logger.EXPECT().
-				InfoContext(ctx, "runner action success",
-					slog.String("action", "Action(99)"),
-					slog.String("target_pk", "LPA#an-lpa"),
-					slog.String("target_sk", "DONOR#a-donor"))
-			logger.EXPECT().
-				InfoContext(ctx, "no scheduled tasks to process")
+	store := newMockScheduledStore(t)
+	store.ExpectPops(
+		nil, expectedError,
+		event, nil,
+		nil, dynamo.NotFoundError{})
 
-			store := newMockScheduledStore(t)
-			store.ExpectPops(
-				nil, waitingError,
-				event, nil,
-				nil, dynamo.NotFoundError{})
+	waiter := newMockWaiter(t)
+	waiter.EXPECT().Reset().Twice()
+	waiter.EXPECT().Wait().Return(nil).Once()
 
-			waiter := newMockWaiter(t)
-			waiter.EXPECT().Reset().Twice()
-			waiter.EXPECT().Wait().Return(nil).Once()
+	actionFunc := newMockActionFunc(t)
+	actionFunc.EXPECT().
+		Execute(mock.Anything, mock.Anything).
+		Return(nil)
 
-			actionFunc := newMockActionFunc(t)
-			actionFunc.EXPECT().
-				Execute(mock.Anything, mock.Anything).
-				Return(nil)
+	metricsClient := newMockMetricsClient(t)
+	metricsClient.assertPutMetrics(1, 0, 0, nil)
 
-			runner := &Runner{
-				now:    testNowFn,
-				logger: logger,
-				store:  store,
-				waiter: waiter,
-				actions: map[Action]ActionFunc{
-					99: actionFunc.Execute,
-				},
-			}
-			err := runner.Run(ctx)
-			assert.Nil(t, err)
-		})
+	runner := &Runner{
+		now:    testNowFn,
+		since:  testSinceFn,
+		logger: logger,
+		store:  store,
+		waiter: waiter,
+		actions: map[Action]ActionFunc{
+			99: actionFunc.Execute,
+		},
+		metricsClient:  metricsClient,
+		metricsEnabled: true,
 	}
+
+	err := runner.Run(ctx)
+
+	assert.Nil(t, err)
+}
+
+func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
+	event := &Event{
+		Action:            99,
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything, mock.Anything)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything)
+
+	store := newMockScheduledStore(t)
+	store.EXPECT().
+		Pop(ctx, mock.Anything).
+		Return(event, nil).
+		Once()
+	store.EXPECT().
+		Pop(ctx, mock.Anything).
+		Return(nil, dynamo.NotFoundError{}).
+		Once()
+
+	waiter := newMockWaiter(t)
+	waiter.EXPECT().Reset()
+
+	actionFunc := newMockActionFunc(t)
+	actionFunc.EXPECT().
+		Execute(ctx, mock.Anything).
+		Return(nil)
+
+	runner := &Runner{
+		now:    testNowFn,
+		since:  testSinceFn,
+		logger: logger,
+		store:  store,
+		waiter: waiter,
+		actions: map[Action]ActionFunc{
+			99: actionFunc.Execute,
+		},
+		metricsClient:  nil,
+		metricsEnabled: false,
+	}
+
+	err := runner.Run(ctx)
+
+	assert.Nil(t, err)
+}
+
+func TestRunnerRunWhenMetricsClientError(t *testing.T) {
+	event := &Event{
+		Action:            99,
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything, mock.Anything)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	logger.EXPECT().
+		InfoContext(ctx, mock.Anything)
+	logger.EXPECT().
+		ErrorContext(ctx, "error putting metrics", slog.Any("err", expectedError))
+
+	store := newMockScheduledStore(t)
+	store.EXPECT().
+		Pop(ctx, mock.Anything).
+		Return(event, nil).
+		Once()
+	store.EXPECT().
+		Pop(ctx, mock.Anything).
+		Return(nil, dynamo.NotFoundError{}).
+		Once()
+
+	waiter := newMockWaiter(t)
+	waiter.EXPECT().Reset()
+
+	actionFunc := newMockActionFunc(t)
+	actionFunc.EXPECT().
+		Execute(ctx, mock.Anything).
+		Return(nil)
+
+	metricsClient := newMockMetricsClient(t)
+	metricsClient.assertPutMetrics(1, 0, 0, expectedError)
+
+	runner := &Runner{
+		now:    testNowFn,
+		since:  testSinceFn,
+		logger: logger,
+		store:  store,
+		waiter: waiter,
+		actions: map[Action]ActionFunc{
+			99: actionFunc.Execute,
+		},
+		metricsClient:  metricsClient,
+		metricsEnabled: true,
+	}
+
+	err := runner.Run(ctx)
+
+	assert.Equal(t, expectedError, err)
 }
 
 func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
@@ -307,6 +475,7 @@ func TestRunnerRunWhenConditionalCheckFailsAndWaiterErrors(t *testing.T) {
 		waiter: waiter,
 		logger: logger,
 	}
+
 	err := runner.Run(ctx)
 	assert.Equal(t, expectedError, err)
 }

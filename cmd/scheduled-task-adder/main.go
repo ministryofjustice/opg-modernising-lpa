@@ -1,10 +1,16 @@
 package main
 
 import (
+	"cmp"
 	"context"
+	"flag"
+	"fmt"
 	"log"
+	"os"
+	"strings"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -15,38 +21,56 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 )
 
-func main() {
-	ctx := context.Background()
+const batchSize = 100
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion("eu-west-1"),
-		config.WithEndpointResolver(aws.EndpointResolverFunc(
-			func(service, region string) (aws.Endpoint, error) {
-				return aws.Endpoint{
-					URL: "http://localhost:4566",
-				}, nil
-			},
-		)),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-			"test",
-			"test",
-			"test",
-		)),
-	)
+var taskCount int
+var entryPoint string
+
+type TaskCountEvent struct {
+	TaskCount int `json:"taskCount"`
+}
+
+func init() {
+	flag.IntVar(&taskCount, "taskCount", 0, "Number of scheduled tasks to generate")
+}
+
+func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent) error {
+	flag.Parse()
+
+	if taskCount == 0 {
+		taskCount = taskCountEvent.TaskCount
+	}
+
+	cfg, err := config.LoadDefaultConfig(ctx)
 
 	if err != nil {
-		log.Fatal("failed to load default config: %w", err)
+		return fmt.Errorf("failed to load default config: %w", err)
+	}
+
+	awsBaseURL := cmp.Or(os.Getenv("AWS_BASE_URL"), "http://localhost:4566")
+
+	cfg.BaseEndpoint = aws.String(awsBaseURL)
+
+	if !strings.Contains(awsBaseURL, "https") {
+		cfg.Credentials = credentials.NewStaticCredentialsProvider(
+			"test",
+			"test",
+			"test",
+		)
+
+		cfg.Region = "eu-west-1"
 	}
 
 	client, err := dynamo.NewClient(cfg, "lpas")
 	if err != nil {
-		log.Fatal("failed to create dynamo client: %w", err)
+		return fmt.Errorf("failed to create dynamo client: %w", err)
 	}
 
 	var items []any
 	now := time.Now()
+	start := time.Now()
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < taskCount; i++ {
 		now = now.Add(time.Second * 1)
 
 		donor := &donordata.Provided{
@@ -68,7 +92,7 @@ func main() {
 
 		items = append(items, donor, event)
 
-		if len(items) == 100 {
+		if len(items) == batchSize {
 			if err := client.BatchPut(ctx, items); err != nil {
 				log.Fatal(err)
 			}
@@ -81,5 +105,20 @@ func main() {
 		if err := client.BatchPut(ctx, items); err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	log.Printf("Time taken: %s", time.Since(start))
+	return nil
+}
+
+func main() {
+	if entryPoint == "local" {
+		ctx := context.Background()
+
+		if err := handleAddScheduledTasks(ctx, TaskCountEvent{TaskCount: taskCount}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		lambda.Start(handleAddScheduledTasks)
 	}
 }

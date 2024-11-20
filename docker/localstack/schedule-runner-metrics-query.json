@@ -1,0 +1,50 @@
+[
+    {
+        "Id": "tasksProcessed",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "schedule-runner",
+                "MetricName": "TasksProcessed",
+                "Dimensions": [{"Name":"Version","Value":"0.0.0"}]
+            },
+            "Period": 60,
+            "Stat": "Sum"
+        }
+    },
+    {
+        "Id": "tasksIgnored",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "schedule-runner",
+                "MetricName": "TasksIgnored",
+                "Dimensions": [{"Name":"Version","Value":"0.0.0"}]
+            },
+            "Period": 60,
+            "Stat": "Sum"
+        }
+    },
+    {
+        "Id": "errors",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "schedule-runner",
+                "MetricName": "Errors",
+                "Dimensions": [{"Name":"Version","Value":"0.0.0"}]
+            },
+            "Period": 60,
+            "Stat": "Sum"
+        }
+    },
+    {
+        "Id": "processingTime",
+        "MetricStat": {
+            "Metric": {
+                "Namespace": "schedule-runner",
+                "MetricName": "ProcessingTime",
+                "Dimensions": [{"Name":"Version","Value":"0.0.0"}]
+            },
+            "Period": 60,
+            "Stat": "Average"
+        }
+    }
+]

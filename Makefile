@@ -91,8 +91,12 @@ run-structurizr-export:
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
 
-scan-lpas: ##@dynamodb dumps all entries in the lpas dynamodb table
+scan-dynamo: ##@dynamodb dumps all entries in the supplied dynamodb table (defaults to lpas) e.g. scan-dynamo table=lpas-test
+ifdef table
+	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name $(table)
+else
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 scan --table-name lpas
+endif
 
 get-lpa: ##@dynamodb dumps all entries in the lpas dynamodb table that are related to the LPA id supplied e.g. get-lpa id=abc-123
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 \
@@ -123,31 +127,59 @@ delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
              --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
 
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+		docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+    		--endpoint-url=http://localhost:4566 \
+    		--region eu-west-1 \
+    		--function-name event-received text \
+    		--payload '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-reduced-fee-declined: ##@events emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-more-evidence-required: ##@events emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}'
 
 emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "infected" }]}'
 
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
 emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "ok" }]}'
 
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
 emit-uid-requested: ##@events emits a uid-requested event with the given detail e.g. emit-uid-requested lpaId=abc sessionId=xyz
-	curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"uid-requested","source":"opg.poas.makeregister","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"LpaID":"$(lpaId)","DonorSessionID":"$(sessionId)","Type":"property-and-affairs","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}}}'
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"uid-requested","source":"opg.poas.makeregister","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"LpaID":"$(lpaId)","DonorSessionID":"$(sessionId)","Type":"property-and-affairs","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}}}'
 
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
@@ -175,8 +207,32 @@ delete-all-from-lpa-index: ##@opensearch clears all items from the lpa index
 delete-lpa-index: ##@opensearch deletes the lpa index
 	curl -XDELETE "http://localhost:9200/lpas"
 
-add-scheduled-events:
-	go run ./scripts/add-scheduled-items.go
+add-scheduled-tasks: ##@scheduler adds scheduled tasks and required entities to test schedule (defaults to 10) e.g. add-scheduled-tasks count=100
+ifdef count
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name scheduled-task-adder text \
+		--payload '{"taskCount":$(count)}'
+
+else
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name scheduled-task-adder text \
+		--payload '{"taskCount":10}'
+endif
 
 run-schedule-runner: ##@scheduler invokes the schedule-runner lambda
-	curl "http://localhost:9002/2015-03-31/functions/function/invocations"
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+    	 --endpoint-url=http://localhost:4566 \
+    	 --region eu-west-1 \
+    	 --function-name schedule-runner text
+
+test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds scheduled tasks and runs the schedule-runner (defaults to 10 seeded tasks) e.g. test-schedule-runner count=100
+	docker compose -f docker/docker-compose.yml exec localstack awslocal cloudwatch get-metric-data \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--metric-data-queries file://schedule-runner-metrics-query.json \
+		--start-time "$(shell date -v-1H -u +"%Y-%m-%dT%H:%M:%SZ")" \
+		--end-time "$(shell date -v+1M -u +"%Y-%m-%dT%H:%M:%SZ")"
