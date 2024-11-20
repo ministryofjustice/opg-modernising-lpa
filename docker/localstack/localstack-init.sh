@@ -106,7 +106,8 @@ awslocal lambda create-function \
   --handler bootstrap \
   --runtime provided.al2023 \
   --role arn:aws:iam::000000000000:role/lambda-role \
-  --zip-file fileb:///etc/scheduled-task-adder.zip
+  --zip-file fileb:///etc/scheduled-task-adder.zip \
+  --timeout 100
 
 awslocal lambda wait function-active-v2 --region eu-west-1 --function-name scheduled-task-adder
 
