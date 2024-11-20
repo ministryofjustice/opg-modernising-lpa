@@ -25,10 +25,10 @@
             {{ end }}
             
             <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "how" .Form.How.String
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
-                    (item .Options.PostOfficeSuccessfully.String "iWantToReturnToPostOffice")
-                    (item .Options.OneLogin.String "iWantToReturnToOneLoginAnotherWay")
+                    (item .Form.Options.PostOfficeSuccessfully.String "iWantToReturnToPostOffice")
+                    (item .Form.Options.OneLogin.String "iWantToReturnToOneLoginAnotherWay")
                     ) }}
 
                 {{ template "buttons" (button .App "continue") }}
