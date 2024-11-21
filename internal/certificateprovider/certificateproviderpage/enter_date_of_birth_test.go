@@ -24,25 +24,20 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpadata.Lpa{
+	lpa := &lpadata.Lpa{
 		LpaID: "lpa-id",
 	}
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
 			App:  testAppData,
-			Lpa:  donor,
+			Lpa:  lpa,
 			Form: &dateOfBirthForm{},
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := EnterDateOfBirth(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -52,11 +47,6 @@ func TestGetEnterDateOfBirth(t *testing.T) {
 func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -69,26 +59,10 @@ func TestGetEnterDateOfBirthFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{DateOfBirth: date.New("1997", "1", "2")})
+	err := EnterDateOfBirth(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{DateOfBirth: date.New("1997", "1", "2")}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetEnterDateOfBirthWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := EnterDateOfBirth(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -100,11 +74,6 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 		LpaID: "lpa-id",
 	}
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &dateOfBirthData{
@@ -114,7 +83,7 @@ func TestGetEnterDateOfBirthWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := EnterDateOfBirth(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -189,17 +158,12 @@ func TestPostEnterDateOfBirth(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
-
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
 				Put(r.Context(), tc.updated).
 				Return(nil)
 
-			err := EnterDateOfBirth(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, tc.retrieved)
+			err := EnterDateOfBirth(nil, certificateProviderStore)(testAppData, w, r, tc.retrieved, &lpadata.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -221,11 +185,6 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{LpaID: "lpa-id", CertificateProvider: lpadata.CertificateProvider{Relationship: lpadata.Professionally}}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), &certificateproviderdata.Provided{
@@ -237,7 +196,7 @@ func TestPostEnterDateOfBirthWhenProfessionalCertificateProvider(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterDateOfBirth(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := EnterDateOfBirth(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{LpaID: "lpa-id", CertificateProvider: lpadata.CertificateProvider{Relationship: lpadata.Professionally}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -281,11 +240,6 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(tc.form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, mock.MatchedBy(func(data *dateOfBirthData) bool {
@@ -293,37 +247,13 @@ func TestPostEnterDateOfBirthWhenInputRequired(t *testing.T) {
 				})).
 				Return(nil)
 
-			err := EnterDateOfBirth(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+			err := EnterDateOfBirth(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{LpaID: "lpa-id"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
 		})
 	}
-}
-
-func TestPostYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	form := url.Values{
-		"date-of-birth-day":   {"2"},
-		"date-of-birth-month": {"1"},
-		"date-of-birth-year":  {"1999"},
-	}
-
-	w := httptest.NewRecorder()
-
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := EnterDateOfBirth(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestReadDateOfBirthForm(t *testing.T) {

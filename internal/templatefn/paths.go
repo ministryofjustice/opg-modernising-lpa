@@ -50,6 +50,7 @@ type certificateProviderPaths struct {
 	OneLoginIdentityDetails                certificateprovider.Path
 	ProveYourIdentity                      certificateprovider.Path
 	ProvideCertificate                     certificateprovider.Path
+	ReadTheDraftLpa                        certificateprovider.Path
 	ReadTheLpa                             certificateprovider.Path
 	TaskList                               certificateprovider.Path
 	UnableToConfirmIdentity                certificateprovider.Path
@@ -263,6 +264,7 @@ var paths = appPaths{
 		OneLoginIdentityDetails:                certificateprovider.PathOneLoginIdentityDetails,
 		ProvideCertificate:                     certificateprovider.PathProvideCertificate,
 		ReadTheLpa:                             certificateprovider.PathReadTheLpa,
+		ReadTheDraftLpa:                        certificateprovider.PathReadTheDraftLpa,
 		TaskList:                               certificateprovider.PathTaskList,
 		UnableToConfirmIdentity:                certificateprovider.PathUnableToConfirmIdentity,
 		WhatHappensNext:                        certificateprovider.PathWhatHappensNext,
