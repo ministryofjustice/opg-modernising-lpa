@@ -11,12 +11,13 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
-			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if r.FormValue("error") == "access_denied" {
@@ -46,7 +47,13 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 
 		certificateProvider.IdentityUserData = userData
 
-		if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+		if userData.Status.IsConfirmed() && !certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+		} else {
+			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+		}
+
+		if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 			return err
 		}
 
@@ -55,7 +62,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				return err
 			}
 
-			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if certificateProvider.IdentityUserData.Status.IsConfirmed() || certificateProvider.IdentityUserData.Status.IsFailed() {
@@ -78,7 +85,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if certificateProvider.IdentityUserData.Status.IsConfirmed() {
-			return certificateprovider.PathOneLoginIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
+			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 		}
 
 		if lpa.SignedForDonor() {
@@ -93,6 +100,6 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			}
 		}
 
-		return certificateprovider.PathUnableToConfirmIdentity.Redirect(w, r, appData, certificateProvider.LpaID)
+		return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
 	}
 }
