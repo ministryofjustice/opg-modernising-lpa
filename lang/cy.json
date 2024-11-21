@@ -1518,5 +1518,7 @@
     "howYouWouldLikeToContinue": "Welsh",
     "enterYourPostcode": "Rhowch eich cod post",
     "selectYourAddress": "Dewiswch eich cyfeiriad",
-    "confirmYourAddress": "Cadarnhewch eich cyfeiriad"
+    "confirmYourAddress": "Cadarnhewch eich cyfeiriad",
+    "someOfTheDetailsOnTheLpaDoNotMatch": "Welsh",
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">Welsh</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">Welsh</p></div>"
 }

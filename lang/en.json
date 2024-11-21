@@ -1410,5 +1410,7 @@
     "howYouWouldLikeToContinue": "how you would like to continue",
     "confirmYourAddress": "Confirm your address",
     "selectYourAddress": "Select your address",
-    "enterYourPostcode": "Enter your postcode"
+    "enterYourPostcode": "Enter your postcode",
+    "someOfTheDetailsOnTheLpaDoNotMatch": "Some of the details on the LPA do not match your confirmed identity details",
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Your details on the LPA cannot be updated to match your confirmed identity details. This is because {{.DonorFullName}} has already signed the LPA.</p><p class=\"govuk-body\">Someone at the Office of the Public Guardian (OPG) will compare your identity details. You will be updated soon.</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">While your details are being reviewed, you can continue to provide your certificate for this LPA if you wish.</p></div>"
 }
