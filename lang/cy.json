@@ -82,7 +82,7 @@
     "cantFindMyAddressInList": "Ni allaf ddod o hyd i’m cyfeiriad yn y rhestr",
     "cantFindTheirAddressInList": "Ni allaf ddod o hyd i’w cyfeiriad yn y rhestr",
     "addressesFound": {
-        "zero": "",
+        "zero": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
         "one": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
         "two": "Daethpwyd o hyd i {{.PluralCount}} gyfeiriad",
         "few": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
@@ -1177,7 +1177,7 @@
         "other": "{{ .PluralCount }} LPA"
     },
     "stillInProgress": {
-        "zero": "",
+        "zero": "sy’n dal i fynd rhagddo",
         "one": "sy’n dal i fynd rhagddo",
         "two": "sy’n dal i fynd rhagddynt",
         "few": "sy’n dal i fynd rhagddynt",
