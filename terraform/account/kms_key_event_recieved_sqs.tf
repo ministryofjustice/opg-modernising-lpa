@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms_merged" {
   provider = aws.global
   source_policy_documents = [
     data.aws_iam_policy_document.sqs_kms.json,
-    data.aws_iam_policy_document.sqs_kms_development_account_operator_admin.json
+    data.aws_iam_policy_document.event_recieved_sqs_kms_development_account_operator_admin.json
   ]
 }
 
@@ -142,7 +142,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
   }
 }
 
-data "aws_iam_policy_document" "sqs_kms_development_account_operator_admin" {
+data "aws_iam_policy_document" "event_recieved_sqs_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
     sid    = "Dev Account Key Administrator"
