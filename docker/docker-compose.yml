@@ -29,7 +29,7 @@ services:
       - SEARCH_INDEXING_DISABLED=0
       - DEV_MODE=1
       - SCHEDULED_RUNNER_PERIOD=1m
-      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
+      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key::arn
 
   event-logger:
     build:
@@ -69,6 +69,8 @@ services:
       - AWS_REGION=eu-west-1
       - AWS_SECRET_ACCESS_KEY=fakeAccessKey
       - OPENSEARCH_CUSTOM_BACKEND=http://opensearch:9200
+      - LPA_STORE_BASE_URL=http://mock-lpa-store:8080
+      - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key::arn
       - LPAS_TABLE=lpas
       - TAG=0.0.0
       - GOVUK_NOTIFY_BASE_URL=http://mock-notify:8080
