@@ -83,11 +83,11 @@
     "cantFindTheirAddressInList": "Ni allaf ddod o hyd i’w cyfeiriad yn y rhestr",
     "addressesFound": {
         "zero": "",
-        "one": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "two": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "few": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "many": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "other": "{{.PluralCount}} o gyfeiriadau wedi’u canfod"
+        "one": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "two": "Daethpwyd o hyd i {{.PluralCount}} gyfeiriad",
+        "few": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "many": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "other": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad"
     },
     "addressLine1": "Llinell cyfeiriad 1",
     "addressLine1OfYourAddress": "Llinell 1 eich cyfeiriad",
@@ -541,7 +541,7 @@
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {
         "zero": "Yr atwrneiod",
-        "one": "Yr atwrneiod",
+        "one": "Yr atwrnai",
         "two": "Yr atwrneiod",
         "few": "Yr atwrneiod",
         "many": "Yr atwrneiod",
@@ -559,7 +559,7 @@
     "howReplacementAttorneysMustMakeDecisions": "Sut y mae’n rhaid i atwrneiod wrth gefn wneud penderfyniadau",
     "theirReplacementAttorneys": {
         "zero": "Yr atwrneiod wrth gefn",
-        "one": "Yr atwrneiod wrth gefn",
+        "one": "Yr atwrnai wrth gefn",
         "two": "Yr atwrneiod wrth gefn",
         "few": "Yr atwrneiod wrth gefn",
         "many": "Yr atwrneiod wrth gefn",
@@ -1178,7 +1178,7 @@
     },
     "stillInProgress": {
         "zero": "",
-        "one": "mae hyn dal i fynd rhagddo",
+        "one": "sy’n dal i fynd rhagddo",
         "two": "sy’n dal i fynd rhagddynt",
         "few": "sy’n dal i fynd rhagddynt",
         "many": "sy’n dal i fynd rhagddynt",
