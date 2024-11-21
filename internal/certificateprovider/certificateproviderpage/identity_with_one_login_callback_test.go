@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -34,6 +35,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 	updatedCertificateProvider := &certificateproviderdata.Provided{
 		IdentityUserData: userData,
 		LpaID:            "lpa-id",
+		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -67,7 +69,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, certificateprovider.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
@@ -85,6 +87,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 			LpaID:            "lpa-id",
 			UID:              actorUID,
 			IdentityUserData: userData,
+			Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
 		}).
 		Return(nil)
 
@@ -125,7 +128,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, certificateprovider.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatchedEventErrors(t *testing.T) {
@@ -178,6 +181,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 	updatedCertificateProvider := &certificateproviderdata.Provided{
 		IdentityUserData: userData,
 		LpaID:            "lpa-id",
+		Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
@@ -245,7 +249,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityCheckFailed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, certificateprovider.PathUnableToConfirmIdentity.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
 func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
@@ -255,14 +259,9 @@ func TestGetIdentityWithOneLoginCallbackWhenSendingEmailError(t *testing.T) {
 	userInfo := onelogin.UserInfo{CoreIdentityJWT: "an-identity-jwt"}
 	userData := identity.UserData{Status: identity.StatusFailed}
 
-	updatedCertificateProvider := &certificateproviderdata.Provided{
-		IdentityUserData: userData,
-		LpaID:            "lpa-id",
-	}
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
-		Put(mock.Anything, updatedCertificateProvider).
+		Put(mock.Anything, mock.Anything).
 		Return(nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -361,12 +360,15 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityNotConfirmed(t *testing.T) {
 			certificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				certificateProviderStore := newMockCertificateProviderStore(t)
 				certificateProviderStore.EXPECT().
-					Put(context.Background(), &certificateproviderdata.Provided{LpaID: "lpa-id"}).
+					Put(context.Background(), &certificateproviderdata.Provided{
+						LpaID: "lpa-id",
+						Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+					}).
 					Return(nil)
 
 				return certificateProviderStore
 			},
-			expectedRedirectURL: certificateprovider.PathUnableToConfirmIdentity.Format("lpa-id"),
+			expectedRedirectURL: certificateprovider.PathIdentityDetails.Format("lpa-id"),
 			expectedStatus:      http.StatusFound,
 		},
 		"errored on parse": {
@@ -531,5 +533,5 @@ func TestGetIdentityWithOneLoginCallbackWhenReturning(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, certificateprovider.PathOneLoginIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, certificateprovider.PathIdentityDetails.Format("lpa-id"), resp.Header.Get("Location"))
 }

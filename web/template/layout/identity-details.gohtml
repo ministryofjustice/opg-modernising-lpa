@@ -1,19 +1,14 @@
 {{ define "identity-details" }}
-    {{ $fullName := (printf "%s %s" .Provided.IdentityUserData.FirstNames .Provided.IdentityUserData.LastName) }}
-
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
             <h2 class="govuk-summary-card__title">{{ tr .App "yourConfirmedIdentityDetails" }}</h2>
         </div>
         <div class="govuk-summary-card__content">
             <dl class="govuk-summary-list">
-                {{ template "summary-row" (summaryRow .App "firstNames" .Provided.IdentityUserData.FirstNames "" $fullName false true ) }}
-
-                {{ template "summary-row" (summaryRow .App "lastName" .Provided.IdentityUserData.LastName "" $fullName false true ) }}
-
-                {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App .Provided.IdentityUserData.DateOfBirth) "" $fullName false true ) }}
-
-                {{ template "address-summary-row" (summaryRow $.App "address" .Provided.IdentityUserData.CurrentAddress "" $fullName false true ) }}
+                {{ template "summary-row" (staticSummaryRow .App "firstNames" .Item.FirstNames) }}
+                {{ template "summary-row" (staticSummaryRow .App "lastName" .Item.LastName) }}
+                {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .Item.DateOfBirth)) }}
+                {{ template "address-summary-row" (staticSummaryRow $.App "address" .Item.CurrentAddress) }}
             </dl>
         </div>
     </div>
