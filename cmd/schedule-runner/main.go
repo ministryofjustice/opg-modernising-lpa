@@ -11,12 +11,15 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	lambdaclient "github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -29,8 +32,12 @@ import (
 )
 
 var (
-	awsBaseURL            = os.Getenv("AWS_BASE_URL")
-	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	awsBaseURL        = os.Getenv("AWS_BASE_URL")
+	eventBusName      = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	lpaStoreBaseURL   = cmp.Or(os.Getenv("LPA_STORE_BASE_URL"), "http://mock-lpa-store:8080")
+	lpaStoreSecretARN = os.Getenv("LPA_STORE_SECRET_ARN")
+	// TODO remove in MLPAB-2690
+	metricsEnabled        = os.Getenv("METRICS_ENABLED") == "1"
 	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
@@ -38,8 +45,6 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-	// TODO remove in MLPAB-2690
-	metricsEnabled = os.Getenv("METRICS_ENABLED") == "1"
 
 	Tag string
 
@@ -89,10 +94,13 @@ func handleRunSchedule(ctx context.Context) error {
 	}
 
 	client := cloudwatch.NewFromConfig(cfg)
-
 	metricsClient := telemetry.NewMetricsClient(client, Tag)
 
-	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled)
+	lambdaClient := lambdaclient.New(cfg, v4.NewSigner(), httpClient, time.Now)
+
+	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lpaStoreSecretARN, lambdaClient)
+
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled, lpaStoreClient)
 
 	if err = runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
