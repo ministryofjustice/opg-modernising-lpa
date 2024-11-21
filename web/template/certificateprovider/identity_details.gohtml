@@ -1,0 +1,51 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "yourIdentityConfirmedWithOneLogin" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ $match := .CertificateProvider.Tasks.ConfirmYourIdentity.IsCompleted }}
+
+            {{ if not .CertificateProvider.IdentityUserData.Status.IsConfirmed }}
+                {{ template "notification-banner" ( notificationBanner .App "important" (trHtml .App "youHaveBeenUnableToConfirmYourIdentity") "heading" ) }}
+
+                {{ trFormatHtml .App "certificateProviderFailedIDContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames }}
+            {{ else }}
+                {{ if $match }}
+                    {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:certificate-provider" "DonorFullName" .Lpa.Donor.FullName) "success" "contents" ) }}
+                {{ else }}
+                    {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "someOfTheDetailsOnTheLpaDoNotMatch") "heading") }}
+
+                    <h1 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h1>
+                    
+                    <dl class="govuk-summary-list">
+                        {{ template "summary-row" (staticSummaryRow .App "dateOfBirth" (formatDate .App .CertificateProvider.DateOfBirth)) }}
+                    </dl>
+
+                    <h1 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h1>
+                    
+                    <dl class="govuk-summary-list">
+                        {{ with .Lpa.CertificateProvider }}
+                            {{ template "summary-row" (staticSummaryRow $.App "firstNames" .FirstNames) }}
+                            {{ template "summary-row" (staticSummaryRow $.App "lastName" .LastName) }}
+                            {{ template "address-summary-row" (staticSummaryRow $.App "address" .Address) }}
+                        {{ end }}
+                    </dl>
+                {{ end }}
+
+                {{ template "identity-details" (card .App .CertificateProvider.IdentityUserData) }}
+
+                {{ if not $match }}
+                    <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
+
+                    {{ trFormatHtml .App "yourDetailsCannotBeUpdatedAsAlreadySigned" "DonorFullName" .Lpa.Donor.FullName }}
+                {{ end }}
+            {{ end }}
+                
+            {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.CertificateProvider.TaskList.Format .App.LpaID)) }}
+        </div>
+    </div>
+{{ end }}
