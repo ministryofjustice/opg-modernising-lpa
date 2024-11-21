@@ -65,7 +65,7 @@
                 </dl>
             {{ end }}
             
-            {{ template "identity-details" . }}
+            {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
             {{ if .DetailsMatch }}
                 {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .Provided.LpaID)) }}
