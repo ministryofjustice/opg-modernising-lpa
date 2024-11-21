@@ -449,7 +449,7 @@
     "thatYouHaveMadeALpaType": "eich bod wedi gwneud LPA {{lowerFirst .LpaType}}",
     "thatYourAttorneysAre": {
         "zero": "",
-        "one": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
+        "one": "mai eich atwrnai yw {{.AllAttorneysFirstNames}}",
         "two": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
         "few": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
         "many": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
@@ -848,10 +848,10 @@
     "errorGenericUploadProblemFile": "{{.Filename}}: Gwall ffeil cyffredinol",
     "errorFilesInfected": {
         "zero": "",
-        "one": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "two": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "few": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "many": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
+        "one": "Ni ellir uwchlwytho {{.Filenames}} gan ei bod yn cynnwys feirws",
+        "two": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
+        "few": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
+        "many": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
         "other": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws"
     },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Y camau nesaf</h2><p class=\"govuk-body\">Cynnwys yn disgrifio’r camau nesaf pan fydd rhoddwr wedi talu hanner y ffi a’i fod yn aros i dystiolaeth gael ei gwirio gan weithiwr achosion</p>",
@@ -1043,9 +1043,9 @@
     "actorsMustBeOver18WarningBanner": "Rhaid i bawb a enwir ar yr LPA hon fod yn 18 oed cyn y gallwch ei llofnodi.",
     "theDetailsYouHaveGivenIndicateUnder18": {
         "zero": "",
-        "one": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
-        "two": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
-        "few": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "one": "Mae’r manylion a roddwyd gennych yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "two": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
+        "few": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
         "many": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
         "other": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed."
     },
