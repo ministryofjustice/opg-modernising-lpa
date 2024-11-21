@@ -5,7 +5,7 @@ module "event_recieved_sqs_kms" {
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
-  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.sqs_kms_merged.json : data.aws_iam_policy_document.sqs_kms.json
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.event_recieved_sqs_kms_merged.json : data.aws_iam_policy_document.event_recieved_sqs_kms.json
   providers = {
     aws.eu_west_1 = aws.eu_west_1
     aws.eu_west_2 = aws.eu_west_2
