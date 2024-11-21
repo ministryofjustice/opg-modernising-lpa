@@ -64,24 +64,26 @@ type lpaRequestDonor struct {
 }
 
 type lpaRequestAttorney struct {
-	UID         actoruid.UID    `json:"uid"`
-	FirstNames  string          `json:"firstNames"`
-	LastName    string          `json:"lastName"`
-	DateOfBirth date.Date       `json:"dateOfBirth"`
-	Email       string          `json:"email,omitempty"`
-	Address     place.Address   `json:"address"`
-	Status      string          `json:"status"`
-	Channel     lpadata.Channel `json:"channel"`
+	UID             actoruid.UID    `json:"uid"`
+	FirstNames      string          `json:"firstNames"`
+	LastName        string          `json:"lastName"`
+	DateOfBirth     date.Date       `json:"dateOfBirth"`
+	Email           string          `json:"email,omitempty"`
+	Address         place.Address   `json:"address"`
+	Status          string          `json:"status"`
+	AppointmentType string          `json:"appointmentType"`
+	Channel         lpadata.Channel `json:"channel"`
 }
 
 type lpaRequestTrustCorporation struct {
-	UID           actoruid.UID    `json:"uid"`
-	Name          string          `json:"name"`
-	CompanyNumber string          `json:"companyNumber"`
-	Email         string          `json:"email,omitempty"`
-	Address       place.Address   `json:"address"`
-	Status        string          `json:"status"`
-	Channel       lpadata.Channel `json:"channel"`
+	UID             actoruid.UID    `json:"uid"`
+	Name            string          `json:"name"`
+	CompanyNumber   string          `json:"companyNumber"`
+	Email           string          `json:"email,omitempty"`
+	Address         place.Address   `json:"address"`
+	Status          string          `json:"status"`
+	AppointmentType string          `json:"appointmentType"`
+	Channel         lpadata.Channel `json:"channel"`
 }
 
 type lpaRequestCertificateProvider struct {
@@ -182,51 +184,55 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 
 	for _, attorney := range donor.Attorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
-			UID:         attorney.UID,
-			FirstNames:  attorney.FirstNames,
-			LastName:    attorney.LastName,
-			DateOfBirth: attorney.DateOfBirth,
-			Email:       attorney.Email,
-			Address:     attorney.Address,
-			Status:      statusActive,
-			Channel:     attorney.Channel(),
+			UID:             attorney.UID,
+			FirstNames:      attorney.FirstNames,
+			LastName:        attorney.LastName,
+			DateOfBirth:     attorney.DateOfBirth,
+			Email:           attorney.Email,
+			Address:         attorney.Address,
+			Status:          statusActive,
+			AppointmentType: appointmentTypeOriginal,
+			Channel:         attorney.Channel(),
 		})
 	}
 
 	if trustCorporation := donor.Attorneys.TrustCorporation; trustCorporation.Name != "" {
 		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
-			UID:           trustCorporation.UID,
-			Name:          trustCorporation.Name,
-			CompanyNumber: trustCorporation.CompanyNumber,
-			Email:         trustCorporation.Email,
-			Address:       trustCorporation.Address,
-			Status:        statusActive,
-			Channel:       trustCorporation.Channel(),
+			UID:             trustCorporation.UID,
+			Name:            trustCorporation.Name,
+			CompanyNumber:   trustCorporation.CompanyNumber,
+			Email:           trustCorporation.Email,
+			Address:         trustCorporation.Address,
+			Status:          statusActive,
+			AppointmentType: appointmentTypeOriginal,
+			Channel:         trustCorporation.Channel(),
 		})
 	}
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
 		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
-			UID:         attorney.UID,
-			FirstNames:  attorney.FirstNames,
-			LastName:    attorney.LastName,
-			DateOfBirth: attorney.DateOfBirth,
-			Email:       attorney.Email,
-			Address:     attorney.Address,
-			Status:      statusReplacement,
-			Channel:     attorney.Channel(),
+			UID:             attorney.UID,
+			FirstNames:      attorney.FirstNames,
+			LastName:        attorney.LastName,
+			DateOfBirth:     attorney.DateOfBirth,
+			Email:           attorney.Email,
+			Address:         attorney.Address,
+			Status:          statusReplacement,
+			AppointmentType: appointmentTypeReplacement,
+			Channel:         attorney.Channel(),
 		})
 	}
 
 	if trustCorporation := donor.ReplacementAttorneys.TrustCorporation; trustCorporation.Name != "" {
 		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
-			UID:           trustCorporation.UID,
-			Name:          trustCorporation.Name,
-			CompanyNumber: trustCorporation.CompanyNumber,
-			Email:         trustCorporation.Email,
-			Address:       trustCorporation.Address,
-			Status:        statusReplacement,
-			Channel:       trustCorporation.Channel(),
+			UID:             trustCorporation.UID,
+			Name:            trustCorporation.Name,
+			CompanyNumber:   trustCorporation.CompanyNumber,
+			Email:           trustCorporation.Email,
+			Address:         trustCorporation.Address,
+			Status:          statusReplacement,
+			AppointmentType: appointmentTypeReplacement,
+			Channel:         trustCorporation.Channel(),
 		})
 	}
 
