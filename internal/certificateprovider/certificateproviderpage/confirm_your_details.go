@@ -22,13 +22,8 @@ type confirmYourDetailsData struct {
 	DetailComponentContent string
 }
 
-func ConfirmYourDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ConfirmYourDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if r.Method == http.MethodPost {
 			certificateProvider.Tasks.ConfirmYourDetails = task.StateCompleted
 

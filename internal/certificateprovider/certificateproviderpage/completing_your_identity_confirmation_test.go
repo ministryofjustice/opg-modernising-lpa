@@ -28,7 +28,7 @@ func TestGetCompletingYourIdentityConfirmation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestGetCompletingYourIdentityConfirmationWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -76,7 +76,7 @@ func TestPostCompletingYourIdentityConfirmation(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := CompletingYourIdentityConfirmation(nil)(testAppData, w, r, tc.provided)
+			err := CompletingYourIdentityConfirmation(nil)(testAppData, w, r, tc.provided, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -98,7 +98,7 @@ func TestPostCompletingYourIdentityConfirmationWhenValidationErrors(t *testing.T
 		})).
 		Return(nil)
 
-	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := CompletingYourIdentityConfirmation(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)

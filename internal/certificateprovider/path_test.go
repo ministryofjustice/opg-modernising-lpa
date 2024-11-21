@@ -4,10 +4,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,28 +46,47 @@ func TestCertificateProviderPathRedirect(t *testing.T) {
 func TestCertificateProviderCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		certificateProvider *certificateproviderdata.Provided
-		url                 string
+		lpa                 *lpadata.Lpa
+		path                Path
 		expected            bool
 	}{
-		"empty path": {
-			certificateProvider: &certificateproviderdata.Provided{},
-			url:                 "",
-			expected:            false,
-		},
 		"unexpected path": {
 			certificateProvider: &certificateproviderdata.Provided{},
-			url:                 "/whatever",
+			lpa:                 &lpadata.Lpa{},
+			path:                Path("/whatever"),
 			expected:            true,
 		},
 		"unrestricted path": {
 			certificateProvider: &certificateproviderdata.Provided{},
-			url:                 PathConfirmYourDetails.Format("123"),
+			lpa:                 &lpadata.Lpa{},
+			path:                PathConfirmYourDetails,
 			expected:            true,
 		},
 		"identity without task": {
 			certificateProvider: &certificateproviderdata.Provided{},
-			url:                 PathIdentityWithOneLogin.Format("123"),
+			lpa:                 &lpadata.Lpa{Paid: true, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			path:                PathIdentityWithOneLogin,
 			expected:            false,
+		},
+		"identity without payment": {
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
+					ConfirmYourDetails: task.StateCompleted,
+				},
+			},
+			lpa:      &lpadata.Lpa{SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			path:     PathIdentityWithOneLogin,
+			expected: false,
+		},
+		"identity without signing": {
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
+					ConfirmYourDetails: task.StateCompleted,
+				},
+			},
+			lpa:      &lpadata.Lpa{Paid: true, SignedAt: time.Now()},
+			path:     PathIdentityWithOneLogin,
+			expected: false,
 		},
 		"identity with task": {
 			certificateProvider: &certificateproviderdata.Provided{
@@ -73,7 +94,8 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
-			url:      PathIdentityWithOneLogin.Format("123"),
+			lpa:      &lpadata.Lpa{Paid: true, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			path:     PathIdentityWithOneLogin,
 			expected: true,
 		},
 		"provide certificate without task": {
@@ -82,7 +104,8 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 					ConfirmYourDetails: task.StateCompleted,
 				},
 			},
-			url:      PathProvideCertificate.Format("123"),
+			lpa:      &lpadata.Lpa{Paid: true, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			path:     PathProvideCertificate,
 			expected: false,
 		},
 		"provide certificate with task": {
@@ -92,14 +115,15 @@ func TestCertificateProviderCanGoTo(t *testing.T) {
 					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
 			},
-			url:      PathProvideCertificate.Format("123"),
+			lpa:      &lpadata.Lpa{Paid: true, SignedAt: time.Now(), WitnessedByCertificateProviderAt: time.Now()},
+			path:     PathProvideCertificate,
 			expected: true,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.certificateProvider, tc.url))
+			assert.Equal(t, tc.expected, tc.path.CanGoTo(tc.certificateProvider, tc.lpa))
 		})
 	}
 }

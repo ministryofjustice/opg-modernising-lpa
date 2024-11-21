@@ -271,11 +271,11 @@
 
     {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s:h3" .Lpa.Type.String) }}
 
-    {{ template "contextual-lpa-warning" . }}
+    {{ if not .Lpa.SignedAt.IsZero }}
+        {{ template "contextual-lpa-warning" . }}
 
-    <h2 class="govuk-heading-l">{{ tr .App "signatures" }}</h2>
+        <h2 class="govuk-heading-l">{{ tr .App "signatures" }}</h2>
 
-    {{ if .Lpa.SignedAt }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-summary-card__title">{{ tr $.App "donorSignature" }}</h2>

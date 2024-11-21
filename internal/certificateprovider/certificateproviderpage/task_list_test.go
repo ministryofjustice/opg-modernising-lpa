@@ -18,43 +18,21 @@ import (
 
 func TestGetTaskList(t *testing.T) {
 	testCases := map[string]struct {
-		donor               *lpadata.Lpa
+		lpa                 *lpadata.Lpa
 		certificateProvider *certificateproviderdata.Provided
 		appData             appcontext.Data
 		expected            func([]taskListItem) []taskListItem
 	}{
 		"empty": {
-			donor:               &lpadata.Lpa{LpaID: "lpa-id"},
+			lpa:                 &lpadata.Lpa{LpaID: "lpa-id"},
 			certificateProvider: &certificateproviderdata.Provided{},
 			appData:             testAppData,
 			expected: func(items []taskListItem) []taskListItem {
-				items[1].Disabled = true
-				items[2].Disabled = true
-
-				return items
-			},
-		},
-		"paid": {
-			donor: &lpadata.Lpa{
-				LpaID: "lpa-id",
-				Paid:  true,
-			},
-			certificateProvider: &certificateproviderdata.Provided{
-				Tasks: certificateproviderdata.Tasks{
-					ConfirmYourDetails: task.StateCompleted,
-				},
-			},
-			appData: testAppData,
-			expected: func(items []taskListItem) []taskListItem {
-				items[0].State = task.StateCompleted
-				items[1].Disabled = true
-				items[2].Disabled = true
-
 				return items
 			},
 		},
 		"submitted": {
-			donor: &lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -67,14 +45,13 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[1].Disabled = true
-				items[2].Disabled = true
+				items[0].Path = certificateprovider.PathConfirmYourDetails
 
 				return items
 			},
 		},
 		"identity confirmation in progress": {
-			donor: &lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -89,15 +66,15 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateInProgress
-				items[1].Path = certificateprovider.PathHowWillYouConfirmYourIdentity.Format("lpa-id")
-				items[2].Disabled = true
+				items[1].Path = certificateprovider.PathHowWillYouConfirmYourIdentity
 
 				return items
 			},
 		},
 		"identity confirmed": {
-			donor: &lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -114,15 +91,16 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa.Format("lpa-id")
+				items[1].Path = certificateprovider.PathReadTheLpa
 				items[2].State = task.StateCompleted
 
 				return items
 			},
 		},
 		"all": {
-			donor: &lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -138,8 +116,9 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa.Format("lpa-id")
+				items[1].Path = certificateprovider.PathReadTheLpa
 				items[2].State = task.StateCompleted
 
 				return items
@@ -152,25 +131,21 @@ func TestGetTaskList(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.donor, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &taskListData{
-					App: tc.appData,
-					Lpa: tc.donor,
+					App:      tc.appData,
+					Provided: tc.certificateProvider,
+					Lpa:      tc.lpa,
 					Items: tc.expected([]taskListItem{
-						{Name: "confirmYourDetails", Path: certificateprovider.PathEnterDateOfBirth.Format("lpa-id")},
-						{Name: "confirmYourIdentity", Path: certificateprovider.PathConfirmYourIdentity.Format("lpa-id")},
-						{Name: "provideYourCertificate", Path: certificateprovider.PathReadTheLpa.Format("lpa-id")},
+						{Name: "confirmYourDetails", Path: certificateprovider.PathEnterDateOfBirth},
+						{Name: "confirmYourIdentity", Path: certificateprovider.PathConfirmYourIdentity},
+						{Name: "provideYourCertificate", Path: certificateprovider.PathReadTheLpa},
 					}),
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, lpaStoreResolvingService)(tc.appData, w, r, tc.certificateProvider)
+			err := TaskList(template.Execute)(tc.appData, w, r, tc.certificateProvider, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -179,35 +154,16 @@ func TestGetTaskList(t *testing.T) {
 	}
 }
 
-func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := TaskList(template.Execute)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

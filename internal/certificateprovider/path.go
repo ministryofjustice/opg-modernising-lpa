@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 const (
@@ -21,6 +22,7 @@ const (
 	PathOneLoginIdentityDetails                = Path("/one-login-identity-details")
 	PathProvideCertificate                     = Path("/provide-certificate")
 	PathReadTheLpa                             = Path("/read-the-lpa")
+	PathReadTheDraftLpa                        = Path("/read-the-draft-lpa")
 	PathTaskList                               = Path("/task-list")
 	PathUnableToConfirmIdentity                = Path("/unable-to-confirm-identity")
 	PathWhatHappensNext                        = Path("/what-happens-next")
@@ -50,39 +52,28 @@ func (p Path) Redirect(w http.ResponseWriter, r *http.Request, appData appcontex
 	return nil
 }
 
-func (p Path) canVisit(certificateProvider *certificateproviderdata.Provided) bool {
+func (p Path) CanGoTo(certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) bool {
 	switch p {
 	case PathConfirmYourIdentity,
 		PathHowWillYouConfirmYourIdentity,
 		PathIdentityWithOneLogin,
 		PathIdentityWithOneLoginCallback,
 		PathOneLoginIdentityDetails:
-		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted()
+		return lpa.Paid && lpa.SignedForDonor() &&
+			certificateProvider.Tasks.ConfirmYourDetails.IsCompleted()
 
 	case PathWhatHappensNext,
+		PathReadTheLpa,
 		PathProvideCertificate,
 		PathConfirmDontWantToBeCertificateProvider,
 		PathCertificateProvided:
-		return certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() &&
+		return lpa.Paid && lpa.SignedForDonor() &&
+			certificateProvider.Tasks.ConfirmYourDetails.IsCompleted() &&
 			(certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() || certificateProvider.Tasks.ConfirmYourIdentity.IsPending())
 
 	default:
 		return true
 	}
-}
-
-func CanGoTo(certificateProvider *certificateproviderdata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/certificate-provider/") {
-		_, certificateProviderPath, _ := strings.Cut(strings.TrimPrefix(path, "/certificate-provider/"), "/")
-		return Path("/" + certificateProviderPath).canVisit(certificateProvider)
-	}
-
-	return true
 }
 
 func canFrom(fromURL string, lpaID string) bool {

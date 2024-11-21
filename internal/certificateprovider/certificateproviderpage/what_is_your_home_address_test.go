@@ -67,7 +67,7 @@ func TestGetWhatIsYourHomeAddress(t *testing.T) {
 				Execute(w, data).
 				Return(nil)
 
-			err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, tc.certificateProvider)
+			err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, tc.certificateProvider, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -85,7 +85,7 @@ func TestGetWhatIsYourHomeAddressWhenTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -121,7 +121,7 @@ func TestPostWhatIsYourHomeAddressManual(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -148,7 +148,7 @@ func TestPostWhatIsYourHomeAddressManualWhenCertificateProviderStoreError(t *tes
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := WhatIsYourHomeAddress(nil, nil, nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -179,7 +179,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelect(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(nil, template.Execute, nil, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -219,7 +219,7 @@ func TestPostWhatIsYourHomeAddressPostcodeSelectWhenValidationError(t *testing.T
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -258,7 +258,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookup(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -294,7 +294,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenPostcodeNotFound(t *testing.
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(nil, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -334,7 +334,7 @@ func TestPostWhatIsYourHomeAddressPostcodeLookupWhenInvalidPostcode(t *testing.T
 		}).
 		Return(nil)
 
-	err := WhatIsYourHomeAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := WhatIsYourHomeAddress(logger, template.Execute, addressClient, nil)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)

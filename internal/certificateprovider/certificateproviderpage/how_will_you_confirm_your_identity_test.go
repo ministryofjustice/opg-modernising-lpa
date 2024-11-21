@@ -29,7 +29,7 @@ func TestGetHowWillYouConfirmYourIdentity(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -45,7 +45,7 @@ func TestGetHowWillYouConfirmYourIdentityWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -77,7 +77,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := HowWillYouConfirmYourIdentity(nil, nil)(testAppData, w, r, tc.provided)
+			err := HowWillYouConfirmYourIdentity(nil, nil)(testAppData, w, r, tc.provided, nil)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -104,7 +104,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T)
 		}).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+	err := HowWillYouConfirmYourIdentity(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -126,7 +126,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWillYouConfirmYourIdentity(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := HowWillYouConfirmYourIdentity(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -142,7 +142,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
