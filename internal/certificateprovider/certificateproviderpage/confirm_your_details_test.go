@@ -59,11 +59,6 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			}
 			certificateProvider := &certificateproviderdata.Provided{}
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(lpa, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &confirmYourDetailsData{
@@ -76,7 +71,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, certificateProvider)
+			err := ConfirmYourDetails(template.Execute, nil)(testAppData, w, r, certificateProvider, lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -85,35 +80,16 @@ func TestGetConfirmYourDetails(t *testing.T) {
 	}
 }
 
-func TestGetConfirmYourDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := ConfirmYourDetails(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetConfirmYourDetailsWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := ConfirmYourDetails(template.Execute, nil)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -132,11 +108,6 @@ func TestPostConfirmYourDetails(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{SignedAt: tc.signedAt, WitnessedByCertificateProviderAt: tc.signedAt}, nil)
-
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			certificateProviderStore.EXPECT().
 				Put(r.Context(), &certificateproviderdata.Provided{
@@ -147,7 +118,7 @@ func TestPostConfirmYourDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"})
+			err := ConfirmYourDetails(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{SignedAt: tc.signedAt, WitnessedByCertificateProviderAt: tc.signedAt})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -161,16 +132,11 @@ func TestPostConfirmYourDetailsWhenStoreErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmYourDetails(nil, lpaStoreResolvingService, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{})
+	err := ConfirmYourDetails(nil, certificateProviderStore)(testAppData, w, r, &certificateproviderdata.Provided{}, &lpadata.Lpa{})
 	assert.Equal(t, expectedError, err)
 }

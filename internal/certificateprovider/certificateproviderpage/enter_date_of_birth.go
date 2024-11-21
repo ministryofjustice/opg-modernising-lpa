@@ -27,13 +27,8 @@ type dateOfBirthForm struct {
 	IgnoreDobWarning string
 }
 
-func EnterDateOfBirth(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func EnterDateOfBirth(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &dateOfBirthData{
 			App: appData,
 			Lpa: lpa,
