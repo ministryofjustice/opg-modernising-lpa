@@ -21,7 +21,7 @@ describe('Read the LPA', () => {
 
     describe('when the LPA is not yet signed', () => {
         beforeEach(() => {
-            cy.visit('/fixtures/certificate-provider?redirect=/read-the-lpa');
+            cy.visit('/fixtures/certificate-provider?redirect=/read-the-draft-lpa');
         });
 
         it('displays the LPA details and goes to task list', () => {

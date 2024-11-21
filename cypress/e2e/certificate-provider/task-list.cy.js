@@ -7,7 +7,7 @@ describe('Task list', () => {
         cy.checkA11yApp();
 
         cy.contains('li', 'Confirm your details').should('contain', 'Not started');
-        cy.contains('li', 'Confirm your identity').should('contain', 'Not started');
+        cy.contains('li', 'Confirm your identity').should('contain', 'Cannot start yet');
         cy.contains('li', 'Provide your certificate').should('contain', 'Cannot start yet');
     });
 });

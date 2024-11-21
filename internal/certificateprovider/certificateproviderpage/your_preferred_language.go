@@ -22,13 +22,8 @@ type yourPreferredLanguageData struct {
 	Lpa       *lpadata.Lpa
 }
 
-func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func YourPreferredLanguage(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &yourPreferredLanguageData{
 			App: appData,
 			Form: &form.LanguagePreferenceForm{

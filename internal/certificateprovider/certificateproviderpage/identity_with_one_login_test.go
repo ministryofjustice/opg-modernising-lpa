@@ -27,7 +27,7 @@ func TestIdentityWithOneLogin(t *testing.T) {
 		SetOneLogin(r, w, &sesh.OneLoginSession{State: "i am random", Nonce: "i am random", Locale: "cy", Redirect: certificateprovider.PathIdentityWithOneLoginCallback.Format("lpa-id")}).
 		Return(nil)
 
-	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(appcontext.Data{LpaID: "lpa-id", Lang: localize.Cy}, w, r, nil)
+	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(appcontext.Data{LpaID: "lpa-id", Lang: localize.Cy}, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,7 +44,7 @@ func TestIdentityWithOneLoginWhenAuthCodeURLError(t *testing.T) {
 		AuthCodeURL("i am random", "i am random", "", true).
 		Return("http://auth?locale=en", expectedError)
 
-	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r, nil)
+	err := IdentityWithOneLogin(client, nil, func(int) string { return "i am random" })(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -65,7 +65,7 @@ func TestIdentityWithOneLoginWhenStoreSaveError(t *testing.T) {
 		SetOneLogin(r, w, mock.Anything).
 		Return(expectedError)
 
-	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, nil)
+	err := IdentityWithOneLogin(client, sessionStore, func(int) string { return "i am random" })(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

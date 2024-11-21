@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -18,13 +19,8 @@ type oneLoginIdentityDetailsData struct {
 	DonorFullName string
 }
 
-func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &oneLoginIdentityDetailsData{
 			App:           appData,
 			Provided:      certificateProvider,
@@ -38,7 +34,7 @@ func OneLoginIdentityDetails(tmpl template.Template, certificateProviderStore Ce
 			) {
 				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 
-				if err = certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
+				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
 					return err
 				}
 
