@@ -27,19 +27,13 @@ type provideCertificateData struct {
 
 func ProvideCertificate(
 	tmpl template.Template,
-	lpaStoreResolvingService LpaStoreResolvingService,
 	certificateProviderStore CertificateProviderStore,
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
 	now func() time.Time,
 ) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if !lpa.SignedForDonor() {
 			return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
 		}

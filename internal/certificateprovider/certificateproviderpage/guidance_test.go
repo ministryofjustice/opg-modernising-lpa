@@ -8,26 +8,22 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGuidance(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	donor := &lpadata.Lpa{}
+	lpa := &lpadata.Lpa{}
 	certificateProvider := &certificateproviderdata.Provided{}
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Lpa: donor, CertificateProvider: certificateProvider}).
+		Execute(w, &guidanceData{App: testAppData, Lpa: lpa, CertificateProvider: certificateProvider}).
 		Return(nil)
 
-	err := Guidance(template.Execute, lpaStoreResolvingService)(testAppData, w, r, certificateProvider)
+	err := Guidance(template.Execute)(testAppData, w, r, certificateProvider, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -44,42 +40,23 @@ func TestGuidanceWhenNilDataStores(t *testing.T) {
 
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := Guidance(template.Execute, nil)(testAppData, w, r, nil)
+	err := Guidance(template.Execute)(testAppData, w, r, nil, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGuidanceWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := Guidance(nil, lpaStoreResolvingService)(testAppData, w, r, nil)
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGuidanceWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &guidanceData{App: testAppData, Lpa: &lpadata.Lpa{}}).
+		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Guidance(template.Execute, lpaStoreResolvingService)(testAppData, w, r, nil)
+	err := Guidance(template.Execute)(testAppData, w, r, nil, nil)
 
 	assert.Equal(t, expectedError, err)
 }

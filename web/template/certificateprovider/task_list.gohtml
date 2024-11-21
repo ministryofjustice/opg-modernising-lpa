@@ -33,23 +33,25 @@
                 {{ $yourRoleURL := link .App (global.Paths.CertificateProvider.YourRole.Format .Lpa.LpaID)}}
 
                 {{ trFormatHtml .App "untilYouHaveWitnessed" "DonorFullName" .Lpa.Donor.FullName "YourRoleURL" $yourRoleURL }}
-                <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.ReadTheLpa.Format .Lpa.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
+                <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.CertificateProvider.ReadTheDraftLpa.Format .Lpa.LpaID) }}">{{ tr .App "readTheDraftLpa" }}</a>
                 {{ trHtml .App "afterYouHaveWitnessed" }}
             {{ end }}
 
             <ul class="govuk-task-list">
                 {{ range $i, $_ := .Items }}
-                    <li class="govuk-task-list__item {{ if not .Disabled }}govuk-task-list__item--with-link{{ end }}">
+                    {{ $canGoTo := .Path.CanGoTo $.Provided $.Lpa }}
+                    
+                    <li class="govuk-task-list__item {{ if $canGoTo }}govuk-task-list__item--with-link{{ end }}">
                         <span class="govuk-task-list__name-and-hint">
-                            {{ if not .Disabled }}
-                                <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</a>
+                            {{ if $canGoTo }}
+                                <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</a>
                             {{ else }}
                                 <div aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</div>
                             {{ end }}
                         </span>
 
                         <div id="{{ fieldID "status" $i }}" class="govuk-task-list__status">
-                            {{ if .Disabled }}
+                            {{ if not $canGoTo }}
                                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                             {{ else if or .State.IsCompleted .IdentityState.IsCompleted }}
                                 {{ tr $.App "completed" }}

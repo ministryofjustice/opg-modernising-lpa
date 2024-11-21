@@ -19,8 +19,8 @@ type confirmYourIdentityData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmYourIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *certificateproviderdata.Provided) error {
+func ConfirmYourIdentity(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if r.Method == http.MethodPost {
 			if provided.Tasks.ConfirmYourIdentity.IsNotStarted() {
 				provided.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
@@ -31,11 +31,6 @@ func ConfirmYourIdentity(tmpl template.Template, certificateProviderStore Certif
 			}
 
 			return certificateprovider.PathIdentityWithOneLogin.Redirect(w, r, appData, provided.LpaID)
-		}
-
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return fmt.Errorf("error retrieving lpa: %w", err)
 		}
 
 		return tmpl(w, &confirmYourIdentityData{App: appData, Lpa: lpa})
