@@ -93,7 +93,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa
+				items[1].Path = certificateprovider.PathIdentityDetails
 				items[2].State = task.StateCompleted
 
 				return items
@@ -118,7 +118,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa
+				items[1].Path = certificateprovider.PathIdentityDetails
 				items[2].State = task.StateCompleted
 
 				return items
