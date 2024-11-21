@@ -21,13 +21,8 @@ type confirmDontWantToBeCertificateProviderData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, appPublicURL string) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClient LpaStoreClient, donorStore DonorStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, appPublicURL string) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		data := &confirmDontWantToBeCertificateProviderData{
 			App: appData,
 			Lpa: lpa,

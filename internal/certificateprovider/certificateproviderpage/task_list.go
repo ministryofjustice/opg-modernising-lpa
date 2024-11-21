@@ -13,29 +13,24 @@ import (
 )
 
 type taskListData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Lpa    *lpadata.Lpa
-	Items  []taskListItem
+	App      appcontext.Data
+	Errors   validation.List
+	Provided *certificateproviderdata.Provided
+	Lpa      *lpadata.Lpa
+	Items    []taskListItem
 }
 
 type taskListItem struct {
 	Name          string
-	Path          string
+	Path          certificateprovider.Path
 	State         task.State
 	IdentityState task.IdentityState
-	Disabled      bool
 }
 
-func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func TaskList(tmpl template.Template) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		identityTaskPage := certificateprovider.PathConfirmYourIdentity
-		switch certificateProvider.Tasks.ConfirmYourIdentity {
+		switch provided.Tasks.ConfirmYourIdentity {
 		case task.IdentityStateInProgress:
 			identityTaskPage = certificateprovider.PathHowWillYouConfirmYourIdentity
 		case task.IdentityStatePending:
@@ -44,29 +39,30 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			identityTaskPage = certificateprovider.PathReadTheLpa
 		}
 
-		tasks := certificateProvider.Tasks
+		confirmYourDetailsPage := certificateprovider.PathEnterDateOfBirth
+		if provided.Tasks.ConfirmYourDetails.IsCompleted() {
+			confirmYourDetailsPage = certificateprovider.PathConfirmYourDetails
+		}
 
 		data := &taskListData{
-			App: appData,
-			Lpa: lpa,
+			App:      appData,
+			Provided: provided,
+			Lpa:      lpa,
 			Items: []taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  certificateprovider.PathEnterDateOfBirth.Format(lpa.LpaID),
-					State: tasks.ConfirmYourDetails,
+					Path:  confirmYourDetailsPage,
+					State: provided.Tasks.ConfirmYourDetails,
 				},
 				{
 					Name:          "confirmYourIdentity",
-					Path:          identityTaskPage.Format(lpa.LpaID),
-					IdentityState: tasks.ConfirmYourIdentity,
-					Disabled:      !lpa.Paid || !lpa.SignedForDonor(),
+					Path:          identityTaskPage,
+					IdentityState: provided.Tasks.ConfirmYourIdentity,
 				},
 				{
 					Name:  "provideYourCertificate",
-					Path:  certificateprovider.PathReadTheLpa.Format(lpa.LpaID),
-					State: tasks.ProvideTheCertificate,
-					Disabled: !lpa.SignedForDonor() || !tasks.ConfirmYourDetails.IsCompleted() ||
-						!(tasks.ConfirmYourIdentity.IsCompleted() || tasks.ConfirmYourIdentity.IsPending()),
+					Path:  certificateprovider.PathReadTheLpa,
+					State: provided.Tasks.ProvideTheCertificate,
 				},
 			},
 		}
