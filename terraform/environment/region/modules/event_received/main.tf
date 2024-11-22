@@ -81,10 +81,10 @@ data "aws_iam_policy_document" "receive_events_queue_policy" {
 
 #tfsec:ignore:aws-sqs-enable-queue-encryption:exp:2024-11-24
 resource "aws_sqs_queue" "receive_events_deadletter" {
-  name = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
-  # kms_master_key_id                 = data.aws_kms_alias.sqs.target_key_id
-  # kms_data_key_reuse_period_seconds = 300
-  provider = aws.region
+  name                              = "${data.aws_default_tags.current.tags.environment-name}-receive-events-deadletter"
+  kms_master_key_id                 = data.aws_kms_alias.event_received_sqs.target_key_id
+  kms_data_key_reuse_period_seconds = 300
+  provider                          = aws.region
 }
 
 resource "aws_sqs_queue_redrive_allow_policy" "receive_events_redrive_allow_policy" {
