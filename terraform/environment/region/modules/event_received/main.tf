@@ -281,7 +281,7 @@ data "aws_iam_policy_document" "event_received" {
       data.aws_kms_alias.secrets_manager_secret_encryption_key.target_key_arn,
       data.aws_kms_alias.aws_lambda.target_key_arn,
       data.aws_kms_alias.jwt_key.target_key_arn,
-      # data.aws_kms_alias.sqs.target_key_arn,
+      data.aws_kms_alias.event_received_sqs.target_key_arn,
     ]
 
     actions = [
