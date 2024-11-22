@@ -18,14 +18,14 @@ describe('You cannot sign your LPA yet', () => {
         cy.contains('a', 'Check and send to your certificate provider').click()
         cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
 
-        cy.contains('dt', 'Jessie Jones’ date of birth').parent().contains('a', 'Change').click();
+        cy.get('.govuk-summary-list__row:contains("Jessie Jones’ date of birth") a').click();
 
         cy.url().should('contain', '/choose-attorneys')
         cy.get('#f-date-of-birth-year').clear().type("2000")
         cy.contains('button', 'Save and continue').click()
         cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
 
-        cy.contains('dt', 'Blake Buckley’s date of birth').parent().contains('a', 'Change').click();
+        cy.get('.govuk-summary-list__row:contains("Blake Buckley’s date of birth") a').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys')
         cy.get('#f-date-of-birth-year').clear().type("2000")
