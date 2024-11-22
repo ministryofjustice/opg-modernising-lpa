@@ -19,12 +19,11 @@ const (
 	PathHowWillYouConfirmYourIdentity          = Path("/how-will-you-confirm-your-identity")
 	PathIdentityWithOneLogin                   = Path("/identity-with-one-login")
 	PathIdentityWithOneLoginCallback           = Path("/identity-with-one-login-callback")
-	PathOneLoginIdentityDetails                = Path("/one-login-identity-details")
+	PathIdentityDetails                        = Path("/identity-details")
 	PathProvideCertificate                     = Path("/provide-certificate")
 	PathReadTheLpa                             = Path("/read-the-lpa")
 	PathReadTheDraftLpa                        = Path("/read-the-draft-lpa")
 	PathTaskList                               = Path("/task-list")
-	PathUnableToConfirmIdentity                = Path("/unable-to-confirm-identity")
 	PathWhatHappensNext                        = Path("/what-happens-next")
 	PathWhatIsYourHomeAddress                  = Path("/what-is-your-home-address")
 	PathWhoIsEligible                          = Path("/certificate-provider-who-is-eligible")
@@ -58,7 +57,7 @@ func (p Path) CanGoTo(certificateProvider *certificateproviderdata.Provided, lpa
 		PathHowWillYouConfirmYourIdentity,
 		PathIdentityWithOneLogin,
 		PathIdentityWithOneLoginCallback,
-		PathOneLoginIdentityDetails:
+		PathIdentityDetails:
 		return lpa.Paid && lpa.SignedForDonor() &&
 			certificateProvider.Tasks.ConfirmYourDetails.IsCompleted()
 
