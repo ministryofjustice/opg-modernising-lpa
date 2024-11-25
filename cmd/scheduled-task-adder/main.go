@@ -73,19 +73,25 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 	for i := 0; i < taskCount; i++ {
 		now = now.Add(time.Second * 1)
 
+		lpaUID := uuid.NewString()
+		lpaID := uuid.NewString()
+
 		donor := &donordata.Provided{
-			LpaUID:           uuid.NewString(),
-			PK:               dynamo.LpaKey(uuid.NewString()),
+			LpaUID:           lpaUID,
+			PK:               dynamo.LpaKey(lpaID),
 			SK:               dynamo.LpaOwnerKey(dynamo.DonorKey(uuid.NewString())),
 			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			Donor:            donordata.Donor{Email: "a@b.com"},
+			LpaID:            lpaID,
 		}
 
 		event := scheduled.Event{
+			CreatedAt:         now,
 			At:                now,
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      donor.PK,
 			TargetLpaOwnerKey: donor.SK,
+			LpaUID:            lpaUID,
 			PK:                dynamo.ScheduledDayKey(now),
 			SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
 		}

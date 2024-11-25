@@ -31,7 +31,7 @@ var (
 		Action:            99,
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-		TargetLpaUID:      "lpa-uid",
+		LpaUID:            "lpa-uid",
 	}
 )
 

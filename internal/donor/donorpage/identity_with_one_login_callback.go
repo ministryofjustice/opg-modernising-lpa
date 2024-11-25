@@ -85,7 +85,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 				Action:            scheduled.ActionExpireDonorIdentity,
 				TargetLpaKey:      provided.PK,
 				TargetLpaOwnerKey: provided.SK,
-				TargetLpaUID:      provided.LpaUID,
+				LpaUID:            provided.LpaUID,
 			}); err != nil {
 				return err
 			}
