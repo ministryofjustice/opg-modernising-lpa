@@ -187,7 +187,7 @@ func (r *Runner) Run(ctx context.Context) error {
 		)
 
 		if fn, ok := r.actions[row.Action]; ok {
-			lpa, err := r.lpaStoreClient.Lpa(ctx, row.TargetLpaUID)
+			lpa, err := r.lpaStoreClient.Lpa(ctx, row.LpaUID)
 			if err != nil {
 				r.Errored(ctx, row, err)
 				continue
