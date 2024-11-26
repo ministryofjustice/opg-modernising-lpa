@@ -29,6 +29,9 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 
 		case "CANNOT_REGISTER":
 			return handleCannotRegister(ctx, factory.ScheduledStore(), v)
+
+		default:
+			return nil
 		}
 	}
 
