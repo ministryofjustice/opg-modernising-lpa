@@ -22,17 +22,17 @@ func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
 	return &mockDynamodbClient_Expecter{mock: &_m.Mock}
 }
 
-// AllScheduledEventsByUID provides a mock function with given fields: ctx, uid, v
-func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, v interface{}) error {
-	ret := _m.Called(ctx, uid, v)
+// AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK string, v interface{}) error {
+	ret := _m.Called(ctx, uid, partialSK, v)
 
 	if len(ret) == 0 {
-		panic("no return value specified for AllScheduledEventsByUID")
+		panic("no return value specified for AllByLpaUIDAndPartialSK")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
-		r0 = rf(ctx, uid, v)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
+		r0 = rf(ctx, uid, partialSK, v)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -40,32 +40,33 @@ func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid s
 	return r0
 }
 
-// mockDynamodbClient_AllScheduledEventsByUID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllScheduledEventsByUID'
-type mockDynamodbClient_AllScheduledEventsByUID_Call struct {
+// mockDynamodbClient_AllByLpaUIDAndPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByLpaUIDAndPartialSK'
+type mockDynamodbClient_AllByLpaUIDAndPartialSK_Call struct {
 	*mock.Call
 }
 
-// AllScheduledEventsByUID is a helper method to define mock.On call
+// AllByLpaUIDAndPartialSK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - uid string
+//   - partialSK string
 //   - v interface{}
-func (_e *mockDynamodbClient_Expecter) AllScheduledEventsByUID(ctx interface{}, uid interface{}, v interface{}) *mockDynamodbClient_AllScheduledEventsByUID_Call {
-	return &mockDynamodbClient_AllScheduledEventsByUID_Call{Call: _e.mock.On("AllScheduledEventsByUID", ctx, uid, v)}
+func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
 }
 
-func (_c *mockDynamodbClient_AllScheduledEventsByUID_Call) Run(run func(ctx context.Context, uid string, v interface{})) *mockDynamodbClient_AllScheduledEventsByUID_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK string, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(interface{}))
 	})
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllScheduledEventsByUID_Call) Return(_a0 error) *mockDynamodbClient_AllScheduledEventsByUID_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllScheduledEventsByUID_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamodbClient_AllScheduledEventsByUID_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }
