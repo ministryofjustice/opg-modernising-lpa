@@ -105,3 +105,69 @@ func TestStorePut(t *testing.T) {
 	err := store.Put(ctx, Event{At: at, Action: 99})
 	assert.Equal(t, expectedError, err)
 }
+
+func TestDeleteAllByUID(t *testing.T) {
+	now := time.Now()
+	yesterday := now.Add(-24 * time.Hour)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllScheduledEventsByUID(ctx, "lpa-uid", mock.Anything).
+		Return(nil).
+		SetData([]Event{
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+		})
+	dynamoClient.EXPECT().
+		DeleteManyByUID(ctx, []dynamo.Keys{
+			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
+			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+		}, "lpa-uid").
+		Return(nil)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
+func TestDeleteAllByUIDWhenAllScheduledEventsByUIDErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]Event{})
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.ErrorContains(t, err, "no scheduled events found for UID lpa-uid")
+}
+
+func TestDeleteAllByUIDWhenDeleteManyByUIDErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]Event{{LpaUID: "lpa-uid"}})
+	dynamoClient.EXPECT().
+		DeleteManyByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
