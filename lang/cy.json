@@ -1520,5 +1520,17 @@
     "selectYourAddress": "Dewiswch eich cyfeiriad",
     "confirmYourAddress": "Cadarnhewch eich cyfeiriad",
     "someOfTheDetailsOnTheLpaDoNotMatch": "Welsh",
-    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">Welsh</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">Welsh</p></div>"
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">Welsh</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">Welsh</p></div>",
+    "theCostOfYourRepeatApplication": "Welsh",
+    "theCostOfYourRepeatApplicationContent": "<p class=\"govuk-body\">Welsh</p>",
+    "areYouEligibleToPayNoFeeOrHalfFee": "Welsh",
+    "youCanFindThisInformationInYourCorrespondence": "Welsh",
+    "opgHasToldMeNoFee": "Welsh",
+    "opgHasToldMeHalfFee": "Welsh",
+    "youWillHaveToSupplyNewEvidence": "Welsh",
+    "costsIfYouAreEligible": "Welsh",
+    "costsIfYouAreEligibleContent": "<p class=\"govuk-body\">Welsh</p>",
+    "whichFeeYouAreEligibleToPay": "Welsh",
+    "repeatApplicationNoFeeRequestSubmitted": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Welsh</h3>"
 }
