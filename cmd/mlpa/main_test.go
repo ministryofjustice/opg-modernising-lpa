@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -77,8 +78,8 @@ func TestLanguageFilesUniqueKeys(t *testing.T) {
 }
 
 func TestLanguageFilesMatch(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	en := loadTranslations("../../lang/en.json", false)
+	cy := loadTranslations("../../lang/cy.json", false)
 
 	for k := range en {
 		if _, ok := cy[k]; !ok {
@@ -96,8 +97,8 @@ func TestLanguageFilesMatch(t *testing.T) {
 }
 
 func TestApostrophesAreCurly(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	en := loadTranslations("../../lang/en.json", true)
+	cy := loadTranslations("../../lang/cy.json", true)
 
 	for k, v := range en {
 		if strings.Contains(v, "'") {
@@ -115,8 +116,8 @@ func TestApostrophesAreCurly(t *testing.T) {
 }
 
 func TestTranslationVariablesMustMatch(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	en := loadTranslations("../../lang/en.json", true)
+	cy := loadTranslations("../../lang/cy.json", true)
 
 	for k, enTranslation := range en {
 		if strings.Contains(enTranslation, "{{") {
@@ -147,8 +148,8 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 }
 
 func TestTranslationContentMustMatch(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	en := loadTranslations("../../lang/en.json", true)
+	cy := loadTranslations("../../lang/cy.json", true)
 
 	mustMatch := map[string]string{
 		"yourLegalRightsAndResponsibilitiesContent:property-and-affairs": "yourLegalRightsAndResponsibilitiesContent:property-and-affairs:h3",
@@ -161,16 +162,45 @@ func TestTranslationContentMustMatch(t *testing.T) {
 	}
 }
 
-func loadTranslations(path string) map[string]string {
+func loadTranslations(path string, flatten bool) map[string]string {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 
-	var v map[string]string
-	json.Unmarshal(data, &v)
+	if flatten {
+		var translations map[string]any
+		if err = json.Unmarshal(data, &translations); err != nil {
+			panic(err)
+		}
 
-	return v
+		flattenedTranslations := make(map[string]string)
+
+		for k, v := range translations {
+			switch v := v.(type) {
+			case map[string]interface{}:
+				for nk, nv := range v {
+					switch nv := nv.(type) {
+					case string:
+						flattenedTranslations[k+" plural: "+nk] = nv
+					default:
+						fmt.Printf("Warning: unexpected type for key %s plural: %s: %T\n", k, nk, nv)
+					}
+				}
+			case string:
+				flattenedTranslations[k] = v
+			default:
+				fmt.Printf("Warning: unexpected type for key %s: %T\n", k, v)
+			}
+		}
+
+		return flattenedTranslations
+	} else {
+		var v map[string]string
+		json.Unmarshal(data, &v)
+
+		return v
+	}
 }
 
 func TestStripHTML(t *testing.T) {
