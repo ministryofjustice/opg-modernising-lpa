@@ -86,7 +86,7 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
 }
 
-func (c *Client) AllScheduledEventsByUID(ctx context.Context, uid string, v interface{}) error {
+func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
 		TableName: aws.String(c.table),
 		IndexName: aws.String(lpaUIDIndex),
@@ -96,7 +96,7 @@ func (c *Client) AllScheduledEventsByUID(ctx context.Context, uid string, v inte
 		},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":LpaUID": &types.AttributeValueMemberS{Value: uid},
-			":SK":     &types.AttributeValueMemberS{Value: scheduledPrefix},
+			":SK":     &types.AttributeValueMemberS{Value: partialSK},
 		},
 		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
 		FilterExpression:       aws.String("begins_with(#SK, :SK)"),

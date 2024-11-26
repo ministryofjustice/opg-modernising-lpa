@@ -52,7 +52,7 @@ type DynamoClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	AllScheduledEventsByUID(ctx context.Context, uid string, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, v interface{}) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	BatchPut(ctx context.Context, items []interface{}) error

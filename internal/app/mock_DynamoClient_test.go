@@ -240,7 +240,7 @@ func (_c *mockDynamoClient_AllKeysByPK_Call) RunAndReturn(run func(context.Conte
 }
 
 // AllScheduledEventsByUID provides a mock function with given fields: ctx, uid, v
-func (_m *mockDynamoClient) AllScheduledEventsByUID(ctx context.Context, uid string, v interface{}) error {
+func (_m *mockDynamoClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, v interface{}) error {
 	ret := _m.Called(ctx, uid, v)
 
 	if len(ret) == 0 {

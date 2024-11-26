@@ -984,7 +984,7 @@ func TestAllScheduledEventsByUID(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllScheduledEventsByUID(ctx, "lpa-uid", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", &v)
 	assert.Nil(t, err)
 }
 
@@ -997,7 +997,7 @@ func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllScheduledEventsByUID(ctx, "lpa-uid", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", &v)
 	assert.Equal(t, fmt.Errorf("failed to query scheduled event by UID: %w", expectedError), err)
 }
 
@@ -1010,7 +1010,7 @@ func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllScheduledEventsByUID(ctx, "lpa-uid", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -1026,7 +1026,7 @@ func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllScheduledEventsByUID(ctx, "lpa-uid", v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", v)
 	assert.Error(t, err)
 }
 
