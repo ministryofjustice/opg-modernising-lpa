@@ -11,32 +11,35 @@ import (
 
 type lpastoreEventHandler struct{}
 
-func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent *events.CloudWatchEvent) error {
-	switch cloudWatchEvent.DetailType {
-	case "lpa-updated":
-		return handleLpaUpdated(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
-
-	default:
-		return fmt.Errorf("unknown lpastore event")
-	}
-}
-
 type lpaUpdatedEvent struct {
 	UID        string `json:"uid"`
 	ChangeType string `json:"changeType"`
 }
 
-func handleLpaUpdated(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time) error {
-	var v lpaUpdatedEvent
-	if err := json.Unmarshal(event.Detail, &v); err != nil {
-		return fmt.Errorf("failed to unmarshal detail: %w", err)
+func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, cloudWatchEvent *events.CloudWatchEvent) error {
+	if cloudWatchEvent.DetailType == "lpa-updated" {
+		var v lpaUpdatedEvent
+		if err := json.Unmarshal(cloudWatchEvent.Detail, &v); err != nil {
+			return fmt.Errorf("failed to unmarshal detail: %w", err)
+		}
+
+		switch v.ChangeType {
+		case "STATUTORY_WAITING_PERIOD":
+			return handleStatutoryWaitingPeriod(ctx, factory.DynamoClient(), factory.Now(), v)
+
+		case "CANNOT_REGISTER":
+			return handleCannotRegister(ctx, factory.ScheduledStore(), v)
+
+		default:
+			return nil
+		}
 	}
 
-	if v.ChangeType != "STATUTORY_WAITING_PERIOD" {
-		return nil
-	}
+	return fmt.Errorf("unknown lpastore event")
+}
 
-	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+func handleStatutoryWaitingPeriod(ctx context.Context, client dynamodbClient, now func() time.Time, event lpaUpdatedEvent) error {
+	donor, err := getDonorByLpaUID(ctx, client, event.UID)
 	if err != nil {
 		return err
 	}
@@ -48,4 +51,8 @@ func handleLpaUpdated(ctx context.Context, client dynamodbClient, event *events.
 	}
 
 	return nil
+}
+
+func handleCannotRegister(ctx context.Context, store ScheduledStore, event lpaUpdatedEvent) error {
+	return store.DeleteAllByUID(ctx, event.UID)
 }

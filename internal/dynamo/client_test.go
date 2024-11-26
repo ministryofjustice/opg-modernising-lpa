@@ -29,8 +29,6 @@ var (
 )
 
 func TestOne(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
@@ -53,7 +51,6 @@ func TestOne(t *testing.T) {
 }
 
 func TestOneWhenError(t *testing.T) {
-	ctx := context.Background()
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
 
@@ -74,7 +71,6 @@ func TestOneWhenError(t *testing.T) {
 }
 
 func TestOneWhenNotFound(t *testing.T) {
-	ctx := context.Background()
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-sk")
 
@@ -95,8 +91,6 @@ func TestOneWhenNotFound(t *testing.T) {
 }
 
 func TestOneByUID(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
@@ -124,8 +118,6 @@ func TestOneByUID(t *testing.T) {
 }
 
 func TestOneByUIDWhenQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -139,8 +131,6 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 }
 
 func TestOneByUIDWhenNoItems(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -153,8 +143,6 @@ func TestOneByUIDWhenNoItems(t *testing.T) {
 }
 
 func TestOneByUIDWhenUnmarshalError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -175,8 +163,6 @@ func TestOneByUIDWhenUnmarshalError(t *testing.T) {
 }
 
 func TestOneByPK(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	data, _ := attributevalue.MarshalMap(expected)
@@ -201,8 +187,6 @@ func TestOneByPK(t *testing.T) {
 }
 
 func TestOneByPKOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -216,8 +200,6 @@ func TestOneByPKOnQueryError(t *testing.T) {
 }
 
 func TestOneByPKWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -231,8 +213,6 @@ func TestOneByPKWhenNotFound(t *testing.T) {
 }
 
 func TestOneByPartialSK(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-partial-sk")
@@ -258,8 +238,6 @@ func TestOneByPartialSK(t *testing.T) {
 }
 
 func TestOneByPartialSKOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -273,8 +251,6 @@ func TestOneByPartialSKOnQueryError(t *testing.T) {
 }
 
 func TestOneByPartialSKWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -288,8 +264,6 @@ func TestOneByPartialSKWhenNotFound(t *testing.T) {
 }
 
 func TestAllByPartialSK(t *testing.T) {
-	ctx := context.Background()
-
 	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	skey, _ := attributevalue.Marshal("a-partial-sk")
@@ -315,8 +289,6 @@ func TestAllByPartialSK(t *testing.T) {
 }
 
 func TestAllByPartialSKOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -330,8 +302,6 @@ func TestAllByPartialSKOnQueryError(t *testing.T) {
 }
 
 func TestAllForActor(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	skey, _ := attributevalue.Marshal("a-partial-sk")
 	data, _ := attributevalue.MarshalMap(expected)
@@ -356,8 +326,6 @@ func TestAllForActor(t *testing.T) {
 }
 
 func TestAllForActorWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -372,8 +340,6 @@ func TestAllForActorWhenNotFound(t *testing.T) {
 }
 
 func TestAllForActorOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -387,8 +353,6 @@ func TestAllForActorOnQueryError(t *testing.T) {
 }
 
 func TestLatestForActor(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	skey, _ := attributevalue.Marshal("a-partial-sk")
 	updated, _ := attributevalue.Marshal("2")
@@ -416,8 +380,6 @@ func TestLatestForActor(t *testing.T) {
 }
 
 func TestLatestForActorWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -447,8 +409,6 @@ func TestLatestForActorOnQueryError(t *testing.T) {
 }
 
 func TestAllKeysByPK(t *testing.T) {
-	ctx := context.Background()
-
 	keys := []Keys{
 		{PK: LpaKey("pk"), SK: OrganisationKey("sk1")},
 		{PK: LpaKey("pk"), SK: DonorKey("sk2")},
@@ -478,8 +438,6 @@ func TestAllKeysByPK(t *testing.T) {
 }
 
 func TestAllKeysByPKWhenError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -492,8 +450,6 @@ func TestAllKeysByPKWhenError(t *testing.T) {
 }
 
 func TestAllByKeys(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	data, _ := attributevalue.MarshalMap(expected)
 
@@ -523,8 +479,6 @@ func TestAllByKeys(t *testing.T) {
 }
 
 func TestAllByKeysWhenQueryErrors(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		BatchGetItem(ctx, mock.Anything).
@@ -544,7 +498,6 @@ func TestPut(t *testing.T) {
 
 	for name, dataMap := range testCases {
 		t.Run(name, func(t *testing.T) {
-			ctx := context.Background()
 			data, _ := attributevalue.MarshalMap(dataMap)
 
 			dynamoDB := newMockDynamoDB(t)
@@ -564,7 +517,6 @@ func TestPut(t *testing.T) {
 }
 
 func TestPutWhenStructHasVersion(t *testing.T) {
-	ctx := context.Background()
 	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
 
 	dynamoDB := newMockDynamoDB(t)
@@ -584,7 +536,6 @@ func TestPutWhenStructHasVersion(t *testing.T) {
 }
 
 func TestPutWhenConditionalCheckFailedException(t *testing.T) {
-	ctx := context.Background()
 	data, _ := attributevalue.MarshalMap(map[string]any{"Col": "Val", "Version": 2})
 
 	dynamoDB := newMockDynamoDB(t)
@@ -604,8 +555,6 @@ func TestPutWhenConditionalCheckFailedException(t *testing.T) {
 }
 
 func TestPutWhenError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		PutItem(ctx, mock.Anything).
@@ -618,8 +567,6 @@ func TestPutWhenError(t *testing.T) {
 }
 
 func TestPutWhenUnmarshalError(t *testing.T) {
-	ctx := context.Background()
-
 	c := &Client{table: "this", svc: newMockDynamoDB(t)}
 
 	err := c.Put(ctx, map[string]string{"Col": "Val", "Version": "not an int"})
@@ -627,7 +574,6 @@ func TestPutWhenUnmarshalError(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	ctx := context.Background()
 	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
 
 	dynamoDB := newMockDynamoDB(t)
@@ -646,8 +592,6 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateWhenError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		PutItem(ctx, mock.Anything).
@@ -660,7 +604,6 @@ func TestCreateWhenError(t *testing.T) {
 }
 
 func TestCreateOnly(t *testing.T) {
-	ctx := context.Background()
 	data, _ := attributevalue.MarshalMap(map[string]string{"Col": "Val"})
 
 	dynamoDB := newMockDynamoDB(t)
@@ -679,8 +622,6 @@ func TestCreateOnly(t *testing.T) {
 }
 
 func TestCreateOnlyWhenError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		PutItem(ctx, mock.Anything).
@@ -693,8 +634,6 @@ func TestCreateOnlyWhenError(t *testing.T) {
 }
 
 func TestDeleteKeys(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
@@ -728,8 +667,6 @@ func TestDeleteKeys(t *testing.T) {
 }
 
 func TestDeleteOne(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		DeleteItem(ctx, &dynamodb.DeleteItemInput{
@@ -749,8 +686,6 @@ func TestDeleteOne(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		UpdateItem(ctx, &dynamodb.UpdateItemInput{
@@ -772,8 +707,6 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateOnServiceError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		UpdateItem(ctx, &dynamodb.UpdateItemInput{
@@ -795,8 +728,6 @@ func TestUpdateOnServiceError(t *testing.T) {
 }
 
 func TestBatchPutOneBatch(t *testing.T) {
-	ctx := context.Background()
-
 	values := []any{map[string]string{"a": "b"}, map[string]string{"x": "y"}}
 	itemA, _ := attributevalue.MarshalMap(values[0])
 	itemB, _ := attributevalue.MarshalMap(values[1])
@@ -828,8 +759,6 @@ func TestBatchPutOneBatch(t *testing.T) {
 }
 
 func TestOneBySk(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	skey, _ := attributevalue.Marshal("sk")
 	data, _ := attributevalue.MarshalMap(expected)
@@ -854,8 +783,6 @@ func TestOneBySk(t *testing.T) {
 }
 
 func TestOneBySKWhenNotOneResult(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	data, _ := attributevalue.MarshalMap(expected)
 
@@ -890,8 +817,6 @@ func TestOneBySKWhenNotOneResult(t *testing.T) {
 }
 
 func TestOneBySkWhenQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	data, _ := attributevalue.MarshalMap(expected)
 
@@ -984,8 +909,6 @@ func TestMoveWhenOtherCancellation(t *testing.T) {
 }
 
 func TestAnyByPK(t *testing.T) {
-	ctx := context.Background()
-
 	expected := map[string]string{"Col": "Val"}
 	pkey, _ := attributevalue.Marshal("a-pk")
 	data, _ := attributevalue.MarshalMap(expected)
@@ -1010,8 +933,6 @@ func TestAnyByPK(t *testing.T) {
 }
 
 func TestAnyByPKOnQueryError(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1025,8 +946,6 @@ func TestAnyByPKOnQueryError(t *testing.T) {
 }
 
 func TestAnyByPKWhenNotFound(t *testing.T) {
-	ctx := context.Background()
-
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, mock.Anything).
@@ -1037,4 +956,130 @@ func TestAnyByPKWhenNotFound(t *testing.T) {
 	var v map[string]string
 	err := c.AnyByPK(ctx, testPK("a-pk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
+}
+
+func TestAllScheduledEventsByUID(t *testing.T) {
+	expected := []map[string]string{{"Col": "Val"}, {"Other": "Thing"}}
+	data, _ := attributevalue.MarshalMap(expected[0])
+	data2, _ := attributevalue.MarshalMap(expected[1])
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, &dynamodb.QueryInput{
+			TableName: aws.String("this"),
+			IndexName: aws.String(lpaUIDIndex),
+			ExpressionAttributeNames: map[string]string{
+				"#LpaUID": "LpaUID",
+				"#SK":     "SK",
+			},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":LpaUID": &types.AttributeValueMemberS{Value: "lpa-uid"},
+				":SK":     &types.AttributeValueMemberS{Value: "partial-sk"},
+			},
+			KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+			FilterExpression:       aws.String("begins_with(#SK, :SK)"),
+		}).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data, data2}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	assert.Nil(t, err)
+}
+
+func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	assert.Equal(t, fmt.Errorf("failed to query scheduled event by UID: %w", expectedError), err)
+}
+
+func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	assert.Equal(t, NotFoundError{}, err)
+}
+
+func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
+	expected := []map[string]string{{"Col": "Val"}}
+	data, _ := attributevalue.MarshalMap(expected[0])
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{data}}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v []map[string]string
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", v)
+	assert.Error(t, err)
+}
+
+func TestDeleteManyByUID(t *testing.T) {
+	items := []types.TransactWriteItem{
+		{Delete: &types.Delete{
+			TableName: aws.String("this"),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "a-pk1"},
+				"SK": &types.AttributeValueMemberS{Value: "a-sk1"},
+			},
+			ConditionExpression: aws.String("LpaUID = :uid"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":uid": &types.AttributeValueMemberS{Value: "lpa-uid"},
+			},
+		}},
+		{Delete: &types.Delete{
+			TableName: aws.String("this"),
+			Key: map[string]types.AttributeValue{
+				"PK": &types.AttributeValueMemberS{Value: "a-pk2"},
+				"SK": &types.AttributeValueMemberS{Value: "a-sk2"},
+			},
+			ConditionExpression: aws.String("LpaUID = :uid"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":uid": &types.AttributeValueMemberS{Value: "lpa-uid"},
+			},
+		}},
+	}
+
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+			TransactItems: items,
+		}).
+		Return(&dynamodb.TransactWriteItemsOutput{}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.DeleteManyByUID(ctx, []Keys{
+		{PK: testPK("a-pk1"), SK: testSK("a-sk1")},
+		{PK: testPK("a-pk2"), SK: testSK("a-sk2")},
+	}, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
+func TestDeleteManyByUIDWhenWriteItemsError(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		TransactWriteItems(ctx, mock.Anything).
+		Return(&dynamodb.TransactWriteItemsOutput{}, expectedError)
+
+	c := &Client{table: "this", svc: dynamoDB}
+	err := c.DeleteManyByUID(ctx, []Keys{}, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
 }
