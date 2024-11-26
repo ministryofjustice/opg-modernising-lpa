@@ -1532,5 +1532,8 @@
     "costsIfYouAreEligibleContent": "<p class=\"govuk-body\">Welsh</p>",
     "whichFeeYouAreEligibleToPay": "Welsh",
     "repeatApplicationNoFeeRequestSubmitted": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
-    "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Welsh</h3>"
+    "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Welsh</h3>",
+    "theDetailsOnYourLpaDoNotMatch": "Welsh",
+    "theDetailsOnYourLpaCannotBeUpdatedAsSigned": "<p class=\"govuk-body\">Welsh</p>",
+    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "Welsh"
 }

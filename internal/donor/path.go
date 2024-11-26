@@ -68,7 +68,7 @@ const (
 	PathHowWillYouConfirmYourIdentity                        = Path("/how-will-you-confirm-your-identity")
 	PathHowWouldCertificateProviderPreferToCarryOutTheirRole = Path("/how-would-certificate-provider-prefer-to-carry-out-their-role")
 	PathHowWouldYouLikeToSendEvidence                        = Path("/how-would-you-like-to-send-evidence")
-	PathIdentityDetails                                      = Path("/one-login-identity-details")
+	PathIdentityDetails                                      = Path("/identity-details")
 	PathIdentityWithOneLogin                                 = Path("/id/one-login")
 	PathIdentityWithOneLoginCallback                         = Path("/id/one-login/callback")
 	PathLifeSustainingTreatment                              = Path("/life-sustaining-treatment")
