@@ -29,8 +29,10 @@ import (
 )
 
 var (
-	awsBaseURL            = os.Getenv("AWS_BASE_URL")
-	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	awsBaseURL   = os.Getenv("AWS_BASE_URL")
+	eventBusName = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	// TODO remove in MLPAB-2690
+	metricsEnabled        = os.Getenv("METRICS_ENABLED") == "1"
 	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
@@ -38,8 +40,6 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
-	// TODO remove in MLPAB-2690
-	metricsEnabled = os.Getenv("METRICS_ENABLED") == "1"
 
 	Tag string
 
@@ -89,7 +89,6 @@ func handleRunSchedule(ctx context.Context) error {
 	}
 
 	client := cloudwatch.NewFromConfig(cfg)
-
 	metricsClient := telemetry.NewMetricsClient(client, Tag)
 
 	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled)

@@ -19,13 +19,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func (c *mockDynamodbClient_One_Call) SetData(data any) {
-	c.Run(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) {
-		b, _ := attributevalue.Marshal(data)
-		attributevalue.Unmarshal(b, v)
-	})
-}
-
 func TestMakeRegisterHandlerHandleUnknownEvent(t *testing.T) {
 	handler := &makeregisterEventHandler{}
 
