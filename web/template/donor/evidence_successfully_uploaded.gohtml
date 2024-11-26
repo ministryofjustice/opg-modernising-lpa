@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">
-            {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsPreviousFeeFull .Donor.PreviousFee.Empty) }}
+            {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsFull .Donor.PreviousFee.Empty) }}
                 {{ tr .App "referenceNumberStored" }}
             {{ else }}
                 {{ tr .App "evidenceSuccessfullyUploaded" }}
@@ -16,7 +16,7 @@
       </div>
 
       <p class="govuk-body">
-          {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsPreviousFeeFull .Donor.PreviousFee.Empty) }}
+          {{ if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsFull .Donor.PreviousFee.Empty) }}
               {{ tr .App "weWillReviewYourLpaApplication" }}
           {{ else }}
               {{ tr .App "weWillReviewYourLpaApplicationAndSupportingEvidence" }}
