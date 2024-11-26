@@ -70,10 +70,9 @@ type Runner struct {
 	errored       float64
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
-	lpaStoreClient LpaStoreClient
 }
 
-func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, metricsClient MetricsClient, metricsEnabled bool, lpaStoreClient LpaStoreClient) *Runner {
+func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, metricsClient MetricsClient, metricsEnabled bool) *Runner {
 	r := &Runner{
 		logger:         logger,
 		store:          store,
@@ -84,7 +83,6 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 		waiter:         &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
 		metricsClient:  metricsClient,
 		metricsEnabled: metricsEnabled,
-		lpaStoreClient: lpaStoreClient,
 	}
 
 	r.actions = map[Action]ActionFunc{
@@ -187,17 +185,6 @@ func (r *Runner) Run(ctx context.Context) error {
 		)
 
 		if fn, ok := r.actions[row.Action]; ok {
-			lpa, err := r.lpaStoreClient.Lpa(ctx, row.LpaUID)
-			if err != nil {
-				r.Errored(ctx, row, err)
-				continue
-			}
-
-			if lpa.CannotRegister {
-				r.Ignored(ctx, row)
-				continue
-			}
-
 			if err := fn(ctx, row); err != nil {
 				if errors.Is(err, errStepIgnored) {
 					r.Ignored(ctx, row)
