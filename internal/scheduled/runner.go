@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -50,6 +51,10 @@ type MetricsClient interface {
 	PutMetrics(ctx context.Context, input *cloudwatch.PutMetricDataInput) error
 }
 
+type LpaStoreClient interface {
+	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
+}
+
 type Runner struct {
 	logger        Logger
 	store         ScheduledStore
@@ -65,9 +70,10 @@ type Runner struct {
 	errored       float64
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
+	lpaStoreClient LpaStoreClient
 }
 
-func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, metricsClient MetricsClient, metricsEnabled bool) *Runner {
+func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, metricsClient MetricsClient, metricsEnabled bool, lpaStoreClient LpaStoreClient) *Runner {
 	r := &Runner{
 		logger:         logger,
 		store:          store,
@@ -78,6 +84,7 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 		waiter:         &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
 		metricsClient:  metricsClient,
 		metricsEnabled: metricsEnabled,
+		lpaStoreClient: lpaStoreClient,
 	}
 
 	r.actions = map[Action]ActionFunc{
@@ -87,15 +94,31 @@ func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notif
 	return r
 }
 
-func (r *Runner) Processed() {
+func (r *Runner) Processed(ctx context.Context, row *Event) {
+	r.logger.InfoContext(ctx, "runner action success",
+		slog.String("action", row.Action.String()),
+		slog.String("target_pk", row.TargetLpaKey.PK()),
+		slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
+
 	r.processed++
 }
 
-func (r *Runner) Ignored() {
+func (r *Runner) Ignored(ctx context.Context, row *Event) {
+	r.logger.InfoContext(ctx, "runner action ignored",
+		slog.String("action", row.Action.String()),
+		slog.String("target_pk", row.TargetLpaKey.PK()),
+		slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
+
 	r.ignored++
 }
 
-func (r *Runner) Errored() {
+func (r *Runner) Errored(ctx context.Context, row *Event, err error) {
+	r.logger.ErrorContext(ctx, "runner action error",
+		slog.String("action", row.Action.String()),
+		slog.String("target_pk", row.TargetLpaKey.PK()),
+		slog.String("target_sk", row.TargetLpaOwnerKey.SK()),
+		slog.Any("err", err))
+
 	r.errored++
 }
 
@@ -164,30 +187,25 @@ func (r *Runner) Run(ctx context.Context) error {
 		)
 
 		if fn, ok := r.actions[row.Action]; ok {
+			lpa, err := r.lpaStoreClient.Lpa(ctx, row.LpaUID)
+			if err != nil {
+				r.Errored(ctx, row, err)
+				continue
+			}
+
+			if lpa.CannotRegister {
+				r.Ignored(ctx, row)
+				continue
+			}
+
 			if err := fn(ctx, row); err != nil {
 				if errors.Is(err, errStepIgnored) {
-					r.logger.InfoContext(ctx, "runner action ignored",
-						slog.String("action", row.Action.String()),
-						slog.String("target_pk", row.TargetLpaKey.PK()),
-						slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
-
-					r.Ignored()
+					r.Ignored(ctx, row)
 				} else {
-					r.logger.ErrorContext(ctx, "runner action error",
-						slog.String("action", row.Action.String()),
-						slog.String("target_pk", row.TargetLpaKey.PK()),
-						slog.String("target_sk", row.TargetLpaOwnerKey.SK()),
-						slog.Any("err", err))
-
-					r.Errored()
+					r.Errored(ctx, row, err)
 				}
 			} else {
-				r.logger.InfoContext(ctx, "runner action success",
-					slog.String("action", row.Action.String()),
-					slog.String("target_pk", row.TargetLpaKey.PK()),
-					slog.String("target_sk", row.TargetLpaOwnerKey.SK()))
-
-				r.Processed()
+				r.Processed(ctx, row)
 			}
 		}
 	}
