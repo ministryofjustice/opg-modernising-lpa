@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type oneLoginIdentityDetailsData struct {
+type identityDetailsData struct {
 	App              appcontext.Data
 	Errors           validation.List
 	Provided         *donordata.Provided
@@ -23,16 +23,17 @@ type oneLoginIdentityDetailsData struct {
 	DateOfBirthMatch bool
 	AddressMatch     bool
 	DetailsUpdated   bool
+	Signed           bool
 	Form             *form.YesNoForm
 }
 
-func (d oneLoginIdentityDetailsData) DetailsMatch() bool {
+func (d identityDetailsData) DetailsMatch() bool {
 	return d.FirstNamesMatch && d.LastNameMatch && d.DateOfBirthMatch && d.AddressMatch
 }
 
-func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
+func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
-		data := &oneLoginIdentityDetailsData{
+		data := &identityDetailsData{
 			App:              appData,
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
 			Provided:         provided,
@@ -41,9 +42,10 @@ func OneLoginIdentityDetails(tmpl template.Template, donorStore DonorStore) Hand
 			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),
 			DateOfBirthMatch: provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth,
 			AddressMatch:     provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
+			Signed:           !provided.WitnessedByCertificateProviderAt.IsZero(),
 		}
 
-		if r.Method == http.MethodPost {
+		if r.Method == http.MethodPost && !data.Signed {
 			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
 			data.Errors = f.Validate()
 
