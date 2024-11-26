@@ -352,12 +352,12 @@
     "iGiveAttorneysAuthorityWhenRegistered": "rwy’n rhoi awdurdod i’m hatwrneiod wneud penderfyniadau am fy eiddo a materion personol, unwaith y bydd yr LPA hon wedi’i chofrestru ac yn cynnwys pan nad oes gennyf alluedd mwyach",
     "iGiveAttorneysAuthorityWhenLostMentalCapacity": "rwyf yn rhoi awdurdod i’m hatwrneiod wneud penderfyniadau am fy eiddo a’m materion pan na fyddaf yn gallu gweithredu drosof fy hun am nad oes gennyf alluedd meddyliol",
     "iHaveChosenNPeopleToNotify": {
-        "zero": "",
-        "one": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} berson am fy LPA",
+        "zero": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} person am fy LPA",
+        "one": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} person am fy LPA",
         "two": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} berson am fy LPA",
-        "few": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} berson am fy LPA",
-        "many": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} berson am fy LPA",
-        "other": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} berson am fy LPA"
+        "few": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} pherson am fy LPA",
+        "many": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} pherson am fy LPA",
+        "other": "rydw i wedi dewis hysbysu {{ .CountPeopleToNotify }} person am fy LPA"
     },
     "iHaveNotChosenToNotifyAnyone": "rwyf wedi dewis peidio â hysbysu unrhyw un am fy LPA",
     "infoIProvidedCanBeUsedByOpg": "gall y wybodaeth a ddarparwyd gennyf gael ei defnyddio gan Swyddfa’r Gwarcheidwad Cyhoeddus wrth gyflawni ei dyletswyddau",
