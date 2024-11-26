@@ -337,12 +337,12 @@
         "other": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’r LPA erbyn {{.SigningDeadline}}. Os na fyddant yn llofnodi erbyn y dyddiad hwn, bydd yn rhaid i chi gwrdd â {{.CertificateProviderFirstNames}} a llofnodi’ch LPA eto."
     },
     "copSignDeadlineWarning": {
-        "zero": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "one": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "two": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "few": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "many": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}",
-        "other": "Welsh {{.CertificateProviderFirstNames}} {{.SigningDeadline}}"
+        "zero": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
+        "one": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrnai lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
+        "two": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
+        "few": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
+        "many": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall.",
+        "other": "Rhaid i {{.CertificateProviderFirstNames}} a’ch atwrneiod lofnodi’ch LPA erbyn {{.SigningDeadline}}. Ar ôl hynny, mae gennych tan {{.SubmissionDeadline}} i gyflwyno’r LPA i’r Llys Gwarchod. Os byddwch yn methu’r dyddiad hwn, bydd yn rhaid i chi lenwi LPA newydd a thalu ffi gofrestru arall."
     },
     "signYourLpa": "Llofnodwch eich LPA",
     "signingYourLpaIsAnImportant": "Mae llofnodi eich LPA yn gam cyfreithiol pwysig a phwerus.",
@@ -469,21 +469,21 @@
     "yourCertificateProviderMustBeWithYou": "Rhaid i {{.CertificateProviderName}}, eich darparwr tystysgrif, fod gyda chi yn bersonol pan fyddwch yn trafod ac yn llofnodi eich LPA.",
     "discussWithCertificateProviderStep": "1. Trafod eich LPA gyda {{.CertificateProviderFullName}}",
     "meetFaceToFaceWithoutAttorneys": {
-        "zero": "",
-        "one": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
-        "two": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
-        "few": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
-        "many": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}",
-        "other": "Welsh {{.CertificateProviderFullName}} {{.AttorneysFullNames}}"
+        "zero": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrnai, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "one": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrnai, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "two": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "few": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "many": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "other": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda’ch darparwr tystysgrif {{.CertificateProviderFullName}}. Ni ddylai eich atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol."
     },
     "meetFaceToFaceWithoutTrustCorporation": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}}",
     "meetFaceToFaceWithoutAttorneysAndTrustCorporation": {
-        "zero": "",
-        "one": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
-        "two": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
-        "few": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
-        "many": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}",
-        "other": "Welsh {{.CertificateProviderFullName}} {{.TrustCorporationsNames}} {{.AttorneysFullNames}}"
+        "zero": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrnai, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "one": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrnai, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "two": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "few": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "many": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol.",
+        "other": "Dod o hyd i amser i gwrdd wyneb yn wyneb ac yn breifat gyda darparwr eich tystysgrif {{.CertificateProviderFullName}}. Ni ddylai cyfarwyddwyr neu weithwyr {{.TrustCorporationNames}} a’ch atwrneiod, {{.AttorneysFullNames}}, fod yn bresennol."
     },
     "discussWithCertificateProviderContent": "<p class=\"govuk-body\">Welsh {{.CertificateProviderFullName}}</p>>",
     "signYourLpaStep": "<h2 class=\"govuk-heading-m\">Welsh {{.CertificateProviderFullName}} {{.CertificateProviderFullName}}</h2>",
