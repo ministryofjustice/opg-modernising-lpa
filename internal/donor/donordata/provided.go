@@ -157,8 +157,13 @@ type Provided struct {
 	EvidenceDelivery pay.EvidenceDelivery
 	// PreviousApplicationNumber if the application is related to an existing application
 	PreviousApplicationNumber string
-	// PreviousFee is the fee previously paid for an LPA
+	// PreviousFee is the fee previously paid for an LPA, if applying for a repeat
+	// of an LPA with reference prefixed 7 or have selected HalfFee for
+	// CostOfRepeatApplication.
 	PreviousFee pay.PreviousFee
+	// CostOfRepeatApplication is the fee the donor believes they are eligible
+	// for, if applying for a repeat of an LPA with reference prefixed M.
+	CostOfRepeatApplication pay.CostOfRepeatApplication
 
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
@@ -212,7 +217,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"RegisteringWithCourtOfProtection",
 		"WantVoucher",
 		"Voucher",
-		"FailedVouchAttempts":
+		"FailedVouchAttempts",
+		"CostOfRepeatApplication":
 		return false, nil
 	}
 
@@ -405,7 +411,7 @@ func (p *Provided) Cost() int {
 		return 8200
 	}
 
-	return pay.Cost(p.FeeType, p.PreviousFee)
+	return pay.Cost(p.FeeType, p.PreviousFee, p.CostOfRepeatApplication)
 }
 
 func (p *Provided) FeeAmount() pay.AmountPence {

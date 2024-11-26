@@ -82,12 +82,12 @@
     "cantFindMyAddressInList": "Ni allaf ddod o hyd i’m cyfeiriad yn y rhestr",
     "cantFindTheirAddressInList": "Ni allaf ddod o hyd i’w cyfeiriad yn y rhestr",
     "addressesFound": {
-        "zero": "",
-        "one": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "two": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "few": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "many": "{{.PluralCount}} o gyfeiriadau wedi’u canfod",
-        "other": "{{.PluralCount}} o gyfeiriadau wedi’u canfod"
+        "zero": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "one": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "two": "Daethpwyd o hyd i {{.PluralCount}} gyfeiriad",
+        "few": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "many": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad",
+        "other": "Daethpwyd o hyd i {{.PluralCount}} cyfeiriad"
     },
     "addressLine1": "Llinell cyfeiriad 1",
     "addressLine1OfYourAddress": "Llinell 1 eich cyfeiriad",
@@ -449,7 +449,7 @@
     "thatYouHaveMadeALpaType": "eich bod wedi gwneud LPA {{lowerFirst .LpaType}}",
     "thatYourAttorneysAre": {
         "zero": "",
-        "one": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
+        "one": "mai eich atwrnai yw {{.AllAttorneysFirstNames}}",
         "two": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
         "few": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
         "many": "mai eich atwrneiod yw {{.AllAttorneysFirstNames}}",
@@ -541,7 +541,7 @@
     "whenAttorneysCanUseTheLpa": "Pryd y gall atwrneiod ddefnyddio’r LPA",
     "theirAttorneys": {
         "zero": "Yr atwrneiod",
-        "one": "Yr atwrneiod",
+        "one": "Yr atwrnai",
         "two": "Yr atwrneiod",
         "few": "Yr atwrneiod",
         "many": "Yr atwrneiod",
@@ -559,7 +559,7 @@
     "howReplacementAttorneysMustMakeDecisions": "Sut y mae’n rhaid i atwrneiod wrth gefn wneud penderfyniadau",
     "theirReplacementAttorneys": {
         "zero": "Yr atwrneiod wrth gefn",
-        "one": "Yr atwrneiod wrth gefn",
+        "one": "Yr atwrnai wrth gefn",
         "two": "Yr atwrneiod wrth gefn",
         "few": "Yr atwrneiod wrth gefn",
         "many": "Yr atwrneiod wrth gefn",
@@ -848,10 +848,10 @@
     "errorGenericUploadProblemFile": "{{.Filename}}: Gwall ffeil cyffredinol",
     "errorFilesInfected": {
         "zero": "",
-        "one": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "two": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "few": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
-        "many": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws",
+        "one": "Ni ellir uwchlwytho {{.Filenames}} gan ei bod yn cynnwys feirws",
+        "two": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
+        "few": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
+        "many": "Ni ellir uwchlwytho {{.Filenames}} gan eu bod yn cynnwys feirws",
         "other": "Ni ellir uwchlwytho {{.Filenames}} am eu bod yn cynnwys feirws"
     },
     "halfFeeNextSteps": "<h2 class=\"govuk-heading-m\">Y camau nesaf</h2><p class=\"govuk-body\">Cynnwys yn disgrifio’r camau nesaf pan fydd rhoddwr wedi talu hanner y ffi a’i fod yn aros i dystiolaeth gael ei gwirio gan weithiwr achosion</p>",
@@ -1043,9 +1043,9 @@
     "actorsMustBeOver18WarningBanner": "Rhaid i bawb a enwir ar yr LPA hon fod yn 18 oed cyn y gallwch ei llofnodi.",
     "theDetailsYouHaveGivenIndicateUnder18": {
         "zero": "",
-        "one": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
-        "two": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
-        "few": "Mae’r manylion a roddwyd gennych chi yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "one": "Mae’r manylion a roddwyd gennych yn nodi bod rhywun a enwir ar eich LPA dan 18 oed.",
+        "two": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
+        "few": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
         "many": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed.",
         "other": "Mae’r manylion a roddwyd gennych yn nodi bod rhai pobl a enwir ar eich LPA dan 18 oed."
     },
@@ -1177,8 +1177,8 @@
         "other": "{{ .PluralCount }} LPA"
     },
     "stillInProgress": {
-        "zero": "",
-        "one": "mae hyn dal i fynd rhagddo",
+        "zero": "sy’n dal i fynd rhagddo",
+        "one": "sy’n dal i fynd rhagddo",
         "two": "sy’n dal i fynd rhagddynt",
         "few": "sy’n dal i fynd rhagddynt",
         "many": "sy’n dal i fynd rhagddynt",
@@ -1518,5 +1518,19 @@
     "howYouWouldLikeToContinue": "Welsh",
     "enterYourPostcode": "Rhowch eich cod post",
     "selectYourAddress": "Dewiswch eich cyfeiriad",
-    "confirmYourAddress": "Cadarnhewch eich cyfeiriad"
+    "confirmYourAddress": "Cadarnhewch eich cyfeiriad",
+    "someOfTheDetailsOnTheLpaDoNotMatch": "Welsh",
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p><p class=\"govuk-body\">Welsh</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">Welsh</p></div>",
+    "theCostOfYourRepeatApplication": "Welsh",
+    "theCostOfYourRepeatApplicationContent": "<p class=\"govuk-body\">Welsh</p>",
+    "areYouEligibleToPayNoFeeOrHalfFee": "Welsh",
+    "youCanFindThisInformationInYourCorrespondence": "Welsh",
+    "opgHasToldMeNoFee": "Welsh",
+    "opgHasToldMeHalfFee": "Welsh",
+    "youWillHaveToSupplyNewEvidence": "Welsh",
+    "costsIfYouAreEligible": "Welsh",
+    "costsIfYouAreEligibleContent": "<p class=\"govuk-body\">Welsh</p>",
+    "whichFeeYouAreEligibleToPay": "Welsh",
+    "repeatApplicationNoFeeRequestSubmitted": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Welsh</h3>"
 }
