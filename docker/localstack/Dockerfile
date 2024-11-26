@@ -25,7 +25,7 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o cmd/schedule
   && chmod 755 cmd/scheduled-task-adder/bootstrap \
   && zip -r -j scheduled-task-adder.zip cmd/scheduled-task-adder/bootstrap
 
-FROM --platform=${TARGETARCH} localstack/localstack:3.8.1 AS localstack
+FROM --platform=${TARGETARCH} localstack/localstack:4.0.1 AS localstack
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 COPY --from=build /app/schedule-runner.zip /etc/schedule-runner.zip
