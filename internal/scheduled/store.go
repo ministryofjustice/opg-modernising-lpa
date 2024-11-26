@@ -9,7 +9,7 @@ import (
 )
 
 type DynamoClient interface {
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK string, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
