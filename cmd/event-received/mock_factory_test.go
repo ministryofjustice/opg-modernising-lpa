@@ -278,6 +278,53 @@ func (_c *mockFactory_Now_Call) RunAndReturn(run func() func() time.Time) *mockF
 	return _c
 }
 
+// ScheduledStore provides a mock function with given fields:
+func (_m *mockFactory) ScheduledStore() ScheduledStore {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ScheduledStore")
+	}
+
+	var r0 ScheduledStore
+	if rf, ok := ret.Get(0).(func() ScheduledStore); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(ScheduledStore)
+		}
+	}
+
+	return r0
+}
+
+// mockFactory_ScheduledStore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ScheduledStore'
+type mockFactory_ScheduledStore_Call struct {
+	*mock.Call
+}
+
+// ScheduledStore is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) ScheduledStore() *mockFactory_ScheduledStore_Call {
+	return &mockFactory_ScheduledStore_Call{Call: _e.mock.On("ScheduledStore")}
+}
+
+func (_c *mockFactory_ScheduledStore_Call) Run(run func()) *mockFactory_ScheduledStore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_ScheduledStore_Call) Return(_a0 ScheduledStore) *mockFactory_ScheduledStore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_ScheduledStore_Call) RunAndReturn(run func() ScheduledStore) *mockFactory_ScheduledStore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ShareCodeSender provides a mock function with given fields: ctx
 func (_m *mockFactory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) {
 	ret := _m.Called(ctx)
