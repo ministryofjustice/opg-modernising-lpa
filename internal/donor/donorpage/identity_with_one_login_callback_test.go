@@ -127,6 +127,7 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
+			LpaUID:            "lpa-uid",
 		}).
 		Return(nil)
 

@@ -212,3 +212,18 @@ func TestEventClientWhenSet(t *testing.T) {
 	client := factory.EventClient()
 	assert.Equal(t, expected, client)
 }
+
+func TestScheduledStore(t *testing.T) {
+	factory := &Factory{}
+
+	client := factory.ScheduledStore()
+	assert.NotNil(t, client)
+}
+
+func TestScheduledStoreWhenSet(t *testing.T) {
+	expected := newMockScheduledStore(t)
+	factory := &Factory{scheduledStore: expected}
+
+	client := factory.ScheduledStore()
+	assert.Equal(t, expected, client)
+}

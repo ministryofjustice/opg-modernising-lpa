@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -80,6 +81,7 @@ type Factory struct {
 	lpaStoreClient  LpaStoreClient
 	uidStore        UidStore
 	uidClient       UidClient
+	scheduledStore  ScheduledStore
 }
 
 func (f *Factory) Now() func() time.Time {
@@ -210,4 +212,12 @@ func (f *Factory) EventClient() EventClient {
 	}
 
 	return f.eventClient
+}
+
+func (f *Factory) ScheduledStore() ScheduledStore {
+	if f.scheduledStore == nil {
+		f.scheduledStore = scheduled.NewStore(f.dynamoClient)
+	}
+
+	return f.scheduledStore
 }
