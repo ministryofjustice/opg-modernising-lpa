@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -57,9 +56,8 @@ func TestNewRunner(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	notifyClient := newMockNotifyClient(t)
 	metricsClient := newMockMetricsClient(t)
-	lpaStoreClient := newMockLpaStoreClient(t)
 
-	runner := NewRunner(logger, store, donorStore, notifyClient, metricsClient, true, lpaStoreClient)
+	runner := NewRunner(logger, store, donorStore, notifyClient, metricsClient, true)
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
@@ -67,7 +65,6 @@ func TestNewRunner(t *testing.T) {
 	assert.Equal(t, notifyClient, runner.notifyClient)
 	assert.Equal(t, metricsClient, runner.metricsClient)
 	assert.Equal(t, true, runner.metricsEnabled)
-	assert.Equal(t, lpaStoreClient, runner.lpaStoreClient)
 }
 
 func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64, err error) {
@@ -135,11 +132,6 @@ func TestRunnerRun(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	metricsClient.assertPutMetrics(1, 0, 0, nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -151,7 +143,6 @@ func TestRunnerRun(t *testing.T) {
 		},
 		metricsClient:  metricsClient,
 		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
 	}
 
 	err := runner.Run(ctx)
@@ -187,111 +178,6 @@ func TestRunnerRunWhenStepErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestRunnerRunWhenLpaStoreClientErrors(t *testing.T) {
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
-	logger.EXPECT().
-		ErrorContext(ctx, "runner action error",
-			slog.String("action", "Action(99)"),
-			slog.String("target_pk", "LPA#an-lpa"),
-			slog.String("target_sk", "DONOR#a-donor"),
-			slog.Any("err", expectedError))
-	logger.EXPECT().
-		InfoContext(ctx, "no scheduled tasks to process")
-
-	store := newMockScheduledStore(t)
-	store.EXPECT().
-		Pop(ctx, testNow).
-		Return(testEvent, nil).
-		Once()
-	store.EXPECT().
-		Pop(ctx, testNow).
-		Return(nil, dynamo.NotFoundError{}).
-		Once()
-
-	waiter := newMockWaiter(t)
-	waiter.EXPECT().Reset()
-
-	metricsClient := newMockMetricsClient(t)
-	metricsClient.assertPutMetrics(0, 0, 1, nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, expectedError)
-
-	runner := &Runner{
-		now:    testNowFn,
-		since:  testSinceFn,
-		logger: logger,
-		store:  store,
-		waiter: waiter,
-		actions: map[Action]ActionFunc{
-			99: nil,
-		},
-		metricsClient:  metricsClient,
-		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
-	}
-
-	err := runner.Run(ctx)
-
-	assert.Nil(t, err)
-}
-
-func TestRunnerRunWhenLpaStatusIsCannotRegister(t *testing.T) {
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
-	logger.EXPECT().
-		InfoContext(ctx, "runner action ignored",
-			slog.String("action", "Action(99)"),
-			slog.String("target_pk", "LPA#an-lpa"),
-			slog.String("target_sk", "DONOR#a-donor"))
-	logger.EXPECT().
-		InfoContext(ctx, "no scheduled tasks to process")
-
-	store := newMockScheduledStore(t)
-	store.EXPECT().
-		Pop(ctx, testNow).
-		Return(testEvent, nil).
-		Once()
-	store.EXPECT().
-		Pop(ctx, testNow).
-		Return(nil, dynamo.NotFoundError{}).
-		Once()
-
-	waiter := newMockWaiter(t)
-	waiter.EXPECT().Reset()
-
-	metricsClient := newMockMetricsClient(t)
-	metricsClient.assertPutMetrics(0, 1, 0, nil)
-
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{CannotRegister: true}, nil)
-
-	runner := &Runner{
-		now:    testNowFn,
-		since:  testSinceFn,
-		logger: logger,
-		store:  store,
-		waiter: waiter,
-		actions: map[Action]ActionFunc{
-			99: nil,
-		},
-		metricsClient:  metricsClient,
-		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
-	}
-
-	err := runner.Run(ctx)
-
-	assert.Nil(t, err)
-}
-
 func TestRunnerRunWhenActionIgnored(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -325,11 +211,6 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	metricsClient.assertPutMetrics(0, 1, 0, nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -341,7 +222,6 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 		},
 		metricsClient:  metricsClient,
 		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
 	}
 	err := runner.Run(ctx)
 
@@ -382,11 +262,6 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	metricsClient.assertPutMetrics(0, 0, 1, nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -398,7 +273,6 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 		},
 		metricsClient:  metricsClient,
 		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
 	}
 	err := runner.Run(ctx)
 
@@ -437,11 +311,6 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	metricsClient.assertPutMetrics(1, 0, 0, nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -453,7 +322,6 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 		},
 		metricsClient:  metricsClient,
 		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
 	}
 
 	err := runner.Run(ctx)
@@ -488,11 +356,6 @@ func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
 		Execute(ctx, mock.Anything).
 		Return(nil)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, mock.Anything).
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -504,7 +367,6 @@ func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
 		},
 		metricsClient:  nil,
 		metricsEnabled: false,
-		lpaStoreClient: lpaStoreClient,
 	}
 
 	err := runner.Run(ctx)
@@ -544,11 +406,6 @@ func TestRunnerRunWhenMetricsClientError(t *testing.T) {
 	metricsClient := newMockMetricsClient(t)
 	metricsClient.assertPutMetrics(1, 0, 0, expectedError)
 
-	lpaStoreClient := newMockLpaStoreClient(t)
-	lpaStoreClient.EXPECT().
-		Lpa(ctx, "lpa-uid").
-		Return(&lpadata.Lpa{}, nil)
-
 	runner := &Runner{
 		now:    testNowFn,
 		since:  testSinceFn,
@@ -560,7 +417,6 @@ func TestRunnerRunWhenMetricsClientError(t *testing.T) {
 		},
 		metricsClient:  metricsClient,
 		metricsEnabled: true,
-		lpaStoreClient: lpaStoreClient,
 	}
 
 	err := runner.Run(ctx)
