@@ -65,6 +65,7 @@ type factory interface {
 	UidStore() (UidStore, error)
 	UidClient() UidClient
 	EventClient() EventClient
+	ScheduledStore() ScheduledStore
 }
 
 type Handler interface {
@@ -76,13 +77,17 @@ type uidEvent struct {
 }
 
 type dynamodbClient interface {
+	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
+	CreateOnly(ctx context.Context, v interface{}) error
+	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
+	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
+	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
-	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	CreateOnly(ctx context.Context, v interface{}) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -97,6 +102,10 @@ type DocumentStore interface {
 type EventClient interface {
 	SendApplicationUpdated(ctx context.Context, event event.ApplicationUpdated) error
 	SendCertificateProviderStarted(ctx context.Context, event event.CertificateProviderStarted) error
+}
+
+type ScheduledStore interface {
+	DeleteAllByUID(ctx context.Context, uid string) error
 }
 
 type Event struct {

@@ -24,7 +24,6 @@ type dynamoDB interface {
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
 	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
-	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
 }
 
 type Client struct {
@@ -85,6 +84,31 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
+func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName: aws.String(c.table),
+		IndexName: aws.String(lpaUIDIndex),
+		ExpressionAttributeNames: map[string]string{
+			"#LpaUID": "LpaUID",
+			"#SK":     "SK",
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":LpaUID": &types.AttributeValueMemberS{Value: uid},
+			":SK":     &types.AttributeValueMemberS{Value: partialSK},
+		},
+		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+		FilterExpression:       aws.String("begins_with(#SK, :SK)"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to query scheduled event by UID: %w", err)
+	}
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	return attributevalue.UnmarshalListOfMaps(response.Items, v)
 }
 
 func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {
@@ -370,6 +394,32 @@ func (c *Client) DeleteOne(ctx context.Context, pk PK, sk SK) error {
 			"PK": &types.AttributeValueMemberS{Value: pk.PK()},
 			"SK": &types.AttributeValueMemberS{Value: sk.SK()},
 		},
+	})
+
+	return err
+}
+
+func (c *Client) DeleteManyByUID(ctx context.Context, keys []Keys, uid string) error {
+	items := make([]types.TransactWriteItem, len(keys))
+
+	for i, key := range keys {
+		items[i] = types.TransactWriteItem{
+			Delete: &types.Delete{
+				TableName: aws.String(c.table),
+				Key: map[string]types.AttributeValue{
+					"PK": &types.AttributeValueMemberS{Value: key.PK.PK()},
+					"SK": &types.AttributeValueMemberS{Value: key.SK.SK()},
+				},
+				ConditionExpression: aws.String("LpaUID = :uid"),
+				ExpressionAttributeValues: map[string]types.AttributeValue{
+					":uid": &types.AttributeValueMemberS{Value: uid},
+				},
+			},
+		}
+	}
+
+	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: items,
 	})
 
 	return err

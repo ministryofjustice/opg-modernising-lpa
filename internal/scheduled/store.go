@@ -2,14 +2,17 @@ package scheduled
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
 type DynamoClient interface {
-	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
+	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
+	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	Put(ctx context.Context, v interface{}) error
 }
 
@@ -47,4 +50,23 @@ func (s *Store) Put(ctx context.Context, row Event) error {
 	row.CreatedAt = s.now()
 
 	return s.dynamoClient.Put(ctx, row)
+}
+
+func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
+	var events []Event
+
+	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduleKey(), &events); err != nil {
+		return err
+	}
+
+	if len(events) == 0 {
+		return fmt.Errorf("no scheduled events found for UID %s", uid)
+	}
+
+	var keys []dynamo.Keys
+	for _, e := range events {
+		keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
+	}
+
+	return s.dynamoClient.DeleteManyByUID(ctx, keys, uid)
 }

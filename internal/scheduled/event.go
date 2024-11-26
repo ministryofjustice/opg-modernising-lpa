@@ -20,4 +20,6 @@ type Event struct {
 	TargetLpaKey dynamo.LpaKeyType
 	// TargetLpaOwnerKey is used to specify the target of the action
 	TargetLpaOwnerKey dynamo.LpaOwnerKeyType
+	// LpaUID is the LPA UID the action target relates to
+	LpaUID string
 }
