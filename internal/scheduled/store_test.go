@@ -1,22 +1,13 @@
 package scheduled
 
 import (
-	"context"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-func (c *mockDynamoClient_AnyByPK_Call) SetData(row *Event) {
-	c.Run(func(_ context.Context, _ dynamo.PK, v any) {
-		b, _ := attributevalue.Marshal(row)
-		attributevalue.Unmarshal(b, v)
-	})
-}
 
 func TestNewStore(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
@@ -112,7 +103,7 @@ func TestDeleteAllByUID(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllScheduledEventsByUID(ctx, "lpa-uid", mock.Anything).
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduleKey(), mock.Anything).
 		Return(nil).
 		SetData([]Event{
 			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
@@ -131,10 +122,10 @@ func TestDeleteAllByUID(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestDeleteAllByUIDWhenAllScheduledEventsByUIDErrors(t *testing.T) {
+func TestDeleteAllByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
@@ -146,7 +137,7 @@ func TestDeleteAllByUIDWhenAllScheduledEventsByUIDErrors(t *testing.T) {
 func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
 		SetData([]Event{})
 
@@ -159,7 +150,7 @@ func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
 func TestDeleteAllByUIDWhenDeleteManyByUIDErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllScheduledEventsByUID(ctx, mock.Anything, mock.Anything).
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
 		SetData([]Event{{LpaUID: "lpa-uid"}})
 	dynamoClient.EXPECT().
