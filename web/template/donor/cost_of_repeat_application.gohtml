@@ -1,0 +1,38 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "theCostOfYourRepeatApplication" }}{{ end }}
+
+{{ define "main" }}
+  <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+          <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+          {{ trHtml .App "theCostOfYourRepeatApplicationContent" }}
+          
+          <form novalidate method="post">
+              {{ $hasError := .Errors.Has .Form.FieldName }}
+              <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
+                  <fieldset class="govuk-fieldset" aria-describedby="radios-hint {{ if $hasError }}{{.Form.FieldName}}-error{{ end }}">
+                      <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                          {{ tr .App "areYouEligibleToPayNoFeeOrHalfFee" }}
+                      </legend>
+
+                      <div id="radios-hint" class="govuk-hint">{{ tr .App "youCanFindThisInformationInYourCorrespondence" }}</div>
+
+                      {{ template "error-message" (errorMessage . .Form.FieldName) }}
+
+                      {{ template "radios" (items . .Form.FieldName .Form.Selected.String
+                          (item .Form.Options.NoFee.String "opgHasToldMeNoFee")
+                          (item .Form.Options.HalfFee.String "opgHasToldMeHalfFee" "hint" "youWillHaveToSupplyNewEvidence")
+                          ) }}
+                  </fieldset>
+              </div>
+
+              {{ template "details" (details . "costsIfYouAreEligible" "costsIfYouAreEligibleContent" false) }}
+              
+              {{ template "buttons" (button .App "saveAndContinue") }}
+              {{ template "csrf-field" . }}
+          </form>
+      </div>
+  </div>
+{{ end }}

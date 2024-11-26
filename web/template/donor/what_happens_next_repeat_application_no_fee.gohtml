@@ -1,0 +1,17 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "repeatApplicationNoFeeRequestSubmitted") "success" "contents") }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+            {{ trHtml .App "whatHappensNextRepeatApplicationNoFeeContent" }}
+            
+            <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+    </div>
+{{ end }}
