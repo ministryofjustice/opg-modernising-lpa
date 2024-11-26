@@ -23,7 +23,7 @@ func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
 }
 
 // AllScheduledEventsByUID provides a mock function with given fields: ctx, uid, v
-func (_m *mockDynamodbClient) AllScheduledEventsByUID(ctx context.Context, uid string, v interface{}) error {
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, v interface{}) error {
 	ret := _m.Called(ctx, uid, v)
 
 	if len(ret) == 0 {
