@@ -26,6 +26,12 @@ var (
 	testNowFn         = func() time.Time { return testNow }
 	testSinceDuration = time.Millisecond * 5
 	testSinceFn       = func(t time.Time) time.Duration { return testSinceDuration }
+	testEvent         = &Event{
+		Action:            99,
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+		LpaUID:            "lpa-uid",
+	}
 )
 
 func (m *mockScheduledStore) ExpectPops(returns ...any) {
@@ -94,12 +100,6 @@ func (m *mockMetricsClient) assertPutMetrics(processed, ignored, errored float64
 }
 
 func TestRunnerRun(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
@@ -114,7 +114,7 @@ func TestRunnerRun(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.EXPECT().
 		Pop(ctx, testNow).
-		Return(event, nil).
+		Return(testEvent, nil).
 		Once()
 	store.EXPECT().
 		Pop(ctx, testNow).
@@ -126,7 +126,7 @@ func TestRunnerRun(t *testing.T) {
 
 	actionFunc := newMockActionFunc(t)
 	actionFunc.EXPECT().
-		Execute(ctx, event).
+		Execute(ctx, testEvent).
 		Return(nil)
 
 	metricsClient := newMockMetricsClient(t)
@@ -179,12 +179,6 @@ func TestRunnerRunWhenStepErrors(t *testing.T) {
 }
 
 func TestRunnerRunWhenActionIgnored(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
@@ -199,7 +193,7 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.EXPECT().
 		Pop(ctx, testNow).
-		Return(event, nil).
+		Return(testEvent, nil).
 		Once()
 	store.EXPECT().
 		Pop(ctx, testNow).
@@ -235,12 +229,6 @@ func TestRunnerRunWhenActionIgnored(t *testing.T) {
 }
 
 func TestRunnerRunWhenActionErrors(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
@@ -256,7 +244,7 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.EXPECT().
 		Pop(ctx, testNow).
-		Return(event, nil).
+		Return(testEvent, nil).
 		Once()
 	store.EXPECT().
 		Pop(ctx, testNow).
@@ -292,12 +280,6 @@ func TestRunnerRunWhenActionErrors(t *testing.T) {
 }
 
 func TestRunnerRunWhenWaitingError(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, "runner action", slog.String("action", "Action(99)"))
@@ -314,7 +296,7 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.ExpectPops(
 		nil, expectedError,
-		event, nil,
+		testEvent, nil,
 		nil, dynamo.NotFoundError{})
 
 	waiter := newMockWaiter(t)
@@ -348,12 +330,6 @@ func TestRunnerRunWhenWaitingError(t *testing.T) {
 }
 
 func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, mock.Anything, mock.Anything)
@@ -365,7 +341,7 @@ func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.EXPECT().
 		Pop(ctx, mock.Anything).
-		Return(event, nil).
+		Return(testEvent, nil).
 		Once()
 	store.EXPECT().
 		Pop(ctx, mock.Anything).
@@ -399,12 +375,6 @@ func TestRunnerRunWhenMetricsDisabled(t *testing.T) {
 }
 
 func TestRunnerRunWhenMetricsClientError(t *testing.T) {
-	event := &Event{
-		Action:            99,
-		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
-		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
-	}
-
 	logger := newMockLogger(t)
 	logger.EXPECT().
 		InfoContext(ctx, mock.Anything, mock.Anything)
@@ -418,7 +388,7 @@ func TestRunnerRunWhenMetricsClientError(t *testing.T) {
 	store := newMockScheduledStore(t)
 	store.EXPECT().
 		Pop(ctx, mock.Anything).
-		Return(event, nil).
+		Return(testEvent, nil).
 		Once()
 	store.EXPECT().
 		Pop(ctx, mock.Anything).

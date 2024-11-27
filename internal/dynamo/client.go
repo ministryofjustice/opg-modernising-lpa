@@ -24,7 +24,6 @@ type dynamoDB interface {
 	TransactWriteItems(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
 	UpdateItem(context.Context, *dynamodb.UpdateItemInput, ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
-	BatchWriteItem(ctx context.Context, params *dynamodb.BatchWriteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchWriteItemOutput, error)
 }
 
 type Client struct {
@@ -85,6 +84,31 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
+}
+
+func (c *Client) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK SK, v interface{}) error {
+	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
+		TableName: aws.String(c.table),
+		IndexName: aws.String(lpaUIDIndex),
+		ExpressionAttributeNames: map[string]string{
+			"#LpaUID": "LpaUID",
+			"#SK":     "SK",
+		},
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":LpaUID": &types.AttributeValueMemberS{Value: uid},
+			":SK":     &types.AttributeValueMemberS{Value: partialSK.SK()},
+		},
+		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+		FilterExpression:       aws.String("begins_with(#SK, :SK)"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to query scheduled event by UID: %w", err)
+	}
+	if len(response.Items) == 0 {
+		return NotFoundError{}
+	}
+
+	return attributevalue.UnmarshalListOfMaps(response.Items, v)
 }
 
 func (c *Client) AllBySK(ctx context.Context, sk SK, v interface{}) error {

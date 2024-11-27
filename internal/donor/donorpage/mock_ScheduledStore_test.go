@@ -22,12 +22,12 @@ func (_m *mockScheduledStore) EXPECT() *mockScheduledStore_Expecter {
 	return &mockScheduledStore_Expecter{mock: &_m.Mock}
 }
 
-// Put provides a mock function with given fields: ctx, row
-func (_m *mockScheduledStore) Put(ctx context.Context, row scheduled.Event) error {
+// Create provides a mock function with given fields: ctx, row
+func (_m *mockScheduledStore) Create(ctx context.Context, row scheduled.Event) error {
 	ret := _m.Called(ctx, row)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Put")
+		panic("no return value specified for Create")
 	}
 
 	var r0 error
@@ -40,31 +40,31 @@ func (_m *mockScheduledStore) Put(ctx context.Context, row scheduled.Event) erro
 	return r0
 }
 
-// mockScheduledStore_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
-type mockScheduledStore_Put_Call struct {
+// mockScheduledStore_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockScheduledStore_Create_Call struct {
 	*mock.Call
 }
 
-// Put is a helper method to define mock.On call
+// Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - row scheduled.Event
-func (_e *mockScheduledStore_Expecter) Put(ctx interface{}, row interface{}) *mockScheduledStore_Put_Call {
-	return &mockScheduledStore_Put_Call{Call: _e.mock.On("Put", ctx, row)}
+func (_e *mockScheduledStore_Expecter) Create(ctx interface{}, row interface{}) *mockScheduledStore_Create_Call {
+	return &mockScheduledStore_Create_Call{Call: _e.mock.On("Create", ctx, row)}
 }
 
-func (_c *mockScheduledStore_Put_Call) Run(run func(ctx context.Context, row scheduled.Event)) *mockScheduledStore_Put_Call {
+func (_c *mockScheduledStore_Create_Call) Run(run func(ctx context.Context, row scheduled.Event)) *mockScheduledStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(scheduled.Event))
 	})
 	return _c
 }
 
-func (_c *mockScheduledStore_Put_Call) Return(_a0 error) *mockScheduledStore_Put_Call {
+func (_c *mockScheduledStore_Create_Call) Return(_a0 error) *mockScheduledStore_Create_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockScheduledStore_Put_Call) RunAndReturn(run func(context.Context, scheduled.Event) error) *mockScheduledStore_Put_Call {
+func (_c *mockScheduledStore_Create_Call) RunAndReturn(run func(context.Context, scheduled.Event) error) *mockScheduledStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

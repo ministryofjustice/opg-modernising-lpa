@@ -22,6 +22,150 @@ func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
 	return &mockDynamodbClient_Expecter{mock: &_m.Mock}
 }
 
+// AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error {
+	ret := _m.Called(ctx, uid, partialSK, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AllByLpaUIDAndPartialSK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, interface{}) error); ok {
+		r0 = rf(ctx, uid, partialSK, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_AllByLpaUIDAndPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByLpaUIDAndPartialSK'
+type mockDynamodbClient_AllByLpaUIDAndPartialSK_Call struct {
+	*mock.Call
+}
+
+// AllByLpaUIDAndPartialSK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uid string
+//   - partialSK dynamo.SK
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
+}
+
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AnyByPK provides a mock function with given fields: ctx, pk, v
+func (_m *mockDynamodbClient) AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
+	ret := _m.Called(ctx, pk, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AnyByPK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
+		r0 = rf(ctx, pk, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_AnyByPK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AnyByPK'
+type mockDynamodbClient_AnyByPK_Call struct {
+	*mock.Call
+}
+
+// AnyByPK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk dynamo.PK
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) AnyByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamodbClient_AnyByPK_Call {
+	return &mockDynamodbClient_AnyByPK_Call{Call: _e.mock.On("AnyByPK", ctx, pk, v)}
+}
+
+func (_c *mockDynamodbClient_AnyByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamodbClient_AnyByPK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_AnyByPK_Call) Return(_a0 error) *mockDynamodbClient_AnyByPK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_AnyByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamodbClient_AnyByPK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Create provides a mock function with given fields: ctx, v
+func (_m *mockDynamodbClient) Create(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockDynamodbClient_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) Create(ctx interface{}, v interface{}) *mockDynamodbClient_Create_Call {
+	return &mockDynamodbClient_Create_Call{Call: _e.mock.On("Create", ctx, v)}
+}
+
+func (_c *mockDynamodbClient_Create_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Create_Call) Return(_a0 error) *mockDynamodbClient_Create_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Create_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateOnly provides a mock function with given fields: ctx, v
 func (_m *mockDynamodbClient) CreateOnly(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
@@ -65,6 +209,53 @@ func (_c *mockDynamodbClient_CreateOnly_Call) Return(_a0 error) *mockDynamodbCli
 }
 
 func (_c *mockDynamodbClient_CreateOnly_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_CreateOnly_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteKeys provides a mock function with given fields: ctx, keys
+func (_m *mockDynamodbClient) DeleteKeys(ctx context.Context, keys []dynamo.Keys) error {
+	ret := _m.Called(ctx, keys)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteKeys")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) error); ok {
+		r0 = rf(ctx, keys)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_DeleteKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteKeys'
+type mockDynamodbClient_DeleteKeys_Call struct {
+	*mock.Call
+}
+
+// DeleteKeys is a helper method to define mock.On call
+//   - ctx context.Context
+//   - keys []dynamo.Keys
+func (_e *mockDynamodbClient_Expecter) DeleteKeys(ctx interface{}, keys interface{}) *mockDynamodbClient_DeleteKeys_Call {
+	return &mockDynamodbClient_DeleteKeys_Call{Call: _e.mock.On("DeleteKeys", ctx, keys)}
+}
+
+func (_c *mockDynamodbClient_DeleteKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDynamodbClient_DeleteKeys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_DeleteKeys_Call) Return(_a0 error) *mockDynamodbClient_DeleteKeys_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_DeleteKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) error) *mockDynamodbClient_DeleteKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -113,6 +304,54 @@ func (_c *mockDynamodbClient_DeleteOne_Call) Return(_a0 error) *mockDynamodbClie
 }
 
 func (_c *mockDynamodbClient_DeleteOne_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK) error) *mockDynamodbClient_DeleteOne_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Move provides a mock function with given fields: ctx, oldKeys, value
+func (_m *mockDynamodbClient) Move(ctx context.Context, oldKeys dynamo.Keys, value any) error {
+	ret := _m.Called(ctx, oldKeys, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Move")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Keys, any) error); ok {
+		r0 = rf(ctx, oldKeys, value)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_Move_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Move'
+type mockDynamodbClient_Move_Call struct {
+	*mock.Call
+}
+
+// Move is a helper method to define mock.On call
+//   - ctx context.Context
+//   - oldKeys dynamo.Keys
+//   - value any
+func (_e *mockDynamodbClient_Expecter) Move(ctx interface{}, oldKeys interface{}, value interface{}) *mockDynamodbClient_Move_Call {
+	return &mockDynamodbClient_Move_Call{Call: _e.mock.On("Move", ctx, oldKeys, value)}
+}
+
+func (_c *mockDynamodbClient_Move_Call) Run(run func(ctx context.Context, oldKeys dynamo.Keys, value any)) *mockDynamodbClient_Move_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dynamo.Keys), args[2].(any))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Move_Call) Return(_a0 error) *mockDynamodbClient_Move_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, any) error) *mockDynamodbClient_Move_Call {
 	_c.Call.Return(run)
 	return _c
 }

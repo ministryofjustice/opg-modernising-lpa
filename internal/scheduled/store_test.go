@@ -1,22 +1,13 @@
 package scheduled
 
 import (
-	"context"
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-func (c *mockDynamoClient_AnyByPK_Call) SetData(row *Event) {
-	c.Run(func(_ context.Context, _ dynamo.PK, v any) {
-		b, _ := attributevalue.Marshal(row)
-		attributevalue.Unmarshal(b, v)
-	})
-}
 
 func TestNewStore(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
@@ -87,12 +78,12 @@ func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
-func TestStorePut(t *testing.T) {
+func TestStoreCreate(t *testing.T) {
 	at := time.Date(2024, time.January, 1, 12, 13, 14, 5, time.UTC)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Put(ctx, Event{
+		Create(ctx, Event{
 			PK:        dynamo.ScheduledDayKey(at),
 			SK:        dynamo.ScheduledKey(at, 99),
 			CreatedAt: testNow,
@@ -102,6 +93,72 @@ func TestStorePut(t *testing.T) {
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.Put(ctx, Event{At: at, Action: 99})
+	err := store.Create(ctx, Event{At: at, Action: 99})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteAllByUID(t *testing.T) {
+	now := time.Now()
+	yesterday := now.Add(-24 * time.Hour)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
+		Return(nil).
+		SetData([]Event{
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+		})
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, []dynamo.Keys{
+			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
+			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+		}).
+		Return(nil)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
+func TestDeleteAllByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]Event{})
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
+	assert.ErrorContains(t, err, "no scheduled events found for UID lpa-uid")
+}
+
+func TestDeleteAllByUIDWhenDeleteKeysErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]Event{{LpaUID: "lpa-uid"}})
+	dynamoClient.EXPECT().
+		DeleteKeys(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllByUID(ctx, "lpa-uid")
+
 	assert.Equal(t, expectedError, err)
 }

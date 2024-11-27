@@ -22,6 +22,55 @@ func (_m *mockDynamoClient) EXPECT() *mockDynamoClient_Expecter {
 	return &mockDynamoClient_Expecter{mock: &_m.Mock}
 }
 
+// AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
+func (_m *mockDynamoClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error {
+	ret := _m.Called(ctx, uid, partialSK, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AllByLpaUIDAndPartialSK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, interface{}) error); ok {
+		r0 = rf(ctx, uid, partialSK, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_AllByLpaUIDAndPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AllByLpaUIDAndPartialSK'
+type mockDynamoClient_AllByLpaUIDAndPartialSK_Call struct {
+	*mock.Call
+}
+
+// AllByLpaUIDAndPartialSK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uid string
+//   - partialSK dynamo.SK
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamoClient_AllByLpaUIDAndPartialSK_Call {
+	return &mockDynamoClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
+}
+
+func (_c *mockDynamoClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v interface{})) *mockDynamoClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mockDynamoClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, interface{}) error) *mockDynamoClient_AllByLpaUIDAndPartialSK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AnyByPK provides a mock function with given fields: ctx, pk, v
 func (_m *mockDynamoClient) AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
 	ret := _m.Called(ctx, pk, v)
@@ -70,6 +119,100 @@ func (_c *mockDynamoClient_AnyByPK_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
+// Create provides a mock function with given fields: ctx, v
+func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockDynamoClient_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) Create(ctx interface{}, v interface{}) *mockDynamoClient_Create_Call {
+	return &mockDynamoClient_Create_Call{Call: _e.mock.On("Create", ctx, v)}
+}
+
+func (_c *mockDynamoClient_Create_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamoClient_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_Create_Call) Return(_a0 error) *mockDynamoClient_Create_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_Create_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamoClient_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteKeys provides a mock function with given fields: ctx, keys
+func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Keys) error {
+	ret := _m.Called(ctx, keys)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteKeys")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) error); ok {
+		r0 = rf(ctx, keys)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_DeleteKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteKeys'
+type mockDynamoClient_DeleteKeys_Call struct {
+	*mock.Call
+}
+
+// DeleteKeys is a helper method to define mock.On call
+//   - ctx context.Context
+//   - keys []dynamo.Keys
+func (_e *mockDynamoClient_Expecter) DeleteKeys(ctx interface{}, keys interface{}) *mockDynamoClient_DeleteKeys_Call {
+	return &mockDynamoClient_DeleteKeys_Call{Call: _e.mock.On("DeleteKeys", ctx, keys)}
+}
+
+func (_c *mockDynamoClient_DeleteKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDynamoClient_DeleteKeys_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_DeleteKeys_Call) Return(_a0 error) *mockDynamoClient_DeleteKeys_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_DeleteKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) error) *mockDynamoClient_DeleteKeys_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Move provides a mock function with given fields: ctx, oldKeys, value
 func (_m *mockDynamoClient) Move(ctx context.Context, oldKeys dynamo.Keys, value any) error {
 	ret := _m.Called(ctx, oldKeys, value)
@@ -114,53 +257,6 @@ func (_c *mockDynamoClient_Move_Call) Return(_a0 error) *mockDynamoClient_Move_C
 }
 
 func (_c *mockDynamoClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, any) error) *mockDynamoClient_Move_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Put provides a mock function with given fields: ctx, v
-func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
-	ret := _m.Called(ctx, v)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Put")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_Put_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Put'
-type mockDynamoClient_Put_Call struct {
-	*mock.Call
-}
-
-// Put is a helper method to define mock.On call
-//   - ctx context.Context
-//   - v interface{}
-func (_e *mockDynamoClient_Expecter) Put(ctx interface{}, v interface{}) *mockDynamoClient_Put_Call {
-	return &mockDynamoClient_Put_Call{Call: _e.mock.On("Put", ctx, v)}
-}
-
-func (_c *mockDynamoClient_Put_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamoClient_Put_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(interface{}))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_Put_Call) Return(_a0 error) *mockDynamoClient_Put_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_Put_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamoClient_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }
