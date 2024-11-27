@@ -9,7 +9,7 @@ import (
 )
 
 type DynamoClient interface {
-	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
@@ -55,7 +55,7 @@ func (s *Store) Create(ctx context.Context, row Event) error {
 func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
 	var events []Event
 
-	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduleKey(), &events); err != nil {
+	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey(), &events); err != nil {
 		return err
 	}
 
