@@ -13,7 +13,7 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
-      {{ if or .Donor.FeeType.IsHalfFee .Donor.PreviousFee.IsPreviousFeeHalf }}
+      {{ if or .Donor.FeeType.IsHalfFee .Donor.PreviousFee.IsHalf }}
         {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredHalfFeeIntroContent" }}
         {{ else }}
@@ -24,7 +24,7 @@
         {{ trHtml .App "evidenceRequiredHalfFeeEvidenceContent" }}
         {{ template "details" (details . "ifYouHaveNoIncome" "ifYouHaveNoIncomeDetail" false) }}
 
-      {{ else if or .Donor.FeeType.IsNoFee .Donor.PreviousFee.IsPreviousFeeExemption }}
+      {{ else if or .Donor.FeeType.IsNoFee .Donor.PreviousFee.IsExemption }}
         {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredNoFeeIntroContent" }}
         {{ else }}
@@ -33,7 +33,7 @@
         {{ template "details" (details . "eligibleMeansTestedBenefits" "eligibleMeansTestedBenefitsDetail" false) }}
         {{ trHtml .App "evidenceRequiredNoFeeEvidenceContent" }}
 
-      {{ else if or .Donor.FeeType.IsHardshipFee .Donor.PreviousFee.IsPreviousFeeHardship }}
+      {{ else if or .Donor.FeeType.IsHardshipFee .Donor.PreviousFee.IsHardship }}
         {{ if .Donor.FeeType.IsRepeatApplicationFee }}
           {{ trHtml .App "newEvidenceRequiredHardshipFeeContent" }}
         {{ else }}

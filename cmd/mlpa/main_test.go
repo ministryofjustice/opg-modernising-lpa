@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"iter"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -99,14 +101,14 @@ func TestApostrophesAreCurly(t *testing.T) {
 	en := loadTranslations("../../lang/en.json")
 	cy := loadTranslations("../../lang/cy.json")
 
-	for k, v := range en {
+	for k, v := range en.Flat() {
 		if strings.Contains(v, "'") {
 			t.Fail()
 			t.Log("lang/en.json:", k)
 		}
 	}
 
-	for k, v := range cy {
+	for k, v := range cy.Flat() {
 		if strings.Contains(v, "'") {
 			t.Fail()
 			t.Log("lang/cy.json:", k)
@@ -116,9 +118,9 @@ func TestApostrophesAreCurly(t *testing.T) {
 
 func TestTranslationVariablesMustMatch(t *testing.T) {
 	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	cy := maps.Collect(loadTranslations("../../lang/cy.json").Flat())
 
-	for k, enTranslation := range en {
+	for k, enTranslation := range en.Flat() {
 		if strings.Contains(enTranslation, "{{") {
 			cyTranslation, _ := cy[k]
 
@@ -147,8 +149,8 @@ func TestTranslationVariablesMustMatch(t *testing.T) {
 }
 
 func TestTranslationContentMustMatch(t *testing.T) {
-	en := loadTranslations("../../lang/en.json")
-	cy := loadTranslations("../../lang/cy.json")
+	en := maps.Collect(loadTranslations("../../lang/en.json").Flat())
+	cy := maps.Collect(loadTranslations("../../lang/cy.json").Flat())
 
 	mustMatch := map[string]string{
 		"yourLegalRightsAndResponsibilitiesContent:property-and-affairs": "yourLegalRightsAndResponsibilitiesContent:property-and-affairs:h3",
@@ -161,16 +163,37 @@ func TestTranslationContentMustMatch(t *testing.T) {
 	}
 }
 
-func loadTranslations(path string) map[string]string {
+func loadTranslations(path string) translationData {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 
-	var v map[string]string
+	var v translationData
 	json.Unmarshal(data, &v)
 
 	return v
+}
+
+type translationData map[string]any
+
+func (d translationData) Flat() iter.Seq2[string, string] {
+	return func(yield func(string, string) bool) {
+		for k, v := range d {
+			switch vt := v.(type) {
+			case string:
+				if !yield(k, vt) {
+					return
+				}
+			case map[string]any:
+				for sk, sv := range vt {
+					if !yield(k+"."+sk, sv.(string)) {
+						return
+					}
+				}
+			}
+		}
+	}
 }
 
 func TestStripHTML(t *testing.T) {

@@ -73,6 +73,57 @@ func TestGetTaskList(t *testing.T) {
 				return items
 			},
 		},
+		"identity pending casework": {
+			lpa: &lpadata.Lpa{
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				Paid:                             true,
+			},
+			certificateProvider: &certificateproviderdata.Provided{
+				IdentityUserData: identity.UserData{CheckedAt: time.Now()},
+				Tasks: certificateproviderdata.Tasks{
+					ConfirmYourDetails:    task.StateCompleted,
+					ConfirmYourIdentity:   task.IdentityStatePending,
+					ProvideTheCertificate: task.StateCompleted,
+				},
+			},
+			appData: testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = task.StateCompleted
+				items[0].Path = certificateprovider.PathConfirmYourDetails
+				items[1].IdentityState = task.IdentityStatePending
+				items[1].Path = certificateprovider.PathIdentityDetails
+				items[2].State = task.StateCompleted
+
+				return items
+			},
+		},
+		"identity pending post office": {
+			lpa: &lpadata.Lpa{
+				LpaID:                            "lpa-id",
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+				Paid:                             true,
+			},
+			certificateProvider: &certificateproviderdata.Provided{
+				Tasks: certificateproviderdata.Tasks{
+					ConfirmYourDetails:    task.StateCompleted,
+					ConfirmYourIdentity:   task.IdentityStatePending,
+					ProvideTheCertificate: task.StateCompleted,
+				},
+			},
+			appData: testAppData,
+			expected: func(items []taskListItem) []taskListItem {
+				items[0].State = task.StateCompleted
+				items[0].Path = certificateprovider.PathConfirmYourDetails
+				items[1].IdentityState = task.IdentityStatePending
+				items[1].Path = certificateprovider.PathCompletingYourIdentityConfirmation
+				items[2].State = task.StateCompleted
+
+				return items
+			},
+		},
 		"identity confirmed": {
 			lpa: &lpadata.Lpa{
 				LpaID:                            "lpa-id",
@@ -93,7 +144,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa
+				items[1].Path = certificateprovider.PathIdentityDetails
 				items[2].State = task.StateCompleted
 
 				return items
@@ -118,7 +169,7 @@ func TestGetTaskList(t *testing.T) {
 				items[0].State = task.StateCompleted
 				items[0].Path = certificateprovider.PathConfirmYourDetails
 				items[1].IdentityState = task.IdentityStateCompleted
-				items[1].Path = certificateprovider.PathReadTheLpa
+				items[1].Path = certificateprovider.PathIdentityDetails
 				items[2].State = task.StateCompleted
 
 				return items

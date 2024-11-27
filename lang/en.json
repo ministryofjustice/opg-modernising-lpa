@@ -1410,5 +1410,22 @@
     "howYouWouldLikeToContinue": "how you would like to continue",
     "confirmYourAddress": "Confirm your address",
     "selectYourAddress": "Select your address",
-    "enterYourPostcode": "Enter your postcode"
+    "enterYourPostcode": "Enter your postcode",
+    "someOfTheDetailsOnTheLpaDoNotMatch": "Some of the details on the LPA do not match your confirmed identity details",
+    "yourDetailsCannotBeUpdatedAsAlreadySigned": "<p class=\"govuk-body\">Your details on the LPA cannot be updated to match your confirmed identity details. This is because {{.DonorFullName}} has already signed the LPA.</p><p class=\"govuk-body\">Someone at the Office of the Public Guardian (OPG) will compare your identity details. You will be updated soon.</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">While your details are being reviewed, you can continue to provide your certificate for this LPA if you wish.</p></div>",
+    "theCostOfYourRepeatApplication": "The cost of your repeat application",
+    "theCostOfYourRepeatApplicationContent": "<p class=\"govuk-body\">The Office of the Public Guardian (OPG) may have said that you are eligible to pay no fee or half your original fee if you make a repeat LPA application within 3 months of submitting your original application.</p><p class=\"govuk-body\">You can find the date you submitted your original application in your correspondence from OPG.</p>",
+    "areYouEligibleToPayNoFeeOrHalfFee": "Are you eligible to pay no fee or a half fee?",
+    "youCanFindThisInformationInYourCorrespondence": "You can find this information in your correspondence from OPG about your original LPA application.",
+    "opgHasToldMeNoFee": "OPG has told me I am eligible to pay no fee",
+    "opgHasToldMeHalfFee": "OPG has told me I am eligible to pay half my original fee",
+    "youWillHaveToSupplyNewEvidence": "You will have to supply new evidence",
+    "costsIfYouAreEligible": "Costs if you are eligible to pay half your original fee",
+    "costsIfYouAreEligibleContent": "<p class=\"govuk-body\">For your repeat LPA application, you will pay:</p><ul class=\"govuk-list govuk-list--bullet\"><li>£20.50 if you originally paid half fee</li><li>£41 if you originally paid full fee</li></ul><p class=\"govuk-body\">You will not pay a fee if you were originally given an exemption or hardship application</p>",
+    "whichFeeYouAreEligibleToPay": "which fee you are eligible to pay",
+    "repeatApplicationNoFeeRequestSubmitted": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Repeat application no fee request submitted.</p><p class=\"govuk-body\">We will review your LPA application.</p></div>",
+    "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Sign your LPA</h3><p class=\"govuk-body\">You can still sign your LPA while we’re reviewing your application. Your certificate provider must be there as a witness when you sign it. However, we will not contact your certificate provider to provide their certificate until your repeat application has been approved.</p><h3 class=\"govuk-heading-m\">If your application is successful</h3><p class=\"govuk-body\">Once we have approved your repeat application, we will contact your certificate provider to provide their certificate.</p><h3 class=\"govuk-heading-m\">If your application is not successful</h3><p class=\"govuk-body\">We will contact you if we need more information or if your application is unsuccessful.</p>",
+    "theDetailsOnYourLpaDoNotMatch": "The details on your LPA do not match the identity details you have confirmed using GOV.UK One Login.",
+    "theDetailsOnYourLpaCannotBeUpdatedAsSigned": "<p class=\"govuk-body\">The details on your LPA cannot be updated to match the identity details you confirmed using GOV.UK One Login. This is because you have already signed the LPA.</p><p class=\"govuk-body\">The Office of the Public Guardian (OPG) will compare your details, and may contact you for more information.</p><p class=\"govuk-body\">OPG will then decide if we can register your LPA. We will let you know if there is anything else you need to do.</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">If OPG decides we can register your LPA, it will be updated with your confirmed identity details.</p></div>",
+    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "If you do not want your LPA to be registered with your confirmed identity details, you must withdraw your LPA. You will lose any fees you have paid for this LPA." 
 }

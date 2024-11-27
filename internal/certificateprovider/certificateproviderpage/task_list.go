@@ -34,9 +34,13 @@ func TaskList(tmpl template.Template) Handler {
 		case task.IdentityStateInProgress:
 			identityTaskPage = certificateprovider.PathHowWillYouConfirmYourIdentity
 		case task.IdentityStatePending:
-			identityTaskPage = certificateprovider.PathCompletingYourIdentityConfirmation
+			if provided.IdentityUserData.CheckedAt.IsZero() {
+				identityTaskPage = certificateprovider.PathCompletingYourIdentityConfirmation
+			} else {
+				identityTaskPage = certificateprovider.PathIdentityDetails
+			}
 		case task.IdentityStateCompleted:
-			identityTaskPage = certificateprovider.PathReadTheLpa
+			identityTaskPage = certificateprovider.PathIdentityDetails
 		}
 
 		confirmYourDetailsPage := certificateprovider.PathEnterDateOfBirth

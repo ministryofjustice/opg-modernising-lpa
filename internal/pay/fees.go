@@ -1,5 +1,11 @@
 package pay
 
+const (
+	feeFull    = 8200
+	feeHalf    = 4100
+	feeQuarter = 2050
+)
+
 //go:generate enumerator -type FeeType
 type FeeType uint8
 
@@ -11,7 +17,7 @@ const (
 	RepeatApplicationFee
 )
 
-//go:generate enumerator -type PreviousFee -empty
+//go:generate enumerator -type PreviousFee -empty -trimprefix
 type PreviousFee uint8
 
 const (
@@ -21,19 +27,26 @@ const (
 	PreviousFeeHardship
 )
 
-func Cost(feeType FeeType, previousFee PreviousFee) int {
+//go:generate enumerator -type CostOfRepeatApplication -empty -trimprefix
+type CostOfRepeatApplication uint8
+
+const (
+	CostOfRepeatApplicationNoFee CostOfRepeatApplication = iota + 1
+	CostOfRepeatApplicationHalfFee
+)
+
+func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication CostOfRepeatApplication) int {
 	switch feeType {
 	case FullFee:
-		return 8200
+		return feeFull
 	case HalfFee:
-		return 4100
+		return feeHalf
 	case RepeatApplicationFee:
-		switch previousFee {
-		case PreviousFeeFull:
-			return 4100
-		case PreviousFeeHalf:
-			return 2050
-		default:
+		if costOfRepeatApplication.IsHalfFee() || previousFee.IsFull() {
+			return feeHalf
+		} else if previousFee.IsHalf() {
+			return feeQuarter
+		} else {
 			return 0
 		}
 	default:

@@ -364,10 +364,12 @@ func Register(
 		AreYouApplyingForFeeDiscountOrExemption(tmpls.Get("are_you_applying_for_a_different_fee_type.gohtml"), payer, donorStore))
 	handleWithDonor(donor.PathWhichFeeTypeAreYouApplyingFor, page.CanGoBack,
 		WhichFeeTypeAreYouApplyingFor(tmpls.Get("which_fee_type_are_you_applying_for.gohtml"), donorStore))
-	handleWithDonor(donor.PathPreviousApplicationNumber, page.None,
+	handleWithDonor(donor.PathPreviousApplicationNumber, page.CanGoBack,
 		PreviousApplicationNumber(tmpls.Get("previous_application_number.gohtml"), donorStore))
 	handleWithDonor(donor.PathPreviousFee, page.CanGoBack,
 		PreviousFee(tmpls.Get("previous_fee.gohtml"), payer, donorStore))
+	handleWithDonor(donor.PathCostOfRepeatApplication, page.CanGoBack,
+		CostOfRepeatApplication(tmpls.Get("cost_of_repeat_application.gohtml"), donorStore))
 	handleWithDonor(donor.PathEvidenceRequired, page.CanGoBack,
 		Guidance(tmpls.Get("evidence_required.gohtml")))
 	handleWithDonor(donor.PathHowWouldYouLikeToSendEvidence, page.CanGoBack,
@@ -388,6 +390,8 @@ func Register(
 		Guidance(tmpls.Get("evidence_successfully_uploaded.gohtml")))
 	handleWithDonor(donor.PathWhatHappensNextPostEvidence, page.None,
 		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
+	handleWithDonor(donor.PathWhatHappensNextRepeatApplicationNoFee, page.None,
+		Guidance(tmpls.Get("what_happens_next_repeat_application_no_fee.gohtml")))
 
 	handleWithDonor(donor.PathConfirmYourIdentity, page.CanGoBack,
 		ConfirmYourIdentity(tmpls.Get("prove_your_identity.gohtml"), donorStore))
@@ -400,7 +404,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
 	handleWithDonor(donor.PathIdentityDetails, page.CanGoBack,
-		OneLoginIdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
+		IdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
 		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore))
 
