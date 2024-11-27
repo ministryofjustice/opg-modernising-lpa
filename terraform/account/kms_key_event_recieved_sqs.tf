@@ -32,6 +32,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
     ]
     actions = [
       "kms:Encrypt",
+      "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
@@ -40,7 +41,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/${local.account.account_name}-app-task-role",
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
       ]
     }
   }
