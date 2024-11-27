@@ -974,7 +974,7 @@ func TestAllScheduledEventsByUID(t *testing.T) {
 			},
 			ExpressionAttributeValues: map[string]types.AttributeValue{
 				":LpaUID": &types.AttributeValueMemberS{Value: "lpa-uid"},
-				":SK":     &types.AttributeValueMemberS{Value: "partial-sk"},
+				":SK":     &types.AttributeValueMemberS{Value: "a-partial-sk"},
 			},
 			KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
 			FilterExpression:       aws.String("begins_with(#SK, :SK)"),
@@ -984,7 +984,7 @@ func TestAllScheduledEventsByUID(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
 	assert.Nil(t, err)
 }
 
@@ -997,7 +997,7 @@ func TestAllScheduledEventsByUIDWhenQueryError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
 	assert.Equal(t, fmt.Errorf("failed to query scheduled event by UID: %w", expectedError), err)
 }
 
@@ -1010,7 +1010,7 @@ func TestAllScheduledEventsByUIDWhenNoResults(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", &v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), &v)
 	assert.Equal(t, NotFoundError{}, err)
 }
 
@@ -1026,6 +1026,6 @@ func TestAllScheduledEventsByUIDWhenUnmarshalError(t *testing.T) {
 	c := &Client{table: "this", svc: dynamoDB}
 
 	var v []map[string]string
-	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", "partial-sk", v)
+	err := c.AllByLpaUIDAndPartialSK(ctx, "lpa-uid", testSK("a-partial-sk"), v)
 	assert.Error(t, err)
 }
