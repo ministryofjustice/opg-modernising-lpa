@@ -60,7 +60,7 @@ func TestGetIdentityWithOneLoginCallback(t *testing.T) {
 
 	scheduledStore := newMockScheduledStore(t)
 	scheduledStore.EXPECT().
-		Put(r.Context(), scheduled.Event{
+		Create(r.Context(), scheduled.Event{
 			At:                now.AddDate(0, 6, 0),
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
@@ -122,11 +122,12 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 
 	scheduledStore := newMockScheduledStore(t)
 	scheduledStore.EXPECT().
-		Put(r.Context(), scheduled.Event{
+		Create(r.Context(), scheduled.Event{
 			At:                now.AddDate(0, 6, 0),
 			Action:            scheduled.ActionExpireDonorIdentity,
 			TargetLpaKey:      dynamo.LpaKey("hey"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("oh")),
+			LpaUID:            "lpa-uid",
 		}).
 		Return(nil)
 
@@ -233,7 +234,7 @@ func TestGetIdentityWithOneLoginCallbackWhenScheduledStoreErrors(t *testing.T) {
 
 	scheduledStore := newMockScheduledStore(t)
 	scheduledStore.EXPECT().
-		Put(mock.Anything, mock.Anything).
+		Create(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, nil)(testAppData, w, r, &donordata.Provided{

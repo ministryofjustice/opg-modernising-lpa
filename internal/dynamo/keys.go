@@ -322,6 +322,10 @@ func ScheduledKey(at time.Time, action int) ScheduledKeyType {
 	return ScheduledKeyType(scheduledPrefix + "#" + at.Format(time.RFC3339) + "#" + strconv.Itoa(action))
 }
 
+func PartialScheduledKey() ScheduledKeyType {
+	return ScheduledKeyType(scheduledPrefix + "#")
+}
+
 type ReservedKeyType string
 
 func (t ReservedKeyType) SK() string { return string(t) }
