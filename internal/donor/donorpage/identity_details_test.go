@@ -20,14 +20,14 @@ import (
 )
 
 func TestOneLoginIdentityDetailsDataDetailsMatch(t *testing.T) {
-	assert.True(t, oneLoginIdentityDetailsData{
+	assert.True(t, identityDetailsData{
 		FirstNamesMatch:  true,
 		LastNameMatch:    true,
 		DateOfBirthMatch: true,
 		AddressMatch:     true,
 	}.DetailsMatch())
-	assert.False(t, oneLoginIdentityDetailsData{LastNameMatch: true, DateOfBirthMatch: true, AddressMatch: true}.DetailsMatch())
-	assert.False(t, oneLoginIdentityDetailsData{}.DetailsMatch())
+	assert.False(t, identityDetailsData{LastNameMatch: true, DateOfBirthMatch: true, AddressMatch: true}.DetailsMatch())
+	assert.False(t, identityDetailsData{}.DetailsMatch())
 }
 
 func TestGetOneLoginIdentityDetails(t *testing.T) {
@@ -77,7 +77,7 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &oneLoginIdentityDetailsData{
+				Execute(w, &identityDetailsData{
 					App:              testAppData,
 					Form:             form.NewYesNoForm(form.YesNoUnknown),
 					Provided:         tc.donorProvided,
@@ -89,7 +89,7 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
+			err := IdentityDetails(template.Execute, nil)(testAppData, w, r, tc.donorProvided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -121,7 +121,7 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 		Put(r.Context(), updated).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 		LpaID:            "lpa-id",
 		Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
 		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
@@ -140,7 +140,7 @@ func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := OneLoginIdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	err := IdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -160,7 +160,7 @@ func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := OneLoginIdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -178,12 +178,12 @@ func TestPostOneLoginIdentityDetailsWhenValidationError(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, mock.MatchedBy(func(data *oneLoginIdentityDetailsData) bool {
+		Execute(w, mock.MatchedBy(func(data *identityDetailsData) bool {
 			return assert.Equal(t, validationError, data.Errors)
 		})).
 		Return(nil)
 
-	err := OneLoginIdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
+	err := IdentityDetails(template.Execute, nil)(testAppData, w, r, &donordata.Provided{Donor: donordata.Donor{FirstNames: "a"}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
