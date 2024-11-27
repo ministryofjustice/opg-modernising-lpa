@@ -8,7 +8,7 @@ import (
 )
 
 func (c *mockDynamoClient_AllByLpaUIDAndPartialSK_Call) SetData(data any) {
-	c.Run(func(_ context.Context, _, _ string, v any) {
+	c.Run(func(_ context.Context, _ string, _ dynamo.SK, v any) {
 		b, _ := attributevalue.Marshal(data)
 		attributevalue.Unmarshal(b, v)
 	})

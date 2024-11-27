@@ -23,7 +23,7 @@ func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
 }
 
 // AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
-func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK string, v interface{}) error {
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, uid, partialSK, v)
 
 	if len(ret) == 0 {
@@ -31,7 +31,7 @@ func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid s
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, uid, partialSK, v)
 	} else {
 		r0 = ret.Error(0)
@@ -48,15 +48,15 @@ type mockDynamodbClient_AllByLpaUIDAndPartialSK_Call struct {
 // AllByLpaUIDAndPartialSK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - uid string
-//   - partialSK string
+//   - partialSK dynamo.SK
 //   - v interface{}
 func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK string, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(interface{}))
+		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(interface{}))
 	})
 	return _c
 }
@@ -66,7 +66,7 @@ func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mo
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, string, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }

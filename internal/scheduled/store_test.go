@@ -103,7 +103,7 @@ func TestDeleteAllByUID(t *testing.T) {
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduleKey(), mock.Anything).
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
 		Return(nil).
 		SetData([]Event{
 			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
