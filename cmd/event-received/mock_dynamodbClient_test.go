@@ -119,6 +119,53 @@ func (_c *mockDynamodbClient_AnyByPK_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// Create provides a mock function with given fields: ctx, v
+func (_m *mockDynamodbClient) Create(ctx context.Context, v interface{}) error {
+	ret := _m.Called(ctx, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
+		r0 = rf(ctx, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamodbClient_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type mockDynamodbClient_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - v interface{}
+func (_e *mockDynamodbClient_Expecter) Create(ctx interface{}, v interface{}) *mockDynamodbClient_Create_Call {
+	return &mockDynamodbClient_Create_Call{Call: _e.mock.On("Create", ctx, v)}
+}
+
+func (_c *mockDynamodbClient_Create_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Create_Call) Return(_a0 error) *mockDynamodbClient_Create_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Create_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateOnly provides a mock function with given fields: ctx, v
 func (_m *mockDynamodbClient) CreateOnly(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
