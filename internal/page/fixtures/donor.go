@@ -435,6 +435,9 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusExpired,
 			}
+		case "post-office":
+			userData = identity.UserData{}
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -461,7 +464,9 @@ func updateLPAProgress(
 
 		donorDetails.FailedVouchAttempts = attempts
 		donorDetails.IdentityUserData = userData
-		donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() {
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+		}
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
