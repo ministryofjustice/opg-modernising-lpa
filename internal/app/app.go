@@ -60,7 +60,6 @@ type DynamoClient interface {
 	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
 	LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error

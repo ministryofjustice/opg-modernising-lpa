@@ -524,54 +524,6 @@ func (_c *mockDynamoClient_DeleteKeys_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// DeleteManyByUID provides a mock function with given fields: ctx, keys, uid
-func (_m *mockDynamoClient) DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error {
-	ret := _m.Called(ctx, keys, uid)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DeleteManyByUID")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys, string) error); ok {
-		r0 = rf(ctx, keys, uid)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_DeleteManyByUID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteManyByUID'
-type mockDynamoClient_DeleteManyByUID_Call struct {
-	*mock.Call
-}
-
-// DeleteManyByUID is a helper method to define mock.On call
-//   - ctx context.Context
-//   - keys []dynamo.Keys
-//   - uid string
-func (_e *mockDynamoClient_Expecter) DeleteManyByUID(ctx interface{}, keys interface{}, uid interface{}) *mockDynamoClient_DeleteManyByUID_Call {
-	return &mockDynamoClient_DeleteManyByUID_Call{Call: _e.mock.On("DeleteManyByUID", ctx, keys, uid)}
-}
-
-func (_c *mockDynamoClient_DeleteManyByUID_Call) Run(run func(ctx context.Context, keys []dynamo.Keys, uid string)) *mockDynamoClient_DeleteManyByUID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]dynamo.Keys), args[2].(string))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_DeleteManyByUID_Call) Return(_a0 error) *mockDynamoClient_DeleteManyByUID_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_DeleteManyByUID_Call) RunAndReturn(run func(context.Context, []dynamo.Keys, string) error) *mockDynamoClient_DeleteManyByUID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteOne provides a mock function with given fields: ctx, pk, sk
 func (_m *mockDynamoClient) DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error {
 	ret := _m.Called(ctx, pk, sk)

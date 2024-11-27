@@ -110,10 +110,10 @@ func TestDeleteAllByUID(t *testing.T) {
 			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
 		})
 	dynamoClient.EXPECT().
-		DeleteManyByUID(ctx, []dynamo.Keys{
+		DeleteKeys(ctx, []dynamo.Keys{
 			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
 			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
-		}, "lpa-uid").
+		}).
 		Return(nil)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
@@ -147,14 +147,14 @@ func TestDeleteAllByUIDWhenNoEventsFound(t *testing.T) {
 	assert.ErrorContains(t, err, "no scheduled events found for UID lpa-uid")
 }
 
-func TestDeleteAllByUIDWhenDeleteManyByUIDErrors(t *testing.T) {
+func TestDeleteAllByUIDWhenDeleteKeysErrors(t *testing.T) {
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
 		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil).
 		SetData([]Event{{LpaUID: "lpa-uid"}})
 	dynamoClient.EXPECT().
-		DeleteManyByUID(mock.Anything, mock.Anything, mock.Anything).
+		DeleteKeys(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}

@@ -399,32 +399,6 @@ func (c *Client) DeleteOne(ctx context.Context, pk PK, sk SK) error {
 	return err
 }
 
-func (c *Client) DeleteManyByUID(ctx context.Context, keys []Keys, uid string) error {
-	items := make([]types.TransactWriteItem, len(keys))
-
-	for i, key := range keys {
-		items[i] = types.TransactWriteItem{
-			Delete: &types.Delete{
-				TableName: aws.String(c.table),
-				Key: map[string]types.AttributeValue{
-					"PK": &types.AttributeValueMemberS{Value: key.PK.PK()},
-					"SK": &types.AttributeValueMemberS{Value: key.SK.SK()},
-				},
-				ConditionExpression: aws.String("LpaUID = :uid"),
-				ExpressionAttributeValues: map[string]types.AttributeValue{
-					":uid": &types.AttributeValueMemberS{Value: uid},
-				},
-			},
-		}
-	}
-
-	_, err := c.svc.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
-		TransactItems: items,
-	})
-
-	return err
-}
-
 func (c *Client) Update(ctx context.Context, pk PK, sk SK, values map[string]types.AttributeValue, expression string) error {
 	_, err := c.svc.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: aws.String(c.table),

@@ -166,17 +166,17 @@ func (_c *mockDynamoClient_Create_Call) RunAndReturn(run func(context.Context, i
 	return _c
 }
 
-// DeleteManyByUID provides a mock function with given fields: ctx, keys, uid
-func (_m *mockDynamoClient) DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error {
-	ret := _m.Called(ctx, keys, uid)
+// DeleteKeys provides a mock function with given fields: ctx, keys
+func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Keys) error {
+	ret := _m.Called(ctx, keys)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeleteManyByUID")
+		panic("no return value specified for DeleteKeys")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys, string) error); ok {
-		r0 = rf(ctx, keys, uid)
+	if rf, ok := ret.Get(0).(func(context.Context, []dynamo.Keys) error); ok {
+		r0 = rf(ctx, keys)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -184,32 +184,31 @@ func (_m *mockDynamoClient) DeleteManyByUID(ctx context.Context, keys []dynamo.K
 	return r0
 }
 
-// mockDynamoClient_DeleteManyByUID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteManyByUID'
-type mockDynamoClient_DeleteManyByUID_Call struct {
+// mockDynamoClient_DeleteKeys_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteKeys'
+type mockDynamoClient_DeleteKeys_Call struct {
 	*mock.Call
 }
 
-// DeleteManyByUID is a helper method to define mock.On call
+// DeleteKeys is a helper method to define mock.On call
 //   - ctx context.Context
 //   - keys []dynamo.Keys
-//   - uid string
-func (_e *mockDynamoClient_Expecter) DeleteManyByUID(ctx interface{}, keys interface{}, uid interface{}) *mockDynamoClient_DeleteManyByUID_Call {
-	return &mockDynamoClient_DeleteManyByUID_Call{Call: _e.mock.On("DeleteManyByUID", ctx, keys, uid)}
+func (_e *mockDynamoClient_Expecter) DeleteKeys(ctx interface{}, keys interface{}) *mockDynamoClient_DeleteKeys_Call {
+	return &mockDynamoClient_DeleteKeys_Call{Call: _e.mock.On("DeleteKeys", ctx, keys)}
 }
 
-func (_c *mockDynamoClient_DeleteManyByUID_Call) Run(run func(ctx context.Context, keys []dynamo.Keys, uid string)) *mockDynamoClient_DeleteManyByUID_Call {
+func (_c *mockDynamoClient_DeleteKeys_Call) Run(run func(ctx context.Context, keys []dynamo.Keys)) *mockDynamoClient_DeleteKeys_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]dynamo.Keys), args[2].(string))
+		run(args[0].(context.Context), args[1].([]dynamo.Keys))
 	})
 	return _c
 }
 
-func (_c *mockDynamoClient_DeleteManyByUID_Call) Return(_a0 error) *mockDynamoClient_DeleteManyByUID_Call {
+func (_c *mockDynamoClient_DeleteKeys_Call) Return(_a0 error) *mockDynamoClient_DeleteKeys_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockDynamoClient_DeleteManyByUID_Call) RunAndReturn(run func(context.Context, []dynamo.Keys, string) error) *mockDynamoClient_DeleteManyByUID_Call {
+func (_c *mockDynamoClient_DeleteKeys_Call) RunAndReturn(run func(context.Context, []dynamo.Keys) error) *mockDynamoClient_DeleteKeys_Call {
 	_c.Call.Return(run)
 	return _c
 }
