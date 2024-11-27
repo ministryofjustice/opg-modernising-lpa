@@ -263,8 +263,10 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName)
 
 	lambdaClient := lambda.New(cfg, v4.NewSigner(), httpClient, time.Now)
-	uidClient := uid.New(uidBaseURL, lambdaClient)
+
 	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lpaStoreSecretARN, lambdaClient)
+
+	uidClient := uid.New(uidBaseURL, lambdaClient)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(page.PathHealthCheckService.String(), func(w http.ResponseWriter, r *http.Request) {})

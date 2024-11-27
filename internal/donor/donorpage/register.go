@@ -163,7 +163,7 @@ type ShareCodeStore interface {
 }
 
 type ScheduledStore interface {
-	Put(ctx context.Context, row scheduled.Event) error
+	Create(ctx context.Context, row scheduled.Event) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
