@@ -404,7 +404,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
 	handleWithDonor(donor.PathIdentityDetails, page.CanGoBack,
-		OneLoginIdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
+		IdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
 		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore))
 

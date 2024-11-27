@@ -17,7 +17,7 @@ describe('Confirm your identity', () => {
             cy.contains('label', 'Sam Smith (donor)').click();
             cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/one-login-identity-details');
+            cy.url().should('contain', '/identity-details');
             cy.checkA11yApp();
 
             cy.contains('Sam');
@@ -106,91 +106,122 @@ describe('Confirm your identity', () => {
     })
 
     describe('when identity details do not match LPA', () => {
-        it('can update LPA details', () => {
-            cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity")
-                .should('contain', 'Not started')
-                .find('a')
-                .click();
+        describe('before signing', () => {
+            it('can update LPA details', () => {
+                cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Not started')
+                    .find('a')
+                    .click();
 
-            cy.url().should('contain', '/confirm-your-identity');
-            cy.checkA11yApp();
-            cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/confirm-your-identity');
+                cy.checkA11yApp();
+                cy.contains('button', 'Continue').click();
 
-            cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-            cy.contains('button', 'Continue').click();
+                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/one-login-identity-details');
-            cy.checkA11yApp();
+                cy.url().should('contain', '/identity-details');
+                cy.checkA11yApp();
 
-            cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
-            cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
-            cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
+                cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
+                cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
+                cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
 
-            cy.contains('label', 'Yes').click();
-            cy.contains('button', 'Continue').click();
+                cy.contains('label', 'Yes').click();
+                cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/one-login-identity-details');
-            cy.checkA11yApp();
+                cy.url().should('contain', '/identity-details');
+                cy.checkA11yApp();
 
-            cy.contains('Your LPA details have been updated to match your confirmed identity')
-            cy.get('main').should('not.contain', 'Sam');
-            cy.get('main').should('not.contain', 'Smith');
-            cy.get('main').should('not.contain', '2 January 2000');
-        })
+                cy.contains('Your LPA details have been updated to match your confirmed identity')
+                cy.get('main').should('not.contain', 'Sam');
+                cy.get('main').should('not.contain', 'Smith');
+                cy.get('main').should('not.contain', '2 January 2000');
+            })
 
-        it('can withdraw LPA', () => {
-            cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity")
-                .should('contain', 'Not started')
-                .find('a')
-                .click();
 
-            cy.url().should('contain', '/confirm-your-identity');
-            cy.checkA11yApp();
-            cy.contains('button', 'Continue').click();
+            it('can withdraw LPA', () => {
+                cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Not started')
+                    .find('a')
+                    .click();
 
-            cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-            cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/confirm-your-identity');
+                cy.checkA11yApp();
+                cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/one-login-identity-details');
-            cy.checkA11yApp();
+                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                cy.contains('button', 'Continue').click();
 
-            cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
-            cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
-            cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
+                cy.url().should('contain', '/identity-details');
+                cy.checkA11yApp();
 
-            cy.contains('label', 'No').click();
-            cy.contains('button', 'Continue').click();
+                cy.contains('dd', 'Sam').parent().contains('span', 'Does not match');
+                cy.contains('dd', 'Smith').parent().contains('span', 'Does not match');
+                cy.contains('dd', '2 January 2000').parent().contains('span', 'Does not match');
 
-            cy.url().should('contain', '/withdraw-this-lpa');
-            cy.checkA11yApp();
-        })
+                cy.contains('label', 'No').click();
+                cy.contains('button', 'Continue').click();
 
-        it('errors when option not selected', () => {
-            cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
-            cy.contains('li', "Confirm your identity")
-                .should('contain', 'Not started')
-                .find('a')
-                .click();
+                cy.url().should('contain', '/withdraw-this-lpa');
+                cy.checkA11yApp();
+            })
 
-            cy.url().should('contain', '/confirm-your-identity');
-            cy.checkA11yApp();
-            cy.contains('button', 'Continue').click();
+            it('errors when option not selected', () => {
+                cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Not started')
+                    .find('a')
+                    .click();
 
-            cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-            cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/confirm-your-identity');
+                cy.checkA11yApp();
+                cy.contains('button', 'Continue').click();
 
-            cy.url().should('contain', '/one-login-identity-details');
-            cy.checkA11yApp();
+                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                cy.contains('button', 'Continue').click();
 
-            cy.contains('button', 'Continue').click();
+                cy.url().should('contain', '/identity-details');
+                cy.checkA11yApp();
 
-            cy.get('.govuk-error-summary').within(() => {
-                cy.contains('Select yes if you would like to update your details');
+                cy.contains('button', 'Continue').click();
+
+                cy.get('.govuk-error-summary').within(() => {
+                    cy.contains('Select yes if you would like to update your details');
+                });
+
+                cy.contains('.govuk-error-message', 'Select yes if you would like to update your details');
             });
+        });
 
-            cy.contains('.govuk-error-message', 'Select yes if you would like to update your details');
+        describe('after signing', () => {
+            it('cannot update details', () => {
+                cy.visit('/fixtures?redirect=/task-list&progress=signTheLpa&idStatus=donor:post-office');
+                cy.contains('li', "Sign the LPA")
+                    .should('contain', 'Completed');
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Pending')
+                    .find('a')
+                    .click();
+
+                cy.contains('label', 'confirm my identity another way').click();
+                cy.contains('button', 'Continue').click();
+
+                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                cy.contains('button', 'Continue').click();
+
+                cy.url().should('contain', '/identity-details');
+                cy.checkA11yApp();
+                cy.contains('Does not match');
+                cy.contains('cannot be updated');
+                cy.contains('button', 'Continue').should('not.exist');
+                cy.contains('a', 'Return to task list').click();
+
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Pending');
+            });
         });
     });
 
