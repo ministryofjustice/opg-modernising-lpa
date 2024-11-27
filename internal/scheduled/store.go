@@ -11,8 +11,8 @@ import (
 type DynamoClient interface {
 	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	Create(ctx context.Context, v interface{}) error
 }
 
@@ -68,5 +68,5 @@ func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
 		keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
 	}
 
-	return s.dynamoClient.DeleteManyByUID(ctx, keys, uid)
+	return s.dynamoClient.DeleteKeys(ctx, keys)
 }

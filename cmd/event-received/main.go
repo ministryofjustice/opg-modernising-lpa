@@ -82,7 +82,7 @@ type dynamodbClient interface {
 	Create(ctx context.Context, v interface{}) error
 	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
 	OneByUID(ctx context.Context, uid string, v interface{}) error
