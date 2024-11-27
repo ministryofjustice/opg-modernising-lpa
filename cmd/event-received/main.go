@@ -79,6 +79,7 @@ type uidEvent struct {
 type dynamodbClient interface {
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	AllByLpaUIDAndPartialSK(ctx context.Context, uid, partialSK string, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
 	CreateOnly(ctx context.Context, v interface{}) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
 	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error

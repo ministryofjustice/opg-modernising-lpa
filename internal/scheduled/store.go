@@ -13,7 +13,7 @@ type DynamoClient interface {
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	DeleteManyByUID(ctx context.Context, keys []dynamo.Keys, uid string) error
 	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
-	Put(ctx context.Context, v interface{}) error
+	Create(ctx context.Context, v interface{}) error
 }
 
 type Store struct {
@@ -44,12 +44,12 @@ func (s *Store) Pop(ctx context.Context, day time.Time) (*Event, error) {
 	return &row, nil
 }
 
-func (s *Store) Put(ctx context.Context, row Event) error {
+func (s *Store) Create(ctx context.Context, row Event) error {
 	row.PK = dynamo.ScheduledDayKey(row.At)
 	row.SK = dynamo.ScheduledKey(row.At, int(row.Action))
 	row.CreatedAt = s.now()
 
-	return s.dynamoClient.Put(ctx, row)
+	return s.dynamoClient.Create(ctx, row)
 }
 
 func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
