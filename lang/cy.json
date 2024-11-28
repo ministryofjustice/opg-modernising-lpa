@@ -1486,6 +1486,7 @@
     "weWillInformVoucherTheyNoLongerNeedTo": "Welsh {{.VoucherFullName}}",
     "voucherNoLongerNeeded": "Welsh {{.VoucherFullName}}",
     "weHaveInformedVoucherTheyNoLongerNeedTo": "Welsh {{.VoucherFullName}}",
+    "weHaveInformedThePersonYouWantedToVouchForYouTheyAreNoLongerNeeded": "Welsh",
     "youHaveChosen:prove-own-identity": "Welsh",
     "youHaveChosen:select-new-voucher": "Welsh",
     "youHaveChosen:withdraw-lpa": "Welsh",

@@ -100,6 +100,7 @@ type OneLoginClient interface {
 type NotifyClient interface {
 	SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
 	SendEmail(ctx context.Context, lang localize.Lang, to string, email notify.Email) error
+	SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
 }
 
 type SessionStore interface {
@@ -427,7 +428,7 @@ func Register(
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
 	handleWithDonor(donor.PathAreYouSureYouNoLongerNeedVoucher, page.CanGoBack,
-		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore))
+		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore, notifyClient))
 	handleWithDonor(donor.PathWeHaveInformedVoucherNoLongerNeeded, page.None,
 		Guidance(tmpls.Get("we_have_informed_voucher_no_longer_needed.gohtml")))
 
