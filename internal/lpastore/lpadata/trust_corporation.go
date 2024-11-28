@@ -16,4 +16,5 @@ type TrustCorporation struct {
 	Signatories               []TrustCorporationSignatory
 	ContactLanguagePreference localize.Lang
 	Channel                   Channel
+	Removed                   bool
 }
