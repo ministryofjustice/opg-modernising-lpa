@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -85,8 +84,8 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
+	SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite sharecode.CertificateProviderInvite, to notify.ToEmail) error
+	SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
 }
 
@@ -98,8 +97,8 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
-	SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
-	SendEmail(ctx context.Context, lang localize.Lang, to string, email notify.Email) error
+	SendActorSMS(ctx context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
+	SendEmail(ctx context.Context, to notify.ToEmail, email notify.Email) error
 }
 
 type SessionStore interface {

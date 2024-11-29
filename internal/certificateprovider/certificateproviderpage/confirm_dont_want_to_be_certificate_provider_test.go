@@ -200,7 +200,7 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				EmailGreeting(mock.Anything).
 				Return("Dear donor")
 			notifyClient.EXPECT().
-				SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", tc.email).
+				SendActorEmail(r.Context(), notify.ToLpaDonor(tc.lpa), "lpa-uid", tc.email).
 				Return(nil)
 
 			err := ConfirmDontWantToBeCertificateProvider(nil, tc.lpaStoreClient(), tc.donorStore(), certificateProviderStore, notifyClient, "example.com")(testAppData, w, r, nil, tc.lpa)
@@ -391,7 +391,7 @@ func TestPostConfirmDontWantToBeCertificateProviderErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("Dear donor")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
