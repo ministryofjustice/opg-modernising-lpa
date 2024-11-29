@@ -102,6 +102,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 			FirstNames: donor.Correspondent.FirstNames,
 			LastName:   donor.Correspondent.LastName,
 			Email:      donor.Correspondent.Email,
+			Phone:      donor.Correspondent.Phone,
 		}
 		if donor.Voucher.Allowed {
 			lpa.Voucher = lpadata.Voucher{
