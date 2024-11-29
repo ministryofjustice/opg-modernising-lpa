@@ -55,7 +55,7 @@ func TestShareCodeSenderSendCertificateProviderInvite(t *testing.T) {
 		Return("Property and affairs").
 		Once()
 	localizer.EXPECT().
-		T(donor.Type.WhatLPACoversTransKey()).
+		T("whatPropertyAndAffairsCovers").
 		Return("houses and stuff").
 		Once()
 	localizer.EXPECT().
@@ -128,7 +128,7 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			FirstNames: "Jan",
 			LastName:   "Smith",
 		},
-		Type:   lpadata.LpaTypePropertyAndAffairs,
+		Type:   lpadata.LpaTypePersonalWelfare,
 		LpaUID: "lpa-uid",
 	}
 
@@ -137,14 +137,14 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
 				T(donor.Type.String()).
-				Return("Property and affairs").
+				Return("Personal welfare").
 				Twice()
 			localizer.EXPECT().
 				Possessive("Jan").
 				Return("Jan’s")
 			localizer.EXPECT().
-				T(donor.Type.WhatLPACoversTransKey()).
-				Return("houses and stuff")
+				T("whatPersonalWelfareCovers").
+				Return("health and stuff")
 			TestAppData.Localizer = localizer
 
 			to := notify.ToCertificateProvider(donor.CertificateProvider)
@@ -172,11 +172,11 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					CertificateProviderFullName:  "Joanna Jones",
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
-					LpaType:                      "property and affairs",
+					LpaType:                      "personal welfare",
 					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
 					ShareCode:                    tc.expectedTestCode,
 					DonorFirstNamesPossessive:    "Jan’s",
-					WhatLpaCovers:                "houses and stuff",
+					WhatLpaCovers:                "health and stuff",
 					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderEnterReferenceNumberOptOut),
 				}).
 				Once().
@@ -186,11 +186,11 @@ func TestShareCodeSenderSendCertificateProviderInviteWithTestCode(t *testing.T) 
 					CertificateProviderFullName:  "Joanna Jones",
 					DonorFirstNames:              "Jan",
 					DonorFullName:                "Jan Smith",
-					LpaType:                      "property and affairs",
+					LpaType:                      "personal welfare",
 					CertificateProviderStartURL:  fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
 					ShareCode:                    testRandomString,
 					DonorFirstNamesPossessive:    "Jan’s",
-					WhatLpaCovers:                "houses and stuff",
+					WhatLpaCovers:                "health and stuff",
 					CertificateProviderOptOutURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderEnterReferenceNumberOptOut),
 				}).
 				Once().

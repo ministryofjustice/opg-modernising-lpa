@@ -89,6 +89,11 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		return err
 	}
 
+	whatLpaCovers := "whatPropertyAndAffairsCovers"
+	if invite.Type.IsPersonalWelfare() {
+		whatLpaCovers = "whatPersonalWelfareCovers"
+	}
+
 	return s.sendEmail(ctx, to, invite.LpaUID, notify.CertificateProviderInviteEmail{
 		CertificateProviderFullName:  invite.CertificateProviderFullName,
 		DonorFullName:                invite.DonorFullName,
@@ -96,7 +101,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		CertificateProviderStartURL:  fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
-		WhatLpaCovers:                appData.Localizer.T(invite.Type.WhatLPACoversTransKey()),
+		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
 		ShareCode:                    shareCode,
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterReferenceNumberOptOut),
 	})
