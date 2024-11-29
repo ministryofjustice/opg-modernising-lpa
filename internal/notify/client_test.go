@@ -146,7 +146,7 @@ func TestSendEmail(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendEmail(ctx, localize.En, "me@example.com", testEmail{A: "value"})
+	err := client.SendEmail(ctx, to{lang: localize.En, email: "me@example.com"}, testEmail{A: "value"})
 	assert.Nil(err)
 }
 
@@ -169,7 +169,7 @@ func TestSendEmailWhenError(t *testing.T) {
 
 	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendEmail(ctx, localize.En, "me@example.com", testEmail{})
+	err := client.SendEmail(ctx, to{lang: localize.En, email: "me@example.com"}, testEmail{})
 	assert.Equal(`error sending message: This happened: Plus this`, err.Error())
 }
 
@@ -228,7 +228,7 @@ func TestSendActorEmail(t *testing.T) {
 			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 			client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-			err := client.SendActorEmail(ctx, localize.En, "me@example.com", "lpa-uid", testEmail{A: "value"})
+			err := client.SendActorEmail(ctx, to{lang: localize.En, email: "me@example.com"}, "lpa-uid", testEmail{A: "value"})
 			assert.Nil(err)
 		})
 	}
@@ -256,7 +256,7 @@ func TestSendActorEmailWhenToSimulated(t *testing.T) {
 		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-		err := client.SendActorEmail(ctx, localize.En, email, "lpa-uid", testEmail{A: "value"})
+		err := client.SendActorEmail(ctx, to{lang: localize.En, email: email}, "lpa-uid", testEmail{A: "value"})
 		assert.Nil(err)
 	}
 }
@@ -292,7 +292,7 @@ func TestSendActorEmailWhenAlreadyRecentlyCreated(t *testing.T) {
 			client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 			client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-			err := client.SendActorEmail(ctx, localize.En, "me@example.com", "lpa-uid", testEmail{A: "value"})
+			err := client.SendActorEmail(ctx, to{lang: localize.En, email: "me@example.com"}, "lpa-uid", testEmail{A: "value"})
 			assert.Nil(err)
 		})
 	}
@@ -306,7 +306,7 @@ func TestSendActorEmailWhenReferenceExistsError(t *testing.T) {
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendActorEmail(context.Background(), localize.En, "me@example.com", "lpa-uid", testEmail{A: "value"})
+	err := client.SendActorEmail(context.Background(), to{lang: localize.En, email: "me@example.com"}, "lpa-uid", testEmail{A: "value"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -331,7 +331,7 @@ func TestSendActorEmailWhenError(t *testing.T) {
 
 	client, _ := New(logger, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendActorEmail(context.Background(), localize.En, "me@example.com", "lpa-uid", testEmail{})
+	err := client.SendActorEmail(context.Background(), to{lang: localize.En, email: "me@example.com"}, "lpa-uid", testEmail{})
 	assert.Equal(t, "error sending message: This happened: Plus this", err.Error())
 }
 
@@ -358,7 +358,7 @@ func TestSendActorEmailWhenEventError(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendActorEmail(context.Background(), localize.En, "me@example.com", "lpa-uid", testEmail{A: "value"})
+	err := client.SendActorEmail(context.Background(), to{lang: localize.En, email: "me@example.com"}, "lpa-uid", testEmail{A: "value"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -536,7 +536,7 @@ func TestSendActorSMS(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendActorSMS(ctx, localize.En, "+447535111111", "lpa-uid", testSMS{A: "value"})
+	err := client.SendActorSMS(ctx, to{lang: localize.En, mobile: "+447535111111"}, "lpa-uid", testSMS{A: "value"})
 	assert.Nil(err)
 }
 
@@ -552,7 +552,7 @@ func TestSendActorSMSWhenToSimulated(t *testing.T) {
 		client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 		client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-		err := client.SendActorSMS(context.Background(), localize.En, phone, "lpa-uid", testSMS{A: "value"})
+		err := client.SendActorSMS(context.Background(), to{lang: localize.En, mobile: phone}, "lpa-uid", testSMS{A: "value"})
 		assert.Nil(t, err)
 	}
 }
@@ -567,7 +567,7 @@ func TestSendActorSMSWhenError(t *testing.T) {
 
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, nil, nil)
 
-	err := client.SendActorSMS(context.Background(), localize.En, "+447535111111", "lpa-uid", testSMS{})
+	err := client.SendActorSMS(context.Background(), to{lang: localize.En, mobile: "+447535111111"}, "lpa-uid", testSMS{})
 	assert.Equal(t, "error sending message: This happened: Plus this", err.Error())
 }
 
@@ -585,7 +585,7 @@ func TestSendActorSMSWhenEventError(t *testing.T) {
 	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", doer, eventClient, nil)
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
-	err := client.SendActorSMS(context.Background(), localize.En, "+447535111111", "lpa-uid", testSMS{A: "value"})
+	err := client.SendActorSMS(context.Background(), to{lang: localize.En, mobile: "+447535111111"}, "lpa-uid", testSMS{A: "value"})
 	assert.Equal(t, expectedError, err)
 }
 

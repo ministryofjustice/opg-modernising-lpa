@@ -85,25 +85,27 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 	r, _ := http.NewRequestWithContext(appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123", SessionID: "456"}), http.MethodPost, "/?referenceNumber=123", nil)
 	w := httptest.NewRecorder()
+
 	uid := actoruid.New()
+	lpa := &lpadata.Lpa{
+		LpaUID:   "lpa-uid",
+		SignedAt: time.Now(),
+		Donor: lpadata.Donor{
+			FirstNames: "a b", LastName: "c", Email: "a@example.com",
+			ContactLanguagePreference: localize.En,
+		},
+		Attorneys: lpadata.Attorneys{
+			Attorneys: []lpadata.Attorney{
+				{FirstNames: "d e", LastName: "f", UID: uid},
+			},
+		},
+		Type: lpadata.LpaTypePersonalWelfare,
+	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			LpaUID:   "lpa-uid",
-			SignedAt: time.Now(),
-			Donor: lpadata.Donor{
-				FirstNames: "a b", LastName: "c", Email: "a@example.com",
-				ContactLanguagePreference: localize.En,
-			},
-			Attorneys: lpadata.Attorneys{
-				Attorneys: []lpadata.Attorney{
-					{FirstNames: "d e", LastName: "f", UID: uid},
-				},
-			},
-			Type: lpadata.LpaTypePersonalWelfare,
-		}, nil)
+		Return(lpa, nil)
 
 	certificateProviderStore := newMockAttorneyStore(t)
 	certificateProviderStore.EXPECT().
@@ -122,7 +124,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		EmailGreeting(mock.Anything).
 		Return("Dear donor")
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.AttorneyOptedOutEmail{
 			Greeting:          "Dear donor",
 			AttorneyFullName:  "d e f",
 			DonorFullName:     "a b c",
@@ -186,7 +188,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
@@ -206,7 +208,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
@@ -234,7 +236,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
