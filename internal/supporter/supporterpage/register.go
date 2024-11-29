@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -88,7 +87,7 @@ type SessionStore interface {
 }
 
 type NotifyClient interface {
-	SendEmail(ctx context.Context, lang localize.Lang, to string, email notify.Email) error
+	SendEmail(ctx context.Context, to notify.ToEmail, email notify.Email) error
 }
 
 type ShareCodeStore interface {

@@ -8,9 +8,12 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -208,6 +211,11 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		return err
 	}
 
+	// TODO: determine if there is any chance of a certificate provider record
+	// existing at this point, otherwise add comment explaining why setting
+	// localize.En is ok
+	to := notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.En}, lpa)
+
 	if err := shareCodeSender.SendCertificateProviderInvite(ctx, appData, sharecode.CertificateProviderInvite{
 		LpaKey:                      lpa.LpaKey,
 		LpaOwnerKey:                 lpa.LpaOwnerKey,
@@ -217,8 +225,7 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 		DonorFullName:               lpa.Donor.FullName(),
 		CertificateProviderUID:      lpa.CertificateProvider.UID,
 		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
-		CertificateProviderEmail:    lpa.CertificateProvider.Email,
-	}); err != nil {
+	}, to); err != nil {
 		return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 	}
 

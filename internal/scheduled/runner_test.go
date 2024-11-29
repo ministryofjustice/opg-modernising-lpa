@@ -458,14 +458,16 @@ func TestRunnerCancelDonorIdentity(t *testing.T) {
 		TargetLpaOwnerKey: donorKey,
 	}
 
+	provided := &donordata.Provided{
+		LpaUID:           "lpa-uid",
+		Donor:            donordata.Donor{Email: "donor@example.com", ContactLanguagePreference: localize.Cy},
+		IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+	}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		One(ctx, lpaKey, donorKey).
-		Return(&donordata.Provided{
-			LpaUID:           "lpa-uid",
-			Donor:            donordata.Donor{Email: "donor@example.com", ContactLanguagePreference: localize.Cy},
-			IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
-		}, nil)
+		Return(provided, nil)
 	donorStore.EXPECT().
 		Put(ctx, &donordata.Provided{
 			LpaUID:           "lpa-uid",
@@ -476,7 +478,7 @@ func TestRunnerCancelDonorIdentity(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(ctx, localize.Cy, "donor@example.com", "lpa-uid", notify.DonorIdentityCheckExpiredEmail{}).
+		SendActorEmail(ctx, notify.ToDonor(provided), "lpa-uid", notify.DonorIdentityCheckExpiredEmail{}).
 		Return(nil)
 
 	runner := &Runner{
@@ -559,7 +561,7 @@ func TestRunnerCancelDonorIdentityWhenNotifySendErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	runner := &Runner{
@@ -591,7 +593,7 @@ func TestRunnerCancelDonorIdentityWhenDonorStorePutErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	runner := &Runner{
