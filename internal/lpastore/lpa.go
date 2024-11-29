@@ -393,6 +393,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	}
 
 	for _, a := range l.Attorneys {
+		if a.Status == "inactive" {
+			continue
+		}
+
 		at := lpadata.Attorney{
 			UID:                       a.UID,
 			FirstNames:                a.FirstNames,
@@ -404,16 +408,21 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			SignedAt:                  a.SignedAt,
 			ContactLanguagePreference: a.ContactLanguagePreference,
 			Channel:                   a.Channel,
+			Removed:                   a.Status == statusRemoved,
 		}
 
-		if a.Status == "replacement" {
+		if a.AppointmentType == appointmentTypeReplacement {
 			data.ReplacementAttorneys.Attorneys = append(data.ReplacementAttorneys.Attorneys, at)
-		} else if a.Status == "active" {
+		} else {
 			data.Attorneys.Attorneys = append(data.Attorneys.Attorneys, at)
 		}
 	}
 
 	for _, t := range l.TrustCorporations {
+		if t.Status == "inactive" {
+			continue
+		}
+
 		tc := lpadata.TrustCorporation{
 			UID:                       t.UID,
 			Name:                      t.Name,
@@ -424,11 +433,12 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			Signatories:               t.Signatories,
 			ContactLanguagePreference: t.ContactLanguagePreference,
 			Channel:                   t.Channel,
+			Removed:                   t.Status == statusRemoved,
 		}
 
-		if t.Status == "replacement" {
+		if t.AppointmentType == appointmentTypeReplacement {
 			data.ReplacementAttorneys.TrustCorporation = tc
-		} else if t.Status == "active" {
+		} else {
 			data.Attorneys.TrustCorporation = tc
 		}
 	}

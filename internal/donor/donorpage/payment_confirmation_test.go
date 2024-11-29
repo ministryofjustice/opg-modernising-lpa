@@ -734,7 +734,7 @@ func TestGetPaymentConfirmationWhenNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendEmail(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t).
@@ -985,7 +985,7 @@ func (m *mockLocalizer) withEmailLocalizations() *mockLocalizer {
 
 func (m *mockNotifyClient) withEmailPersonalizations(ctx context.Context, amount string) *mockNotifyClient {
 	m.EXPECT().
-		SendEmail(ctx, localize.En, "a@example.com", notify.PaymentConfirmationEmail{
+		SendEmail(ctx, notify.ToCustomEmail(localize.En, "a@example.com"), notify.PaymentConfirmationEmail{
 			DonorFullNamesPossessive: "donor name possessive",
 			LpaType:                  "translated type",
 			PaymentCardFullName:      "a b",
