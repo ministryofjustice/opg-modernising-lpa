@@ -25,7 +25,7 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublic
 			DonorStartPageURL: appPublicURL + page.PathStart.Format(),
 		}
 
-		if err := notifyClient.SendActorEmail(ctx, lpa.Donor.ContactLanguagePreference, lpa.CorrespondentEmail(), lpa.LpaUID, email); err != nil {
+		if err := notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send email: %w", err)
 		}
 

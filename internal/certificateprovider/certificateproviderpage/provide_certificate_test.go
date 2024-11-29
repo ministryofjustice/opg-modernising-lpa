@@ -130,7 +130,7 @@ func TestPostProvideCertificate(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -217,7 +217,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), localize.En, "a@example.com", "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
+		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), "lpa-uid", notify.CertificateProviderCertificateProvidedEmail{
 			DonorFullNamePossessive:     "the possessive full name",
 			DonorFirstNamesPossessive:   "the possessive first names",
 			LpaType:                     "the translated term",
@@ -312,7 +312,7 @@ func TestPostProvideCertificateOnStoreError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
@@ -389,7 +389,7 @@ func TestPostProvideCertificateOnNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	testAppData.Localizer = localizer
@@ -446,7 +446,7 @@ func TestPostProvideCertificateWhenShareCodeSenderErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)

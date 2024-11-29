@@ -102,7 +102,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					return err
 				}
 
-				if err := notifyClient.SendEmail(r.Context(), donor.Donor.ContactLanguagePreference, data.Form.Email, notify.DonorAccessEmail{
+				if err := notifyClient.SendEmail(r.Context(), notify.ToDonor(donor), notify.DonorAccessEmail{
 					SupporterFullName: member.FullName(),
 					OrganisationName:  organisation.Name,
 					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),

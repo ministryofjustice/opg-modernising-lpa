@@ -40,7 +40,7 @@ type SecretsClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite, notify.ToEmail) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
