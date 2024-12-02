@@ -83,9 +83,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'Registered');
-            cy.get('.govuk-dashboard-row a').should('have.length', 2);
-            cy.contains('a', 'View LPA');
-            cy.contains('a', 'Use');
+            cy.contains('a', 'Continue to Use a lasting power of attorney');
         });
     });
 
