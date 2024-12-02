@@ -40,7 +40,7 @@ func TestWitnessCodeSenderSendToCertificateProvider(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorSMS(ctx, localize.En, "0777", "lpa-uid", notify.WitnessCodeSMS{
+				SendActorSMS(ctx, notify.ToCertificateProvider(donordata.CertificateProvider{Mobile: "0777"}), "lpa-uid", notify.WitnessCodeSMS{
 					WitnessCode:   tc.expectedWitnessCode,
 					DonorFullName: "Joe Jones’",
 					LpaType:       "property and affairs",
@@ -95,9 +95,18 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenContactLanguagePreference
 	now := time.Now()
 	ctx := context.Background()
 
+	certificateProvider := &certificateproviderdata.Provided{ContactLanguagePreference: localize.Cy}
+	provided := &donordata.Provided{
+		LpaUID:                   "lpa-uid",
+		Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
+		CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
+		CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
+		Type:                     lpadata.LpaTypePropertyAndAffairs,
+	}
+
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(ctx, localize.Cy, "0777", "lpa-uid", notify.WitnessCodeSMS{
+		SendActorSMS(ctx, notify.ToProvidedCertificateProvider(certificateProvider, provided.CertificateProvider), "lpa-uid", notify.WitnessCodeSMS{
 			WitnessCode:   "1234",
 			DonorFullName: "Joe Jones’",
 			LpaType:       "property and affairs",
@@ -106,19 +115,13 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenContactLanguagePreference
 
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(ctx, &donordata.Provided{
-			LpaUID:                   "lpa-uid",
-			Donor:                    donordata.Donor{FirstNames: "Joe", LastName: "Jones"},
-			CertificateProvider:      donordata.CertificateProvider{Mobile: "0777"},
-			CertificateProviderCodes: donordata.WitnessCodes{{Code: "1234", Created: now}},
-			Type:                     lpadata.LpaTypePropertyAndAffairs,
-		}).
+		Put(ctx, provided).
 		Return(nil)
 
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		GetAny(ctx).
-		Return(&certificateproviderdata.Provided{ContactLanguagePreference: localize.Cy}, nil)
+		Return(certificateProvider, nil)
 
 	localizer := newMockLocalizer(t)
 	localizer.EXPECT().
@@ -161,7 +164,7 @@ func TestWitnessCodeSenderSendToCertificateProviderWhenTooRecentlySent(t *testin
 func TestWitnessCodeSenderSendToCertificateProviderWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)
@@ -225,7 +228,7 @@ func TestWitnessCodeSenderSendToIndependentWitness(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(ctx, localize.En, "0777", "lpa-uid", notify.WitnessCodeSMS{
+		SendActorSMS(ctx, notify.ToIndependentWitness(donordata.IndependentWitness{Mobile: "0777"}), "lpa-uid", notify.WitnessCodeSMS{
 			WitnessCode:   "1234",
 			DonorFullName: "Joe Jones’",
 			LpaType:       "property and affairs",
@@ -283,7 +286,7 @@ func TestWitnessCodeSenderSendToIndependentWitnessWhenTooRecentlySent(t *testing
 func TestWitnessCodeSenderSendToIndependentWitnessWhenNotifyClientErrors(t *testing.T) {
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	donorStore := newMockDonorStore(t)

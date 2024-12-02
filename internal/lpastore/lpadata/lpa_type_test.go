@@ -37,18 +37,3 @@ func TestLpaType(t *testing.T) {
 		assert.False(t, LpaTypePersonalWelfare.IsPropertyAndAffairs())
 	})
 }
-
-func TestLpaTypeWhatLPACoversTransKey(t *testing.T) {
-	testCases := map[LpaType]string{
-		LpaTypePropertyAndAffairs: "whatPropertyAndAffairsCovers",
-		LpaTypePersonalWelfare:    "whatPersonalWelfareCovers",
-		LpaType(99):               "",
-		LpaType(0):                "",
-	}
-
-	for lpaType, translationKey := range testCases {
-		t.Run(lpaType.String(), func(t *testing.T) {
-			assert.Equal(t, translationKey, lpaType.WhatLPACoversTransKey())
-		})
-	}
-}
