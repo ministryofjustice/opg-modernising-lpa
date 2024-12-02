@@ -150,6 +150,16 @@ func TestSendEmail(t *testing.T) {
 	assert.Nil(err)
 }
 
+func TestSendEmailWhenIgnored(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil, nil, nil)
+
+	err := client.SendEmail(ctx, to{ignored: true}, testEmail{A: "value"})
+	assert.Nil(err)
+}
+
 func TestSendEmailWhenError(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
@@ -232,6 +242,16 @@ func TestSendActorEmail(t *testing.T) {
 			assert.Nil(err)
 		})
 	}
+}
+
+func TestSendActorEmailWhenIgnored(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil, nil, nil)
+
+	err := client.SendActorEmail(ctx, to{ignored: true}, "lpa-uid", testEmail{A: "value"})
+	assert.Nil(err)
 }
 
 func TestSendActorEmailWhenToSimulated(t *testing.T) {
@@ -537,6 +557,16 @@ func TestSendActorSMS(t *testing.T) {
 	client.now = func() time.Time { return time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC) }
 
 	err := client.SendActorSMS(ctx, to{lang: localize.En, mobile: "+447535111111"}, "lpa-uid", testSMS{A: "value"})
+	assert.Nil(err)
+}
+
+func TestSendActorSMSWhenIgnored(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+
+	client, _ := New(nil, true, "", "my_client-f33517ff-2a88-4f6e-b855-c550268ce08a-740e5834-3a29-46b4-9a6f-16142fde533a", nil, nil, nil)
+
+	err := client.SendActorSMS(ctx, to{ignored: true}, "lpa-uid", testSMS{A: "value"})
 	assert.Nil(err)
 }
 
