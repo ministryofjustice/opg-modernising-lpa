@@ -19,18 +19,11 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
-
-type ShareCodeSender interface {
-	SendCertificateProviderInvite(context context.Context, appData appcontext.Data, invite sharecode.CertificateProviderInvite) error
-	SendAttorneys(context context.Context, appData appcontext.Data, donorProvided *lpadata.Lpa) error
-	UseTestCode(shareCode string)
-}
 
 const (
 	testEmail  = "simulate-delivered@notifications.service.gov.uk"

@@ -26,7 +26,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
+	lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	sessionStore := newMockSessionStore(t)
 	sessionStore.EXPECT().
@@ -36,13 +36,13 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
 		Get(appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})).
-		Return(&lpa, nil)
+		Return(lpa, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &confirmDontWantToBeCertificateProviderDataLoggedOut{
 			App: testAppData,
-			Lpa: &lpa,
+			Lpa: lpa,
 		}).
 		Return(nil)
 
@@ -138,13 +138,13 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
 	testcases := map[string]struct {
-		lpa            lpadata.Lpa
+		lpa            *lpadata.Lpa
 		lpaStoreClient func() *mockLpaStoreClient
 		donorStore     func() *mockDonorStore
 		email          notify.Email
 	}{
 		"witnessed and signed": {
-			lpa: lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaUID:                           "lpa-uid",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -177,7 +177,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			},
 		},
 		"cannot-register": {
-			lpa: lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaUID:                           "lpa-uid",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
@@ -201,7 +201,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			},
 		},
 		"not witnessed and signed": {
-			lpa: lpadata.Lpa{
+			lpa: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
 				Donor: lpadata.Donor{
 					FirstNames: "a b", LastName: "c", Email: "a@example.com",
@@ -279,14 +279,14 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 			lpaStoreResolvingService.EXPECT().
 				Get(ctx).
-				Return(&tc.lpa, nil)
+				Return(tc.lpa, nil)
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				EmailGreeting(&tc.lpa).
+				EmailGreeting(tc.lpa).
 				Return("Dear donor")
 			notifyClient.EXPECT().
-				SendActorEmail(ctx, localize.En, "a@example.com", "lpa-uid", tc.email).
+				SendActorEmail(ctx, notify.ToLpaDonor(tc.lpa), "lpa-uid", tc.email).
 				Return(nil)
 
 			localizer := newMockLocalizer(t)
@@ -533,7 +533,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
@@ -580,7 +580,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T)
 					EmailGreeting(mock.Anything).
 					Return("")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client

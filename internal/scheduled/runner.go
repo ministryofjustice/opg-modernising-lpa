@@ -13,7 +13,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -34,7 +33,7 @@ type DonorStore interface {
 }
 
 type NotifyClient interface {
-	SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
+	SendActorEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
 }
 
 type Logger interface {
@@ -211,7 +210,7 @@ func (r *Runner) stepCancelDonorIdentity(ctx context.Context, row *Event) error 
 	provided.IdentityUserData = identity.UserData{Status: identity.StatusExpired}
 	provided.Tasks.ConfirmYourIdentity = task.IdentityStateNotStarted
 
-	if err := r.notifyClient.SendActorEmail(ctx, provided.Donor.ContactLanguagePreference, provided.CorrespondentEmail(), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
+	if err := r.notifyClient.SendActorEmail(ctx, notify.ToDonor(provided), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}
 

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -112,16 +112,16 @@ func TestPostYourDeclaration(t *testing.T) {
 
 	testcases := map[string]struct {
 		lpa         *lpadata.Lpa
-		setupNotify func(*mockNotifyClient)
+		setupNotify func(*lpadata.Lpa, *mockNotifyClient)
 	}{
 		"email": {
 			lpa: &lpadata.Lpa{
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
 			},
-			setupNotify: func(m *mockNotifyClient) {
+			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorEmail(r.Context(), localize.En, "blah@example.com", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityEmail{
+					SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityEmail{
 						DonorFullName:     "John Smith",
 						DonorStartPageURL: "app:///start",
 						VoucherFullName:   "Vivian Voucher",
@@ -136,9 +136,9 @@ func TestPostYourDeclaration(t *testing.T) {
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
 			},
-			setupNotify: func(m *mockNotifyClient) {
+			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorEmail(r.Context(), localize.Cy, "blah@example.com", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
+					SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaEmail{
 						DonorFullName:     "John Smith",
 						DonorStartPageURL: "app:///start",
 						VoucherFullName:   "Vivian Voucher",
@@ -151,9 +151,9 @@ func TestPostYourDeclaration(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Donor:  lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", Mobile: "0777", ContactLanguagePreference: localize.Cy},
 			},
-			setupNotify: func(m *mockNotifyClient) {
+			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorSMS(r.Context(), localize.Cy, "0777", "lpa-uid", notify.VoucherHasConfirmedDonorIdentitySMS{
+					SendActorSMS(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentitySMS{
 						DonorFullName:     "John Smith",
 						DonorStartPageURL: "app:///start",
 						VoucherFullName:   "Vivian Voucher",
@@ -168,9 +168,9 @@ func TestPostYourDeclaration(t *testing.T) {
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
 			},
-			setupNotify: func(m *mockNotifyClient) {
+			setupNotify: func(lpa *lpadata.Lpa, m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorSMS(r.Context(), localize.En, "0777", "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
+					SendActorSMS(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.VoucherHasConfirmedDonorIdentityOnSignedLpaSMS{
 						DonorStartPageURL: "app:///start",
 						VoucherFullName:   "Vivian Voucher",
 					}).
@@ -212,7 +212,7 @@ func TestPostYourDeclaration(t *testing.T) {
 				Return(nil)
 
 			notifyClient := newMockNotifyClient(t)
-			tc.setupNotify(notifyClient)
+			tc.setupNotify(tc.lpa, notifyClient)
 
 			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 			resp := w.Result()
@@ -272,7 +272,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 		},
@@ -284,7 +284,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 		},
@@ -295,7 +295,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 		},
@@ -307,7 +307,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			},
 			setupNotify: func(m *mockNotifyClient) {
 				m.EXPECT().
-					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 		},
@@ -388,7 +388,7 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 				Return(nil)
 
 			donorStore := newMockDonorStore(t)
