@@ -134,7 +134,7 @@ func TestPostManageTeamMembers(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), localize.En, "email@example.com", notify.OrganisationMemberInviteEmail{
+		SendEmail(r.Context(), notify.ToCustomEmail(localize.En, "email@example.com"), notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
 			InviteCode:            "abcde",
@@ -240,7 +240,7 @@ func TestPostManageTeamMembersWhenNotifyClientError(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendEmail(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := ManageTeamMembers(nil, memberStore, func(int) string { return "abcde" }, notifyClient, "")(testAppData, w, r, &supporterdata.Organisation{}, nil)

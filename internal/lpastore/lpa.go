@@ -217,7 +217,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 			DateOfBirth:     attorney.DateOfBirth,
 			Email:           attorney.Email,
 			Address:         attorney.Address,
-			Status:          statusReplacement,
+			Status:          statusInactive,
 			AppointmentType: appointmentTypeReplacement,
 			Channel:         attorney.Channel(),
 		})
@@ -230,7 +230,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
-			Status:          statusReplacement,
+			Status:          statusInactive,
 			AppointmentType: appointmentTypeReplacement,
 			Channel:         trustCorporation.Channel(),
 		})
@@ -404,11 +404,12 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			SignedAt:                  a.SignedAt,
 			ContactLanguagePreference: a.ContactLanguagePreference,
 			Channel:                   a.Channel,
+			Removed:                   a.Status == statusRemoved,
 		}
 
-		if a.Status == "replacement" {
+		if a.AppointmentType == appointmentTypeReplacement {
 			data.ReplacementAttorneys.Attorneys = append(data.ReplacementAttorneys.Attorneys, at)
-		} else if a.Status == "active" {
+		} else {
 			data.Attorneys.Attorneys = append(data.Attorneys.Attorneys, at)
 		}
 	}
@@ -424,11 +425,12 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			Signatories:               t.Signatories,
 			ContactLanguagePreference: t.ContactLanguagePreference,
 			Channel:                   t.Channel,
+			Removed:                   t.Status == statusRemoved,
 		}
 
-		if t.Status == "replacement" {
+		if t.AppointmentType == appointmentTypeReplacement {
 			data.ReplacementAttorneys.TrustCorporation = tc
-		} else if t.Status == "active" {
+		} else {
 			data.Attorneys.TrustCorporation = tc
 		}
 	}

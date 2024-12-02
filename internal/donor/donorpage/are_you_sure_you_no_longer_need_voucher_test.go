@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -111,7 +110,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 
 			notifyClient := newMockNotifyClient(t)
 			notifyClient.EXPECT().
-				SendActorEmail(r.Context(), localize.En, "voucher@example.com", "lpa-uid", notify.VoucherInformedTheyAreNoLongerNeededToVouchEmail{
+				SendActorEmail(r.Context(), notify.ToVoucher(tc.provided.Voucher), "lpa-uid", notify.VoucherInformedTheyAreNoLongerNeededToVouchEmail{
 					DonorFullName:   "d e",
 					VoucherFullName: "a b",
 				}).
@@ -144,7 +143,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucherWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := AreYouSureYouNoLongerNeedVoucher(nil, nil, notifyClient)(testAppData, w, r, &donordata.Provided{})
@@ -162,7 +161,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucherWhenStoreErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	err := AreYouSureYouNoLongerNeedVoucher(nil, donorStore, notifyClient)(testAppData, w, r, &donordata.Provided{})

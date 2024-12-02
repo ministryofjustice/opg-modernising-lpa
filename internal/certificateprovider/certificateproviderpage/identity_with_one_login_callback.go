@@ -89,7 +89,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if lpa.SignedForDonor() {
-			if err := notifyClient.SendActorEmail(r.Context(), lpa.Donor.ContactLanguagePreference, lpa.CorrespondentEmail(), lpa.LpaUID, notify.CertificateProviderFailedIdentityCheckEmail{
+			if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, notify.CertificateProviderFailedIdentityCheckEmail{
 				Greeting:                    notifyClient.EmailGreeting(lpa),
 				DonorFullName:               lpa.Donor.FullName(),
 				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
