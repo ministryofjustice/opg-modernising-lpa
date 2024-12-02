@@ -61,12 +61,7 @@ func (n *checkYourLpaNotifier) sendPaperNotification(ctx context.Context, appDat
 		}
 	}
 
-	to := notify.ToCertificateProvider(provided.CertificateProvider)
-	if certificateProvider, err := n.certificateProviderStore.GetAny(ctx); err == nil {
-		to = notify.ToProvidedCertificateProvider(certificateProvider, provided.CertificateProvider)
-	}
-
-	return n.notifyClient.SendActorSMS(ctx, to, provided.LpaUID, sms)
+	return n.notifyClient.SendActorSMS(ctx, notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, sms)
 }
 
 func (n *checkYourLpaNotifier) sendOnlineNotification(ctx context.Context, appData appcontext.Data, donor *donordata.Provided, wasCompleted bool) error {

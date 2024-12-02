@@ -336,12 +336,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnFirstCheck(t *testing.T) {
 				}).
 				Return(nil)
 
-			certificateProviderStore := newMockCertificateProviderStore(t)
-			certificateProviderStore.EXPECT().
-				GetAny(r.Context()).
-				Return(nil, expectedError)
-
-			err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
+			err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -385,12 +380,7 @@ func TestPostCheckYourLpaPaperCertificateProviderOnSubsequentCheck(t *testing.T)
 		}).
 		Return(nil)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(nil, expectedError)
-
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, provided)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -428,12 +418,7 @@ func TestPostCheckYourLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(nil, expectedError)
-
-	err := CheckYourLpa(nil, donorStore, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, donor)
+	err := CheckYourLpa(nil, donorStore, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, donor)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -488,12 +473,7 @@ func TestPostCheckYourLpaWhenNotifyClientErrors(t *testing.T) {
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	certificateProviderStore := newMockCertificateProviderStore(t)
-	certificateProviderStore.EXPECT().
-		GetAny(r.Context()).
-		Return(nil, expectedError)
-
-	err := CheckYourLpa(nil, nil, nil, notifyClient, certificateProviderStore, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{Hash: 5, CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}})
+	err := CheckYourLpa(nil, nil, nil, notifyClient, nil, testNowFn, "http://example.org")(testAppData, w, r, &donordata.Provided{Hash: 5, CertificateProvider: donordata.CertificateProvider{CarryOutBy: lpadata.ChannelPaper}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

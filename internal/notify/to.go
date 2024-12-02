@@ -106,9 +106,10 @@ func ToLpaAttorney(attorney lpadata.Attorney) To {
 
 func ToLpaTrustCorporation(trustCorporation lpadata.TrustCorporation) To {
 	return to{
-		mobile: trustCorporation.Mobile,
-		email:  trustCorporation.Email,
-		lang:   trustCorporation.ContactLanguagePreference,
+		mobile:  trustCorporation.Mobile,
+		email:   trustCorporation.Email,
+		lang:    trustCorporation.ContactLanguagePreference,
+		ignored: trustCorporation.Removed,
 	}
 }
 
