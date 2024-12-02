@@ -13,6 +13,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	notify "github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+
 	sharecode "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 )
 
@@ -77,17 +79,17 @@ func (_c *mockShareCodeSender_SendAttorneys_Call) RunAndReturn(run func(context.
 	return _c
 }
 
-// SendCertificateProviderInvite provides a mock function with given fields: _a0, _a1, _a2
-func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context, _a1 appcontext.Data, _a2 sharecode.CertificateProviderInvite) error {
-	ret := _m.Called(_a0, _a1, _a2)
+// SendCertificateProviderInvite provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *mockShareCodeSender) SendCertificateProviderInvite(_a0 context.Context, _a1 appcontext.Data, _a2 sharecode.CertificateProviderInvite, _a3 notify.ToEmail) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendCertificateProviderInvite")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, appcontext.Data, sharecode.CertificateProviderInvite, notify.ToEmail) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -104,13 +106,14 @@ type mockShareCodeSender_SendCertificateProviderInvite_Call struct {
 //   - _a0 context.Context
 //   - _a1 appcontext.Data
 //   - _a2 sharecode.CertificateProviderInvite
-func (_e *mockShareCodeSender_Expecter) SendCertificateProviderInvite(_a0 interface{}, _a1 interface{}, _a2 interface{}) *mockShareCodeSender_SendCertificateProviderInvite_Call {
-	return &mockShareCodeSender_SendCertificateProviderInvite_Call{Call: _e.mock.On("SendCertificateProviderInvite", _a0, _a1, _a2)}
+//   - _a3 notify.ToEmail
+func (_e *mockShareCodeSender_Expecter) SendCertificateProviderInvite(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *mockShareCodeSender_SendCertificateProviderInvite_Call {
+	return &mockShareCodeSender_SendCertificateProviderInvite_Call{Call: _e.mock.On("SendCertificateProviderInvite", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Run(run func(_a0 context.Context, _a1 appcontext.Data, _a2 sharecode.CertificateProviderInvite)) *mockShareCodeSender_SendCertificateProviderInvite_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Run(run func(_a0 context.Context, _a1 appcontext.Data, _a2 sharecode.CertificateProviderInvite, _a3 notify.ToEmail)) *mockShareCodeSender_SendCertificateProviderInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(appcontext.Data), args[2].(sharecode.CertificateProviderInvite))
+		run(args[0].(context.Context), args[1].(appcontext.Data), args[2].(sharecode.CertificateProviderInvite), args[3].(notify.ToEmail))
 	})
 	return _c
 }
@@ -120,7 +123,7 @@ func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) Return(_a0 err
 	return _c
 }
 
-func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) RunAndReturn(run func(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error) *mockShareCodeSender_SendCertificateProviderInvite_Call {
+func (_c *mockShareCodeSender_SendCertificateProviderInvite_Call) RunAndReturn(run func(context.Context, appcontext.Data, sharecode.CertificateProviderInvite, notify.ToEmail) error) *mockShareCodeSender_SendCertificateProviderInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }

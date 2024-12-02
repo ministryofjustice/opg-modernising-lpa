@@ -29,8 +29,7 @@ type CertificateProviderStore interface {
 }
 
 type NotifyClient interface {
-	SendActorEmail(context context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
-	SendActorSMS(context context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
+	SendActorSMS(context context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
 }
 
 type Localizer interface {
@@ -83,12 +82,12 @@ func (s *WitnessCodeSender) SendToCertificateProvider(ctx context.Context, donor
 		return err
 	}
 
-	contactLanguage := localize.En
+	to := notify.ToCertificateProvider(donor.CertificateProvider)
 	if certificateProvider, _ := s.certificateProviderStore.GetAny(ctx); certificateProvider != nil {
-		contactLanguage = certificateProvider.ContactLanguagePreference
+		to = notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider)
 	}
 
-	return s.notifyClient.SendActorSMS(ctx, contactLanguage, donor.CertificateProvider.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	return s.notifyClient.SendActorSMS(ctx, to, donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: s.localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(s.localizer.T(donor.Type.String())),
@@ -111,7 +110,7 @@ func (s *WitnessCodeSender) SendToIndependentWitness(ctx context.Context, donor 
 		return err
 	}
 
-	return s.notifyClient.SendActorSMS(ctx, localize.En, donor.IndependentWitness.Mobile, donor.LpaUID, notify.WitnessCodeSMS{
+	return s.notifyClient.SendActorSMS(ctx, notify.ToIndependentWitness(donor.IndependentWitness), donor.LpaUID, notify.WitnessCodeSMS{
 		WitnessCode:   code,
 		DonorFullName: s.localizer.Possessive(donor.Donor.FullName()),
 		LpaType:       localize.LowerFirst(s.localizer.T(donor.Type.String())),

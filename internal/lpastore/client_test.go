@@ -122,7 +122,7 @@ func TestClientServiceContract(t *testing.T) {
 								"country":  matchers.String("GB"),
 							}),
 							"channel":         matchers.Regex("online", "online|paper"),
-							"status":          matchers.Regex("active", "active|inactive|removed|replacement"),
+							"status":          matchers.Regex("active", "active|inactive|removed"),
 							"appointmentType": matchers.Regex("original", "original|replacement"),
 						}, 1),
 						"trustCorporations": matchers.EachLike(map[string]any{
@@ -138,7 +138,7 @@ func TestClientServiceContract(t *testing.T) {
 								"country":  matchers.String("GB"),
 							}),
 							"channel":         matchers.Regex("paper", "online|paper"),
-							"status":          matchers.Regex("active", "active|replacement"),
+							"status":          matchers.Regex("active", "active|inactive|removed"),
 							"appointmentType": matchers.Regex("original", "original|replacement"),
 						}, 1),
 						"certificateProvider": matchers.Like(map[string]any{
@@ -287,7 +287,7 @@ func TestClientServiceContract(t *testing.T) {
 								"postcode": matchers.String("A1 1FF"),
 								"country":  matchers.String("GB"),
 							}),
-							"status":          matchers.Regex("active", "active|replacement"),
+							"status":          matchers.Regex("active", "active|inactive|removed"),
 							"appointmentType": matchers.Regex("original", "original|replacement"),
 							"channel":         matchers.Regex("online", "online|post"),
 						}, 1),

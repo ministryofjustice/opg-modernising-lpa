@@ -1378,6 +1378,7 @@
     "weWillInformVoucherTheyNoLongerNeedTo": "We will inform {{.VoucherFullName}} they no longer need to confirm your identity. The one-time code allowing them to log into the vouching service will be cancelled.",
     "voucherNoLongerNeeded": "{{.VoucherFullName}} no longer needed",
     "weHaveInformedVoucherTheyNoLongerNeedTo": "We have informed {{.VoucherFullName}} they no longer need to confirm your identity.",
+    "weHaveInformedThePersonYouWantedToVouchForYouTheyAreNoLongerNeeded": "We have informed the person you wanted to vouch for you they are no longer needed",
     "youHaveChosen:prove-own-identity": "You have chosen to find, replace or get new ID documents and confirm your identity using GOV.UK One Login.",
     "youHaveChosen:select-new-voucher": "You have chosen to ask someone else to confirm your identity by vouching for you.",
     "youHaveChosen:withdraw-lpa": "You have told us you no longer want to make this LPA.",
