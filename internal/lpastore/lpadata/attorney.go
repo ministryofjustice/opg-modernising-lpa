@@ -20,6 +20,7 @@ type Attorney struct {
 	SignedAt                  time.Time
 	ContactLanguagePreference localize.Lang
 	Channel                   Channel
+	Removed                   bool
 }
 
 func (a Attorney) FullName() string {
