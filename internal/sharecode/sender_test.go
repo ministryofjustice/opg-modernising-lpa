@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -343,6 +344,68 @@ func TestShareCodeSenderSendCertificateProviderPromptOnline(t *testing.T) {
 	certificateProviderStore.EXPECT().
 		GetAny(ctx).
 		Return(nil, expectedError)
+
+	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil, certificateProviderStore)
+	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
+
+	assert.Nil(t, err)
+}
+
+func TestShareCodeSenderSendCertificateProviderPromptOnlineWhenStarted(t *testing.T) {
+	donor := &donordata.Provided{
+		CertificateProvider: donordata.CertificateProvider{
+			FirstNames: "Joanna",
+			LastName:   "Jones",
+			Email:      "name@example.org",
+			CarryOutBy: lpadata.ChannelOnline,
+		},
+		Donor: donordata.Donor{
+			FirstNames: "Jan",
+			LastName:   "Smith",
+		},
+		Type:   lpadata.LpaTypePropertyAndAffairs,
+		LpaUID: "lpa-uid",
+		PK:     dynamo.LpaKey("lpa"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+	}
+
+	certificateProvider := &certificateproviderdata.Provided{
+		Email:                     "correct@example.com",
+		ContactLanguagePreference: localize.Cy,
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(donor.Type.String()).
+		Return("Property and affairs").
+		Once()
+	TestAppData.Localizer = localizer
+
+	ctx := context.Background()
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToProvidedCertificateProvider(certificateProvider, donor.CertificateProvider), "lpa-uid", notify.CertificateProviderProvideCertificatePromptEmail{
+			ShareCode:                   testRandomString,
+			CertificateProviderFullName: "Joanna Jones",
+			DonorFullName:               "Jan Smith",
+			LpaType:                     "property and affairs",
+			CertificateProviderStartURL: fmt.Sprintf("http://app%s", page.PathCertificateProviderStart),
+		}).
+		Return(nil)
+
+	shareCodeStore := newMockShareCodeStore(t)
+	shareCodeStore.EXPECT().
+		Put(ctx, actor.TypeCertificateProvider, testRandomString, sharecodedata.Link{
+			LpaKey:      dynamo.LpaKey("lpa"),
+			LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+		}).
+		Return(nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		GetAny(ctx).
+		Return(certificateProvider, nil)
 
 	sender := NewSender(shareCodeStore, notifyClient, "http://app", testRandomStringFn, nil, certificateProviderStore)
 	err := sender.SendCertificateProviderPrompt(ctx, TestAppData, donor)
