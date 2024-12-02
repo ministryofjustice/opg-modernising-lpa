@@ -119,6 +119,11 @@ func TestPostDonorAccess(t *testing.T) {
 
 	donorUID := actoruid.New()
 
+	updatedDonor := &donordata.Provided{
+		Type:  lpadata.LpaTypePropertyAndAffairs,
+		Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com", ContactLanguagePreference: localize.En},
+	}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Get(r.Context()).
@@ -127,10 +132,7 @@ func TestPostDonorAccess(t *testing.T) {
 			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", ContactLanguagePreference: localize.En},
 		}, nil)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			Type:  lpadata.LpaTypePropertyAndAffairs,
-			Donor: donordata.Donor{UID: donorUID, FirstNames: "Barry", LastName: "Boy", Email: "email@example.com", ContactLanguagePreference: localize.En},
-		}).
+		Put(r.Context(), updatedDonor).
 		Return(nil)
 
 	shareCodeStore := newMockShareCodeStore(t)
@@ -148,7 +150,7 @@ func TestPostDonorAccess(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), localize.En, "email@example.com", notify.DonorAccessEmail{
+		SendEmail(r.Context(), notify.ToDonor(updatedDonor), notify.DonorAccessEmail{
 			SupporterFullName: "John Smith",
 			OrganisationName:  "Helpers",
 			LpaType:           "translation",
@@ -242,7 +244,7 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
-		SendEmail(r.Context(), mock.Anything, mock.Anything, mock.Anything).
+		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	localizer := newMockLocalizer(t)

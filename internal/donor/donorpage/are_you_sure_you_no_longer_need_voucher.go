@@ -10,7 +10,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -39,7 +38,7 @@ func AreYouSureYouNoLongerNeedVoucher(tmpl template.Template, donorStore DonorSt
 			provided.WantVoucher = form.YesNoUnknown
 			nextPage := handleDoNext(doNext, provided).Format(provided.LpaID)
 
-			if err := notifyClient.SendActorEmail(r.Context(), localize.En, provided.Voucher.Email, provided.LpaUID, notify.VoucherInformedTheyAreNoLongerNeededToVouchEmail{
+			if err := notifyClient.SendActorEmail(r.Context(), notify.ToVoucher(provided.Voucher), provided.LpaUID, notify.VoucherInformedTheyAreNoLongerNeededToVouchEmail{
 				VoucherFullName: provided.Voucher.FullName(),
 				DonorFullName:   provided.Donor.FullName(),
 			}); err != nil {

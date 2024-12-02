@@ -204,7 +204,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				EmailGreeting(lpa).
 				Return("Dear donor")
 			notifyClient.EXPECT().
-				SendActorEmail(ctx, localize.En, "a@example.com", "lpa-uid", notify.AttorneyOptedOutEmail{
+				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.AttorneyOptedOutEmail{
 					Greeting:          "Dear donor",
 					AttorneyFullName:  tc.attorneyFullName,
 					DonorFullName:     "a b c",
@@ -359,7 +359,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("Dear donor")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(expectedError)
 
 				return client
@@ -397,7 +397,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("Dear donor")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client
@@ -445,7 +445,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 					EmailGreeting(mock.Anything).
 					Return("Dear donor")
 				client.EXPECT().
-					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 
 				return client

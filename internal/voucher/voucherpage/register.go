@@ -14,7 +14,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -48,8 +47,8 @@ type DonorStore interface {
 
 type NotifyClient interface {
 	EmailGreeting(lpa *lpadata.Lpa) string
-	SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email notify.Email) error
-	SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
+	SendActorEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
+	SendActorSMS(ctx context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
 }
 
 type Logger interface {
