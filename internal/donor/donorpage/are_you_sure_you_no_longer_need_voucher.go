@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -18,7 +21,7 @@ type areYouSureYouNoLongerNeedVoucherData struct {
 	Donor  *donordata.Provided
 }
 
-func AreYouSureYouNoLongerNeedVoucher(tmpl template.Template, donorStore DonorStore) Handler {
+func AreYouSureYouNoLongerNeedVoucher(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &areYouSureYouNoLongerNeedVoucherData{
 			App:   appData,
@@ -35,6 +38,13 @@ func AreYouSureYouNoLongerNeedVoucher(tmpl template.Template, donorStore DonorSt
 
 			provided.WantVoucher = form.YesNoUnknown
 			nextPage := handleDoNext(doNext, provided).Format(provided.LpaID)
+
+			if err := notifyClient.SendActorEmail(r.Context(), localize.En, provided.Voucher.Email, provided.LpaUID, notify.VoucherInformedTheyAreNoLongerNeededToVouchEmail{
+				VoucherFullName: provided.Voucher.FullName(),
+				DonorFullName:   provided.Donor.FullName(),
+			}); err != nil {
+				return fmt.Errorf("failed to send email: %w", err)
+			}
 
 			if err := donorStore.DeleteVoucher(r.Context(), provided); err != nil {
 				return err
