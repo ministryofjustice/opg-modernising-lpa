@@ -138,14 +138,19 @@ type emailWrapper struct {
 	Reference       string `json:"reference"`
 }
 
-func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, email Email) error {
+func (c *Client) SendEmail(ctx context.Context, to ToEmail, email Email) error {
+	if to.ignore() {
+		return nil
+	}
+
+	address, lang := to.toEmail()
 	templateID := email.emailID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "Email", templateID, to)
+	ctx, span := newSpan(ctx, "Email", templateID, address)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
-		EmailAddress:    to,
+		EmailAddress:    address,
 		TemplateID:      templateID,
 		Personalisation: email,
 	})
@@ -155,7 +160,7 @@ func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, e
 
 	resp, err := c.do(req)
 	if err != nil {
-		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
+		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", address))
 		return err
 	}
 	span.SetAttributes(attribute.KeyValue{Key: "notify_id", Value: attribute.StringValue(resp.ID)})
@@ -163,21 +168,27 @@ func (c *Client) SendEmail(ctx context.Context, lang localize.Lang, to string, e
 	return nil
 }
 
-func (c *Client) SendActorEmail(ctx context.Context, lang localize.Lang, to, lpaUID string, email Email) error {
+func (c *Client) SendActorEmail(ctx context.Context, to ToEmail, lpaUID string, email Email) error {
+	if to.ignore() {
+		return nil
+	}
+
+	address, lang := to.toEmail()
+
 	templateID := email.emailID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "Email", templateID, to)
+	ctx, span := newSpan(ctx, "Email", templateID, address)
 	defer span.End()
 
-	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, to, templateID)); err != nil || ok {
+	if ok, err := c.recentlySent(ctx, c.makeReference(lpaUID, address, templateID)); err != nil || ok {
 		return err
 	}
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/email", emailWrapper{
-		EmailAddress:    to,
+		EmailAddress:    address,
 		TemplateID:      templateID,
 		Personalisation: email,
-		Reference:       c.makeReference(lpaUID, to, templateID),
+		Reference:       c.makeReference(lpaUID, address, templateID),
 	})
 	if err != nil {
 		return err
@@ -185,12 +196,12 @@ func (c *Client) SendActorEmail(ctx context.Context, lang localize.Lang, to, lpa
 
 	resp, err := c.do(req)
 	if err != nil {
-		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", to))
+		c.logger.ErrorContext(ctx, "email send failed", slog.String("to", address))
 		return err
 	}
 	span.SetAttributes(attribute.KeyValue{Key: "notify_id", Value: attribute.StringValue(resp.ID)})
 
-	if !slices.Contains(simulatedEmails, to) {
+	if !slices.Contains(simulatedEmails, address) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
 			UID:            lpaUID,
 			NotificationID: resp.ID,
@@ -208,14 +219,20 @@ type smsWrapper struct {
 	Personalisation any    `json:"personalisation,omitempty"`
 }
 
-func (c *Client) SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms SMS) error {
+func (c *Client) SendActorSMS(ctx context.Context, to ToMobile, lpaUID string, sms SMS) error {
+	if to.ignore() {
+		return nil
+	}
+
+	number, lang := to.toMobile()
+
 	templateID := sms.smsID(c.isProduction, lang)
 
-	ctx, span := newSpan(ctx, "SMS", templateID, to)
+	ctx, span := newSpan(ctx, "SMS", templateID, number)
 	defer span.End()
 
 	req, err := c.newRequest(ctx, http.MethodPost, "/v2/notifications/sms", smsWrapper{
-		PhoneNumber:     to,
+		PhoneNumber:     number,
 		TemplateID:      templateID,
 		Personalisation: sms,
 	})
@@ -229,7 +246,7 @@ func (c *Client) SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUI
 	}
 	span.SetAttributes(attribute.KeyValue{Key: "notification_id", Value: attribute.StringValue(resp.ID)})
 
-	if !slices.Contains(simulatedPhones, to) {
+	if !slices.Contains(simulatedPhones, number) {
 		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
 			UID:            lpaUID,
 			NotificationID: resp.ID,

@@ -16,6 +16,7 @@ const (
 	issuer                     = "opg.poas.makeregister"
 	statusActive               = "active"
 	statusReplacement          = "replacement"
+	statusRemoved              = "removed"
 	appointmentTypeOriginal    = "original"
 	appointmentTypeReplacement = "replacement"
 )
