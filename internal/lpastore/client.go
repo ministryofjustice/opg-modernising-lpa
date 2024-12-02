@@ -15,7 +15,7 @@ import (
 const (
 	issuer                     = "opg.poas.makeregister"
 	statusActive               = "active"
-	statusReplacement          = "replacement"
+	statusInactive             = "inactive"
 	statusRemoved              = "removed"
 	appointmentTypeOriginal    = "original"
 	appointmentTypeReplacement = "replacement"

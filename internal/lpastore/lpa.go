@@ -217,7 +217,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 			DateOfBirth:     attorney.DateOfBirth,
 			Email:           attorney.Email,
 			Address:         attorney.Address,
-			Status:          statusReplacement,
+			Status:          statusInactive,
 			AppointmentType: appointmentTypeReplacement,
 			Channel:         attorney.Channel(),
 		})
@@ -230,7 +230,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
-			Status:          statusReplacement,
+			Status:          statusInactive,
 			AppointmentType: appointmentTypeReplacement,
 			Channel:         trustCorporation.Channel(),
 		})
@@ -393,10 +393,6 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	}
 
 	for _, a := range l.Attorneys {
-		if a.Status == "inactive" {
-			continue
-		}
-
 		at := lpadata.Attorney{
 			UID:                       a.UID,
 			FirstNames:                a.FirstNames,
@@ -419,10 +415,6 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	}
 
 	for _, t := range l.TrustCorporations {
-		if t.Status == "inactive" {
-			continue
-		}
-
 		tc := lpadata.TrustCorporation{
 			UID:                       t.UID,
 			Name:                      t.Name,
