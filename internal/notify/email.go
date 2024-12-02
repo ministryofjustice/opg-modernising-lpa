@@ -383,3 +383,24 @@ func (e VoucherHasConfirmedDonorIdentityOnSignedLpaEmail) emailID(isProduction b
 
 	return "efa0ef78-9e65-4edf-88c8-70d3da7a4b0e"
 }
+
+type VoucherInformedTheyAreNoLongerNeededToVouchEmail struct {
+	VoucherFullName string
+	DonorFullName   string
+}
+
+func (e VoucherInformedTheyAreNoLongerNeededToVouchEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "TODO"
+		}
+
+		return "ca7c6a15-bdf3-47fe-ba01-d811ccdbc30d"
+	}
+
+	if lang.IsCy() {
+		return "TODO"
+	}
+
+	return "00ad14c6-f6df-4d7f-ae44-d7e27f6a9187"
+}
