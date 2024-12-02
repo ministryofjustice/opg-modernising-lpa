@@ -40,7 +40,7 @@ func TestGetDashboard(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &dashboardData{
 			App:                     appcontext.Data{},
-			UseTabs:                 true,
+			NeedsTabs:               true,
 			DonorLpas:               donorLpas,
 			AttorneyLpas:            attorneyLpas,
 			CertificateProviderLpas: certificateProviderLpas,
@@ -48,7 +48,7 @@ func TestGetDashboard(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore, "")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -77,7 +77,7 @@ func TestGetDashboardOnlyDonor(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore, "")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -93,7 +93,7 @@ func TestGetDashboardWhenDashboardStoreErrors(t *testing.T) {
 		GetAll(r.Context()).
 		Return(dashboarddata.Results{}, expectedError)
 
-	err := Dashboard(nil, nil, dashboardStore)(appcontext.Data{}, w, r)
+	err := Dashboard(nil, nil, dashboardStore, "")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -114,7 +114,7 @@ func TestGetDashboardWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := Dashboard(template.Execute, nil, dashboardStore)(appcontext.Data{}, w, r)
+	err := Dashboard(template.Execute, nil, dashboardStore, "")(appcontext.Data{}, w, r)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -143,7 +143,7 @@ func TestPostDashboard(t *testing.T) {
 				Create(r.Context()).
 				Return(&donordata.Provided{LpaID: "lpa-id"}, nil)
 
-			err := Dashboard(nil, donorStore, nil)(appcontext.Data{}, w, r)
+			err := Dashboard(nil, donorStore, nil, "")(appcontext.Data{}, w, r)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -162,7 +162,7 @@ func TestPostDashboardWhenDonorStoreError(t *testing.T) {
 		Create(r.Context()).
 		Return(&donordata.Provided{LpaID: "123"}, expectedError)
 
-	err := Dashboard(nil, donorStore, nil)(appcontext.Data{}, w, r)
+	err := Dashboard(nil, donorStore, nil, "")(appcontext.Data{}, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
