@@ -1,11 +1,11 @@
-module "event_recieved_sqs_kms" {
+module "event_received_sqs_kms" {
   source                  = "./modules/kms_key"
   encrypted_resource      = "SQS"
-  kms_key_alias_name      = "${local.default_tags.application}_event_recieved_sqs_secret_encryption_key"
+  kms_key_alias_name      = "${local.default_tags.application}_event_received_sqs_secret_encryption_key"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
-  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.event_recieved_sqs_kms_merged.json : data.aws_iam_policy_document.event_recieved_sqs_kms.json
+  kms_key_policy          = local.account.account_name == "development" ? data.aws_iam_policy_document.event_received_sqs_kms_merged.json : data.aws_iam_policy_document.event_received_sqs_kms.json
   providers = {
     aws.eu_west_1 = aws.eu_west_1
     aws.eu_west_2 = aws.eu_west_2
@@ -14,15 +14,15 @@ module "event_recieved_sqs_kms" {
 
 # See the following link for further information
 # https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
-data "aws_iam_policy_document" "event_recieved_sqs_kms_merged" {
+data "aws_iam_policy_document" "event_received_sqs_kms_merged" {
   provider = aws.global
   source_policy_documents = [
     data.aws_iam_policy_document.sqs_kms.json,
-    data.aws_iam_policy_document.event_recieved_sqs_kms_development_account_operator_admin.json
+    data.aws_iam_policy_document.event_received_sqs_kms_development_account_operator_admin.json
   ]
 }
 
-data "aws_iam_policy_document" "event_recieved_sqs_kms" {
+data "aws_iam_policy_document" "event_received_sqs_kms" {
   provider = aws.global
   statement {
     sid    = "Allow Key to be used for Encryption"
@@ -32,11 +32,19 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
     ]
     actions = [
       "kms:Encrypt",
-      "kms:Decrypt",
       "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "sqs.amazonaws.com",
+        "events.amazonaws.com",
+        "lambda.amazonaws.com",
+      ]
+    }
 
     principals {
       type = "AWS"
@@ -64,6 +72,13 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
         "sqs.amazonaws.com",
         "events.amazonaws.com",
         "lambda.amazonaws.com",
+      ]
+    }
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
       ]
     }
   }
@@ -143,7 +158,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
   }
 }
 
-data "aws_iam_policy_document" "event_recieved_sqs_kms_development_account_operator_admin" {
+data "aws_iam_policy_document" "event_received_sqs_kms_development_account_operator_admin" {
   provider = aws.global
   statement {
     sid    = "Dev Account Key Administrator"
