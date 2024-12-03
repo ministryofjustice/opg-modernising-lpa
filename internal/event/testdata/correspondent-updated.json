@@ -1,0 +1,58 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.makeregister/correspondent-updated.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.makeregister/correspondent-updated",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
+    },
+    "firstNames": {
+      "type": "string",
+      "description": "The correspondent's first name(s) including any middle names"
+    },
+    "lastName": {
+      "type": "string",
+      "description": "The correspondent's last name"
+    },
+    "email": {
+      "type": "string",
+      "description": "The correspondent's email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "The correspondent's phone number"
+    },
+    "address": {
+      "type": "object",
+      "description": "The correspondent's address",
+      "properties": {
+        "line1": {
+          "type": "string"
+        },
+        "line2": {
+          "type": "string"
+        },
+        "line3": {
+          "type": "string"
+        },
+        "town": {
+          "type": "string"
+        },
+        "postcode": {
+          "type": "string",
+          "pattern": "^[A-Z0-9 ]{1,9}$"
+        },
+        "country": {
+          "type": "string",
+          "description": "2-digit ISO 3166-1 country code per FCDO definitions: https://www.gov.uk/government/publications/geographical-names-and-information",
+          "pattern": "^[A-Z]{2}$"
+        }
+      },
+      "required": ["line1", "town", "country"]
+    }
+  },
+  "required": ["uid"]
+}
