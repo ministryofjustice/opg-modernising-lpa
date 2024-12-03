@@ -24,14 +24,17 @@ type dashboardForm struct {
 type dashboardData struct {
 	App                     appcontext.Data
 	Errors                  validation.List
-	UseTabs                 bool
+	NeedsTabs               bool
 	DonorLpas               []dashboarddata.Actor
+	RegisteredDonorLpas     []dashboarddata.Actor
 	CertificateProviderLpas []dashboarddata.Actor
 	AttorneyLpas            []dashboarddata.Actor
+	RegisteredAttorneyLpas  []dashboarddata.Actor
 	VoucherLpas             []dashboarddata.Actor
+	UseURL                  string
 }
 
-func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore) Handler {
+func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore DashboardStore, useURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		if r.Method == http.MethodPost {
 			form := readDashboardForm(r)
@@ -54,24 +57,34 @@ func Dashboard(tmpl template.Template, donorStore DonorStore, dashboardStore Das
 			return err
 		}
 
-		tabCount := 1
-		if len(results.CertificateProvider) > 0 {
-			tabCount++
+		var donorLpas, registeredDonorLpas []dashboarddata.Actor
+		for _, lpa := range results.Donor {
+			if lpa.Lpa.RegisteredAt.IsZero() {
+				donorLpas = append(donorLpas, lpa)
+			} else {
+				registeredDonorLpas = append(registeredDonorLpas, lpa)
+			}
 		}
-		if len(results.Attorney) > 0 {
-			tabCount++
-		}
-		if len(results.Voucher) > 0 {
-			tabCount++
+
+		var attorneyLpas, registeredAttorneyLpas []dashboarddata.Actor
+		for _, lpa := range results.Attorney {
+			if lpa.Lpa.RegisteredAt.IsZero() {
+				attorneyLpas = append(attorneyLpas, lpa)
+			} else {
+				registeredAttorneyLpas = append(registeredAttorneyLpas, lpa)
+			}
 		}
 
 		data := &dashboardData{
 			App:                     appData,
-			UseTabs:                 tabCount > 1,
-			DonorLpas:               results.Donor,
+			NeedsTabs:               len(results.CertificateProvider) > 0 || len(results.Attorney) > 0 || len(results.Voucher) > 0,
+			DonorLpas:               donorLpas,
+			RegisteredDonorLpas:     registeredDonorLpas,
 			CertificateProviderLpas: results.CertificateProvider,
-			AttorneyLpas:            results.Attorney,
+			AttorneyLpas:            attorneyLpas,
+			RegisteredAttorneyLpas:  registeredAttorneyLpas,
 			VoucherLpas:             results.Voucher,
+			UseURL:                  useURL,
 		}
 
 		return tmpl(w, data)

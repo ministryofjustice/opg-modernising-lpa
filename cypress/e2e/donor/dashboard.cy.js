@@ -38,7 +38,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'In progress');
-            cy.get('.govuk-dashboard-row .moj-button-menu__item').should('have.length', 3);
+            cy.get('.app-dashboard-row .moj-button-menu__item').should('have.length', 3);
             cy.contains('a', 'Go to task list');
             cy.contains('button', 'Actions').click();
             cy.contains('a', 'View LPA');
@@ -56,7 +56,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'In progress');
-            cy.get('.govuk-dashboard-row a').should('have.length', 3);
+            cy.get('.app-dashboard-row a').should('have.length', 3);
             cy.contains('a', 'View LPA');
             cy.contains('a', 'Track LPA progress');
             cy.contains('a', 'Withdraw LPA');
@@ -71,7 +71,7 @@ describe('Dashboard', () => {
             cy.contains('Sam Smith');
             cy.contains('strong', 'Withdrawn');
             cy.contains('.app-dashboard-card a').should('not.exist');
-            cy.get('.govuk-dashboard-row a').should('have.length', 1);
+            cy.get('.app-dashboard-row a').should('have.length', 1);
             cy.contains('a', 'View LPA');
         });
     });
@@ -83,9 +83,7 @@ describe('Dashboard', () => {
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'Registered');
-            cy.get('.govuk-dashboard-row a').should('have.length', 2);
-            cy.contains('a', 'View LPA');
-            cy.contains('a', 'Use');
+            cy.contains('a', 'Continue to Use a lasting power of attorney');
         });
     });
 
@@ -107,7 +105,7 @@ describe('Dashboard', () => {
             cy.contains('Sam Smith');
             cy.contains('strong', 'Cannot register');
             cy.contains('.app-dashboard-card a').should('not.exist');
-            cy.get('.govuk-dashboard-row a').should('have.length', 2);
+            cy.get('.app-dashboard-row a').should('have.length', 2);
             cy.contains('a', 'View LPA');
             cy.contains('a', 'Track LPA');
         });

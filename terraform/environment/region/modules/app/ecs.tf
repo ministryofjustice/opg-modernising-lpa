@@ -494,6 +494,11 @@ locals {
           name  = "LPA_STORE_SECRET_ARN",
           value = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
         },
+        {
+          name = "USE_A_LASTING_POWER_OF_ATTORNEY_URL",
+          // TODO: change this to be per env when we actually integrate
+          value = "https://use-lasting-power-of-attorney.service.gov.uk/lpa/dashboard"
+        },
       ]
     }
   )
