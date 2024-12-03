@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
+        "events.amazonaws.com",
       ]
     }
   }
@@ -123,13 +123,14 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms" {
   }
 
   statement {
-    sid    = "Allow Breakglass to Decrypt"
+    sid    = "Allow Breakglass to use key"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
     ]
     actions = [
       "kms:Decrypt",
+      "kms:Encrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey",
     ]
@@ -155,6 +156,8 @@ data "aws_iam_policy_document" "event_recieved_sqs_kms_development_account_opera
       "kms:Create*",
       "kms:Describe*",
       "kms:Enable*",
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
       "kms:List*",
       "kms:Put*",
       "kms:Update*",
