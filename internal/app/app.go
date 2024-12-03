@@ -100,6 +100,7 @@ func App(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
+	useURL string,
 ) http.Handler {
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
@@ -154,7 +155,7 @@ func App(
 	handleRoot(page.PathVoucherStart, None,
 		page.Guidance(tmpls.Get("voucher_start.gohtml")))
 	handleRoot(page.PathDashboard, RequireSession,
-		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
+		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore, useURL))
 	handleRoot(page.PathLpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,

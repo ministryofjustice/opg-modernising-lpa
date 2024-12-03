@@ -858,11 +858,9 @@
     "youMustReviewTheInformationYouHaveEntered": "You must review the information you have entered.",
     "viewSignedLpa": "View signed LPA",
     "useThisLpa": "Use this LPA (this service opens in a new tab)",
-    "registeredLpas": "Registered LPAs",
-    "registeredLpasContent": "<p class=\"govuk-body\">You can view your LPA in full below, as it was when it was signed.</p><p class=\"govuk-body\">You can also go to the ‘Use a lasting power of attorney’ service where you can manage which organisations can use your LPA.</p>",
-    "registeredLpasContentAttorney": "<p class=\"govuk-body\">You can view the LPA in full below, as it was when it was signed.</p><p class=\"govuk-body\">You can also go to the ‘Use a lasting power of attorney’ service where you can manage which organisations can use the LPA.</p>",
-    "whatIsTheUseService": "What is the ‘Use a lasting power of attorney’ service?",
-    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Once an LPA is registered, it can be shared with organisations on the ‘Use a lasting power of attorney’ service.</p><p class=\"govuk-body\">You may have to create an account for this service if you’ve not used it before. If you have an account, you will need to sign in again.</p><p class=\"govuk-body\">On the ‘Use a lasting power of attorney’ service you can:</p><ul class=\"govuk-list govuk-list--bullet\"><li>give organisations access to an online summary of the LPA, including any restrictions or conditions</li><li>keep track of the organisations that have access</li><li>view the most up to date version of the LPA summary, including any changes since it was signed</li><li>ask for an activation key if you have not been given one or it has expired</li></ul>",
+    "viewAndUseYourRegisteredLpas": "View and use your registered LPAs",
+    "viewAndUseRegisteredLpasAsAttorney": "View and use registered LPAs where you are named as an attorney",
+    "registeredLpasContent": "<p class=\"govuk-body\">Registered LPAs can be viewed and used in the ‘Use a lasting power of attorney’ service. This allows:</p><ul class=\"govuk-list govuk-list--bullet\"><li>donors to view LPAs they have completed and registered with the Office of the Public Guardian (OPG)</li><li>attorneys to view LPAs completed and registered with OPG</li><li>attorneys to give banks and other organisations access to the LPA</li></ul>",
     "deleteThisLpa": "Delete this LPA",
     "donorName": "Donor name",
     "lpaType": "LPA type",
@@ -1428,5 +1426,8 @@
     "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Sign your LPA</h3><p class=\"govuk-body\">You can still sign your LPA while we’re reviewing your application. Your certificate provider must be there as a witness when you sign it. However, we will not contact your certificate provider to provide their certificate until your repeat application has been approved.</p><h3 class=\"govuk-heading-m\">If your application is successful</h3><p class=\"govuk-body\">Once we have approved your repeat application, we will contact your certificate provider to provide their certificate.</p><h3 class=\"govuk-heading-m\">If your application is not successful</h3><p class=\"govuk-body\">We will contact you if we need more information or if your application is unsuccessful.</p>",
     "theDetailsOnYourLpaDoNotMatch": "The details on your LPA do not match the identity details you have confirmed using GOV.UK One Login.",
     "theDetailsOnYourLpaCannotBeUpdatedAsSigned": "<p class=\"govuk-body\">The details on your LPA cannot be updated to match the identity details you confirmed using GOV.UK One Login. This is because you have already signed the LPA.</p><p class=\"govuk-body\">The Office of the Public Guardian (OPG) will compare your details, and may contact you for more information.</p><p class=\"govuk-body\">OPG will then decide if we can register your LPA. We will let you know if there is anything else you need to do.</p><div class=\"govuk-inset-text\"><p class=\"govuk-body\">If OPG decides we can register your LPA, it will be updated with your confirmed identity details.</p></div>",
-    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "If you do not want your LPA to be registered with your confirmed identity details, you must withdraw your LPA. You will lose any fees you have paid for this LPA." 
+    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "If you do not want your LPA to be registered with your confirmed identity details, you must withdraw your LPA. You will lose any fees you have paid for this LPA.",
+    "continueToUse": "Continue to Use a lasting power of attorney",
+    "yourLpasHaveBeenSuccessfullyRegistered": "Your LPAs have been successfully registered.",
+    "theLpasNamedAsAttorneyHaveSuccessfullyRegistered": "The LPAs where you are named as an attorney have been successfully registered."
 }
