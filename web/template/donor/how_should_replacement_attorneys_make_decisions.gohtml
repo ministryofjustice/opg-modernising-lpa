@@ -51,9 +51,9 @@
               </div>
               <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="decision-type-3-conditional-div">
                 <div class="govuk-form-group govuk-!-margin-top-4 {{ if .Errors.Has "mixed-details" }}govuk-form-group--error{{ end }}">
-                  <p class="govuk-body">{{ trHtml .App "replacementDecisionDetailsHint" }}</p>
+                  <p class="govuk-body"><a href="#" class="govuk-link">{{ tr .App "readTheGuidanceToSeeSomeExamples" }}</a></p>
                   <label class="govuk-label" for="f-mixed-details" {{ if .Errors.Has "mixed-details" }}aria-describedby="mixed-details-error"{{ end }}>
-                    {{ tr .App "details" }}
+                    {{ tr .App "enterDetailsOfDecisionsReplacement" }}
                   </label>
                   
                   {{ template "error-message" (errorMessage . "mixed-details") }}
