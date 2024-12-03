@@ -943,11 +943,9 @@
     "youMustReviewTheInformationYouHaveEntered": "Rhaid i chi adolygu’r wybodaeth rydych wedi’i rhoi.",
     "viewSignedLpa": "Gweld yr LPA a lofnodwyd",
     "useThisLpa": "Defnyddio’r LPA hon (mae’r gwasanaeth hwn yn agor mewn tab newydd)",
-    "registeredLpas": "Atwrniaethau Arhosol a gofrestrwyd",
+    "viewAndUseYourRegisteredLpas": "Welsh",
+    "viewAndUseRegisteredLpasAsAttorney": "Welsh",
     "registeredLpasContent": "<p class=\"govuk-body\">Gallwch weld eich LPA yn ei chyfanrwydd isod, fel yr oedd pan gafodd ei llofnodi.</p><p class=\"govuk-body\">Gallwch hefyd fynd at y gwasanaeth ‘Defnyddio LPA’ lle gallwch reoli pa sefydliadau sy’n gallu defnyddio’ch LPA.</p>",
-    "registeredLpasContentAttorney": "<p class=\"govuk-body\"> Gallwch weld yr LPA yn ei chyfanrwydd isod, fel yr oedd pan gafodd ei llofnodi.</p><p class=\"govuk-body\"> Gallwch hefyd fynd at y gwasanaeth ‘Defnyddio LPA’ lle gallwch reoli pa sefydliadau sy’n gallu defnyddio’r LPA.</p>",
-    "whatIsTheUseService": "Beth yw’r gwasanaeth ‘Defnyddio LPA’?",
-    "whatIsTheUseServiceDetails": "<p class=\"govuk-body\">Unwaith y bydd LPA wedi’i chofrestru, gellir ei rhannu â sefydliadau drwy’r gwasanaeth ‘Defnyddio LPA’.</p><p class=\"govuk-body\">Efallai y bydd yn rhaid i chi greu cyfrif ar gyfer y gwasanaeth hwn os nad ydych wedi’i ddefnyddio o’r blaen. Os oes cyfrif gennych, bydd angen i chi fewngofnodi eto.</p><p class=\"govuk-body\">Yn y gwasanaeth ‘Defnyddio LPA’ byddwch yn gallu:</p><ul class=\"govuk-list govuk-list--bullet\"><li>rhoi hawl i sefydliadau weld crynodeb ar-lein o’r LPA, yn cynnwys unrhyw gyfyngiadau neu amodau</li><li>cadw golwg ar ba sefydliadau sydd â hawl i’w gweld</li><li>gweld y fersiwn ddiweddaraf o’r crynodeb o’r LPA, yn cynnwys unrhyw newidiadau a wnaed ers ei llofnodi </li><li>gofyn am allwedd cadarnhau cyfrif os nad ydych wedi cael un neu os ydyw wedi dod i ben</li></ul>",
     "deleteThisLpa": "Dileu’r LPA hon",
     "donorName": "Enw’r rhoddwr",
     "lpaType": "Math o LPA",
@@ -1537,5 +1535,8 @@
     "whatHappensNextRepeatApplicationNoFeeContent": "<h3 class=\"govuk-heading-m\">Welsh</h3>",
     "theDetailsOnYourLpaDoNotMatch": "Welsh",
     "theDetailsOnYourLpaCannotBeUpdatedAsSigned": "<p class=\"govuk-body\">Welsh</p>",
-    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "Welsh"
+    "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning": "Welsh",
+    "continueToUse": "Welsh",
+    "yourLpasHaveBeenSuccessfullyRegistered": "Welsh",
+    "theLpasNamedAsAttorneyHaveSuccessfullyRegistered": "Welsh"
 }

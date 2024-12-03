@@ -386,6 +386,9 @@ func Attorney(
 			}
 
 			if registered {
+				if err := lpaStoreClient.SendStatutoryWaitingPeriod(donorCtx, donorDetails.LpaUID); err != nil {
+					return fmt.Errorf("problem sending register: %w", err)
+				}
 				if err := lpaStoreClient.SendRegister(donorCtx, donorDetails.LpaUID); err != nil {
 					return fmt.Errorf("problem sending register: %w", err)
 				}
