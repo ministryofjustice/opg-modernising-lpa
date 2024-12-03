@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	dynamodbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
@@ -65,6 +66,7 @@ type factory interface {
 	UidStore() (UidStore, error)
 	UidClient() UidClient
 	EventClient() EventClient
+	ScheduledStore() ScheduledStore
 }
 
 type Handler interface {
@@ -76,13 +78,26 @@ type uidEvent struct {
 }
 
 type dynamodbClient interface {
-	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
-	OneByUID(ctx context.Context, uid string, v interface{}) error
-	OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
-	OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
-	Put(ctx context.Context, v interface{}) error
+	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v any) error
+	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
+	AllBySK(ctx context.Context, sk dynamo.SK, v any) error
+	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
+	AnyByPK(ctx context.Context, pk dynamo.PK, v any) error
+	BatchPut(ctx context.Context, items []any) error
+	Create(ctx context.Context, v any) error
+	CreateOnly(ctx context.Context, v any) error
+	DeleteKeys(ctx context.Context, keys []dynamo.Keys) error
 	DeleteOne(ctx context.Context, pk dynamo.PK, sk dynamo.SK) error
-	CreateOnly(ctx context.Context, v interface{}) error
+	LatestForActor(ctx context.Context, sk dynamo.SK, v any) error
+	Move(ctx context.Context, oldKeys dynamo.Keys, value any) error
+	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error
+	OneByPK(ctx context.Context, pk dynamo.PK, v any) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error
+	OneBySK(ctx context.Context, sk dynamo.SK, v any) error
+	OneByUID(ctx context.Context, uid string, v any) error
+	Put(ctx context.Context, v any) error
+	Update(ctx context.Context, pk dynamo.PK, sk dynamo.SK, values map[string]dynamodbtypes.AttributeValue, expression string) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
@@ -97,6 +112,10 @@ type DocumentStore interface {
 type EventClient interface {
 	SendApplicationUpdated(ctx context.Context, event event.ApplicationUpdated) error
 	SendCertificateProviderStarted(ctx context.Context, event event.CertificateProviderStarted) error
+}
+
+type ScheduledStore interface {
+	DeleteAllByUID(ctx context.Context, uid string) error
 }
 
 type Event struct {

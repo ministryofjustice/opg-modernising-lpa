@@ -18,7 +18,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -85,8 +84,8 @@ type AddressClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
-	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
+	SendCertificateProviderInvite(ctx context.Context, appData appcontext.Data, invite sharecode.CertificateProviderInvite, to notify.ToEmail) error
+	SendCertificateProviderPrompt(ctx context.Context, appData appcontext.Data, provided *donordata.Provided) error
 	SendVoucherAccessCode(ctx context.Context, donor *donordata.Provided, appData appcontext.Data) error
 }
 
@@ -98,8 +97,9 @@ type OneLoginClient interface {
 }
 
 type NotifyClient interface {
-	SendActorSMS(ctx context.Context, lang localize.Lang, to, lpaUID string, sms notify.SMS) error
-	SendEmail(ctx context.Context, lang localize.Lang, to string, email notify.Email) error
+	SendActorSMS(ctx context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
+	SendEmail(ctx context.Context, to notify.ToEmail, email notify.Email) error
+	SendActorEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
 }
 
 type SessionStore interface {
@@ -163,7 +163,7 @@ type ShareCodeStore interface {
 }
 
 type ScheduledStore interface {
-	Put(ctx context.Context, row scheduled.Event) error
+	Create(ctx context.Context, row scheduled.Event) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -427,7 +427,7 @@ func Register(
 	handleWithDonor(donor.PathWhatHappensNextRegisteringWithCourtOfProtection, page.None,
 		Guidance(tmpls.Get("what_happens_next_registering_with_court_of_protection.gohtml")))
 	handleWithDonor(donor.PathAreYouSureYouNoLongerNeedVoucher, page.CanGoBack,
-		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore))
+		AreYouSureYouNoLongerNeedVoucher(tmpls.Get("are_you_sure_you_no_longer_need_voucher.gohtml"), donorStore, notifyClient))
 	handleWithDonor(donor.PathWeHaveInformedVoucherNoLongerNeeded, page.None,
 		Guidance(tmpls.Get("we_have_informed_voucher_no_longer_needed.gohtml")))
 

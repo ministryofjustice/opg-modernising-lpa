@@ -11,6 +11,7 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -19,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -39,7 +41,7 @@ type SecretsClient interface {
 }
 
 type ShareCodeSender interface {
-	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite) error
+	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite, notify.ToEmail) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
 	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 }
@@ -80,6 +82,7 @@ type Factory struct {
 	lpaStoreClient  LpaStoreClient
 	uidStore        UidStore
 	uidClient       UidClient
+	scheduledStore  ScheduledStore
 }
 
 func (f *Factory) Now() func() time.Time {
@@ -164,7 +167,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName))
+		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient))
 	}
 
 	return f.shareCodeSender, nil
@@ -210,4 +213,12 @@ func (f *Factory) EventClient() EventClient {
 	}
 
 	return f.eventClient
+}
+
+func (f *Factory) ScheduledStore() ScheduledStore {
+	if f.scheduledStore == nil {
+		f.scheduledStore = scheduled.NewStore(f.dynamoClient)
+	}
+
+	return f.scheduledStore
 }

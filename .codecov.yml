@@ -13,6 +13,7 @@ coverage:
     - "./cmd/mock-onelogin/main.go"
     - "./cmd/mock-os-api/main.go"
     - "./cmd/schedule-runner/main.go"
+    - "./cmd/scheduled-task-adder/main.go"
     - "./internal/identity/yoti*"
     - "./internal/notify/email.go"
     - "./internal/notify/sms.go"

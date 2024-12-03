@@ -52,6 +52,7 @@ type DynamoClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error
+	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error
 	AllKeysByPK(ctx context.Context, pk dynamo.PK) ([]dynamo.Keys, error)
 	AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error
 	BatchPut(ctx context.Context, items []interface{}) error
@@ -99,6 +100,7 @@ func App(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
+	useURL string,
 ) http.Handler {
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
@@ -114,7 +116,7 @@ func App(
 	scheduledStore := scheduled.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient)
+	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, random.String, eventClient, certificateProviderStore)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
@@ -153,7 +155,7 @@ func App(
 	handleRoot(page.PathVoucherStart, None,
 		page.Guidance(tmpls.Get("voucher_start.gohtml")))
 	handleRoot(page.PathDashboard, RequireSession,
-		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore))
+		page.Dashboard(tmpls.Get("dashboard.gohtml"), donorStore, dashboardStore, useURL))
 	handleRoot(page.PathLpaDeleted, RequireSession,
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,

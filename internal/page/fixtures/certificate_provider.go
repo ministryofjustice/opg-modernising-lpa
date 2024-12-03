@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
@@ -29,7 +30,7 @@ import (
 func CertificateProvider(
 	tmpl template.Template,
 	sessionStore *sesh.Store,
-	shareCodeSender ShareCodeSender,
+	shareCodeSender *sharecode.Sender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	eventClient *event.Client,
@@ -229,8 +230,7 @@ func CertificateProvider(
 				DonorFullName:               donorDetails.Donor.FullName(),
 				CertificateProviderUID:      donorDetails.CertificateProvider.UID,
 				CertificateProviderFullName: donorDetails.CertificateProvider.FullName(),
-				CertificateProviderEmail:    donorDetails.CertificateProvider.Email,
-			})
+			}, notify.ToCertificateProvider(donorDetails.CertificateProvider))
 
 			switch redirect {
 			case "":

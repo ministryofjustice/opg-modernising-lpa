@@ -249,6 +249,7 @@ data "aws_iam_policy_document" "event_received" {
       "dynamodb:Query",
       "dynamodb:GetItem",
       "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
     ]
 
     resources = [
