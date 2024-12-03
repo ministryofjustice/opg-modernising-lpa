@@ -86,3 +86,13 @@ type IdentityCheckMismatchedDetails struct {
 	LastName    string    `json:"lastName"`
 	DateOfBirth date.Date `json:"dateOfBirth"`
 }
+
+type CorrespondentUpdated struct {
+	UID          string         `json:"uid"`
+	FirstNames   string         `json:"firstNames,omitempty"`
+	LastName     string         `json:"lastName,omitempty"`
+	Email        string         `json:"email,omitempty"`
+	Organisation string         `json:"organisation,omitempty"`
+	Phone        string         `json:"phone,omitempty"`
+	Address      *place.Address `json:"address,omitempty"`
+}

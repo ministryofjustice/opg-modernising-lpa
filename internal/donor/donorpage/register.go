@@ -144,6 +144,7 @@ type EventClient interface {
 	SendUidRequested(ctx context.Context, e event.UidRequested) error
 	SendCertificateProviderStarted(ctx context.Context, e event.CertificateProviderStarted) error
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
+	SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error
 }
 
 type DashboardStore interface {
@@ -332,11 +333,11 @@ func Register(
 		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
-		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore))
+		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore))
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, eventClient))
 
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))

@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -22,7 +23,7 @@ type enterCorrespondentDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Handler {
+func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
@@ -52,6 +53,18 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore) Ha
 				if provided.Correspondent.WantAddress.IsNo() {
 					provided.Correspondent.Address = place.Address{}
 					provided.Tasks.AddCorrespondent = task.StateCompleted
+
+					if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
+						UID:          provided.LpaUID,
+						FirstNames:   provided.Correspondent.FirstNames,
+						LastName:     provided.Correspondent.LastName,
+						Email:        provided.Correspondent.Email,
+						Organisation: provided.Correspondent.Organisation,
+						Phone:        provided.Correspondent.Phone,
+					}); err != nil {
+						return err
+					}
+
 					redirect = donor.PathTaskList
 				} else {
 					if !provided.Tasks.AddCorrespondent.IsCompleted() && provided.Correspondent.Address.Line1 == "" {
