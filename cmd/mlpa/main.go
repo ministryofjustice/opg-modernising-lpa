@@ -114,6 +114,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+		useURL                = os.Getenv("USE_A_LASTING_POWER_OF_ATTORNEY_URL")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -304,6 +305,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventClient,
 		lpaStoreClient,
 		searchClient,
+		useURL,
 	)))
 
 	mux.Handle("/", app.App(
@@ -328,6 +330,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		eventClient,
 		lpaStoreClient,
 		searchClient,
+		useURL,
 	))
 
 	var handler http.Handler = mux
