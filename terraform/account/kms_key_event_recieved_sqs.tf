@@ -25,7 +25,42 @@ data "aws_iam_policy_document" "event_received_sqs_kms_merged" {
 data "aws_iam_policy_document" "event_received_sqs_kms" {
   provider = aws.global
   statement {
-    sid    = "Allow Key to be used for Encryption"
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+    }
+    actions = [
+      "kms:*",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    sid    = "Allow Encryption by IAM"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Encrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
+      ]
+    }
+  }
+  statement {
+    sid    = "Allow Encryption by Service"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
@@ -40,22 +75,13 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
     principals {
       type = "Service"
       identifiers = [
-        "sqs.amazonaws.com",
         "events.amazonaws.com",
-        "lambda.amazonaws.com",
-      ]
-    }
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
       ]
     }
   }
 
   statement {
-    sid    = "Allow Key to be used for Decryption"
+    sid    = "Allow Decryption by Service"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
@@ -74,6 +100,19 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
         "lambda.amazonaws.com",
       ]
     }
+  }
+
+  statement {
+    sid    = "Allow Decryption by IAM"
+    effect = "Allow"
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+    ]
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
 
     principals {
       type = "AWS"
