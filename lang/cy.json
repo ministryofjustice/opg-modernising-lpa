@@ -945,7 +945,7 @@
     "useThisLpa": "Defnyddio’r LPA hon (mae’r gwasanaeth hwn yn agor mewn tab newydd)",
     "viewAndUseYourRegisteredLpas": "Welsh",
     "viewAndUseRegisteredLpasAsAttorney": "Welsh",
-    "registeredLpasContent": "<p class=\"govuk-body\">Gallwch weld eich LPA yn ei chyfanrwydd isod, fel yr oedd pan gafodd ei llofnodi.</p><p class=\"govuk-body\">Gallwch hefyd fynd at y gwasanaeth ‘Defnyddio LPA’ lle gallwch reoli pa sefydliadau sy’n gallu defnyddio’ch LPA.</p>",
+    "registeredLpasContent": "<p class=\"govuk-body\">Gellir gweld LPAs cofrestredig a’u defnyddio yn y gwasanaeth ‘Defnyddio atwrneiaeth arhosol’. Mae hyn yn caniatáu:</p><ul class=\"govuk-list govuk-list--bullet\"><li>rhoddwyr i weld LPAs y maent wedi'u cwblhau a'u cofrestru gyda Swyddfa'r Gwarcheidwad Cyhoeddus (OPG)</li>atwrneiod i weld LPAs sydd wedi’u cwblhau a’u cofrestru gydag OPG</li><li>atwrneiod i roi mynediad i fanciau a sefydliadau eraill i’r LPA</li></ul>",
     "deleteThisLpa": "Dileu’r LPA hon",
     "donorName": "Enw’r rhoddwr",
     "lpaType": "Math o LPA",
