@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "event_received_sqs_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "events.amazonaws.com",
+        local.account.account_name == "development" ? "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root" : "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/event-received-${local.account.account_name}",
       ]
     }
   }
