@@ -73,6 +73,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendIdentityCheckMismatched(ctx, event) }, event
 		},
+		"correspondent-updated": func() (func(*Client) error, any) {
+			event := CorrespondentUpdated{UID: "a"}
+
+			return func(client *Client) error { return client.SendCorrespondentUpdated(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {
