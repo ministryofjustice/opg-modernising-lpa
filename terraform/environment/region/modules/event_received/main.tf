@@ -35,7 +35,7 @@ module "event_received" {
 }
 
 data "aws_kms_alias" "event_received_sqs" {
-  name     = "alias/${data.aws_default_tags.current.tags.application}_event_recieved_sqs_secret_encryption_key"
+  name     = "alias/${data.aws_default_tags.current.tags.application}_event_received_sqs_secret_encryption_key"
   provider = aws.region
 }
 
