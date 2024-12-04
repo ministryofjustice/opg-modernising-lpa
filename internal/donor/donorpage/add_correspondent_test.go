@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -30,7 +31,7 @@ func TestGetAddCorrespondent(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := AddCorrespondent(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -50,7 +51,7 @@ func TestGetAddCorrespondentFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{AddCorrespondent: form.Yes})
+	err := AddCorrespondent(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{AddCorrespondent: form.Yes})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -66,7 +67,7 @@ func TestGetAddCorrespondentWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := AddCorrespondent(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,6 +82,7 @@ func TestPostAddCorrespondent(t *testing.T) {
 		expectedCorrespondent donordata.Correspondent
 		expectedTaskState     task.State
 		redirect              donor.Path
+		setupEventClient      func(*mockEventClient)
 	}{
 		"yes was yes": {
 			yesNo:                 form.Yes,
@@ -107,6 +109,13 @@ func TestPostAddCorrespondent(t *testing.T) {
 			existingTaskState:     task.StateCompleted,
 			expectedTaskState:     task.StateCompleted,
 			redirect:              donor.PathTaskList,
+			setupEventClient: func(eventClient *mockEventClient) {
+				eventClient.EXPECT().
+					SendCorrespondentUpdated(mock.Anything, event.CorrespondentUpdated{
+						UID: "lpa-uid",
+					}).
+					Return(nil)
+			},
 		},
 		"no": {
 			yesNo:             form.No,
@@ -129,14 +138,21 @@ func TestPostAddCorrespondent(t *testing.T) {
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
 					LpaID:            "lpa-id",
+					LpaUID:           "lpa-uid",
 					AddCorrespondent: tc.yesNo,
 					Correspondent:    tc.expectedCorrespondent,
 					Tasks:            donordata.Tasks{AddCorrespondent: tc.expectedTaskState},
 				}).
 				Return(nil)
 
-			err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+			eventClient := newMockEventClient(t)
+			if tc.setupEventClient != nil {
+				tc.setupEventClient(eventClient)
+			}
+
+			err := AddCorrespondent(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
 				LpaID:         "lpa-id",
+				LpaUID:        "lpa-uid",
 				Correspondent: tc.existingCorrespondent,
 				Tasks:         donordata.Tasks{AddCorrespondent: tc.existingTaskState},
 			})
@@ -163,7 +179,7 @@ func TestPostAddCorrespondentWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := AddCorrespondent(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := AddCorrespondent(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -180,7 +196,7 @@ func TestPostAddCorrespondentWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := AddCorrespondent(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := AddCorrespondent(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

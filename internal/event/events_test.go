@@ -138,6 +138,29 @@ var eventTests = map[string]map[string]any{
 			},
 		},
 	},
+	"correspondent-updated": {
+		"remove": CorrespondentUpdated{UID: "M-1111-1111-1111"},
+		"without address": CorrespondentUpdated{
+			UID:        "M-1111-1111-1111",
+			FirstNames: "John",
+			LastName:   "Smith",
+			Email:      "john@example.com",
+			Phone:      "07777",
+		},
+		"with address": CorrespondentUpdated{
+			UID:        "M-1111-1111-1111",
+			FirstNames: "John",
+			LastName:   "Smith",
+			Email:      "john@example.com",
+			Phone:      "07777",
+			Address: &place.Address{
+				Line1:      "line-1",
+				TownOrCity: "town",
+				Postcode:   "F1 1FF",
+				Country:    "GB",
+			},
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {

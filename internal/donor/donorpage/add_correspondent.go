@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -19,7 +20,7 @@ type addCorrespondentData struct {
 	Donor  *donordata.Provided
 }
 
-func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
+func AddCorrespondent(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &addCorrespondentData{
 			App:   appData,
@@ -36,8 +37,17 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore) Handler {
 
 				var redirectUrl donor.Path
 				if provided.AddCorrespondent.IsNo() {
+					if provided.Correspondent.FirstNames != "" {
+						if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
+							UID: provided.LpaUID,
+						}); err != nil {
+							return err
+						}
+					}
+
 					provided.Correspondent = donordata.Correspondent{}
 					provided.Tasks.AddCorrespondent = task.StateCompleted
+
 					redirectUrl = donor.PathTaskList
 				} else {
 					if provided.Correspondent.FirstNames == "" {
