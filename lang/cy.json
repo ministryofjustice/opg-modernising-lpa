@@ -1530,5 +1530,15 @@
     "checkTheProgressOfYourLpa": "Welsh",
     "checkTheProgressOfYourLpaContent": "<p class=\"govuk-body\">Welsh</p>",
     "checkTheProgressOfAnLpa": "Welsh",
-    "checkTheProgressOfDonorsLpa": "Welsh {{.DonorFullName}}"
+    "checkTheProgressOfDonorsLpa": "Welsh {{.DonorFullName}}",
+    "notificationsFromOpg": {
+        "zero": "{{.PluralCount}} Welsh",
+        "one": "{{.PluralCount}} Welsh",
+        "two": "{{.PluralCount}} Welsh",
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
+    },
+    "youHaveChosenToConfirmYourIdentityAtPostOffice": "Welsh",
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "Welsh"
 }
