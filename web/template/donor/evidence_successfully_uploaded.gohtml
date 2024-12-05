@@ -26,7 +26,7 @@
       <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
       {{ if .Donor.SignedAt.IsZero }}
-        {{ trFormatHtml .App "youCanStillSignYourLpa" "Application" (printf "application%s" .Donor.FeeType.String | tr .App) }}
+        {{ trFormatHtml .App "youCanStillSignYourLpa" "Application" (printf "application:%s" .Donor.FeeType.String | tr .App) }}
       {{ end }}
 
       <h3 class="govuk-heading-s">{{ tr .App "ifYourApplicationIsSuccessful" }}</h3>
