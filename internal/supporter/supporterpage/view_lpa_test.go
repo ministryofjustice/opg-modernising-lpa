@@ -26,14 +26,14 @@ func TestGetViewLPA(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}})
+		Return(task.Progress{Paid: task.ProgressTask{Done: true}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &viewLPAData{
 			App:      testAppData,
 			Lpa:      lpa,
-			Progress: task.Progress{Paid: task.ProgressTask{State: task.StateInProgress}},
+			Progress: task.Progress{Paid: task.ProgressTask{Done: true}},
 		}).
 		Return(nil)
 
