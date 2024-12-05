@@ -10,21 +10,21 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-type lpaProgressData struct {
+type progressData struct {
 	App      appcontext.Data
 	Donor    *donordata.Provided
 	Progress task.Progress
 	Errors   validation.List
 }
 
-func LpaProgress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
 			return err
 		}
 
-		data := &lpaProgressData{
+		data := &progressData{
 			App:      appData,
 			Donor:    donor,
 			Progress: progressTracker.Progress(lpa),
