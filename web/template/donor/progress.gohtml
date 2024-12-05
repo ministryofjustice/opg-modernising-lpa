@@ -1,0 +1,34 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "checkTheProgressOfYourLpa" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+            <div class="govuk-inset-text">
+                <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                    {{ template "summary-row" (staticSummaryRow .App "name"
+                        .Donor.Donor.FullName) }}
+                    {{ template "summary-row" (staticSummaryRow .App "lpaType"
+                        (tr .App .Donor.Type.String)) }}
+                    {{ template "summary-row" (staticSummaryRow .App "referenceNumber"
+                        .Donor.LpaUID) }}
+                </dl>
+            </div>
+
+            {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+            {{ template "donor-lpa-progress" . }}
+
+            <div class="govuk-button-group">
+                {{ template "button" (button .App "returnToDashboard" "link" (link .App global.Paths.Dashboard.Format)) }}
+                <a href="{{ link .App (global.Paths.TaskList.Format .Donor.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToTaskList" }}</a>
+            </div>
+        </div>
+    </div>
+{{ end }}

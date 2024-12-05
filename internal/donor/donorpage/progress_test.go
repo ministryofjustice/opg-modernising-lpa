@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGetLpaProgress(t *testing.T) {
+func TestGetProgress(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -26,25 +26,25 @@ func TestGetLpaProgress(t *testing.T) {
 	progressTracker := newMockProgressTracker(t)
 	progressTracker.EXPECT().
 		Progress(lpa).
-		Return(task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}})
+		Return(task.Progress{DonorSigned: task.ProgressTask{Done: true}})
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &lpaProgressData{
+		Execute(w, &progressData{
 			App:      testAppData,
 			Donor:    &donordata.Provided{LpaUID: "lpa-uid"},
-			Progress: task.Progress{DonorSigned: task.ProgressTask{State: task.StateInProgress}},
+			Progress: task.Progress{DonorSigned: task.ProgressTask{Done: true}},
 		}).
 		Return(nil)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
+func TestGetProgressWhenLpaStoreClientErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -53,11 +53,11 @@ func TestGetLpaProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := LpaProgress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
-func TestGetLpaProgressOnTemplateError(t *testing.T) {
+func TestGetProgressOnTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
@@ -76,6 +76,6 @@ func TestGetLpaProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := LpaProgress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
