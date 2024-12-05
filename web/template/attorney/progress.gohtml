@@ -1,47 +1,47 @@
 {{ template "page" . }}
 
 {{ define "pageTitle" }}
-  {{ tr .App "lpaProgress" }}
+    {{ tr .App "checkTheProgressOfAnLpa" }}
 {{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
-      <div class="govuk-inset-text">
-          <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
-              <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
-                  <dd class="govuk-summary-list__value">{{ tr .App .Lpa.Type.String }}</dd>
-              </div>
-              <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
-                  <dd class="govuk-summary-list__value">{{ .Lpa.LpaUID }}</dd>
-              </div>
-          </dl>
-      </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ trFormat .App "checkTheProgressOfDonorsLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
+            <div class="govuk-inset-text">
+                <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "lpaType" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ tr .App .Lpa.Type.String }}</dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">{{ tr .App "referenceNumber" }}</dt>
+                        <dd class="govuk-summary-list__value">{{ .Lpa.LpaUID }}</dd>
+                    </div>
+                </dl>
+            </div>
 
 
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
-      <div class="app-progress-bar">
-        <ol class="app-progress-bar__list">
-          <li class="app-progress-bar__item" {{ if not .Signed }}aria-current="step"{{ end }}>
-            <span class="app-progress-bar__icon {{ if .Signed }}app-progress-bar__icon--complete{{ end }}"></span>
-            <span class="app-progress-bar__label">
-              {{ tr .App "youveSignedTheLpa" }}<span class="govuk-visually-hidden"> {{ if .Signed }}{{ tr .App "completed" }}{{ else }}{{ tr .App "inProgress" }}{{ end }}</span>
-            </span>
-          </li>
-          <li class="app-progress-bar__item" {{ if and .Signed (not .AttorneysSigned) }}aria-current="step"{{ end }}>
-            <span class="app-progress-bar__icon {{ if .AttorneysSigned }}app-progress-bar__icon--complete{{ end }}"></span>
-            <span class="app-progress-bar__label">
-              {{ tr .App "allAttorneysHaveSignedTheLpa" }}<span class="govuk-visually-hidden"> {{ if .AttorneysSigned }}{{ tr .App "completed" }}{{ else if .Signed }}{{ tr .App "inProgress" }}{{ else }}{{ tr .App "notStarted" }}{{ end }}</span>
-            </span>
-          </li>
-        </ol>
-      </div>
+            <div class="app-progress-bar">
+                <ol class="app-progress-bar__list">
+                    <li class="app-progress-bar__item" {{ if not .Signed }}aria-current="step"{{ end }}>
+                        <span class="app-progress-bar__icon {{ if .Signed }}app-progress-bar__icon--complete{{ end }}"></span>
+                        <span class="app-progress-bar__label">
+                            {{ tr .App "lpaSignedByYou" }}<span class="govuk-visually-hidden"> {{ if .Signed }}{{ tr .App "completed" }}{{ else }}{{ tr .App "notCompleted" }}{{ end }}</span>
+                        </span>
+                    </li>
+                    <li class="app-progress-bar__item" {{ if and .Signed (not .AttorneysSigned) }}aria-current="step"{{ end }}>
+                        <span class="app-progress-bar__icon {{ if .AttorneysSigned }}app-progress-bar__icon--complete{{ end }}"></span>
+                        <span class="app-progress-bar__label">
+                            {{ tr .App "lpaSignedByAllAttorneys" }}<span class="govuk-visually-hidden"> {{ if .AttorneysSigned }}{{ tr .App "completed" }}{{ else }}{{ tr .App "notCompleted" }}{{ end }}</span>
+                        </span>
+                    </li>
+                </ol>
+            </div>
 
-      <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "backToDashboard" }}</a>
+            <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}">{{ tr .App "returnToDashboard" }}</a>
+        </div>
     </div>
-  </div>
 {{ end }}
