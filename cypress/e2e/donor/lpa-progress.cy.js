@@ -1,36 +1,40 @@
 describe('LPA progress', () => {
     it('when nothing completed', () => {
         cy.visit('/fixtures?redirect=/progress');
+        cy.checkA11yApp();
 
-        cy.contains('li', 'You’ve signed your LPA In progress');
-        cy.contains('li', 'Your certificate provider has provided their certificate Not started');
-        cy.contains('li', 'Your attorneys have signed your LPA Not started');
-        cy.contains('li', 'We have received your LPA Not started');
-        cy.contains('li', 'Your 4-week waiting period has started Not started');
-        cy.contains('li', 'Your LPA has been registered Not started');
+        cy.contains('li', 'LPA paid for Not completed');
+        cy.contains('li', 'Your identity confirmed Not completed');
+        cy.contains('li', 'LPA signed by you Not completed');
+        cy.contains('li', 'LPA certificate provided Not completed');
+        cy.contains('li', 'LPA signed by all attorneys Not completed');
+        cy.contains('li', 'OPG’s statutory 4-week waiting period begins Not completed');
+        cy.contains('li', 'LPA registered by OPG Not completed');
     })
 
     it('when LPA submitted', () => {
         cy.visit('/fixtures?redirect=/progress&progress=signTheLpa');
         cy.checkA11yApp();
 
-        cy.contains('li', 'You’ve signed your LPA Completed');
-        cy.contains('li', 'Charlie Cooper has provided their certificate In progress');
-        cy.contains('li', 'Your attorneys have signed your LPA Not started');
-        cy.contains('li', 'We have received your LPA Not started');
-        cy.contains('li', 'Your 4-week waiting period has started Not started');
-        cy.contains('li', 'Your LPA has been registered Not started');
+        cy.contains('li', 'LPA paid for Completed');
+        cy.contains('li', 'Your identity confirmed Completed');
+        cy.contains('li', 'LPA signed by you Completed');
+        cy.contains('li', 'LPA certificate provided Not completed');
+        cy.contains('li', 'LPA signed by all attorneys Not completed');
+        cy.contains('li', 'OPG’s statutory 4-week waiting period begins Not completed');
+        cy.contains('li', 'LPA registered by OPG Not completed');
     })
 
     it('when certificate provided', () => {
         cy.visit('/fixtures?redirect=/progress&progress=signedByCertificateProvider');
         cy.checkA11yApp();
 
-        cy.contains('li', 'You’ve signed your LPA Completed');
-        cy.contains('li', 'Charlie Cooper has provided their certificate Completed');
-        cy.contains('li', 'Your attorneys have signed your LPA In progress');
-        cy.contains('li', 'We have received your LPA Not started');
-        cy.contains('li', 'Your 4-week waiting period has started Not started');
-        cy.contains('li', 'Your LPA has been registered Not started');
+        cy.contains('li', 'LPA paid for Completed');
+        cy.contains('li', 'Your identity confirmed Completed');
+        cy.contains('li', 'LPA signed by you Completed');
+        cy.contains('li', 'LPA certificate provided Completed');
+        cy.contains('li', 'LPA signed by all attorneys Not completed');
+        cy.contains('li', 'OPG’s statutory 4-week waiting period begins Not completed');
+        cy.contains('li', 'LPA registered by OPG Not completed');
     })
 });
