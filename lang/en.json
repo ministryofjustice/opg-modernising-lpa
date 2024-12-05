@@ -1426,5 +1426,11 @@
     "checkTheProgressOfYourLpa": "Check the progress of your LPA",
     "checkTheProgressOfYourLpaContent": "<p class=\"govuk-body\">Thank you for filling in your LPA. Before it can be registered and used, the steps on this page must be completed. We’ll contact you if you need to take action. Use this page to check items:</p><ul class=\"govuk-list govuk-list--bullet\"><li>you must complete – return to your task list to do this</li><li>your certificate provider or attorneys must complete</li><li>the Office of the Public Guardian (OPG) must complete</li></ul>",
     "checkTheProgressOfAnLpa": "Check the progress of an LPA",
-    "checkTheProgressOfDonorsLpa": "Check the progress of {{possessive .DonorFullName}} LPA"
+    "checkTheProgressOfDonorsLpa": "Check the progress of {{possessive .DonorFullName}} LPA",
+    "notificationsFromOpg": {
+        "one": "{{.PluralCount}} notification from OPG",
+        "other": "{{.PluralCount}} notifications from OPG"
+    },
+    "youHaveChosenToConfirmYourIdentityAtPostOffice": "You have chosen to confirm your identity at a Post Office",
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "When you have confirmed your identity at a Post Office, return to your task list for the steps you must take to complete this process."
 }

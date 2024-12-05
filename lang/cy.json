@@ -1522,13 +1522,23 @@
     "lpaSignedByAllAttorneys": "Welsh",
     "opgStatutoryWaitingPeriodBegins": "Welsh",
     "lpaRegisteredByOpg": "Welsh",
-    "donorsIdentityConfirmed": "{{possessive .DonorFullName}} Welsh",
+    "donorsIdentityConfirmed": "{{.DonorFullName}} Welsh",
     "lpaSignedByDonor": "Welsh {{.DonorFullName}}",
     "lpaCertificateProvidedBy": "Welsh {{.CertificateProviderFullName}}",
-    "donorsLpaRegisteredByOpg": "{{possessive .DonorFullName}} Welsh",
+    "donorsLpaRegisteredByOpg": "{{.DonorFullName}} Welsh",
     "notCompleted": "Welsh",
     "checkTheProgressOfYourLpa": "Welsh",
     "checkTheProgressOfYourLpaContent": "<p class=\"govuk-body\">Welsh</p>",
     "checkTheProgressOfAnLpa": "Welsh",
-    "checkTheProgressOfDonorsLpa": "Welsh {{possessive .DonorFullName}}"
+    "checkTheProgressOfDonorsLpa": "Welsh {{.DonorFullName}}",
+    "notificationsFromOpg": {
+        "zero": "{{.PluralCount}} Welsh",
+        "one": "{{.PluralCount}} Welsh",
+        "two": "{{.PluralCount}} Welsh",
+        "few": "{{.PluralCount}} Welsh",
+        "many": "{{.PluralCount}} Welsh",
+        "other": "{{.PluralCount}} Welsh"
+    },
+    "youHaveChosenToConfirmYourIdentityAtPostOffice": "Welsh",
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "Welsh"
 }
