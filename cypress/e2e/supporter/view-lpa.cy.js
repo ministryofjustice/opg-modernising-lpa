@@ -36,28 +36,24 @@ describe('View LPA', () => {
     it('shows progress of LPA', () => {
         cy.contains('a', 'M-FAKE').click()
 
-        cy.contains('h2', 'LPA progress')
-
-        cy.contains('li', 'Sam Smith has paid In progress')
-        cy.contains('li', 'Sam Smith has confirmed their identity Not started')
-        cy.contains('li', 'Sam Smith has signed the LPA Not started')
-        cy.contains('li', 'The certificate provider has provided their certificate Not started')
-        cy.contains('li', 'All attorneys have signed the LPA Not started')
-        cy.contains('li', 'OPG has received the LPA Not started')
-        cy.contains('li', 'The 4-week waiting period has started Not started')
-        cy.contains('li', 'The LPA has been registered Not started')
+        cy.contains('li', 'LPA paid for Not completed')
+        cy.contains('li', 'Sam Smith’s identity confirmed Not completed')
+        cy.contains('li', 'LPA signed by Sam Smith Not completed')
+        cy.contains('li', 'LPA certificate provided by Charlie Cooper Not completed')
+        cy.contains('li', 'LPA signed by all attorneys Not completed')
+        cy.contains('li', 'OPG’s statutory 4-week waiting period begins Not completed')
+        cy.contains('li', 'Sam Smith’s LPA registered by OPG Not completed')
 
         cy.visit('/fixtures/supporter?organisation=1&redirect=/dashboard&lpa=1&setLPAProgress=1&progress=registered');
 
         cy.contains('a', 'M-FAKE').click()
 
-        cy.contains('li', 'Sam Smith has paid Completed')
-        cy.contains('li', 'Sam Smith has confirmed their identity Completed')
-        cy.contains('li', 'Sam Smith has signed the LPA Completed')
-        cy.contains('li', 'The certificate provider has provided their certificate')
-        cy.contains('li', 'All attorneys have signed the LPA Completed')
-        cy.contains('li', 'OPG has received the LPA Completed')
-        cy.contains('li', 'The 4-week waiting period has started Completed')
-        cy.contains('li', 'The LPA has been registered Completed')
+        cy.contains('li', 'LPA paid for Completed')
+        cy.contains('li', 'Sam Smith’s identity confirmed Completed')
+        cy.contains('li', 'LPA signed by Sam Smith Completed')
+        cy.contains('li', 'LPA certificate provided by Charlie Cooper Completed')
+        cy.contains('li', 'LPA signed by all attorneys Completed')
+        cy.contains('li', 'OPG’s statutory 4-week waiting period begins Completed')
+        cy.contains('li', 'Sam Smith’s LPA registered by OPG Completed')
     })
 })

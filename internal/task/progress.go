@@ -26,188 +26,79 @@ type ProgressTracker struct {
 }
 
 type ProgressTask struct {
-	State State
+	Done  bool
 	Label string
 }
 
 type Progress struct {
-	isOrganisation            bool
 	Paid                      ProgressTask
 	ConfirmedID               ProgressTask
 	DonorSigned               ProgressTask
 	CertificateProviderSigned ProgressTask
 	AttorneysSigned           ProgressTask
-	LpaSubmitted              ProgressTask
-	NoticesOfIntentSent       ProgressTask
 	StatutoryWaitingPeriod    ProgressTask
-	LpaRegistered             ProgressTask
+	Registered                ProgressTask
 }
 
 func (p Progress) ToSlice() []ProgressTask {
-	var list []ProgressTask
-	if p.isOrganisation {
-		list = append(list, p.Paid, p.ConfirmedID)
+	return []ProgressTask{
+		p.Paid,
+		p.ConfirmedID,
+		p.DonorSigned,
+		p.CertificateProviderSigned,
+		p.AttorneysSigned,
+		p.StatutoryWaitingPeriod,
+		p.Registered,
 	}
-
-	list = append(list, p.DonorSigned, p.CertificateProviderSigned, p.AttorneysSigned, p.LpaSubmitted)
-
-	if p.NoticesOfIntentSent.State.IsCompleted() {
-		list = append(list, p.NoticesOfIntentSent)
-	}
-
-	list = append(list, p.StatutoryWaitingPeriod, p.LpaRegistered)
-
-	return list
 }
 
 func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
-	var labels map[string]string
-
-	if lpa.IsOrganisationDonor {
-		labels = map[string]string{
-			"paid": pt.Localizer.Format(
-				"donorFullNameHasPaid",
-				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
-			),
-			"confirmedID": pt.Localizer.Format(
-				"donorFullNameHasConfirmedTheirIdentity",
-				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
-			),
-			"donorSigned": pt.Localizer.Format(
-				"donorFullNameHasSignedTheLPA",
-				map[string]interface{}{"DonorFullName": lpa.Donor.FullName()},
-			),
-			"certificateProviderSigned": pt.Localizer.T("theCertificateProviderHasDeclared"),
-			"attorneysSigned":           pt.Localizer.T("allAttorneysHaveSignedTheLpa"),
-			"lpaSubmitted":              pt.Localizer.T("opgHasReceivedTheLPA"),
-			"noticesOfIntentSent":       "weSentAnEmailTheLpaIsReadyToRegister",
-			"statutoryWaitingPeriod":    pt.Localizer.T("theWaitingPeriodHasStarted"),
-			"lpaRegistered":             pt.Localizer.T("theLpaHasBeenRegistered"),
-		}
-	} else {
-		labels = map[string]string{
-			"donorSigned":            pt.Localizer.T("youveSignedYourLpa"),
-			"attorneysSigned":        pt.Localizer.Count("attorneysHaveDeclared", len(lpa.Attorneys.Attorneys)),
-			"lpaSubmitted":           pt.Localizer.T("weHaveReceivedYourLpa"),
-			"noticesOfIntentSent":    "weSentAnEmailYourLpaIsReadyToRegister",
-			"statutoryWaitingPeriod": pt.Localizer.T("yourWaitingPeriodHasStarted"),
-			"lpaRegistered":          pt.Localizer.T("yourLpaHasBeenRegistered"),
-		}
-
-		if lpa.CertificateProvider.FirstNames != "" {
-			labels["certificateProviderSigned"] = pt.Localizer.Format(
-				"certificateProviderHasDeclared",
-				map[string]interface{}{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
-			)
-		} else {
-			labels["certificateProviderSigned"] = pt.Localizer.T("yourCertificateProviderHasDeclared")
-		}
-	}
-
 	progress := Progress{
-		isOrganisation: lpa.IsOrganisationDonor,
 		Paid: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["paid"],
+			Done:  lpa.Paid,
+			Label: pt.Localizer.T("lpaPaidFor"),
 		},
 		ConfirmedID: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["confirmedID"],
+			Done: !lpa.Donor.IdentityCheck.CheckedAt.IsZero(),
 		},
 		DonorSigned: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["donorSigned"],
+			Done: lpa.SignedForDonor(),
 		},
 		CertificateProviderSigned: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["certificateProviderSigned"],
+			Done: !lpa.CertificateProvider.SignedAt.IsZero(),
 		},
 		AttorneysSigned: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["attorneysSigned"],
-		},
-		LpaSubmitted: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["lpaSubmitted"],
-		},
-		NoticesOfIntentSent: ProgressTask{
-			State: StateNotStarted,
+			Done:  lpa.AllAttorneysSigned(),
+			Label: pt.Localizer.T("lpaSignedByAllAttorneys"),
 		},
 		StatutoryWaitingPeriod: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["statutoryWaitingPeriod"],
+			Done:  !lpa.StatutoryWaitingPeriodAt.IsZero(),
+			Label: pt.Localizer.T("opgStatutoryWaitingPeriodBegins"),
 		},
-		LpaRegistered: ProgressTask{
-			State: StateNotStarted,
-			Label: labels["lpaRegistered"],
+		Registered: ProgressTask{
+			Done: !lpa.RegisteredAt.IsZero(),
 		},
 	}
 
 	if lpa.IsOrganisationDonor {
-		progress.Paid.State = StateInProgress
-		if !lpa.Paid {
-			return progress
+		progress.ConfirmedID.Label = pt.Localizer.Format("donorsIdentityConfirmed",
+			map[string]any{"DonorFullName": lpa.Donor.FullName()})
+		progress.DonorSigned.Label = pt.Localizer.Format("lpaSignedByDonor",
+			map[string]any{"DonorFullName": lpa.Donor.FullName()})
+		if lpa.CertificateProvider.FirstNames == "" {
+			progress.CertificateProviderSigned.Label = pt.Localizer.T("lpaCertificateProvided")
+		} else {
+			progress.CertificateProviderSigned.Label = pt.Localizer.Format("lpaCertificateProvidedBy",
+				map[string]any{"CertificateProviderFullName": lpa.CertificateProvider.FullName()})
 		}
-
-		progress.Paid.State = StateCompleted
-		progress.ConfirmedID.State = StateInProgress
-
-		if lpa.Donor.IdentityCheck.CheckedAt.IsZero() {
-			return progress
-		}
-
-		progress.ConfirmedID.State = StateCompleted
-		progress.DonorSigned.State = StateInProgress
-
-		if !lpa.SignedForDonor() {
-			return progress
-		}
+		progress.Registered.Label = pt.Localizer.Format("donorsLpaRegisteredByOpg",
+			map[string]any{"DonorFullName": lpa.Donor.FullName()})
 	} else {
-		progress.DonorSigned.State = StateInProgress
-		if !lpa.SignedForDonor() {
-			return progress
-		}
+		progress.ConfirmedID.Label = pt.Localizer.T("yourIdentityConfirmed")
+		progress.DonorSigned.Label = pt.Localizer.T("lpaSignedByYou")
+		progress.CertificateProviderSigned.Label = pt.Localizer.T("lpaCertificateProvided")
+		progress.Registered.Label = pt.Localizer.T("lpaRegisteredByOpg")
 	}
-
-	progress.DonorSigned.State = StateCompleted
-	progress.CertificateProviderSigned.State = StateInProgress
-
-	if lpa.CertificateProvider.SignedAt.IsZero() {
-		return progress
-	}
-
-	progress.CertificateProviderSigned.State = StateCompleted
-	progress.AttorneysSigned.State = StateInProgress
-
-	if !lpa.AllAttorneysSigned() {
-		return progress
-	}
-
-	progress.AttorneysSigned.State = StateCompleted
-	progress.LpaSubmitted.State = StateInProgress
-
-	if !lpa.Submitted {
-		return progress
-	}
-
-	progress.LpaSubmitted.State = StateCompleted
-
-	if lpa.StatutoryWaitingPeriodAt.IsZero() {
-		return progress
-	}
-
-	progress.NoticesOfIntentSent.Label = pt.Localizer.Format(labels["noticesOfIntentSent"], map[string]any{
-		"SentOn": pt.Localizer.FormatDate(lpa.StatutoryWaitingPeriodAt),
-	})
-	progress.NoticesOfIntentSent.State = StateCompleted
-	progress.StatutoryWaitingPeriod.State = StateInProgress
-
-	if lpa.RegisteredAt.IsZero() {
-		return progress
-	}
-
-	progress.StatutoryWaitingPeriod.State = StateCompleted
-	progress.LpaRegistered.State = StateCompleted
 
 	return progress
 }
