@@ -2,6 +2,7 @@ module "eu_west_1" {
   source                                                   = "./region"
   count                                                    = contains(local.account.regions, "eu-west-1") ? 1 : 0
   network_cidr_block                                       = "10.162.0.0/16"
+  network_firewall_rules_file                              = "../account/network_firewall_rules.rules"
   cloudwatch_log_group_kms_key_alias                       = module.cloudwatch_kms.kms_key_alias_name
   sns_kms_key_alias                                        = module.sns_kms.kms_key_alias_name
   secrets_manager_kms_key_alias                            = module.secrets_manager_kms.kms_key_alias_name
@@ -18,6 +19,7 @@ module "eu_west_2" {
   source                                                   = "./region"
   count                                                    = contains(local.account.regions, "eu-west-2") ? 1 : 0
   network_cidr_block                                       = "10.162.0.0/16"
+  network_firewall_rules_file                              = "../account/network_firewall_rules.rules"
   cloudwatch_log_group_kms_key_alias                       = module.cloudwatch_kms.kms_key_alias_name
   sns_kms_key_alias                                        = module.sns_kms.kms_key_alias_name
   secrets_manager_kms_key_alias                            = module.secrets_manager_kms.kms_key_alias_name
