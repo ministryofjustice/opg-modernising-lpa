@@ -1,10 +1,11 @@
 module "network" {
-  source                         = "github.com/ministryofjustice/opg-terraform-aws-network?ref=v1.5.0"
+  source                         = "github.com/ministryofjustice/opg-terraform-aws-firewalled-network?ref=v0.2.7"
   cidr                           = var.network_cidr_block
   enable_dns_hostnames           = true
   enable_dns_support             = true
   default_security_group_ingress = []
   default_security_group_egress  = []
+  network_firewall_rules_file    = var.network_firewall_rules_file
   providers = {
     aws = aws.region
   }
