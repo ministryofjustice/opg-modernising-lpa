@@ -60,7 +60,7 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
 				}
 
-				if !lpa.CannotRegister {
+				if !lpa.Status.IsCannotRegister() {
 					if err := lpaStoreClient.SendCertificateProviderOptOut(ctx, lpa.LpaUID, actoruid.Service); err != nil {
 						return err
 					}
