@@ -3,75 +3,76 @@
 {{ define "pageTitle" }}Donor fixtures{{ end }}
 
 {{ define "fixtures-main" }}
-  <div class="govuk-form-group">
-    <fieldset class="govuk-fieldset">
-      <legend class="govuk-fieldset__legend">
-        LPA type
-      </legend>
-      <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-        <div class="govuk-radios__item">
-          <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="property-and-affairs" checked>
-          <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
-        </div>
-        <div class="govuk-radios__item">
-          <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="personal-welfare">
-          <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
-        </div>
-      </div>
-    </fieldset>
-  </div>
-
-  <div class="govuk-form-group">
-    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
-      <div class="govuk-checkboxes__item">
-        <input class="govuk-checkboxes__input" id="f-uid" name="uid" type="checkbox" value="real">
-        <label class="govuk-label govuk-checkboxes__label" for="f-uid">
-          Real UID
-        </label>
-        <div class="govuk-hint govuk-checkboxes__hint">
-          You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received
-        </div>
-      </div>
+    <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">
+                LPA type
+            </legend>
+            <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="property-and-affairs" checked>
+                    <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
+                </div>
+                <div class="govuk-radios__item">
+                    <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="personal-welfare">
+                    <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
+                </div>
+            </div>
+        </fieldset>
     </div>
-  </div>
 
-  {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
-  {{ template "input" (input . "donorSub" "Donor OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
-  <div class="govuk-hint govuk-!-padding-bottom-2">
-    Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.Start.Format }}">start page</a>
-  </div>
+    <div class="govuk-form-group">
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-uid" name="uid" type="checkbox" value="real">
+                <label class="govuk-label govuk-checkboxes__label" for="f-uid">
+                    Real UID
+                </label>
+                <div class="govuk-hint govuk-checkboxes__hint">
+                    You may need to wait a bit and refresh the dashboard to see the LPA as this requires events to be sent and received
+                </div>
+            </div>
+        </div>
+    </div>
 
-  {{ template "input" (input . "certificateProviderEmail" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
-  {{ template "input" (input . "certificateProviderMobile" "Certificate provider mobile" "" "classes" "govuk-input--width-20" "type" "tel" "spellcheck" "false" "autocomplete" "tel") }}
-  <div class="govuk-hint govuk-!-padding-bottom-2">
-    Email and mobile are set when selecting <span class="govuk-!-font-weight-bold">Choose your certificate provider</span> progress or later
-  </div>
+    {{ template "input" (input . "donorEmail" "Donor Email" .DonorEmail "classes" "govuk-input--width-20") }}
+    {{ template "input" (input . "donorSub" "Donor OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
+    <div class="govuk-hint govuk-!-padding-bottom-2">
+        Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.Start.Format }}">start page</a>
+    </div>
 
-  <div class="govuk-form-group">
-    <fieldset class="govuk-fieldset">
-      <legend class="govuk-fieldset__legend">Progress</legend>
+    {{ template "input" (input . "certificateProviderEmail" "Certificate provider email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
+    {{ template "input" (input . "certificateProviderMobile" "Certificate provider mobile" "" "classes" "govuk-input--width-20" "type" "tel" "spellcheck" "false" "autocomplete" "tel") }}
+    <div class="govuk-hint govuk-!-padding-bottom-2">
+        Email and mobile are set when selecting <span class="govuk-!-font-weight-bold">Choose your certificate provider</span> progress or later
+    </div>
 
-      {{ template "radios" (items . "progress" "provideYourDetails"
-        (item "provideYourDetails" "provideYourDetails")
-        (item "chooseYourAttorneys" "chooseYourAttorneys")
-        (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
-        (item "chooseWhenTheLpaCanBeUsed" "Choose when the LPA can be used / Life-sustaining treatment")
-        (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
-        (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
-        (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
-        (item "addCorrespondent" "addCorrespondent")
-        (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
-        (item "payForTheLpa" "payForTheLpa")
-        (item "confirmYourIdentity" "Confirm your identity")
-        (item "signTheLpa" "Sign the LPA")
-        (item "signedByCertificateProvider" "Signed by certificate provider")
-        (item "signedByAttorneys" "Signed by attorneys")
-        (item "submitted" "Submitted")
-        (item "statutoryWaitingPeriod" "Statutory waiting period")
-        (item "withdrawn" "Withdrawn")
-        (item "certificateProviderOptedOut" "Certificate provider opted out (post signing)")
-        (item "registered" "registered")
-      ) }}
-    </fieldset>
-  </div>
+    <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend">Progress</legend>
+
+            {{ template "radios" (items . "progress" "provideYourDetails"
+                (item "provideYourDetails" "provideYourDetails")
+                (item "chooseYourAttorneys" "chooseYourAttorneys")
+                (item "chooseYourReplacementAttorneys" "chooseYourReplacementAttorneys")
+                (item "chooseWhenTheLpaCanBeUsed" "Choose when the LPA can be used / Life-sustaining treatment")
+                (item "addRestrictionsToTheLpa" "addRestrictionsToTheLpa")
+                (item "chooseYourCertificateProvider" "chooseYourCertificateProvider")
+                (item "peopleToNotifyAboutYourLpa" "peopleToNotifyAboutYourLpa")
+                (item "addCorrespondent" "addCorrespondent")
+                (item "checkAndSendToYourCertificateProvider" "checkAndSendToYourCertificateProvider")
+                (item "payForTheLpa" "payForTheLpa")
+                (item "confirmYourIdentity" "Confirm your identity")
+                (item "signTheLpa" "Sign the LPA")
+                (item "signedByCertificateProvider" "Signed by certificate provider")
+                (item "signedByAttorneys" "Signed by attorneys")
+                (item "submitted" "Submitted")
+                (item "statutoryWaitingPeriod" "Statutory waiting period" "orDivider" "1")
+                (item "withdrawn" "Withdrawn")
+                (item "certificateProviderOptedOut" "Certificate provider opted out (post signing)")
+                (item "doNotRegister" "Do not register")
+                (item "registered" "registered")
+                ) }}
+        </fieldset>
+    </div>
 {{ end }}

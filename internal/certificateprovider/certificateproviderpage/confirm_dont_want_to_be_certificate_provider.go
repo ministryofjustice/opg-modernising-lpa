@@ -42,7 +42,7 @@ func ConfirmDontWantToBeCertificateProvider(tmpl template.Template, lpaStoreClie
 					DonorStartPageURL:             appPublicURL + page.PathStart.Format(),
 				}
 
-				if !lpa.CannotRegister {
+				if !lpa.Status.IsCannotRegister() {
 					if err := lpaStoreClient.SendCertificateProviderOptOut(r.Context(), lpa.LpaUID, lpa.CertificateProvider.UID); err != nil {
 						return err
 					}
