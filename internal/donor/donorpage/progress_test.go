@@ -13,35 +13,63 @@ import (
 )
 
 func TestGetProgress(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	testCases := map[string]struct {
+		provided          *donordata.Provided
+		infoNotifications []progressNotification
+	}{
+		"none": {
+			provided: &donordata.Provided{LpaUID: "lpa-uid"},
+		},
+		"going to the post office": {
+			provided: &donordata.Provided{
+				LpaUID: "lpa-uid",
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStatePending,
+				},
+			},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
+					Body:    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
+				},
+			},
+		},
+	}
 
-	lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(lpa, nil)
+			lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
 
-	progressTracker := newMockProgressTracker(t)
-	progressTracker.EXPECT().
-		Progress(lpa).
-		Return(task.Progress{DonorSigned: task.ProgressTask{Done: true}})
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(lpa, nil)
 
-	template := newMockTemplate(t)
-	template.EXPECT().
-		Execute(w, &progressData{
-			App:      testAppData,
-			Donor:    &donordata.Provided{LpaUID: "lpa-uid"},
-			Progress: task.Progress{DonorSigned: task.ProgressTask{Done: true}},
-		}).
-		Return(nil)
+			progressTracker := newMockProgressTracker(t)
+			progressTracker.EXPECT().
+				Progress(lpa).
+				Return(task.Progress{DonorSigned: task.ProgressTask{Done: true}})
 
-	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
-	resp := w.Result()
+			template := newMockTemplate(t)
+			template.EXPECT().
+				Execute(w, &progressData{
+					App:               testAppData,
+					Donor:             tc.provided,
+					Progress:          task.Progress{DonorSigned: task.ProgressTask{Done: true}},
+					InfoNotifications: tc.infoNotifications,
+				}).
+				Return(nil)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
+			err := Progress(template.Execute, lpaStoreResolvingService, progressTracker)(testAppData, w, r, tc.provided)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
 func TestGetProgressWhenLpaStoreClientErrors(t *testing.T) {
