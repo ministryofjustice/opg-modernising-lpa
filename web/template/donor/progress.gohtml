@@ -21,8 +21,29 @@
 
             {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
 
-            <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
+            {{ if .InfoNotifications }}
+                <div class="govuk-notification-banner" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+                    <div class="govuk-notification-banner__header">
+                        <h1 class="govuk-notification-banner__title govuk-!-font-weight-regular" id="govuk-notification-banner-title">
+                            <span class="govuk-!-font-weight-bold">{{ tr .App "important" }}:</span> {{ trFormatCount .App "notificationsFromOpg" (len .InfoNotifications) }}
+                        </h1>
+                    </div>
+                        
+                    <div class="govuk-notification-banner__content">
+                        {{ range $i, $_ := .InfoNotifications }}
+                            {{ if gt $i 0 }}
+                                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                            {{ end }}
+                            
+                            <h2 class="govuk-notification-banner__heading">{{ tr $.App .Heading }}</h2>
+                            <p class="govuk-body">{{ tr $.App .Body }}</p>
+                        {{ end }}
+                    </div>
+                </div>
+            {{ end }}
+            
             {{ template "donor-lpa-progress" . }}
 
             <div class="govuk-button-group">
