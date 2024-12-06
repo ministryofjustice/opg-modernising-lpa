@@ -185,8 +185,8 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f",
 				},
-				CannotRegister: true,
-				Type:           lpadata.LpaTypePersonalWelfare,
+				Status: lpadata.StatusCannotRegister,
+				Type:   lpadata.LpaTypePersonalWelfare,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
