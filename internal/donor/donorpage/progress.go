@@ -10,11 +10,17 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
+type progressNotification struct {
+	Heading string
+	Body    string
+}
+
 type progressData struct {
-	App      appcontext.Data
-	Donor    *donordata.Provided
-	Progress task.Progress
-	Errors   validation.List
+	App               appcontext.Data
+	Errors            validation.List
+	Donor             *donordata.Provided
+	Progress          task.Progress
+	InfoNotifications []progressNotification
 }
 
 func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
@@ -28,6 +34,13 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			App:      appData,
 			Donor:    donor,
 			Progress: progressTracker.Progress(lpa),
+		}
+
+		if donor.IdentityUserData.Status.IsUnknown() && donor.Tasks.ConfirmYourIdentity.IsPending() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
+				Body:    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
+			})
 		}
 
 		return tmpl(w, data)
