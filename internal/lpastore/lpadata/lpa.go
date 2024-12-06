@@ -14,6 +14,7 @@ type Lpa struct {
 	LpaOwnerKey                                dynamo.LpaOwnerKeyType
 	LpaID                                      string
 	LpaUID                                     string
+	Status                                     Status
 	RegisteredAt                               time.Time
 	WithdrawnAt                                time.Time
 	StatutoryWaitingPeriodAt                   time.Time
@@ -67,10 +68,6 @@ type Lpa struct {
 	// Drafted is set if the CheckYourLpa task has been completed for online
 	// applications, or set to true for paper applications.
 	Drafted bool
-
-	// CannotRegister is set to true if the status in the lpa-store is
-	// cannot-register.
-	CannotRegister bool
 
 	// Correspondent is set using the data provided by the donor for online
 	// applications, but is not set for paper applications.
