@@ -94,6 +94,9 @@ switch (context.request.method) {
                     }
                     break;
 
+                case 'CHANGE_STATUS':
+                    lpa.status = update.changes.find(x => x.key == '/status').new;
+                    break;
             }
 
             lpaStore.save(lpaUID, JSON.stringify(lpa));
