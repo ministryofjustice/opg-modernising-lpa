@@ -113,8 +113,8 @@ func TestPostConfirmDontWantToBeCertificateProvider(t *testing.T) {
 				CertificateProvider: lpadata.CertificateProvider{
 					FirstNames: "d e", LastName: "f", UID: uid,
 				},
-				Type:           lpadata.LpaTypePersonalWelfare,
-				CannotRegister: true,
+				Type:   lpadata.LpaTypePersonalWelfare,
+				Status: lpadata.StatusCannotRegister,
 			},
 			lpaStoreClient: func() *mockLpaStoreClient { return nil },
 			donorStore:     func() *mockDonorStore { return nil },
