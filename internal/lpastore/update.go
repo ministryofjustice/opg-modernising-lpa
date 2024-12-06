@@ -200,6 +200,17 @@ func (c *Client) SendCertificateProviderOptOut(ctx context.Context, lpaUID strin
 	return c.sendUpdate(ctx, lpaUID, certificateProviderUid, body)
 }
 
+func (c *Client) SendChangeStatus(ctx context.Context, lpaUID string, oldStatus, newStatus lpadata.Status) error {
+	body := updateRequest{
+		Type: "OPG_STATUS_CHANGE",
+		Changes: []updateRequestChange{
+			{Key: "/status", Old: oldStatus, New: newStatus},
+		},
+	}
+
+	return c.sendUpdate(ctx, lpaUID, actoruid.Service, body)
+}
+
 func (c *Client) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error {
 	body := updateRequest{
 		Type: "DONOR_CONFIRM_IDENTITY",
