@@ -477,6 +477,7 @@ func updateLPAProgress(
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.SignTheLpa = task.StateCompleted
+		donorDetails.SubmittedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 	}
 
 	var certificateProviderUID actoruid.UID
