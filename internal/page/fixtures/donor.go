@@ -62,9 +62,11 @@ var progressValues = []string{
 	"signedByAttorneys",
 	"submitted",
 	"statutoryWaitingPeriod",
+	// end states
+	"registered",
 	"withdrawn",
 	"certificateProviderOptedOut",
-	"registered",
+	"doNotRegister",
 }
 
 type FixtureData struct {
@@ -479,6 +481,14 @@ func updateLPAProgress(
 
 	var certificateProviderUID actoruid.UID
 
+	if data.Progress == slices.Index(progressValues, "certificateProviderOptedOut") {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+			return client.SendCertificateProviderOptOut(ctx, donorDetails.LpaUID, certificateProviderUID)
+		})
+
+		return donorDetails, fns, nil
+	}
+
 	if data.Progress >= slices.Index(progressValues, "signedByCertificateProvider") {
 		ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
@@ -587,7 +597,16 @@ func updateLPAProgress(
 		donorDetails.StatutoryWaitingPeriodAt = time.Now()
 	}
 
+	if data.Progress == slices.Index(progressValues, "registered") {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+			return client.SendRegister(ctx, donorDetails.LpaUID)
+		})
+	}
+
 	if data.Progress == slices.Index(progressValues, "withdrawn") {
+		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
+			return client.SendDonorWithdrawLPA(ctx, donorDetails.LpaUID)
+		})
 		donorDetails.WithdrawnAt = time.Now()
 	}
 
@@ -597,9 +616,9 @@ func updateLPAProgress(
 		})
 	}
 
-	if data.Progress >= slices.Index(progressValues, "registered") {
+	if data.Progress == slices.Index(progressValues, "doNotRegister") {
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
-			return client.SendRegister(ctx, donorDetails.LpaUID)
+			return client.SendChangeStatus(ctx, donorDetails.LpaUID, lpadata.StatusStatutoryWaitingPeriod, lpadata.StatusDoNotRegister)
 		})
 	}
 
