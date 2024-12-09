@@ -52,7 +52,7 @@
                 </div>
             {{ else if .Item.Lpa.Status.IsRegistered }}
                 
-            {{ else if .Item.Lpa.Submitted }}
+            {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                 <div class="govuk-button-group">
                     <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>

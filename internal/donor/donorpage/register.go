@@ -462,7 +462,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(donor.PathProgress, page.None,
-		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker))
+		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker, certificateProviderStore))
 
 	handleWithDonor(donor.PathUploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
