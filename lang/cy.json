@@ -1500,5 +1500,7 @@
         "other": "{{.PluralCount}} Welsh"
     },
     "youHaveChosenToConfirmYourIdentityAtPostOffice": "Welsh",
-    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "Welsh"
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "Welsh",
+    "youveSubmittedYourLpaToOpg": "Welsh",
+    "opgIsCheckingYourLpa": "Welsh"
 }

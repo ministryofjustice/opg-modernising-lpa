@@ -1,6 +1,6 @@
 describe('Withdraw LPA', () => {
     it('can be withdrawn', () => {
-        cy.visit('/fixtures?redirect=&progress=submitted');
+        cy.visit('/fixtures?redirect=&progress=statutoryWaitingPeriod');
 
         cy.contains('Sam Smith');
         cy.contains('a', 'Withdraw LPA').click();

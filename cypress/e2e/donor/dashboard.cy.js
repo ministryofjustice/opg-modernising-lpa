@@ -23,7 +23,7 @@ describe('Dashboard', () => {
         });
     })
 
-    context('with completed LPA', () => {
+    context('with submitted LPA', () => {
         it('completed LPAs have a track progress button', () => {
             Cypress.on('uncaught:exception', () => {
                 // TODO: remove this if this test works without, it is a problem
@@ -51,11 +51,11 @@ describe('Dashboard', () => {
 
     context('with statutory waiting period LPA', () => {
         it('shows the correct options', () => {
-            cy.visit('/fixtures?redirect=&progress=submitted');
+            cy.visit('/fixtures?redirect=&progress=statutoryWaitingPeriod');
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
-            cy.contains('strong', 'In progress');
+            cy.contains('strong', 'Waiting period');
             cy.get('.app-dashboard-row a').should('have.length', 3);
             cy.contains('a', 'View LPA');
             cy.contains('a', 'Track LPA progress');

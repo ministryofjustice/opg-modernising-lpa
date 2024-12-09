@@ -60,7 +60,6 @@ var progressValues = []string{
 	"signTheLpa",
 	"signedByCertificateProvider",
 	"signedByAttorneys",
-	"submitted",
 	"statutoryWaitingPeriod",
 	// end states
 	"registered",
@@ -477,6 +476,7 @@ func updateLPAProgress(
 		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.SignTheLpa = task.StateCompleted
+		donorDetails.SubmittedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 	}
 
 	var certificateProviderUID actoruid.UID
@@ -584,10 +584,6 @@ func updateLPAProgress(
 				})
 			}
 		}
-	}
-
-	if data.Progress >= slices.Index(progressValues, "submitted") {
-		donorDetails.SubmittedAt = time.Now()
 	}
 
 	if data.Progress >= slices.Index(progressValues, "statutoryWaitingPeriod") {

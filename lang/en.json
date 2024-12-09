@@ -1396,5 +1396,7 @@
         "other": "{{.PluralCount}} notifications from OPG"
     },
     "youHaveChosenToConfirmYourIdentityAtPostOffice": "You have chosen to confirm your identity at a Post Office",
-    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "When you have confirmed your identity at a Post Office, return to your task list for the steps you must take to complete this process."
+    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "When you have confirmed your identity at a Post Office, return to your task list for the steps you must take to complete this process.",
+    "youveSubmittedYourLpaToOpg": "You’ve submitted your LPA to the Office of the Public Guardian (OPG)",
+    "opgIsCheckingYourLpa": "OPG is checking your LPA. We will contact you if there is anything you need to do."
 }
