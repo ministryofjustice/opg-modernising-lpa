@@ -57,6 +57,7 @@ func WitnessingAsCertificateProvider(
 
 			if data.Errors.None() {
 				provided.Tasks.SignTheLpa = task.StateCompleted
+				provided.SubmittedAt = now()
 
 				provided.WitnessCodeLimiter = nil
 				if provided.WitnessedByCertificateProviderAt.IsZero() {
