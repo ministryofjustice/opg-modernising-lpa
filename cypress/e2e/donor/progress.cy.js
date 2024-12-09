@@ -65,4 +65,12 @@ describe('Progress', () => {
         cy.contains('Important:').should('not.exist');
         cy.visitLpa('/progress');
     });
+
+    it('shows a notification when the lpa is submitted', () => {
+        cy.visit('/fixtures?redirect=/progress&progress=signTheLpa');
+        cy.checkA11yApp();
+        cy.contains('Important:')
+        cy.contains('1 notification from OPG');
+        cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+    });
 });
