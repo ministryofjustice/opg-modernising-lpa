@@ -347,7 +347,7 @@ type lpaResponse struct {
 	WitnessedByIndependentWitnessAt             *time.Time                         `json:"witnessedByIndependentWitnessAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt"`
 	UID                                         string                             `json:"uid"`
-	Status                                      string                             `json:"status"`
+	Status                                      lpadata.Status                     `json:"status"`
 	RegistrationDate                            time.Time                          `json:"registrationDate"`
 	UpdatedAt                                   time.Time                          `json:"updatedAt"`
 }
@@ -355,6 +355,7 @@ type lpaResponse struct {
 func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	data := &lpadata.Lpa{
 		LpaUID:       l.UID,
+		Status:       l.Status,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,
@@ -385,7 +386,6 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		LifeSustainingTreatmentOption:    l.LifeSustainingTreatmentOption,
 		SignedAt:                         l.SignedAt,
 		WitnessedByCertificateProviderAt: l.WitnessedByCertificateProviderAt,
-		CannotRegister:                   l.Status == "cannot-register",
 	}
 
 	if l.LpaType.IsPersonalWelfare() {
