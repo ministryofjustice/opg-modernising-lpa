@@ -1,11 +1,13 @@
 package donorpage
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -23,7 +25,7 @@ type progressData struct {
 	InfoNotifications []progressNotification
 }
 
-func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -41,6 +43,18 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
 				Body:    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
 			})
+		}
+
+		if lpa.Submitted && lpa.CertificateProvider.SignedAt.IsZero() {
+			_, err := certificateProviderStore.GetAny(r.Context())
+			if errors.Is(err, dynamo.NotFoundError{}) {
+				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+					Heading: "youveSubmittedYourLpaToOpg",
+					Body:    "opgIsCheckingYourLpa",
+				})
+			} else if err != nil {
+				return err
+			}
 		}
 
 		return tmpl(w, data)
