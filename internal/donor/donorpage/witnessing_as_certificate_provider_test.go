@@ -99,6 +99,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		CertificateProvider:              donordata.CertificateProvider{FirstNames: "Fred"},
 		WitnessedByCertificateProviderAt: testNow,
+		SubmittedAt:                      testNow,
 		Tasks: donordata.Tasks{
 			PayForLpa:  task.PaymentStateCompleted,
 			SignTheLpa: task.StateCompleted,
@@ -158,6 +159,7 @@ func TestPostWitnessingAsCertificateProviderWhenPaymentPending(t *testing.T) {
 		CertificateProvider:              donordata.CertificateProvider{Email: "name@example.com"},
 		CertificateProviderCodes:         donordata.WitnessCodes{{Code: "1234", Created: testNow}},
 		WitnessedByCertificateProviderAt: testNow,
+		SubmittedAt:                      testNow,
 		Tasks: donordata.Tasks{
 			PayForLpa:  task.PaymentStatePending,
 			SignTheLpa: task.StateCompleted,

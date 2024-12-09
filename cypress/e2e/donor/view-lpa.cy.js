@@ -34,7 +34,7 @@ describe('View LPA', () => {
 
     describe('when signed by everyone', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=submitted');
+            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=statutoryWaitingPeriod');
         });
 
         it('shows all signatures', () => {
