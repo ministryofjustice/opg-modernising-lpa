@@ -106,7 +106,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				Donor: lpadata.Donor{
 					Channel: lpadata.ChannelOnline,
-					IdentityCheck: lpadata.IdentityCheck{
+					IdentityCheck: &lpadata.IdentityCheck{
 						CheckedAt: time.Date(2020, time.January, 2, 12, 13, 14, 5, time.UTC),
 						Type:      "one-login",
 					},

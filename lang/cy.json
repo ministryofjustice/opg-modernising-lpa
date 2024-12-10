@@ -701,6 +701,7 @@
     "detailsTheDonorHasGivenAboutYou": "Manylion y mae’r rhoddwr wedi eu rhoi amdanoch",
     "whatToDoIfAnyDetailsAreIncorrect": "Beth i’w wneud os yw unrhyw rai o’r manylion a roddwyd amdanoch yn anghywir",
     "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
+    "whatToDoIfAnyDetailsAreIncorrectAttorneyCanPhoneContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
     "anyErrorsInYourDetailsCanDelay": "Gall unrhyw gamgymeriadau yn eich manylion achosi oedi cyn prosesu’r LPA.",
     "mobileNumber": "Rhif ffôn symudol",
     "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Gall unrhyw wallau yn eich manylion wneud yr LPA yn anodd ei ddefnyddio. Mae’n bosibl na fydd sefydliadau’n derbyn yr LPA os nad yw’ch manylion yn cyfateb i’ch data adnabod.",

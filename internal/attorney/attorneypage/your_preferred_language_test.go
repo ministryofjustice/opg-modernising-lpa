@@ -22,11 +22,6 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &yourPreferredLanguageData{
@@ -40,7 +35,7 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, &lpadata.Lpa{})
 
 	resp := w.Result()
 
@@ -48,38 +43,16 @@ func TestGetYourPreferredLanguage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestGetYourPreferredLanguageWhenLpaStoreResolvingServiceError(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := YourPreferredLanguage(nil, nil, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
-
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetYourPreferredLanguageWhenTemplateError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy})
+	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: localize.Cy}, &lpadata.Lpa{})
 
 	resp := w.Result()
 
@@ -98,17 +71,12 @@ func TestPostYourPreferredLanguage(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{}, nil)
-
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Put(r.Context(), &attorneydata.Provided{LpaID: "lpa-id", ContactLanguagePreference: lang}).
 				Return(nil)
 
-			err := YourPreferredLanguage(nil, attorneyStore, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := YourPreferredLanguage(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
 
 			resp := w.Result()
 
@@ -126,17 +94,12 @@ func TestPostYourPreferredLanguageWhenAttorneyStoreError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
-
 	attorneyStore := newMockAttorneyStore(t)
 	attorneyStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := YourPreferredLanguage(nil, attorneyStore, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+	err := YourPreferredLanguage(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
 
 	resp := w.Result()
 
@@ -150,11 +113,6 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(formValues.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -170,7 +128,7 @@ func TestPostYourPreferredLanguageWhenInvalidData(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourPreferredLanguage(template.Execute, nil, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+	err := YourPreferredLanguage(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
 
 	resp := w.Result()
 
