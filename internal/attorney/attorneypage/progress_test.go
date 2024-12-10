@@ -16,25 +16,25 @@ func TestProgress(t *testing.T) {
 	attorneySignedAt := lpaSignedAt.Add(time.Second)
 
 	testcases := map[string]struct {
-		attorney        *attorneydata.Provided
+		provided        *attorneydata.Provided
 		attorneys       []lpadata.Attorney
 		signed          bool
 		attorneysSigned bool
 	}{
 		"unsigned": {
-			attorney: &attorneydata.Provided{},
+			provided: &attorneydata.Provided{},
 		},
 		"attorney signed": {
-			attorney: &attorneydata.Provided{
+			provided: &attorneydata.Provided{
 				SignedAt: attorneySignedAt,
 			},
 			attorneys: []lpadata.Attorney{{}},
 			signed:    true,
 		},
 		"all signed": {
-			attorney: &attorneydata.Provided{},
+			provided: &attorneydata.Provided{},
 			attorneys: []lpadata.Attorney{{
-				SignedAt: attorneySignedAt,
+				SignedAt: &attorneySignedAt,
 			}},
 			attorneysSigned: true,
 		},
@@ -45,22 +45,17 @@ func TestProgress(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			donor := &lpadata.Lpa{
+			lpa := &lpadata.Lpa{
 				SignedAt:  lpaSignedAt,
 				Attorneys: lpadata.Attorneys{Attorneys: tc.attorneys},
 			}
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(donor, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
-				Execute(w, &progressData{App: testAppData, Lpa: donor, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
+				Execute(w, &progressData{App: testAppData, Lpa: lpa, Signed: tc.signed, AttorneysSigned: tc.attorneysSigned}).
 				Return(nil)
 
-			err := Progress(template.Execute, lpaStoreResolvingService)(testAppData, w, r, tc.attorney)
+			err := Progress(template.Execute)(testAppData, w, r, tc.provided, lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -69,35 +64,15 @@ func TestProgress(t *testing.T) {
 	}
 }
 
-func TestProgressWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	donor := &lpadata.Lpa{}
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, expectedError)
-
-	err := Progress(nil, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{})
-	assert.Equal(t, expectedError, err)
-}
-
 func TestProgressWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &progressData{App: testAppData, Lpa: &lpadata.Lpa{}}).
 		Return(expectedError)
 
-	err := Progress(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{})
+	err := Progress(template.Execute)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	assert.Equal(t, expectedError, err)
 }

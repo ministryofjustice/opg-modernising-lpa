@@ -18,13 +18,8 @@ type progressData struct {
 	AttorneysSigned bool
 }
 
-func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func Progress(tmpl template.Template) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &progressData{
 			App:             appData,
 			Lpa:             lpa,

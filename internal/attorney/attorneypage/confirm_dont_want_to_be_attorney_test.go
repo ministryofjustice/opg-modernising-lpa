@@ -23,41 +23,20 @@ func TestGetConfirmDontWantToBeAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpa := lpadata.Lpa{LpaUID: "lpa-uid"}
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpa, nil)
+	lpa := &lpadata.Lpa{LpaUID: "lpa-uid"}
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &confirmDontWantToBeAttorneyData{
 			App: testAppData,
-			Lpa: &lpa,
+			Lpa: lpa,
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorney(template.Execute, lpaStoreResolvingService, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetConfirmDontWantToBeAttorneyWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -65,17 +44,12 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
-		Return(&lpadata.Lpa{}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmDontWantToBeAttorney(template.Execute, lpaStoreResolvingService, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -101,11 +75,6 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		},
 		Type: lpadata.LpaTypePersonalWelfare,
 	}
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(lpa, nil)
 
 	certificateProviderStore := newMockAttorneyStore(t)
 	certificateProviderStore.EXPECT().
@@ -139,9 +108,9 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		SendAttorneyOptOut(r.Context(), "lpa-uid", uid, actor.TypeAttorney).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, certificateProviderStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
+	err := ConfirmDontWantToBeAttorney(nil, certificateProviderStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
 		UID: uid,
-	})
+	}, lpa)
 
 	resp := w.Result()
 
@@ -155,20 +124,15 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			LpaUID:   "lpa-uid",
-			SignedAt: time.Now(),
-			Donor: lpadata.Donor{
-				FirstNames: "a b", LastName: "c", Email: "a@example.com",
-			},
-			Type: lpadata.LpaTypePersonalWelfare,
-		}, nil)
-
-	err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{
+	err := ConfirmDontWantToBeAttorney(nil, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{
 		UID: uid,
+	}, &lpadata.Lpa{
+		LpaUID:   "lpa-uid",
+		SignedAt: time.Now(),
+		Donor: lpadata.Donor{
+			FirstNames: "a b", LastName: "c", Email: "a@example.com",
+		},
+		Type: lpadata.LpaTypePersonalWelfare,
 	})
 	assert.EqualError(t, err, "attorney not found")
 }
@@ -248,11 +212,6 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(&lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()}, nil)
-
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().
 				T(mock.Anything).
@@ -260,7 +219,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			err := ConfirmDontWantToBeAttorney(nil, lpaStoreResolvingService, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{})
+			err := ConfirmDontWantToBeAttorney(nil, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()})
 
 			resp := w.Result()
 

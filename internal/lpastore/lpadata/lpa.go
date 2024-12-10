@@ -99,7 +99,7 @@ func (l Lpa) AllAttorneysSigned() bool {
 
 	for _, attorneys := range []Attorneys{l.Attorneys, l.ReplacementAttorneys} {
 		for _, a := range attorneys.Attorneys {
-			if a.SignedAt.IsZero() {
+			if a.SignedAt == nil || a.SignedAt.IsZero() {
 				return false
 			}
 		}
@@ -199,22 +199,22 @@ func (l Lpa) Actors() iter.Seq[actor.Actor] {
 	}
 }
 
-func (l *Lpa) Attorney(uid actoruid.UID) (string, actor.Type) {
+func (l *Lpa) Attorney(uid actoruid.UID) (string, string, actor.Type) {
 	if t := l.ReplacementAttorneys.TrustCorporation; t.UID == uid {
-		return t.Name, actor.TypeReplacementTrustCorporation
+		return t.Name, t.Mobile, actor.TypeReplacementTrustCorporation
 	}
 
 	if t := l.Attorneys.TrustCorporation; t.UID == uid {
-		return t.Name, actor.TypeTrustCorporation
+		return t.Name, t.Mobile, actor.TypeTrustCorporation
 	}
 
 	if a, ok := l.ReplacementAttorneys.Get(uid); ok {
-		return a.FullName(), actor.TypeReplacementAttorney
+		return a.FullName(), a.Mobile, actor.TypeReplacementAttorney
 	}
 
 	if a, ok := l.Attorneys.Get(uid); ok {
-		return a.FullName(), actor.TypeAttorney
+		return a.FullName(), a.Mobile, actor.TypeAttorney
 	}
 
-	return "", actor.TypeNone
+	return "", "", actor.TypeNone
 }

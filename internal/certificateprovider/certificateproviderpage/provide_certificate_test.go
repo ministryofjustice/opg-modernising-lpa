@@ -178,7 +178,7 @@ func TestPostProvideCertificateWhenSignedInLpaStore(t *testing.T) {
 			Email:      "cp@example.org",
 			FirstNames: "a",
 			LastName:   "b",
-			SignedAt:   signedAt,
+			SignedAt:   &signedAt,
 		},
 		Donor: lpadata.Donor{FirstNames: "c", LastName: "d"},
 		Type:  lpadata.LpaTypePropertyAndAffairs,

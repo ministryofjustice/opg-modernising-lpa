@@ -49,7 +49,7 @@ func TestViewLpaWhenNotFound(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &viewLpaData{App: testAppData, Lpa: lpastore.FromDonorProvidedDetails(donor)}).
+		Execute(w, &viewLpaData{App: testAppData, Lpa: lpastore.LpaFromDonorProvided(donor)}).
 		Return(nil)
 
 	err := ViewLpa(template.Execute, lpaStoreClient)(testAppData, w, r, donor)
