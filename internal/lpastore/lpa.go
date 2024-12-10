@@ -10,27 +10,24 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type abstractError struct {
 	Detail string `json:"detail"`
 }
 
-type lpaRequest struct {
+type CreateLpa struct {
 	LpaType                                     lpadata.LpaType                    `json:"lpaType"`
 	Channel                                     lpadata.Channel                    `json:"channel"`
-	Donor                                       lpaRequestDonor                    `json:"donor"`
-	Attorneys                                   []lpaRequestAttorney               `json:"attorneys"`
-	TrustCorporations                           []lpaRequestTrustCorporation       `json:"trustCorporations,omitempty"`
-	CertificateProvider                         lpaRequestCertificateProvider      `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify         `json:"peopleToNotify,omitempty"`
-	IndependentWitness                          *lpaRequestIndependentWitness      `json:"independentWitness,omitempty"`
-	AuthorisedSignatory                         *lpaRequestAuthorisedSignatory     `json:"authorisedSignatory,omitempty"`
+	Donor                                       lpadata.Donor                      `json:"donor"`
+	Attorneys                                   []lpadata.Attorney                 `json:"attorneys"`
+	TrustCorporations                           []lpadata.TrustCorporation         `json:"trustCorporations,omitempty"`
+	CertificateProvider                         lpadata.CertificateProvider        `json:"certificateProvider"`
+	PeopleToNotify                              []lpadata.PersonToNotify           `json:"peopleToNotify,omitempty"`
+	IndependentWitness                          *lpadata.IndependentWitness        `json:"independentWitness,omitempty"`
+	AuthorisedSignatory                         *lpadata.AuthorisedSignatory       `json:"authorisedSignatory,omitempty"`
 	HowAttorneysMakeDecisions                   lpadata.AttorneysAct               `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                             `json:"howAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysMakeDecisions        lpadata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions,omitempty"`
@@ -46,92 +43,22 @@ type lpaRequest struct {
 	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
-type lpaRequestIdentityCheck struct {
-	CheckedAt time.Time `json:"checkedAt"`
-	Type      string    `json:"type"`
-}
-
-type lpaRequestDonor struct {
-	UID                       actoruid.UID             `json:"uid"`
-	FirstNames                string                   `json:"firstNames"`
-	LastName                  string                   `json:"lastName"`
-	DateOfBirth               date.Date                `json:"dateOfBirth"`
-	Email                     string                   `json:"email"`
-	Address                   place.Address            `json:"address"`
-	OtherNamesKnownBy         string                   `json:"otherNamesKnownBy,omitempty"`
-	ContactLanguagePreference localize.Lang            `json:"contactLanguagePreference"`
-	IdentityCheck             *lpaRequestIdentityCheck `json:"identityCheck,omitempty"`
-}
-
-type lpaRequestAttorney struct {
-	UID             actoruid.UID    `json:"uid"`
-	FirstNames      string          `json:"firstNames"`
-	LastName        string          `json:"lastName"`
-	DateOfBirth     date.Date       `json:"dateOfBirth"`
-	Email           string          `json:"email,omitempty"`
-	Address         place.Address   `json:"address"`
-	Status          string          `json:"status"`
-	AppointmentType string          `json:"appointmentType"`
-	Channel         lpadata.Channel `json:"channel"`
-}
-
-type lpaRequestTrustCorporation struct {
-	UID             actoruid.UID    `json:"uid"`
-	Name            string          `json:"name"`
-	CompanyNumber   string          `json:"companyNumber"`
-	Email           string          `json:"email,omitempty"`
-	Address         place.Address   `json:"address"`
-	Status          string          `json:"status"`
-	AppointmentType string          `json:"appointmentType"`
-	Channel         lpadata.Channel `json:"channel"`
-}
-
-type lpaRequestCertificateProvider struct {
-	UID        actoruid.UID    `json:"uid"`
-	FirstNames string          `json:"firstNames"`
-	LastName   string          `json:"lastName"`
-	Email      string          `json:"email,omitempty"`
-	Phone      string          `json:"phone,omitempty"`
-	Address    place.Address   `json:"address"`
-	Channel    lpadata.Channel `json:"channel"`
-}
-
-type lpaRequestPersonToNotify struct {
-	UID        actoruid.UID  `json:"uid"`
-	FirstNames string        `json:"firstNames"`
-	LastName   string        `json:"lastName"`
-	Address    place.Address `json:"address"`
-}
-
-type lpaRequestIndependentWitness struct {
-	UID        actoruid.UID  `json:"uid"`
-	FirstNames string        `json:"firstNames"`
-	LastName   string        `json:"lastName"`
-	Phone      string        `json:"phone"`
-	Address    place.Address `json:"address"`
-}
-
-type lpaRequestAuthorisedSignatory struct {
-	UID        actoruid.UID `json:"uid"`
-	FirstNames string       `json:"firstNames"`
-	LastName   string       `json:"lastName"`
-}
-
-func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
-	body := lpaRequest{
+func CreateLpaFromDonorProvided(donor *donordata.Provided) CreateLpa {
+	body := CreateLpa{
 		LpaType: donor.Type,
 		Channel: lpadata.ChannelOnline,
-		Donor: lpaRequestDonor{
+		Donor: lpadata.Donor{
 			UID:                       donor.Donor.UID,
 			FirstNames:                donor.Donor.FirstNames,
 			LastName:                  donor.Donor.LastName,
 			DateOfBirth:               donor.Donor.DateOfBirth,
 			Email:                     donor.Donor.Email,
+			Mobile:                    donor.Donor.Mobile,
 			Address:                   donor.Donor.Address,
 			OtherNamesKnownBy:         donor.Donor.OtherNames,
 			ContactLanguagePreference: donor.Donor.ContactLanguagePreference,
 		},
-		CertificateProvider: lpaRequestCertificateProvider{
+		CertificateProvider: lpadata.CertificateProvider{
 			UID:        donor.CertificateProvider.UID,
 			FirstNames: donor.CertificateProvider.FirstNames,
 			LastName:   donor.CertificateProvider.LastName,
@@ -146,7 +73,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	if donor.DonorIdentityConfirmed() {
-		body.Donor.IdentityCheck = &lpaRequestIdentityCheck{
+		body.Donor.IdentityCheck = &lpadata.IdentityCheck{
 			CheckedAt: donor.IdentityUserData.CheckedAt,
 			Type:      "one-login",
 		}
@@ -183,61 +110,61 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	for _, attorney := range donor.Attorneys.Attorneys {
-		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
+		body.Attorneys = append(body.Attorneys, lpadata.Attorney{
 			UID:             attorney.UID,
 			FirstNames:      attorney.FirstNames,
 			LastName:        attorney.LastName,
 			DateOfBirth:     attorney.DateOfBirth,
 			Email:           attorney.Email,
 			Address:         attorney.Address,
-			Status:          statusActive,
-			AppointmentType: appointmentTypeOriginal,
+			Status:          lpadata.AttorneyStatusActive,
+			AppointmentType: lpadata.AppointmentTypeOriginal,
 			Channel:         attorney.Channel(),
 		})
 	}
 
 	if trustCorporation := donor.Attorneys.TrustCorporation; trustCorporation.Name != "" {
-		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
+		body.TrustCorporations = append(body.TrustCorporations, lpadata.TrustCorporation{
 			UID:             trustCorporation.UID,
 			Name:            trustCorporation.Name,
 			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
-			Status:          statusActive,
-			AppointmentType: appointmentTypeOriginal,
+			Status:          lpadata.AttorneyStatusActive,
+			AppointmentType: lpadata.AppointmentTypeOriginal,
 			Channel:         trustCorporation.Channel(),
 		})
 	}
 
 	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		body.Attorneys = append(body.Attorneys, lpaRequestAttorney{
+		body.Attorneys = append(body.Attorneys, lpadata.Attorney{
 			UID:             attorney.UID,
 			FirstNames:      attorney.FirstNames,
 			LastName:        attorney.LastName,
 			DateOfBirth:     attorney.DateOfBirth,
 			Email:           attorney.Email,
 			Address:         attorney.Address,
-			Status:          statusInactive,
-			AppointmentType: appointmentTypeReplacement,
+			Status:          lpadata.AttorneyStatusInactive,
+			AppointmentType: lpadata.AppointmentTypeReplacement,
 			Channel:         attorney.Channel(),
 		})
 	}
 
 	if trustCorporation := donor.ReplacementAttorneys.TrustCorporation; trustCorporation.Name != "" {
-		body.TrustCorporations = append(body.TrustCorporations, lpaRequestTrustCorporation{
+		body.TrustCorporations = append(body.TrustCorporations, lpadata.TrustCorporation{
 			UID:             trustCorporation.UID,
 			Name:            trustCorporation.Name,
 			CompanyNumber:   trustCorporation.CompanyNumber,
 			Email:           trustCorporation.Email,
 			Address:         trustCorporation.Address,
-			Status:          statusInactive,
-			AppointmentType: appointmentTypeReplacement,
+			Status:          lpadata.AttorneyStatusInactive,
+			AppointmentType: lpadata.AppointmentTypeReplacement,
 			Channel:         trustCorporation.Channel(),
 		})
 	}
 
 	for _, person := range donor.PeopleToNotify {
-		body.PeopleToNotify = append(body.PeopleToNotify, lpaRequestPersonToNotify{
+		body.PeopleToNotify = append(body.PeopleToNotify, lpadata.PersonToNotify{
 			UID:        person.UID,
 			FirstNames: person.FirstNames,
 			LastName:   person.LastName,
@@ -246,7 +173,7 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	if !donor.IndependentWitness.UID.IsZero() {
-		body.IndependentWitness = &lpaRequestIndependentWitness{
+		body.IndependentWitness = &lpadata.IndependentWitness{
 			UID:        donor.IndependentWitness.UID,
 			FirstNames: donor.IndependentWitness.FirstNames,
 			LastName:   donor.IndependentWitness.LastName,
@@ -256,24 +183,28 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	if !donor.AuthorisedSignatory.UID.IsZero() {
-		body.AuthorisedSignatory = &lpaRequestAuthorisedSignatory{
+		body.AuthorisedSignatory = &lpadata.AuthorisedSignatory{
 			UID:        donor.AuthorisedSignatory.UID,
 			FirstNames: donor.AuthorisedSignatory.FirstNames,
 			LastName:   donor.AuthorisedSignatory.LastName,
 		}
 	}
 
+	return body
+}
+
+func (c *Client) SendLpa(ctx context.Context, uid string, body CreateLpa) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(body); err != nil {
 		return err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.baseURL+"/lpas/"+donor.LpaUID, &buf)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, c.baseURL+"/lpas/"+uid, &buf)
 	if err != nil {
 		return err
 	}
 
-	resp, err := c.do(ctx, donor.Donor.UID, req)
+	resp, err := c.do(ctx, body.Donor.UID, req)
 	if err != nil {
 		return err
 	}
@@ -309,30 +240,16 @@ func (c *Client) SendLpa(ctx context.Context, donor *donordata.Provided) error {
 	}
 }
 
-type lpaResponseAttorney struct {
-	lpaRequestAttorney
-	Mobile                    string        `json:"mobile"`
-	SignedAt                  time.Time     `json:"signedAt"`
-	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
-}
-
-type lpaResponseTrustCorporation struct {
-	lpaRequestTrustCorporation
-	Mobile                    string                              `json:"mobile"`
-	Signatories               []lpadata.TrustCorporationSignatory `json:"signatories"`
-	ContactLanguagePreference localize.Lang                       `json:"contactLanguagePreference"`
-}
-
 type lpaResponse struct {
 	LpaType                                     lpadata.LpaType                    `json:"lpaType"`
-	Donor                                       lpaRequestDonor                    `json:"donor"`
+	Donor                                       lpadata.Donor                      `json:"donor"`
 	Channel                                     lpadata.Channel                    `json:"channel"`
-	Attorneys                                   []lpaResponseAttorney              `json:"attorneys"`
-	TrustCorporations                           []lpaResponseTrustCorporation      `json:"trustCorporations"`
+	Attorneys                                   []lpadata.Attorney                 `json:"attorneys"`
+	TrustCorporations                           []lpadata.TrustCorporation         `json:"trustCorporations"`
 	CertificateProvider                         lpadata.CertificateProvider        `json:"certificateProvider"`
-	PeopleToNotify                              []lpaRequestPersonToNotify         `json:"peopleToNotify"`
-	IndependentWitness                          *lpaRequestIndependentWitness      `json:"independentWitness"`
-	AuthorisedSignatory                         *lpaRequestAuthorisedSignatory     `json:"authorisedSignatory"`
+	PeopleToNotify                              []lpadata.PersonToNotify           `json:"peopleToNotify"`
+	IndependentWitness                          *lpadata.IndependentWitness        `json:"independentWitness"`
+	AuthorisedSignatory                         *lpadata.AuthorisedSignatory       `json:"authorisedSignatory"`
 	HowAttorneysMakeDecisions                   lpadata.AttorneysAct               `json:"howAttorneysMakeDecisions"`
 	HowAttorneysMakeDecisionsDetails            string                             `json:"howAttorneysMakeDecisionsDetails"`
 	HowReplacementAttorneysMakeDecisions        lpadata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions"`
@@ -366,7 +283,7 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			DateOfBirth:               l.Donor.DateOfBirth,
 			Email:                     l.Donor.Email,
 			Address:                   l.Donor.Address,
-			OtherNames:                l.Donor.OtherNamesKnownBy,
+			OtherNamesKnownBy:         l.Donor.OtherNamesKnownBy,
 			Channel:                   l.Channel,
 			ContactLanguagePreference: l.Donor.ContactLanguagePreference,
 		},
@@ -404,10 +321,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			SignedAt:                  a.SignedAt,
 			ContactLanguagePreference: a.ContactLanguagePreference,
 			Channel:                   a.Channel,
-			Removed:                   a.Status == statusRemoved,
+			Removed:                   a.Status.IsRemoved(),
 		}
 
-		if a.AppointmentType == appointmentTypeReplacement {
+		if a.AppointmentType.IsReplacement() {
 			data.ReplacementAttorneys.Attorneys = append(data.ReplacementAttorneys.Attorneys, at)
 		} else {
 			data.Attorneys.Attorneys = append(data.Attorneys.Attorneys, at)
@@ -425,10 +342,10 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			Signatories:               t.Signatories,
 			ContactLanguagePreference: t.ContactLanguagePreference,
 			Channel:                   t.Channel,
-			Removed:                   t.Status == statusRemoved,
+			Removed:                   t.Status.IsRemoved(),
 		}
 
-		if t.AppointmentType == appointmentTypeReplacement {
+		if t.AppointmentType.IsReplacement() {
 			data.ReplacementAttorneys.TrustCorporation = tc
 		} else {
 			data.Attorneys.TrustCorporation = tc
@@ -457,7 +374,7 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 			UID:        l.IndependentWitness.UID,
 			FirstNames: l.IndependentWitness.FirstNames,
 			LastName:   l.IndependentWitness.LastName,
-			Mobile:     l.IndependentWitness.Phone,
+			Phone:      l.IndependentWitness.Phone,
 			Address:    l.IndependentWitness.Address,
 		}
 	}
@@ -471,14 +388,16 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	}
 
 	if l.Donor.IdentityCheck != nil {
-		data.Donor.IdentityCheck.CheckedAt = l.Donor.IdentityCheck.CheckedAt
-		data.Donor.IdentityCheck.Type = l.Donor.IdentityCheck.Type
+		data.Donor.IdentityCheck = &lpadata.IdentityCheck{
+			CheckedAt: l.Donor.IdentityCheck.CheckedAt,
+			Type:      l.Donor.IdentityCheck.Type,
+		}
 	}
 
 	return data
 }
 
-func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
+func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 	data := &lpadata.Lpa{
 		LpaID:     l.LpaID,
 		LpaUID:    l.LpaUID,
@@ -489,7 +408,7 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 			FirstNames:                l.Donor.FirstNames,
 			LastName:                  l.Donor.LastName,
 			Email:                     l.Donor.Email,
-			OtherNames:                l.Donor.OtherNames,
+			OtherNamesKnownBy:         l.Donor.OtherNames,
 			DateOfBirth:               l.Donor.DateOfBirth,
 			Address:                   l.Donor.Address,
 			Channel:                   l.Donor.Channel,
@@ -571,8 +490,10 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 	}
 
 	if l.DonorIdentityConfirmed() {
-		data.Donor.IdentityCheck.CheckedAt = l.IdentityUserData.CheckedAt
-		data.Donor.IdentityCheck.Type = "one-login"
+		data.Donor.IdentityCheck = &lpadata.IdentityCheck{
+			CheckedAt: l.IdentityUserData.CheckedAt,
+			Type:      "one-login",
+		}
 	}
 
 	var peopleToNotify []lpadata.PersonToNotify
@@ -607,7 +528,7 @@ func FromDonorProvidedDetails(l *donordata.Provided) *lpadata.Lpa {
 			UID:        v.UID,
 			FirstNames: v.FirstNames,
 			LastName:   v.LastName,
-			Mobile:     v.Mobile,
+			Phone:      v.Mobile,
 			Address:    v.Address,
 		}
 	}

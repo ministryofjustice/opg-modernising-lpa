@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -101,7 +102,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)
 					}
 
-					if err := lpaStoreClient.SendLpa(r.Context(), provided); err != nil {
+					if err := lpaStoreClient.SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)); err != nil {
 						return fmt.Errorf("failed to send to lpastore: %w", err)
 					}
 				}

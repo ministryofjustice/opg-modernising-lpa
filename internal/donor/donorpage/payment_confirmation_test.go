@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -414,7 +415,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 
 			lpaStoreClient := newMockLpaStoreClient(t)
 			lpaStoreClient.EXPECT().
-				SendLpa(r.Context(), updatedDonor).
+				SendLpa(r.Context(), updatedDonor.LpaUID, lpastore.CreateLpaFromDonorProvided(updatedDonor)).
 				Return(nil)
 
 			eventClient := newMockEventClient(t)
@@ -816,7 +817,7 @@ func TestGetPaymentConfirmationWhenLpaStoreClientErrors(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(r.Context(), mock.Anything).
+		SendLpa(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	eventClient := newMockEventClient(t)
