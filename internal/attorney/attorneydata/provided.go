@@ -30,6 +30,9 @@ type Provided struct {
 	IsTrustCorporation bool
 	// Phone number of the attorney or replacement attorney (mobile or landline)
 	Phone string
+	// PhoneSet is set to true when Phone is first set, then we can determine if
+	// the attorney has chosen to remove the number a paper donor provided.
+	PhoneSet bool
 	// SignedAt is when the attorney or replacement attorney submitted their
 	// signature
 	SignedAt time.Time

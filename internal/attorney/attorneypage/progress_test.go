@@ -34,7 +34,7 @@ func TestProgress(t *testing.T) {
 		"all signed": {
 			attorney: &attorneydata.Provided{},
 			attorneys: []lpadata.Attorney{{
-				SignedAt: attorneySignedAt,
+				SignedAt: &attorneySignedAt,
 			}},
 			attorneysSigned: true,
 		},
