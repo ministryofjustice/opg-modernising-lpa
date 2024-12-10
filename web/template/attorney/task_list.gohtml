@@ -36,17 +36,19 @@
             <h2 class="govuk-heading-m">{{ tr $.App "readAndSignTheLpa" }}</h2>
             <ul class="govuk-task-list">
                 {{ range $i, $_ := .Items }}
-                    <li class="govuk-task-list__item {{ if .Path }}govuk-task-list__item--with-link{{ end }}">
+                    {{ $canGoTo := .Path.CanGoTo $.Provided $.Lpa }}
+                    
+                    <li class="govuk-task-list__item {{ if $canGoTo }}govuk-task-list__item--with-link{{ end }}">
                         <span class="govuk-task-list__name-and-hint">
-                            {{ if .Path }}
-                                <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</a>
+                            {{ if $canGoTo }}
+                                <a href="{{ link $.App (.Path.Format $.App.LpaID) }}{{ .Query }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</a>
                             {{ else }}
                                 <div aria-describedby="{{ fieldID "status" $i }}">{{ tr $.App .Name }}</div>
                             {{ end }}
                         </span>
 
                         <div id="{{ fieldID "status" $i }}" class="govuk-task-list__status">
-                            {{ if not .Path }}
+                            {{ if not $canGoTo }}
                                 <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                             {{ else if .State.IsCompleted }}
                                 {{ tr $.App "completed" }}

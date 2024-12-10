@@ -45,7 +45,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
-		if lpa.Submitted && lpa.CertificateProvider.SignedAt.IsZero() {
+		if lpa.Submitted && (lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) {
 			_, err := certificateProviderStore.GetAny(r.Context())
 			if errors.Is(err, dynamo.NotFoundError{}) {
 				data.InfoNotifications = append(data.InfoNotifications, progressNotification{

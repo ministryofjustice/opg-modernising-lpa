@@ -499,7 +499,7 @@ func lpaDecisions(app appcontext.Data, lpa any, canChange bool) lpaDecisionsData
 	case *lpadata.Lpa:
 		data.Lpa = v
 	case *donordata.Provided:
-		data.Lpa = lpastore.FromDonorProvidedDetails(v)
+		data.Lpa = lpastore.LpaFromDonorProvided(v)
 	}
 
 	return data

@@ -9,21 +9,24 @@ import (
 )
 
 type CertificateProvider struct {
-	UID                       actoruid.UID  `json:"uid"`
-	FirstNames                string        `json:"firstNames"`
-	LastName                  string        `json:"lastName"`
-	Email                     string        `json:"email,omitempty"`
-	Phone                     string        `json:"phone,omitempty"`
-	Address                   place.Address `json:"address"`
-	Channel                   Channel       `json:"channel"`
-	SignedAt                  time.Time     `json:"signedAt"`
-	ContactLanguagePreference localize.Lang `json:"contactLanguagePreference"`
-	IdentityCheck             IdentityCheck `json:"identityCheck"`
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Email      string        `json:"email,omitempty"`
+	Phone      string        `json:"phone,omitempty"`
+	Address    place.Address `json:"address"`
+	Channel    Channel       `json:"channel"`
+
+	// These are given by the certificate provider, so will not be present when
+	// creating.
+	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
+	ContactLanguagePreference localize.Lang  `json:"contactLanguagePreference,omitempty"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 
 	// Relationship is not stored in the lpa-store so is defaulted to
 	// Professional. We require it to determine whether to show the home address
 	// page to a certificate provider.
-	Relationship CertificateProviderRelationship
+	Relationship CertificateProviderRelationship `json:"-"`
 }
 
 func (c CertificateProvider) FullName() string {
