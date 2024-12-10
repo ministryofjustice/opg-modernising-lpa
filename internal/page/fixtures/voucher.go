@@ -104,7 +104,7 @@ func Voucher(
 		}
 
 		if lpaSigned {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
 				return err
 			}
 		}

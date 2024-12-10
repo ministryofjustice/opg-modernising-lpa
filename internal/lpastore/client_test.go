@@ -183,7 +183,7 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendLpa(context.Background(), &donordata.Provided{
+			err := client.SendLpa(context.Background(), "M-0000-1111-2222", CreateLpaFromDonorProvided(&donordata.Provided{
 				LpaUID:                        "M-0000-1111-2222",
 				Type:                          lpadata.LpaTypePersonalWelfare,
 				LifeSustainingTreatmentOption: lpadata.LifeSustainingTreatmentOptionA,
@@ -235,7 +235,7 @@ func TestClientServiceContract(t *testing.T) {
 				Restrictions:                     "hmm",
 				SignedAt:                         time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 				WitnessedByCertificateProviderAt: time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC),
-			})
+			}))
 
 			assert.Nil(t, err)
 			return nil
@@ -348,7 +348,7 @@ func TestClientServiceContract(t *testing.T) {
 				now:           now,
 			}
 
-			err := client.SendLpa(context.Background(), &donordata.Provided{
+			err := client.SendLpa(context.Background(), "M-0000-1111-2222", CreateLpaFromDonorProvided(&donordata.Provided{
 				LpaUID: "M-0000-1111-2222",
 				Type:   lpadata.LpaTypePersonalWelfare,
 				Donor: donordata.Donor{
@@ -399,7 +399,7 @@ func TestClientServiceContract(t *testing.T) {
 				Restrictions:                     "hmm",
 				SignedAt:                         time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
 				WitnessedByCertificateProviderAt: time.Date(2000, time.January, 2, 13, 14, 15, 0, time.UTC),
-			})
+			}))
 
 			assert.Nil(t, err)
 			return nil
@@ -427,7 +427,7 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("07777777"),
 						}, {
 							"key": matchers.Like("/attorneys/0/contactLanguagePreference"),
-							"old": matchers.Like(nil),
+							"old": matchers.Like(""),
 							"new": matchers.Like("cy"),
 						}, {
 							"key": matchers.Like("/attorneys/0/signedAt"),
@@ -503,7 +503,7 @@ func TestClientServiceContract(t *testing.T) {
 							"new": matchers.Like("07777777"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/contactLanguagePreference"),
-							"old": matchers.Like(nil),
+							"old": matchers.Like(""),
 							"new": matchers.Like("cy"),
 						}, {
 							"key": matchers.Like("/trustCorporations/0/email"),

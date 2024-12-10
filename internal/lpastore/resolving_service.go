@@ -36,12 +36,12 @@ func (s *ResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
 	}
 
 	if donor.LpaUID == "" {
-		return s.merge(FromDonorProvidedDetails(donor), donor), nil
+		return s.merge(LpaFromDonorProvided(donor), donor), nil
 	}
 
 	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
 	if errors.Is(err, ErrNotFound) {
-		lpa = FromDonorProvidedDetails(donor)
+		lpa = LpaFromDonorProvided(donor)
 	} else if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.
 		if lpa, ok := lpaMap[donor.LpaUID]; ok {
 			result[i] = s.merge(lpa, donor)
 		} else {
-			result[i] = s.merge(FromDonorProvidedDetails(donor), donor)
+			result[i] = s.merge(LpaFromDonorProvided(donor), donor)
 		}
 	}
 

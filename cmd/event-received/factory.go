@@ -32,7 +32,7 @@ type LambdaClient interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, donor *donordata.Provided) error
+	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 	Lpa(ctx context.Context, uid string) (*lpadata.Lpa, error)
 }
 
