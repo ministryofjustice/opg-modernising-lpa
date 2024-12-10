@@ -45,7 +45,7 @@
           {{ template "address-summary-row" (summaryRow .App "address" .Attorney.Address "" $attorneyFullName false true ) }}
         </dl>
 
-        {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" false) }}
+        {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
         {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
       {{ end }}
 
