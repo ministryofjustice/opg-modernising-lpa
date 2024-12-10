@@ -22,13 +22,8 @@ type yourPreferredLanguageData struct {
 	Lpa       *lpadata.Lpa
 }
 
-func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func YourPreferredLanguage(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &yourPreferredLanguageData{
 			App: appData,
 			Form: &form.LanguagePreferenceForm{

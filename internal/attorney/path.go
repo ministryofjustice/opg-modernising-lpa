@@ -7,6 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 const (
@@ -55,34 +56,25 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 	return nil
 }
 
-func (p Path) canVisit(attorney *attorneydata.Provided) bool {
+func (p Path) CanGoTo(attorney *attorneydata.Provided, lpa *lpadata.Lpa) bool {
 	switch p {
 	case PathRightsAndResponsibilities,
 		PathWhatHappensWhenYouSign,
 		PathSign,
 		PathWhatHappensNext:
-		return attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted()
+		return lpa.Paid && lpa.SignedForDonor() &&
+			lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero() &&
+			attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted()
 
 	case PathWouldLikeSecondSignatory:
-		return attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted() && attorney.IsTrustCorporation
+		return lpa.Paid && lpa.SignedForDonor() &&
+			lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero() &&
+			attorney.Tasks.ConfirmYourDetails.IsCompleted() && attorney.Tasks.ReadTheLpa.IsCompleted() &&
+			attorney.IsTrustCorporation
 
 	default:
 		return true
 	}
-}
-
-func CanGoTo(attorney *attorneydata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/attorney/") {
-		_, attorneyPath, _ := strings.Cut(strings.TrimPrefix(path, "/attorney/"), "/")
-		return Path("/" + attorneyPath).canVisit(attorney)
-	}
-
-	return true
 }
 
 func canFrom(fromURL string, lpaID string) bool {

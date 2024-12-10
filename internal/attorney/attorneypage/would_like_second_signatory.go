@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -18,8 +19,8 @@ type wouldLikeSecondSignatoryData struct {
 	Form   *form.YesNoForm
 }
 
-func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService, lpaStoreClient LpaStoreClient) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		if attorneyProvidedDetails.Signed() {
 			return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
 		}
@@ -42,11 +43,6 @@ func WouldLikeSecondSignatory(tmpl template.Template, attorneyStore AttorneyStor
 					}
 
 					return attorney.PathSign.RedirectQuery(w, r, appData, attorneyProvidedDetails.LpaID, url.Values{"second": {""}})
-				}
-
-				lpa, err := lpaStoreResolvingService.Get(r.Context())
-				if err != nil {
-					return err
 				}
 
 				hasSigned := (appData.IsReplacementAttorney() &&
