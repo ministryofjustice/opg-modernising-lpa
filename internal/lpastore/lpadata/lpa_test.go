@@ -56,22 +56,22 @@ func TestAllAttorneysSigned(t *testing.T) {
 		},
 		"need attorney to sign": {
 			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}, {}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}}},
 			},
 			expected: false,
 		},
 		"need replacement attorney to sign": {
 			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}, {SignedAt: attorneySigned}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{}, {SignedAt: &attorneySigned}}},
 			},
 			expected: false,
 		},
 		"all attorneys signed": {
 			lpa: Lpa{
-				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}, {SignedAt: attorneySigned}}},
-				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: attorneySigned}}},
+				Attorneys:            Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}, {SignedAt: &attorneySigned}}},
+				ReplacementAttorneys: Attorneys{Attorneys: []Attorney{{SignedAt: &attorneySigned}}},
 			},
 			expected: true,
 		},
@@ -238,23 +238,25 @@ func TestAttorney(t *testing.T) {
 
 	lpa := &Lpa{
 		Attorneys: Attorneys{
-			Attorneys:        []Attorney{{UID: attorneyUID, FirstNames: "A", LastName: "B"}},
+			Attorneys:        []Attorney{{UID: attorneyUID, FirstNames: "A", LastName: "B", Mobile: "0777"}},
 			TrustCorporation: TrustCorporation{UID: trustCorporationUID, Name: "C"},
 		},
 		ReplacementAttorneys: Attorneys{
 			Attorneys:        []Attorney{{UID: replacementAttorneyUID, FirstNames: "D", LastName: "E"}},
-			TrustCorporation: TrustCorporation{UID: replacementTrustCorporationUID, Name: "F"},
+			TrustCorporation: TrustCorporation{UID: replacementTrustCorporationUID, Name: "F", Mobile: "0778"},
 		},
 	}
 
 	testcases := map[string]struct {
 		uid       actoruid.UID
 		name      string
+		mobile    string
 		actorType actor.Type
 	}{
 		"attorney": {
 			uid:       attorneyUID,
 			name:      "A B",
+			mobile:    "0777",
 			actorType: actor.TypeAttorney,
 		},
 		"replacement attorney": {
@@ -270,6 +272,7 @@ func TestAttorney(t *testing.T) {
 		"replacement trust corporation": {
 			uid:       replacementTrustCorporationUID,
 			name:      "F",
+			mobile:    "0778",
 			actorType: actor.TypeReplacementTrustCorporation,
 		},
 		"missing": {
@@ -280,9 +283,10 @@ func TestAttorney(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			name, actorType := lpa.Attorney(tc.uid)
+			name, mobile, actorType := lpa.Attorney(tc.uid)
 
 			assert.Equal(t, tc.name, name)
+			assert.Equal(t, tc.mobile, mobile)
 			assert.Equal(t, tc.actorType, actorType)
 		})
 	}

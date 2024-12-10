@@ -18,8 +18,8 @@ type readTheLpaData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+func ReadTheLpa(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		if r.Method == http.MethodPost {
 			attorneyProvidedDetails.Tasks.ReadTheLpa = task.StateCompleted
 
@@ -28,11 +28,6 @@ func ReadTheLpa(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvi
 			}
 
 			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
-		}
-
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
 		}
 
 		data := &readTheLpaData{

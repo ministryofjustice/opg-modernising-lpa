@@ -5,7 +5,8 @@ import "cypress-real-events"
 export const
     TestEmail = 'simulate-delivered@notifications.service.gov.uk',
     TestEmail2 = 'simulate-delivered-2@notifications.service.gov.uk',
-    TestMobile = '07700900000'
+    TestMobile = '07700900000',
+    TestMobile2 = '07700900111';
 
 export function randomShareCode() {
     const characters = 'abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'
