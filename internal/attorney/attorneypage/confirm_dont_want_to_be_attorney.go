@@ -33,7 +33,7 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingServic
 		}
 
 		if r.Method == http.MethodPost {
-			fullName, actorType := lpa.Attorney(attorneyProvidedDetails.UID)
+			fullName, _, actorType := lpa.Attorney(attorneyProvidedDetails.UID)
 			if actorType.IsNone() {
 				return errors.New("attorney not found")
 			}

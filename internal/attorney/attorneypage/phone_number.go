@@ -24,12 +24,22 @@ type phoneNumberForm struct {
 	Phone string
 }
 
-func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+func PhoneNumber(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided) error {
+		lpa, err := lpaStoreResolvingService.Get(r.Context())
+		if err != nil {
+			return err
+		}
+
+		_, mobile, _ := lpa.Attorney(provided.UID)
+		if provided.PhoneSet {
+			mobile = provided.Phone
+		}
+
 		data := &phoneNumberData{
 			App: appData,
 			Form: &phoneNumberForm{
-				Phone: attorneyProvidedDetails.Phone,
+				Phone: mobile,
 			},
 		}
 
@@ -38,16 +48,17 @@ func PhoneNumber(tmpl template.Template, attorneyStore AttorneyStore) Handler {
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Phone = data.Form.Phone
-				if attorneyProvidedDetails.Tasks.ConfirmYourDetails == task.StateNotStarted {
-					attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateInProgress
+				provided.Phone = data.Form.Phone
+				provided.PhoneSet = true
+				if provided.Tasks.ConfirmYourDetails == task.StateNotStarted {
+					provided.Tasks.ConfirmYourDetails = task.StateInProgress
 				}
 
-				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+				if err := attorneyStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return attorney.PathYourPreferredLanguage.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathYourPreferredLanguage.Redirect(w, r, appData, provided.LpaID)
 			}
 		}
 

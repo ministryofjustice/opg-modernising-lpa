@@ -17,6 +17,8 @@ import (
 )
 
 func TestGetTaskList(t *testing.T) {
+	signedAt := time.Now()
+
 	testCases := map[string]struct {
 		lpa      *lpadata.Lpa
 		attorney *attorneydata.Provided
@@ -46,7 +48,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				WouldLikeSecondSignatory: form.Yes,
@@ -94,7 +96,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -116,7 +118,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -140,7 +142,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{

@@ -6,10 +6,10 @@ import (
 )
 
 type PersonToNotify struct {
-	UID        actoruid.UID
-	FirstNames string
-	LastName   string
-	Address    place.Address
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Address    place.Address `json:"address"`
 }
 
 func (p PersonToNotify) FullName() string {

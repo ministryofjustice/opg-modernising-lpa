@@ -37,7 +37,7 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 
 		var signPath string
 		if tasks.ConfirmYourDetails.IsCompleted() && tasks.ReadTheLpa.IsCompleted() &&
-			lpa.SignedForDonor() && !lpa.CertificateProvider.SignedAt.IsZero() {
+			lpa.SignedForDonor() && lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero() {
 			signPath = attorney.PathRightsAndResponsibilities.Format(lpa.LpaID)
 		}
 
@@ -59,13 +59,21 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			}}
 		}
 
+		confirmYourDetailsPath := attorney.PathPhoneNumber
+		if _, mobile, _ := lpa.Attorney(provided.UID); mobile != "" {
+			confirmYourDetailsPath = attorney.PathYourPreferredLanguage
+		}
+		if tasks.ConfirmYourDetails.IsCompleted() {
+			confirmYourDetailsPath = attorney.PathConfirmYourDetails
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
 			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  attorney.PathPhoneNumber.Format(lpa.LpaID),
+					Path:  confirmYourDetailsPath.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
