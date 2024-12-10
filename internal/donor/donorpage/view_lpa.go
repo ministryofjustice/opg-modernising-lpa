@@ -26,7 +26,7 @@ func ViewLpa(tmpl template.Template, lpaStoreClient LpaStoreClient) Handler {
 				return err
 			}
 
-			lpa = lpastore.FromDonorProvidedDetails(donor)
+			lpa = lpastore.LpaFromDonorProvided(donor)
 		}
 
 		return tmpl(w, &viewLpaData{

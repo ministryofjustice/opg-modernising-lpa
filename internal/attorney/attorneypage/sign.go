@@ -26,14 +26,8 @@ type signData struct {
 	Form                        *signForm
 }
 
-func Sign(
-	tmpl template.Template,
-	lpaStoreResolvingService LpaStoreResolvingService,
-	attorneyStore AttorneyStore,
-	lpaStoreClient LpaStoreClient,
-	now func() time.Time,
-) Handler {
-	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
+func Sign(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreClient LpaStoreClient, now func() time.Time) Handler {
+	signAttorney := func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &signData{
 			App:                         appData,
 			LpaID:                       lpa.LpaID,
@@ -61,22 +55,28 @@ func Sign(
 			data.Errors = data.Form.Validate(appData.IsTrustCorporation(), appData.IsReplacementAttorney())
 
 			if data.Errors.None() {
-				attorneyProvidedDetails.Tasks.SignTheLpa = task.StateCompleted
-				attorneyProvidedDetails.SignedAt = now()
+				provided.Tasks.SignTheLpa = task.StateCompleted
+				provided.SignedAt = now()
 
-				if data.Attorney.SignedAt.IsZero() {
-					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, attorneyProvidedDetails); err != nil {
+				if !provided.PhoneSet {
+					if _, mobile, _ := lpa.Attorney(provided.UID); mobile != "" {
+						provided.Phone = mobile
+					}
+				}
+
+				if data.Attorney.SignedAt == nil || data.Attorney.SignedAt.IsZero() {
+					if err := lpaStoreClient.SendAttorney(r.Context(), lpa, provided); err != nil {
 						return err
 					}
 				} else {
-					attorneyProvidedDetails.SignedAt = data.Attorney.SignedAt
+					provided.SignedAt = *data.Attorney.SignedAt
 				}
 
-				if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+				if err := attorneyStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 
-				return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+				return attorney.PathWhatHappensNext.Redirect(w, r, appData, provided.LpaID)
 			}
 		}
 
@@ -153,14 +153,9 @@ func Sign(
 		return tmpl(w, data)
 	}
 
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		if attorneyProvidedDetails.Signed() {
 			return attorney.PathWhatHappensNext.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
-		}
-
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
 		}
 
 		if !lpa.SignedForDonor() || lpa.CertificateProvider.SignedAt.IsZero() {

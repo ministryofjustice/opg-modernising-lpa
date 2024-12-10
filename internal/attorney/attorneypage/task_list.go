@@ -26,18 +26,13 @@ type taskListItem struct {
 	Count int
 }
 
-func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func TaskList(tmpl template.Template) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		tasks := provided.Tasks
 
 		var signPath string
 		if tasks.ConfirmYourDetails.IsCompleted() && tasks.ReadTheLpa.IsCompleted() &&
-			lpa.SignedForDonor() && !lpa.CertificateProvider.SignedAt.IsZero() {
+			lpa.SignedForDonor() && lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero() {
 			signPath = attorney.PathRightsAndResponsibilities.Format(lpa.LpaID)
 		}
 
@@ -59,13 +54,21 @@ func TaskList(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			}}
 		}
 
+		confirmYourDetailsPath := attorney.PathPhoneNumber
+		if _, mobile, _ := lpa.Attorney(provided.UID); mobile != "" {
+			confirmYourDetailsPath = attorney.PathYourPreferredLanguage
+		}
+		if tasks.ConfirmYourDetails.IsCompleted() {
+			confirmYourDetailsPath = attorney.PathConfirmYourDetails
+		}
+
 		data := &taskListData{
 			App: appData,
 			Lpa: lpa,
 			Items: append([]taskListItem{
 				{
 					Name:  "confirmYourDetails",
-					Path:  attorney.PathPhoneNumber.Format(lpa.LpaID),
+					Path:  confirmYourDetailsPath.Format(lpa.LpaID),
 					State: tasks.ConfirmYourDetails,
 				},
 				{
