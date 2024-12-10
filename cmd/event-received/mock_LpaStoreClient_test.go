@@ -5,7 +5,7 @@ package main
 import (
 	context "context"
 
-	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 
 	mock "github.com/stretchr/testify/mock"
@@ -83,17 +83,17 @@ func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
-// SendLpa provides a mock function with given fields: ctx, donor
-func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, donor *donordata.Provided) error {
-	ret := _m.Called(ctx, donor)
+// SendLpa provides a mock function with given fields: ctx, uid, body
+func (_m *mockLpaStoreClient) SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error {
+	ret := _m.Called(ctx, uid, body)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendLpa")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
-		r0 = rf(ctx, donor)
+	if rf, ok := ret.Get(0).(func(context.Context, string, lpastore.CreateLpa) error); ok {
+		r0 = rf(ctx, uid, body)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -108,14 +108,15 @@ type mockLpaStoreClient_SendLpa_Call struct {
 
 // SendLpa is a helper method to define mock.On call
 //   - ctx context.Context
-//   - donor *donordata.Provided
-func (_e *mockLpaStoreClient_Expecter) SendLpa(ctx interface{}, donor interface{}) *mockLpaStoreClient_SendLpa_Call {
-	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", ctx, donor)}
+//   - uid string
+//   - body lpastore.CreateLpa
+func (_e *mockLpaStoreClient_Expecter) SendLpa(ctx interface{}, uid interface{}, body interface{}) *mockLpaStoreClient_SendLpa_Call {
+	return &mockLpaStoreClient_SendLpa_Call{Call: _e.mock.On("SendLpa", ctx, uid, body)}
 }
 
-func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(ctx context.Context, donor *donordata.Provided)) *mockLpaStoreClient_SendLpa_Call {
+func (_c *mockLpaStoreClient_SendLpa_Call) Run(run func(ctx context.Context, uid string, body lpastore.CreateLpa)) *mockLpaStoreClient_SendLpa_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.Provided))
+		run(args[0].(context.Context), args[1].(string), args[2].(lpastore.CreateLpa))
 	})
 	return _c
 }
@@ -125,7 +126,7 @@ func (_c *mockLpaStoreClient_SendLpa_Call) Return(_a0 error) *mockLpaStoreClient
 	return _c
 }
 
-func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockLpaStoreClient_SendLpa_Call {
+func (_c *mockLpaStoreClient_SendLpa_Call) RunAndReturn(run func(context.Context, string, lpastore.CreateLpa) error) *mockLpaStoreClient_SendLpa_Call {
 	_c.Call.Return(run)
 	return _c
 }

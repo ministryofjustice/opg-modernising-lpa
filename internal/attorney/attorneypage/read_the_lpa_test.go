@@ -7,7 +7,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
-	attorneydata "github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -18,11 +18,6 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &readTheLpaData{
@@ -31,7 +26,7 @@ func TestGetReadTheLpaWithAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := ReadTheLpa(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,11 +38,6 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{ReplacementAttorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}}, nil)
-
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &readTheLpaData{
@@ -56,27 +46,10 @@ func TestGetReadTheLpaWithReplacementAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testReplacementAppData, w, r, &attorneydata.Provided{})
+	err := ReadTheLpa(template.Execute, nil)(testReplacementAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{ReplacementAttorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestGetReadTheLpaWithAttorneyWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	uid := actoruid.New()
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}}, expectedError)
-
-	err := ReadTheLpa(nil, lpaStoreResolvingService, nil)(testAppData, w, r, nil)
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
@@ -84,11 +57,6 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 	uid := actoruid.New()
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -98,7 +66,7 @@ func TestGetReadTheLpaWhenTemplateError(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := ReadTheLpa(template.Execute, lpaStoreResolvingService, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := ReadTheLpa(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{Attorneys: lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: uid}}}})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -119,7 +87,7 @@ func TestPostReadTheLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ReadTheLpa(nil, nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+	err := ReadTheLpa(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -20,20 +20,15 @@ type confirmDontWantToBeAttorneyData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeAttorney(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
-
+func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &confirmDontWantToBeAttorneyData{
 			App: appData,
 			Lpa: lpa,
 		}
 
 		if r.Method == http.MethodPost {
-			fullName, actorType := lpa.Attorney(attorneyProvidedDetails.UID)
+			fullName, _, actorType := lpa.Attorney(attorneyProvidedDetails.UID)
 			if actorType.IsNone() {
 				return errors.New("attorney not found")
 			}
