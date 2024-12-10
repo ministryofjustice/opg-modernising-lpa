@@ -63,12 +63,12 @@ func ProvideCertificate(
 				certificateProvider.SignedAt = now()
 				certificateProvider.Tasks.ProvideTheCertificate = task.StateCompleted
 
-				if lpa.CertificateProvider.SignedAt.IsZero() {
+				if lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero() {
 					if err := lpaStoreClient.SendCertificateProvider(r.Context(), certificateProvider, lpa); err != nil {
 						return err
 					}
 				} else {
-					certificateProvider.SignedAt = lpa.CertificateProvider.SignedAt
+					certificateProvider.SignedAt = *lpa.CertificateProvider.SignedAt
 				}
 
 				if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), lpa.LpaUID, notify.CertificateProviderCertificateProvidedEmail{

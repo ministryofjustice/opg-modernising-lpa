@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -57,6 +58,7 @@ func Attorney(
 	organisationStore OrganisationStore,
 	memberStore MemberStore,
 	shareCodeStore ShareCodeStore,
+	dynamoClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
 		"signedByCertificateProvider",
@@ -76,6 +78,8 @@ func Attorney(
 			isReplacement      = r.FormValue("is-replacement") == "1"
 			isTrustCorporation = r.FormValue("is-trust-corporation") == "1"
 			isSupported        = r.FormValue("is-supported") == "1"
+			isPaperDonor       = r.FormValue("is-paper-donor") == "1"
+			hasPhoneNumber     = r.FormValue("has-phone-number") == "1"
 			lpaType            = r.FormValue("lpa-type")
 			progress           = slices.Index(progressValues, r.FormValue("progress"))
 			email              = r.FormValue("email")
@@ -109,36 +113,60 @@ func Attorney(
 			return err
 		}
 
-		createFn := donorStore.Create
-		createSession := &appcontext.Session{SessionID: donorSessionID}
-		if isSupported {
-			createFn = organisationStore.CreateLPA
+		var donorDetails *donordata.Provided
+		if isPaperDonor {
+			lpaID := random.UuidString()
 
-			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
+			donorDetails = &donordata.Provided{
+				PK:        dynamo.LpaKey(lpaID),
+				SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+				LpaID:     lpaID,
+				LpaUID:    makeUID(),
+				CreatedAt: time.Now(),
+				Version:   1,
+			}
 
-			member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+			transaction := dynamo.NewTransaction().
+				Create(donorDetails).
+				Create(dynamo.Keys{PK: dynamo.UIDKey(donorDetails.LpaUID), SK: dynamo.MetadataKey("")}).
+				Create(dynamo.Keys{PK: donorDetails.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)})
+
+			if err := dynamoClient.WriteTransaction(r.Context(), transaction); err != nil {
+				return fmt.Errorf("could not write paper donor %s: %w", lpaID, err)
+			}
+		} else {
+			createFn := donorStore.Create
+			createSession := &appcontext.Session{SessionID: donorSessionID}
+			if isSupported {
+				createFn = organisationStore.CreateLPA
+
+				supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
+
+				member, err := memberStore.Create(supporterCtx, random.String(12), random.String(12))
+				if err != nil {
+					return err
+				}
+
+				org, err := organisationStore.Create(supporterCtx, member, random.String(12))
+				if err != nil {
+					return err
+				}
+
+				createSession.OrganisationID = org.ID
+			}
+			var err error
+			donorDetails, err = createFn(appcontext.ContextWithSession(r.Context(), createSession))
 			if err != nil {
 				return err
 			}
 
-			org, err := organisationStore.Create(supporterCtx, member, random.String(12))
-			if err != nil {
-				return err
-			}
-
-			createSession.OrganisationID = org.ID
-		}
-		donorDetails, err := createFn(appcontext.ContextWithSession(r.Context(), createSession))
-		if err != nil {
-			return err
-		}
-
-		if isSupported {
-			if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Link{
-				LpaKey:      donorDetails.PK,
-				LpaOwnerKey: donorDetails.SK,
-			}, donorDetails.Donor.Email); err != nil {
-				return err
+			if isSupported {
+				if err := donorStore.Link(appcontext.ContextWithSession(r.Context(), createSession), sharecodedata.Link{
+					LpaKey:      donorDetails.PK,
+					LpaOwnerKey: donorDetails.SK,
+				}, donorDetails.Donor.Email); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -174,7 +202,7 @@ func Attorney(
 			}); err != nil {
 				return err
 			}
-		} else {
+		} else if donorDetails.LpaUID == "" {
 			donorDetails.LpaUID = makeUID()
 		}
 
@@ -355,8 +383,29 @@ func Attorney(
 			registered = true
 		}
 
-		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
-			return err
+		if !isPaperDonor {
+			if err := donorStore.Put(donorCtx, donorDetails); err != nil {
+				return err
+			}
+		}
+		if donorDetails.LpaUID != "" {
+			body := lpastore.CreateLpaFromDonorProvided(donorDetails)
+
+			if hasPhoneNumber {
+				if isTrustCorporation && isReplacement {
+					body.TrustCorporations[1].Mobile = testMobile
+				} else if isTrustCorporation {
+					body.TrustCorporations[0].Mobile = testMobile
+				} else if isReplacement {
+					body.Attorneys[1].Mobile = testMobile
+				} else {
+					body.Attorneys[0].Mobile = testMobile
+				}
+			}
+
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, body); err != nil {
+				return fmt.Errorf("problem sending lpa: %w", err)
+			}
 		}
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
 			return err
@@ -366,10 +415,6 @@ func Attorney(
 		}
 
 		if donorDetails.LpaUID != "" {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
-				return fmt.Errorf("problem sending lpa: %w", err)
-			}
-
 			lpa, err := lpaStoreClient.Lpa(donorCtx, donorDetails.LpaUID)
 			if err != nil {
 				return fmt.Errorf("problem getting lpa: %w", err)
