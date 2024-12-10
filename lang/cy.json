@@ -700,7 +700,7 @@
     "detailsYouHaveGivenUs": "Manylion rydych wedi eu rhoi i ni",
     "detailsTheDonorHasGivenAboutYou": "Manylion y mae’r rhoddwr wedi eu rhoi amdanoch",
     "whatToDoIfAnyDetailsAreIncorrect": "Beth i’w wneud os yw unrhyw rai o’r manylion a roddwyd amdanoch yn anghywir",
-    "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Os byddwch yn gweld camgymeriad yn yr enw, y dyddiad geni neu’r cyfeiriad y mae’r rhoddwr wedi’u darparu ar eich cyfer, ni ddylech barhau.</p><p class=\"govuk-body\">Bydd angen i chi roi gwybod i’r rhoddwr fel y bydd yn gallu newid eich manylion.</p><p class=\"govuk-body\">Unwaith y bydd wedi newid eich manylion, bydd angen i chi fewngofnodi eto a chadarnhau bod eich manylion yn gywir.</p>",
+    "whatToDoIfAnyDetailsAreIncorrectAttorneyContent": "<p class=\"govuk-body\">Welsh {{.DonorFullName}}</p>",
     "anyErrorsInYourDetailsCanDelay": "Gall unrhyw gamgymeriadau yn eich manylion achosi oedi cyn prosesu’r LPA.",
     "mobileNumber": "Rhif ffôn symudol",
     "anyErrorsInYourDetailsCanMakeLpaDifficultToUse": "Gall unrhyw wallau yn eich manylion wneud yr LPA yn anodd ei ddefnyddio. Mae’n bosibl na fydd sefydliadau’n derbyn yr LPA os nad yw’ch manylion yn cyfateb i’ch data adnabod.",
