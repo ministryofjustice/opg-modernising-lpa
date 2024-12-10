@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -141,7 +142,7 @@ func TestHandleFeeApproved(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(ctx, &completedDonorProvided).
+		SendLpa(ctx, completedDonorProvided.LpaUID, lpastore.CreateLpaFromDonorProvided(&completedDonorProvided)).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
@@ -418,7 +419,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(mock.Anything, mock.Anything).
+		SendLpa(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
@@ -464,7 +465,7 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(mock.Anything, mock.Anything).
+		SendLpa(mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)
@@ -505,7 +506,7 @@ func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(ctx, mock.Anything).
+		SendLpa(ctx, mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, lpaStoreClient, nil, appcontext.Data{}, testNowFn)
@@ -763,6 +764,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 					Version:   1,
 				},
 				dynamo.Keys{PK: dynamo.UIDKey("M-1111-2222-3333"), SK: dynamo.MetadataKey("")},
+				dynamo.Keys{PK: dynamo.LpaKey(testUuidString), SK: dynamo.ReservedKey(dynamo.DonorKey)},
 			},
 		}).
 		Return(nil)

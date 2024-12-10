@@ -31,7 +31,7 @@ func TestGetWouldLikeSecondSignatory(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WouldLikeSecondSignatory(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := WouldLikeSecondSignatory(template.Execute, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -42,10 +42,10 @@ func TestGetWouldLikeSecondSignatoryWhenAlreadySigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := WouldLikeSecondSignatory(nil, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{
+	err := WouldLikeSecondSignatory(nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: time.Now(),
-	})
+	}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -65,7 +65,7 @@ func TestGetWouldLikeSecondSignatoryWhenTemplateErrors(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := WouldLikeSecondSignatory(template.Execute, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -89,9 +89,9 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, nil, nil)(testAppData, w, r, &attorneydata.Provided{
+	err := WouldLikeSecondSignatory(nil, attorneyStore, nil)(testAppData, w, r, &attorneydata.Provided{
 		LpaID: "lpa-id",
-	})
+	}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -100,7 +100,7 @@ func TestPostWouldLikeSecondSignatoryWhenYes(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
-	donor := &lpadata.Lpa{SignedAt: time.Now()}
+	lpa := &lpadata.Lpa{SignedAt: time.Now()}
 	updatedAttorney := &attorneydata.Provided{
 		LpaID:                    "lpa-id",
 		WouldLikeSecondSignatory: form.No,
@@ -119,19 +119,14 @@ func TestPostWouldLikeSecondSignatoryWhenNo(t *testing.T) {
 		Put(r.Context(), updatedAttorney).
 		Return(nil)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
-
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendAttorney(r.Context(), donor, updatedAttorney).
+		SendAttorney(r.Context(), lpa, updatedAttorney).
 		Return(nil)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
 		LpaID: "lpa-id",
-	})
+	}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -182,14 +177,9 @@ func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 				Put(r.Context(), updatedAttorney).
 				Return(nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
-			err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, nil)(tc.appData, w, r, &attorneydata.Provided{
+			err := WouldLikeSecondSignatory(nil, attorneyStore, nil)(tc.appData, w, r, &attorneydata.Provided{
 				LpaID: "lpa-id",
-			})
+			}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -200,7 +190,7 @@ func TestPostWouldLikeSecondSignatoryWhenNoAndSignedInLpaStore(t *testing.T) {
 }
 
 func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
-	donor := &lpadata.Lpa{SignedAt: time.Now()}
+	lpa := &lpadata.Lpa{SignedAt: time.Now()}
 
 	f := url.Values{
 		form.FieldNames.YesNo: {form.No.String()},
@@ -209,36 +199,13 @@ func TestPostWouldLikeSecondSignatoryWhenLpaStoreClientErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(donor, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(nil, nil, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{})
-	assert.Equal(t, expectedError, err)
-}
-
-func TestPostWouldLikeSecondSignatoryWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	f := url.Values{
-		form.FieldNames.YesNo: {form.No.String()},
-	}
-
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(nil, expectedError)
-
-	err := WouldLikeSecondSignatory(nil, nil, lpaStoreResolvingService, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := WouldLikeSecondSignatory(nil, nil, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{}, lpa)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -251,11 +218,6 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, nil)
-
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
@@ -266,7 +228,7 @@ func TestPostWouldLikeSecondSignatoryWhenAttorneyStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreResolvingService, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{})
+	err := WouldLikeSecondSignatory(nil, attorneyStore, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -288,7 +250,7 @@ func TestPostWouldLikeSecondSignatoryWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := WouldLikeSecondSignatory(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := WouldLikeSecondSignatory(template.Execute, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)

@@ -17,6 +17,8 @@ import (
 )
 
 func TestGetTaskList(t *testing.T) {
+	signedAt := time.Now()
+
 	testCases := map[string]struct {
 		lpa      *lpadata.Lpa
 		attorney *attorneydata.Provided
@@ -46,7 +48,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				WouldLikeSecondSignatory: form.Yes,
@@ -58,7 +60,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testTrustCorporationAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
-				items[0].Path = attorney.PathPhoneNumber.Format("lpa-id")
+				items[0].Path = attorney.PathConfirmYourDetails.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].Name = "signTheLpaSignatory1"
 				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
@@ -84,6 +86,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = attorney.PathConfirmYourDetails.Format("lpa-id")
 				items[1].State = task.StateCompleted
 
 				return items
@@ -94,7 +97,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -105,6 +108,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = attorney.PathConfirmYourDetails.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
 
@@ -116,7 +120,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -128,6 +132,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = attorney.PathConfirmYourDetails.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
 				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
@@ -140,7 +145,7 @@ func TestGetTaskList(t *testing.T) {
 				LpaID:                            "lpa-id",
 				SignedAt:                         time.Now(),
 				WitnessedByCertificateProviderAt: time.Now(),
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
 			},
 			attorney: &attorneydata.Provided{
 				Tasks: attorneydata.Tasks{
@@ -152,6 +157,7 @@ func TestGetTaskList(t *testing.T) {
 			appData: testReplacementAppData,
 			expected: func(items []taskListItem) []taskListItem {
 				items[0].State = task.StateCompleted
+				items[0].Path = attorney.PathConfirmYourDetails.Format("lpa-id")
 				items[1].State = task.StateCompleted
 				items[2].State = task.StateCompleted
 				items[2].Path = attorney.PathRightsAndResponsibilities.Format("lpa-id")
@@ -166,11 +172,6 @@ func TestGetTaskList(t *testing.T) {
 			w := httptest.NewRecorder()
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &taskListData{
@@ -184,7 +185,7 @@ func TestGetTaskList(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := TaskList(template.Execute, lpaStoreResolvingService)(tc.appData, w, r, tc.attorney)
+			err := TaskList(template.Execute)(tc.appData, w, r, tc.attorney, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -193,35 +194,16 @@ func TestGetTaskList(t *testing.T) {
 	}
 }
 
-func TestGetTaskListWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := TaskList(nil, lpaStoreResolvingService)(testAppData, w, r, nil)
-
-	assert.Equal(t, expectedError, err)
-}
-
 func TestGetTaskListWhenTemplateErrors(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{LpaID: "lpa-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := TaskList(template.Execute, lpaStoreResolvingService)(testAppData, w, r, &attorneydata.Provided{})
+	err := TaskList(template.Execute)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

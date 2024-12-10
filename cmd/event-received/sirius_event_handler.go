@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -126,7 +127,7 @@ func handleFeeApproved(
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if donor.Tasks.SignTheLpa.IsCompleted() {
-			if err := lpaStoreClient.SendLpa(ctx, donor); err != nil {
+			if err := lpaStoreClient.SendLpa(ctx, donor.LpaUID, lpastore.CreateLpaFromDonorProvided(donor)); err != nil {
 				return fmt.Errorf("failed to send to lpastore: %w", err)
 			}
 
@@ -229,16 +230,19 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 
 	lpaID := uuidString()
 
+	donor := &donordata.Provided{
+		PK:        dynamo.LpaKey(lpaID),
+		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+		LpaID:     lpaID,
+		LpaUID:    v.UID,
+		CreatedAt: now(),
+		Version:   1,
+	}
+
 	transaction := dynamo.NewTransaction().
-		Create(&donordata.Provided{
-			PK:        dynamo.LpaKey(lpaID),
-			SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-			LpaID:     lpaID,
-			LpaUID:    v.UID,
-			CreatedAt: now(),
-			Version:   1,
-		}).
-		Create(dynamo.Keys{PK: dynamo.UIDKey(v.UID), SK: dynamo.MetadataKey("")})
+		Create(donor).
+		Create(dynamo.Keys{PK: dynamo.UIDKey(v.UID), SK: dynamo.MetadataKey("")}).
+		Create(dynamo.Keys{PK: donor.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)})
 
 	if err := client.WriteTransaction(ctx, transaction); err != nil {
 		return err

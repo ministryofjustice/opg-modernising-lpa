@@ -16,6 +16,8 @@ import (
 )
 
 func TestGetProgress(t *testing.T) {
+	signedAt := time.Now()
+
 	testCases := map[string]struct {
 		donor                         *donordata.Provided
 		setupCertificateProviderStore func(*mockCertificateProviderStore_GetAny_Call)
@@ -95,7 +97,7 @@ func TestGetProgress(t *testing.T) {
 				LpaUID:    "lpa-uid",
 				Submitted: true,
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 		},

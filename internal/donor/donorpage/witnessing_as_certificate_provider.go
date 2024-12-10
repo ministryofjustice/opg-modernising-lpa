@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -81,7 +82,7 @@ func WitnessingAsCertificateProvider(
 						return err
 					}
 
-					if err := lpaStoreClient.SendLpa(r.Context(), provided); err != nil {
+					if err := lpaStoreClient.SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)); err != nil {
 						return err
 					}
 				}
