@@ -97,7 +97,7 @@
                         <strong class="app-tag govuk-tag--red">{{ tr .App "withdrawn" }}</strong>
                     {{ else if .Item.Lpa.Status.IsRegistered }}
                         <strong class="app-tag app-tag--black">{{ tr .App "registered" }}</strong>
-                    {{ else if .Item.Lpa.Submitted }}
+                    {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                         <strong class="app-tag govuk-tag--green">{{ tr .App "submittedToOpg" }}</strong>
                     {{ else if .Item.Attorney.Signed }}
                         <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
@@ -125,7 +125,7 @@
                     {{ if .Item.Lpa.Status.IsRegistered }}
                         <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
                         <a class="govuk-link" href="#">{{ tr .App "use" }}</a>
-                    {{ else if .Item.Lpa.Submitted }}
+                    {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                         <a class="govuk-button" href="#">{{ tr .App "viewLpa" }}</a>
                         <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Attorney.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                     {{ else if .Item.Attorney.Signed }}
