@@ -6,4 +6,4 @@ COPY lambda/egress_checker ${LAMBDA_TASK_ROOT}
 
 RUN pip install --no-cache-dir --requirement requirements.txt
 
-CMD [ "lambda_handler" ]
+CMD [ "main.lambda_handler" ]
