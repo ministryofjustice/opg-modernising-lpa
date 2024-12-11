@@ -357,7 +357,7 @@
         </div>
     {{ end }}
 
-    {{ if not .Lpa.CertificateProvider.SignedAt.IsZero }}
+    {{ if and .Lpa.CertificateProvider.SignedAt (not .Lpa.CertificateProvider.SignedAt.IsZero) }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
                 <h2 class="govuk-summary-card__title">{{ tr $.App "certificateProviderSignature" }}</h2>
@@ -376,7 +376,7 @@
     {{ end }}
 
     {{ range .Lpa.Attorneys.Attorneys }}
-        {{ if not .SignedAt.IsZero }}
+        {{ if and .SignedAt (not .SignedAt.IsZero) }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
                     <h2 class="govuk-summary-card__title">{{ tr $.App "attorneySignature" }}</h2>
@@ -438,7 +438,7 @@
     {{ end }}
 
     {{ range .Lpa.ReplacementAttorneys.Attorneys }}
-        {{ if not .SignedAt.IsZero }}
+        {{ if and .SignedAt (not .SignedAt.IsZero) }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
                     <h2 class="govuk-summary-card__title">{{ tr $.App "replacementAttorneySignature" }}</h2>

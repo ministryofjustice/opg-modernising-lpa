@@ -8,19 +8,20 @@ import (
 )
 
 type Donor struct {
-	UID                       actoruid.UID
-	FirstNames                string
-	LastName                  string
-	Email                     string
-	OtherNames                string
-	DateOfBirth               date.Date
-	Address                   place.Address
-	Channel                   Channel
-	ContactLanguagePreference localize.Lang
-	IdentityCheck             IdentityCheck
+	UID                       actoruid.UID   `json:"uid"`
+	FirstNames                string         `json:"firstNames"`
+	LastName                  string         `json:"lastName"`
+	Email                     string         `json:"email"`
+	OtherNamesKnownBy         string         `json:"otherNamesKnownBy,omitempty"`
+	DateOfBirth               date.Date      `json:"dateOfBirth"`
+	Address                   place.Address  `json:"address"`
+	ContactLanguagePreference localize.Lang  `json:"contactLanguagePreference"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 
 	// Mobile is only set for online donors who have provided one
-	Mobile string
+	Mobile string `json:"mobile,omitempty"`
+
+	Channel Channel `json:"-"`
 }
 
 func (d Donor) FullName() string {

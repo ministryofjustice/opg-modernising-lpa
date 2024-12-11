@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -42,7 +43,7 @@ func TestGetPhoneNumber(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -79,7 +80,10 @@ func TestGetPhoneNumberFromStore(t *testing.T) {
 				}).
 				Return(nil)
 
-			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{Phone: "07535111222"})
+			err := PhoneNumber(template.Execute, nil)(tc.appData, w, r, &attorneydata.Provided{
+				Phone:    "07535111222",
+				PhoneSet: true,
+			}, &lpadata.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -97,7 +101,7 @@ func TestGetPhoneNumberWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -117,8 +121,9 @@ func TestPostPhoneNumber(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID: "lpa-id",
-				Phone: "07535111222",
+				LpaID:    "lpa-id",
+				Phone:    "07535111222",
+				PhoneSet: true,
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -134,7 +139,8 @@ func TestPostPhoneNumber(t *testing.T) {
 				},
 			},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID: "lpa-id",
+				LpaID:    "lpa-id",
+				PhoneSet: true,
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateCompleted,
 				},
@@ -146,8 +152,9 @@ func TestPostPhoneNumber(t *testing.T) {
 			},
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID: "lpa-id",
-				Phone: "07535111222",
+				LpaID:    "lpa-id",
+				Phone:    "07535111222",
+				PhoneSet: true,
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -158,7 +165,8 @@ func TestPostPhoneNumber(t *testing.T) {
 			appData:  testReplacementAppData,
 			attorney: &attorneydata.Provided{LpaID: "lpa-id"},
 			updatedAttorney: &attorneydata.Provided{
-				LpaID: "lpa-id",
+				LpaID:    "lpa-id",
+				PhoneSet: true,
 				Tasks: attorneydata.Tasks{
 					ConfirmYourDetails: task.StateInProgress,
 				},
@@ -177,7 +185,7 @@ func TestPostPhoneNumber(t *testing.T) {
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := PhoneNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney)
+			err := PhoneNumber(nil, attorneyStore)(tc.appData, w, r, tc.attorney, &lpadata.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -207,7 +215,7 @@ func TestPostPhoneNumberWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(template.Execute, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -229,7 +237,7 @@ func TestPostPhoneNumberWhenAttorneyStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := PhoneNumber(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{})
+	err := PhoneNumber(nil, attorneyStore)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
