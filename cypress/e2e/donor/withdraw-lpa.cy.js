@@ -6,12 +6,12 @@ describe('Withdraw LPA', () => {
         cy.contains('a', 'Withdraw LPA').click();
 
         cy.checkA11yApp();
-        cy.contains('button', 'Withdraw this LPA').click();
+        cy.contains('button', 'Revoke this LPA').click();
 
         cy.checkA11yApp();
-        cy.contains('You have withdrawn');
+        cy.contains('You have revoked');
         cy.contains('a', 'Return to dashboard').click();
 
-        cy.contains('.app-dashboard-card', 'Sam Smith').contains('.app-tag', 'Withdrawn');
+        cy.contains('.app-dashboard-card', 'Sam Smith').contains('.app-tag', 'Revoked');
     });
 });

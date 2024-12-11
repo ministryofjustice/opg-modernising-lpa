@@ -841,7 +841,7 @@
     "withdrawingThisLpaIsPermanent": "Revoking this LPA is permanent and cannot be undone.",
     "lpaWithdrawn": "LPA revoked",
     "youHaveWithdrawnLpaNumber": "You have revoked LPA number <span class=\"govuk-!-font-weight-bold\">{{.UID}}</span>.",
-    "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "<p class=\\\"govuk-body\\\">The Office of the Public Guardian (OPG) will not register it and it cannot be used as a legal document.</p><p class=\\\"govuk-body\\\">OPG will contact anyone who has already been contacted in relation to your LPA and notify them of your decision to revoke.</p>",
+    "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted": "<p class=\"govuk-body\">The Office of the Public Guardian (OPG) will not register it and it cannot be used as a legal document.</p><p class=\"govuk-body\">OPG will contact anyone who has already been contacted in relation to your LPA and notify them of your decision to revoke.</p>",
     "withdrawn": "Revoked",
     "dateLpaSigned": "Date LPA signed",
     "whatIsYourPreviousReferenceNumber": "What is your previous reference number?",
