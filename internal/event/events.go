@@ -95,3 +95,14 @@ type CorrespondentUpdated struct {
 	Phone      string         `json:"phone,omitempty"`
 	Address    *place.Address `json:"address,omitempty"`
 }
+
+type LpaAccessGranted struct {
+	UID     string                  `json:"uid"`
+	LpaType string                  `json:"lpaType"`
+	Actors  []LpaAccessGrantedActor `json:"actors"`
+}
+
+type LpaAccessGrantedActor struct {
+	ActorUID  string `json:"actorUid"`
+	SubjectID string `json:"subjectId"`
+}

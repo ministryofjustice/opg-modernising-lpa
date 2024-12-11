@@ -38,6 +38,7 @@ func TestCertificateProviderStoreCreate(t *testing.T) {
 				PK:        dynamo.LpaKey("lpa-id"),
 				SK:        dynamo.SubKey("session-id"),
 				DonorKey:  shareCode.LpaOwnerKey,
+				UID:       uid,
 				ActorType: actor.TypeCertificateProvider,
 				UpdatedAt: testNow,
 			},

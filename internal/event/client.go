@@ -87,6 +87,10 @@ func (c *Client) SendCorrespondentUpdated(ctx context.Context, event Corresponde
 	return send[CorrespondentUpdated](ctx, c, event)
 }
 
+func (c *Client) SendLpaAccessGranted(ctx context.Context, event LpaAccessGranted) error {
+	return send[LpaAccessGranted](ctx, c, event)
+}
+
 func send[T any](ctx context.Context, c *Client, detail any) error {
 	detailType, ok := events[(*T)(nil)]
 	if !ok {
