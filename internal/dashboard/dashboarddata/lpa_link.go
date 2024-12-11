@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
 
@@ -16,6 +17,8 @@ type LpaLink struct {
 	SK dynamo.SubKeyType
 	// DonorKey is the donorKey for the donor
 	DonorKey dynamo.LpaOwnerKeyType
+	// UID is the UID for the linked actor
+	UID actoruid.UID
 	// ActorType is the type for the current user
 	ActorType actor.Type
 	// UpdatedAt is set to allow this data to be queried from SKUpdatedAtIndex

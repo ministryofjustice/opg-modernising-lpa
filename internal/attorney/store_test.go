@@ -62,6 +62,7 @@ func TestAttorneyStoreCreate(t *testing.T) {
 						PK:        dynamo.LpaKey("123"),
 						SK:        dynamo.SubKey("456"),
 						DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("donor")),
+						UID:       uid,
 						ActorType: actor.TypeAttorney,
 						UpdatedAt: now,
 					},

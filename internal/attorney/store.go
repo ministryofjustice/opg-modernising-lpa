@@ -70,6 +70,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 		Create(dashboarddata.LpaLink{
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
+			UID:       shareCode.ActorUID,
 			DonorKey:  shareCode.LpaOwnerKey,
 			ActorType: actor.TypeAttorney,
 			UpdatedAt: s.now(),

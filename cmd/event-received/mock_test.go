@@ -15,7 +15,14 @@ func (c *mockDynamodbClient_OneByUID_Call) SetData(data any) {
 }
 
 func (c *mockDynamodbClient_One_Call) SetData(data any) {
-	c.Run(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) {
+	c.Run(func(_ context.Context, _ dynamo.PK, _ dynamo.SK, v interface{}) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
+}
+
+func (c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) SetData(data any) {
+	c.Run(func(_ context.Context, _ string, _ dynamo.SK, v interface{}) {
 		b, _ := attributevalue.Marshal(data)
 		attributevalue.Unmarshal(b, v)
 	})
