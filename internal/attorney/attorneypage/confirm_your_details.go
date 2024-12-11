@@ -19,29 +19,28 @@ type confirmYourDetailsData struct {
 	Attorney                lpadata.Attorney
 	TrustCorporation        lpadata.TrustCorporation
 	AttorneyProvidedDetails *attorneydata.Provided
+	DonorProvidedMobile     string
 }
 
-func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpaStoreResolvingService LpaStoreResolvingService) Handler {
-	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided) error {
+func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore) Handler {
+	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		if r.Method == http.MethodPost {
-			attorneyProvidedDetails.Tasks.ConfirmYourDetails = task.StateCompleted
+			provided.Tasks.ConfirmYourDetails = task.StateCompleted
 
-			if err := attorneyStore.Put(r.Context(), attorneyProvidedDetails); err != nil {
+			if err := attorneyStore.Put(r.Context(), provided); err != nil {
 				return err
 			}
 
-			return attorney.PathTaskList.Redirect(w, r, appData, attorneyProvidedDetails.LpaID)
+			return attorney.PathTaskList.Redirect(w, r, appData, provided.LpaID)
 		}
 
-		lpa, err := lpaStoreResolvingService.Get(r.Context())
-		if err != nil {
-			return err
-		}
+		_, mobile, _ := lpa.Attorney(provided.UID)
 
 		data := &confirmYourDetailsData{
 			App:                     appData,
 			Lpa:                     lpa,
-			AttorneyProvidedDetails: attorneyProvidedDetails,
+			AttorneyProvidedDetails: provided,
+			DonorProvidedMobile:     mobile,
 		}
 
 		attorneys := lpa.Attorneys
@@ -52,7 +51,7 @@ func ConfirmYourDetails(tmpl template.Template, attorneyStore AttorneyStore, lpa
 		if appData.IsTrustCorporation() {
 			data.TrustCorporation = attorneys.TrustCorporation
 		} else {
-			data.Attorney, _ = attorneys.Get(attorneyProvidedDetails.UID)
+			data.Attorney, _ = attorneys.Get(provided.UID)
 		}
 
 		return tmpl(w, data)

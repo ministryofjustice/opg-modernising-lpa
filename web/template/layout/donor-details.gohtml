@@ -9,7 +9,7 @@
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.Donor.FullName $nameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $otherNameChangeLink := printf "%s?from=%s#f-other-names" (link .App (global.Paths.YourName.Format .App.LpaID)) .App.Page }}
-        {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNames $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
+        {{ template "optional-summary-row" (summaryRow $.App "otherNamesYouAreKnownBy" .Lpa.Donor.OtherNamesKnownBy $otherNameChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}
 
         {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.YourDateOfBirth.Format .App.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate $.App .Lpa.Donor.DateOfBirth) $dateOfBirthChangeLink .Lpa.Donor.FullName .CanChange $.App.IsDonor) }}

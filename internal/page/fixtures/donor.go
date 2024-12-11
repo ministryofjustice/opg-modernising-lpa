@@ -19,6 +19,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
@@ -37,6 +38,7 @@ import (
 type DynamoClient interface {
 	OneByUID(ctx context.Context, uid string, v interface{}) error
 	Create(ctx context.Context, v interface{}) error
+	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
 
 type DocumentStore interface {
@@ -148,7 +150,7 @@ func Donor(
 		}
 
 		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails); err != nil {
+			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
 				return err
 			}
 

@@ -7,14 +7,22 @@ import (
 )
 
 type TrustCorporation struct {
-	UID                       actoruid.UID
-	Name                      string
-	CompanyNumber             string
-	Email                     string
-	Address                   place.Address
-	Mobile                    string
-	Signatories               []TrustCorporationSignatory
-	ContactLanguagePreference localize.Lang
-	Channel                   Channel
-	Removed                   bool
+	UID             actoruid.UID    `json:"uid"`
+	Name            string          `json:"name"`
+	CompanyNumber   string          `json:"companyNumber"`
+	Email           string          `json:"email,omitempty"`
+	Address         place.Address   `json:"address"`
+	Channel         Channel         `json:"channel"`
+	Status          AttorneyStatus  `json:"status"`
+	AppointmentType AppointmentType `json:"appointmentType"`
+
+	// Mobile may be given by the trust corporation, or a paper donor
+	Mobile string `json:"mobile,omitempty"`
+
+	// These are given by the trust corporation, so will not be present on
+	// creation.
+	ContactLanguagePreference localize.Lang               `json:"contactLanguagePreference,omitempty"`
+	Signatories               []TrustCorporationSignatory `json:"signatories,omitempty"`
+
+	Removed bool `json:"-"`
 }

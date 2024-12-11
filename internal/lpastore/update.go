@@ -146,13 +146,13 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 	body := updateRequest{
 		Type: "ATTORNEY_SIGN",
 		Changes: []updateRequestChange{
-			{Key: attorneyKey + "/mobile", New: attorney.Phone},
 			{Key: attorneyKey + "/contactLanguagePreference", New: attorney.ContactLanguagePreference.String()},
 		},
 	}
 
 	if attorney.IsTrustCorporation {
 		body.Type = "TRUST_CORPORATION_SIGN"
+		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaTrustCorp.Mobile})
 
 		if lpaTrustCorp.Email != attorney.Email {
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaTrustCorp.Email})
@@ -178,6 +178,8 @@ func (c *Client) SendAttorney(ctx context.Context, lpa *lpadata.Lpa, attorney *a
 			)
 		}
 	} else {
+		body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/mobile", New: attorney.Phone, Old: lpaAttorney.Mobile})
+
 		if attorney.Email != lpaAttorney.Email {
 			body.Changes = append(body.Changes, updateRequestChange{Key: attorneyKey + "/email", New: attorney.Email, Old: lpaAttorney.Email})
 		}
