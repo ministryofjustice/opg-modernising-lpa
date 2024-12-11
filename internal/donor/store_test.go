@@ -543,7 +543,14 @@ func TestDonorStoreCreate(t *testing.T) {
 					Creates: []any{
 						dynamo.Keys{PK: dynamo.LpaKey("10100000"), SK: dynamo.ReservedKey(dynamo.DonorKey)},
 						donor,
-						dashboarddata.LpaLink{PK: dynamo.LpaKey("10100000"), SK: dynamo.SubKey("an-id"), DonorKey: dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")), ActorType: actor.TypeDonor, UpdatedAt: testNow},
+						dashboarddata.LpaLink{
+							PK:        dynamo.LpaKey("10100000"),
+							SK:        dynamo.SubKey("an-id"),
+							DonorKey:  dynamo.LpaOwnerKey(dynamo.DonorKey("an-id")),
+							UID:       donor.Donor.UID,
+							ActorType: actor.TypeDonor,
+							UpdatedAt: testNow,
+						},
 					},
 				}).
 				Return(nil)
