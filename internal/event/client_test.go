@@ -78,6 +78,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendCorrespondentUpdated(ctx, event) }, event
 		},
+		"lpa-access-granted": func() (func(*Client) error, any) {
+			event := LpaAccessGranted{UID: "a"}
+
+			return func(client *Client) error { return client.SendLpaAccessGranted(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {
