@@ -206,7 +206,7 @@ func Supporter(
 						return err
 					}
 					if !donor.SignedAt.IsZero() && donor.LpaUID != "" {
-						if err := lpaStoreClient.SendLpa(donorCtx, donor); err != nil {
+						if err := lpaStoreClient.SendLpa(donorCtx, donor.LpaUID, lpastore.CreateLpaFromDonorProvided(donor)); err != nil {
 							return err
 						}
 

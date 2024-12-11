@@ -6,11 +6,11 @@ import (
 )
 
 type IndependentWitness struct {
-	UID        actoruid.UID
-	FirstNames string
-	LastName   string
-	Mobile     string
-	Address    place.Address
+	UID        actoruid.UID  `json:"uid"`
+	FirstNames string        `json:"firstNames"`
+	LastName   string        `json:"lastName"`
+	Phone      string        `json:"phone"`
+	Address    place.Address `json:"address"`
 }
 
 func (w IndependentWitness) FullName() string {
