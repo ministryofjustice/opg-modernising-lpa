@@ -69,7 +69,7 @@ describe('Dashboard', () => {
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
-            cy.contains('strong', 'Withdrawn');
+            cy.contains('strong', 'Revoked');
             cy.contains('.app-dashboard-card a').should('not.exist');
             cy.get('.app-dashboard-row a').should('have.length', 1);
             cy.contains('a', 'View LPA');
