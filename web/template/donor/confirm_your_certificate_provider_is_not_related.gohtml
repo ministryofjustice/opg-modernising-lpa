@@ -23,6 +23,8 @@
                 {{ $hasError := .Errors.Has .Form.FieldName }}
                 <div class="govuk-form-group {{ if $hasError }}govuk-form-group--error{{ end }}">
                     <fieldset class="govuk-fieldset" {{ if $hasError }}aria-describedby="{{.Form.FieldName}}-error"{{ end }}>
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">{{ tr .App "tickTheBoxToConfirmCertificateProviderNotRelated" }}</legend>
+
                         {{ template "error-message" (errorMessage . .Form.FieldName) }}
 
                         {{ template "checkboxes" (items . .Form.FieldName nil
@@ -31,9 +33,11 @@
                     </fieldset>
                 </div>
 
-                <p class="govuk-body">{{ tr .App "ifYourCertificateProviderIsRelated" }} <button name="action" value="choose-new" class="app-button-link"><span>{{ tr .App "deleteYourCurrentCertificateProvider" }}</span></button>.</p>
-
-                {{ template "buttons" (button .App "continue") }}
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">{{ tr .App "continue" }}</button>
+                    <a id="return-to-tasklist-btn" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "returnToTaskList" }}</a>
+                    <button name="action" value="choose-new" class="app-button-link govuk-link">{{ tr .App "chooseNewCertificateProvider" }}</button>
+                </div>
                 {{ template "csrf-field" . }}
             </form>
         </div>
