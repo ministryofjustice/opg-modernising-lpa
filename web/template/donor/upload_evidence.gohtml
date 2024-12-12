@@ -24,8 +24,8 @@
                     </dt>
                     <dd class="govuk-summary-list__actions">
                         <input type="hidden" id="f-delete-evidence-{{ $i }}" name="delete" value="{{ $d.Key }}" />
-                        <button class="app-button-link">
-                            <span>{{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span></span>
+                        <button class="app-button-link govuk-link">
+                            {{ tr $.App "delete" }}<span class="govuk-visually-hidden"> {{ $d.Filename }}</span>
                         </button>
                     </dd>
                 </div>
