@@ -81,7 +81,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return donor.PathUnableToConfirmIdentity.Redirect(w, r, appData, provided)
 		default:
 			if err := scheduledStore.Create(r.Context(), scheduled.Event{
-				At:                userData.CheckedAt.AddDate(0, 6, 0),
+				At:                scheduled.ExpireDonorIdentityAt(userData.CheckedAt),
 				Action:            scheduled.ActionExpireDonorIdentity,
 				TargetLpaKey:      provided.PK,
 				TargetLpaOwnerKey: provided.SK,
