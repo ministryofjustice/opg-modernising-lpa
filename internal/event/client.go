@@ -25,6 +25,7 @@ var events = map[any]string{
 	(*AttorneyStarted)(nil):            "attorney-started",
 	(*IdentityCheckMismatched)(nil):    "identity-check-mismatched",
 	(*CorrespondentUpdated)(nil):       "correspondent-updated",
+	(*LpaAccessGranted)(nil):           "lpa-access-granted",
 }
 
 type eventbridgeClient interface {
@@ -85,6 +86,10 @@ func (c *Client) SendIdentityCheckMismatched(ctx context.Context, event Identity
 
 func (c *Client) SendCorrespondentUpdated(ctx context.Context, event CorrespondentUpdated) error {
 	return send[CorrespondentUpdated](ctx, c, event)
+}
+
+func (c *Client) SendLpaAccessGranted(ctx context.Context, event LpaAccessGranted) error {
+	return send[LpaAccessGranted](ctx, c, event)
 }
 
 func send[T any](ctx context.Context, c *Client, detail any) error {

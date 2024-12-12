@@ -161,6 +161,16 @@ var eventTests = map[string]map[string]any{
 			},
 		},
 	},
+	"lpa-access-granted": {
+		"valid": LpaAccessGranted{
+			UID:     "M-1111-2222-3333",
+			LpaType: "personal-welfare",
+			Actors: []LpaAccessGrantedActor{{
+				ActorUID:  "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
+				SubjectID: "urn:fdc:gov.uk:2022:XXXX-XXXXXX",
+			}},
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {
