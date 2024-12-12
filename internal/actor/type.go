@@ -15,4 +15,5 @@ const (
 	TypeTrustCorporation                 // trustCorporation
 	TypeReplacementTrustCorporation      // replacementTrustCorporation
 	TypeVoucher                          // voucher
+	TypeCorrespondent                    // correspondent
 )
