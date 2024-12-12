@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -81,8 +82,9 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	scheduledStore := scheduled.NewStore(dynamoClient)
+	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
+	certificateProviderStore := certificateprovider.NewStore(dynamoClient)
 
 	if Tag == "" {
 		Tag = os.Getenv("TAG")
@@ -91,7 +93,7 @@ func handleRunSchedule(ctx context.Context) error {
 	client := cloudwatch.NewFromConfig(cfg)
 	metricsClient := telemetry.NewMetricsClient(client, Tag)
 
-	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled)
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, certificateProviderStore, notifyClient, bundle, metricsClient, metricsEnabled)
 
 	if err = runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
