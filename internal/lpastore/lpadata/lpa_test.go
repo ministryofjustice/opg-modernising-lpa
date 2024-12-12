@@ -291,3 +291,25 @@ func TestAttorney(t *testing.T) {
 		})
 	}
 }
+
+func TestExpiresAt(t *testing.T) {
+	t.Run("when not signed", func(t *testing.T) {
+		provided := &Lpa{}
+		assert.True(t, provided.ExpiresAt().IsZero())
+	})
+
+	t.Run("when signed", func(t *testing.T) {
+		provided := &Lpa{SignedAt: time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)}
+		assert.Equal(t, time.Date(2000, time.July, 1, 0, 0, 0, 0, time.UTC), provided.ExpiresAt())
+	})
+
+	t.Run("when submitted", func(t *testing.T) {
+		provided := &Lpa{
+			Donor:                            Donor{IdentityCheck: &IdentityCheck{CheckedAt: time.Now()}},
+			Submitted:                        true,
+			SignedAt:                         time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
+			WitnessedByCertificateProviderAt: time.Date(2000, time.March, 1, 0, 0, 0, 0, time.UTC),
+		}
+		assert.Equal(t, time.Date(2002, time.January, 1, 0, 0, 0, 0, time.UTC), provided.ExpiresAt())
+	})
+}

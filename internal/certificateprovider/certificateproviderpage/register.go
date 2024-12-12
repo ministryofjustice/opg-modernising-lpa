@@ -24,6 +24,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
@@ -110,6 +111,10 @@ type DonorStore interface {
 	Put(ctx context.Context, donor *donordata.Provided) error
 }
 
+type ScheduledStore interface {
+	Create(ctx context.Context, rows ...scheduled.Event) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -127,6 +132,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
 	eventClient EventClient,
+	scheduledStore ScheduledStore,
 	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, errorHandler)
@@ -181,7 +187,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathWhatHappensNext, page.CanGoBack,
 		Guidance(tmpls.Get("what_happens_next.gohtml")))
 	handleCertificateProvider(certificateprovider.PathProvideCertificate, page.CanGoBack,
-		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, time.Now))
+		ProvideCertificate(tmpls.Get("provide_certificate.gohtml"), certificateProviderStore, notifyClient, shareCodeSender, lpaStoreClient, scheduledStore, time.Now))
 	handleCertificateProvider(certificateprovider.PathCertificateProvided, page.None,
 		Guidance(tmpls.Get("certificate_provided.gohtml")))
 	handleCertificateProvider(certificateprovider.PathConfirmDontWantToBeCertificateProvider, page.CanGoBack,
