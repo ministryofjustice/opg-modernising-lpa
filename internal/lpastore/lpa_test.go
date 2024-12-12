@@ -336,7 +336,7 @@ func TestClientSendLpa(t *testing.T) {
 
 			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-			err := client.SendLpa(ctx, tc.donor)
+			err := client.SendLpa(ctx, tc.donor.LpaUID, CreateLpaFromDonorProvided(tc.donor))
 
 			assert.Nil(t, err)
 		})
@@ -345,7 +345,7 @@ func TestClientSendLpa(t *testing.T) {
 
 func TestClientSendLpaWhenNewRequestError(t *testing.T) {
 	client := New("http://base", nil, "secret", nil)
-	err := client.SendLpa(nil, &donordata.Provided{})
+	err := client.SendLpa(nil, "", CreateLpa{})
 
 	assert.NotNil(t, err)
 }
@@ -359,7 +359,7 @@ func TestClientSendLpaWhenSecretsClientError(t *testing.T) {
 		Return("", expectedError)
 
 	client := New("http://base", secretsClient, "secret", nil)
-	err := client.SendLpa(ctx, &donordata.Provided{})
+	err := client.SendLpa(ctx, "", CreateLpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -378,7 +378,7 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := New("http://base", secretsClient, "secret", doer)
-	err := client.SendLpa(ctx, &donordata.Provided{})
+	err := client.SendLpa(ctx, "", CreateLpa{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -404,7 +404,7 @@ func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
 				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
 
 			client := New("http://base", secretsClient, "secret", doer)
-			err := client.SendLpa(ctx, &donordata.Provided{})
+			err := client.SendLpa(ctx, "", CreateLpa{})
 
 			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
 		})
@@ -444,8 +444,8 @@ func TestClientLpa(t *testing.T) {
 						TownOrCity: "town",
 						Country:    "GB",
 					},
-					OtherNames: "JJ",
-					Channel:    lpadata.ChannelOnline,
+					OtherNamesKnownBy: "JJ",
+					Channel:           lpadata.ChannelOnline,
 				},
 				Attorneys: lpadata.Attorneys{
 					Attorneys: []lpadata.Attorney{{
@@ -503,8 +503,8 @@ func TestClientLpa(t *testing.T) {
 						TownOrCity: "town",
 						Country:    "GB",
 					},
-					OtherNames: "JJ",
-					Channel:    lpadata.ChannelOnline,
+					OtherNamesKnownBy: "JJ",
+					Channel:           lpadata.ChannelOnline,
 				},
 				Attorneys: lpadata.Attorneys{
 					Attorneys: []lpadata.Attorney{{
@@ -564,9 +564,9 @@ func TestClientLpa(t *testing.T) {
 						Postcode:   "F1 1FF",
 						Country:    "GB",
 					},
-					OtherNames: "JJ",
-					Channel:    lpadata.ChannelOnline,
-					IdentityCheck: lpadata.IdentityCheck{
+					OtherNamesKnownBy: "JJ",
+					Channel:           lpadata.ChannelOnline,
+					IdentityCheck: &lpadata.IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 2, 12, 13, 14, 1, time.UTC),
 						Type:      "one-login",
 					},
@@ -687,7 +687,7 @@ func TestClientLpa(t *testing.T) {
 						Country:    "GB",
 					},
 					Channel: lpadata.ChannelOnline,
-					IdentityCheck: lpadata.IdentityCheck{
+					IdentityCheck: &lpadata.IdentityCheck{
 						CheckedAt: time.Date(2002, time.January, 1, 13, 14, 15, 16, time.UTC),
 						Type:      "one-login",
 					},
@@ -714,7 +714,7 @@ func TestClientLpa(t *testing.T) {
 					UID:        independentWitnessUID,
 					FirstNames: "Indiana",
 					LastName:   "Witness",
-					Mobile:     "0777777777",
+					Phone:      "0777777777",
 					Address: place.Address{
 						Line1:      "i-line-1",
 						Line2:      "i-line-2",
@@ -738,12 +738,12 @@ func TestClientLpa(t *testing.T) {
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","appointmentType":"original"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"active","appointmentType":"original"},
-{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement","appointmentType":"replacement"},
-{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement","appointmentType":"replacement"}
+{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"inactive","appointmentType":"replacement"},
+{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"inactive","appointmentType":"replacement"}
 ],
 "trustCorporations":[
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","channel":"online","appointmentType":"original"},
-{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"replacement","channel":"paper","appointmentType":"replacement"}
+{"uid":"` + replacementTrustCorporationUID.String() + `","name":"UnTrusty","companyNumber":"65555","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"inactive","channel":"paper","appointmentType":"replacement"}
 ],
 "certificateProvider":{"uid":"` + certificateProviderUID.String() + `","firstNames":"Carol","lastName":"Cert","email":"carol@example.com","phone":"0700009000","address":{"line1":"c-line-1","line2":"c-line-2","line3":"c-line-3","town":"c-town","postcode":"C1 1FF","country":"GB"},"channel":"online","identityCheck":{"checkedAt":"2002-01-01T13:14:15.000000016Z","type":"one-login"}},
 "peopleToNotify":[{"uid":"` + personToNotifyUID.String() + `","firstNames":"Peter","lastName":"Notify","address":{"line1":"p-line-1","line2":"p-line-2","line3":"p-line-3","town":"p-town","postcode":"P1 1FF","country":"GB"}}],
@@ -903,8 +903,8 @@ func TestClientLpas(t *testing.T) {
 							TownOrCity: "town",
 							Country:    "GB",
 						},
-						OtherNames: "JJ",
-						Channel:    lpadata.ChannelOnline,
+						OtherNamesKnownBy: "JJ",
+						Channel:           lpadata.ChannelOnline,
 					},
 					Attorneys: lpadata.Attorneys{
 						Attorneys: []lpadata.Attorney{{
@@ -967,8 +967,8 @@ func TestClientLpas(t *testing.T) {
 							Postcode:   "F1 1FF",
 							Country:    "GB",
 						},
-						OtherNames: "JJ",
-						Channel:    lpadata.ChannelOnline,
+						OtherNamesKnownBy: "JJ",
+						Channel:           lpadata.ChannelOnline,
 					},
 					Attorneys: lpadata.Attorneys{
 						TrustCorporation: lpadata.TrustCorporation{
@@ -1114,8 +1114,8 @@ func TestClientLpas(t *testing.T) {
 "attorneys":[
 {"uid":"` + attorneyUID.String() + `","firstNames":"Adam","lastName":"Attorney","dateOfBirth":"1999-01-02","email":"adam@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","appointmentType":"original"},
 {"uid":"` + attorney2UID.String() + `","firstNames":"Alice","lastName":"Attorney","dateOfBirth":"1998-01-02","email":"alice@example.com","address":{"line1":"aa-line-1","line2":"aa-line-2","line3":"aa-line-3","town":"aa-town","postcode":"A1 1AF","country":"GB"},"status":"removed","appointmentType":"original"},
-{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"replacement","appointmentType":"replacement"},
-{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"replacement","appointmentType":"replacement"}
+{"uid":"` + replacementAttorneyUID.String() + `","firstNames":"Richard","lastName":"Attorney","dateOfBirth":"1999-11-12","email":"richard@example.com","address":{"line1":"r-line-1","line2":"r-line-2","line3":"r-line-3","town":"r-town","postcode":"R1 1FF","country":"GB"},"status":"inactive","appointmentType":"replacement"},
+{"uid":"` + replacementAttorney2UID.String() + `","firstNames":"Rachel","lastName":"Attorney","dateOfBirth":"1998-11-12","email":"rachel@example.com","address":{"line1":"rr-line-1","line2":"rr-line-2","line3":"rr-line-3","town":"rr-town","postcode":"R1 1RF","country":"GB"},"status":"inactive","appointmentType":"replacement"}
 ],
 "trustCorporations":[
 {"uid":"` + trustCorporationUID.String() + `","name":"Trusty","companyNumber":"55555","email":"trusty@example.com","address":{"line1":"a-line-1","line2":"a-line-2","line3":"a-line-3","town":"a-town","postcode":"A1 1FF","country":"GB"},"status":"active","appointmentType":"original"},

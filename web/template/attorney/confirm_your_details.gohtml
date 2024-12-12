@@ -3,56 +3,87 @@
 {{ define "pageTitle" }}{{ tr .App "confirmYourDetails" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      {{ if .TrustCorporation.Name }}
-        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCompanyDetails" }}</h1>
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
-      {{ else }}
-        <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
-        <p class="govuk-body">{{ trFormat .App "youMustConfirmYourPhoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
-      {{ end }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ if .TrustCorporation.Name }}
+                <h1 class="govuk-heading-xl">{{ tr .App "confirmYourCompanyDetails" }}</h1>
+                <p class="govuk-body">{{ trFormat .App "youMustConfirmTheDetailsAboutYourCompany" "DonorFullName" .Lpa.Donor.FullName }}</p>
+            {{ else }}
+                <h1 class="govuk-heading-xl">{{ tr .App "confirmYourDetails" }}</h1>
+                <p class="govuk-body">{{ trFormat .App "youMustConfirmYourPhoneNumber" "DonorFullName" .Lpa.Donor.FullName }}</p>
+            {{ end }}
 
-      <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
-      <dl class="govuk-summary-list">
-        {{ $attorneyFullName := .Attorney.FullName }}
-        {{ if .TrustCorporation.Name }}{{ $attorneyFullName = .TrustCorporation.Name }}{{ end }}
+            <h2 class="govuk-heading-m">{{ tr .App "detailsYouHaveGivenUs" }}</h2>
+            <dl class="govuk-summary-list">
+                {{ $attorneyFullName := .Attorney.FullName }}
+                {{ if .TrustCorporation.Name }}{{ $attorneyFullName = .TrustCorporation.Name }}{{ end }}
 
-        {{ $phoneChangeLink := fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth" }}
-        {{ template "summary-row" (summaryRow .App "phoneNumber" (formatPhone .AttorneyProvidedDetails.Phone) $phoneChangeLink $attorneyFullName true true ) }}
+                {{ if or .AttorneyProvidedDetails.PhoneSet (not .DonorProvidedMobile) }}
+                    {{ template "summary-row" (summaryRow .App "phoneNumber"
+                        (formatPhone .AttorneyProvidedDetails.Phone)
+                        (fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth")
+                        $attorneyFullName true true) }}
+                {{ end }}
 
-        {{ $contactLanguageChangeLink := printf "%s#f-language-preference" (link .App (global.Paths.Attorney.YourPreferredLanguage.Format .Lpa.LpaID)) }}
-        {{ $contactLanguageValue := tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String }}
-        {{ template "summary-row" (summaryRow .App "preferredContactLanguage" $contactLanguageValue $contactLanguageChangeLink $attorneyFullName true true ) }}
-      </dl>
+                {{ template "summary-row" (summaryRow .App "preferredContactLanguage"
+                    (tr .App .AttorneyProvidedDetails.ContactLanguagePreference.String)
+                    (fromLink .App global.Paths.Attorney.YourPreferredLanguage "#f-language-preference")
+                    $attorneyFullName true true) }}
+            </dl>
 
-      {{ if .TrustCorporation.Name }}
-        <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
-        <dl class="govuk-summary-list">
-          {{ template "summary-row" (summaryRow .App "companyName" .TrustCorporation.Name "" $attorneyFullName false true ) }}
-          {{ template "summary-row" (summaryRow .App "companyNumber" .TrustCorporation.CompanyNumber "" $attorneyFullName false true ) }}
-          {{ template "summary-row" (summaryRow .App "companyEmailAddress" .TrustCorporation.Email "" $attorneyFullName false true ) }}
-          {{ template "address-summary-row" (summaryRow .App "address" .TrustCorporation.Address "" $attorneyFullName false true ) }}
-        </dl>
+            {{ if .TrustCorporation.Name }}
+                <h2 class="govuk-heading-m">{{ tr .App "detailsTheDonorHasGivenAboutYourCompany" }}</h2>
+                <dl class="govuk-summary-list">
+                    {{ template "summary-row" (staticSummaryRow .App "companyName" .TrustCorporation.Name) }}
+                    {{ template "summary-row" (staticSummaryRow .App "companyNumber" .TrustCorporation.CompanyNumber) }}
+                    {{ template "summary-row" (staticSummaryRow .App "companyEmailAddress" .TrustCorporation.Email) }}
+                    {{ template "address-summary-row" (staticSummaryRow .App "address" .TrustCorporation.Address) }}
+                    {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
+                        {{ template "summary-row" (summaryRow .App "phoneNumber"
+                            (formatPhone .DonorProvidedMobile)
+                            (fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth")
+                            $attorneyFullName true true) }}
+                    {{ end }}
+                </dl>
 
-        {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
-        {{ template "warning" (content .App "ifTheDetailsYouProvideAreNotCorrect") }}
-      {{ else }}
-        <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
-        <dl class="govuk-summary-list">
-          {{ template "summary-row" (summaryRow .App "name" .Attorney.FullName "" $attorneyFullName false true ) }}
-          {{ template "summary-row" (summaryRow .App "dateOfBirth" (formatDate .App .Attorney.DateOfBirth) "" $attorneyFullName false true ) }}
-          {{ template "address-summary-row" (summaryRow .App "address" .Attorney.Address "" $attorneyFullName false true ) }}
-        </dl>
+                {{ template "details" (details . "whatToDoIfAnyDetailsAboutCompanyAreIncorrect" "whatToDoIfAnyDetailsAboutCompanyAreIncorrectAttorneyContent" false) }}
+                {{ template "warning" (content .App "ifTheDetailsYouProvideAreNotCorrect") }}
+            {{ else }}
+                <h2 class="govuk-heading-m govuk-!-margin-top-8">{{ tr .App "detailsTheDonorHasGivenAboutYou" }}</h2>
+                <dl class="govuk-summary-list">
+                    {{ template "summary-row" (summaryRow .App "name"
+                        .Attorney.FullName
+                        ""
+                        $attorneyFullName false true ) }}
+                    {{ template "summary-row" (summaryRow .App "dateOfBirth"
+                        (formatDate .App .Attorney.DateOfBirth)
+                        ""
+                        $attorneyFullName false true ) }}
+                    {{ template "address-summary-row" (summaryRow .App "address"
+                        .Attorney.Address
+                        ""
+                        $attorneyFullName false true ) }}            
+                    {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
+                        {{ template "summary-row" (summaryRow .App "phoneNumber"
+                            (formatPhone .DonorProvidedMobile)
+                            (fromLink .App global.Paths.Attorney.PhoneNumber "#f-date-of-birth")
+                            $attorneyFullName true true) }}
+                    {{ end }}
+                </dl>
 
-        {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
-        {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
-      {{ end }}
+                {{ if and .DonorProvidedMobile (not .AttorneyProvidedDetails.PhoneSet) }}
+                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyCanPhoneContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
+                {{ else }}
+                    {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" (trFormat .App "whatToDoIfAnyDetailsAreIncorrectAttorneyContent" "DonorFullName" .Lpa.Donor.FullName) false) }}
+                {{ end }}
+                
+                {{ template "warning" (content .App "anyErrorsInYourDetailsCanMakeLpaDifficultToUse") }}
+            {{ end }}
 
-      <form novalidate method="post">
-        {{ template "continue-button" . }}
-        {{ template "csrf-field" . }}
-      </form>
+            <form novalidate method="post">
+                {{ template "continue-button" . }}
+                {{ template "csrf-field" . }}
+            </form>
+        </div>
     </div>
-  </div>
 {{ end }}

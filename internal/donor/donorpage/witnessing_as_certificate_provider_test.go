@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -125,7 +126,7 @@ func TestPostWitnessingAsCertificateProvider(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(r.Context(), provided).
+		SendLpa(r.Context(), provided.LpaUID, lpastore.CreateLpaFromDonorProvided(provided)).
 		Return(nil)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{
@@ -211,7 +212,7 @@ func TestPostWitnessingAsCertificateProviderWhenSendLpaErrors(t *testing.T) {
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
-		SendLpa(r.Context(), mock.Anything).
+		SendLpa(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	err := WitnessingAsCertificateProvider(nil, donorStore, shareCodeSender, lpaStoreClient, eventClient, testNowFn)(testAppData, w, r, &donordata.Provided{

@@ -25,7 +25,7 @@
           {{ $statusUpdatedTitle = "teamMemberSuspended" }}
           {{ $statusUpdatedContent = "emailHasBeenSuspended" }}
         {{ end }}
-        
+
         {{ template "notification-banner" (notificationBanner .App $statusUpdatedTitle (trFormatHtml .App $statusUpdatedContent "Email" (.App.Query.Get "statusEmail"))) }}
       {{ end}}
 
@@ -86,9 +86,8 @@
                           <input type="hidden" id="f-email-{{ .Email }}" name="email" value="{{ .Email }}" />
                           <input type="hidden" id="f-permission-{{ .Email }}" name="permission" value="{{ .Permission }}" />
 
-                          <button name="resend-invite" value="{{ .Email }}" class="app-button-link">
-                            <span>{{ tr $.App "resendInvite" }} <span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }} </span>
-                            </span>
+                          <button name="resend-invite" value="{{ .Email }}" class="app-button-link govuk-link">
+                            {{ tr $.App "resendInvite" }} <span class="govuk-visually-hidden"> {{ trFormat $.App "toMemberName" "MemberName" .FullName }}</span>
                           </button>
 
                           {{ template "csrf-field" $ }}

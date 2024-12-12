@@ -45,7 +45,7 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 				return err
 			}
 
-			fullName, actorType := lpa.Attorney(shareCode.ActorUID)
+			fullName, _, actorType := lpa.Attorney(shareCode.ActorUID)
 			if actorType.IsNone() {
 				return errors.New("attorney not found")
 			}

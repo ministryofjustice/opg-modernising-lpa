@@ -59,13 +59,13 @@ func (pt ProgressTracker) Progress(lpa *lpadata.Lpa) Progress {
 			Label: pt.Localizer.T("lpaPaidFor"),
 		},
 		ConfirmedID: ProgressTask{
-			Done: !lpa.Donor.IdentityCheck.CheckedAt.IsZero(),
+			Done: lpa.Donor.IdentityCheck != nil && !lpa.Donor.IdentityCheck.CheckedAt.IsZero(),
 		},
 		DonorSigned: ProgressTask{
 			Done: lpa.SignedForDonor(),
 		},
 		CertificateProviderSigned: ProgressTask{
-			Done: !lpa.CertificateProvider.SignedAt.IsZero(),
+			Done: lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero(),
 		},
 		AttorneysSigned: ProgressTask{
 			Done:  lpa.AllAttorneysSigned(),

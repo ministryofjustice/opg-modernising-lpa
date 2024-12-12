@@ -7,7 +7,7 @@
     <div class="govuk-grid-column-two-thirds">
       {{ template "notification-banner" (notificationBanner .App "lpaWithdrawn" (trFormatHtml .App "youHaveWithdrawnLpaNumber" "UID" (.App.Query.Get "uid")) "success") }}
 
-      <p class="govuk-body">{{ tr .App "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted" }}</p>
+      {{ trHtml .App "opgWillNowContactAnyoneWhoHasAlreadyBeenContacted" }}
 
       <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button">{{ tr .App "returnToDashboard" }}</a>
     </div>

@@ -70,6 +70,7 @@ func (s *Store) Create(ctx context.Context, shareCode sharecodedata.Link, email 
 			PK:        dynamo.LpaKey(data.LpaID),
 			SK:        dynamo.SubKey(data.SessionID),
 			DonorKey:  shareCode.LpaOwnerKey,
+			UID:       shareCode.ActorUID,
 			ActorType: actor.TypeCertificateProvider,
 			UpdatedAt: s.now(),
 		}).

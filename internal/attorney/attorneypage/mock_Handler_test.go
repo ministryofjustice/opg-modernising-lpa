@@ -8,6 +8,8 @@ import (
 
 	http "net/http"
 
+	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,17 +26,17 @@ func (_m *mockHandler) EXPECT() *mockHandler_Expecter {
 	return &mockHandler_Expecter{mock: &_m.Mock}
 }
 
-// Execute provides a mock function with given fields: data, w, r, details
-func (_m *mockHandler) Execute(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided) error {
-	ret := _m.Called(data, w, r, details)
+// Execute provides a mock function with given fields: data, w, r, details, lpa
+func (_m *mockHandler) Execute(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa) error {
+	ret := _m.Called(data, w, r, details, lpa)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.Data, http.ResponseWriter, *http.Request, *attorneydata.Provided) error); ok {
-		r0 = rf(data, w, r, details)
+	if rf, ok := ret.Get(0).(func(appcontext.Data, http.ResponseWriter, *http.Request, *attorneydata.Provided, *lpadata.Lpa) error); ok {
+		r0 = rf(data, w, r, details, lpa)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -52,13 +54,14 @@ type mockHandler_Execute_Call struct {
 //   - w http.ResponseWriter
 //   - r *http.Request
 //   - details *attorneydata.Provided
-func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}, details interface{}) *mockHandler_Execute_Call {
-	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, details)}
+//   - lpa *lpadata.Lpa
+func (_e *mockHandler_Expecter) Execute(data interface{}, w interface{}, r interface{}, details interface{}, lpa interface{}) *mockHandler_Execute_Call {
+	return &mockHandler_Execute_Call{Call: _e.mock.On("Execute", data, w, r, details, lpa)}
 }
 
-func (_c *mockHandler_Execute_Call) Run(run func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided)) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) Run(run func(data appcontext.Data, w http.ResponseWriter, r *http.Request, details *attorneydata.Provided, lpa *lpadata.Lpa)) *mockHandler_Execute_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(appcontext.Data), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*attorneydata.Provided))
+		run(args[0].(appcontext.Data), args[1].(http.ResponseWriter), args[2].(*http.Request), args[3].(*attorneydata.Provided), args[4].(*lpadata.Lpa))
 	})
 	return _c
 }
@@ -68,7 +71,7 @@ func (_c *mockHandler_Execute_Call) Return(_a0 error) *mockHandler_Execute_Call 
 	return _c
 }
 
-func (_c *mockHandler_Execute_Call) RunAndReturn(run func(appcontext.Data, http.ResponseWriter, *http.Request, *attorneydata.Provided) error) *mockHandler_Execute_Call {
+func (_c *mockHandler_Execute_Call) RunAndReturn(run func(appcontext.Data, http.ResponseWriter, *http.Request, *attorneydata.Provided, *lpadata.Lpa) error) *mockHandler_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }

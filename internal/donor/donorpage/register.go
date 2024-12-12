@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -155,7 +156,7 @@ type DashboardStore interface {
 type LpaStoreClient interface {
 	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
 	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
-	SendLpa(ctx context.Context, details *donordata.Provided) error
+	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 	SendDonorWithdrawLPA(ctx context.Context, lpaUID string) error
 }
 

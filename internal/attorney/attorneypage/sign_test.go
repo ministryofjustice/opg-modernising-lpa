@@ -22,6 +22,8 @@ import (
 )
 
 func TestGetSign(t *testing.T) {
+	signedAt := time.Now()
+
 	testcases := map[string]struct {
 		appData appcontext.Data
 		lpa     *lpadata.Lpa
@@ -38,7 +40,7 @@ func TestGetSign(t *testing.T) {
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 			data: &signData{
@@ -59,7 +61,7 @@ func TestGetSign(t *testing.T) {
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 			data: &signData{
@@ -79,7 +81,7 @@ func TestGetSign(t *testing.T) {
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 			data: &signData{
@@ -101,7 +103,7 @@ func TestGetSign(t *testing.T) {
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 			data: &signData{
@@ -121,7 +123,7 @@ func TestGetSign(t *testing.T) {
 					Name: "Corp",
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 			data: &signData{
@@ -143,12 +145,7 @@ func TestGetSign(t *testing.T) {
 				Execute(w, tc.data).
 				Return(nil)
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
-			err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := Sign(template.Execute, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -178,7 +175,7 @@ func TestGetSignWhenSigned(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			err := Sign(nil, nil, nil, nil, nil)(testAppData, w, r, attorneyProvidedDetails)
+			err := Sign(nil, nil, nil, nil)(testAppData, w, r, attorneyProvidedDetails, &lpadata.Lpa{})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -190,6 +187,7 @@ func TestGetSignWhenSigned(t *testing.T) {
 
 func TestGetSignCantSignYet(t *testing.T) {
 	uid := actoruid.New()
+	signedAt := time.Now()
 
 	testcases := map[string]struct {
 		appData appcontext.Data
@@ -214,7 +212,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 					{UID: actoruid.New(), FirstNames: "Dave", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 		},
@@ -225,12 +223,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
-			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -242,6 +235,7 @@ func TestGetSignCantSignYet(t *testing.T) {
 
 func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 	uid := actoruid.New()
+	signedAt := time.Now()
 
 	testcases := map[string]struct {
 		appData appcontext.Data
@@ -256,7 +250,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 		},
@@ -269,7 +263,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 					{UID: uid, FirstNames: "Bob", LastName: "Smith"},
 				}},
 				CertificateProvider: lpadata.CertificateProvider{
-					SignedAt: time.Now(),
+					SignedAt: &signedAt,
 				},
 			},
 		},
@@ -280,12 +274,7 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
-			err := Sign(nil, lpaStoreResolvingService, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{})
+			err := Sign(nil, nil, nil, nil)(tc.appData, w, r, &attorneydata.Provided{}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -295,44 +284,22 @@ func TestGetSignWhenAttorneyDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestGetSignOnLpaStoreResolvingServiceError(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	template := newMockTemplate(t)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{}, expectedError)
-
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestGetSignOnTemplateError(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
+	signedAt := time.Now()
 
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			SignedAt:                         time.Now(),
-			WitnessedByCertificateProviderAt: time.Now(),
-			Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID}}},
-			CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
-		}, nil)
-
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
+		SignedAt:                         time.Now(),
+		WitnessedByCertificateProviderAt: time.Now(),
+		Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID}}},
+		CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
+	})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -347,34 +314,106 @@ func TestPostSign(t *testing.T) {
 		url             string
 		appData         appcontext.Data
 		form            url.Values
+		provided        *attorneydata.Provided
 		lpa             *lpadata.Lpa
 		updatedAttorney *attorneydata.Provided
 	}{
 		"attorney": {
-			appData: testAppData,
-			form:    url.Values{"confirm": {"1"}},
+			appData:  testAppData,
+			form:     url.Values{"confirm": {"1"}},
+			provided: &attorneydata.Provided{UID: testUID, LpaID: "lpa-id"},
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
+				UID:      testUID,
 				LpaID:    "lpa-id",
 				SignedAt: now,
 				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
 			},
 		},
-		"replacement attorney": {
-			appData: testReplacementAppData,
+		"attorney with set mobile": {
+			appData: testAppData,
 			form:    url.Values{"confirm": {"1"}},
+			provided: &attorneydata.Provided{
+				UID:      testUID,
+				LpaID:    "lpa-id",
+				Phone:    "0777",
+				PhoneSet: true,
+			},
+			lpa: &lpadata.Lpa{
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", Mobile: "0888"}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
+			},
+			updatedAttorney: &attorneydata.Provided{
+				UID:      testUID,
+				LpaID:    "lpa-id",
+				SignedAt: now,
+				Phone:    "0777",
+				PhoneSet: true,
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
+			},
+		},
+		"attorney with removed mobile": {
+			appData: testAppData,
+			form:    url.Values{"confirm": {"1"}},
+			provided: &attorneydata.Provided{
+				UID:      testUID,
+				LpaID:    "lpa-id",
+				PhoneSet: true,
+			},
+			lpa: &lpadata.Lpa{
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", Mobile: "0888"}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
+			},
+			updatedAttorney: &attorneydata.Provided{
+				UID:      testUID,
+				LpaID:    "lpa-id",
+				SignedAt: now,
+				PhoneSet: true,
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
+			},
+		},
+		"attorney with donor provided mobile": {
+			appData: testAppData,
+			form:    url.Values{"confirm": {"1"}},
+			provided: &attorneydata.Provided{
+				UID:   testUID,
+				LpaID: "lpa-id",
+			},
+			lpa: &lpadata.Lpa{
+				SignedAt:                         lpaSignedAt,
+				WitnessedByCertificateProviderAt: lpaSignedAt,
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", Mobile: "0888"}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
+			},
+			updatedAttorney: &attorneydata.Provided{
+				UID:      testUID,
+				LpaID:    "lpa-id",
+				SignedAt: now,
+				Phone:    "0888",
+				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
+			},
+		},
+		"replacement attorney": {
+			appData:  testReplacementAppData,
+			form:     url.Values{"confirm": {"1"}},
+			provided: &attorneydata.Provided{UID: testUID, LpaID: "lpa-id"},
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				ReplacementAttorneys:             lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
+				UID:      testUID,
 				LpaID:    "lpa-id",
 				SignedAt: now,
 				Tasks:    attorneydata.Tasks{SignTheLpa: task.StateCompleted},
@@ -389,13 +428,15 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
+			provided: &attorneydata.Provided{UID: testUID, LpaID: "lpa-id"},
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
-				Attorneys:                        lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp"}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				Attorneys:                        lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{UID: testUID, Name: "Corp"}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
+				UID:   testUID,
 				LpaID: "lpa-id",
 				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{}, {
 					FirstNames:        "a",
@@ -415,13 +456,15 @@ func TestPostSign(t *testing.T) {
 				"professional-title": {"c"},
 				"confirm":            {"1"},
 			},
+			provided: &attorneydata.Provided{UID: testUID, LpaID: "lpa-id"},
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
-				ReplacementAttorneys:             lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp"}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				ReplacementAttorneys:             lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{UID: testUID, Name: "Corp"}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
+				UID:   testUID,
 				LpaID: "lpa-id",
 				AuthorisedSignatories: [2]attorneydata.TrustCorporationSignatory{{}, {
 					FirstNames:        "a",
@@ -441,11 +484,6 @@ func TestPostSign(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Put(r.Context(), tc.updatedAttorney).
@@ -456,7 +494,7 @@ func TestPostSign(t *testing.T) {
 				SendAttorney(r.Context(), tc.lpa, tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, attorneyStore, lpaStoreClient, func() time.Time { return now })(tc.appData, w, r, tc.provided, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -484,8 +522,8 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
-				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", SignedAt: attorneySignedAt}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", SignedAt: &attorneySignedAt}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
@@ -499,8 +537,8 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 			lpa: &lpadata.Lpa{
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
-				ReplacementAttorneys:             lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", SignedAt: attorneySignedAt}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				ReplacementAttorneys:             lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith", SignedAt: &attorneySignedAt}}},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID:    "lpa-id",
@@ -521,7 +559,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Attorneys:                        lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp", Signatories: []lpadata.TrustCorporationSignatory{{}, {SignedAt: attorneySignedAt}}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
@@ -547,7 +585,7 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				ReplacementAttorneys:             lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp", Signatories: []lpadata.TrustCorporationSignatory{{}, {SignedAt: attorneySignedAt}}}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
@@ -569,17 +607,12 @@ func TestPostSignWhenSignedInLpaStore(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -612,7 +645,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				Attorneys:                        lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp"}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
@@ -637,7 +670,7 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 				SignedAt:                         lpaSignedAt,
 				WitnessedByCertificateProviderAt: lpaSignedAt,
 				ReplacementAttorneys:             lpadata.Attorneys{TrustCorporation: lpadata.TrustCorporation{Name: "Corp"}},
-				CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
+				CertificateProvider:              lpadata.CertificateProvider{SignedAt: &lpaSignedAt},
 			},
 			updatedAttorney: &attorneydata.Provided{
 				LpaID: "lpa-id",
@@ -659,17 +692,12 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-			lpaStoreResolvingService.EXPECT().
-				Get(r.Context()).
-				Return(tc.lpa, nil)
-
 			attorneyStore := newMockAttorneyStore(t)
 			attorneyStore.EXPECT().
 				Put(r.Context(), tc.updatedAttorney).
 				Return(nil)
 
-			err := Sign(nil, lpaStoreResolvingService, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+			err := Sign(nil, attorneyStore, nil, func() time.Time { return now })(tc.appData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, tc.lpa)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -681,27 +709,23 @@ func TestPostSignWhenWantSecondSignatory(t *testing.T) {
 
 func TestPostSignWhenLpaStoreClientErrors(t *testing.T) {
 	form := url.Values{"confirm": {"1"}}
+	signedAt := time.Now()
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			SignedAt:                         time.Now(),
-			WitnessedByCertificateProviderAt: time.Now(),
-			Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
-			CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
-		}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		SendAttorney(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, lpaStoreResolvingService, nil, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"})
+	err := Sign(nil, nil, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{LpaID: "lpa-id"}, &lpadata.Lpa{
+		SignedAt:                         time.Now(),
+		WitnessedByCertificateProviderAt: time.Now(),
+		Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
+		CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
+	})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -709,20 +733,11 @@ func TestPostSignWhenStoreError(t *testing.T) {
 	form := url.Values{
 		"confirm": {"1"},
 	}
+	signedAt := time.Now()
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			SignedAt:                         time.Now(),
-			WitnessedByCertificateProviderAt: time.Now(),
-			Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
-			CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
-		}, nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -734,7 +749,12 @@ func TestPostSignWhenStoreError(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := Sign(nil, lpaStoreResolvingService, attorneyStore, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(nil, attorneyStore, lpaStoreClient, time.Now)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
+		SignedAt:                         time.Now(),
+		WitnessedByCertificateProviderAt: time.Now(),
+		Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
+		CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
+	})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -743,20 +763,11 @@ func TestPostSignWhenStoreError(t *testing.T) {
 
 func TestPostSignOnValidationError(t *testing.T) {
 	form := url.Values{}
+	signedAt := time.Now()
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
-		Return(&lpadata.Lpa{
-			SignedAt:                         time.Now(),
-			WitnessedByCertificateProviderAt: time.Now(),
-			Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
-			CertificateProvider:              lpadata.CertificateProvider{SignedAt: time.Now()},
-		}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -768,7 +779,12 @@ func TestPostSignOnValidationError(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := Sign(template.Execute, lpaStoreResolvingService, nil, nil, time.Now)(testAppData, w, r, &attorneydata.Provided{})
+	err := Sign(template.Execute, nil, nil, time.Now)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{
+		SignedAt:                         time.Now(),
+		WitnessedByCertificateProviderAt: time.Now(),
+		Attorneys:                        lpadata.Attorneys{Attorneys: []lpadata.Attorney{{UID: testUID, FirstNames: "Bob", LastName: "Smith"}}},
+		CertificateProvider:              lpadata.CertificateProvider{SignedAt: &signedAt},
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
