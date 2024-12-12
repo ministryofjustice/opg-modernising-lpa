@@ -76,6 +76,10 @@ type Lpa struct {
 	// Voucher is set using the data provided by the donor for online
 	// applications, but is not set for paper applications.
 	Voucher Voucher
+
+	// CertificateProviderInvitedAt is when the certificate provider's share
+	// code is first sent, it is only set with the resolving service.
+	CertificateProviderInvitedAt time.Time
 }
 
 // SignedForDonor returns true if the Lpa has been signed and witnessed for the donor.
@@ -217,4 +221,17 @@ func (l *Lpa) Attorney(uid actoruid.UID) (string, string, actor.Type) {
 	}
 
 	return "", "", actor.TypeNone
+}
+
+// ExpiresAt gives the date the LPA expires.
+func (l *Lpa) ExpiresAt() time.Time {
+	if l.Submitted && l.Donor.IdentityCheck != nil && !l.Donor.IdentityCheck.CheckedAt.IsZero() {
+		return l.SignedAt.AddDate(2, 0, 0)
+	}
+
+	if !l.SignedAt.IsZero() {
+		return l.SignedAt.AddDate(0, 6, 0)
+	}
+
+	return time.Time{}
 }
