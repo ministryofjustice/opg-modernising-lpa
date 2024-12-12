@@ -88,10 +88,15 @@ func ToProvidedCertificateProvider(provided *certificateproviderdata.Provided, c
 }
 
 func ToLpaCertificateProvider(provided *certificateproviderdata.Provided, lpa *lpadata.Lpa) To {
+	lang := lpa.CertificateProvider.ContactLanguagePreference
+	if provided != nil && !provided.ContactLanguagePreference.Empty() {
+		lang = provided.ContactLanguagePreference
+	}
+
 	return to{
 		mobile: lpa.CertificateProvider.Phone,
 		email:  lpa.CertificateProvider.Email,
-		lang:   provided.ContactLanguagePreference,
+		lang:   lang,
 	}
 }
 
