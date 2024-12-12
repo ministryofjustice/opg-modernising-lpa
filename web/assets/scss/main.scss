@@ -83,19 +83,13 @@ body:not(.js-enabled) .govuk-back-link {
     background: none;
     border: none;
     padding: 0;
-    font: inherit;
     cursor: pointer;
-    outline: inherit;
+    font-size: inherit;
     color: $govuk-link-colour;
-    display: contents;
+}
 
-    // introduce styling on a nested span as 'display: contents' removes some from the button
-    > span {
-        @include govuk-link-common;
-        @include govuk-link-style-default;
-        @include govuk-link-print-friendly;
-        @include govuk-link-style-no-visited-state;
-    }
+.app-button-link:focus {
+    outline: inherit;
 }
 
 .app-tabs-no-border .govuk-tabs__panel {
