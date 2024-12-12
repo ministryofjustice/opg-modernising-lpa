@@ -213,6 +213,7 @@ func App(
 		lpaStoreResolvingService,
 		donorStore,
 		eventClient,
+		scheduledStore,
 		appPublicURL,
 	)
 

@@ -165,7 +165,7 @@ type ShareCodeStore interface {
 }
 
 type ScheduledStore interface {
-	Create(ctx context.Context, row scheduled.Event) error
+	Create(ctx context.Context, rows ...scheduled.Event) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -356,7 +356,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(donor.PathCheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now, appPublicURL))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, appPublicURL))
 	handleWithDonor(donor.PathLpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -440,9 +440,9 @@ func Register(
 	handleWithDonor(donor.PathLpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithDonor(donor.PathSignYourLpa, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore, time.Now))
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore, scheduledStore, time.Now))
 	handleWithDonor(donor.PathSignTheLpaOnBehalf, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore, time.Now))
+		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore, scheduledStore, time.Now))
 	handleWithDonor(donor.PathWitnessingYourSignature, page.None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender, donorStore))
 	handleWithDonor(donor.PathWitnessingAsIndependentWitness, page.None,

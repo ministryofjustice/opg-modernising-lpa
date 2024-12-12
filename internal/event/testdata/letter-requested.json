@@ -1,0 +1,31 @@
+{
+  "$id": "https://opg.service.justice.gov.uk/opg.poas.sirius/letter-requested.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opg.poas.sirius/letter-requested",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "The UID of the LPA",
+      "pattern": "^M(-[A-Z0-9]{4}){3}$"
+    },
+    "letterType": {
+      "description": "The type of letter to send",
+      "enum": [
+        "ADVISE_CERTIFICATE_PROVIDER_TO_SIGN_OR_OPT_OUT",
+        "INFORM_DONOR_CERTIFICATE_PROVIDER_HAS_NOT_ACTED"
+      ]
+    },
+    "actorType": {
+      "type": "string",
+      "description": "The type of actor to send the letter to",
+      "enum": ["donor", "correspondent", "certificateProvider", "attorney", "replacementAttorney", "trustCorporation", "replacementTrustCorporation"]
+    },
+    "actorUID": {
+      "type": "string",
+      "description": "The UID of the actor to send the letter to",
+      "pattern": "^([a-z0-9]{8}-)([a-z0-9]{4}-){3}([a-z0-9]{12})$"
+    }
+  },
+  "required": ["uid", "letterType", "actorType", "actorUID"]
+}
