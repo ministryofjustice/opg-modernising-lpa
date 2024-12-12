@@ -106,3 +106,10 @@ type LpaAccessGrantedActor struct {
 	ActorUID  string `json:"actorUid"`
 	SubjectID string `json:"subjectId"`
 }
+
+type LetterRequested struct {
+	UID                   string        `json:"uid"`
+	LetterType            string        `json:"letterType"`
+	CorrespondentFullName string        `json:"correspondentFullName"`
+	CorrespondentAddress  place.Address `json:"correspondentAddress"`
+}

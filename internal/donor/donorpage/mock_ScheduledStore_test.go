@@ -22,17 +22,24 @@ func (_m *mockScheduledStore) EXPECT() *mockScheduledStore_Expecter {
 	return &mockScheduledStore_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, row
-func (_m *mockScheduledStore) Create(ctx context.Context, row scheduled.Event) error {
-	ret := _m.Called(ctx, row)
+// Create provides a mock function with given fields: ctx, rows
+func (_m *mockScheduledStore) Create(ctx context.Context, rows ...scheduled.Event) error {
+	_va := make([]interface{}, len(rows))
+	for _i := range rows {
+		_va[_i] = rows[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, scheduled.Event) error); ok {
-		r0 = rf(ctx, row)
+	if rf, ok := ret.Get(0).(func(context.Context, ...scheduled.Event) error); ok {
+		r0 = rf(ctx, rows...)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -47,14 +54,21 @@ type mockScheduledStore_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - row scheduled.Event
-func (_e *mockScheduledStore_Expecter) Create(ctx interface{}, row interface{}) *mockScheduledStore_Create_Call {
-	return &mockScheduledStore_Create_Call{Call: _e.mock.On("Create", ctx, row)}
+//   - rows ...scheduled.Event
+func (_e *mockScheduledStore_Expecter) Create(ctx interface{}, rows ...interface{}) *mockScheduledStore_Create_Call {
+	return &mockScheduledStore_Create_Call{Call: _e.mock.On("Create",
+		append([]interface{}{ctx}, rows...)...)}
 }
 
-func (_c *mockScheduledStore_Create_Call) Run(run func(ctx context.Context, row scheduled.Event)) *mockScheduledStore_Create_Call {
+func (_c *mockScheduledStore_Create_Call) Run(run func(ctx context.Context, rows ...scheduled.Event)) *mockScheduledStore_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(scheduled.Event))
+		variadicArgs := make([]scheduled.Event, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(scheduled.Event)
+			}
+		}
+		run(args[0].(context.Context), variadicArgs...)
 	})
 	return _c
 }
@@ -64,7 +78,7 @@ func (_c *mockScheduledStore_Create_Call) Return(_a0 error) *mockScheduledStore_
 	return _c
 }
 
-func (_c *mockScheduledStore_Create_Call) RunAndReturn(run func(context.Context, scheduled.Event) error) *mockScheduledStore_Create_Call {
+func (_c *mockScheduledStore_Create_Call) RunAndReturn(run func(context.Context, ...scheduled.Event) error) *mockScheduledStore_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
