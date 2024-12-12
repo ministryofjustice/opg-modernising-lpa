@@ -80,20 +80,32 @@ func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 
 func TestStoreCreate(t *testing.T) {
 	at := time.Date(2024, time.January, 1, 12, 13, 14, 5, time.UTC)
+	at2 := time.Date(2024, time.February, 1, 12, 13, 14, 5, time.UTC)
 
 	dynamoClient := newMockDynamoClient(t)
 	dynamoClient.EXPECT().
-		Create(ctx, Event{
-			PK:        dynamo.ScheduledDayKey(at),
-			SK:        dynamo.ScheduledKey(at, 99),
-			CreatedAt: testNow,
-			At:        at,
-			Action:    99,
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Puts: []any{
+				Event{
+					PK:        dynamo.ScheduledDayKey(at),
+					SK:        dynamo.ScheduledKey(at, 99),
+					CreatedAt: testNow,
+					At:        at,
+					Action:    99,
+				},
+				Event{
+					PK:        dynamo.ScheduledDayKey(at2),
+					SK:        dynamo.ScheduledKey(at2, 100),
+					CreatedAt: testNow,
+					At:        at2,
+					Action:    100,
+				},
+			},
 		}).
 		Return(expectedError)
 
 	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
-	err := store.Create(ctx, Event{At: at, Action: 99})
+	err := store.Create(ctx, Event{At: at, Action: 99}, Event{At: at2, Action: 100})
 	assert.Equal(t, expectedError, err)
 }
 

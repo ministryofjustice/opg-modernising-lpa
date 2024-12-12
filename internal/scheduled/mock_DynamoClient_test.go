@@ -119,53 +119,6 @@ func (_c *mockDynamoClient_AnyByPK_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// Create provides a mock function with given fields: ctx, v
-func (_m *mockDynamoClient) Create(ctx context.Context, v interface{}) error {
-	ret := _m.Called(ctx, v)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Create")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
-		r0 = rf(ctx, v)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// mockDynamoClient_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type mockDynamoClient_Create_Call struct {
-	*mock.Call
-}
-
-// Create is a helper method to define mock.On call
-//   - ctx context.Context
-//   - v interface{}
-func (_e *mockDynamoClient_Expecter) Create(ctx interface{}, v interface{}) *mockDynamoClient_Create_Call {
-	return &mockDynamoClient_Create_Call{Call: _e.mock.On("Create", ctx, v)}
-}
-
-func (_c *mockDynamoClient_Create_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamoClient_Create_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(interface{}))
-	})
-	return _c
-}
-
-func (_c *mockDynamoClient_Create_Call) Return(_a0 error) *mockDynamoClient_Create_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockDynamoClient_Create_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamoClient_Create_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteKeys provides a mock function with given fields: ctx, keys
 func (_m *mockDynamoClient) DeleteKeys(ctx context.Context, keys []dynamo.Keys) error {
 	ret := _m.Called(ctx, keys)
@@ -257,6 +210,53 @@ func (_c *mockDynamoClient_Move_Call) Return(_a0 error) *mockDynamoClient_Move_C
 }
 
 func (_c *mockDynamoClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, any) error) *mockDynamoClient_Move_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// WriteTransaction provides a mock function with given fields: ctx, transaction
+func (_m *mockDynamoClient) WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error {
+	ret := _m.Called(ctx, transaction)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WriteTransaction")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *dynamo.Transaction) error); ok {
+		r0 = rf(ctx, transaction)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_WriteTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WriteTransaction'
+type mockDynamoClient_WriteTransaction_Call struct {
+	*mock.Call
+}
+
+// WriteTransaction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - transaction *dynamo.Transaction
+func (_e *mockDynamoClient_Expecter) WriteTransaction(ctx interface{}, transaction interface{}) *mockDynamoClient_WriteTransaction_Call {
+	return &mockDynamoClient_WriteTransaction_Call{Call: _e.mock.On("WriteTransaction", ctx, transaction)}
+}
+
+func (_c *mockDynamoClient_WriteTransaction_Call) Run(run func(ctx context.Context, transaction *dynamo.Transaction)) *mockDynamoClient_WriteTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*dynamo.Transaction))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_WriteTransaction_Call) Return(_a0 error) *mockDynamoClient_WriteTransaction_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_WriteTransaction_Call) RunAndReturn(run func(context.Context, *dynamo.Transaction) error) *mockDynamoClient_WriteTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }
