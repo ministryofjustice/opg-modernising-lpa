@@ -16,6 +16,10 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
+func pt[T any](v T) *T {
+	return &v
+}
+
 var eventTests = map[string]map[string]any{
 	"application-updated": {
 		"valid": ApplicationUpdated{
@@ -142,6 +146,7 @@ var eventTests = map[string]map[string]any{
 		"remove": CorrespondentUpdated{UID: "M-1111-1111-1111"},
 		"without address": CorrespondentUpdated{
 			UID:        "M-1111-1111-1111",
+			ActorUID:   pt(actoruid.New()),
 			FirstNames: "John",
 			LastName:   "Smith",
 			Email:      "john@example.com",
@@ -149,6 +154,7 @@ var eventTests = map[string]map[string]any{
 		},
 		"with address": CorrespondentUpdated{
 			UID:        "M-1111-1111-1111",
+			ActorUID:   pt(actoruid.New()),
 			FirstNames: "John",
 			LastName:   "Smith",
 			Email:      "john@example.com",
