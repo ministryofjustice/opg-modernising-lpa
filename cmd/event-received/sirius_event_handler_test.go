@@ -345,15 +345,94 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 			client.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-					b, _ := attributevalue.Marshal(&donordata.Provided{
-						PK:      dynamo.LpaKey("123"),
-						SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-						FeeType: pay.NoFee,
-						Tasks:   donordata.Tasks{PayForLpa: taskState},
-					})
+					b, _ := attributevalue.Marshal()
 					attributevalue.Unmarshal(b, v)
 					return nil
 				})
+
+			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, nil)
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
+	testcases := map[string]struct {
+		requestedFeeType pay.FeeType
+		updatedFeeType   pay.FeeType
+		updatedTaskState task.PaymentState
+	}{
+		"Requested HalfFee, got HalfFee": {
+			requestedFeeType: pay.HalfFee,
+			updatedFeeType:   pay.HalfFee,
+			updatedTaskState: task.PaymentStateCompleted,
+		},
+		"Requested HalfFee, got QuarterFee": {
+			requestedFeeType: pay.HalfFee,
+			updatedFeeType:   pay.QuarterFee,
+			updatedTaskState: task.PaymentStateCompleted,
+		},
+		"Requested HalfFee, got NoFee": {
+			requestedFeeType: pay.HalfFee,
+			updatedFeeType:   pay.NoFee,
+			updatedTaskState: task.PaymentStateCompleted,
+		},
+		"Requested NoFee, got NoFee": {
+			requestedFeeType: pay.NoFee,
+			updatedFeeType:   pay.NoFee,
+			updatedTaskState: task.PaymentStateCompleted,
+		},
+		"Requested NoFee, got HalfFee": {
+			requestedFeeType: pay.NoFee,
+			updatedFeeType:   pay.HalfFee,
+			updatedTaskState: task.PaymentStateInProgress,
+		},
+		"Requested NoFee, got QuarterFee": {
+			requestedFeeType: pay.NoFee,
+			updatedFeeType:   pay.QuarterFee,
+			updatedTaskState: task.PaymentStateInProgress,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "reduced-fee-approved",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","approvedType":"%s"}`, tc.requestedFeeType)),
+			}
+
+			donorProvided := &donordata.Provided{
+				PK:      dynamo.LpaKey("123"),
+				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType: pay.HalfFee,
+				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+			}
+
+			client := newMockDynamodbClient(t)
+			client.
+				On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+				Return(func(ctx context.Context, uid string, v interface{}) error {
+					b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+			client.
+				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+					b, _ := attributevalue.Marshal(donorProvided)
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+
+			updatedDonorProvided := donorProvided
+			updatedDonorProvided.Tasks.PayForLpa = tc.updatedTaskState
+			updatedDonorProvided.FeeType = tc.updatedFeeType
+			updatedDonorProvided.UpdateHash()
+			updatedDonorProvided.UpdatedAt = testNow
+
+			client.EXPECT().
+				Put(ctx, &updatedDonorProvided).
+				Return(nil)
 
 			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, nil)
 			assert.Nil(t, err)

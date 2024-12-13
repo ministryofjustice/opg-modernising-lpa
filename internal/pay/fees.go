@@ -4,6 +4,7 @@ const (
 	feeFull    = 8200
 	feeHalf    = 4100
 	feeQuarter = 2050
+	feeNoFee   = 0
 )
 
 //go:generate enumerator -type FeeType
@@ -12,6 +13,7 @@ type FeeType uint8
 const (
 	FullFee FeeType = iota
 	HalfFee
+	QuarterFee
 	NoFee
 	HardshipFee
 	RepeatApplicationFee
