@@ -383,7 +383,7 @@ func Register(
 	handleWithDonor(donor.PathFeeApproved, page.None,
 		payer)
 	handleWithDonor(donor.PathFeeDenied, page.None,
-		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
+		payer)
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
 		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))
 	handleWithDonor(donor.PathPaymentSuccessful, page.None,
