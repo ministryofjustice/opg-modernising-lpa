@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -141,12 +142,15 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	actorUID := actoruid.New()
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), &donordata.Provided{
 			LpaID:  "lpa-id",
 			LpaUID: "lpa-uid",
 			Correspondent: donordata.Correspondent{
+				UID:     actorUID,
 				Address: testAddress,
 			},
 			Tasks: donordata.Tasks{
@@ -158,14 +162,18 @@ func TestPostEnterCorrespondentAddressManual(t *testing.T) {
 	eventClient := newMockEventClient(t)
 	eventClient.EXPECT().
 		SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
-			UID:     "lpa-uid",
-			Address: &testAddress,
+			UID:      "lpa-uid",
+			ActorUID: &actorUID,
+			Address:  &testAddress,
 		}).
 		Return(nil)
 
 	err := EnterCorrespondentAddress(nil, nil, nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
+		Correspondent: donordata.Correspondent{
+			UID: actorUID,
+		},
 	})
 	resp := w.Result()
 
