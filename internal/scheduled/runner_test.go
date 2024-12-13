@@ -54,10 +54,12 @@ func TestNewRunner(t *testing.T) {
 	logger := newMockLogger(t)
 	store := newMockScheduledStore(t)
 	donorStore := newMockDonorStore(t)
+	certificateProviderStore := newMockCertificateProviderStore(t)
 	notifyClient := newMockNotifyClient(t)
 	metricsClient := newMockMetricsClient(t)
+	bundle := newMockBundle(t)
 
-	runner := NewRunner(logger, store, donorStore, notifyClient, metricsClient, true)
+	runner := NewRunner(logger, store, donorStore, certificateProviderStore, notifyClient, bundle, metricsClient, true)
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)

@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
@@ -756,12 +757,23 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 		WriteTransaction(ctx, &dynamo.Transaction{
 			Creates: []any{
 				&donordata.Provided{
-					PK:        dynamo.LpaKey(testUuidString),
-					SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-					LpaID:     testUuidString,
-					LpaUID:    "M-1111-2222-3333",
-					CreatedAt: testNow,
-					Version:   1,
+					PK:                           dynamo.LpaKey(testUuidString),
+					SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+					LpaID:                        testUuidString,
+					LpaUID:                       "M-1111-2222-3333",
+					CreatedAt:                    testNow,
+					Version:                      1,
+					CertificateProviderInvitedAt: testNow,
+				},
+				scheduled.Event{
+					PK:                dynamo.ScheduledDayKey(testNow.AddDate(0, 3, 0)),
+					SK:                dynamo.ScheduledKey(testNow.AddDate(0, 3, 0), int(scheduled.ActionRemindCertificateProviderToComplete)),
+					CreatedAt:         testNow,
+					At:                testNow.AddDate(0, 3, 0),
+					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					TargetLpaKey:      dynamo.LpaKey(testUuidString),
+					TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+					LpaUID:            "M-1111-2222-3333",
 				},
 				dynamo.Keys{PK: dynamo.UIDKey("M-1111-2222-3333"), SK: dynamo.MetadataKey("")},
 				dynamo.Keys{PK: dynamo.LpaKey(testUuidString), SK: dynamo.ReservedKey(dynamo.DonorKey)},

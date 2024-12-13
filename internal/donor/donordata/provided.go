@@ -165,6 +165,10 @@ type Provided struct {
 	// for, if applying for a repeat of an LPA with reference prefixed M.
 	CostOfRepeatApplication pay.CostOfRepeatApplication
 
+	// CertificateProviderInvitedAt records when the invite is sent to the
+	// certificate provider to act.
+	CertificateProviderInvitedAt time.Time
+
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
@@ -218,7 +222,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"WantVoucher",
 		"Voucher",
 		"FailedVouchAttempts",
-		"CostOfRepeatApplication":
+		"CostOfRepeatApplication",
+		"CertificateProviderInvitedAt":
 		return false, nil
 	}
 
@@ -292,6 +297,19 @@ func (p *Provided) IdentityDeadline() time.Time {
 // route.
 func (p *Provided) CourtOfProtectionSubmissionDeadline() time.Time {
 	return p.SignedAt.AddDate(0, 6, 0)
+}
+
+// ExpiresAt gives the date the LPA expires.
+func (p *Provided) ExpiresAt() time.Time {
+	if p.DonorIdentityConfirmed() && !p.WitnessedByCertificateProviderAt.IsZero() {
+		return p.SignedAt.AddDate(0, 24, 0)
+	}
+
+	if !p.SignedAt.IsZero() {
+		return p.SignedAt.AddDate(0, 6, 0)
+	}
+
+	return time.Time{}
 }
 
 type Under18ActorDetails struct {
