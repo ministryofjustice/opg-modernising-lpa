@@ -31,7 +31,7 @@ func TestGetEnterCorrespondentDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -53,7 +53,7 @@ func TestGetEnterCorrespondentDetailsFromStore(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Correspondent: donordata.Correspondent{
 			FirstNames: "John",
 		},
@@ -73,7 +73,7 @@ func TestGetEnterCorrespondentDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -99,6 +99,7 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 			LpaUID: "lpa-uid",
 			Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			Correspondent: donordata.Correspondent{
+				UID:         testUID,
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
@@ -112,13 +113,14 @@ func TestPostEnterCorrespondentDetails(t *testing.T) {
 	eventClient.EXPECT().
 		SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 			UID:        "lpa-uid",
+			ActorUID:   &testUID,
 			FirstNames: "John",
 			LastName:   "Doe",
 			Email:      "email@example.com",
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
@@ -148,6 +150,7 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 			LpaID: "lpa-id",
 			Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 			Correspondent: donordata.Correspondent{
+				UID:         testUID,
 				FirstNames:  "John",
 				LastName:    "Doe",
 				Email:       "email@example.com",
@@ -157,7 +160,7 @@ func TestPostEnterCorrespondentDetailsWhenWantsAddress(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 		Donor: donordata.Donor{FirstNames: "John", LastName: "Smith"},
 	})
@@ -185,7 +188,7 @@ func TestPostEnterCorrespondentDetailsWhenEventClientErrors(t *testing.T) {
 		SendCorrespondentUpdated(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(nil, nil, eventClient)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, nil, eventClient, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor:  donordata.Donor{FirstNames: "John", LastName: "Smith"},
@@ -211,7 +214,7 @@ func TestPostEnterCorrespondentDetailsWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterCorrespondentDetails(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(template.Execute, nil, nil, nil)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "John",
 			LastName:   "Doe",
@@ -240,7 +243,7 @@ func TestPostEnterCorrespondentDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterCorrespondentDetails(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterCorrespondentDetails(nil, donorStore, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{
 			FirstNames: "John",
 			Address:    place.Address{Line1: "abc"},

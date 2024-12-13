@@ -89,6 +89,7 @@ type IdentityCheckMismatchedDetails struct {
 
 type CorrespondentUpdated struct {
 	UID        string         `json:"uid"`
+	ActorUID   *actoruid.UID  `json:"actorUID,omitempty"`
 	FirstNames string         `json:"firstNames,omitempty"`
 	LastName   string         `json:"lastName,omitempty"`
 	Email      string         `json:"email,omitempty"`
