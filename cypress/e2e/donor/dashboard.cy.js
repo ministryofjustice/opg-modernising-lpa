@@ -42,7 +42,7 @@ describe('Dashboard', () => {
             cy.contains('a', 'Go to task list');
             cy.contains('button', 'Actions').click();
             cy.contains('a', 'View LPA');
-            cy.contains('a', 'Withdraw LPA');
+            cy.contains('a', 'Revoke LPA');
             cy.contains('a', 'Track LPA progress').click();
 
             cy.url().should('contain', '/progress');
@@ -59,7 +59,7 @@ describe('Dashboard', () => {
             cy.get('.app-dashboard-row a').should('have.length', 3);
             cy.contains('a', 'View LPA');
             cy.contains('a', 'Track LPA progress');
-            cy.contains('a', 'Withdraw LPA');
+            cy.contains('a', 'Revoke LPA');
         });
     });
 
