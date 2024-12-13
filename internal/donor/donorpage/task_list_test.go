@@ -69,7 +69,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathFeeDenied.Format("lpa-id"), PaymentState: task.PaymentStateDenied},
+					{Name: "payForTheLpa", Path: donor.PathPayFee.Format("lpa-id"), PaymentState: task.PaymentStateDenied},
 				}
 
 				return sections
@@ -81,7 +81,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathFeeApproved.Format("lpa-id"), PaymentState: task.PaymentStateApproved},
+					{Name: "payForTheLpa", Path: donor.PathPayFee.Format("lpa-id"), PaymentState: task.PaymentStateApproved},
 				}
 
 				return sections

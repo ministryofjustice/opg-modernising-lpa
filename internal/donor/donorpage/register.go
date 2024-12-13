@@ -380,9 +380,7 @@ func Register(
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), logger, payer, documentStore))
 	handleWithDonor(donor.PathSendUsYourEvidenceByPost, page.CanGoBack,
 		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, eventClient))
-	handleWithDonor(donor.PathFeeApproved, page.None,
-		payer)
-	handleWithDonor(donor.PathFeeDenied, page.None,
+	handleWithDonor(donor.PathPayFee, page.None,
 		payer)
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
 		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))

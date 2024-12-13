@@ -387,10 +387,6 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             cy.getCookie('pay').should('exist');
         });
 
-        cy.url().should('contains', '/fee-denied')
-        cy.checkA11yApp();
-        cy.contains('button', 'Continue to payment').click();
-
         cy.get('h1').should('contain', 'Payment received');
         cy.checkA11yApp();
         cy.getCookie('pay').should('not.exist');
