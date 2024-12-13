@@ -212,8 +212,8 @@ set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all 
 		key=$$k $(MAKE) emit-object-tags-added-with-virus ; \
     done
 
-tail-logs: ##@app tails logs for app mock-notify, events-lambda, schedule-runner-lambda, mock-onelogin, mock-lpa-store and mock-uid
-	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify events-lambda schedule-runner-lambda mock-onelogin mock-lpa-store mock-uid -f
+tail-logs: ##@app tails logs for app mock-notify, mock-onelogin, mock-lpa-store, mock-uid and mock-pay
+	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify mock-onelogin mock-lpa-store mock-uid mock-pay -f
 
 terraform-update-docs: ##@terraform updates all terraform-docs managed documentation
 	terraform-docs --config terraform/environment/.terraform-docs.yml ./terraform/environment
