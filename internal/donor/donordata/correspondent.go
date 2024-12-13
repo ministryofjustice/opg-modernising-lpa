@@ -1,11 +1,13 @@
 package donordata
 
 import (
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
 type Correspondent struct {
+	UID          actoruid.UID
 	FirstNames   string
 	LastName     string
 	Email        string
