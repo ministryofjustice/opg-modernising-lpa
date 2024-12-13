@@ -5,6 +5,7 @@ import (
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -23,7 +24,7 @@ type enterCorrespondentDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
+func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
@@ -42,6 +43,10 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, ev
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
+				if provided.Correspondent.UID.IsZero() {
+					provided.Correspondent.UID = newUID()
+				}
+
 				provided.Correspondent.FirstNames = data.Form.FirstNames
 				provided.Correspondent.LastName = data.Form.LastName
 				provided.Correspondent.Email = data.Form.Email
@@ -56,6 +61,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, ev
 
 					if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 						UID:        provided.LpaUID,
+						ActorUID:   provided.Correspondent.UID,
 						FirstNames: provided.Correspondent.FirstNames,
 						LastName:   provided.Correspondent.LastName,
 						Email:      provided.Correspondent.Email,

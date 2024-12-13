@@ -38,6 +38,7 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 
 				if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 					UID:        provided.LpaUID,
+					ActorUID:   provided.Correspondent.UID,
 					FirstNames: provided.Correspondent.FirstNames,
 					LastName:   provided.Correspondent.LastName,
 					Email:      provided.Correspondent.Email,

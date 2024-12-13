@@ -336,7 +336,7 @@ func Register(
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
 		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient))
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient, actoruid.New))
 	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
 		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, eventClient))
 
