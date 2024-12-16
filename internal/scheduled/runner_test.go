@@ -10,10 +10,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -22,7 +25,7 @@ import (
 var (
 	ctx               = context.WithValue(context.Background(), (*string)(nil), "value")
 	expectedError     = errors.New("hey")
-	testNow           = time.Now()
+	testNow           = time.Date(2000, time.January, 2, 12, 13, 14, 15, time.UTC)
 	testNowFn         = func() time.Time { return testNow }
 	testSinceDuration = time.Millisecond * 5
 	testSinceFn       = func(t time.Time) time.Duration { return testSinceDuration }
@@ -54,10 +57,12 @@ func TestNewRunner(t *testing.T) {
 	logger := newMockLogger(t)
 	store := newMockScheduledStore(t)
 	donorStore := newMockDonorStore(t)
+	certificateProviderStore := newMockCertificateProviderStore(t)
 	notifyClient := newMockNotifyClient(t)
 	metricsClient := newMockMetricsClient(t)
+	bundle := newMockBundle(t)
 
-	runner := NewRunner(logger, store, donorStore, notifyClient, metricsClient, true)
+	runner := NewRunner(logger, store, donorStore, certificateProviderStore, notifyClient, bundle, metricsClient, true)
 
 	assert.Equal(t, logger, runner.logger)
 	assert.Equal(t, store, runner.store)
@@ -603,4 +608,153 @@ func TestRunnerCancelDonorIdentityWhenDonorStorePutErrors(t *testing.T) {
 	err := runner.stepCancelDonorIdentity(ctx, event)
 
 	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
+	row := &Event{
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+	donor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+	}
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			FirstNames:                "a",
+			LastName:                  "b",
+			ContactLanguagePreference: localize.En,
+		},
+		CertificateProvider: lpadata.CertificateProvider{
+			FirstNames:                "c",
+			LastName:                  "d",
+			ContactLanguagePreference: localize.En,
+		},
+		CertificateProviderInvitedAt: testNow.AddDate(0, -3, -1),
+		SignedAt:                     testNow.AddDate(0, -3, 0).Add(-time.Second),
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
+		Return(donor, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		One(ctx, row.TargetLpaKey).
+		Return(nil, dynamo.NotFoundError{})
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Resolve(ctx, donor).
+		Return(lpa, nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmail{
+			DonorFullName:               "a b",
+			LpaType:                     "personal-welfare",
+			CertificateProviderFullName: "c d",
+			InvitedDate:                 "1 October 1999",
+			DeadlineDate:                "2 April 2000",
+		}).
+		Return(nil)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorCertificateProviderHasNotActedEmail{
+			CertificateProviderFullName: "c d",
+			LpaType:                     "personal-welfare",
+			DonorFullName:               "a b",
+			InvitedDate:                 "1 October 1999",
+			DeadlineDate:                "2 April 2000",
+		}).
+		Return(nil)
+
+	localizer := &localize.Localizer{}
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.En).
+		Return(localizer)
+
+	runner := &Runner{
+		donorStore:               donorStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		certificateProviderStore: certificateProviderStore,
+		notifyClient:             notifyClient,
+		bundle:                   bundle,
+		now:                      testNowFn,
+	}
+
+	err := runner.stepRemindCertificateProviderToComplete(ctx, row)
+	assert.Nil(t, err)
+}
+
+func TestRunnerRemindCertificateProviderToCompleteWhenOnPaper(t *testing.T) {
+	row := &Event{
+		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
+		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+	}
+	donor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+	}
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			FirstNames: "a",
+			LastName:   "b",
+			Channel:    lpadata.ChannelPaper,
+		},
+		CertificateProvider: lpadata.CertificateProvider{
+			FirstNames: "c",
+			LastName:   "d",
+			Channel:    lpadata.ChannelPaper,
+		},
+		SignedAt: testNow.AddDate(0, -3, 0).Add(-time.Second),
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey).
+		Return(donor, nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Resolve(ctx, donor).
+		Return(lpa, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		One(ctx, row.TargetLpaKey).
+		Return(nil, dynamo.NotFoundError{})
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendLetterRequested(ctx, event.LetterRequested{
+			UID:        "lpa-uid",
+			LetterType: "ADVISE_CERTIFICATE_PROVIDER_TO_SIGN_OR_OPT_OUT",
+			ActorType:  actor.TypeCertificateProvider,
+			ActorUID:   lpa.CertificateProvider.UID,
+		}).
+		Return(nil)
+	eventClient.EXPECT().
+		SendLetterRequested(ctx, event.LetterRequested{
+			UID:        "lpa-uid",
+			LetterType: "INFORM_DONOR_CERTIFICATE_PROVIDER_HAS_NOT_ACTED",
+			ActorType:  actor.TypeDonor,
+			ActorUID:   lpa.Donor.UID,
+		}).
+		Return(nil)
+
+	runner := &Runner{
+		donorStore:               donorStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		certificateProviderStore: certificateProviderStore,
+		eventClient:              eventClient,
+		now:                      testNowFn,
+	}
+
+	err := runner.stepRemindCertificateProviderToComplete(ctx, row)
+	assert.Nil(t, err)
 }
