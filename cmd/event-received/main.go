@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
@@ -75,6 +76,28 @@ type Handler interface {
 
 type uidEvent struct {
 	UID string `json:"uid"`
+}
+
+type feeApprovedEvent struct {
+	UID          string      `json:"uid"`
+	ApprovedType pay.FeeType `json:"approvedType"`
+}
+
+func (e *feeApprovedEvent) UnmarshalJSON(data []byte) error {
+	var v struct{ UID, ApprovedType string }
+	if err := json.Unmarshal(data, &v); err == nil && v.UID != "" && v.ApprovedType != "" {
+		feeType, err := pay.ParseFeeType(v.ApprovedType)
+		if err != nil {
+			return err
+		}
+
+		e.UID = v.UID
+		e.ApprovedType = feeType
+
+		return nil
+	}
+
+	return errors.New("error unmarshalling feeApprovedEvent")
 }
 
 type dynamodbClient interface {
