@@ -83,6 +83,11 @@ func TestClientSendEvents(t *testing.T) {
 
 			return func(client *Client) error { return client.SendLpaAccessGranted(ctx, event) }, event
 		},
+		"letter-requested": func() (func(*Client) error, any) {
+			event := LetterRequested{UID: "a"}
+
+			return func(client *Client) error { return client.SendLetterRequested(ctx, event) }, event
+		},
 	}
 
 	for eventName, setup := range testcases {

@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var testNow = time.Now()
+
 func TestResolvingServiceGet(t *testing.T) {
 	actorUID := actoruid.New()
 
@@ -40,7 +42,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				},
 				IdentityUserData: identity.UserData{
 					Status:    identity.StatusConfirmed,
-					CheckedAt: time.Now(),
+					CheckedAt: testNow,
 				},
 				Correspondent:       donordata.Correspondent{Email: "x"},
 				AuthorisedSignatory: donordata.AuthorisedSignatory{UID: actorUID, FirstNames: "A", LastName: "S"},
@@ -65,7 +67,13 @@ func TestResolvingServiceGet(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: lpadata.Personally,
 				},
-				Donor:         lpadata.Donor{Channel: lpadata.ChannelOnline},
+				Donor: lpadata.Donor{
+					Channel: lpadata.ChannelOnline,
+					IdentityCheck: &lpadata.IdentityCheck{
+						Type:      "one-login",
+						CheckedAt: testNow,
+					},
+				},
 				Correspondent: lpadata.Correspondent{Email: "x"},
 				Voucher:       lpadata.Voucher{Email: "y"},
 			},
@@ -308,7 +316,8 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					PayForLpa:    task.PaymentStateCompleted,
 				},
 				IdentityUserData: identity.UserData{
-					Status: identity.StatusConfirmed,
+					Status:    identity.StatusConfirmed,
+					CheckedAt: testNow,
 				},
 			}},
 			uids: []string{"M-1111"},
@@ -331,7 +340,13 @@ func TestResolvingServiceResolveList(t *testing.T) {
 					FirstNames:   "Paul",
 					Relationship: lpadata.Personally,
 				},
-				Donor: lpadata.Donor{Channel: lpadata.ChannelOnline},
+				Donor: lpadata.Donor{
+					Channel: lpadata.ChannelOnline,
+					IdentityCheck: &lpadata.IdentityCheck{
+						CheckedAt: testNow,
+						Type:      "one-login",
+					},
+				},
 			}},
 		},
 		"online with no lpastore record": {
