@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -175,6 +176,14 @@ var eventTests = map[string]map[string]any{
 				ActorUID:  "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
 				SubjectID: "urn:fdc:gov.uk:2022:XXXX-XXXXXX",
 			}},
+		},
+	},
+	"letter-requested": {
+		"valid": LetterRequested{
+			UID:        "M-1111-2222-3333",
+			LetterType: "INFORM_DONOR_CERTIFICATE_PROVIDER_HAS_NOT_ACTED",
+			ActorType:  actor.TypeDonor,
+			ActorUID:   actoruid.New(),
 		},
 	},
 }

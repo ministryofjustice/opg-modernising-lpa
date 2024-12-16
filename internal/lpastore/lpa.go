@@ -441,9 +441,11 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 		WitnessedByIndependentWitnessAt:          l.WitnessedByIndependentWitnessAt,
 		CertificateProviderNotRelatedConfirmedAt: l.CertificateProviderNotRelatedConfirmedAt,
 		Correspondent: lpadata.Correspondent{
+			UID:        l.Correspondent.UID,
 			FirstNames: l.Correspondent.FirstNames,
 			LastName:   l.Correspondent.LastName,
 			Email:      l.Correspondent.Email,
+			Address:    l.Correspondent.Address,
 		},
 	}
 

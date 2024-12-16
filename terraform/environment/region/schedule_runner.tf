@@ -3,6 +3,11 @@ data "aws_ecr_repository" "schedule_runner" {
   provider = aws.management
 }
 
+data "aws_secretsmanager_secret" "lpa_store_jwt_key" {
+  name     = "opg-data-lpa-store/${data.aws_default_tags.current.tags.account-name}/jwt-key"
+  provider = aws.management
+}
+
 module "schedule_runner" {
   source                        = "./modules/schedule_runner"
   lambda_function_image_ecr_url = data.aws_ecr_repository.schedule_runner.repository_url
@@ -12,6 +17,8 @@ module "schedule_runner" {
   search_index_name             = var.search_index_name
   schedule_runner_scheduler     = var.iam_roles.schedule_runner_scheduler
   schedule_runner_lambda_role   = var.iam_roles.schedule_runner_lambda
+  lpa_store_base_url            = var.lpa_store_service.base_url
+  lpa_store_secret_arn          = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
   vpc_config = {
     subnet_ids         = data.aws_subnet.application[*].id
     security_group_ids = [data.aws_security_group.lambda_egress.id]

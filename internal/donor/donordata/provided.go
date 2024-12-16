@@ -165,6 +165,10 @@ type Provided struct {
 	// for, if applying for a repeat of an LPA with reference prefixed M.
 	CostOfRepeatApplication pay.CostOfRepeatApplication
 
+	// CertificateProviderInvitedAt records when the invite is sent to the
+	// certificate provider to act.
+	CertificateProviderInvitedAt time.Time
+
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
@@ -218,7 +222,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"WantVoucher",
 		"Voucher",
 		"FailedVouchAttempts",
-		"CostOfRepeatApplication":
+		"CostOfRepeatApplication",
+		"CertificateProviderInvitedAt":
 		return false, nil
 	}
 
