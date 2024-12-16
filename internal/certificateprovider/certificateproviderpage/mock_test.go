@@ -2,6 +2,7 @@ package certificateproviderpage
 
 import (
 	"errors"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
@@ -22,4 +23,6 @@ var (
 		LpaID:     "lpa-id",
 		Lang:      localize.En,
 	}
+	testNow   = time.Now()
+	testNowFn = func() time.Time { return testNow }
 )
