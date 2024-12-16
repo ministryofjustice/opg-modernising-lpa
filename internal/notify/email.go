@@ -404,3 +404,51 @@ func (e VoucherInformedTheyAreNoLongerNeededToVouchEmail) emailID(isProduction b
 
 	return "00ad14c6-f6df-4d7f-ae44-d7e27f6a9187"
 }
+
+type AdviseCertificateProviderToSignOrOptOutEmail struct {
+	DonorFullName               string
+	LpaType                     string
+	CertificateProviderFullName string
+	InvitedDate                 string
+	DeadlineDate                string
+}
+
+func (e AdviseCertificateProviderToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "TODO"
+		}
+
+		return "TODO"
+	}
+
+	if lang.IsCy() {
+		return "22a19484-cd44-4476-a7b6-7826af5932ae"
+	}
+
+	return "d9b3e36a-5814-4e6b-84b1-baf763c49220"
+}
+
+type InformDonorCertificateProviderHasNotActedEmail struct {
+	CertificateProviderFullName string
+	LpaType                     string
+	DonorFullName               string
+	InvitedDate                 string
+	DeadlineDate                string
+}
+
+func (e InformDonorCertificateProviderHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "TODO"
+		}
+
+		return "TODO"
+	}
+
+	if lang.IsCy() {
+		return "4fc578f0-5cce-4082-a926-957aebb824bd"
+	}
+
+	return "0f7cbfed-1ffa-43d7-92c0-8d162aadc0ea"
+}
