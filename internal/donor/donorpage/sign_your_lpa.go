@@ -1,6 +1,7 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -25,7 +27,7 @@ const (
 	WantToApplyForLpa = "want-to-apply"
 )
 
-func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time) Handler {
+func SignYourLpa(tmpl template.Template, donorStore DonorStore, scheduledStore ScheduledStore, now func() time.Time) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if !provided.SignedAt.IsZero() {
 			return donor.PathWitnessingYourSignature.Redirect(w, r, appData, provided)
@@ -50,6 +52,22 @@ func SignYourLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 				provided.WantToApplyForLpa = data.Form.WantToApply
 				provided.WantToSignLpa = data.Form.WantToSign
 				provided.SignedAt = now()
+
+				if err := scheduledStore.Create(r.Context(), scheduled.Event{
+					At:                provided.SignedAt.AddDate(0, 3, 0),
+					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					TargetLpaKey:      provided.PK,
+					TargetLpaOwnerKey: provided.SK,
+					LpaUID:            provided.LpaUID,
+				}, scheduled.Event{
+					At:                provided.SignedAt.AddDate(0, 21, 0),
+					Action:            scheduled.ActionRemindCertificateProviderToComplete,
+					TargetLpaKey:      provided.PK,
+					TargetLpaOwnerKey: provided.SK,
+					LpaUID:            provided.LpaUID,
+				}); err != nil {
+					return fmt.Errorf("could not schedule certificate provider prompt: %w", err)
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
