@@ -127,7 +127,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 func TestHandleFeeApproved(t *testing.T) {
 	e := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -213,7 +213,7 @@ func TestHandleFeeApproved(t *testing.T) {
 func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"HalfFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -282,7 +282,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -331,7 +331,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 		t.Run(taskState.String(), func(t *testing.T) {
 			event := &events.CloudWatchEvent{
 				DetailType: "reduced-fee-approved",
-				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 			}
 
 			client := newMockDynamodbClient(t)
@@ -345,7 +345,12 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 			client.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-					b, _ := attributevalue.Marshal()
+					b, _ := attributevalue.Marshal(donordata.Provided{
+						PK:      dynamo.LpaKey("123"),
+						SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						FeeType: pay.NoFee,
+						Tasks:   donordata.Tasks{PayForLpa: taskState},
+					})
 					attributevalue.Unmarshal(b, v)
 					return nil
 				})
@@ -358,39 +363,102 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 
 func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 	testcases := map[string]struct {
-		requestedFeeType pay.FeeType
-		updatedFeeType   pay.FeeType
-		updatedTaskState task.PaymentState
+		requestedFeeType              pay.FeeType
+		requestedRepeatApplicationFee pay.CostOfRepeatApplication
+		previousFeeType               pay.PreviousFee
+		approvedFeeType               pay.FeeType
+		updatedTaskState              task.PaymentState
+		payment                       donordata.Payment
 	}{
-		"Requested HalfFee, got HalfFee": {
-			requestedFeeType: pay.HalfFee,
-			updatedFeeType:   pay.HalfFee,
-			updatedTaskState: task.PaymentStateCompleted,
-		},
 		"Requested HalfFee, got QuarterFee": {
 			requestedFeeType: pay.HalfFee,
-			updatedFeeType:   pay.QuarterFee,
+			approvedFeeType:  pay.QuarterFee,
 			updatedTaskState: task.PaymentStateCompleted,
+			payment:          donordata.Payment{Amount: 4100},
 		},
 		"Requested HalfFee, got NoFee": {
 			requestedFeeType: pay.HalfFee,
-			updatedFeeType:   pay.NoFee,
+			approvedFeeType:  pay.NoFee,
 			updatedTaskState: task.PaymentStateCompleted,
-		},
-		"Requested NoFee, got NoFee": {
-			requestedFeeType: pay.NoFee,
-			updatedFeeType:   pay.NoFee,
-			updatedTaskState: task.PaymentStateCompleted,
+			payment:          donordata.Payment{Amount: 4100},
 		},
 		"Requested NoFee, got HalfFee": {
 			requestedFeeType: pay.NoFee,
-			updatedFeeType:   pay.HalfFee,
-			updatedTaskState: task.PaymentStateInProgress,
+			approvedFeeType:  pay.HalfFee,
+			updatedTaskState: task.PaymentStateApproved,
 		},
 		"Requested NoFee, got QuarterFee": {
 			requestedFeeType: pay.NoFee,
-			updatedFeeType:   pay.QuarterFee,
-			updatedTaskState: task.PaymentStateInProgress,
+			approvedFeeType:  pay.QuarterFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid FullFee), got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeFull,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid FullFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeFull,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid HalfFee), got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeHalf,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid HalfFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeHalf,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid NoFee), got HalfFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeExemption,
+			approvedFeeType:               pay.HalfFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid NoFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeExemption,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+		},
+		"Requested NoFee RepeatApplicationFee, got HalfFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationNoFee,
+			approvedFeeType:               pay.HalfFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested NoFee RepeatApplicationFee, got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationNoFee,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested HardshipFee, got HalfFee": {
+			requestedFeeType: pay.HardshipFee,
+			approvedFeeType:  pay.HalfFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+		"Requested HardshipFee, got QuarterFee": {
+			requestedFeeType: pay.HardshipFee,
+			approvedFeeType:  pay.QuarterFee,
+			updatedTaskState: task.PaymentStateApproved,
 		},
 	}
 
@@ -398,14 +466,17 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			event := &events.CloudWatchEvent{
 				DetailType: "reduced-fee-approved",
-				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","approvedType":"%s"}`, tc.requestedFeeType)),
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","approvedType":"%s"}`, tc.approvedFeeType.String())),
 			}
 
 			donorProvided := &donordata.Provided{
-				PK:      dynamo.LpaKey("123"),
-				SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
-				FeeType: pay.HalfFee,
-				Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+				PK:                      dynamo.LpaKey("123"),
+				SK:                      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType:                 tc.requestedFeeType,
+				Tasks:                   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+				PaymentDetails:          []donordata.Payment{tc.payment},
+				PreviousFee:             tc.previousFeeType,
+				CostOfRepeatApplication: tc.requestedRepeatApplicationFee,
 			}
 
 			client := newMockDynamodbClient(t)
@@ -424,9 +495,9 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 					return nil
 				})
 
-			updatedDonorProvided := donorProvided
+			updatedDonorProvided := *donorProvided
 			updatedDonorProvided.Tasks.PayForLpa = tc.updatedTaskState
-			updatedDonorProvided.FeeType = tc.updatedFeeType
+			updatedDonorProvided.FeeType = tc.approvedFeeType
 			updatedDonorProvided.UpdateHash()
 			updatedDonorProvided.UpdatedAt = testNow
 
@@ -434,7 +505,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 				Put(ctx, &updatedDonorProvided).
 				Return(nil)
 
-			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, nil)
+			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
 			assert.Nil(t, err)
 		})
 	}
@@ -443,7 +514,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -472,7 +543,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -518,7 +589,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -559,7 +630,7 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)

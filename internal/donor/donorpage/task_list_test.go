@@ -87,6 +87,30 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"payment pending": {
+			appData:          testAppData,
+			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStatePending}},
+			evidenceReceived: true,
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStatePending},
+				}
+
+				return sections
+			},
+		},
+		"payment completed": {
+			appData:          testAppData,
+			donor:            &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}, Tasks: donordata.Tasks{PayForLpa: task.PaymentStateCompleted}},
+			evidenceReceived: true,
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[1].Items = []taskListItem{
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
+				}
+
+				return sections
+			},
+		},
 		"personal welfare": {
 			appData: testAppData,
 			donor:   &donordata.Provided{LpaID: "lpa-id", Type: lpadata.LpaTypePersonalWelfare, Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}}},
@@ -462,7 +486,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{
@@ -514,7 +538,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{
@@ -567,7 +591,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{
@@ -622,7 +646,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{
@@ -678,7 +702,7 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateCompleted},
+					{Name: "payForTheLpa", Path: "", PaymentState: task.PaymentStateCompleted},
 				}
 
 				sections[2].Items = []taskListItem{

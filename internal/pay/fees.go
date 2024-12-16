@@ -4,7 +4,6 @@ const (
 	feeFull    = 8200
 	feeHalf    = 4100
 	feeQuarter = 2050
-	feeNoFee   = 0
 )
 
 //go:generate enumerator -type FeeType
@@ -43,6 +42,8 @@ func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication Cost
 		return feeFull
 	case HalfFee:
 		return feeHalf
+	case QuarterFee:
+		return feeQuarter
 	case RepeatApplicationFee:
 		if costOfRepeatApplication.IsHalfFee() || previousFee.IsFull() {
 			return feeHalf
