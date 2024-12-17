@@ -83,23 +83,6 @@ type feeApprovedEvent struct {
 	ApprovedType pay.FeeType `json:"approvedType"`
 }
 
-func (e *feeApprovedEvent) UnmarshalJSON(data []byte) error {
-	var v struct{ UID, ApprovedType string }
-	if err := json.Unmarshal(data, &v); err == nil && v.UID != "" && v.ApprovedType != "" {
-		feeType, err := pay.ParseFeeType(v.ApprovedType)
-		if err != nil {
-			return err
-		}
-
-		e.UID = v.UID
-		e.ApprovedType = feeType
-
-		return nil
-	}
-
-	return errors.New("error unmarshalling feeApprovedEvent")
-}
-
 type dynamodbClient interface {
 	AllByKeys(ctx context.Context, keys []dynamo.Keys) ([]map[string]dynamodbtypes.AttributeValue, error)
 	AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v any) error
