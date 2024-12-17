@@ -109,7 +109,7 @@ func handleFeeApproved(
 	appData appcontext.Data,
 	now func() time.Time,
 ) error {
-	var v uidEvent
+	var v feeApprovedEvent
 	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
 	}
@@ -123,7 +123,9 @@ func handleFeeApproved(
 		return nil
 	}
 
-	if donor.FeeAmount() == 0 {
+	donor.FeeType = v.ApprovedType
+
+	if donor.FeeAmount() <= 0 {
 		donor.Tasks.PayForLpa = task.PaymentStateCompleted
 
 		if donor.Tasks.SignTheLpa.IsCompleted() {
