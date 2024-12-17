@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
@@ -75,6 +76,11 @@ type Handler interface {
 
 type uidEvent struct {
 	UID string `json:"uid"`
+}
+
+type feeApprovedEvent struct {
+	UID          string      `json:"uid"`
+	ApprovedType pay.FeeType `json:"approvedType"`
 }
 
 type dynamodbClient interface {
