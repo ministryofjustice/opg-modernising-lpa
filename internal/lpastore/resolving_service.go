@@ -49,6 +49,17 @@ func (s *ResolvingService) Get(ctx context.Context) (*lpadata.Lpa, error) {
 	return s.merge(lpa, donor), nil
 }
 
+func (s *ResolvingService) Resolve(ctx context.Context, donor *donordata.Provided) (*lpadata.Lpa, error) {
+	lpa, err := s.client.Lpa(ctx, donor.LpaUID)
+	if errors.Is(err, ErrNotFound) {
+		lpa = LpaFromDonorProvided(donor)
+	} else if err != nil {
+		return nil, err
+	}
+
+	return s.merge(lpa, donor), nil
+}
+
 func (s *ResolvingService) ResolveList(ctx context.Context, donors []*donordata.Provided) ([]*lpadata.Lpa, error) {
 	lpaUIDs := make([]string, len(donors))
 	for i, donor := range donors {
@@ -83,6 +94,8 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 	lpa.LpaID = donor.LpaID
 	lpa.LpaUID = donor.LpaUID
 	lpa.StatutoryWaitingPeriodAt = donor.StatutoryWaitingPeriodAt
+	lpa.CertificateProviderInvitedAt = donor.CertificateProviderInvitedAt
+
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Drafted = true
 		lpa.Submitted = true
@@ -96,14 +109,25 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		lpa.Submitted = !donor.SubmittedAt.IsZero()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
+
 		lpa.Donor.Channel = lpadata.ChannelOnline
 		lpa.Donor.Mobile = donor.Donor.Mobile
+		if lpa.Donor.IdentityCheck == nil && donor.IdentityUserData.Status.IsConfirmed() {
+			lpa.Donor.IdentityCheck = &lpadata.IdentityCheck{
+				CheckedAt: donor.IdentityUserData.CheckedAt,
+				Type:      "one-login",
+			}
+		}
+
 		lpa.Correspondent = lpadata.Correspondent{
+			UID:        donor.Correspondent.UID,
 			FirstNames: donor.Correspondent.FirstNames,
 			LastName:   donor.Correspondent.LastName,
 			Email:      donor.Correspondent.Email,
 			Phone:      donor.Correspondent.Phone,
+			Address:    donor.Correspondent.Address,
 		}
+
 		if donor.Voucher.Allowed {
 			lpa.Voucher = lpadata.Voucher{
 				UID:        donor.Voucher.UID,

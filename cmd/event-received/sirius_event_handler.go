@@ -16,6 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
@@ -233,16 +234,27 @@ func handleDonorSubmissionCompleted(ctx context.Context, client dynamodbClient, 
 	lpaID := uuidString()
 
 	donor := &donordata.Provided{
-		PK:        dynamo.LpaKey(lpaID),
-		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
-		LpaID:     lpaID,
-		LpaUID:    v.UID,
-		CreatedAt: now(),
-		Version:   1,
+		PK:                           dynamo.LpaKey(lpaID),
+		SK:                           dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
+		LpaID:                        lpaID,
+		LpaUID:                       v.UID,
+		CreatedAt:                    now(),
+		Version:                      1,
+		CertificateProviderInvitedAt: now(),
 	}
 
 	transaction := dynamo.NewTransaction().
 		Create(donor).
+		Create(scheduled.Event{
+			PK:                dynamo.ScheduledDayKey(donor.CertificateProviderInvitedAt.AddDate(0, 3, 1)),
+			SK:                dynamo.ScheduledKey(donor.CertificateProviderInvitedAt.AddDate(0, 3, 1), int(scheduled.ActionRemindCertificateProviderToComplete)),
+			CreatedAt:         now(),
+			At:                donor.CertificateProviderInvitedAt.AddDate(0, 3, 1),
+			Action:            scheduled.ActionRemindCertificateProviderToComplete,
+			TargetLpaKey:      donor.PK,
+			TargetLpaOwnerKey: donor.SK,
+			LpaUID:            donor.LpaUID,
+		}).
 		Create(dynamo.Keys{PK: dynamo.UIDKey(v.UID), SK: dynamo.MetadataKey("")}).
 		Create(dynamo.Keys{PK: donor.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)})
 
