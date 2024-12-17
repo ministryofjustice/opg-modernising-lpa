@@ -9,14 +9,18 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-lambda-go/lambda"
+	awslambda "github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
@@ -40,6 +44,8 @@ var (
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	tableName             = os.Getenv("LPAS_TABLE")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+	lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
+	lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
 
 	Tag string
 
@@ -81,8 +87,13 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
+	lambdaClient := lambda.New(cfg, v4.NewSigner(), httpClient, time.Now)
+	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lpaStoreSecretARN, lambdaClient)
+
 	scheduledStore := scheduled.NewStore(dynamoClient)
+	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
+	certificateProviderStore := certificateprovider.NewStore(dynamoClient)
+	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 
 	if Tag == "" {
 		Tag = os.Getenv("TAG")
@@ -91,7 +102,7 @@ func handleRunSchedule(ctx context.Context) error {
 	client := cloudwatch.NewFromConfig(cfg)
 	metricsClient := telemetry.NewMetricsClient(client, Tag)
 
-	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, notifyClient, metricsClient, metricsEnabled)
+	runner := scheduled.NewRunner(logger, scheduledStore, donorStore, certificateProviderStore, lpaStoreResolvingService, notifyClient, eventClient, bundle, metricsClient, metricsEnabled)
 
 	if err = runner.Run(ctx); err != nil {
 		logger.Error("runner error", slog.Any("err", err))
@@ -154,8 +165,8 @@ func main() {
 			}
 		}(ctx)
 
-		lambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
+		awslambda.Start(otellambda.InstrumentHandler(handleRunSchedule, xrayconfig.WithRecommendedOptions(tp)...))
 	} else {
-		lambda.Start(handleRunSchedule)
+		awslambda.Start(handleRunSchedule)
 	}
 }

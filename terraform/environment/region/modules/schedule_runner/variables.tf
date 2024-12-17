@@ -43,3 +43,11 @@ variable "schedule_runner_scheduler" {
   description = "IAM role for AWS schedule runner EventBridge Scheduler"
   type        = any
 }
+
+variable "lpa_store_base_url" {
+  type = string
+}
+
+variable "lpa_store_secret_arn" {
+  type = string
+}
