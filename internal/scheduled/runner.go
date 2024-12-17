@@ -3,19 +3,19 @@ package scheduled
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
 // errStepIgnored is returned by steps when they don't require processing
@@ -32,7 +32,12 @@ type DonorStore interface {
 	Put(ctx context.Context, provided *donordata.Provided) error
 }
 
+type CertificateProviderStore interface {
+	One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateproviderdata.Provided, error)
+}
+
 type NotifyClient interface {
+	EmailGreeting(lpa *lpadata.Lpa) string
 	SendActorEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
 }
 
@@ -50,42 +55,75 @@ type MetricsClient interface {
 	PutMetrics(ctx context.Context, input *cloudwatch.PutMetricDataInput) error
 }
 
-type LpaStoreClient interface {
-	Lpa(ctx context.Context, lpaUID string) (*lpadata.Lpa, error)
+type Bundle interface {
+	For(lang localize.Lang) *localize.Localizer
+}
+
+type EventClient interface {
+	SendLetterRequested(ctx context.Context, event event.LetterRequested) error
+}
+
+type LpaStoreResolvingService interface {
+	Resolve(ctx context.Context, provided *donordata.Provided) (*lpadata.Lpa, error)
 }
 
 type Runner struct {
-	logger        Logger
-	store         ScheduledStore
-	now           func() time.Time
-	since         func(time.Time) time.Duration
-	donorStore    DonorStore
-	notifyClient  NotifyClient
-	actions       map[Action]ActionFunc
-	waiter        Waiter
-	metricsClient MetricsClient
-	processed     float64
-	ignored       float64
-	errored       float64
+	logger                   Logger
+	store                    ScheduledStore
+	now                      func() time.Time
+	since                    func(time.Time) time.Duration
+	donorStore               DonorStore
+	certificateProviderStore CertificateProviderStore
+	lpaStoreResolvingService LpaStoreResolvingService
+	notifyClient             NotifyClient
+	eventClient              EventClient
+	bundle                   Bundle
+	actions                  map[Action]ActionFunc
+	waiter                   Waiter
+	metricsClient            MetricsClient
+	appPublicURL             string
 	// TODO remove in MLPAB-2690
 	metricsEnabled bool
+
+	processed float64
+	ignored   float64
+	errored   float64
 }
 
-func NewRunner(logger Logger, store ScheduledStore, donorStore DonorStore, notifyClient NotifyClient, metricsClient MetricsClient, metricsEnabled bool) *Runner {
+func NewRunner(
+	logger Logger,
+	store ScheduledStore,
+	donorStore DonorStore,
+	certificateProviderStore CertificateProviderStore,
+	lpaStoreResolvingService LpaStoreResolvingService,
+	notifyClient NotifyClient,
+	eventClient EventClient,
+	bundle Bundle,
+	metricsClient MetricsClient,
+	metricsEnabled bool,
+	appPublicURL string,
+) *Runner {
 	r := &Runner{
-		logger:         logger,
-		store:          store,
-		now:            time.Now,
-		since:          time.Since,
-		donorStore:     donorStore,
-		notifyClient:   notifyClient,
-		waiter:         &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
-		metricsClient:  metricsClient,
-		metricsEnabled: metricsEnabled,
+		logger:                   logger,
+		store:                    store,
+		now:                      time.Now,
+		since:                    time.Since,
+		donorStore:               donorStore,
+		certificateProviderStore: certificateProviderStore,
+		lpaStoreResolvingService: lpaStoreResolvingService,
+		notifyClient:             notifyClient,
+		eventClient:              eventClient,
+		bundle:                   bundle,
+		waiter:                   &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
+		metricsClient:            metricsClient,
+		metricsEnabled:           metricsEnabled,
+		appPublicURL:             appPublicURL,
 	}
 
 	r.actions = map[Action]ActionFunc{
-		ActionExpireDonorIdentity: r.stepCancelDonorIdentity,
+		ActionExpireDonorIdentity:                        r.stepCancelDonorIdentity,
+		ActionRemindCertificateProviderToComplete:        r.stepRemindCertificateProviderToComplete,
+		ActionRemindCertificateProviderToConfirmIdentity: r.stepRemindCertificateProviderToConfirmIdentity,
 	}
 
 	return r
@@ -195,28 +233,4 @@ func (r *Runner) Run(ctx context.Context) error {
 			}
 		}
 	}
-}
-
-func (r *Runner) stepCancelDonorIdentity(ctx context.Context, row *Event) error {
-	provided, err := r.donorStore.One(ctx, row.TargetLpaKey, row.TargetLpaOwnerKey)
-	if err != nil {
-		return fmt.Errorf("error retrieving donor: %w", err)
-	}
-
-	if !provided.IdentityUserData.Status.IsConfirmed() || !provided.SignedAt.IsZero() {
-		return errStepIgnored
-	}
-
-	provided.IdentityUserData = identity.UserData{Status: identity.StatusExpired}
-	provided.Tasks.ConfirmYourIdentity = task.IdentityStateNotStarted
-
-	if err := r.notifyClient.SendActorEmail(ctx, notify.ToDonor(provided), provided.LpaUID, notify.DonorIdentityCheckExpiredEmail{}); err != nil {
-		return fmt.Errorf("error sending email: %w", err)
-	}
-
-	if err := r.donorStore.Put(ctx, provided); err != nil {
-		return fmt.Errorf("error updating donor: %w", err)
-	}
-
-	return nil
 }

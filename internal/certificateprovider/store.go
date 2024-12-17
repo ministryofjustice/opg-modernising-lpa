@@ -93,8 +93,12 @@ func (s *Store) GetAny(ctx context.Context) (*certificateproviderdata.Provided, 
 		return nil, errors.New("certificateProviderStore.GetAny requires LpaID")
 	}
 
+	return s.One(ctx, dynamo.LpaKey(data.LpaID))
+}
+
+func (s *Store) One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateproviderdata.Provided, error) {
 	var certificateProvider certificateproviderdata.Provided
-	err = s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(""), &certificateProvider)
+	err := s.dynamoClient.OneByPartialSK(ctx, pk, dynamo.CertificateProviderKey(""), &certificateProvider)
 
 	return &certificateProvider, err
 }
