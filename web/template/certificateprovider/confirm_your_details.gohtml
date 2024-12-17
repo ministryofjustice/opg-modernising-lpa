@@ -30,7 +30,9 @@
       <dl class="govuk-summary-list">
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName "" .Lpa.CertificateProvider.FullName false true ) }}
         {{ template "address-summary-row" (summaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address "" .Lpa.CertificateProvider.FullName false true ) }}
-        {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ if .ShowPhone }}
+            {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ end }}
       </dl>
 
       {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" .DetailComponentContent false) }}
