@@ -22,6 +22,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		AddressLabel                    string
 		DetailsComponentContent         string
 		ShowPhone                       bool
+		ShowHomeAddress                 bool
 		PhoneNumber                     string
 	}{
 		"online donor": {
@@ -39,6 +40,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumber:             "123",
 			ShowPhone:               true,
+			ShowHomeAddress:         true,
 		},
 		"lay CP": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -55,6 +57,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			PhoneNumberLabel:                "mobileNumber",
 			PhoneNumber:                     "123",
 			ShowPhone:                       true,
+			ShowHomeAddress:                 true,
 		},
 		"missing phone": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -67,6 +70,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone",
 			PhoneNumberLabel:                "mobileNumber",
+			ShowHomeAddress:                 true,
 		},
 	}
 
@@ -94,6 +98,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					AddressLabel:           tc.AddressLabel,
 					DetailComponentContent: tc.DetailsComponentContent,
 					ShowPhone:              tc.ShowPhone,
+					ShowHomeAddress:        tc.ShowHomeAddress,
 				}).
 				Return(nil)
 
