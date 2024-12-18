@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -34,6 +35,10 @@ type DonorStore interface {
 
 type CertificateProviderStore interface {
 	One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateproviderdata.Provided, error)
+}
+
+type AttorneyStore interface {
+	All(ctx context.Context, lpaUID string) ([]*attorneydata.Provided, error)
 }
 
 type NotifyClient interface {
@@ -74,6 +79,7 @@ type Runner struct {
 	since                    func(time.Time) time.Duration
 	donorStore               DonorStore
 	certificateProviderStore CertificateProviderStore
+	attorneyStore            AttorneyStore
 	lpaStoreResolvingService LpaStoreResolvingService
 	notifyClient             NotifyClient
 	eventClient              EventClient
@@ -95,6 +101,7 @@ func NewRunner(
 	store ScheduledStore,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
+	attorneyStore AttorneyStore,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
 	eventClient EventClient,
@@ -110,6 +117,7 @@ func NewRunner(
 		since:                    time.Since,
 		donorStore:               donorStore,
 		certificateProviderStore: certificateProviderStore,
+		attorneyStore:            attorneyStore,
 		lpaStoreResolvingService: lpaStoreResolvingService,
 		notifyClient:             notifyClient,
 		eventClient:              eventClient,
@@ -124,6 +132,7 @@ func NewRunner(
 		ActionExpireDonorIdentity:                        r.stepCancelDonorIdentity,
 		ActionRemindCertificateProviderToComplete:        r.stepRemindCertificateProviderToComplete,
 		ActionRemindCertificateProviderToConfirmIdentity: r.stepRemindCertificateProviderToConfirmIdentity,
+		ActionRemindAttorneyToComplete:                   r.stepRemindAttorneyToComplete,
 	}
 
 	return r
