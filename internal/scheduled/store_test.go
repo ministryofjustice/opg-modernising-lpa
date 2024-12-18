@@ -19,14 +19,14 @@ func TestStorePop(t *testing.T) {
 	row := &Event{
 		Action:            99,
 		PK:                dynamo.ScheduledDayKey(testNow),
-		SK:                dynamo.ScheduledKey(testNow, 99),
+		SK:                dynamo.ScheduledKey(testNow, testUuidString),
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
 	}
 	movedRow := &Event{
 		Action:            99,
 		PK:                dynamo.ScheduledDayKey(testNow).Handled(),
-		SK:                dynamo.ScheduledKey(testNow, 99),
+		SK:                dynamo.ScheduledKey(testNow, testUuidString),
 		TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 		TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
 	}
@@ -40,7 +40,7 @@ func TestStorePop(t *testing.T) {
 		Move(ctx, dynamo.Keys{PK: row.PK, SK: row.SK}, *movedRow).
 		Return(nil)
 
-	store := &Store{dynamoClient: dynamoClient}
+	store := &Store{dynamoClient: dynamoClient, uuidString: testUuidStringFn}
 	result, err := store.Pop(ctx, testNow)
 	assert.Nil(t, err)
 	assert.Equal(t, movedRow, result)
@@ -65,7 +65,7 @@ func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 		SetData(&Event{
 			Action:            99,
 			PK:                dynamo.ScheduledDayKey(testNow),
-			SK:                dynamo.ScheduledKey(testNow, 99),
+			SK:                dynamo.ScheduledKey(testNow, testUuidString),
 			TargetLpaKey:      dynamo.LpaKey("an-lpa"),
 			TargetLpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
 		})
@@ -73,7 +73,7 @@ func TestStorePopWhenDeleteOneErrors(t *testing.T) {
 		Move(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	store := &Store{dynamoClient: dynamoClient}
+	store := &Store{dynamoClient: dynamoClient, uuidString: testUuidStringFn}
 	_, err := store.Pop(ctx, testNow)
 	assert.Equal(t, expectedError, err)
 }
@@ -88,14 +88,14 @@ func TestStoreCreate(t *testing.T) {
 			Puts: []any{
 				Event{
 					PK:        dynamo.ScheduledDayKey(at),
-					SK:        dynamo.ScheduledKey(at, 99),
+					SK:        dynamo.ScheduledKey(at, testUuidString),
 					CreatedAt: testNow,
 					At:        at,
 					Action:    99,
 				},
 				Event{
 					PK:        dynamo.ScheduledDayKey(at2),
-					SK:        dynamo.ScheduledKey(at2, 100),
+					SK:        dynamo.ScheduledKey(at2, testUuidString),
 					CreatedAt: testNow,
 					At:        at2,
 					Action:    100,
@@ -104,7 +104,7 @@ func TestStoreCreate(t *testing.T) {
 		}).
 		Return(expectedError)
 
-	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn, uuidString: testUuidStringFn}
 	err := store.Create(ctx, Event{At: at, Action: 99}, Event{At: at2, Action: 100})
 	assert.Equal(t, expectedError, err)
 }
@@ -118,17 +118,17 @@ func TestDeleteAllByUID(t *testing.T) {
 		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
 		Return(nil).
 		SetData([]Event{
-			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
-			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+			{LpaUID: "lpa-uid", PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
 		})
 	dynamoClient.EXPECT().
 		DeleteKeys(ctx, []dynamo.Keys{
-			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, 98)},
-			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, 99)},
+			{PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
 		}).
 		Return(nil)
 
-	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn, uuidString: testUuidStringFn}
 	err := store.DeleteAllByUID(ctx, "lpa-uid")
 
 	assert.Nil(t, err)
