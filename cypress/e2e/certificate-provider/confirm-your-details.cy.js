@@ -78,8 +78,10 @@ describe('Confirm your details', () => {
             cy.contains('Contact number').should('exist');
             cy.contains('Mobile number').should('not.exist');
         })
+    })
 
-        it('phone not shown when not provided', () => {
+    describe('hides', () => {
+        it('phone when not provided', () => {
             cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper&phone=not-provided');
 
             cy.contains('Contact number').should('not.exist');
