@@ -80,6 +80,10 @@ type Lpa struct {
 	// CertificateProviderInvitedAt is when the certificate provider's share
 	// code is first sent, it is only set with the resolving service.
 	CertificateProviderInvitedAt time.Time
+
+	// AttorneysInvitedAt records when the share codes are sent to the attorneys,
+	// it is only set with the resolving service.
+	AttorneysInvitedAt time.Time
 }
 
 // SignedForDonor returns true if the Lpa has been signed and witnessed for the donor.
