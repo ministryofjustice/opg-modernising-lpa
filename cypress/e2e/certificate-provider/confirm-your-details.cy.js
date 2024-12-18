@@ -72,11 +72,24 @@ describe('Confirm your details', () => {
             cy.url().should('contain', '/your-role');
         });
 
-        it('shows contact number when donor acting on paper', () => {
+        it('contact number when donor acting on paper', () => {
             cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper');
 
             cy.contains('Contact number').should('exist');
             cy.contains('Mobile number').should('not.exist');
+        })
+    })
+
+    describe('hides', () => {
+        it('phone when not provided', () => {
+            cy.visit('/fixtures/certificate-provider?redirect=/confirm-your-details&donorChannel=paper&phone=not-provided');
+
+            cy.contains('Contact number').should('not.exist');
+            cy.contains('Mobile number').should('not.exist');
+            cy.contains('If you notice a mistake in the name, work address or mobile number the donor provided').should('not.exist');
+
+            cy.contains('span', 'What to do if any of the details given about you are incorrect').click();
+            cy.contains('If you notice a mistake in the name or work address the donor provided').should('exist');
         })
     })
 });
