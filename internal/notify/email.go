@@ -504,3 +504,54 @@ func (e InformDonorCertificateProviderHasNotConfirmedIdentityEmail) emailID(isPr
 
 	return "3a6bf17f-f690-4ee6-b815-b5bfe2f70c55"
 }
+
+type InformDonorAttorneyHasNotActedEmail struct {
+	Greeting             string
+	AttorneyFullName     string
+	LpaType              string
+	AttorneyStartPageURL string
+	DeadlineDate         string
+	InvitedDate          string
+}
+
+func (e InformDonorAttorneyHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "TODO"
+		}
+
+		return "TODO"
+	}
+
+	if lang.IsCy() {
+		return "2ade25e7-5864-45dc-953a-22b2d956f9b5"
+	}
+
+	return "efc93b6f-d2f3-487d-afef-c6961a0abaed"
+}
+
+type AdviseAttorneyToSignOrOptOutEmail struct {
+	DonorFullName           string
+	DonorFullNamePossessive string
+	LpaType                 string
+	AttorneyFullName        string
+	InvitedDate             string
+	DeadlineDate            string
+	AttorneyStartPageURL    string
+}
+
+func (e AdviseAttorneyToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "TODO"
+		}
+
+		return "TODO"
+	}
+
+	if lang.IsCy() {
+		return "9df92f3d-4070-4000-bad2-c25ca9daa68e"
+	}
+
+	return "3ddfd30a-02b6-4625-8fbf-5785f5b33864"
+}

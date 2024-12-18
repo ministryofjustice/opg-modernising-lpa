@@ -33,6 +33,7 @@ func ProvideCertificate(
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
 	scheduledStore ScheduledStore,
+	donorStore DonorStore,
 	now func() time.Time,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
@@ -81,6 +82,17 @@ func ProvideCertificate(
 
 				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
 					return fmt.Errorf("error sending sharecode to attorneys: %w", err)
+				}
+
+				donor, err := donorStore.GetAny(r.Context())
+				if err != nil {
+					return fmt.Errorf("error getting donor: %w", err)
+				}
+
+				donor.AttorneysInvitedAt = now()
+
+				if donorStore.Put(r.Context(), donor); err != nil {
+					return fmt.Errorf("error putting donor: %w", err)
 				}
 
 				if !certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() {
