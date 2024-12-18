@@ -135,8 +135,8 @@ emit-evidence-received: ##@events emits an evidence-received event with the give
 		--function-name event-received text \
 		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
-emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID e.g. emit-reduced-fee-approved uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"abcdef01-2345-6789-abcd-ef0123456789","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2024-01-01T12:00:00Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)"}}' | sed 's/"/\\"/g'))
+emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID and fee type e.g. emit-reduced-fee-approved uid=abc-123 type=HalfFee
+	$(eval BODY := $(shell echo '{"version":"0","id":"abcdef01-2345-6789-abcd-ef0123456789","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2024-01-01T12:00:00Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","approvedType": "$(type)"}}' | sed 's/"/\\"/g'))
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
 		--endpoint-url=http://localhost:4566 \
