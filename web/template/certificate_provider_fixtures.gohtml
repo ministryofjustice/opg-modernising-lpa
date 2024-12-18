@@ -7,6 +7,8 @@
 
   {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
+  {{ template "input" (input . "phone" "phone" "" "classes" "govuk-input--width-20" "type" "phone" "spellcheck" "false" "autocomplete" "phone") }}
+
   {{ template "input" (input . "certificateProviderSub" "Certificate provider OneLogin sub" .Sub "classes" "govuk-input--width-20") }}
   <div class="govuk-hint govuk-!-padding-bottom-2">
     Copy this value or change to your own to log back in to an existing LPA from the <a class="govuk-link" href="{{ global.Paths.CertificateProviderStart.Format }}">start page</a>
