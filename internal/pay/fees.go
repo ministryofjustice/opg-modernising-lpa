@@ -12,6 +12,7 @@ type FeeType uint8
 const (
 	FullFee FeeType = iota
 	HalfFee
+	QuarterFee
 	NoFee
 	HardshipFee
 	RepeatApplicationFee
@@ -41,6 +42,8 @@ func Cost(feeType FeeType, previousFee PreviousFee, costOfRepeatApplication Cost
 		return feeFull
 	case HalfFee:
 		return feeHalf
+	case QuarterFee:
+		return feeQuarter
 	case RepeatApplicationFee:
 		if costOfRepeatApplication.IsHalfFee() || previousFee.IsFull() {
 			return feeHalf
