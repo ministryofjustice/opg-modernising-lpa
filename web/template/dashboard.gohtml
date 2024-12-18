@@ -51,7 +51,7 @@
                     <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpa" }}</a>
                 </div>
             {{ else if .Item.Lpa.Status.IsRegistered }}
-                
+
             {{ else if .Item.Lpa.Status.IsStatutoryWaitingPeriod }}
                 <div class="govuk-button-group">
                     <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
@@ -150,7 +150,7 @@
                 <span class="govuk-!-font-weight-regular">{{ .Item.Lpa.Donor.FullName }}</span>
             </h3>
             <div>
-                {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.IsCompleted (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Tasks.PayForLpa.IsCompleted }}
+                {{ if and .Item.CertificateProvider.Tasks.ReadTheLpa.IsCompleted (not .Item.Lpa.SignedAt.IsZero) .Item.Lpa.Paid .Item.CertificateProvider.Tasks.ConfirmYourIdentity.IsCompleted }}
                     <strong class="app-tag govuk-tag--yellow">{{ tr .App "readyToSign" }}</strong>
                 {{ else }}
                     <strong class="app-tag govuk-tag--blue">{{ tr .App "inProgress" }}</strong>
@@ -285,7 +285,7 @@
                                 {{ tr .App "theLpasNamedAsAttorneyHaveSuccessfullyRegistered" }}
                             {{ end }}
                         </p>
-                        
+
                         {{ range .AttorneyLpas }}
                             {{ template "attorneyCard" (card $.App .) }}
                         {{ end }}
@@ -333,9 +333,9 @@
                         {{ range .VoucherLpas }}
                             {{ template "voucherCard" (card $.App .) }}
                         {{ end }}
-                        {{ if .NeedsTabs }}</div>{{ end }}                    
+                        {{ if .NeedsTabs }}</div>{{ end }}
                 {{ end }}
-                
+
                 {{ if .NeedsTabs }}</div>{{ end }}
         </div>
     </div>
