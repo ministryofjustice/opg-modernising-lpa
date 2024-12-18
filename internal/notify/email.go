@@ -504,3 +504,54 @@ func (e InformDonorCertificateProviderHasNotConfirmedIdentityEmail) emailID(isPr
 
 	return "3a6bf17f-f690-4ee6-b815-b5bfe2f70c55"
 }
+
+type InformDonorAttorneyHasNotActedEmail struct {
+	Greeting             string
+	AttorneyFullName     string
+	LpaType              string
+	AttorneyStartPageURL string
+	DeadlineDate         string
+	InvitedDate          string
+}
+
+func (e InformDonorAttorneyHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "83317256-fa2a-4dd8-b8dc-64501d2b221c"
+		}
+
+		return "83f36e64-adb6-483c-ba60-cb70581af84d"
+	}
+
+	if lang.IsCy() {
+		return "2ade25e7-5864-45dc-953a-22b2d956f9b5"
+	}
+
+	return "efc93b6f-d2f3-487d-afef-c6961a0abaed"
+}
+
+type AdviseAttorneyToSignOrOptOutEmail struct {
+	DonorFullName           string
+	DonorFullNamePossessive string
+	LpaType                 string
+	AttorneyFullName        string
+	InvitedDate             string
+	DeadlineDate            string
+	AttorneyStartPageURL    string
+}
+
+func (e AdviseAttorneyToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "4c0e65c1-e490-475c-aa8e-a4c693864b7c"
+		}
+
+		return "1cef45e2-991c-4998-89d4-1f324a45bb25"
+	}
+
+	if lang.IsCy() {
+		return "9df92f3d-4070-4000-bad2-c25ca9daa68e"
+	}
+
+	return "3ddfd30a-02b6-4625-8fbf-5785f5b33864"
+}
