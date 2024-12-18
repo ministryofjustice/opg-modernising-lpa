@@ -276,12 +276,12 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 		return err
 	}
 
-	donor, err := lpaStoreClient.Lpa(ctx, v.UID)
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve lpa: %w", err)
 	}
 
-	if donor.CertificateProvider.Channel.IsPaper() {
+	if lpa.CertificateProvider.Channel.IsPaper() {
 		shareCodeSender, err := factory.ShareCodeSender(ctx)
 		if err != nil {
 			return err
@@ -292,8 +292,22 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 			return err
 		}
 
-		if err := shareCodeSender.SendAttorneys(ctx, appData, donor); err != nil {
+		dynamoClient := factory.DynamoClient()
+
+		donor, err := getDonorByLpaUID(ctx, dynamoClient, v.UID)
+		if err != nil {
+			return fmt.Errorf("failed to get donor: %w", err)
+		}
+
+		now := factory.Now()
+		donor.AttorneysInvitedAt = now()
+
+		if err := shareCodeSender.SendAttorneys(ctx, appData, lpa); err != nil {
 			return fmt.Errorf("failed to send share codes to attorneys: %w", err)
+		}
+
+		if err := putDonor(ctx, donor, now, dynamoClient); err != nil {
+			return fmt.Errorf("failed to put donor: %w", err)
 		}
 	}
 
