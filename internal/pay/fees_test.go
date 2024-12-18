@@ -21,6 +21,10 @@ func TestCost(t *testing.T) {
 			feeType:  HalfFee,
 			expected: 4100,
 		},
+		"quarter": {
+			feeType:  QuarterFee,
+			expected: 2050,
+		},
 		"no fee": {
 			feeType:  NoFee,
 			expected: 0,
