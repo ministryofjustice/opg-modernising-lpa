@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/stretchr/testify/mock"
@@ -14,6 +15,13 @@ var (
 	ctx           = context.Background()
 	expectedError = errors.New("err")
 )
+
+func (c *mockDynamoClient_AllByLpaUIDAndPartialSK_Call) SetData(data any) {
+	c.Run(func(_ context.Context, _ string, _ dynamo.SK, v any) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
+}
 
 func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 	m.
