@@ -85,7 +85,7 @@ func TestSK(t *testing.T) {
 		"VoucherShareSortKey":    {VoucherShareSortKey(LpaKey("S")), "VOUCHERSHARESORT#S"},
 		"DonorInviteKey":         {DonorInviteKey(OrganisationKey("org-id"), LpaKey("lpa-id")), "DONORINVITE#org-id#lpa-id"},
 		"VoucherKey":             {VoucherKey("S"), "VOUCHER#S"},
-		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), 99), "SCHEDULED#2024-01-02T12:13:14Z#99"},
+		"ScheduledKey":           {ScheduledKey(time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC), "some-string"), "SCHEDULED#2024-01-02T12:13:14Z#some-string"},
 		"ReservedKey":            {ReservedKey(VoucherKey), "RESERVED#VOUCHER#"},
 		"PartialScheduledKey":    {PartialScheduledKey(), "SCHEDULED#"},
 	}
