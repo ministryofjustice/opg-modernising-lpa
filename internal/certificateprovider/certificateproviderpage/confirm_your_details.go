@@ -20,6 +20,8 @@ type confirmYourDetailsData struct {
 	PhoneNumberLabel       string
 	AddressLabel           string
 	DetailComponentContent string
+	ShowPhone              bool
+	ShowHomeAddress        bool
 }
 
 func ConfirmYourDetails(tmpl template.Template, certificateProviderStore CertificateProviderStore) Handler {
@@ -46,15 +48,23 @@ func ConfirmYourDetails(tmpl template.Template, certificateProviderStore Certifi
 			PhoneNumberLabel:       "mobileNumber",
 			AddressLabel:           "address",
 			DetailComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			ShowPhone:              lpa.CertificateProvider.Phone != "",
+			ShowHomeAddress:        lpa.Donor.Channel.IsPaper() || lpa.CertificateProvider.Relationship.IsProfessionally(),
+		}
+
+		if !data.ShowPhone {
+			data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLayMissingPhone"
 		}
 
 		if lpa.Donor.Channel.IsPaper() {
 			data.PhoneNumberLabel = "contactNumber"
-		}
-
-		if lpa.CertificateProvider.Relationship.IsProfessionally() {
+		} else if lpa.CertificateProvider.Relationship.IsProfessionally() {
 			data.AddressLabel = "workAddress"
 			data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional"
+
+			if !data.ShowPhone {
+				data.DetailComponentContent = "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone"
+			}
 		}
 
 		return tmpl(w, data)

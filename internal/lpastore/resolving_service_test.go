@@ -169,10 +169,7 @@ func TestResolvingServiceGet(t *testing.T) {
 				Submitted:   true,
 				Drafted:     true,
 				Paid:        true,
-				CertificateProvider: lpadata.CertificateProvider{
-					Relationship: lpadata.Professionally,
-				},
-				Donor: lpadata.Donor{Channel: lpadata.ChannelPaper},
+				Donor:       lpadata.Donor{Channel: lpadata.ChannelPaper},
 			},
 		},
 		"voucher not allowed": {
@@ -412,10 +409,7 @@ func TestResolvingServiceResolve(t *testing.T) {
 				Drafted:     true,
 				Submitted:   true,
 				Paid:        true,
-				CertificateProvider: lpadata.CertificateProvider{
-					Relationship: lpadata.Professionally,
-				},
-				Donor: lpadata.Donor{Channel: lpadata.ChannelPaper},
+				Donor:       lpadata.Donor{Channel: lpadata.ChannelPaper},
 			},
 		},
 	}
@@ -573,10 +567,7 @@ func TestResolvingServiceResolveList(t *testing.T) {
 				Drafted:     true,
 				Submitted:   true,
 				Paid:        true,
-				CertificateProvider: lpadata.CertificateProvider{
-					Relationship: lpadata.Professionally,
-				},
-				Donor: lpadata.Donor{Channel: lpadata.ChannelPaper},
+				Donor:       lpadata.Donor{Channel: lpadata.ChannelPaper},
 			}},
 		},
 	}
