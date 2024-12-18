@@ -21,29 +21,51 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		CertificateProviderRelationship lpadata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
+		ShowPhone                       bool
+		PhoneNumber                     string
 	}{
 		"online donor": {
 			DonorChannel:            lpadata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			PhoneNumber:             "123",
+			ShowPhone:               true,
 		},
 		"paper donor": {
 			DonorChannel:            lpadata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			PhoneNumber:             "123",
+			ShowPhone:               true,
 		},
 		"lay CP": {
 			CertificateProviderRelationship: lpadata.Personally,
 			AddressLabel:                    "address",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumberLabel:                "mobileNumber",
+			PhoneNumber:                     "123",
+			ShowPhone:                       true,
 		},
 		"professional CP": {
 			CertificateProviderRelationship: lpadata.Professionally,
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
+			PhoneNumberLabel:                "mobileNumber",
+			PhoneNumber:                     "123",
+			ShowPhone:                       true,
+		},
+		"missing phone": {
+			CertificateProviderRelationship: lpadata.Personally,
+			AddressLabel:                    "address",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLayMissingPhone",
+			PhoneNumberLabel:                "mobileNumber",
+		},
+		"professional missing phone": {
+			CertificateProviderRelationship: lpadata.Professionally,
+			AddressLabel:                    "workAddress",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 	}
@@ -54,8 +76,11 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			lpa := &lpadata.Lpa{
-				Donor:               lpadata.Donor{Channel: tc.DonorChannel},
-				CertificateProvider: lpadata.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
+				Donor: lpadata.Donor{Channel: tc.DonorChannel},
+				CertificateProvider: lpadata.CertificateProvider{
+					Relationship: tc.CertificateProviderRelationship,
+					Phone:        tc.PhoneNumber,
+				},
 			}
 			certificateProvider := &certificateproviderdata.Provided{}
 
@@ -68,6 +93,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					PhoneNumberLabel:       tc.PhoneNumberLabel,
 					AddressLabel:           tc.AddressLabel,
 					DetailComponentContent: tc.DetailsComponentContent,
+					ShowPhone:              tc.ShowPhone,
 				}).
 				Return(nil)
 
