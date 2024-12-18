@@ -3,7 +3,7 @@ describe('Withdraw LPA', () => {
         cy.visit('/fixtures?redirect=&progress=statutoryWaitingPeriod');
 
         cy.contains('Sam Smith');
-        cy.contains('a', 'Withdraw LPA').click();
+        cy.contains('a', 'Revoke LPA').click();
 
         cy.checkA11yApp();
         cy.contains('button', 'Revoke this LPA').click();

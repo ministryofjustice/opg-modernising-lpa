@@ -165,7 +165,7 @@ type ShareCodeStore interface {
 }
 
 type ScheduledStore interface {
-	Create(ctx context.Context, row scheduled.Event) error
+	Create(ctx context.Context, rows ...scheduled.Event) error
 }
 
 type ErrorHandler func(http.ResponseWriter, *http.Request, error)
@@ -336,7 +336,7 @@ func Register(
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
 		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient))
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient, actoruid.New))
 	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
 		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, eventClient))
 
@@ -356,7 +356,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
 		ConfirmYourCertificateProviderIsNotRelated(tmpls.Get("confirm_your_certificate_provider_is_not_related.gohtml"), donorStore, time.Now))
 	handleWithDonor(donor.PathCheckYourLpa, page.CanGoBack,
-		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, time.Now, appPublicURL))
+		CheckYourLpa(tmpls.Get("check_your_lpa.gohtml"), donorStore, shareCodeSender, notifyClient, certificateProviderStore, scheduledStore, time.Now, appPublicURL))
 	handleWithDonor(donor.PathLpaDetailsSaved, page.CanGoBack,
 		LpaDetailsSaved(tmpls.Get("lpa_details_saved.gohtml")))
 
@@ -380,10 +380,8 @@ func Register(
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), logger, payer, documentStore))
 	handleWithDonor(donor.PathSendUsYourEvidenceByPost, page.CanGoBack,
 		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, eventClient))
-	handleWithDonor(donor.PathFeeApproved, page.None,
+	handleWithDonor(donor.PathPayFee, page.None,
 		payer)
-	handleWithDonor(donor.PathFeeDenied, page.None,
-		FeeDenied(tmpls.Get("fee_denied.gohtml"), payer))
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
 		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))
 	handleWithDonor(donor.PathPaymentSuccessful, page.None,
@@ -442,9 +440,9 @@ func Register(
 	handleWithDonor(donor.PathLpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithDonor(donor.PathSignYourLpa, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore, time.Now))
+		SignYourLpa(tmpls.Get("sign_your_lpa.gohtml"), donorStore, scheduledStore, time.Now))
 	handleWithDonor(donor.PathSignTheLpaOnBehalf, page.CanGoBack,
-		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore, time.Now))
+		SignYourLpa(tmpls.Get("sign_the_lpa_on_behalf.gohtml"), donorStore, scheduledStore, time.Now))
 	handleWithDonor(donor.PathWitnessingYourSignature, page.None,
 		WitnessingYourSignature(tmpls.Get("witnessing_your_signature.gohtml"), witnessCodeSender, donorStore))
 	handleWithDonor(donor.PathWitnessingAsIndependentWitness, page.None,

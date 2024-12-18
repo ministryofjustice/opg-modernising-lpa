@@ -3,6 +3,7 @@ package event
 import (
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
@@ -89,6 +90,7 @@ type IdentityCheckMismatchedDetails struct {
 
 type CorrespondentUpdated struct {
 	UID        string         `json:"uid"`
+	ActorUID   *actoruid.UID  `json:"actorUID,omitempty"`
 	FirstNames string         `json:"firstNames,omitempty"`
 	LastName   string         `json:"lastName,omitempty"`
 	Email      string         `json:"email,omitempty"`
@@ -105,4 +107,11 @@ type LpaAccessGranted struct {
 type LpaAccessGrantedActor struct {
 	ActorUID  string `json:"actorUid"`
 	SubjectID string `json:"subjectId"`
+}
+
+type LetterRequested struct {
+	UID        string       `json:"uid"`
+	LetterType string       `json:"letterType"`
+	ActorType  actor.Type   `json:"actorType"`
+	ActorUID   actoruid.UID `json:"actorUID"`
 }

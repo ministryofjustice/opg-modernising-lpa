@@ -169,8 +169,6 @@ type appPaths struct {
 	EnterVoucher                                         donor.Path
 	EvidenceRequired                                     donor.Path
 	EvidenceSuccessfullyUploaded                         donor.Path
-	FeeApproved                                          donor.Path
-	FeeDenied                                            donor.Path
 	GettingHelpSigning                                   donor.Path
 	HowDoYouKnowYourCertificateProvider                  donor.Path
 	HowLongHaveYouKnownCertificateProvider               donor.Path
@@ -189,6 +187,7 @@ type appPaths struct {
 	MakeANewLPA                                          donor.Path
 	NeedHelpSigningConfirmation                          donor.Path
 	OneLoginIdentityDetails                              donor.Path
+	PayFee                                               donor.Path
 	PaymentConfirmation                                  donor.Path
 	PreviousApplicationNumber                            donor.Path
 	PreviousFee                                          donor.Path
@@ -397,8 +396,6 @@ var paths = appPaths{
 	EnterVoucher:                                         donor.PathEnterVoucher,
 	EvidenceRequired:                                     donor.PathEvidenceRequired,
 	EvidenceSuccessfullyUploaded:                         donor.PathEvidenceSuccessfullyUploaded,
-	FeeApproved:                                          donor.PathFeeApproved,
-	FeeDenied:                                            donor.PathFeeDenied,
 	GettingHelpSigning:                                   donor.PathGettingHelpSigning,
 	HowDoYouKnowYourCertificateProvider:                  donor.PathHowDoYouKnowYourCertificateProvider,
 	HowLongHaveYouKnownCertificateProvider:               donor.PathHowLongHaveYouKnownCertificateProvider,
@@ -417,6 +414,7 @@ var paths = appPaths{
 	MakeANewLPA:                                          donor.PathMakeANewLPA,
 	NeedHelpSigningConfirmation:                          donor.PathNeedHelpSigningConfirmation,
 	OneLoginIdentityDetails:                              donor.PathIdentityDetails,
+	PayFee:                                               donor.PathPayFee,
 	PaymentConfirmation:                                  donor.PathPaymentConfirmation,
 	PreviousApplicationNumber:                            donor.PathPreviousApplicationNumber,
 	PreviousFee:                                          donor.PathPreviousFee,

@@ -404,3 +404,103 @@ func (e VoucherInformedTheyAreNoLongerNeededToVouchEmail) emailID(isProduction b
 
 	return "00ad14c6-f6df-4d7f-ae44-d7e27f6a9187"
 }
+
+type AdviseCertificateProviderToSignOrOptOutEmail struct {
+	DonorFullName                   string
+	DonorFullNamePossessive         string
+	LpaType                         string
+	CertificateProviderFullName     string
+	InvitedDate                     string
+	DeadlineDate                    string
+	CertificateProviderStartPageURL string
+}
+
+func (e AdviseCertificateProviderToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "083ace46-2e6d-41c3-9e82-84df8bc03faf"
+		}
+
+		return "fc01c541-28f3-4e04-921e-e8848f810278"
+	}
+
+	if lang.IsCy() {
+		return "22a19484-cd44-4476-a7b6-7826af5932ae"
+	}
+
+	return "d9b3e36a-5814-4e6b-84b1-baf763c49220"
+}
+
+type InformDonorCertificateProviderHasNotActedEmail struct {
+	Greeting                        string
+	CertificateProviderFullName     string
+	LpaType                         string
+	InvitedDate                     string
+	DeadlineDate                    string
+	CertificateProviderStartPageURL string
+}
+
+func (e InformDonorCertificateProviderHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "688d8284-ae13-4e87-97be-3d6b21767755"
+		}
+
+		return "b45e8f81-22da-45fa-a7ea-99430c749b61"
+	}
+
+	if lang.IsCy() {
+		return "4fc578f0-5cce-4082-a926-957aebb824bd"
+	}
+
+	return "0f7cbfed-1ffa-43d7-92c0-8d162aadc0ea"
+}
+
+type AdviseCertificateProviderToConfirmIdentityEmail struct {
+	DonorFullName                   string
+	DonorFullNamePossessive         string
+	LpaType                         string
+	CertificateProviderFullName     string
+	DeadlineDate                    string
+	CertificateProviderStartPageURL string
+}
+
+func (e AdviseCertificateProviderToConfirmIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "75e8cad3-7e56-496d-aa2e-d5fc84834785"
+		}
+
+		return "fc01c541-28f3-4e04-921e-e8848f810278"
+	}
+
+	if lang.IsCy() {
+		return "2ad9669e-72ad-486f-bf8f-0a422870e6ee"
+	}
+
+	return "5e4b67ce-4175-4d5d-baf9-1c81a1ebc213"
+}
+
+type InformDonorCertificateProviderHasNotConfirmedIdentityEmail struct {
+	Greeting                        string
+	LpaType                         string
+	CertificateProviderFullName     string
+	DeadlineDate                    string
+	CertificateProviderStartPageURL string
+}
+
+func (e InformDonorCertificateProviderHasNotConfirmedIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		if lang.IsCy() {
+			return "07e78d56-f2d4-45d7-8f2b-64a74ac704e2"
+		}
+
+		return "03f1d38a-6ab6-4d43-85fe-9d1fd00a9550"
+	}
+
+	if lang.IsCy() {
+		return "36e61fbc-df51-4bf5-bc1f-877ec559de8f"
+	}
+
+	return "3a6bf17f-f690-4ee6-b815-b5bfe2f70c55"
+}

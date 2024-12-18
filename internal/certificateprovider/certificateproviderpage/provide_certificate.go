@@ -13,6 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -31,13 +32,10 @@ func ProvideCertificate(
 	notifyClient NotifyClient,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
+	scheduledStore ScheduledStore,
 	now func() time.Time,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
-		if !lpa.SignedForDonor() {
-			return certificateprovider.PathTaskList.Redirect(w, r, appData, lpa.LpaID)
-		}
-
 		if !certificateProvider.SignedAt.IsZero() {
 			return certificateprovider.PathCertificateProvided.Redirect(w, r, appData, lpa.LpaID)
 		}
@@ -65,7 +63,7 @@ func ProvideCertificate(
 
 				if lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero() {
 					if err := lpaStoreClient.SendCertificateProvider(r.Context(), certificateProvider, lpa); err != nil {
-						return err
+						return fmt.Errorf("error sending certificate provider to lpa-store: %w", err)
 					}
 				} else {
 					certificateProvider.SignedAt = *lpa.CertificateProvider.SignedAt
@@ -82,11 +80,27 @@ func ProvideCertificate(
 				}
 
 				if err := shareCodeSender.SendAttorneys(r.Context(), appData, lpa); err != nil {
-					return err
+					return fmt.Errorf("error sending sharecode to attorneys: %w", err)
+				}
+
+				if !certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() {
+					if err := scheduledStore.Create(r.Context(), scheduled.Event{
+						At:           certificateProvider.SignedAt.AddDate(0, 3, 1),
+						Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+						TargetLpaKey: certificateProvider.PK,
+						LpaUID:       lpa.LpaUID,
+					}, scheduled.Event{
+						At:           lpa.SignedAt.AddDate(0, 21, 1),
+						Action:       scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+						TargetLpaKey: certificateProvider.PK,
+						LpaUID:       lpa.LpaUID,
+					}); err != nil {
+						return fmt.Errorf("error scheduling certificate provider prompt: %w", err)
+					}
 				}
 
 				if err := certificateProviderStore.Put(r.Context(), certificateProvider); err != nil {
-					return err
+					return fmt.Errorf("error updating certificate provider: %w", err)
 				}
 
 				return certificateprovider.PathCertificateProvided.Redirect(w, r, appData, certificateProvider.LpaID)
