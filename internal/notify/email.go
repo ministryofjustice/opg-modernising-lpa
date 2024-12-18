@@ -418,10 +418,10 @@ type AdviseCertificateProviderToSignOrOptOutEmail struct {
 func (e AdviseCertificateProviderToSignOrOptOutEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "TODO"
+			return "083ace46-2e6d-41c3-9e82-84df8bc03faf"
 		}
 
-		return "TODO"
+		return "fc01c541-28f3-4e04-921e-e8848f810278"
 	}
 
 	if lang.IsCy() {
@@ -443,10 +443,10 @@ type InformDonorCertificateProviderHasNotActedEmail struct {
 func (e InformDonorCertificateProviderHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "TODO"
+			return "688d8284-ae13-4e87-97be-3d6b21767755"
 		}
 
-		return "TODO"
+		return "b45e8f81-22da-45fa-a7ea-99430c749b61"
 	}
 
 	if lang.IsCy() {
@@ -468,10 +468,10 @@ type AdviseCertificateProviderToConfirmIdentityEmail struct {
 func (e AdviseCertificateProviderToConfirmIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "TODO"
+			return "75e8cad3-7e56-496d-aa2e-d5fc84834785"
 		}
 
-		return "TODO"
+		return "fc01c541-28f3-4e04-921e-e8848f810278"
 	}
 
 	if lang.IsCy() {
@@ -492,10 +492,10 @@ type InformDonorCertificateProviderHasNotConfirmedIdentityEmail struct {
 func (e InformDonorCertificateProviderHasNotConfirmedIdentityEmail) emailID(isProduction bool, lang localize.Lang) string {
 	if isProduction {
 		if lang.IsCy() {
-			return "TODO"
+			return "07e78d56-f2d4-45d7-8f2b-64a74ac704e2"
 		}
 
-		return "TODO"
+		return "03f1d38a-6ab6-4d43-85fe-9d1fd00a9550"
 	}
 
 	if lang.IsCy() {
