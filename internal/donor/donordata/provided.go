@@ -169,6 +169,9 @@ type Provided struct {
 	// certificate provider to act.
 	CertificateProviderInvitedAt time.Time
 
+	// AttorneysInvitedAt records when the invites are sent to the attorneys.
+	AttorneysInvitedAt time.Time
+
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
@@ -223,7 +226,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"Voucher",
 		"FailedVouchAttempts",
 		"CostOfRepeatApplication",
-		"CertificateProviderInvitedAt":
+		"CertificateProviderInvitedAt",
+		"AttorneysInvitedAt":
 		return false, nil
 	}
 
