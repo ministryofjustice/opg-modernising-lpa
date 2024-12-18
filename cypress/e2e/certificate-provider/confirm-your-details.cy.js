@@ -88,7 +88,6 @@ describe('Confirm your details', () => {
             cy.contains('Mobile number').should('not.exist');
             cy.contains('If you notice a mistake in the name, work address or mobile number the donor provided').should('not.exist');
 
-            cy.contains('span', 'What to do if any of the details given about you are incorrect').click();
             cy.contains('If you notice a mistake in the name or work address the donor provided').should('exist');
         })
     })
