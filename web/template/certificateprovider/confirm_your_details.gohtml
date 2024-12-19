@@ -15,7 +15,7 @@
         {{ $dateOfBirthChangeLink := printf "%s?from=%s#f-date-of-birth" (link .App (global.Paths.CertificateProvider.EnterDateOfBirth.Format .Lpa.LpaID)) .App.Page }}
         {{ template "summary-row" (summaryRow $.App "dateOfBirth" (formatDate .App .CertificateProvider.DateOfBirth) $dateOfBirthChangeLink .Lpa.CertificateProvider.FullName true true ) }}
 
-        {{ if .Lpa.CertificateProvider.Relationship.IsProfessionally }}
+        {{ if .ShowHomeAddress }}
           {{ $homeAddressChangeLink := printf "%s?from=%s#f-address-line-1" (link .App (global.Paths.CertificateProvider.WhatIsYourHomeAddress.Format .Lpa.LpaID)) .App.Page }}
           {{ template "address-summary-row" (summaryRow $.App "homeAddress" .CertificateProvider.HomeAddress $homeAddressChangeLink .Lpa.CertificateProvider.FullName true true ) }}
         {{ end }}
@@ -30,7 +30,9 @@
       <dl class="govuk-summary-list">
         {{ template "summary-row" (summaryRow $.App "name" .Lpa.CertificateProvider.FullName "" .Lpa.CertificateProvider.FullName false true ) }}
         {{ template "address-summary-row" (summaryRow $.App (tr .App .AddressLabel) .Lpa.CertificateProvider.Address "" .Lpa.CertificateProvider.FullName false true ) }}
-        {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ if .ShowPhone }}
+            {{ template "summary-row" (summaryRow $.App (tr .App .PhoneNumberLabel) (formatPhone .Lpa.CertificateProvider.Phone) "" .Lpa.CertificateProvider.FullName false true ) }}
+        {{ end }}
       </dl>
 
       {{ template "details" (details . "whatToDoIfAnyDetailsAreIncorrect" .DetailComponentContent false) }}

@@ -100,9 +100,6 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 		lpa.Drafted = true
 		lpa.Submitted = true
 		lpa.Paid = true
-		// set to Professionally so we always show the certificate provider home
-		// address question
-		lpa.CertificateProvider.Relationship = lpadata.Professionally
 		lpa.Donor.Channel = lpadata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.IsCompleted()
