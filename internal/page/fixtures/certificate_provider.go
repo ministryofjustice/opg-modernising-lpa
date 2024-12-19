@@ -55,6 +55,7 @@ func CertificateProvider(
 			lpaType                           = r.FormValue("lpa-type")
 			progress                          = slices.Index(progressValues, r.FormValue("progress"))
 			email                             = r.FormValue("email")
+			phone                             = r.FormValue("phone")
 			donorEmail                        = r.FormValue("donorEmail")
 			redirect                          = r.FormValue("redirect")
 			asProfessionalCertificateProvider = r.FormValue("relationship") == "professional"
@@ -72,6 +73,12 @@ func CertificateProvider(
 
 		if donorEmail == "" {
 			donorEmail = testEmail
+		}
+
+		if phone == "not-provided" {
+			phone = ""
+		} else if phone == "" {
+			phone = testMobile
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -183,6 +190,8 @@ func CertificateProvider(
 		if email != "" {
 			donorDetails.CertificateProvider.Email = email
 		}
+
+		donorDetails.CertificateProvider.Mobile = phone
 
 		if asProfessionalCertificateProvider {
 			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
