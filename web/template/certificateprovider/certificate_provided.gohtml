@@ -3,23 +3,33 @@
 {{ define "pageTitle" }}{{ tr .App "youveProvidedTheCertificateForThisLpa" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-panel govuk-panel--confirmation app-hide-print">
-        <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
-      </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation app-hide-print">
+                <h1 class="govuk-panel__title">{{ tr .App "youveProvidedTheCertificateForThisLpa" }}</h1>
+            </div>
 
-      {{ trFormatHtml .App "certificateProvidedContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName  }}
+            {{ trFormatHtml .App "certificateProvidedContent" "DonorFullName" .Lpa.Donor.FullName "DonorFirstNames" .Lpa.Donor.FirstNames "CertificateProviderFullName" .Lpa.CertificateProvider.FullName  }}
 
-      {{ trFormatHtml .App "certificateDetails" "SignedAt" (formatDateTime .App .CertificateProvider.SignedAt) "LpaUID" .Lpa.LpaUID "DonorFullName" .Lpa.Donor.FullName }}
+            {{ trFormatHtml .App "certificateDetails" "SignedAt" (formatDateTime .App .CertificateProvider.SignedAt) "LpaUID" .Lpa.LpaUID "DonorFullName" .Lpa.Donor.FullName }}
 
-      {{ trFormatHtml .App "thisMeansYouveDoneEverythingContent" "DonorFullName" .Lpa.Donor.FullName "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
+            {{ if .CertificateProvider.Tasks.ConfirmYourIdentity.IsCompleted }}
+                {{ trFormatHtml .App "thisMeansYouveDoneEverythingContent" "DonorFullName" .Lpa.Donor.FullName "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
 
-      {{ template "print-this-page" . }}
+                {{ template "print-this-page" . }}
 
-      {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNames" .Lpa.Donor.FirstNames }}
+                {{ trFormatHtml .App "certificateProvidedConcerns" "DonorFirstNames" .Lpa.Donor.FirstNames }}
 
-      <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
+                <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button app-hide-print">{{ tr .App "goToYourDashboard" }}</a>
+            {{ else }}
+                {{ trFormatHtml .App "weHaveSentAnEmailYouProvidedCertificate" "CertificateProviderEmail" .Lpa.CertificateProvider.Email }}
+
+                {{ template "print-this-page" . }}
+
+                {{ trFormatHtml .App "certificateProviderNowConfirmYourIdentityContent" "DonorFullName" .Lpa.Donor.FullName "Deadline" (formatDate .App .CertificateProvider.IdentityDeadline) "DonorFirstNames" .Lpa.Donor.FirstNames }}
+
+                {{ template "buttons" (button .App "goToYourDashboard" "link" global.Paths.Dashboard.Format) }}
+            {{ end }}
+        </div>
     </div>
-  </div>
 {{ end }}
