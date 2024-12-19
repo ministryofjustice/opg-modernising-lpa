@@ -48,6 +48,14 @@ function init() {
         }, false);
     }
 
+    const printThisPage = document.getElementById('print-this-page');
+    if (printThisPage) {
+        printThisPage.addEventListener('click', function(e) {
+            window.print();
+            e.preventDefault();
+        }, false);
+    }
+
     function metaContent(name) {
         return document.querySelector(`meta[name=${name}]`).content;
     }
