@@ -14,6 +14,7 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -94,6 +95,7 @@ func handleRunSchedule(ctx context.Context) error {
 	scheduledStore := scheduled.NewStore(dynamoClient)
 	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
 	certificateProviderStore := certificateprovider.NewStore(dynamoClient)
+	attorneyStore := attorney.NewStore(dynamoClient)
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
 
 	if Tag == "" {
@@ -108,6 +110,7 @@ func handleRunSchedule(ctx context.Context) error {
 		scheduledStore,
 		donorStore,
 		certificateProviderStore,
+		attorneyStore,
 		lpaStoreResolvingService,
 		notifyClient,
 		eventClient,
