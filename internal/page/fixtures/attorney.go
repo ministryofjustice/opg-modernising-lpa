@@ -107,6 +107,7 @@ func Attorney(
 			donorSessionID               = base64.StdEncoding.EncodeToString([]byte(donorSub))
 			certificateProviderSessionID = base64.StdEncoding.EncodeToString([]byte(certificateProviderSub))
 			attorneySessionID            = base64.StdEncoding.EncodeToString([]byte(attorneySub))
+			signingCount                 = time.Duration(0)
 		)
 
 		if err := sessionStore.SetLogin(r, w, &sesh.LoginSession{Sub: attorneySub, Email: testEmail}); err != nil {
@@ -251,7 +252,6 @@ func Attorney(
 		}
 
 		certificateProvider.ContactLanguagePreference = localize.En
-		certificateProvider.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 
 		attorney, err := createAttorney(
 			attorneyCtx,
@@ -268,8 +268,8 @@ func Attorney(
 		}
 
 		if progress >= slices.Index(progressValues, "signedByCertificateProvider") {
-			donorDetails.SignedAt = time.Now()
-			certificateProvider.SignedAt = donorDetails.SignedAt.Add(time.Hour)
+			signingCount++
+			certificateProvider.SignedAt = donorDetails.SignedAt.Add(signingCount * time.Hour)
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourDetails") {
@@ -284,6 +284,7 @@ func Attorney(
 
 		if progress >= slices.Index(progressValues, "signedByAttorney") {
 			attorney.Tasks.SignTheLpa = task.StateCompleted
+			signingCount++
 
 			if isTrustCorporation {
 				attorney.WouldLikeSecondSignatory = form.No
@@ -291,10 +292,10 @@ func Attorney(
 					FirstNames:        "A",
 					LastName:          "Sign",
 					ProfessionalTitle: "Assistant to the signer",
-					SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
+					SignedAt:          donorDetails.SignedAt.Add(signingCount * time.Hour),
 				}}
 			} else {
-				attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
+				attorney.SignedAt = donorDetails.SignedAt.Add(signingCount * time.Hour)
 			}
 		}
 
@@ -323,7 +324,8 @@ func Attorney(
 					attorney.Tasks.ConfirmYourDetails = task.StateCompleted
 					attorney.Tasks.ReadTheLpa = task.StateCompleted
 					attorney.Tasks.SignTheLpa = task.StateCompleted
-					attorney.SignedAt = donorDetails.SignedAt.Add(2 * time.Hour)
+					signingCount++
+					attorney.SignedAt = donorDetails.SignedAt.Add(signingCount * time.Hour)
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
 						return err
@@ -355,11 +357,12 @@ func Attorney(
 					attorney.Tasks.ReadTheLpa = task.StateCompleted
 					attorney.Tasks.SignTheLpa = task.StateCompleted
 					attorney.WouldLikeSecondSignatory = form.No
+					signingCount++
 					attorney.AuthorisedSignatories = [2]attorneydata.TrustCorporationSignatory{{
 						FirstNames:        "A",
 						LastName:          "Sign",
 						ProfessionalTitle: "Assistant to the signer",
-						SignedAt:          donorDetails.SignedAt.Add(2 * time.Hour),
+						SignedAt:          donorDetails.SignedAt.Add(signingCount * time.Hour),
 					}}
 
 					if err := attorneyStore.Put(ctx, attorney); err != nil {
