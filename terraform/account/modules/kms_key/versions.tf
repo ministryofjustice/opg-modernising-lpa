@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.80.0"
+      version = "~> 5.82.0"
       configuration_aliases = [
         aws.eu_west_1,
         aws.eu_west_2,
@@ -13,5 +13,5 @@ terraform {
       version = "3.18.1"
     }
   }
-  required_version = "1.10.1"
+  required_version = "1.10.2"
 }
