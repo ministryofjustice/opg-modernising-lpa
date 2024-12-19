@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -318,8 +317,8 @@ type ScheduledKeyType string
 func (t ScheduledKeyType) SK() string { return string(t) }
 
 // ScheduledKey is used as the SK for a scheduled.Event.
-func ScheduledKey(at time.Time, action int) ScheduledKeyType {
-	return ScheduledKeyType(scheduledPrefix + "#" + at.Format(time.RFC3339) + "#" + strconv.Itoa(action))
+func ScheduledKey(at time.Time, rnd string) ScheduledKeyType {
+	return ScheduledKeyType(scheduledPrefix + "#" + at.Format(time.RFC3339) + "#" + rnd)
 }
 
 func PartialScheduledKey() ScheduledKeyType {
