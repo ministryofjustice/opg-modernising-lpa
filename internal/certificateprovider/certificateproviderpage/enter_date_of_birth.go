@@ -56,7 +56,7 @@ func EnterDateOfBirth(tmpl template.Template, certificateProviderStore Certifica
 					return err
 				}
 
-				if lpa.CertificateProvider.Relationship.IsProfessionally() {
+				if lpa.Donor.Channel.IsPaper() || lpa.CertificateProvider.Relationship.IsProfessionally() {
 					return certificateprovider.PathWhatIsYourHomeAddress.Redirect(w, r, appData, certificateProvider.LpaID)
 				}
 
