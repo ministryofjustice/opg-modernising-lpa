@@ -45,6 +45,7 @@ func CertificateProvider(
 		"signedByDonor",
 		"confirmYourDetails",
 		"confirmYourIdentity",
+		"provideYourCertificate",
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
@@ -63,6 +64,7 @@ func CertificateProvider(
 			useRealUID                        = r.FormValue("uid") == "real"
 			donorChannel                      = r.FormValue("donorChannel")
 			isSupported                       = r.FormValue("is-supported") == "1"
+			idStatus                          = r.FormValue("idStatus")
 		)
 
 		if certificateProviderSub == "" {
@@ -278,14 +280,35 @@ func CertificateProvider(
 		}
 
 		if progress >= slices.Index(progressValues, "confirmYourIdentity") {
-			certificateProvider.IdentityUserData = identity.UserData{
-				Status:      identity.StatusConfirmed,
-				CheckedAt:   time.Now(),
-				FirstNames:  donorDetails.CertificateProvider.FirstNames,
-				LastName:    donorDetails.CertificateProvider.LastName,
-				DateOfBirth: certificateProvider.DateOfBirth,
+			var userData identity.UserData
+
+			switch idStatus {
+			case "mismatch":
+				userData = identity.UserData{
+					Status:      identity.StatusConfirmed,
+					CheckedAt:   time.Now(),
+					FirstNames:  "a",
+					LastName:    "b",
+					DateOfBirth: certificateProvider.DateOfBirth,
+				}
+				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+			default:
+				userData = identity.UserData{
+					Status:      identity.StatusConfirmed,
+					CheckedAt:   time.Now(),
+					FirstNames:  donorDetails.CertificateProvider.FirstNames,
+					LastName:    donorDetails.CertificateProvider.LastName,
+					DateOfBirth: certificateProvider.DateOfBirth,
+				}
+				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 			}
-			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+
+			certificateProvider.IdentityUserData = userData
+		}
+
+		if progress >= slices.Index(progressValues, "provideYourCertificate") {
+			certificateProvider.SignedAt = time.Now()
+			certificateProvider.Tasks.ProvideTheCertificate = task.StateCompleted
 		}
 
 		if err := certificateProviderStore.Put(certificateProviderCtx, certificateProvider); err != nil {
