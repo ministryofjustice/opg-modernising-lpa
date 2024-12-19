@@ -19,7 +19,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/secrets"
@@ -167,7 +166,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, random.String, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient))
+		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient), scheduled.NewStore(f.dynamoClient))
 	}
 
 	return f.shareCodeSender, nil
