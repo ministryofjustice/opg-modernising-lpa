@@ -206,7 +206,7 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 
 			lpaID := certificateProviderProvidedDetails.LpaID
 
-			if !certificateProviderProvidedDetails.SignedAt.IsZero() {
+			if !certificateProviderProvidedDetails.SignedAt.IsZero() && certificateProviderProvidedDetails.Tasks.ConfirmYourIdentity.IsCompleted() {
 				delete(certificateProviderMap, lpaID)
 			}
 

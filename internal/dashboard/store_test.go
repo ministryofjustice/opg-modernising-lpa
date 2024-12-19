@@ -105,6 +105,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		SK:       dynamo.CertificateProviderKey(sessionID),
 		LpaID:    "signed-by-cp",
 		SignedAt: time.Now(),
+		Tasks:    certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 	}
 	lpaReferenced := &lpadata.Lpa{LpaID: "referenced", LpaUID: "X"}
 	lpaReferencedLink := map[string]any{
