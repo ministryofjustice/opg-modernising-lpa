@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 )
 
@@ -93,7 +94,7 @@ func handleAddScheduledTasks(ctx context.Context, taskCountEvent TaskCountEvent)
 			TargetLpaOwnerKey: donor.SK,
 			LpaUID:            lpaUID,
 			PK:                dynamo.ScheduledDayKey(now),
-			SK:                dynamo.ScheduledKey(now, int(scheduled.ActionExpireDonorIdentity)),
+			SK:                dynamo.ScheduledKey(now, random.UuidString()),
 		}
 
 		items = append(items, donor, event)
