@@ -190,6 +190,23 @@ func TestAttorneyStoreGetOnError(t *testing.T) {
 	assert.Equal(t, expectedError, err)
 }
 
+func TestAttorneyStoreAll(t *testing.T) {
+	ctx := context.Background()
+	expected := []*attorneydata.Provided{{LpaID: "lpa-id"}}
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.AttorneyKey(""), mock.Anything).
+		Return(expectedError).
+		SetData(expected)
+
+	attorneyStore := &Store{dynamoClient: dynamoClient, now: nil}
+
+	attorney, err := attorneyStore.All(ctx, "lpa-uid")
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, expected, attorney)
+}
+
 func TestAttorneyStorePut(t *testing.T) {
 	ctx := context.Background()
 	now := time.Now()
