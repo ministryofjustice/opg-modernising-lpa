@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,6 +25,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		ShowPhone                       bool
 		ShowHomeAddress                 bool
 		PhoneNumber                     string
+		HomeAddress                     place.Address
 	}{
 		"online donor": {
 			DonorChannel:            lpadata.ChannelOnline,
@@ -40,7 +42,6 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumber:             "123",
 			ShowPhone:               true,
-			ShowHomeAddress:         true,
 		},
 		"lay CP": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -58,6 +59,7 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			PhoneNumber:                     "123",
 			ShowPhone:                       true,
 			ShowHomeAddress:                 true,
+			HomeAddress:                     testAddress,
 		},
 		"missing phone": {
 			CertificateProviderRelationship: lpadata.Personally,
@@ -70,7 +72,6 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone",
 			PhoneNumberLabel:                "mobileNumber",
-			ShowHomeAddress:                 true,
 		},
 	}
 
@@ -86,7 +87,9 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					Phone:        tc.PhoneNumber,
 				},
 			}
-			certificateProvider := &certificateproviderdata.Provided{}
+			certificateProvider := &certificateproviderdata.Provided{
+				HomeAddress: tc.HomeAddress,
+			}
 
 			template := newMockTemplate(t)
 			template.EXPECT().

@@ -49,7 +49,7 @@ func ConfirmYourDetails(tmpl template.Template, certificateProviderStore Certifi
 			AddressLabel:           "address",
 			DetailComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			ShowPhone:              lpa.CertificateProvider.Phone != "",
-			ShowHomeAddress:        lpa.Donor.Channel.IsPaper() || lpa.CertificateProvider.Relationship.IsProfessionally(),
+			ShowHomeAddress:        certificateProvider.HomeAddress.Line1 != "",
 		}
 
 		if !data.ShowPhone {
