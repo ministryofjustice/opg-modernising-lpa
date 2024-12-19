@@ -34,6 +34,16 @@ func (t to) toEmail() (string, localize.Lang)  { return t.email, t.lang }
 func (t to) toMobile() (string, localize.Lang) { return t.mobile, t.lang }
 func (t to) ignore() bool                      { return t.ignored }
 
+// ToDonorOnly is only needed when we won't want the email to go to the
+// correspondent, normally we will use ToDonor.
+func ToDonorOnly(donor *donordata.Provided) To {
+	return to{
+		mobile: donor.Donor.Mobile,
+		email:  donor.Donor.Email,
+		lang:   donor.Donor.ContactLanguagePreference,
+	}
+}
+
 func ToDonor(donor *donordata.Provided) To {
 	to := to{
 		mobile: donor.Donor.Mobile,

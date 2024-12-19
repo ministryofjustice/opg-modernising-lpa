@@ -17,6 +17,8 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
@@ -54,24 +56,32 @@ type CertificateProviderStore interface {
 	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
 }
 
+type ScheduledStore interface {
+	Create(ctx context.Context, rows ...scheduled.Event) error
+}
+
 type Sender struct {
 	testCode                 string
 	shareCodeStore           ShareCodeStore
 	certificateProviderStore CertificateProviderStore
+	scheduledStore           ScheduledStore
 	notifyClient             NotifyClient
 	appPublicURL             string
-	randomString             func(int) string
 	eventClient              EventClient
+	randomString             func(int) string
+	now                      func() time.Time
 }
 
-func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string, eventClient EventClient, certificateProviderStore CertificateProviderStore) *Sender {
+func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
 	return &Sender{
 		shareCodeStore:           shareCodeStore,
 		notifyClient:             notifyClient,
 		appPublicURL:             appPublicURL,
-		randomString:             randomString,
 		eventClient:              eventClient,
 		certificateProviderStore: certificateProviderStore,
+		scheduledStore:           scheduledStore,
+		randomString:             random.String,
+		now:                      time.Now,
 	}
 }
 
@@ -138,22 +148,38 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 	})
 }
 
-func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, donor *lpadata.Lpa) error {
-	if err := s.sendTrustCorporation(ctx, appData, donor, donor.Attorneys.TrustCorporation); err != nil {
+func (s *Sender) SendAttorneys(ctx context.Context, appData appcontext.Data, lpa *lpadata.Lpa) error {
+	if err := s.scheduledStore.Create(ctx, scheduled.Event{
+		At:                s.now().AddDate(0, 3, 1),
+		Action:            scheduled.ActionRemindAttorneyToComplete,
+		TargetLpaKey:      lpa.LpaKey,
+		TargetLpaOwnerKey: lpa.LpaOwnerKey,
+		LpaUID:            lpa.LpaUID,
+	}, scheduled.Event{
+		At:                lpa.ExpiresAt().AddDate(0, -3, 1),
+		Action:            scheduled.ActionRemindAttorneyToComplete,
+		TargetLpaKey:      lpa.LpaKey,
+		TargetLpaOwnerKey: lpa.LpaOwnerKey,
+		LpaUID:            lpa.LpaUID,
+	}); err != nil {
+		return fmt.Errorf("error scheduling attorneys prompt: %w", err)
+	}
+
+	if err := s.sendTrustCorporation(ctx, appData, lpa, lpa.Attorneys.TrustCorporation); err != nil {
 		return err
 	}
-	if err := s.sendReplacementTrustCorporation(ctx, appData, donor, donor.ReplacementAttorneys.TrustCorporation); err != nil {
+	if err := s.sendReplacementTrustCorporation(ctx, appData, lpa, lpa.ReplacementAttorneys.TrustCorporation); err != nil {
 		return err
 	}
 
-	for _, attorney := range donor.Attorneys.Attorneys {
-		if err := s.sendOriginalAttorney(ctx, appData, donor, attorney); err != nil {
+	for _, attorney := range lpa.Attorneys.Attorneys {
+		if err := s.sendOriginalAttorney(ctx, appData, lpa, attorney); err != nil {
 			return err
 		}
 	}
 
-	for _, attorney := range donor.ReplacementAttorneys.Attorneys {
-		if err := s.sendReplacementAttorney(ctx, appData, donor, attorney); err != nil {
+	for _, attorney := range lpa.ReplacementAttorneys.Attorneys {
+		if err := s.sendReplacementAttorney(ctx, appData, lpa, attorney); err != nil {
 			return err
 		}
 	}
