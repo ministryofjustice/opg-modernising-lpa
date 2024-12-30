@@ -472,7 +472,7 @@ func updateLPAProgress(
 
 		donorDetails.FailedVouchAttempts = attempts
 		donorDetails.IdentityUserData = userData
-		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() && userData.Status.IsConfirmed() {
+		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() {
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 	}
