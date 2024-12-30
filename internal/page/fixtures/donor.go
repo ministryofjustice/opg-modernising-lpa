@@ -458,6 +458,7 @@ func updateLPAProgress(
 		if data.Voucher == "1" {
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		}
 
 		attempts, err := strconv.Atoi(data.FailedVouchAttempts)
@@ -465,9 +466,13 @@ func updateLPAProgress(
 			return nil, nil, fmt.Errorf("invalid value for failedVouchAttempts: %s", err.Error())
 		}
 
+		if attempts > 0 {
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
+		}
+
 		donorDetails.FailedVouchAttempts = attempts
 		donorDetails.IdentityUserData = userData
-		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() {
+		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() && userData.Status.IsConfirmed() {
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
 	}
