@@ -13,6 +13,11 @@ data "aws_ecr_repository" "mock_pay" {
   provider = aws.management_eu_west_1
 }
 
+data "aws_ecr_repository" "egress_checker" {
+  name     = "egress-checker"
+  provider = aws.management_eu_west_1
+}
+
 data "aws_ecr_image" "mock_onelogin" {
   repository_name = data.aws_ecr_repository.mock_onelogin.name
   image_tag       = "latest"
@@ -46,6 +51,8 @@ module "eu_west_1" {
   mock_onelogin_service_container_version = data.aws_ecr_image.mock_onelogin.id
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
   mock_pay_service_container_version      = var.container_version
+  egress_checker_repository_url           = data.aws_ecr_repository.egress_checker.repository_url
+  egress_checker_container_version        = var.container_version
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled
