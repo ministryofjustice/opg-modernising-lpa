@@ -20,4 +20,9 @@ const (
 	// a reminder email or letter, plus another to the donor (or correspondent, if
 	// set).
 	ActionRemindCertificateProviderToConfirmIdentity
+
+	// ActionRemindAttorneyToComplete will check that the target attorney has
+	// neither signed nor opted-out, and if so send them a reminder email or
+	// letter, plus another to the donor (or correspondent, if set).
+	ActionRemindAttorneyToComplete
 )

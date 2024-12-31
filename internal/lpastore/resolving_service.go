@@ -95,14 +95,12 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 	lpa.LpaUID = donor.LpaUID
 	lpa.StatutoryWaitingPeriodAt = donor.StatutoryWaitingPeriodAt
 	lpa.CertificateProviderInvitedAt = donor.CertificateProviderInvitedAt
+	lpa.AttorneysInvitedAt = donor.AttorneysInvitedAt
 
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Drafted = true
 		lpa.Submitted = true
 		lpa.Paid = true
-		// set to Professionally so we always show the certificate provider home
-		// address question
-		lpa.CertificateProvider.Relationship = lpadata.Professionally
 		lpa.Donor.Channel = lpadata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.IsCompleted()

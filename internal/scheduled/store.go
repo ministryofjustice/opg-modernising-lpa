@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
 
 type DynamoClient interface {
@@ -18,12 +19,14 @@ type DynamoClient interface {
 
 type Store struct {
 	dynamoClient DynamoClient
+	uuidString   func() string
 	now          func() time.Time
 }
 
 func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{
 		dynamoClient: dynamoClient,
+		uuidString:   random.UuidString,
 		now:          time.Now,
 	}
 }
@@ -49,7 +52,7 @@ func (s *Store) Create(ctx context.Context, rows ...Event) error {
 
 	for _, row := range rows {
 		row.PK = dynamo.ScheduledDayKey(row.At)
-		row.SK = dynamo.ScheduledKey(row.At, int(row.Action))
+		row.SK = dynamo.ScheduledKey(row.At, s.uuidString())
 		row.CreatedAt = s.now()
 
 		transaction.Put(row)

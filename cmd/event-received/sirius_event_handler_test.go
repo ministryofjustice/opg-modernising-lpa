@@ -128,7 +128,7 @@ func TestHandleEvidenceReceivedWhenClientPutError(t *testing.T) {
 func TestHandleFeeApproved(t *testing.T) {
 	e := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -214,7 +214,7 @@ func TestHandleFeeApproved(t *testing.T) {
 func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"HalfFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -283,7 +283,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	donorProvided := donordata.Provided{
@@ -332,7 +332,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 		t.Run(taskState.String(), func(t *testing.T) {
 			event := &events.CloudWatchEvent{
 				DetailType: "reduced-fee-approved",
-				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 			}
 
 			client := newMockDynamodbClient(t)
@@ -346,7 +346,7 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 			client.
 				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-					b, _ := attributevalue.Marshal(&donordata.Provided{
+					b, _ := attributevalue.Marshal(donordata.Provided{
 						PK:      dynamo.LpaKey("123"),
 						SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
 						FeeType: pay.NoFee,
@@ -362,10 +362,160 @@ func TestHandleFeeApprovedWhenAlreadyPaidOrApproved(t *testing.T) {
 	}
 }
 
+func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
+	testcases := map[string]struct {
+		requestedFeeType              pay.FeeType
+		requestedRepeatApplicationFee pay.CostOfRepeatApplication
+		previousFeeType               pay.PreviousFee
+		approvedFeeType               pay.FeeType
+		updatedTaskState              task.PaymentState
+		payment                       donordata.Payment
+	}{
+		"Requested HalfFee, got QuarterFee": {
+			requestedFeeType: pay.HalfFee,
+			approvedFeeType:  pay.QuarterFee,
+			updatedTaskState: task.PaymentStateCompleted,
+			payment:          donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee, got NoFee": {
+			requestedFeeType: pay.HalfFee,
+			approvedFeeType:  pay.NoFee,
+			updatedTaskState: task.PaymentStateCompleted,
+			payment:          donordata.Payment{Amount: 4100},
+		},
+		"Requested NoFee, got HalfFee": {
+			requestedFeeType: pay.NoFee,
+			approvedFeeType:  pay.HalfFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+		"Requested NoFee, got QuarterFee": {
+			requestedFeeType: pay.NoFee,
+			approvedFeeType:  pay.QuarterFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid FullFee), got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeFull,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid FullFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeFull,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid HalfFee), got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeHalf,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid HalfFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeHalf,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+			payment:                       donordata.Payment{Amount: 4100},
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid NoFee), got HalfFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeExemption,
+			approvedFeeType:               pay.HalfFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested HalfFee RepeatApplicationFee (previously paid NoFee), got NoFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationHalfFee,
+			previousFeeType:               pay.PreviousFeeExemption,
+			approvedFeeType:               pay.NoFee,
+			updatedTaskState:              task.PaymentStateCompleted,
+		},
+		"Requested NoFee RepeatApplicationFee, got HalfFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationNoFee,
+			approvedFeeType:               pay.HalfFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested NoFee RepeatApplicationFee, got QuarterFee": {
+			requestedFeeType:              pay.RepeatApplicationFee,
+			requestedRepeatApplicationFee: pay.CostOfRepeatApplicationNoFee,
+			approvedFeeType:               pay.QuarterFee,
+			updatedTaskState:              task.PaymentStateApproved,
+		},
+		"Requested HardshipFee, got HalfFee": {
+			requestedFeeType: pay.HardshipFee,
+			approvedFeeType:  pay.HalfFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+		"Requested HardshipFee, got QuarterFee": {
+			requestedFeeType: pay.HardshipFee,
+			approvedFeeType:  pay.QuarterFee,
+			updatedTaskState: task.PaymentStateApproved,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "reduced-fee-approved",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","approvedType":"%s"}`, tc.approvedFeeType.String())),
+			}
+
+			donorProvided := &donordata.Provided{
+				PK:                      dynamo.LpaKey("123"),
+				SK:                      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+				FeeType:                 tc.requestedFeeType,
+				Tasks:                   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+				PaymentDetails:          []donordata.Payment{tc.payment},
+				PreviousFee:             tc.previousFeeType,
+				CostOfRepeatApplication: tc.requestedRepeatApplicationFee,
+			}
+
+			client := newMockDynamodbClient(t)
+			client.
+				On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
+				Return(func(ctx context.Context, uid string, v interface{}) error {
+					b, _ := attributevalue.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+			client.
+				On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+				Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
+					b, _ := attributevalue.Marshal(donorProvided)
+					attributevalue.Unmarshal(b, v)
+					return nil
+				})
+
+			updatedDonorProvided := *donorProvided
+			updatedDonorProvided.Tasks.PayForLpa = tc.updatedTaskState
+			updatedDonorProvided.FeeType = tc.approvedFeeType
+			updatedDonorProvided.UpdateHash()
+			updatedDonorProvided.UpdatedAt = testNow
+
+			client.EXPECT().
+				Put(ctx, &updatedDonorProvided).
+				Return(nil)
+
+			err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
+			assert.Nil(t, err)
+		})
+	}
+}
+
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -394,7 +544,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -440,7 +590,7 @@ func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
 func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -481,7 +631,7 @@ func TestHandleFeeApprovedWhenEventClientError(t *testing.T) {
 func TestHandleFeeApprovedWhenLpaStoreError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
-		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
 	}
 
 	client := newMockDynamodbClient(t)
@@ -767,7 +917,7 @@ func TestHandleDonorSubmissionCompleted(t *testing.T) {
 				},
 				scheduled.Event{
 					PK:                dynamo.ScheduledDayKey(testNow.AddDate(0, 3, 1)),
-					SK:                dynamo.ScheduledKey(testNow.AddDate(0, 3, 1), int(scheduled.ActionRemindCertificateProviderToComplete)),
+					SK:                dynamo.ScheduledKey(testNow.AddDate(0, 3, 1), testUuidString),
 					CreatedAt:         testNow,
 					At:                testNow.AddDate(0, 3, 1),
 					Action:            scheduled.ActionRemindCertificateProviderToComplete,
@@ -884,10 +1034,30 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 		},
 	}
 
+	updatedDonor := &donordata.Provided{
+		PK:                 dynamo.LpaKey("an-lpa"),
+		UpdatedAt:          testNow,
+		AttorneysInvitedAt: testNow,
+	}
+	updatedDonor.UpdateHash()
+
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
 		Lpa(ctx, "M-1111-2222-3333").
 		Return(lpa, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))})
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
+	dynamoClient.EXPECT().
+		Put(ctx, updatedDonor).
+		Return(nil)
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -904,6 +1074,12 @@ func TestHandleCertificateProviderSubmissionCompleted(t *testing.T) {
 	factory.EXPECT().
 		AppData().
 		Return(appData, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
@@ -960,6 +1136,91 @@ func TestHandleCertificateProviderSubmissionCompletedWhenLpaStoreErrors(t *testi
 	assert.Equal(t, fmt.Errorf("failed to retrieve lpa: %w", expectedError), err)
 }
 
+func TestHandleCertificateProviderSubmissionCompletedWhenDonorGetErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	shareCodeSender := newMockShareCodeSender(t)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderSubmissionCompletedWhenDonorPutErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{
+			CertificateProvider: lpadata.CertificateProvider{
+				Channel: lpadata.ChannelPaper,
+			},
+		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))})
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+	dynamoClient.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendAttorneys(ctx, mock.Anything, mock.Anything).
+		Return(nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		LpaStoreClient().
+		Return(lpaStoreClient, nil)
+	factory.EXPECT().
+		ShareCodeSender(ctx).
+		Return(shareCodeSender, nil)
+	factory.EXPECT().
+		AppData().
+		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
+	assert.ErrorIs(t, err, expectedError)
+}
+
 func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t *testing.T) {
 	lpaStoreClient := newMockLpaStoreClient(t)
 	lpaStoreClient.EXPECT().
@@ -969,6 +1230,16 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 				Channel: lpadata.ChannelPaper,
 			},
 		}, nil)
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))})
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{PK: dynamo.LpaKey("an-lpa")})
 
 	shareCodeSender := newMockShareCodeSender(t)
 	shareCodeSender.EXPECT().
@@ -985,6 +1256,12 @@ func TestHandleCertificateProviderSubmissionCompletedWhenShareCodeSenderErrors(t
 	factory.EXPECT().
 		AppData().
 		Return(appcontext.Data{}, nil)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
 
 	handler := &siriusEventHandler{}
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)

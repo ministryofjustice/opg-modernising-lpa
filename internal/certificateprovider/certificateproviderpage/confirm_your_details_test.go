@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,29 +22,55 @@ func TestGetConfirmYourDetails(t *testing.T) {
 		CertificateProviderRelationship lpadata.CertificateProviderRelationship
 		AddressLabel                    string
 		DetailsComponentContent         string
+		ShowPhone                       bool
+		ShowHomeAddress                 bool
+		PhoneNumber                     string
+		HomeAddress                     place.Address
 	}{
 		"online donor": {
 			DonorChannel:            lpadata.ChannelOnline,
 			PhoneNumberLabel:        "mobileNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			PhoneNumber:             "123",
+			ShowPhone:               true,
 		},
 		"paper donor": {
 			DonorChannel:            lpadata.ChannelPaper,
 			PhoneNumberLabel:        "contactNumber",
 			AddressLabel:            "address",
 			DetailsComponentContent: "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
+			PhoneNumber:             "123",
+			ShowPhone:               true,
 		},
 		"lay CP": {
 			CertificateProviderRelationship: lpadata.Personally,
 			AddressLabel:                    "address",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLay",
 			PhoneNumberLabel:                "mobileNumber",
+			PhoneNumber:                     "123",
+			ShowPhone:                       true,
 		},
 		"professional CP": {
 			CertificateProviderRelationship: lpadata.Professionally,
 			AddressLabel:                    "workAddress",
 			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessional",
+			PhoneNumberLabel:                "mobileNumber",
+			PhoneNumber:                     "123",
+			ShowPhone:                       true,
+			ShowHomeAddress:                 true,
+			HomeAddress:                     testAddress,
+		},
+		"missing phone": {
+			CertificateProviderRelationship: lpadata.Personally,
+			AddressLabel:                    "address",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentLayMissingPhone",
+			PhoneNumberLabel:                "mobileNumber",
+		},
+		"professional missing phone": {
+			CertificateProviderRelationship: lpadata.Professionally,
+			AddressLabel:                    "workAddress",
+			DetailsComponentContent:         "whatToDoIfAnyDetailsAreIncorrectCertificateProviderContentProfessionalMissingPhone",
 			PhoneNumberLabel:                "mobileNumber",
 		},
 	}
@@ -54,10 +81,15 @@ func TestGetConfirmYourDetails(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 			lpa := &lpadata.Lpa{
-				Donor:               lpadata.Donor{Channel: tc.DonorChannel},
-				CertificateProvider: lpadata.CertificateProvider{Relationship: tc.CertificateProviderRelationship},
+				Donor: lpadata.Donor{Channel: tc.DonorChannel},
+				CertificateProvider: lpadata.CertificateProvider{
+					Relationship: tc.CertificateProviderRelationship,
+					Phone:        tc.PhoneNumber,
+				},
 			}
-			certificateProvider := &certificateproviderdata.Provided{}
+			certificateProvider := &certificateproviderdata.Provided{
+				HomeAddress: tc.HomeAddress,
+			}
 
 			template := newMockTemplate(t)
 			template.EXPECT().
@@ -68,6 +100,8 @@ func TestGetConfirmYourDetails(t *testing.T) {
 					PhoneNumberLabel:       tc.PhoneNumberLabel,
 					AddressLabel:           tc.AddressLabel,
 					DetailComponentContent: tc.DetailsComponentContent,
+					ShowPhone:              tc.ShowPhone,
+					ShowHomeAddress:        tc.ShowHomeAddress,
 				}).
 				Return(nil)
 
