@@ -1,5 +1,5 @@
 module "egress_checker" {
-  count                         = 0
+  count                         = var.egress_checker_enabled ? 0 : 1
   source                        = "./modules/egress_checker"
   lambda_function_image_ecr_url = var.egress_checker_repository_url
   lambda_function_image_tag     = var.egress_checker_container_version

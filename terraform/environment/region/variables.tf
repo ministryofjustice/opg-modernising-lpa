@@ -204,3 +204,8 @@ variable "egress_checker_container_version" {
   type        = string
   description = "Container version the egress-checker lambda function"
 }
+
+variable "egress_checker_enabled" {
+  type    = bool
+  default = false
+}
