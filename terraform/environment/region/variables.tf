@@ -194,3 +194,13 @@ variable "waf_alb_association_enabled" {
   description = "Enable WAF association with the ALBs"
   default     = true
 }
+
+variable "egress_checker_repository_url" {
+  type        = string
+  description = "Repository URL for the egress-checker lambda function"
+}
+
+variable "egress_checker_container_version" {
+  type        = string
+  description = "Container version the egress-checker lambda function"
+}
