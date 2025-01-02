@@ -1,6 +1,6 @@
 FROM golang:1.23.4-alpine AS build
 
-RUN apk add --no-cache zip=3.0-r12 unzip=6.0-r14
+RUN apk add --no-cache zip=3.0-r13 unzip=6.0-r15
 
 WORKDIR /app
 
