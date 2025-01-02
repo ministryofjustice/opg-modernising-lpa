@@ -22,6 +22,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
@@ -59,11 +62,13 @@ var (
 
 type factory interface {
 	Now() func() time.Time
+	Bundle() (Bundle, error)
 	DynamoClient() dynamodbClient
 	UuidString() func() string
 	AppData() (appcontext.Data, error)
 	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
 	LpaStoreClient() (LpaStoreClient, error)
+	NotifyClient(ctx context.Context) (NotifyClient, error)
 	UidStore() (UidStore, error)
 	UidClient() UidClient
 	EventClient() EventClient
@@ -123,6 +128,16 @@ type EventClient interface {
 
 type ScheduledStore interface {
 	DeleteAllByUID(ctx context.Context, uid string) error
+}
+
+type NotifyClient interface {
+	EmailGreeting(lpa *lpadata.Lpa) string
+	SendActorEmail(context context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error
+	SendActorSMS(context context.Context, to notify.ToMobile, lpaUID string, sms notify.SMS) error
+}
+
+type Bundle interface {
+	For(lang localize.Lang) *localize.Localizer
 }
 
 type Event struct {

@@ -80,6 +80,63 @@ func (_c *mockFactory_AppData_Call) RunAndReturn(run func() (appcontext.Data, er
 	return _c
 }
 
+// Bundle provides a mock function with given fields:
+func (_m *mockFactory) Bundle() (Bundle, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Bundle")
+	}
+
+	var r0 Bundle
+	var r1 error
+	if rf, ok := ret.Get(0).(func() (Bundle, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() Bundle); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(Bundle)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockFactory_Bundle_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Bundle'
+type mockFactory_Bundle_Call struct {
+	*mock.Call
+}
+
+// Bundle is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) Bundle() *mockFactory_Bundle_Call {
+	return &mockFactory_Bundle_Call{Call: _e.mock.On("Bundle")}
+}
+
+func (_c *mockFactory_Bundle_Call) Run(run func()) *mockFactory_Bundle_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_Bundle_Call) Return(_a0 Bundle, _a1 error) *mockFactory_Bundle_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockFactory_Bundle_Call) RunAndReturn(run func() (Bundle, error)) *mockFactory_Bundle_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DynamoClient provides a mock function with given fields:
 func (_m *mockFactory) DynamoClient() dynamodbClient {
 	ret := _m.Called()
@@ -227,6 +284,64 @@ func (_c *mockFactory_LpaStoreClient_Call) Return(_a0 LpaStoreClient, _a1 error)
 }
 
 func (_c *mockFactory_LpaStoreClient_Call) RunAndReturn(run func() (LpaStoreClient, error)) *mockFactory_LpaStoreClient_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NotifyClient provides a mock function with given fields: ctx
+func (_m *mockFactory) NotifyClient(ctx context.Context) (NotifyClient, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NotifyClient")
+	}
+
+	var r0 NotifyClient
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (NotifyClient, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) NotifyClient); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(NotifyClient)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// mockFactory_NotifyClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NotifyClient'
+type mockFactory_NotifyClient_Call struct {
+	*mock.Call
+}
+
+// NotifyClient is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockFactory_Expecter) NotifyClient(ctx interface{}) *mockFactory_NotifyClient_Call {
+	return &mockFactory_NotifyClient_Call{Call: _e.mock.On("NotifyClient", ctx)}
+}
+
+func (_c *mockFactory_NotifyClient_Call) Run(run func(ctx context.Context)) *mockFactory_NotifyClient_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *mockFactory_NotifyClient_Call) Return(_a0 NotifyClient, _a1 error) *mockFactory_NotifyClient_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *mockFactory_NotifyClient_Call) RunAndReturn(run func(context.Context) (NotifyClient, error)) *mockFactory_NotifyClient_Call {
 	_c.Call.Return(run)
 	return _c
 }

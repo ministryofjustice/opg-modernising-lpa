@@ -555,3 +555,16 @@ func (e AdviseAttorneyToSignOrOptOutEmail) emailID(isProduction bool, lang local
 
 	return "3ddfd30a-02b6-4625-8fbf-5785f5b33864"
 }
+
+type DigitalDonorLpaSubmittedEmail struct {
+	Greeting string
+	LpaType  string
+}
+
+func (e DigitalDonorLpaSubmittedEmail) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "ce8a6d18-05ce-4028-8449-29c09bd1f958"
+	}
+
+	return "cd02bc22-41be-4e2c-94c2-055d6cba6466"
+}
