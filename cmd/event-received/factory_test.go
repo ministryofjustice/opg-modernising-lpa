@@ -11,26 +11,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNow(t *testing.T) {
+func TestFactoryNow(t *testing.T) {
 	factory := &Factory{now: testNowFn}
 
 	assert.Equal(t, testNow, factory.Now()())
 }
 
-func TestDynamoClient(t *testing.T) {
+func TestFactoryDynamoClient(t *testing.T) {
 	dynamoClient := newMockDynamodbClient(t)
 	factory := &Factory{dynamoClient: dynamoClient}
 
 	assert.Equal(t, dynamoClient, factory.DynamoClient())
 }
 
-func TestUuidString(t *testing.T) {
+func TestFactoryUuidString(t *testing.T) {
 	factory := &Factory{uuidString: testUuidStringFn}
 
 	assert.Equal(t, testUuidString, factory.UuidString()())
 }
 
-func TestAppData(t *testing.T) {
+func TestFactoryAppData(t *testing.T) {
 	factory := &Factory{}
 
 	appData, err := factory.AppData()
@@ -38,7 +38,7 @@ func TestAppData(t *testing.T) {
 	assert.Equal(t, appcontext.Data{}, appData)
 }
 
-func TestAppDataWhenSet(t *testing.T) {
+func TestFactoryAppDataWhenSet(t *testing.T) {
 	expected := appcontext.Data{Page: "hi"}
 	factory := &Factory{appData: &expected}
 
@@ -47,14 +47,14 @@ func TestAppDataWhenSet(t *testing.T) {
 	assert.Equal(t, expected, appData)
 }
 
-func TestLambdaClient(t *testing.T) {
+func TestFactoryLambdaClient(t *testing.T) {
 	factory := &Factory{}
 
 	client := factory.LambdaClient()
 	assert.NotNil(t, client)
 }
 
-func TestLambdaClientWhenSet(t *testing.T) {
+func TestFactoryLambdaClientWhenSet(t *testing.T) {
 	expected := newMockLambdaClient(t)
 
 	factory := &Factory{lambdaClient: expected}
@@ -63,7 +63,7 @@ func TestLambdaClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestSecretsClient(t *testing.T) {
+func TestFactorySecretsClient(t *testing.T) {
 	factory := &Factory{}
 
 	client, err := factory.SecretsClient()
@@ -71,7 +71,7 @@ func TestSecretsClient(t *testing.T) {
 	assert.NotNil(t, client)
 }
 
-func TestSecretsClientWhenSet(t *testing.T) {
+func TestFactorySecretsClientWhenSet(t *testing.T) {
 	expected := newMockSecretsClient(t)
 
 	factory := &Factory{secretsClient: expected}
@@ -81,7 +81,7 @@ func TestSecretsClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestShareCodeSender(t *testing.T) {
+func TestFactoryShareCodeSender(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -96,7 +96,7 @@ func TestShareCodeSender(t *testing.T) {
 	assert.NotNil(t, sender)
 }
 
-func TestShareCodeSenderWhenSet(t *testing.T) {
+func TestFactoryShareCodeSenderWhenSet(t *testing.T) {
 	ctx := context.Background()
 
 	expected := newMockShareCodeSender(t)
@@ -108,7 +108,7 @@ func TestShareCodeSenderWhenSet(t *testing.T) {
 	assert.Equal(t, expected, sender)
 }
 
-func TestShareCodeSenderWhenBundleError(t *testing.T) {
+func TestFactoryShareCodeSenderWhenBundleError(t *testing.T) {
 	ctx := context.Background()
 
 	factory := &Factory{}
@@ -117,7 +117,7 @@ func TestShareCodeSenderWhenBundleError(t *testing.T) {
 	assert.ErrorIs(t, err, os.ErrNotExist)
 }
 
-func TestShareCodeSenderWhenSecretsClientError(t *testing.T) {
+func TestFactoryShareCodeSenderWhenSecretsClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -131,7 +131,7 @@ func TestShareCodeSenderWhenSecretsClientError(t *testing.T) {
 	assert.ErrorIs(t, err, expectedError)
 }
 
-func TestShareCodeSenderWhenNotifyClientError(t *testing.T) {
+func TestFactoryShareCodeSenderWhenNotifyClientError(t *testing.T) {
 	ctx := context.Background()
 
 	secretsClient := newMockSecretsClient(t)
@@ -145,7 +145,7 @@ func TestShareCodeSenderWhenNotifyClientError(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestLpaStoreClient(t *testing.T) {
+func TestFactoryLpaStoreClient(t *testing.T) {
 	secretsClient := newMockSecretsClient(t)
 
 	factory := &Factory{secretsClient: secretsClient}
@@ -155,7 +155,7 @@ func TestLpaStoreClient(t *testing.T) {
 	assert.NotNil(t, client)
 }
 
-func TestLpaStoreClientWhenSet(t *testing.T) {
+func TestFactoryLpaStoreClientWhenSet(t *testing.T) {
 	expected := newMockLpaStoreClient(t)
 
 	factory := &Factory{lpaStoreClient: expected}
@@ -165,7 +165,7 @@ func TestLpaStoreClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestUidStore(t *testing.T) {
+func TestFactoryUidStore(t *testing.T) {
 	factory := &Factory{}
 
 	store, err := factory.UidStore()
@@ -173,7 +173,7 @@ func TestUidStore(t *testing.T) {
 	assert.NotNil(t, store)
 }
 
-func TestUidStoreWhenSet(t *testing.T) {
+func TestFactoryUidStoreWhenSet(t *testing.T) {
 	expected := newMockUidStore(t)
 
 	factory := &Factory{uidStore: expected}
@@ -183,14 +183,14 @@ func TestUidStoreWhenSet(t *testing.T) {
 	assert.Equal(t, expected, store)
 }
 
-func TestUidClient(t *testing.T) {
+func TestFactoryUidClient(t *testing.T) {
 	factory := &Factory{}
 
 	client := factory.UidClient()
 	assert.NotNil(t, client)
 }
 
-func TestUidClientWhenSet(t *testing.T) {
+func TestFactoryUidClientWhenSet(t *testing.T) {
 	expected := newMockUidClient(t)
 	factory := &Factory{uidClient: expected}
 
@@ -198,14 +198,14 @@ func TestUidClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestEventClient(t *testing.T) {
+func TestFactoryEventClient(t *testing.T) {
 	factory := &Factory{}
 
 	client := factory.EventClient()
 	assert.NotNil(t, client)
 }
 
-func TestEventClientWhenSet(t *testing.T) {
+func TestFactoryEventClientWhenSet(t *testing.T) {
 	expected := newMockEventClient(t)
 	factory := &Factory{eventClient: expected}
 
@@ -213,17 +213,34 @@ func TestEventClientWhenSet(t *testing.T) {
 	assert.Equal(t, expected, client)
 }
 
-func TestScheduledStore(t *testing.T) {
+func TestFactoryScheduledStore(t *testing.T) {
 	factory := &Factory{}
 
 	client := factory.ScheduledStore()
 	assert.NotNil(t, client)
 }
 
-func TestScheduledStoreWhenSet(t *testing.T) {
+func TestFactoryScheduledStoreWhenSet(t *testing.T) {
 	expected := newMockScheduledStore(t)
 	factory := &Factory{scheduledStore: expected}
 
 	client := factory.ScheduledStore()
 	assert.Equal(t, expected, client)
+}
+
+func TestFactoryBundle(t *testing.T) {
+	factory := &Factory{}
+
+	bundle, err := factory.Bundle()
+	assert.Nil(t, bundle)
+	assert.Error(t, err)
+}
+
+func TestFactoryBundleWhenSet(t *testing.T) {
+	expected := newMockBundle(t)
+	factory := &Factory{bundle: expected}
+
+	bundle, err := factory.Bundle()
+	assert.Equal(t, expected, bundle)
+	assert.Nil(t, err)
 }
