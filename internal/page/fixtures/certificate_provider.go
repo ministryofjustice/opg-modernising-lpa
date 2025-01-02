@@ -292,6 +292,8 @@ func CertificateProvider(
 					DateOfBirth: certificateProvider.DateOfBirth,
 				}
 				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+			case "post-office":
+				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 			default:
 				userData = identity.UserData{
 					Status:      identity.StatusConfirmed,
