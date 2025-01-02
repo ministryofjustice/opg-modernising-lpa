@@ -2,8 +2,6 @@ FROM golang:1.23.4-alpine AS build-env
 
 WORKDIR /app
 
-RUN apk --no-cache add openssl=3.3.2-r1
-
 COPY --link go.mod go.sum ./
 RUN go mod download
 
