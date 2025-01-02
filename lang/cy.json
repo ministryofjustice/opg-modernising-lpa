@@ -1504,5 +1504,7 @@
     "youHaveChosenToConfirmYourIdentityAtPostOffice": "Welsh",
     "whenYouHaveConfirmedAtPostOfficeReturnToTaskList": "Welsh",
     "youveSubmittedYourLpaToOpg": "Welsh",
-    "opgIsCheckingYourLpa": "Welsh"
+    "opgIsCheckingYourLpa": "Welsh",
+    "weHaveSentAnEmailYouProvidedCertificate": "<p class=\"govuk-body\">Welsh {{.CertificateProviderEmail}}</p>",
+    "certificateProviderNowConfirmYourIdentityContent": "<h2 class=\"govuk-heading-m\">Welsh {{.DonorFullName}} {{.DonorFirstNames}} {{.Deadline}}</h2>"
 }
