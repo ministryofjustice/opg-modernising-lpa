@@ -58,6 +58,11 @@ jobs:
             path: ./docker/schedule-runner/Dockerfile
             trivyignores: ./docker/schedule-runner/.trivyignore.yaml
             platforms: linux/amd64
+          - ecr_repository: egress-checker
+            name: egress-checker
+            path: ./docker/egress-checker/Dockerfile
+            trivyignores: ./docker/schedule-runner/.trivyignore.yaml
+            platforms: linux/amd64
 
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
