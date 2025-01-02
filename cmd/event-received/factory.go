@@ -82,6 +82,7 @@ type Factory struct {
 	uidStore        UidStore
 	uidClient       UidClient
 	scheduledStore  ScheduledStore
+	notifyClient    NotifyClient
 }
 
 func (f *Factory) Now() func() time.Time {
@@ -96,7 +97,7 @@ func (f *Factory) UuidString() func() string {
 	return f.uuidString
 }
 
-func (f *Factory) Bundle() (*localize.Bundle, error) {
+func (f *Factory) Bundle() (Bundle, error) {
 	if f.bundle == nil {
 		bundle, err := localize.NewBundle("./lang/en.json", "./lang/cy.json")
 		if err != nil {
@@ -146,22 +147,7 @@ func (f *Factory) SecretsClient() (SecretsClient, error) {
 
 func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) {
 	if f.shareCodeSender == nil {
-		bundle, err := f.Bundle()
-		if err != nil {
-			return nil, err
-		}
-
-		secretsClient, err := f.SecretsClient()
-		if err != nil {
-			return nil, err
-		}
-
-		notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
-		}
-
-		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		notifyClient, err := f.NotifyClient(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -220,4 +206,32 @@ func (f *Factory) ScheduledStore() ScheduledStore {
 	}
 
 	return f.scheduledStore
+}
+
+func (f *Factory) NotifyClient(ctx context.Context) (NotifyClient, error) {
+	if f.notifyClient == nil {
+		bundle, err := f.Bundle()
+		if err != nil {
+			return nil, err
+		}
+
+		secretsClient, err := f.SecretsClient()
+		if err != nil {
+			return nil, err
+		}
+
+		notifyApiKey, err := secretsClient.Secret(ctx, secrets.GovUkNotify)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
+		}
+
+		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		if err != nil {
+			return nil, err
+		}
+
+		f.notifyClient = notifyClient
+	}
+
+	return f.notifyClient, nil
 }

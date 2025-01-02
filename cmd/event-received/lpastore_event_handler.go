@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
 type lpastoreEventHandler struct{}
@@ -28,6 +29,24 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 		}
 
 		switch v.ChangeType {
+		case "CREATE":
+			lpaStoreClient, err := factory.LpaStoreClient()
+			if err != nil {
+				return fmt.Errorf("could not create LpaStoreClient: %w", err)
+			}
+
+			bundle, err := factory.Bundle()
+			if err != nil {
+				return fmt.Errorf("could not load Bundle: %w", err)
+			}
+
+			notifyClient, err := factory.NotifyClient(ctx)
+			if err != nil {
+				return fmt.Errorf("could not create NotifyClient: %w", err)
+			}
+
+			return handleCreate(ctx, factory.DynamoClient(), lpaStoreClient, notifyClient, bundle, v)
+
 		case "REGISTER":
 			lpaStoreClient, err := factory.LpaStoreClient()
 			if err != nil {
@@ -48,6 +67,39 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 	}
 
 	return fmt.Errorf("unknown lpastore event")
+}
+
+func handleCreate(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, bundle Bundle, v lpaUpdatedEvent) error {
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return fmt.Errorf("error getting lpa: %w", err)
+	}
+
+	localizer := bundle.For(lpa.Donor.ContactLanguagePreference)
+
+	if lpa.Donor.Channel.IsPaper() {
+		if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorLpaSubmittedSMS{
+			LpaType: localizer.T(lpa.Type.String()),
+		}); err != nil {
+			return fmt.Errorf("error sending sms: %w", err)
+		}
+
+		return nil
+	}
+
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+	if err != nil {
+		return fmt.Errorf("error getting donor: %w", err)
+	}
+
+	if err := notifyClient.SendActorEmail(ctx, notify.ToDonor(donor), v.UID, notify.DigitalDonorLpaSubmittedEmail{
+		Greeting: notifyClient.EmailGreeting(lpa),
+		LpaType:  localizer.T(lpa.Type.String()),
+	}); err != nil {
+		return fmt.Errorf("error sending email: %w", err)
+	}
+
+	return nil
 }
 
 func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, eventClient EventClient, v lpaUpdatedEvent) error {
