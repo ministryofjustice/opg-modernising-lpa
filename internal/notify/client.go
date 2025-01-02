@@ -49,6 +49,10 @@ type EventClient interface {
 	SendNotificationSent(ctx context.Context, event event.NotificationSent) error
 }
 
+type Bundle interface {
+	For(lang localize.Lang) *localize.Localizer
+}
+
 type Client struct {
 	logger       Logger
 	baseURL      string
@@ -58,10 +62,10 @@ type Client struct {
 	now          func() time.Time
 	isProduction bool
 	eventClient  EventClient
-	bundle       *localize.Bundle
+	bundle       Bundle
 }
 
-func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle *localize.Bundle) (*Client, error) {
+func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle Bundle) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
