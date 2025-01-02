@@ -143,3 +143,15 @@ func (e VoucherHasConfirmedDonorIdentityOnSignedLpaSMS) smsID(isProduction bool,
 
 	return "65072ed8-0d20-4e0d-9800-2f1407407d32"
 }
+
+type PaperDonorLpaSubmittedSMS struct {
+	LpaType string
+}
+
+func (e PaperDonorLpaSubmittedSMS) smsID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		return "edd5d11d-e9e8-4e80-a4e1-daaa46efbe0f"
+	}
+
+	return "e7476d24-6d37-4137-b4a0-de14d3a977ed"
+}
