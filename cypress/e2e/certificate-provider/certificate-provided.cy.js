@@ -18,4 +18,12 @@ describe('Certificate provided', () => {
         cy.contains('a', 'Go to your dashboard').click();
         cy.url().should('contain', '/dashboard');
     });
+
+    describe('when going to the post office', () => {
+        it('shows a deadline', () => {
+            cy.visit('/fixtures/certificate-provider?redirect=/certificate-provided&progress=confirmYourIdentity&idStatus=post-office');
+
+            cy.contains('Now that you have provided the certificate for this LPA, you must confirm your identity and connect it to your LPA account by:');
+        });
+    });
 })
