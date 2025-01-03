@@ -155,3 +155,16 @@ func (e PaperDonorLpaSubmittedSMS) smsID(isProduction bool, lang localize.Lang) 
 
 	return "e7476d24-6d37-4137-b4a0-de14d3a977ed"
 }
+
+type PaperDonorCertificateProvidedSMS struct {
+	CertificateProviderFullName string
+	LpaType                     string
+}
+
+func (e PaperDonorCertificateProvidedSMS) smsID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		return "6b3d9a6c-5103-4c16-8c09-6ebaaec58f93"
+	}
+
+	return "ecdfef3e-cdc0-4393-add5-571bd9cd5c9f"
+}
