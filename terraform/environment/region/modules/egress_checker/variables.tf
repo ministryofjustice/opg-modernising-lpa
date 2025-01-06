@@ -6,7 +6,7 @@ variable "lambda_function_image_tag" {
   type = string
 }
 
-variable "event_received_lambda_role" {
+variable "egress_checker_lambda_role" {
   type = any
 }
 

@@ -38,6 +38,7 @@ module "eu_west_1" {
     cross_account_put                       = module.global.iam_roles.cross_account_put
     fault_injection_simulator               = module.global.iam_roles.fault_injection_simulator
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
+    egress_checker_lambda                   = module.global.iam_roles.egress_checker_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
@@ -111,6 +112,7 @@ module "eu_west_2" {
     cross_account_put                       = module.global.iam_roles.cross_account_put
     fault_injection_simulator               = module.global.iam_roles.fault_injection_simulator
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
+    egress_checker_lambda                   = module.global.iam_roles.egress_checker_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler

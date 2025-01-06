@@ -10,6 +10,7 @@ output "iam_roles" {
     cross_account_put                       = aws_iam_role.cross_account_put,
     fault_injection_simulator               = aws_iam_role.fault_injection_simulator,
     create_s3_batch_replication_jobs_lambda = aws_iam_role.create_s3_batch_replication_jobs_lambda
+    egress_checker_lambda                   = aws_iam_role.egress_checker_lambda
     event_received_lambda                   = aws_iam_role.event_received_lambda
     schedule_runner_lambda                  = aws_iam_role.schedule_runner_lambda
     opensearch_pipeline                     = aws_iam_role.opensearch_pipeline
