@@ -4,7 +4,7 @@
 
 {{ define "main" }}
     {{ $vouchInProgress := and .Donor.IdentityUserData.Status.IsInsufficientEvidence .Donor.Voucher.FirstNames }}
-    {{ $canChange := not (and (or .Donor.IdentityUserData.Status.IsConfirmed $vouchInProgress) .Donor.CanChange) }}
+    {{ $canChange := and .Donor.CanChange (not (or .Donor.IdentityUserData.Status.IsConfirmed $vouchInProgress)) }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
