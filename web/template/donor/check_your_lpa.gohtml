@@ -15,13 +15,13 @@
                 {{ tr .App "lpaDecisions" }}
             </h2>
 
-            {{ template "lpa-decisions" (lpaDecisions .App .Donor .Donor.CanChange) }}
+            {{ template "lpa-decisions" (lpaDecisions .App .Donor .Donor.SignedAt.IsZero) }}
 
             <h2 class="govuk-heading-l govuk-!-margin-bottom-2">
                 {{ tr .App "peopleNamedOnTheLpa" }}
             </h2>
 
-            {{ template "people-named-on-lpa" (lpaDecisions .App .Donor .Donor.CanChange) }}
+            {{ template "people-named-on-lpa" (lpaDecisions .App .Donor .Donor.SignedAt.IsZero) }}
 
             {{ if .CanContinue }}
                 <form novalidate method="post">

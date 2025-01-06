@@ -434,6 +434,7 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
 			}
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		case "expired":
 			userData = identity.UserData{
 				Status: identity.StatusExpired,

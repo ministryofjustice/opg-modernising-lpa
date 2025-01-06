@@ -23,9 +23,45 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
-func TestProvidedCanChange(t *testing.T) {
-	assert.True(t, (&Provided{}).CanChange())
-	assert.False(t, (&Provided{SignedAt: time.Now()}).CanChange())
+func TestProvidedCanChangePersonalDetails(t *testing.T) {
+	testcases := map[string]struct {
+		provided  Provided
+		canChange bool
+	}{
+		"no details": {
+			provided:  Provided{},
+			canChange: true,
+		},
+		"signed": {
+			provided: Provided{
+				SignedAt: time.Now(),
+			},
+		},
+		"vouch in progress": {
+			provided: Provided{
+				Voucher:          Voucher{FirstNames: "a"},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+		},
+		"vouch not in progress (missing name)": {
+			provided: Provided{
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+			},
+			canChange: true,
+		},
+		"vouch not in progress (missing status)": {
+			provided: Provided{
+				Voucher: Voucher{FirstNames: "a"},
+			},
+			canChange: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.canChange, tc.provided.CanChangePersonalDetails())
+		})
+	}
 }
 
 func TestGenerateHash(t *testing.T) {
