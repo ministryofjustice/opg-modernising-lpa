@@ -24,7 +24,7 @@ module "event_received" {
   uid_base_url                  = var.uid_service.base_url
   lpa_store_base_url            = var.lpa_store_service.base_url
   lpa_store_secret_arn          = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
-  allowed_api_arns              = var.uid_service.api_arns
+  allowed_api_arns              = concat(var.uid_service.api_arns, var.lpa_store_service.api_arns)
   search_endpoint               = var.search_endpoint
   search_index_name             = var.search_index_name
   search_collection_arn         = var.search_collection_arn
