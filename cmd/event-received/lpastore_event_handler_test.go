@@ -13,7 +13,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -35,6 +37,283 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedWhenChangeTypeNotExpected(t *testin
 
 	err := handler.Handle(ctx, nil, event)
 	assert.Nil(t, err)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
+	v := &events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"CREATE"}`),
+	}
+
+	lpa := &lpadata.Lpa{
+		Type: lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			ContactLanguagePreference: localize.Cy,
+		},
+	}
+
+	donor := &donordata.Provided{
+		PK:            dynamo.LpaKey("an-lpa"),
+		Correspondent: donordata.Correspondent{Email: "hey@example.com"},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(lpa, nil)
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{
+			PK: dynamo.LpaKey("an-lpa"),
+			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+		})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("an-lpa"), dynamo.DonorKey("a-donor"), mock.Anything).
+		Return(nil).
+		SetData(donor)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(lpa).
+		Return("hello")
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToDonor(donor), "M-1111-2222-3333", notify.DigitalDonorLpaSubmittedEmail{
+			Greeting: "hello",
+			LpaType:  "personal-welfare",
+		}).
+		Return(nil)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.Cy).
+		Return(&localize.Localizer{})
+
+	factory := newMockFactory(t)
+	factory.EXPECT().DynamoClient().Return(client)
+	factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
+	factory.EXPECT().NotifyClient(ctx).Return(notifyClient, nil)
+	factory.EXPECT().Bundle().Return(bundle, nil)
+
+	handler := &lpastoreEventHandler{}
+
+	err := handler.Handle(ctx, factory, v)
+	assert.Nil(t, err)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenFactoryErrors(t *testing.T) {
+	testcases := map[string]func(*mockFactory){
+		"LpaStoreClient": func(factory *mockFactory) {
+			factory.EXPECT().LpaStoreClient().Return(nil, expectedError)
+		},
+		"Bundle": func(factory *mockFactory) {
+			factory.EXPECT().LpaStoreClient().Return(nil, nil)
+			factory.EXPECT().Bundle().Return(nil, expectedError)
+		},
+		"NotifyClient": func(factory *mockFactory) {
+			factory.EXPECT().LpaStoreClient().Return(nil, nil)
+			factory.EXPECT().Bundle().Return(nil, nil)
+			factory.EXPECT().NotifyClient(ctx).Return(nil, expectedError)
+		},
+	}
+
+	for name, setupFactory := range testcases {
+		t.Run(name, func(t *testing.T) {
+			v := &events.CloudWatchEvent{
+				DetailType: "lpa-updated",
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"CREATE"}`),
+			}
+
+			factory := newMockFactory(t)
+			setupFactory(factory)
+
+			handler := &lpastoreEventHandler{}
+
+			err := handler.Handle(ctx, factory, v)
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonor(t *testing.T) {
+	v := &events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"CREATE"}`),
+	}
+
+	lpa := &lpadata.Lpa{
+		Type: lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			Channel:                   lpadata.ChannelPaper,
+			ContactLanguagePreference: localize.Cy,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(lpa, nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorSMS(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.PaperDonorLpaSubmittedSMS{
+			LpaType: "personal-welfare",
+		}).
+		Return(nil)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.Cy).
+		Return(&localize.Localizer{})
+
+	factory := newMockFactory(t)
+	factory.EXPECT().DynamoClient().Return(nil)
+	factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
+	factory.EXPECT().NotifyClient(ctx).Return(notifyClient, nil)
+	factory.EXPECT().Bundle().Return(bundle, nil)
+
+	handler := &lpastoreEventHandler{}
+
+	err := handler.Handle(ctx, factory, v)
+	assert.Nil(t, err)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorAndNotifyErrors(t *testing.T) {
+	lpa := &lpadata.Lpa{
+		Type: lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			Channel:                   lpadata.ChannelPaper,
+			ContactLanguagePreference: localize.Cy,
+		},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(lpa, nil)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(mock.Anything).
+		Return(&localize.Localizer{})
+
+	err := handleCreate(ctx, nil, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenLpaStoreErrors(t *testing.T) {
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	err := handleCreate(ctx, nil, lpaStoreClient, nil, nil, lpaUpdatedEvent{})
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testing.T) {
+	testcases := map[string]func(*mockDynamodbClient){
+		"first": func(client *mockDynamodbClient) {
+			client.EXPECT().
+				OneByUID(mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+		},
+		"second": func(client *mockDynamodbClient) {
+			client.EXPECT().
+				OneByUID(mock.Anything, mock.Anything, mock.Anything).
+				Return(nil).
+				SetData(&donordata.Provided{
+					PK: dynamo.LpaKey("an-lpa"),
+					SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+				})
+			client.EXPECT().
+				One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+		},
+	}
+
+	for name, setupDynamodbClient := range testcases {
+		t.Run(name, func(t *testing.T) {
+
+			lpa := &lpadata.Lpa{
+				Type: lpadata.LpaTypePersonalWelfare,
+				Donor: lpadata.Donor{
+					ContactLanguagePreference: localize.Cy,
+				},
+			}
+
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				Lpa(mock.Anything, mock.Anything).
+				Return(lpa, nil)
+
+			bundle := newMockBundle(t)
+			bundle.EXPECT().
+				For(mock.Anything).
+				Return(&localize.Localizer{})
+
+			client := newMockDynamodbClient(t)
+			setupDynamodbClient(client)
+
+			err := handleCreate(ctx, client, lpaStoreClient, nil, bundle, lpaUpdatedEvent{})
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenNotifyErrors(t *testing.T) {
+	lpa := &lpadata.Lpa{
+		Type: lpadata.LpaTypePersonalWelfare,
+		Donor: lpadata.Donor{
+			ContactLanguagePreference: localize.Cy,
+		},
+	}
+
+	donor := &donordata.Provided{
+		PK:            dynamo.LpaKey("an-lpa"),
+		Correspondent: donordata.Correspondent{Email: "hey@example.com"},
+	}
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(lpa, nil)
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(&donordata.Provided{
+			PK: dynamo.LpaKey("an-lpa"),
+			SK: dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor")),
+		})
+	client.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(donor)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		EmailGreeting(mock.Anything).
+		Return("hello")
+	notifyClient.EXPECT().
+		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(mock.Anything).
+		Return(&localize.Localizer{})
+
+	err := handleCreate(ctx, client, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestLpaStoreEventHandlerHandleLpaUpdatedRegister(t *testing.T) {
