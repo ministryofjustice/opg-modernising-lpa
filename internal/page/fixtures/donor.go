@@ -434,6 +434,7 @@ func updateLPAProgress(
 			userData = identity.UserData{
 				Status: identity.StatusInsufficientEvidence,
 			}
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		case "expired":
 			userData = identity.UserData{
 				Status: identity.StatusExpired,
@@ -458,16 +459,11 @@ func updateLPAProgress(
 		if data.Voucher == "1" {
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
-			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		}
 
 		attempts, err := strconv.Atoi(data.FailedVouchAttempts)
 		if err != nil && data.FailedVouchAttempts != "" {
 			return nil, nil, fmt.Errorf("invalid value for failedVouchAttempts: %s", err.Error())
-		}
-
-		if attempts > 0 {
-			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		}
 
 		donorDetails.FailedVouchAttempts = attempts
