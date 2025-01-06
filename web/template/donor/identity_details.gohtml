@@ -14,7 +14,7 @@
                 {{ if not .Provided.WantVoucher.IsYes }}
                     {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "youHaveSuccessfullyConfirmedYourIdentitySuccess:donor") "success" "contents" ) }}
                 {{ end }}
-            {{ else if .Provided.CanChange }}
+            {{ else if .Provided.SignedAt.IsZero }}
                 {{ template "warning-banner" (content .App "someDetailsDoNotMatchIdentityDetailsWarning") }}
             {{ else }}
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theDetailsOnYourLpaDoNotMatch") "heading") }}
@@ -66,18 +66,18 @@
                     </div>
                 </dl>
             {{ end }}
-            
+
             {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
-            {{ if not .Provided.CanChange }}
+            {{ if not .Provided.SignedAt.IsZero }}
                 <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
-                
+
                 {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
 
                 {{ template "warning" (content .App "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning") }}
             {{ end }}
-            
-            {{ if or .DetailsMatch (not .Provided.CanChange) }}
+
+            {{ if or .DetailsMatch (not .Provided.SignedAt.IsZero) }}
                 {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .Provided.LpaID)) }}
             {{ else }}
                 <form novalidate method="post">

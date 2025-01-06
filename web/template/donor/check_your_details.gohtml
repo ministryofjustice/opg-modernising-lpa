@@ -3,7 +3,7 @@
 {{ define "pageTitle" }}{{ tr .App "checkYourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $hasNoIdentity := and .Donor.IdentityUserData.Status.IsUnknown .Donor.CanChange }}
+    {{ $hasNoIdentity := and .Donor.IdentityUserData.Status.IsUnknown .Donor.SignedAt.IsZero }}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -24,7 +24,7 @@
                 {{ template "address-summary-row" (summaryRow .App "address"
                     .Donor.Donor.Address
                     (fromLink .App global.Paths.YourAddress "#f-address-line-1")
-                    "" .Donor.CanChange true
+                    "" .Donor.SignedAt.IsZero true
                     ) }}
             </dl>
 
