@@ -6,6 +6,7 @@ variable "iam_roles" {
     cross_account_put                       = any
     fault_injection_simulator               = any
     create_s3_batch_replication_jobs_lambda = any
+    egress_checker_lambda                   = any
     event_received_lambda                   = any
     schedule_runner_scheduler               = any
     schedule_runner_lambda                  = any
