@@ -3,9 +3,6 @@
 {{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $vouchInProgress := and .Donor.IdentityUserData.Status.IsInsufficientEvidence .Donor.Voucher.FirstNames }}
-    {{ $canChange := and .Donor.SignedAt.IsZero (not (or .Donor.IdentityUserData.Status.IsConfirmed $vouchInProgress)) }}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
@@ -15,17 +12,17 @@
                     {{ template "summary-row" (summaryRow .App "firstNames"
                         .Donor.Donor.FirstNames
                         (fromLink .App global.Paths.YourName "#f-first-names")
-                        .Donor.Donor.FullName $canChange true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow .App "lastName"
                         .Donor.Donor.LastName
                         (fromLink .App global.Paths.YourName "#f-last-name")
-                        .Donor.Donor.FullName $canChange true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow .App "dateOfBirth"
                         (formatDate .App .Donor.Donor.DateOfBirth)
                         (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
-                        .Donor.Donor.FullName $canChange true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "address-summary-row" (summaryRow $.App "address"
                         .Donor.Donor.Address
@@ -47,7 +44,7 @@
                     <p class="govuk-inset-text">{{ tr .App "someOfTheseDetailsCanNoLongerBeChanged" }}</p>
                 {{ end }}
 
-                {{ if $vouchInProgress }}
+                {{ if and .Donor.IdentityUserData.Status.IsInsufficientEvidence .Donor.Voucher.FirstNames }}
                     <p class="govuk-inset-text">{{ tr .App "Placeholder text to show details cannot be updated while a voucher is confirming the donor’s identity" }}</p>
                 {{ end }}
 

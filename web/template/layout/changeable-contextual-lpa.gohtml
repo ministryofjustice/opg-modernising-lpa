@@ -3,7 +3,7 @@
     {{ $isPropertyAndAffairs := .Donor.Type.IsPropertyAndAffairs }}
     {{ $isDonor := .App.IsDonor }}
     {{ $canChange := and $isDonor .Donor.SignedAt.IsZero }}
-    {{ $canChangePersonalDetails := and .Donor.IdentityUserData.Status.IsUnknown $canChange }}
+    {{ $canChangePersonalDetails := and .Donor.CanChangePersonalDetails $canChange }}
 
     {{ template "contextual-lpa-warning" . }}
 
