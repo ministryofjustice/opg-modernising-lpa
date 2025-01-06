@@ -5,6 +5,14 @@ describe('Confirm your identity', () => {
         });
 
         it('can be completed ', () => {
+            cy.visitLpa("/your-details");
+
+            cy.contains('dt', 'First names').parent().contains('a', 'Change');
+            cy.contains('dt', 'Last name').parent().contains('a', 'Change');
+            cy.contains('dt', 'Date of birth').parent().contains('a', 'Change');
+
+            cy.contains('a', 'Return to task list').click();
+
             cy.contains('li', "Confirm your identity")
                 .should('contain', 'Not started')
                 .find('a')
@@ -25,6 +33,12 @@ describe('Confirm your identity', () => {
             cy.contains('a', 'Return to task list').click();
 
             cy.url().should('contain', '/task-list');
+
+            cy.visitLpa("/your-details");
+
+            cy.contains('dt', 'First names').parent().should('not.contain', 'Change');
+            cy.contains('dt', 'Last name').parent().should('not.contain', 'Change');
+            cy.contains('dt', 'Date of birth').parent().should('not.contain', 'Change');
         });
     });
 
@@ -254,6 +268,40 @@ describe('Confirm your identity', () => {
                 .should('contain', 'Pending')
                 .find('a')
                 .click();
+
+            cy.visitLpa("/your-details");
+
+            cy.contains('dt', 'First names').parent().contains('a', 'Change');
+            cy.contains('dt', 'Last name').parent().contains('a', 'Change');
+            cy.contains('dt', 'Date of birth').parent().contains('a', 'Change');
         });
     });
+
+    describe('when has invited a voucher to confirm identity', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&voucher=1');
+        });
+
+        it('cannot update name or date of birth', () => {
+            cy.visitLpa("/your-details");
+
+            cy.contains('dt', 'First names').parent().should('not.contain', 'Change');
+            cy.contains('dt', 'Last name').parent().should('not.contain', 'Change');
+            cy.contains('dt', 'Date of birth').parent().should('not.contain', 'Change');
+        })
+    })
+
+    describe('when a voucher has been unable to vouch', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&failedVouchAttempts=1');
+        });
+
+        it('can update name and date of birth', () => {
+            cy.visitLpa("/your-details");
+
+            cy.contains('dt', 'First names').parent().should('contain', 'Change');
+            cy.contains('dt', 'Last name').parent().should('contain', 'Change');
+            cy.contains('dt', 'Date of birth').parent().should('contain', 'Change');
+        })
+    })
 });
