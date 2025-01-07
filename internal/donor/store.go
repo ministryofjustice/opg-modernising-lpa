@@ -341,7 +341,7 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	appData := appcontext.DataFromContext(ctx)
-	if appData.IsDonor() && !donor.CanChange() && donor.CheckedHashChanged() {
+	if appData.IsDonor() && !donor.SignedAt.IsZero() && donor.CheckedHashChanged() {
 		return errors.New("donor tried to change a signed LPA")
 	}
 
@@ -488,6 +488,7 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 	}
 
 	provided.Voucher = donordata.Voucher{}
+	provided.VoucherInvitedAt = time.Time{}
 
 	transaction := dynamo.NewTransaction().
 		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
@@ -500,6 +501,7 @@ func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided, v
 	provided.FailedVouchAttempts++
 	provided.WantVoucher = form.No
 	provided.Voucher = donordata.Voucher{}
+	provided.VoucherInvitedAt = time.Time{}
 
 	transaction := dynamo.NewTransaction().
 		Delete(dynamo.Keys{PK: provided.PK, SK: voucherKey}).

@@ -3,8 +3,6 @@
 {{ define "pageTitle" }}{{ tr .App "yourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $hasNoIdentity := and .Donor.IdentityUserData.Status.IsUnknown .Donor.CanChange }}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method="post">
@@ -14,36 +12,40 @@
                     {{ template "summary-row" (summaryRow .App "firstNames"
                         .Donor.Donor.FirstNames
                         (fromLink .App global.Paths.YourName "#f-first-names")
-                        .Donor.Donor.FullName $hasNoIdentity true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow .App "lastName"
                         .Donor.Donor.LastName
                         (fromLink .App global.Paths.YourName "#f-last-name")
-                        .Donor.Donor.FullName $hasNoIdentity true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "summary-row" (summaryRow .App "dateOfBirth"
                         (formatDate .App .Donor.Donor.DateOfBirth)
                         (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
-                        .Donor.Donor.FullName $hasNoIdentity true) }}
+                        .Donor.Donor.FullName .Donor.CanChangePersonalDetails true) }}
 
                     {{ template "address-summary-row" (summaryRow $.App "address"
                         .Donor.Donor.Address
                         (fromLink .App global.Paths.YourAddress "#f-address-line-1")
-                        .Donor.Donor.FullName .Donor.CanChange true) }}
+                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
 
                     {{ template "summary-row" (summaryRow .App "email"
                         .Donor.Donor.Email
                         (fromLink .App global.Paths.YourEmail "#f-email")
-                        .Donor.Donor.FullName .Donor.CanChange true) }}
+                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
 
                     {{ template "summary-row" (summaryRow .App "mobile"
                         .Donor.Donor.Mobile
                         (fromLink .App global.Paths.YourMobile "#f-mobile")
-                        .Donor.Donor.FullName .Donor.CanChange true) }}
+                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
                 </dl>
 
-                {{ if not $hasNoIdentity }}
+                {{ if .Donor.IdentityUserData.Status.IsConfirmed }}
                     <p class="govuk-inset-text">{{ tr .App "someOfTheseDetailsCanNoLongerBeChanged" }}</p>
+                {{ end }}
+
+                {{ if and .Donor.IdentityUserData.Status.IsInsufficientEvidence .Donor.Voucher.FirstNames }}
+                    <p class="govuk-inset-text">{{ tr .App "Placeholder text to show details cannot be updated while a voucher is confirming the donor’s identity" }}</p>
                 {{ end }}
 
                 {{ template "buttons" (button .App "continue" "link" (global.Paths.CanYouSignYourLpa.Format .App.LpaID))  }}
