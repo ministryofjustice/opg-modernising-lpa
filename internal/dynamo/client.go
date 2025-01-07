@@ -67,13 +67,20 @@ func (c *Client) One(ctx context.Context, pk PK, sk SK, v interface{}) error {
 
 func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error {
 	response, err := c.svc.Query(ctx, &dynamodb.QueryInput{
-		TableName:                aws.String(c.table),
-		IndexName:                aws.String(lpaUIDIndex),
-		ExpressionAttributeNames: map[string]string{"#LpaUID": "LpaUID"},
+		TableName: aws.String(c.table),
+		IndexName: aws.String(lpaUIDIndex),
+		ExpressionAttributeNames: map[string]string{
+			"#LpaUID": "LpaUID",
+			"#PK":     "PK",
+			"#SK":     "SK",
+		},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":LpaUID": &types.AttributeValueMemberS{Value: uid},
+			":PK":     &types.AttributeValueMemberS{Value: LpaKey("").PK()},
+			":SK":     &types.AttributeValueMemberS{Value: DonorKey("").SK()},
 		},
 		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+		FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
 		Limit:                  aws.Int32(1),
 	})
 	if err != nil {
