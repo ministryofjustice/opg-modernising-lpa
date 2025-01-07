@@ -225,7 +225,7 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 		return section1Completed && (donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsPending())
 
 	case PathYourName, PathYourDateOfBirth:
-		return donor.IdentityUserData.Status.IsUnknown()
+		return donor.CanChangePersonalDetails()
 
 	default:
 		return true
