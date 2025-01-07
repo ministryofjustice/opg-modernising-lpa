@@ -11,7 +11,7 @@
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (summaryRow .App "name"
                     .Donor.Donor.FullName
-                    (fromLink .App global.Paths.YourDetails "#f-first-names")
+                    (fromLink .App global.Paths.YourName "#f-first-names")
                     "" .Donor.CanChangePersonalDetails true
                     ) }}
                 {{ template "summary-row" (summaryRow .App "dateOfBirth"
