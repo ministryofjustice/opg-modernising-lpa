@@ -23,6 +23,7 @@ func TestGetProgress(t *testing.T) {
 		setupCertificateProviderStore func(*mockCertificateProviderStore_GetAny_Call)
 		lpa                           *lpadata.Lpa
 		infoNotifications             []progressNotification
+		setupLocalizer                func() *mockLocalizer
 	}{
 		"none": {
 			donor: &donordata.Provided{LpaUID: "lpa-uid"},
@@ -101,6 +102,33 @@ func TestGetProgress(t *testing.T) {
 				},
 			},
 		},
+		"more evidence required": {
+			donor: &donordata.Provided{
+				MoreEvidenceRequiredAt: testNow,
+			},
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
+					Body:    "translated body",
+				},
+			},
+			setupLocalizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Format(
+						"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+						map[string]any{"MoreEvidenceRequiredAt": "translated date time"},
+					).
+					Return("translated body")
+
+				l.EXPECT().
+					FormatDateTime(testNow).
+					Return("translated date time")
+
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
@@ -121,6 +149,10 @@ func TestGetProgress(t *testing.T) {
 			certificateProviderStore := newMockCertificateProviderStore(t)
 			if tc.setupCertificateProviderStore != nil {
 				tc.setupCertificateProviderStore(certificateProviderStore.EXPECT().GetAny(r.Context()))
+			}
+
+			if tc.setupLocalizer != nil {
+				testAppData.Localizer = tc.setupLocalizer()
 			}
 
 			template := newMockTemplate(t)
