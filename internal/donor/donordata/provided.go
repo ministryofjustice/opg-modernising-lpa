@@ -175,6 +175,9 @@ type Provided struct {
 	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
 	VoucherInvitedAt time.Time
 
+	// MoreEvidenceRequiredAt records when a request for further information on an exemption/remission was received.
+	MoreEvidenceRequiredAt time.Time
+
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
@@ -238,7 +241,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"CostOfRepeatApplication",
 		"CertificateProviderInvitedAt",
 		"AttorneysInvitedAt",
-		"VoucherInvitedAt":
+		"VoucherInvitedAt",
+		"MoreEvidenceRequiredAt":
 		return false, nil
 	}
 
