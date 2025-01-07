@@ -172,17 +172,17 @@ type Provided struct {
 	// AttorneysInvitedAt records when the invites are sent to the attorneys.
 	AttorneysInvitedAt time.Time
 
+	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
+	VoucherInvitedAt time.Time
+
 	HasSentApplicationUpdatedEvent bool `hash:"-"`
 }
 
 // CanChangePersonalDetails returns true if the donor can make changes to their FirstNames, LastName or DateOfBirth.
 func (p *Provided) CanChangePersonalDetails() bool {
-	if p.IdentityUserData.Status.IsConfirmed() || !p.SignedAt.IsZero() {
-		return false
-	}
-
-	// is a vouch attempt in progress
-	return !p.IdentityUserData.Status.IsInsufficientEvidence() || p.Voucher.FirstNames == ""
+	return !p.IdentityUserData.Status.IsConfirmed() &&
+		p.SignedAt.IsZero() &&
+		p.VoucherInvitedAt.IsZero()
 }
 
 func (p *Provided) HashInclude(field string, _ any) (bool, error) {
@@ -232,7 +232,8 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 		"FailedVouchAttempts",
 		"CostOfRepeatApplication",
 		"CertificateProviderInvitedAt",
-		"AttorneysInvitedAt":
+		"AttorneysInvitedAt",
+		"VoucherInvitedAt":
 		return false, nil
 	}
 

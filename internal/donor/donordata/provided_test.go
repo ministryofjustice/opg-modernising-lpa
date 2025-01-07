@@ -28,7 +28,7 @@ func TestProvidedCanChangePersonalDetails(t *testing.T) {
 		provided  Provided
 		canChange bool
 	}{
-		"no details": {
+		"no personal details": {
 			provided:  Provided{},
 			canChange: true,
 		},
@@ -37,23 +37,15 @@ func TestProvidedCanChangePersonalDetails(t *testing.T) {
 				SignedAt: time.Now(),
 			},
 		},
+		"identity confirmed": {
+			provided: Provided{
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+		},
 		"vouch in progress": {
 			provided: Provided{
-				Voucher:          Voucher{FirstNames: "a"},
-				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				VoucherInvitedAt: testNow,
 			},
-		},
-		"vouch not in progress (missing name)": {
-			provided: Provided{
-				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
-			},
-			canChange: true,
-		},
-		"vouch not in progress (missing status)": {
-			provided: Provided{
-				Voucher: Voucher{FirstNames: "a"},
-			},
-			canChange: true,
 		},
 	}
 
@@ -78,14 +70,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x7789c0f3bc416e1e
+	const modified uint64 = 0x88bad809bb9c1575
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xe907158cc0223aec,
+		0: 0xb23345a21655d556,
 	}
 
 	for version, initial := range testcases {

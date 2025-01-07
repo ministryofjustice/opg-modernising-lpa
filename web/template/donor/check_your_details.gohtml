@@ -3,8 +3,6 @@
 {{ define "pageTitle" }}{{ tr .App "checkYourDetails" }}{{ end }}
 
 {{ define "main" }}
-    {{ $hasNoIdentity := and .Donor.IdentityUserData.Status.IsUnknown .Donor.SignedAt.IsZero }}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "checkYourDetails" }}</h1>
@@ -14,12 +12,12 @@
                 {{ template "summary-row" (summaryRow .App "name"
                     .Donor.Donor.FullName
                     (fromLink .App global.Paths.YourDetails "#f-first-names")
-                    "" $hasNoIdentity true
+                    "" .Donor.CanChangePersonalDetails true
                     ) }}
                 {{ template "summary-row" (summaryRow .App "dateOfBirth"
                     (formatDate .App .Donor.Donor.DateOfBirth)
                     (fromLink .App global.Paths.YourDateOfBirth "#f-date-of-birth")
-                    "" $hasNoIdentity true
+                    "" .Donor.CanChangePersonalDetails true
                     ) }}
                 {{ template "address-summary-row" (summaryRow .App "address"
                     .Donor.Donor.Address
