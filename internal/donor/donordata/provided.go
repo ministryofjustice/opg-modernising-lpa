@@ -45,20 +45,20 @@ type Tasks struct {
 
 // Provided contains all the data related to the LPA application
 type Provided struct {
-	PK dynamo.LpaKeyType      `hash:"-"`
-	SK dynamo.LpaOwnerKeyType `hash:"-"`
+	PK dynamo.LpaKeyType      `hash:"-" checkhash:"-"`
+	SK dynamo.LpaOwnerKeyType `hash:"-" checkhash:"-"`
 	// Hash is used to determine whether the Lpa has been changed since last read
-	Hash uint64 `hash:"-"`
+	Hash uint64 `hash:"-" checkhash:"-"`
 	// HashVersion is used to determine the fields used to calculate Hash
-	HashVersion uint8 `hash:"-"`
+	HashVersion uint8 `hash:"-" checkhash:"-"`
 	// LpaID identifies the LPA being drafted
 	LpaID string
 	// LpaUID is a unique identifier created after sending basic LPA details to the UID service
 	LpaUID string `dynamodbav:",omitempty"`
 	// CreatedAt is when the LPA was created
-	CreatedAt time.Time
+	CreatedAt time.Time `checkhash:"-"`
 	// UpdatedAt is when the LPA was last updated
-	UpdatedAt time.Time `hash:"-"`
+	UpdatedAt time.Time `hash:"-" checkhash:"-"`
 	// The donor the LPA relates to
 	Donor Donor
 	// Attorneys named in the LPA
@@ -78,11 +78,11 @@ type Provided struct {
 	// Restrictions on attorneys actions
 	Restrictions string
 	// Used to show the task list
-	Tasks Tasks
+	Tasks Tasks `checkhash:"-"`
 	// PaymentDetails are records of payments made for the LPA via GOV.UK Pay
-	PaymentDetails []Payment
+	PaymentDetails []Payment `checkhash:"-"`
 	// Information returned by the identity service related to the Donor or Voucher
-	IdentityUserData identity.UserData
+	IdentityUserData identity.UserData `checkhash:"-"`
 	// Replacement attorneys named in the LPA
 	ReplacementAttorneys Attorneys
 	// Information on how the applicant wishes their replacement attorneys to act
@@ -104,78 +104,78 @@ type Provided struct {
 	// The IndependentWitness acts as an additional witness when the LPA is signed
 	IndependentWitness IndependentWitness
 	// Confirmation that the applicant wants to apply to register the LPA
-	WantToApplyForLpa bool
+	WantToApplyForLpa bool `checkhash:"-"`
 	// Confirmation that the applicant wants to sign the LPA
-	WantToSignLpa bool
+	WantToSignLpa bool `checkhash:"-"`
 	// CertificateProviderNotRelatedConfirmedAt is when the donor confirmed the
 	// certificate provider is not related to another similar actor
 	CertificateProviderNotRelatedConfirmedAt time.Time
 	// CheckedAt is when the donor checked their LPA
-	CheckedAt time.Time
+	CheckedAt time.Time `checkhash:"-"`
 	// CheckedHash is the Hash value of the LPA when last checked
-	CheckedHash uint64 `hash:"-"`
+	CheckedHash uint64 `hash:"-" checkhash:"-"`
 	// CheckedHashVersion is used to determine the fields used to calculate CheckedHash
-	CheckedHashVersion uint8 `hash:"-"`
+	CheckedHashVersion uint8 `hash:"-" checkhash:"-"`
 	// SignedAt is when the donor submitted their signature
-	SignedAt time.Time
+	SignedAt time.Time `checkhash:"-"`
 	// SubmittedAt is when the Lpa was sent to the OPG
-	SubmittedAt time.Time
+	SubmittedAt time.Time `checkhash:"-"`
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
-	WithdrawnAt time.Time
+	WithdrawnAt time.Time `checkhash:"-"`
 	// StatutoryWaitingPeriodAt is when the Lpa transitioned to the STATUTORY_WAITING_PERIOD
 	// status in the lpa-store
-	StatutoryWaitingPeriodAt time.Time
+	StatutoryWaitingPeriodAt time.Time `checkhash:"-"`
 	// RegisteringWithCourtOfProtection is set when the donor wishes to take the
 	// Lpa to the Court of Protection for registration.
-	RegisteringWithCourtOfProtection bool
+	RegisteringWithCourtOfProtection bool `checkhash:"-"`
 	// Version is the number of times the LPA has been updated (auto-incremented
 	// on PUT)
-	Version int `hash:"-"`
+	Version int `hash:"-" checkhash:"-"`
 
 	// WantVoucher indicates if the donor knows someone who can vouch for them and wants
 	// then to do so
-	WantVoucher form.YesNo
+	WantVoucher form.YesNo `checkhash:"-"`
 	// Voucher is a person the donor has nominated to vouch for their identity
-	Voucher Voucher
+	Voucher Voucher `checkhash:"-"`
 	// FailedVouchAttempts are the number of unsuccessful attempts a voucher has made to confirm the Donors ID
-	FailedVouchAttempts int
+	FailedVouchAttempts int `checkhash:"-"`
 
 	// Codes used for the certificate provider to witness signing
-	CertificateProviderCodes WitnessCodes
+	CertificateProviderCodes WitnessCodes `checkhash:"-"`
 	// When the signing was witnessed by the certificate provider
-	WitnessedByCertificateProviderAt time.Time
+	WitnessedByCertificateProviderAt time.Time `checkhash:"-"`
 	// Codes used for the independent witness to witness signing
-	IndependentWitnessCodes WitnessCodes
+	IndependentWitnessCodes WitnessCodes `checkhash:"-"`
 	// When the signing was witnessed by the independent witness
-	WitnessedByIndependentWitnessAt time.Time
+	WitnessedByIndependentWitnessAt time.Time `checkhash:"-"`
 	// Used to rate limit witness code attempts
-	WitnessCodeLimiter *Limiter
+	WitnessCodeLimiter *Limiter `checkhash:"-"`
 
 	// FeeType is the type of fee the user is applying for
-	FeeType pay.FeeType
+	FeeType pay.FeeType `checkhash:"-"`
 	// EvidenceDelivery is the method by which the user wants to send evidence
-	EvidenceDelivery pay.EvidenceDelivery
+	EvidenceDelivery pay.EvidenceDelivery `checkhash:"-"`
 	// PreviousApplicationNumber if the application is related to an existing application
-	PreviousApplicationNumber string
+	PreviousApplicationNumber string `checkhash:"-"`
 	// PreviousFee is the fee previously paid for an LPA, if applying for a repeat
 	// of an LPA with reference prefixed 7 or have selected HalfFee for
 	// CostOfRepeatApplication.
-	PreviousFee pay.PreviousFee
+	PreviousFee pay.PreviousFee `checkhash:"-"`
 	// CostOfRepeatApplication is the fee the donor believes they are eligible
 	// for, if applying for a repeat of an LPA with reference prefixed M.
-	CostOfRepeatApplication pay.CostOfRepeatApplication
+	CostOfRepeatApplication pay.CostOfRepeatApplication `checkhash:"-"`
 
 	// CertificateProviderInvitedAt records when the invite is sent to the
 	// certificate provider to act.
-	CertificateProviderInvitedAt time.Time
+	CertificateProviderInvitedAt time.Time `checkhash:"-"`
 
 	// AttorneysInvitedAt records when the invites are sent to the attorneys.
-	AttorneysInvitedAt time.Time
+	AttorneysInvitedAt time.Time `checkhash:"-"`
 
 	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
-	VoucherInvitedAt time.Time
+	VoucherInvitedAt time.Time `checkhash:"-"`
 
-	HasSentApplicationUpdatedEvent bool `hash:"-"`
+	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
 // CanChange returns true if the donor can make changes to their LPA.
@@ -206,40 +206,6 @@ type toCheck Provided
 func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	if c.CheckedHashVersion > currentCheckedHashVersion {
 		return false, errors.New("CheckedHashVersion too high")
-	}
-
-	// The following fields don't contain LPA data, so aren't part of what gets
-	// checked.
-	switch field {
-	case "CheckedAt",
-		"CreatedAt",
-		"Tasks",
-		"PaymentDetails",
-		"IdentityUserData",
-		"WantToApplyForLpa",
-		"WantToSignLpa",
-		"SignedAt",
-		"SubmittedAt",
-		"WithdrawnAt",
-		"StatutoryWaitingPeriodAt",
-		"CertificateProviderCodes",
-		"WitnessedByCertificateProviderAt",
-		"IndependentWitnessCodes",
-		"WitnessedByIndependentWitnessAt",
-		"WitnessCodeLimiter",
-		"FeeType",
-		"EvidenceDelivery",
-		"PreviousApplicationNumber",
-		"PreviousFee",
-		"RegisteringWithCourtOfProtection",
-		"WantVoucher",
-		"Voucher",
-		"FailedVouchAttempts",
-		"CostOfRepeatApplication",
-		"CertificateProviderInvitedAt",
-		"AttorneysInvitedAt",
-		"VoucherInvitedAt":
-		return false, nil
 	}
 
 	return true, nil
@@ -278,7 +244,7 @@ func (p *Provided) UpdateCheckedHash() (err error) {
 }
 
 func (p *Provided) generateCheckedHash() (uint64, error) {
-	return hashstructure.Hash(toCheck(*p), hashstructure.FormatV2, nil)
+	return hashstructure.Hash(toCheck(*p), hashstructure.FormatV2, &hashstructure.HashOptions{TagName: "checkhash"})
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {
