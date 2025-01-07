@@ -94,12 +94,17 @@ func TestOneByUID(t *testing.T) {
 	dynamoDB := newMockDynamoDB(t)
 	dynamoDB.EXPECT().
 		Query(ctx, &dynamodb.QueryInput{
-			TableName:                 aws.String("this"),
-			IndexName:                 aws.String(lpaUIDIndex),
-			ExpressionAttributeNames:  map[string]string{"#LpaUID": "LpaUID"},
-			ExpressionAttributeValues: map[string]types.AttributeValue{":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"}},
-			KeyConditionExpression:    aws.String("#LpaUID = :LpaUID"),
-			Limit:                     aws.Int32(1),
+			TableName:                aws.String("this"),
+			IndexName:                aws.String(lpaUIDIndex),
+			ExpressionAttributeNames: map[string]string{"#LpaUID": "LpaUID", "#PK": "PK", "#SK": "SK"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				":PK":     &types.AttributeValueMemberS{Value: LpaKey("").PK()},
+				":SK":     &types.AttributeValueMemberS{Value: DonorKey("").SK()},
+			},
+			KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
+			FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
+			Limit:                  aws.Int32(1),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
