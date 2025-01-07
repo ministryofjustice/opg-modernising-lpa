@@ -43,7 +43,7 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 			AddressMatch:     provided.Donor.Address.Postcode == provided.IdentityUserData.CurrentAddress.Postcode,
 		}
 
-		if r.Method == http.MethodPost && provided.SignedAt.IsZero() {
+		if r.Method == http.MethodPost && provided.CanChange() {
 			f := form.ReadYesNoForm(r, "yesIfWouldLikeToUpdateDetails")
 			data.Errors = f.Validate()
 

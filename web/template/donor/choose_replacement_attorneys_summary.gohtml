@@ -7,7 +7,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ trCount .App "replacementAttorneysAdded" .Donor.ReplacementAttorneys.Len }}</h1>
 
-            {{ template "attorney-summary" (listAttorneys .App .Donor.ReplacementAttorneys "replacement" 2 .Donor.SignedAt.IsZero) }}
+            {{ template "attorney-summary" (listAttorneys .App .Donor.ReplacementAttorneys "replacement" 2 .Donor.CanChange) }}
 
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName ""

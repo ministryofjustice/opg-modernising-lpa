@@ -27,17 +27,17 @@
                     {{ template "address-summary-row" (summaryRow $.App "address"
                         .Donor.Donor.Address
                         (fromLink .App global.Paths.YourAddress "#f-address-line-1")
-                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
+                        .Donor.Donor.FullName .Donor.CanChange true) }}
 
                     {{ template "summary-row" (summaryRow .App "email"
                         .Donor.Donor.Email
                         (fromLink .App global.Paths.YourEmail "#f-email")
-                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
+                        .Donor.Donor.FullName .Donor.CanChange true) }}
 
                     {{ template "summary-row" (summaryRow .App "mobile"
                         .Donor.Donor.Mobile
                         (fromLink .App global.Paths.YourMobile "#f-mobile")
-                        .Donor.Donor.FullName .Donor.SignedAt.IsZero true) }}
+                        .Donor.Donor.FullName .Donor.CanChange true) }}
                 </dl>
 
                 {{ if .Donor.IdentityUserData.Status.IsConfirmed }}

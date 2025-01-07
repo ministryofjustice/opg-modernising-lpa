@@ -22,7 +22,7 @@
                 {{ template "address-summary-row" (summaryRow .App "address"
                     .Donor.Donor.Address
                     (fromLink .App global.Paths.YourAddress "#f-address-line-1")
-                    "" .Donor.SignedAt.IsZero true
+                    "" .Donor.CanChange true
                     ) }}
             </dl>
 

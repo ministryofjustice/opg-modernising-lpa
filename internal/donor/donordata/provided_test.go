@@ -23,6 +23,11 @@ var address = place.Address{
 	Postcode:   "e",
 }
 
+func TestProvidedCanChange(t *testing.T) {
+	assert.True(t, (&Provided{}).CanChange())
+	assert.False(t, (&Provided{SignedAt: time.Now()}).CanChange())
+}
+
 func TestProvidedCanChangePersonalDetails(t *testing.T) {
 	testcases := map[string]struct {
 		provided  Provided
