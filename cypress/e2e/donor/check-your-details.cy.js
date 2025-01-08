@@ -1,11 +1,20 @@
 describe('Check your details', () => {
     it('shows my details', () => {
-        cy.visit('/fixtures?redirect=/check-your-details&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&voucher=1');
+        cy.visit('/fixtures?redirect=/check-your-details&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence');
 
         cy.checkA11yApp();
-        cy.contains('Sam Smith');
-        cy.contains('2 January 2000');
-        cy.contains('1 RICHMOND PLACE');
+        cy.contains('Sam Smith').parent().contains('a', 'Change').click()
+        cy.url().should('contain', '/your-name');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('2 January 2000').parent().contains('a', 'Change').click()
+        cy.url().should('contain', '/your-date-of-birth');
+        cy.contains('button', 'Save and continue').click();
+
+        cy.contains('1 RICHMOND PLACE').parent().contains('a', 'Change').click()
+        cy.url().should('contain', '/your-address');
+        cy.contains('button', 'Save and continue').click();
+
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/we-have-contacted-voucher');

@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -16,11 +17,17 @@ type checkYourDetailsData struct {
 	Donor  *donordata.Provided
 }
 
-func CheckYourDetails(tmpl template.Template, shareCodeSender ShareCodeSender) Handler {
+func CheckYourDetails(tmpl template.Template, shareCodeSender ShareCodeSender, now func() time.Time, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if provided.Tasks.PayForLpa.IsCompleted() {
 				if err := shareCodeSender.SendVoucherAccessCode(r.Context(), provided, appData); err != nil {
+					return err
+				}
+
+				provided.VoucherInvitedAt = now()
+
+				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
 			}

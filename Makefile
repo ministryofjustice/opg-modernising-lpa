@@ -154,8 +154,8 @@ emit-reduced-fee-declined: ##@events emits a reduced-fee-declined event with the
 		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
 
-emit-more-evidence-required: ##@events emits a more-evidence-required event with the given LpaUID e.g. emit-more-evidence-required uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"more-evidence-required","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
+emit-further-info-requested: ##@events emits a further-info-requested event with the given LpaUID e.g. emit-further-info-requested uid=abc-123
+	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"further-info-requested","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
 		--endpoint-url=http://localhost:4566 \

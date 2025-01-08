@@ -66,17 +66,17 @@
                     </div>
                 </dl>
             {{ end }}
-            
+
             {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
             {{ if not .Provided.CanChange }}
                 <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
-                
+
                 {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
 
                 {{ template "warning" (content .App "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning") }}
             {{ end }}
-            
+
             {{ if or .DetailsMatch (not .Provided.CanChange) }}
                 {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .Provided.LpaID)) }}
             {{ else }}

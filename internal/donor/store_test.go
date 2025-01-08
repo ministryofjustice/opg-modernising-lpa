@@ -1075,7 +1075,7 @@ func TestDonorStoreDeleteVoucher(t *testing.T) {
 	donorStore := &Store{dynamoClient: dynamoClient}
 
 	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
-		Voucher: donordata.Voucher{FirstNames: "a"},
+		Voucher: donordata.Voucher{FirstNames: "a"}, VoucherInvitedAt: testNow,
 	})
 	assert.Equal(t, expectedError, err)
 }
@@ -1126,9 +1126,10 @@ func TestDonorFailVoucher(t *testing.T) {
 	donorStore := &Store{dynamoClient: dynamoClient}
 
 	err := donorStore.FailVoucher(ctx, &donordata.Provided{
-		PK:          dynamo.LpaKey("lpa-id"),
-		Voucher:     donordata.Voucher{FirstNames: "a"},
-		WantVoucher: form.Yes,
+		PK:               dynamo.LpaKey("lpa-id"),
+		Voucher:          donordata.Voucher{FirstNames: "a"},
+		WantVoucher:      form.Yes,
+		VoucherInvitedAt: testNow,
 	}, dynamo.VoucherKey("a-voucher"))
 	assert.Equal(t, expectedError, err)
 }

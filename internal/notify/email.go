@@ -568,3 +568,17 @@ func (e DigitalDonorLpaSubmittedEmail) emailID(isProduction bool, _ localize.Lan
 
 	return "cd02bc22-41be-4e2c-94c2-055d6cba6466"
 }
+
+type DigitalDonorCertificateProvidedEmail struct {
+	Greeting                    string
+	CertificateProviderFullName string
+	LpaType                     string
+}
+
+func (e DigitalDonorCertificateProvidedEmail) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "9db20b35-8728-434b-8090-52cf704bc5a9"
+	}
+
+	return "9baaeb36-f1c6-44ba-840d-14914c18a455"
+}

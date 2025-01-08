@@ -219,12 +219,12 @@ func TestDonorCanGoTo(t *testing.T) {
 			url:      PathReadYourLpa.Format("123"),
 			expected: true,
 		},
-		"your name when identity not set": {
+		"your name when can change personal details": {
 			donor:    &donordata.Provided{},
 			url:      PathYourName.Format("123"),
 			expected: true,
 		},
-		"your name when identity set": {
+		"your name when cannot change personal details": {
 			donor: &donordata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},

@@ -28,6 +28,39 @@ func TestProvidedCanChange(t *testing.T) {
 	assert.False(t, (&Provided{SignedAt: time.Now()}).CanChange())
 }
 
+func TestProvidedCanChangePersonalDetails(t *testing.T) {
+	testcases := map[string]struct {
+		provided  Provided
+		canChange bool
+	}{
+		"no personal details": {
+			provided:  Provided{},
+			canChange: true,
+		},
+		"signed": {
+			provided: Provided{
+				SignedAt: time.Now(),
+			},
+		},
+		"identity confirmed": {
+			provided: Provided{
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+			},
+		},
+		"vouch in progress": {
+			provided: Provided{
+				VoucherInvitedAt: testNow,
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.canChange, tc.provided.CanChangePersonalDetails())
+		})
+	}
+}
+
 func TestGenerateHash(t *testing.T) {
 	makeDonor := func(version uint8, hash uint64) *Provided {
 		return &Provided{
@@ -42,14 +75,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x7789c0f3bc416e1e
+	const modified uint64 = 0xef6373725eb03255
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0xe907158cc0223aec,
+		0: 0xfed6c63ddcd6312f,
 	}
 
 	for version, initial := range testcases {
@@ -99,13 +132,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x70d44213a2b8cce3
+	const modified uint64 = 0x57e9d1a5d8be941c
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0xa9fccd755b8d87b7,
+		0: 0x1e557764b9674996,
 	}
 
 	for version, initial := range testcases {
@@ -113,6 +146,10 @@ func TestGenerateCheckedHash(t *testing.T) {
 			donor := makeDonor(version, initial)
 			hash, _ := donor.generateCheckedHash()
 
+			assert.Equal(t, donor.CheckedHash, hash)
+			assert.False(t, donor.CheckedHashChanged())
+
+			donor.AttorneysInvitedAt = time.Now()
 			assert.Equal(t, donor.CheckedHash, hash)
 			assert.False(t, donor.CheckedHashChanged())
 

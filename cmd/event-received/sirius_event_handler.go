@@ -171,6 +171,7 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 	}
 
 	donor.Tasks.PayForLpa = task.PaymentStateMoreEvidenceRequired
+	donor.MoreEvidenceRequiredAt = now()
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
 		return fmt.Errorf("failed to update LPA task status: %w", err)

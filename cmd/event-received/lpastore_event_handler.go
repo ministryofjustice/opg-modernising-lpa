@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 )
 
@@ -47,6 +48,24 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 
 			return handleCreate(ctx, factory.DynamoClient(), lpaStoreClient, notifyClient, bundle, v)
 
+		case "CERTIFICATE_PROVIDER_SIGN":
+			lpaStoreClient, err := factory.LpaStoreClient()
+			if err != nil {
+				return fmt.Errorf("could not create LpaStoreClient: %w", err)
+			}
+
+			bundle, err := factory.Bundle()
+			if err != nil {
+				return fmt.Errorf("could not load Bundle: %w", err)
+			}
+
+			notifyClient, err := factory.NotifyClient(ctx)
+			if err != nil {
+				return fmt.Errorf("could not create NotifyClient: %w", err)
+			}
+
+			return handleCertificateProviderSign(ctx, factory.DynamoClient(), lpaStoreClient, notifyClient, bundle, v)
+
 		case "REGISTER":
 			lpaStoreClient, err := factory.LpaStoreClient()
 			if err != nil {
@@ -78,10 +97,12 @@ func handleCreate(ctx context.Context, client dynamodbClient, lpaStoreClient Lpa
 	localizer := bundle.For(lpa.Donor.ContactLanguagePreference)
 
 	if lpa.Donor.Channel.IsPaper() {
-		if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorLpaSubmittedSMS{
-			LpaType: localizer.T(lpa.Type.String()),
-		}); err != nil {
-			return fmt.Errorf("error sending sms: %w", err)
+		if lpa.Donor.Mobile != "" {
+			if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorLpaSubmittedSMS{
+				LpaType: localize.LowerFirst(localizer.T(lpa.Type.String())),
+			}); err != nil {
+				return fmt.Errorf("error sending sms: %w", err)
+			}
 		}
 
 		return nil
@@ -94,7 +115,44 @@ func handleCreate(ctx context.Context, client dynamodbClient, lpaStoreClient Lpa
 
 	if err := notifyClient.SendActorEmail(ctx, notify.ToDonor(donor), v.UID, notify.DigitalDonorLpaSubmittedEmail{
 		Greeting: notifyClient.EmailGreeting(lpa),
-		LpaType:  localizer.T(lpa.Type.String()),
+		LpaType:  localize.LowerFirst(localizer.T(lpa.Type.String())),
+	}); err != nil {
+		return fmt.Errorf("error sending email: %w", err)
+	}
+
+	return nil
+}
+
+func handleCertificateProviderSign(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, bundle Bundle, v lpaUpdatedEvent) error {
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return fmt.Errorf("error getting lpa: %w", err)
+	}
+
+	localizer := bundle.For(lpa.Donor.ContactLanguagePreference)
+
+	if lpa.Donor.Channel.IsPaper() {
+		if lpa.Donor.Mobile != "" {
+			if err := notifyClient.SendActorSMS(ctx, notify.ToLpaDonor(lpa), v.UID, notify.PaperDonorCertificateProvidedSMS{
+				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+				LpaType:                     localize.LowerFirst(localizer.T(lpa.Type.String())),
+			}); err != nil {
+				return fmt.Errorf("error sending sms: %w", err)
+			}
+		}
+
+		return nil
+	}
+
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+	if err != nil {
+		return fmt.Errorf("error getting donor: %w", err)
+	}
+
+	if err := notifyClient.SendActorEmail(ctx, notify.ToDonor(donor), v.UID, notify.DigitalDonorCertificateProvidedEmail{
+		Greeting:                    notifyClient.EmailGreeting(lpa),
+		CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+		LpaType:                     localize.LowerFirst(localizer.T(lpa.Type.String())),
 	}); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}
