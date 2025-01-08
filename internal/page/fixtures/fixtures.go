@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -86,6 +87,7 @@ var (
 		Firstnames: "Simone",
 		Lastname:   "Sutherland",
 	}
+	testNow = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
 )
 
 func makeAttorney(name Name) donordata.Attorney {
