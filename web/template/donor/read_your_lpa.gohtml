@@ -7,10 +7,12 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>
 
-            {{ template "warning" (content .App "readAndCheckYourLpa") }}
+            <p class="govuk-body">{{ tr .App "thisPageOutlinesTheDecisionsYouMade" }}</p>
+
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
             {{ template "changeable-contextual-lpa" . }}
-            
+
             {{ template "buttons" (button .App "continue" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
         </div>
     </div>
