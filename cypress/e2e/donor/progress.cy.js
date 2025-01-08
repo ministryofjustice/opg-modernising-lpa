@@ -102,7 +102,7 @@ describe('Progress', () => {
         })
 
         context('when not paid', () => {
-            it('when the voucher has been contacted', () => {
+            it('when the voucher has not been contacted', () => {
                 cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&paymentTaskProgress=InProgress&idStatus=donor:insufficient-evidence');
                 cy.checkA11yApp();
                 cy.contains('Important:')

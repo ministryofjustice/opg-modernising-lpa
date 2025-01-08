@@ -70,26 +70,23 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() && donor.Voucher.FirstNames != "" {
-			var heading, body string
+			var notification progressNotification
 
 			if donor.VoucherInvitedAt.IsZero() && !donor.Tasks.PayForLpa.IsCompleted() {
-				heading = "youMustPayForYourLPA"
-				body = appData.Localizer.Format(
+				notification.Heading = "youMustPayForYourLPA"
+				notification.Body = appData.Localizer.Format(
 					"returnToTaskListToPayForLPAWeWillThenContactVoucher",
 					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
 				)
 			} else {
-				heading = appData.Localizer.Format(
+				notification.Heading = appData.Localizer.Format(
 					"weHaveContactedVoucherToConfirmYourIdentity",
 					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
 				)
-				body = "youDoNotNeedToTakeAnyAction"
+				notification.Body = "youDoNotNeedToTakeAnyAction"
 			}
 
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: heading,
-				Body:    body,
-			})
+			data.InfoNotifications = append(data.InfoNotifications, notification)
 		}
 
 		return tmpl(w, data)
