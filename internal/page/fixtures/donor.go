@@ -414,6 +414,10 @@ func updateLPAProgress(
 
 			donorDetails.EvidenceDelivery = pay.Upload
 			donorDetails.Tasks.PayForLpa = taskState
+
+			if taskState.IsMoreEvidenceRequired() {
+				donorDetails.MoreEvidenceRequiredAt = testNow
+			}
 		}
 	}
 

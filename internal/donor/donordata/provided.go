@@ -175,6 +175,9 @@ type Provided struct {
 	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
 	VoucherInvitedAt time.Time `checkhash:"-"`
 
+	// MoreEvidenceRequiredAt records when a request for further information on an exemption/remission was received.
+	MoreEvidenceRequiredAt time.Time `checkhash:"-"`
+
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
@@ -237,7 +240,7 @@ func (p *Provided) CheckedHashChanged() bool {
 	return hash != p.CheckedHash
 }
 
-// UpdatedCheckedHash will generate a value that can be compared to check if any
+// UpdateCheckedHash will generate a value that can be compared to check if any
 // fields containing LPA data have changed. Fields that do not contain LPA data,
 // so should be ignored for this calculation, are tagged with `checkhash:"-"`.
 func (p *Provided) UpdateCheckedHash() (err error) {
