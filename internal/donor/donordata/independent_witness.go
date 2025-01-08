@@ -12,8 +12,8 @@ type IndependentWitness struct {
 	UID            actoruid.UID
 	FirstNames     string
 	LastName       string
-	HasNonUKMobile bool
-	Mobile         string
+	HasNonUKMobile bool   `checkhash:"-"`
+	Mobile         string `checkhash:"-"`
 	Address        place.Address
 }
 
