@@ -104,6 +104,7 @@ func TestGetProgress(t *testing.T) {
 		},
 		"more evidence required": {
 			donor: &donordata.Provided{
+				Tasks:                  donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
 				MoreEvidenceRequiredAt: testNow,
 			},
 			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},

@@ -57,7 +57,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			}
 		}
 
-		if !donor.Tasks.PayForLpa.IsCompleted() && !donor.MoreEvidenceRequiredAt.IsZero() {
+		if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
 			body := appData.Localizer.Format(
 				"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 				map[string]any{"MoreEvidenceRequiredAt": appData.Localizer.FormatDateTime(donor.MoreEvidenceRequiredAt)},
