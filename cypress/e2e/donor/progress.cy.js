@@ -85,4 +85,33 @@ describe('Progress', () => {
         cy.contains('We need some more evidence to make a decision about your LPA fee');
         cy.contains('We contacted you on 2 April 2023 at 3:04am with guidance about what to do next.');
     });
+
+    context('when paid', () => {
+        it('shows a notification when the voucher has been contacted', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentity&voucher=1');
+            cy.checkA11yApp();
+            cy.contains('Important:')
+            cy.contains('2 notifications from OPG');
+
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+
+            cy.contains('We have contacted Simone Sutherland to confirm your identity');
+            cy.contains('You do not need to take any action.');
+        });
+    })
+
+    context('when not paid', () => {
+        it('shows a notification when the voucher has been contacted', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentity&voucher=1&paymentTaskProgress=InProgress');
+            cy.checkA11yApp();
+            cy.contains('Important:')
+            cy.contains('2 notifications from OPG');
+
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+
+            cy.contains('You must pay for your LPA');
+            cy.contains('Return to your task list to pay for your LPA. We will then be able to contact Simone Sutherland to ask them to confirm your identity.');
+        });
+    })
+
 });

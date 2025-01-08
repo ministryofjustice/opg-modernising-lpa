@@ -69,6 +69,27 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() && !donor.VoucherInvitedAt.IsZero() {
+			heading := appData.Localizer.Format(
+				"weHaveContactedVoucherToConfirmYourIdentity",
+				map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+			)
+			body := "youDoNotNeedToTakeAnyAction."
+
+			if !donor.Tasks.PayForLpa.IsCompleted() {
+				heading = "youMustPayForYourLPA"
+				body = appData.Localizer.Format(
+					"returnToTaskListToPayForLPAWeWillThenContactVoucher",
+					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+				)
+			}
+
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: heading,
+				Body:    body,
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }
