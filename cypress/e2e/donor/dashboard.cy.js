@@ -43,7 +43,7 @@ describe('Dashboard', () => {
             cy.contains('button', 'Actions').click();
             cy.contains('a', 'View LPA');
             cy.contains('a', 'Revoke LPA');
-            cy.contains('a', 'Track LPA progress').click();
+            cy.contains('a', 'Check LPA progress').click();
 
             cy.url().should('contain', '/progress');
         });
@@ -58,7 +58,7 @@ describe('Dashboard', () => {
             cy.contains('strong', 'Waiting period');
             cy.get('.app-dashboard-row a').should('have.length', 3);
             cy.contains('a', 'View LPA');
-            cy.contains('a', 'Track LPA progress');
+            cy.contains('a', 'Check LPA progress');
             cy.contains('a', 'Revoke LPA');
         });
     });
@@ -107,7 +107,7 @@ describe('Dashboard', () => {
             cy.contains('.app-dashboard-card a').should('not.exist');
             cy.get('.app-dashboard-row a').should('have.length', 2);
             cy.contains('a', 'View LPA');
-            cy.contains('a', 'Track LPA');
+            cy.contains('a', 'Check LPA');
         });
     });
 });
