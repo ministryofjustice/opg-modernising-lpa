@@ -7,11 +7,9 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ trFormat .App "readDonorNameLpa" "DonorFullName" .Lpa.Donor.FullName }}</h1>
 
-            {{ if and .App.IsCertificateProvider .Lpa.SignedAt.IsZero }}
-                {{ template "warning" (content .App "youShouldReadLpaCarefully") }}
-            {{ else }}
-                {{ template "warning" (content .App "youMustReadLpaCarefully") }}
-            {{ end }}
+            <p class="govuk-body">{{ trFormat .App "certificateProviderReadCarefullyBeforeSigning" "DonorFullName" .Lpa.Donor.FullName }}</p>
+
+            <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
             {{ template "contextual-lpa" . }}
 
