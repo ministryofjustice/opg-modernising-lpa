@@ -73,4 +73,16 @@ describe('Progress', () => {
         cy.contains('1 notification from OPG');
         cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
     });
+
+    it('shows a notification when more evidence is required', () => {
+        cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&paymentTaskProgress=MoreEvidenceRequired');
+        cy.checkA11yApp();
+        cy.contains('Important:')
+        cy.contains('2 notifications from OPG');
+
+        cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+
+        cy.contains('We need some more evidence to make a decision about your LPA fee');
+        cy.contains('We contacted you on 2 April 2023 at 3:04am with guidance about what to do next.');
+    });
 });

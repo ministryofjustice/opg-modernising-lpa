@@ -670,7 +670,13 @@ func TestHandleFurtherInfoRequested(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: testNow}
+	updated := &donordata.Provided{
+		PK:                     dynamo.LpaKey("123"),
+		SK:                     dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		Tasks:                  donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
+		UpdatedAt:              testNow,
+		MoreEvidenceRequiredAt: testNow,
+	}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
@@ -744,7 +750,13 @@ func TestHandleFurtherInfoRequestedWhenPutError(t *testing.T) {
 		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
 	}
 
-	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), Tasks: donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired}, UpdatedAt: testNow}
+	updated := &donordata.Provided{
+		PK:                     dynamo.LpaKey("123"),
+		SK:                     dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		Tasks:                  donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
+		UpdatedAt:              testNow,
+		MoreEvidenceRequiredAt: testNow,
+	}
 	updated.UpdateHash()
 
 	client := newMockDynamodbClient(t)
