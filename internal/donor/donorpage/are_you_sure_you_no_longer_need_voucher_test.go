@@ -58,10 +58,12 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 		donordata.ProveOwnIdentity: {
 			redirect: donor.PathConfirmYourIdentity,
 			provided: &donordata.Provided{
-				LpaID:   "lpa-id",
-				LpaUID:  "lpa-uid",
-				Donor:   donordata.Donor{FirstNames: "d", LastName: "e"},
-				Voucher: donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				LpaID:            "lpa-id",
+				LpaUID:           "lpa-uid",
+				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
+				WantVoucher:      form.No,
+				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
 		},
 		donordata.SelectNewVoucher: {
@@ -83,6 +85,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				Donor:            donordata.Donor{FirstNames: "d", LastName: "e"},
 				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+				WantVoucher:      form.No,
 			},
 		},
 		donordata.ApplyToCOP: {
@@ -94,6 +97,7 @@ func TestPostAreYouSureYouNoLongerNeedVoucher(t *testing.T) {
 				Voucher:                          donordata.Voucher{FirstNames: "a", LastName: "b", Email: "voucher@example.com"},
 				IdentityUserData:                 identity.UserData{Status: identity.StatusConfirmed},
 				RegisteringWithCourtOfProtection: true,
+				WantVoucher:                      form.No,
 			},
 		},
 	}
