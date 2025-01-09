@@ -308,6 +308,21 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
+		"insufficient evidence and has a failed voucher": {
+			appData: testAppData,
+			donor: &donordata.Provided{
+				LpaID:               "lpa-id",
+				Donor:               donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
+				IdentityUserData:    identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
+				WantVoucher:         form.YesNoUnknown,
+				FailedVouchAttempts: 99,
+			},
+			expected: func(sections []taskListSection) []taskListSection {
+				sections[2].Items[0].Path = donor.PathWhatYouCanDoNow.Format("lpa-id")
+
+				return sections
+			},
+		},
 		"insufficient evidence and is applying to court of protection": {
 			appData: testAppData,
 			donor: &donordata.Provided{

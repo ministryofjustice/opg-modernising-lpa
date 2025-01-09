@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -83,14 +82,16 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 func handleDoNext(doNext donordata.NoVoucherDecision, provided *donordata.Provided) donor.Path {
 	switch doNext {
 	case donordata.ProveOwnIdentity:
-		provided.IdentityUserData = identity.UserData{}
+		provided.WantVoucher = form.No
 		return donor.PathConfirmYourIdentity
 	case donordata.SelectNewVoucher:
 		provided.WantVoucher = form.Yes
 		return donor.PathEnterVoucher
 	case donordata.WithdrawLPA:
+		provided.WantVoucher = form.No
 		return donor.PathWithdrawThisLpa
 	case donordata.ApplyToCOP:
+		provided.WantVoucher = form.No
 		provided.RegisteringWithCourtOfProtection = true
 		return donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 	}
