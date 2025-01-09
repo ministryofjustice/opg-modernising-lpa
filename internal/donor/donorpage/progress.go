@@ -69,6 +69,26 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() && donor.Voucher.FirstNames != "" {
+			var n progressNotification
+
+			if donor.VoucherInvitedAt.IsZero() && !donor.Tasks.PayForLpa.IsCompleted() {
+				n.Heading = "youMustPayForYourLPA"
+				n.Body = appData.Localizer.Format(
+					"returnToTaskListToPayForLPAWeWillThenContactVoucher",
+					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+				)
+			} else if !donor.VoucherInvitedAt.IsZero() {
+				n.Heading = appData.Localizer.Format(
+					"weHaveContactedVoucherToConfirmYourIdentity",
+					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+				)
+				n.Body = "youDoNotNeedToTakeAnyAction"
+			}
+
+			data.InfoNotifications = append(data.InfoNotifications, n)
+		}
+
 		return tmpl(w, data)
 	}
 }
