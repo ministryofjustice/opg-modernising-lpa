@@ -101,15 +101,16 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 			expectedPath: donor.PathConfirmYourIdentity.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				IdentityUserData: identity.UserData{},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.No,
 			},
 		},
 		donordata.SelectNewVoucher: {
 			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				WantVoucher:      form.Yes,
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.Yes,
 			},
 		},
 		donordata.WithdrawLPA: {
@@ -117,6 +118,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.No,
 			},
 		},
 		donordata.ApplyToCOP: {
@@ -125,6 +127,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 				LpaID:                            "lpa-id",
 				RegisteringWithCourtOfProtection: true,
 				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:                      form.No,
 			},
 		},
 	}

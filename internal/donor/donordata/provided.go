@@ -139,6 +139,8 @@ type Provided struct {
 	Voucher Voucher `checkhash:"-"`
 	// FailedVouchAttempts are the number of unsuccessful attempts a voucher has made to confirm the Donors ID
 	FailedVouchAttempts int `checkhash:"-"`
+	// FailedVoucher is the last voucher that was unable to vouch for the donor
+	FailedVoucher Voucher `checkhash:"-"`
 
 	// Codes used for the certificate provider to witness signing
 	CertificateProviderCodes WitnessCodes `checkhash:"-"`
