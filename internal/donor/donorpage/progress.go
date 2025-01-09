@@ -78,7 +78,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					"returnToTaskListToPayForLPAWeWillThenContactVoucher",
 					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
 				)
-			} else {
+			} else if !donor.VoucherInvitedAt.IsZero() {
 				notification.Heading = appData.Localizer.Format(
 					"weHaveContactedVoucherToConfirmYourIdentity",
 					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
