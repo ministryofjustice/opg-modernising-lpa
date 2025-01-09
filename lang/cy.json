@@ -1508,5 +1508,9 @@
     "weContactedYouOnWithGuidanceAboutWhatToDoNext":  "Welsh {{.MoreEvidenceRequiredAt}} Welsh",
     "thisPageOutlinesTheDecisionsYouMade": "Welsh",
     "certificateProviderReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}",
-    "attorneyReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}"
+    "attorneyReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}",
+    "weHaveContactedVoucherToConfirmYourIdentity": "Welsh {{.VoucherFullName}} Welsh",
+    "youDoNotNeedToTakeAnyAction": "Welsh",
+    "youMustPayForYourLPA": "Welsh",
+    "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Welsh {{.VoucherFullName}} Welsh"
 }

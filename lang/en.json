@@ -1404,5 +1404,10 @@
     "weContactedYouOnWithGuidanceAboutWhatToDoNext":  "We contacted you on {{.MoreEvidenceRequiredAt}} with guidance about what to do next.",
     "thisPageOutlinesTheDecisionsYouMade": "This page outlines the decisions you have made in your LPA. Read and check it carefully before signing the LPA. You cannot make changes to the LPA after signing.",
     "certificateProviderReadCarefullyBeforeSigning": "This page outlines the decisions {{.DonorFullName}} made in their LPA and should accurately reflect what you witnessed. Minor errors may have been corrected. Read it carefully before signing the LPA.",
-    "attorneyReadCarefullyBeforeSigning": "This page outlines the decisions {{.DonorFullName}} made in their LPA and how you as an attorney can use it. Minor errors may have been corrected. Read it carefully before signing the LPA."
+    "attorneyReadCarefullyBeforeSigning": "This page outlines the decisions {{.DonorFullName}} made in their LPA and how you as an attorney can use it. Minor errors may have been corrected. Read it carefully before signing the LPA.",
+    "weHaveContactedVoucherToConfirmYourIdentity": "We have contacted {{.VoucherFullName}} to confirm your identity",
+    "youDoNotNeedToTakeAnyAction": "You do not need to take any action.",
+    "youMustPayForYourLPA": "You must pay for your LPA",
+    "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Return to your task list to pay for your LPA. We will then be able to contact {{.VoucherFullName}} to ask them to confirm your identity."
+
 }
