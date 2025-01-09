@@ -498,9 +498,12 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 }
 
 func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error {
+	provided.FailedVoucher = provided.Voucher
+	provided.FailedVoucher.FailedAt = s.now()
+
 	provided.FailedVouchAttempts++
-	provided.WantVoucher = form.No
 	provided.Voucher = donordata.Voucher{}
+	provided.WantVoucher = form.YesNoUnknown
 	provided.VoucherInvitedAt = time.Time{}
 
 	transaction := dynamo.NewTransaction().
