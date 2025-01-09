@@ -130,6 +130,58 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"voucher has been contacted": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateInProgress,
+				},
+				VoucherInvitedAt: testNow,
+				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b"},
+			},
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "translated heading",
+					Body:    "youDoNotNeedToTakeAnyAction",
+				},
+			},
+			setupLocalizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Format(
+						"weHaveContactedVoucherToConfirmYourIdentity",
+						map[string]any{"VoucherFullName": "a b"},
+					).
+					Return("translated heading")
+				return l
+			},
+		},
+		"voucher has been chosen but not contacted": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateInProgress,
+					PayForLpa:           task.PaymentStateInProgress,
+				},
+				Voucher: donordata.Voucher{FirstNames: "a", LastName: "b"},
+			},
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "youMustPayForYourLPA",
+					Body:    "translated body",
+				},
+			},
+			setupLocalizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Format(
+						"returnToTaskListToPayForLPAWeWillThenContactVoucher",
+						map[string]any{"VoucherFullName": "a b"},
+					).
+					Return("translated body")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
