@@ -582,3 +582,35 @@ func (e DigitalDonorCertificateProvidedEmail) emailID(isProduction bool, _ local
 
 	return "9baaeb36-f1c6-44ba-840d-14914c18a455"
 }
+
+type InformDonorPaperCertificateProviderHasNotActedEmail struct {
+	Greeting                    string
+	CertificateProviderFullName string
+	LpaType                     string
+	PostedDate                  string
+	DeadlineDate                string
+}
+
+func (e InformDonorPaperCertificateProviderHasNotActedEmail) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "4ef85faf-68b6-47ba-84ba-3296910640c5"
+	}
+
+	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
+}
+
+type InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail struct {
+	Greeting                    string
+	CertificateProviderFullName string
+	LpaType                     string
+	PostedDate                  string
+	DeadlineDate                string
+}
+
+func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "c43c88f5-c7a2-4a7b-abb4-90718388d3aa"
+	}
+
+	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
+}
