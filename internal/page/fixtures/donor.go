@@ -463,7 +463,10 @@ func updateLPAProgress(
 		if data.Voucher == "1" {
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
-			donorDetails.VoucherInvitedAt = time.Now()
+
+			if donorDetails.Tasks.PayForLpa.IsCompleted() {
+				donorDetails.VoucherInvitedAt = time.Now()
+			}
 		}
 
 		attempts, err := strconv.Atoi(data.FailedVouchAttempts)
