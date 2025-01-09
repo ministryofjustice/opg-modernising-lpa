@@ -119,7 +119,7 @@ func TestGetProgress(t *testing.T) {
 				l.EXPECT().
 					Format(
 						"weContactedYouOnWithGuidanceAboutWhatToDoNext",
-						map[string]any{"MoreEvidenceRequiredAt": "translated date time"},
+						map[string]any{"ContactedDate": "translated date time"},
 					).
 					Return("translated body")
 
@@ -179,6 +179,45 @@ func TestGetProgress(t *testing.T) {
 						map[string]any{"VoucherFullName": "a b"},
 					).
 					Return("translated body")
+				return l
+			},
+		},
+		"voucher was unsuccessful": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{ConfirmYourIdentity: task.IdentityStateInProgress},
+				FailedVoucher: donordata.Voucher{
+					FirstNames: "a",
+					LastName:   "b",
+					FailedAt:   testNow,
+				},
+			},
+			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "translated heading",
+					Body:    "translated body",
+				},
+			},
+			setupLocalizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Format(
+						"voucherHasBeenUnableToConfirmYourIdentity",
+						map[string]any{"VoucherFullName": "a b"},
+					).
+					Return("translated heading")
+
+				l.EXPECT().
+					Format(
+						"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+						map[string]any{"ContactedDate": "translated date time"},
+					).
+					Return("translated body")
+
+				l.EXPECT().
+					FormatDateTime(testNow).
+					Return("translated date time")
+
 				return l
 			},
 		},

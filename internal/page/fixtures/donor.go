@@ -475,6 +475,13 @@ func updateLPAProgress(
 		}
 
 		donorDetails.FailedVouchAttempts = attempts
+		if attempts > 0 {
+			donorDetails.WantVoucher = form.YesNoUnknown
+			donorDetails.FailedVoucher = donorDetails.Voucher
+			donorDetails.FailedVoucher.FailedAt = testNow
+			donorDetails.Voucher = donordata.Voucher{}
+		}
+
 		donorDetails.IdentityUserData = userData
 		if donorDetails.Tasks.ConfirmYourIdentity.IsNotStarted() {
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
