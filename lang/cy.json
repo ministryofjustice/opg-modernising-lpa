@@ -1504,8 +1504,8 @@
     "opgIsCheckingYourLpa": "Welsh",
     "weHaveSentAnEmailYouProvidedCertificate": "<p class=\"govuk-body\">Welsh {{.CertificateProviderEmail}}</p>",
     "certificateProviderNowConfirmYourIdentityContent": "<h2 class=\"govuk-heading-m\">Welsh {{.DonorFullName}} {{.DonorFirstNames}} {{.Deadline}}</h2>",
-    "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee":  "Welsh",
-    "weContactedYouOnWithGuidanceAboutWhatToDoNext":  "Welsh {{.MoreEvidenceRequiredAt}} Welsh",
+    "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee": "Welsh",
+    "weContactedYouOnWithGuidanceAboutWhatToDoNext": "Welsh {{.MoreEvidenceRequiredAt}} Welsh",
     "thisPageOutlinesTheDecisionsYouMade": "Welsh",
     "certificateProviderReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}",
     "attorneyReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}"
