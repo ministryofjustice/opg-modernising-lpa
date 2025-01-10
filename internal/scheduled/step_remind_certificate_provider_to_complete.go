@@ -92,14 +92,27 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 		localizer := r.bundle.For(lpa.Donor.ContactLanguagePreference)
 		toDonorEmail := notify.ToLpaDonor(lpa)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, notify.InformDonorCertificateProviderHasNotActedEmail{
-			Greeting:                        r.notifyClient.EmailGreeting(lpa),
-			CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
-			LpaType:                         localizer.T(lpa.Type.String()),
-			InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
-			DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
-			CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
-		}); err != nil {
+		var email notify.Email
+		if lpa.CertificateProvider.Channel.IsPaper() {
+			email = notify.InformDonorPaperCertificateProviderHasNotActedEmail{
+				Greeting:                    r.notifyClient.EmailGreeting(lpa),
+				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+				LpaType:                     localizer.T(lpa.Type.String()),
+				PostedDate:                  localizer.FormatDate(lpa.CertificateProviderInvitedAt),
+				DeadlineDate:                localizer.FormatDate(lpa.ExpiresAt()),
+			}
+		} else {
+			email = notify.InformDonorCertificateProviderHasNotActedEmail{
+				Greeting:                        r.notifyClient.EmailGreeting(lpa),
+				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
+				LpaType:                         localizer.T(lpa.Type.String()),
+				InvitedDate:                     localizer.FormatDate(lpa.CertificateProviderInvitedAt),
+				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
+				CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send donor email: %w", err)
 		}
 	}
