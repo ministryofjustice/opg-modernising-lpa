@@ -530,6 +530,22 @@ func (e InformDonorAttorneyHasNotActedEmail) emailID(isProduction bool, lang loc
 	return "efc93b6f-d2f3-487d-afef-c6961a0abaed"
 }
 
+type InformDonorPaperAttorneyHasNotActedEmail struct {
+	Greeting         string
+	AttorneyFullName string
+	LpaType          string
+	DeadlineDate     string
+	PostedDate       string
+}
+
+func (e InformDonorPaperAttorneyHasNotActedEmail) emailID(isProduction bool, lang localize.Lang) string {
+	if isProduction {
+		return "81c6c4b1-2d7c-4b74-b08c-1e646146a5bb"
+	}
+
+	return "1be32a05-3492-486f-97f3-630c1ff4f2ae"
+}
+
 type AdviseAttorneyToSignOrOptOutEmail struct {
 	DonorFullName           string
 	DonorFullNamePossessive string
