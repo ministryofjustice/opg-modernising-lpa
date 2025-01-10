@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -22,6 +23,7 @@ func ConfirmYourIdentity(tmpl template.Template, donorStore DonorStore) Handler 
 		if r.Method == http.MethodPost {
 			if provided.Tasks.ConfirmYourIdentity.IsNotStarted() {
 				provided.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
+				provided.IdentityUserData = identity.UserData{}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return fmt.Errorf("error updating donor: %w", err)
