@@ -142,14 +142,27 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 		localizer := r.bundle.For(lpa.Donor.ContactLanguagePreference)
 		toDonorEmail := notify.ToLpaDonor(lpa)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, notify.InformDonorAttorneyHasNotActedEmail{
-			Greeting:             r.notifyClient.EmailGreeting(lpa),
-			AttorneyFullName:     attorney.FullName(),
-			LpaType:              localizer.T(lpa.Type.String()),
-			InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
-			DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
-		}); err != nil {
+		var email notify.Email
+		if attorney.Channel.IsPaper() {
+			email = notify.InformDonorPaperAttorneyHasNotActedEmail{
+				Greeting:         r.notifyClient.EmailGreeting(lpa),
+				AttorneyFullName: attorney.FullName(),
+				LpaType:          localizer.T(lpa.Type.String()),
+				PostedDate:       localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:     localizer.FormatDate(lpa.ExpiresAt()),
+			}
+		} else {
+			email = notify.InformDonorAttorneyHasNotActedEmail{
+				Greeting:             r.notifyClient.EmailGreeting(lpa),
+				AttorneyFullName:     attorney.FullName(),
+				LpaType:              localizer.T(lpa.Type.String()),
+				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send donor email: %w", err)
 		}
 	}
@@ -210,14 +223,27 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 		localizer := r.bundle.For(lpa.Donor.ContactLanguagePreference)
 		toDonorEmail := notify.ToLpaDonor(lpa)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, notify.InformDonorAttorneyHasNotActedEmail{
-			Greeting:             r.notifyClient.EmailGreeting(lpa),
-			AttorneyFullName:     trustCorporation.Name,
-			LpaType:              localizer.T(lpa.Type.String()),
-			InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
-			DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
-			AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
-		}); err != nil {
+		var email notify.Email
+		if trustCorporation.Channel.IsPaper() {
+			email = notify.InformDonorPaperAttorneyHasNotActedEmail{
+				Greeting:         r.notifyClient.EmailGreeting(lpa),
+				AttorneyFullName: trustCorporation.Name,
+				LpaType:          localizer.T(lpa.Type.String()),
+				PostedDate:       localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:     localizer.FormatDate(lpa.ExpiresAt()),
+			}
+		} else {
+			email = notify.InformDonorAttorneyHasNotActedEmail{
+				Greeting:             r.notifyClient.EmailGreeting(lpa),
+				AttorneyFullName:     trustCorporation.Name,
+				LpaType:              localizer.T(lpa.Type.String()),
+				InvitedDate:          localizer.FormatDate(lpa.AttorneysInvitedAt),
+				DeadlineDate:         localizer.FormatDate(lpa.ExpiresAt()),
+				AttorneyStartPageURL: r.appPublicURL + page.PathAttorneyStart.Format(),
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send donor email: %w", err)
 		}
 	}
