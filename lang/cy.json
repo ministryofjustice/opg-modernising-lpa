@@ -1504,13 +1504,14 @@
     "opgIsCheckingYourLpa": "Welsh",
     "weHaveSentAnEmailYouProvidedCertificate": "<p class=\"govuk-body\">Welsh {{.CertificateProviderEmail}}</p>",
     "certificateProviderNowConfirmYourIdentityContent": "<h2 class=\"govuk-heading-m\">Welsh {{.DonorFullName}} {{.DonorFirstNames}} {{.Deadline}}</h2>",
-    "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee": "Welsh",
-    "weContactedYouOnWithGuidanceAboutWhatToDoNext": "Welsh {{.MoreEvidenceRequiredAt}} Welsh",
+    "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee":  "Welsh",
+    "weContactedYouOnWithGuidanceAboutWhatToDoNext":  "Welsh {{.ContactedDate}} Welsh",
     "thisPageOutlinesTheDecisionsYouMade": "Welsh",
     "certificateProviderReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}",
     "attorneyReadCarefullyBeforeSigning": "Welsh {{.DonorFullName}}",
     "weHaveContactedVoucherToConfirmYourIdentity": "Welsh {{.VoucherFullName}} Welsh",
     "youDoNotNeedToTakeAnyAction": "Welsh",
     "youMustPayForYourLPA": "Welsh",
-    "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Welsh {{.VoucherFullName}} Welsh"
+    "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Welsh {{.VoucherFullName}} Welsh",
+    "voucherHasBeenUnableToConfirmYourIdentity": "{{.VoucherFullName}} Welsh"
 }
