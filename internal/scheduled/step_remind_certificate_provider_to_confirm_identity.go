@@ -84,13 +84,26 @@ func (r *Runner) stepRemindCertificateProviderToConfirmIdentity(ctx context.Cont
 		localizer := r.bundle.For(certificateProvider.ContactLanguagePreference)
 		toDonorEmail := notify.ToLpaDonor(lpa)
 
-		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, notify.InformDonorCertificateProviderHasNotConfirmedIdentityEmail{
-			Greeting:                        r.notifyClient.EmailGreeting(lpa),
-			CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
-			LpaType:                         localizer.T(lpa.Type.String()),
-			DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
-			CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
-		}); err != nil {
+		var email notify.Email
+		if lpa.CertificateProvider.Channel.IsPaper() {
+			email = notify.InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail{
+				Greeting:                    r.notifyClient.EmailGreeting(lpa),
+				CertificateProviderFullName: lpa.CertificateProvider.FullName(),
+				LpaType:                     localizer.T(lpa.Type.String()),
+				PostedDate:                  localizer.FormatDate(lpa.CertificateProviderInvitedAt),
+				DeadlineDate:                localizer.FormatDate(lpa.ExpiresAt()),
+			}
+		} else {
+			email = notify.InformDonorCertificateProviderHasNotConfirmedIdentityEmail{
+				Greeting:                        r.notifyClient.EmailGreeting(lpa),
+				CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
+				LpaType:                         localizer.T(lpa.Type.String()),
+				DeadlineDate:                    localizer.FormatDate(lpa.ExpiresAt()),
+				CertificateProviderStartPageURL: r.appPublicURL + page.PathCertificateProviderStart.Format(),
+			}
+		}
+
+		if err := r.notifyClient.SendActorEmail(ctx, toDonorEmail, lpa.LpaUID, email); err != nil {
 			return fmt.Errorf("could not send donor email: %w", err)
 		}
 	}
