@@ -3,7 +3,7 @@ module github.com/ministryofjustice/opg-modernising-lpa
 go 1.23.0
 
 require (
-	github.com/MicahParks/jwkset v0.5.20
+	github.com/MicahParks/jwkset v0.7.0
 	github.com/MicahParks/keyfunc/v3 v3.3.5
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.32.7
@@ -45,7 +45,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.33.0
 	go.opentelemetry.io/otel/trace v1.33.0
 	golang.org/x/mod v0.22.0
-	golang.org/x/time v0.8.0
+	golang.org/x/time v0.9.0
 	golang.org/x/tools v0.28.0
 )
 
