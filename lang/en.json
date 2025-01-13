@@ -1411,5 +1411,7 @@
     "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Return to your task list to pay for your LPA. We will then be able to contact {{.VoucherFullName}} to ask them to confirm your identity.",
     "voucherHasBeenUnableToConfirmYourIdentity": "{{.VoucherFullName}} has been unable to confirm your identity",
     "thereIsAProblemWithYourLpa": "There is a problem with your LPA",
-    "certificateProviderHasBeenUnableToConfirmIdentity": "{{.CertificateProviderFullName}} has been unable to confirm their identity"
+    "certificateProviderHasBeenUnableToConfirmIdentity": "{{.CertificateProviderFullName}} has been unable to confirm their identity",
+    "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} has confirmed your identity",
+    "returnToYourTaskListForInformationAboutWhatToDoNext": "Return to your task list for information about what to do next."
 }
