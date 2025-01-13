@@ -26,6 +26,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
 
 type OrganisationStore interface {
@@ -59,6 +60,7 @@ func Supporter(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
+	voucherStore *voucher.Store,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -196,7 +198,7 @@ func Supporter(
 
 					var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 					if setLPAProgress {
-						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
+						donor, fns, err = updateLPAProgress(donorFixtureData, donor, random.String(16), r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
 						if err != nil {
 							return err
 						}
