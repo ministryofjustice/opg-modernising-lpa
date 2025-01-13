@@ -1513,5 +1513,7 @@
     "youDoNotNeedToTakeAnyAction": "Welsh",
     "youMustPayForYourLPA": "Welsh",
     "returnToTaskListToPayForLPAWeWillThenContactVoucher": "Welsh {{.VoucherFullName}} Welsh",
-    "voucherHasBeenUnableToConfirmYourIdentity": "{{.VoucherFullName}} Welsh"
+    "voucherHasBeenUnableToConfirmYourIdentity": "{{.VoucherFullName}} Welsh",
+    "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} Welsh",
+    "returnToYourTaskListForInformationAboutWhatToDoNext": "Welsh"
 }
