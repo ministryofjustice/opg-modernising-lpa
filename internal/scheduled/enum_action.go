@@ -12,11 +12,14 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[ActionExpireDonorIdentity-1]
+	_ = x[ActionRemindCertificateProviderToComplete-2]
+	_ = x[ActionRemindCertificateProviderToConfirmIdentity-3]
+	_ = x[ActionRemindAttorneyToComplete-4]
 }
 
-const _Action_name = "ExpireDonorIdentity"
+const _Action_name = "ExpireDonorIdentityRemindCertificateProviderToCompleteRemindCertificateProviderToConfirmIdentityRemindAttorneyToComplete"
 
-var _Action_index = [...]uint8{0, 19}
+var _Action_index = [...]uint8{0, 19, 54, 96, 120}
 
 func (i Action) String() string {
 	i -= 1
@@ -44,19 +47,43 @@ func (i Action) IsExpireDonorIdentity() bool {
 	return i == ActionExpireDonorIdentity
 }
 
+func (i Action) IsRemindCertificateProviderToComplete() bool {
+	return i == ActionRemindCertificateProviderToComplete
+}
+
+func (i Action) IsRemindCertificateProviderToConfirmIdentity() bool {
+	return i == ActionRemindCertificateProviderToConfirmIdentity
+}
+
+func (i Action) IsRemindAttorneyToComplete() bool {
+	return i == ActionRemindAttorneyToComplete
+}
+
 func ParseAction(s string) (Action, error) {
 	switch s {
 	case "ExpireDonorIdentity":
 		return ActionExpireDonorIdentity, nil
+	case "RemindCertificateProviderToComplete":
+		return ActionRemindCertificateProviderToComplete, nil
+	case "RemindCertificateProviderToConfirmIdentity":
+		return ActionRemindCertificateProviderToConfirmIdentity, nil
+	case "RemindAttorneyToComplete":
+		return ActionRemindAttorneyToComplete, nil
 	default:
 		return Action(0), fmt.Errorf("invalid Action '%s'", s)
 	}
 }
 
 type ActionOptions struct {
-	ExpireDonorIdentity Action
+	ExpireDonorIdentity                        Action
+	RemindCertificateProviderToComplete        Action
+	RemindCertificateProviderToConfirmIdentity Action
+	RemindAttorneyToComplete                   Action
 }
 
 var ActionValues = ActionOptions{
-	ExpireDonorIdentity: ActionExpireDonorIdentity,
+	ExpireDonorIdentity:                        ActionExpireDonorIdentity,
+	RemindCertificateProviderToComplete:        ActionRemindCertificateProviderToComplete,
+	RemindCertificateProviderToConfirmIdentity: ActionRemindCertificateProviderToConfirmIdentity,
+	RemindAttorneyToComplete:                   ActionRemindAttorneyToComplete,
 }
