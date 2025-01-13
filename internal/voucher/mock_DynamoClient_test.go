@@ -71,6 +71,55 @@ func (_c *mockDynamoClient_One_Call) RunAndReturn(run func(context.Context, dyna
 	return _c
 }
 
+// OneByPartialSK provides a mock function with given fields: ctx, pk, partialSK, v
+func (_m *mockDynamoClient) OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error {
+	ret := _m.Called(ctx, pk, partialSK, v)
+
+	if len(ret) == 0 {
+		panic("no return value specified for OneByPartialSK")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, interface{}) error); ok {
+		r0 = rf(ctx, pk, partialSK, v)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockDynamoClient_OneByPartialSK_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OneByPartialSK'
+type mockDynamoClient_OneByPartialSK_Call struct {
+	*mock.Call
+}
+
+// OneByPartialSK is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pk dynamo.PK
+//   - partialSK dynamo.SK
+//   - v interface{}
+func (_e *mockDynamoClient_Expecter) OneByPartialSK(ctx interface{}, pk interface{}, partialSK interface{}, v interface{}) *mockDynamoClient_OneByPartialSK_Call {
+	return &mockDynamoClient_OneByPartialSK_Call{Call: _e.mock.On("OneByPartialSK", ctx, pk, partialSK, v)}
+}
+
+func (_c *mockDynamoClient_OneByPartialSK_Call) Run(run func(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{})) *mockDynamoClient_OneByPartialSK_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(interface{}))
+	})
+	return _c
+}
+
+func (_c *mockDynamoClient_OneByPartialSK_Call) Return(_a0 error) *mockDynamoClient_OneByPartialSK_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockDynamoClient_OneByPartialSK_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, interface{}) error) *mockDynamoClient_OneByPartialSK_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Put provides a mock function with given fields: ctx, v
 func (_m *mockDynamoClient) Put(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
