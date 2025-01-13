@@ -15,6 +15,7 @@ import (
 
 type DynamoClient interface {
 	One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error
+	OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error
 	Put(ctx context.Context, v interface{}) error
 	WriteTransaction(ctx context.Context, transaction *dynamo.Transaction) error
 }
@@ -77,6 +78,22 @@ func (s *Store) Get(ctx context.Context) (*voucherdata.Provided, error) {
 
 	var provided voucherdata.Provided
 	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(data.SessionID), &provided)
+
+	return &provided, err
+}
+
+func (s *Store) GetAny(ctx context.Context) (*voucherdata.Provided, error) {
+	data, err := appcontext.SessionFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.LpaID == "" {
+		return nil, errors.New("voucher.Store.GetAny requires LpaID")
+	}
+
+	var provided voucherdata.Provided
+	err = s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(""), &provided)
 
 	return &provided, err
 }
