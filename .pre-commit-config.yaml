@@ -21,6 +21,12 @@ repos:
       - id: no-commit-to-branch
         args:
         - --branch=main
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+          - "--indent=4"
+          - "--no-sort-keys"
+          - "--no-ensure-ascii"
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.86.0
     hooks:

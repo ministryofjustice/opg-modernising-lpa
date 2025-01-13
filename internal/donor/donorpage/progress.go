@@ -58,14 +58,12 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-			body := appData.Localizer.Format(
-				"weContactedYouOnWithGuidanceAboutWhatToDoNext",
-				map[string]any{"MoreEvidenceRequiredAt": appData.Localizer.FormatDateTime(donor.MoreEvidenceRequiredAt)},
-			)
-
 			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 				Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
-				Body:    body,
+				Body: appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MoreEvidenceRequiredAt)},
+				),
 			})
 		}
 
@@ -87,6 +85,22 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Body: "youDoNotNeedToTakeAnyAction",
 				})
 			}
+		}
+
+		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			!donor.FailedVoucher.FailedAt.IsZero() &&
+			!donor.WantVoucher.IsNo() &&
+			donor.Voucher.FirstNames == "" {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.Format(
+					"voucherHasBeenUnableToConfirmYourIdentity",
+					map[string]any{"VoucherFullName": donor.FailedVoucher.FullName()},
+				),
+				Body: appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.FailedVoucher.FailedAt)},
+				),
+			})
 		}
 
 		return tmpl(w, data)
