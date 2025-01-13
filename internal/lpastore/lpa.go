@@ -271,7 +271,7 @@ type lpaResponse struct {
 
 func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 	data := &lpadata.Lpa{
-		InStore:      true,
+		Submitted:    true,
 		LpaUID:       l.UID,
 		Status:       l.Status,
 		RegisteredAt: l.RegistrationDate,

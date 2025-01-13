@@ -108,7 +108,7 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 					return fmt.Errorf("error updating voucher: %w", err)
 				}
 
-				if lpa.InStore {
+				if lpa.Submitted {
 					if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
 						return fmt.Errorf("error sending donor identity confirmation: %w", err)
 					}

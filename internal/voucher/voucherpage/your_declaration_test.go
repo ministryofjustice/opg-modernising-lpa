@@ -224,7 +224,7 @@ func TestPostYourDeclaration(t *testing.T) {
 	}
 }
 
-func TestPostYourDeclarationWhenInLpaStore(t *testing.T) {
+func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	f := url.Values{
 		"confirm": {"1"},
 	}
@@ -234,9 +234,9 @@ func TestPostYourDeclarationWhenInLpaStore(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &lpadata.Lpa{
-		InStore: true,
-		LpaUID:  "lpa-uid",
-		Donor:   lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
+		Submitted: true,
+		LpaUID:    "lpa-uid",
+		Donor:     lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
 	}
 
 	donor := &donordata.Provided{
@@ -293,7 +293,7 @@ func TestPostYourDeclarationWhenInLpaStore(t *testing.T) {
 	assert.Equal(t, voucher.PathThankYou.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
-func TestPostYourDeclarationWhenInLpaStoreAndErrors(t *testing.T) {
+func TestPostYourDeclarationWhenSubmittedAndLpaStoreClientErrors(t *testing.T) {
 	f := url.Values{
 		"confirm": {"1"},
 	}
@@ -303,9 +303,9 @@ func TestPostYourDeclarationWhenInLpaStoreAndErrors(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	lpa := &lpadata.Lpa{
-		InStore: true,
-		LpaUID:  "lpa-uid",
-		Donor:   lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
+		Submitted: true,
+		LpaUID:    "lpa-uid",
+		Donor:     lpadata.Donor{FirstNames: "John", LastName: "Smith", Email: "blah@example.com", ContactLanguagePreference: localize.En},
 	}
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)

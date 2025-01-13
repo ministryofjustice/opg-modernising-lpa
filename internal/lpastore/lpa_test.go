@@ -431,9 +431,9 @@ func TestClientLpa(t *testing.T) {
 	}{
 		"minimal": {
 			lpa: &lpadata.Lpa{
-				InStore: true,
-				LpaUID:  "M-0000-1111-2222",
-				Type:    lpadata.LpaTypePropertyAndAffairs,
+				Submitted: true,
+				LpaUID:    "M-0000-1111-2222",
+				Type:      lpadata.LpaTypePropertyAndAffairs,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -491,9 +491,9 @@ func TestClientLpa(t *testing.T) {
 		},
 		"defaults": {
 			lpa: &lpadata.Lpa{
-				InStore: true,
-				LpaUID:  "M-0000-1111-2222",
-				Type:    lpadata.LpaTypePropertyAndAffairs,
+				Submitted: true,
+				LpaUID:    "M-0000-1111-2222",
+				Type:      lpadata.LpaTypePropertyAndAffairs,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -550,9 +550,9 @@ func TestClientLpa(t *testing.T) {
 		},
 		"everything": {
 			lpa: &lpadata.Lpa{
-				InStore: true,
-				LpaUID:  "M-0000-1111-2222",
-				Type:    lpadata.LpaTypePersonalWelfare,
+				Submitted: true,
+				LpaUID:    "M-0000-1111-2222",
+				Type:      lpadata.LpaTypePersonalWelfare,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -893,9 +893,9 @@ func TestClientLpas(t *testing.T) {
 		"minimal": {
 			lpas: []*lpadata.Lpa{
 				{
-					InStore: true,
-					LpaUID:  "M-0000-1111-2222",
-					Type:    lpadata.LpaTypePropertyAndAffairs,
+					Submitted: true,
+					LpaUID:    "M-0000-1111-2222",
+					Type:      lpadata.LpaTypePropertyAndAffairs,
 					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -955,9 +955,9 @@ func TestClientLpas(t *testing.T) {
 		"everything": {
 			lpas: []*lpadata.Lpa{
 				{
-					InStore: true,
-					LpaUID:  "M-0000-1111-2222",
-					Type:    lpadata.LpaTypePersonalWelfare,
+					Submitted: true,
+					LpaUID:    "M-0000-1111-2222",
+					Type:      lpadata.LpaTypePersonalWelfare,
 					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
