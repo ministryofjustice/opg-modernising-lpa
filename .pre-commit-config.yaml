@@ -34,10 +34,10 @@ repos:
       - id: go-fmt # Runs gofmt
       - id: go-imports # Runs gofmt
       - id: go-mod-tidy # Tidies up and removes unused requires in go.mod using go mod tidy
-  # - repo: https://github.com/renovatebot/pre-commit-hooks
-  #   rev: 37.150.1
-  #   hooks:
-  #     - id: renovate-config-validator
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 37.150.1
+    hooks:
+      - id: renovate-config-validator
   - repo: local
     hooks:
       - id: stop-only
