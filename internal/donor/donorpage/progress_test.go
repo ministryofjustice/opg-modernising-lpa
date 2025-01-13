@@ -59,8 +59,7 @@ func TestGetProgress(t *testing.T) {
 		// you've submitted your lpa to the opg
 		"submitted": {
 			donor: &donordata.Provided{
-				LpaUID:      "lpa-uid",
-				SubmittedAt: time.Now(),
+				LpaUID: "lpa-uid",
 			},
 			lpa: &lpadata.Lpa{
 				LpaUID:    "lpa-uid",
@@ -78,8 +77,7 @@ func TestGetProgress(t *testing.T) {
 		},
 		"submitted and certificate provider started": {
 			donor: &donordata.Provided{
-				LpaUID:      "lpa-uid",
-				SubmittedAt: time.Now(),
+				LpaUID: "lpa-uid",
 			},
 			lpa: &lpadata.Lpa{
 				LpaUID:    "lpa-uid",
@@ -91,8 +89,7 @@ func TestGetProgress(t *testing.T) {
 		},
 		"submitted and certificate provider finished": {
 			donor: &donordata.Provided{
-				LpaUID:      "lpa-uid",
-				SubmittedAt: time.Now(),
+				LpaUID: "lpa-uid",
 			},
 			lpa: &lpadata.Lpa{
 				LpaUID:    "lpa-uid",
