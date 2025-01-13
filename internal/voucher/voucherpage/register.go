@@ -122,6 +122,8 @@ func Register(
 		EnterReferenceNumber(tmpls.Get("enter_reference_number.gohtml"), shareCodeStore, sessionStore, voucherStore))
 	handleRoot(page.PathVoucherUnableToConfirmIdentity, None,
 		page.Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
+	handleRoot(page.PathVoucherDonorDetailsDoNotMatch, None,
+		page.Guidance(tmpls.Get("donor_details_do_not_match.gohtml")))
 
 	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler, voucherStore)
 
@@ -139,8 +141,6 @@ func Register(
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
 		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
-	handleVoucher(voucher.PathDonorDetailsDoNotMatch, None,
-		Guidance(tmpls.Get("donor_details_do_not_match.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
 		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), voucherStore, lpaStoreResolvingService))
