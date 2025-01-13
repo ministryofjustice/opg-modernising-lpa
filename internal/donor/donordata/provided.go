@@ -118,8 +118,6 @@ type Provided struct {
 	CheckedHashVersion uint8 `hash:"-" checkhash:"-"`
 	// SignedAt is when the donor submitted their signature
 	SignedAt time.Time `checkhash:"-"`
-	// SubmittedAt is when the Lpa was sent to the OPG
-	SubmittedAt time.Time `checkhash:"-"`
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time `checkhash:"-"`
 	// StatutoryWaitingPeriodAt is when the Lpa transitioned to the STATUTORY_WAITING_PERIOD
