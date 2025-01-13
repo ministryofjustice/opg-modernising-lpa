@@ -2,6 +2,7 @@ package voucherpage
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -25,7 +26,7 @@ type yourDeclarationData struct {
 	Voucher *voucherdata.Provided
 }
 
-func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, donorStore DonorStore, notifyClient NotifyClient, now func() time.Time, appPublicURL string) Handler {
+func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, donorStore DonorStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, now func() time.Time, appPublicURL string) Handler {
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
 			if !lpa.SignedForDonor() {
@@ -64,7 +65,7 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
-			return err
+			return fmt.Errorf("error resolving lpa: %w", err)
 		}
 
 		data := &yourDeclarationData{
@@ -80,12 +81,12 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 
 			if data.Errors.None() {
 				if err := sendNotification(r.Context(), lpa, provided); err != nil {
-					return err
+					return fmt.Errorf("error sending notification: %w", err)
 				}
 
 				donor, err := donorStore.GetAny(r.Context())
 				if err != nil {
-					return err
+					return fmt.Errorf("error getting donor: %w", err)
 				}
 
 				donor.IdentityUserData = identity.UserData{
@@ -98,13 +99,19 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 				}
 				donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 				if err := donorStore.Put(r.Context(), donor); err != nil {
-					return err
+					return fmt.Errorf("error updating donor: %w", err)
 				}
 
 				provided.SignedAt = now()
 				provided.Tasks.SignTheDeclaration = task.StateCompleted
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
-					return err
+					return fmt.Errorf("error updating voucher: %w", err)
+				}
+
+				if lpa.Submitted {
+					if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
+						return fmt.Errorf("error sending donor identity confirmation: %w", err)
+					}
 				}
 
 				return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
