@@ -241,15 +241,13 @@ func TestDashboardStoreGetAll(t *testing.T) {
 
 func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	sessionID := "an-id"
-	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 	lpaSubmitted := &lpadata.Lpa{LpaID: "submitted", LpaUID: "M", Submitted: true}
 	lpaSubmittedDonor := &donordata.Provided{
-		PK:          dynamo.LpaKey("submitted"),
-		SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
-		LpaID:       "submitted",
-		LpaUID:      "M",
-		SubmittedAt: aTime,
+		PK:     dynamo.LpaKey("submitted"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
+		LpaID:  "submitted",
+		LpaUID: "M",
 	}
 	lpaSubmittedAttorney := &attorneydata.Provided{
 		PK:    dynamo.LpaKey("submitted"),
@@ -258,11 +256,10 @@ func TestDashboardStoreGetAllSubmittedForAttorneys(t *testing.T) {
 	}
 	lpaSubmittedReplacement := &lpadata.Lpa{LpaID: "submitted-replacement", LpaUID: "M", Submitted: true}
 	lpaSubmittedReplacementDonor := &donordata.Provided{
-		PK:          dynamo.LpaKey("submitted-replacement"),
-		SK:          dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
-		LpaID:       "submitted-replacement",
-		LpaUID:      "M",
-		SubmittedAt: aTime,
+		PK:     dynamo.LpaKey("submitted-replacement"),
+		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
+		LpaID:  "submitted-replacement",
+		LpaUID: "M",
 	}
 	lpaSubmittedReplacementAttorney := &attorneydata.Provided{
 		PK:            dynamo.LpaKey("submitted-replacement"),
