@@ -13,7 +13,6 @@ const (
 	PathConfirmAllowedToVouch              = Path("/confirm-allowed-to-vouch")
 	PathConfirmYourIdentity                = Path("/confirm-your-identity")
 	PathConfirmYourName                    = Path("/confirm-your-name")
-	PathDonorDetailsDoNotMatch             = Path("/donor-details-do-not-match")
 	PathHowWillYouConfirmYourIdentity      = Path("/how-will-you-confirm-your-identity")
 	PathIdentityWithOneLogin               = Path("/identity-with-one-login")
 	PathIdentityWithOneLoginCallback       = Path("/identity-with-one-login-callback")

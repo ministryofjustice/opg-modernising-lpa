@@ -121,7 +121,7 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	lpa := &lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}
+	lpa := &lpadata.Lpa{Donor: lpadata.Donor{FirstNames: "John", LastName: "Smith"}}
 	provided := &voucherdata.Provided{
 		LpaID:             "lpa-id",
 		DonorDetailsMatch: form.No,
@@ -148,7 +148,7 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, voucher.PathDonorDetailsDoNotMatch.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, page.PathVoucherDonorDetailsDoNotMatch.Format()+"?donorFirstNames=John&donorFullName=John+Smith", resp.Header.Get("Location"))
 }
 
 func TestPostVerifyDonorDetailsWhenStoreErrors(t *testing.T) {

@@ -6,10 +6,10 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ template "notification-banner" (notificationBanner .App "important"
-                (trFormatHtml .App "youHaveToldUsDetailsDoNotMatchIdentity" "DonorFullName" .Lpa.Donor.FullName)
+                (trFormatHtml .App "youHaveToldUsDetailsDoNotMatchIdentity" "DonorFullName" (.App.Query.Get "donorFullName"))
                 "heading") }}
 
-            {{ trFormatHtml .App "youHaveToldUsDetailsDoNotMatchIdentityContent" "DonorFirstNames" .Lpa.Donor.FirstNames }}
+            {{ trFormatHtml .App "youHaveToldUsDetailsDoNotMatchIdentityContent" "DonorFirstNames" (.App.Query.Get "donorFirstNames") }}
         </div>
     </div>
 {{ end }}

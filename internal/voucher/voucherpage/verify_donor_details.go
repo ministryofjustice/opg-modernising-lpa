@@ -2,11 +2,13 @@ package voucherpage
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -49,7 +51,10 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 						return err
 					}
 
-					return voucher.PathDonorDetailsDoNotMatch.Redirect(w, r, appData, appData.LpaID)
+					return page.PathVoucherDonorDetailsDoNotMatch.RedirectQuery(w, r, appData, url.Values{
+						"donorFullName":   {lpa.Donor.FullName()},
+						"donorFirstNames": {lpa.Donor.FirstNames},
+					})
 				}
 
 				return voucher.PathTaskList.Redirect(w, r, appData, appData.LpaID)
