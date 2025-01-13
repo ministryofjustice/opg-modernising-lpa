@@ -22,11 +22,12 @@ func _() {
 	_ = x[TypeTrustCorporation-8]
 	_ = x[TypeReplacementTrustCorporation-9]
 	_ = x[TypeVoucher-10]
+	_ = x[TypeCorrespondent-11]
 }
 
-const _Type_name = "NonedonorattorneyreplacementAttorneycertificateProviderpersonToNotifysignatoryindependentWitnesstrustCorporationreplacementTrustCorporationvoucher"
+const _Type_name = "NonedonorattorneyreplacementAttorneycertificateProviderpersonToNotifysignatoryindependentWitnesstrustCorporationreplacementTrustCorporationvouchercorrespondent"
 
-var _Type_index = [...]uint8{0, 4, 9, 17, 36, 55, 69, 78, 96, 112, 139, 146}
+var _Type_index = [...]uint8{0, 4, 9, 17, 36, 55, 69, 78, 96, 112, 139, 146, 159}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {
@@ -93,6 +94,10 @@ func (i Type) IsVoucher() bool {
 	return i == TypeVoucher
 }
 
+func (i Type) IsCorrespondent() bool {
+	return i == TypeCorrespondent
+}
+
 func ParseType(s string) (Type, error) {
 	switch s {
 	case "None":
@@ -117,6 +122,8 @@ func ParseType(s string) (Type, error) {
 		return TypeReplacementTrustCorporation, nil
 	case "voucher":
 		return TypeVoucher, nil
+	case "correspondent":
+		return TypeCorrespondent, nil
 	default:
 		return Type(0), fmt.Errorf("invalid Type '%s'", s)
 	}
@@ -134,6 +141,7 @@ type TypeOptions struct {
 	TrustCorporation            Type
 	ReplacementTrustCorporation Type
 	Voucher                     Type
+	Correspondent               Type
 }
 
 var TypeValues = TypeOptions{
@@ -148,4 +156,5 @@ var TypeValues = TypeOptions{
 	TrustCorporation:            TypeTrustCorporation,
 	ReplacementTrustCorporation: TypeReplacementTrustCorporation,
 	Voucher:                     TypeVoucher,
+	Correspondent:               TypeCorrespondent,
 }
