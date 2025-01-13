@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -19,36 +18,54 @@ import (
 )
 
 func TestGetWhatYouCanDoNowExpired(t *testing.T) {
-	testcases := map[int]struct {
+	testcases := map[string]struct {
 		BannerContent         string
 		NewVoucherLabel       string
 		ProveOwnIdentityLabel string
 		CanHaveVoucher        bool
 		WantVoucher           form.YesNo
+		FailedVouchCount      int
 	}{
-		0: {
+		"no failed vouches": {
 			BannerContent:         "yourConfirmedIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillReturnToOneLogin",
 			CanHaveVoucher:        true,
 		},
-		1: {
+		"no failed vouches - has selected vouch option": {
 			BannerContent:         "yourVouchedForIdentityHasExpired",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
 			WantVoucher:           form.Yes,
 		},
-		2: {
+		"one failed vouch - has not selected voucher option": {
+			BannerContent:         "yourVouchedForIdentityHasExpired",
+			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			WantVoucher:           form.YesNoUnknown,
+			FailedVouchCount:      1,
+		},
+		"one failed vouch - has selected voucher option": {
+			BannerContent:         "yourVouchedForIdentityHasExpired",
+			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
+			ProveOwnIdentityLabel: "iWillGetOrFindID",
+			CanHaveVoucher:        true,
+			WantVoucher:           form.Yes,
+			FailedVouchCount:      1,
+		},
+		"two failed vouches": {
 			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			WantVoucher:           form.Yes,
+			FailedVouchCount:      2,
 		},
 	}
 
-	for failedVouchAttempts, tc := range testcases {
-		t.Run(strconv.Itoa(failedVouchAttempts), func(t *testing.T) {
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -60,7 +77,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					FailedVouchAttempts:   failedVouchAttempts,
+					FailedVouchAttempts:   tc.FailedVouchCount,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
@@ -68,7 +85,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 				Return(nil)
 
 			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-				FailedVouchAttempts: failedVouchAttempts,
+				FailedVouchAttempts: tc.FailedVouchCount,
 				WantVoucher:         tc.WantVoucher,
 			})
 
@@ -101,15 +118,16 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 			expectedPath: donor.PathConfirmYourIdentity.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				IdentityUserData: identity.UserData{},
+				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.No,
 			},
 		},
 		donordata.SelectNewVoucher: {
 			expectedPath: donor.PathEnterVoucher.Format("lpa-id"),
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
-				WantVoucher:      form.Yes,
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.Yes,
 			},
 		},
 		donordata.WithdrawLPA: {
@@ -117,6 +135,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 			expectedDonor: &donordata.Provided{
 				LpaID:            "lpa-id",
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:      form.No,
 			},
 		},
 		donordata.ApplyToCOP: {
@@ -125,6 +144,7 @@ func TestPostWhatYouCanDoNowExpired(t *testing.T) {
 				LpaID:                            "lpa-id",
 				RegisteringWithCourtOfProtection: true,
 				IdentityUserData:                 identity.UserData{Status: identity.StatusInsufficientEvidence},
+				WantVoucher:                      form.No,
 			},
 		},
 	}

@@ -2,6 +2,7 @@ package donordata
 
 import (
 	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
@@ -13,6 +14,7 @@ type Voucher struct {
 	LastName   string
 	Email      string
 	Allowed    bool
+	FailedAt   time.Time
 }
 
 func (v Voucher) FullName() string {
