@@ -66,7 +66,6 @@ func Attorney(
 		"readTheLPA",
 		"signedByAttorney",
 		"signedByAllAttorneys",
-		"submitted",
 		"withdrawn",
 		"registered",
 	}
@@ -369,10 +368,6 @@ func Attorney(
 					signings = append(signings, attorney)
 				}
 			}
-		}
-
-		if progress >= slices.Index(progressValues, "submitted") {
-			donorDetails.SubmittedAt = time.Now()
 		}
 
 		if progress == slices.Index(progressValues, "withdrawn") {
