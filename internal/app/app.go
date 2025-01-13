@@ -175,6 +175,7 @@ func App(
 		notifyClient,
 		appPublicURL,
 		donorStore,
+		lpaStoreClient,
 	)
 
 	supporterpage.Register(
