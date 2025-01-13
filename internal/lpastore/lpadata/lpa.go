@@ -84,6 +84,9 @@ type Lpa struct {
 	// AttorneysInvitedAt records when the share codes are sent to the attorneys,
 	// it is only set with the resolving service.
 	AttorneysInvitedAt time.Time
+
+	// InStore is true if the Lpa is in the lpa-store.
+	InStore bool
 }
 
 // SignedForDonor returns true if the Lpa has been signed and witnessed for the donor.

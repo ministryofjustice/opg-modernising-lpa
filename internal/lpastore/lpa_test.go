@@ -426,13 +426,14 @@ func TestClientLpa(t *testing.T) {
 	independentWitnessUID := actoruid.New()
 
 	testcases := map[string]struct {
-		donor *lpadata.Lpa
-		json  string
+		lpa  *lpadata.Lpa
+		json string
 	}{
 		"minimal": {
-			donor: &lpadata.Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   lpadata.LpaTypePropertyAndAffairs,
+			lpa: &lpadata.Lpa{
+				InStore: true,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    lpadata.LpaTypePropertyAndAffairs,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -489,9 +490,10 @@ func TestClientLpa(t *testing.T) {
 }`,
 		},
 		"defaults": {
-			donor: &lpadata.Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   lpadata.LpaTypePropertyAndAffairs,
+			lpa: &lpadata.Lpa{
+				InStore: true,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    lpadata.LpaTypePropertyAndAffairs,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -547,9 +549,10 @@ func TestClientLpa(t *testing.T) {
 }`,
 		},
 		"everything": {
-			donor: &lpadata.Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   lpadata.LpaTypePersonalWelfare,
+			lpa: &lpadata.Lpa{
+				InStore: true,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    lpadata.LpaTypePersonalWelfare,
 				Donor: lpadata.Donor{
 					UID:         donorUID,
 					FirstNames:  "John Johnson",
@@ -785,10 +788,10 @@ func TestClientLpa(t *testing.T) {
 
 			client := New("http://base", secretsClient, "secret", doer)
 			client.now = func() time.Time { return time.Date(2000, time.January, 2, 3, 4, 5, 6, time.UTC) }
-			donor, err := client.Lpa(ctx, "M-0000-1111-2222")
+			lpa, err := client.Lpa(ctx, "M-0000-1111-2222")
 
 			assert.Nil(t, err)
-			assert.Equal(t, tc.donor, donor)
+			assert.Equal(t, tc.lpa, lpa)
 		})
 	}
 }
@@ -890,8 +893,9 @@ func TestClientLpas(t *testing.T) {
 		"minimal": {
 			lpas: []*lpadata.Lpa{
 				{
-					LpaUID: "M-0000-1111-2222",
-					Type:   lpadata.LpaTypePropertyAndAffairs,
+					InStore: true,
+					LpaUID:  "M-0000-1111-2222",
+					Type:    lpadata.LpaTypePropertyAndAffairs,
 					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",
@@ -951,8 +955,9 @@ func TestClientLpas(t *testing.T) {
 		"everything": {
 			lpas: []*lpadata.Lpa{
 				{
-					LpaUID: "M-0000-1111-2222",
-					Type:   lpadata.LpaTypePersonalWelfare,
+					InStore: true,
+					LpaUID:  "M-0000-1111-2222",
+					Type:    lpadata.LpaTypePersonalWelfare,
 					Donor: lpadata.Donor{
 						UID:         donorUID,
 						FirstNames:  "John Johnson",

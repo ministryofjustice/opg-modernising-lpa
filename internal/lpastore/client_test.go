@@ -869,8 +869,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, &lpadata.Lpa{
-				LpaUID: "M-0000-1111-2222",
-				Type:   lpadata.LpaTypePersonalWelfare,
+				InStore: true,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    lpadata.LpaTypePersonalWelfare,
 				Donor: lpadata.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",
@@ -1003,8 +1004,9 @@ func TestClientServiceContract(t *testing.T) {
 			}
 
 			assert.Equal(t, []*lpadata.Lpa{{
-				LpaUID: "M-0000-1111-2222",
-				Type:   lpadata.LpaTypePersonalWelfare,
+				InStore: true,
+				LpaUID:  "M-0000-1111-2222",
+				Type:    lpadata.LpaTypePersonalWelfare,
 				Donor: lpadata.Donor{
 					FirstNames:  "Homer",
 					LastName:    "Zoller",

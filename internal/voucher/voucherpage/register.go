@@ -39,6 +39,10 @@ type LpaStoreResolvingService interface {
 	Get(ctx context.Context) (*lpadata.Lpa, error)
 }
 
+type LpaStoreClient interface {
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
+}
+
 type DonorStore interface {
 	GetAny(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
@@ -104,6 +108,7 @@ func Register(
 	notifyClient NotifyClient,
 	appPublicURL string,
 	donorStore DonorStore,
+	lpaStoreClient LpaStoreClient,
 ) {
 	vouchFailed := makeVouchFailer(donorStore, notifyClient, appPublicURL)
 
@@ -151,7 +156,7 @@ func Register(
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
-		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, time.Now, appPublicURL))
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, time.Now, appPublicURL))
 	handleVoucher(voucher.PathThankYou, None,
 		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }
