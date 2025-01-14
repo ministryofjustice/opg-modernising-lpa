@@ -126,5 +126,14 @@ describe('Progress', () => {
             cy.contains('Simone Sutherland has been unable to confirm your identity');
             cy.contains('We contacted you on 2 April 2023 with guidance about what to do next.');
         });
-    })
+
+        it('when status is do not register', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=doNotRegister');
+            cy.checkA11yApp();
+            cy.contains('Important:');
+            cy.contains('1 notification from OPG');
+
+            cy.contains('There is a problem with your LPA');
+        });
+    });
 });

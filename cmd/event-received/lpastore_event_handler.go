@@ -80,6 +80,14 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 		case "CANNOT_REGISTER":
 			return handleCannotRegister(ctx, factory.ScheduledStore(), v)
 
+		case "OPG_STATUS_CHANGE":
+			lpaStoreClient, err := factory.LpaStoreClient()
+			if err != nil {
+				return fmt.Errorf("could not create LpaStoreClient: %w", err)
+			}
+
+			return handleOpgStatusChange(ctx, factory.DynamoClient(), lpaStoreClient, factory.Now(), v)
+
 		default:
 			return nil
 		}
@@ -211,4 +219,26 @@ func handleStatutoryWaitingPeriod(ctx context.Context, client dynamodbClient, no
 
 func handleCannotRegister(ctx context.Context, store ScheduledStore, event lpaUpdatedEvent) error {
 	return store.DeleteAllByUID(ctx, event.UID)
+}
+
+func handleOpgStatusChange(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, now func() time.Time, v lpaUpdatedEvent) error {
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+	if err != nil {
+		return err
+	}
+
+	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
+	if err != nil {
+		return fmt.Errorf("error getting lpa: %w", err)
+	}
+
+	if lpa.Status.IsDoNotRegister() {
+		donor.DoNotRegisterAt = now()
+
+		if err := putDonor(ctx, donor, now, client); err != nil {
+			return fmt.Errorf("failed to update donor details: %w", err)
+		}
+	}
+
+	return nil
 }

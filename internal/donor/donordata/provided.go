@@ -120,9 +120,12 @@ type Provided struct {
 	SignedAt time.Time `checkhash:"-"`
 	// WithdrawnAt is when the Lpa was withdrawn by the donor
 	WithdrawnAt time.Time `checkhash:"-"`
-	// StatutoryWaitingPeriodAt is when the Lpa transitioned to the STATUTORY_WAITING_PERIOD
-	// status in the lpa-store
+	// StatutoryWaitingPeriodAt is when the Lpa transitioned to the
+	// statutory-waiting-period status in the lpa-store
 	StatutoryWaitingPeriodAt time.Time `checkhash:"-"`
+	// DoNotRegisterAt is when the Lpa transitioned to do-not-register status in
+	// the lpa-store
+	DoNotRegisterAt time.Time `checkhash:"-"`
 	// RegisteringWithCourtOfProtection is set when the donor wishes to take the
 	// Lpa to the Court of Protection for registration.
 	RegisteringWithCourtOfProtection bool `checkhash:"-"`
