@@ -103,6 +103,16 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if lpa.Status.IsDoNotRegister() && !donor.DoNotRegisterAt.IsZero() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("thereIsAProblemWithYourLpa"),
+				Body: appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.DoNotRegisterAt)},
+				),
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }
