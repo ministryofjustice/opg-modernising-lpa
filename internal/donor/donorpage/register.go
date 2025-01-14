@@ -32,6 +32,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type LpaStoreResolvingService interface {
@@ -174,6 +175,11 @@ type ProgressTracker interface {
 	Progress(lpa *lpadata.Lpa) task.Progress
 }
 
+type VoucherStore interface {
+	Get(ctx context.Context) (*voucherdata.Provided, error)
+	GetAny(ctx context.Context) (*voucherdata.Provided, error)
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -198,6 +204,7 @@ func Register(
 	progressTracker ProgressTracker,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
+	voucherStore VoucherStore,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
@@ -461,7 +468,7 @@ func Register(
 		Guidance(tmpls.Get("you_have_submitted_your_lpa.gohtml")))
 
 	handleWithDonor(donor.PathProgress, page.None,
-		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker, certificateProviderStore))
+		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker, certificateProviderStore, voucherStore, donorStore))
 
 	handleWithDonor(donor.PathUploadEvidenceSSE, page.None,
 		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))

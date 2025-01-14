@@ -178,6 +178,9 @@ type Provided struct {
 	// MoreEvidenceRequiredAt records when a request for further information on an exemption/remission was received.
 	MoreEvidenceRequiredAt time.Time `checkhash:"-"`
 
+	// ViewedProgressNotifications records which notifications have been viewed by the donor
+	ViewedProgressNotifications task.NotificationSubjects `checkhash:"-"`
+
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
