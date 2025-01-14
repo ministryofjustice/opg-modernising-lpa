@@ -38,11 +38,11 @@ func WhatYouCanDoNowExpired(tmpl template.Template, donorStore DonorStore) Handl
 		data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
 		data.ProveOwnIdentityLabel = "iWillReturnToOneLogin"
 
-		if provided.WantVoucher.IsYes() {
+		if provided.WantVoucher.IsYes() || provided.WantVoucher.IsUnknown() && provided.FailedVouchAttempts > 0 {
 			data.ProveOwnIdentityLabel = "iWillGetOrFindID"
 
 			switch provided.FailedVouchAttempts {
-			case 1:
+			case 0, 1:
 				data.BannerContent = "yourVouchedForIdentityHasExpired"
 			default:
 				data.BannerContent = "yourVouchedForIdentityHasExpiredSecondAttempt"
