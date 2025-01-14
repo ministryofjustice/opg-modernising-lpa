@@ -432,11 +432,13 @@ func updateLPAProgress(
 		switch idStatus {
 		case "failed":
 			userData = identity.UserData{
-				Status: identity.StatusFailed,
+				Status:    identity.StatusFailed,
+				CheckedAt: time.Now(),
 			}
 		case "insufficient-evidence":
 			userData = identity.UserData{
-				Status: identity.StatusInsufficientEvidence,
+				Status:    identity.StatusInsufficientEvidence,
+				CheckedAt: time.Now(),
 			}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
 		case "expired":

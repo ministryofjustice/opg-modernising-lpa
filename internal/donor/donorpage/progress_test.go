@@ -18,16 +18,21 @@ import (
 func TestGetProgress(t *testing.T) {
 	signedAt := time.Now()
 
+	certificateProviderStoreNotFound := func(call *mockCertificateProviderStore_GetAny_Call) {
+		call.Return(nil, dynamo.NotFoundError{})
+	}
+
 	testCases := map[string]struct {
 		donor                         *donordata.Provided
 		setupCertificateProviderStore func(*mockCertificateProviderStore_GetAny_Call)
 		lpa                           *lpadata.Lpa
 		infoNotifications             []progressNotification
-		setupLocalizer                func() *mockLocalizer
+		setupLocalizer                func(*testing.T) *mockLocalizer
 	}{
 		"none": {
-			donor: &donordata.Provided{LpaUID: "lpa-uid"},
-			lpa:   &lpadata.Lpa{LpaUID: "lpa-uid"},
+			donor:                         &donordata.Provided{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 		},
 
 		// you have chosen to confirm your identity at a post office
@@ -38,7 +43,8 @@ func TestGetProgress(t *testing.T) {
 					ConfirmYourIdentity: task.IdentityStatePending,
 				},
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
@@ -53,7 +59,8 @@ func TestGetProgress(t *testing.T) {
 					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 		},
 
 		// you've submitted your lpa to the opg
@@ -65,9 +72,7 @@ func TestGetProgress(t *testing.T) {
 				LpaUID:    "lpa-uid",
 				Submitted: true,
 			},
-			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
-				call.Return(nil, dynamo.NotFoundError{})
-			},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "youveSubmittedYourLpaToOpg",
@@ -98,20 +103,24 @@ func TestGetProgress(t *testing.T) {
 					SignedAt: &signedAt,
 				},
 			},
+			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
+				call.Return(&certificateproviderdata.Provided{}, nil)
+			},
 		},
 		"more evidence required": {
 			donor: &donordata.Provided{
 				Tasks:                  donordata.Tasks{PayForLpa: task.PaymentStateMoreEvidenceRequired},
 				MoreEvidenceRequiredAt: testNow,
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
 					Body:    "translated body",
 				},
 			},
-			setupLocalizer: func() *mockLocalizer {
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
 				l.EXPECT().
 					Format(
@@ -135,14 +144,15 @@ func TestGetProgress(t *testing.T) {
 				VoucherInvitedAt: testNow,
 				Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b"},
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "translated heading",
 					Body:    "youDoNotNeedToTakeAnyAction",
 				},
 			},
-			setupLocalizer: func() *mockLocalizer {
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
 				l.EXPECT().
 					Format(
@@ -161,14 +171,15 @@ func TestGetProgress(t *testing.T) {
 				},
 				Voucher: donordata.Voucher{FirstNames: "a", LastName: "b"},
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "youMustPayForYourLPA",
 					Body:    "translated body",
 				},
 			},
-			setupLocalizer: func() *mockLocalizer {
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
 				l.EXPECT().
 					Format(
@@ -188,14 +199,15 @@ func TestGetProgress(t *testing.T) {
 					FailedAt:   testNow,
 				},
 			},
-			lpa: &lpadata.Lpa{LpaUID: "lpa-uid"},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "translated heading",
 					Body:    "translated body",
 				},
 			},
-			setupLocalizer: func() *mockLocalizer {
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
 				l.EXPECT().
 					Format(
@@ -227,13 +239,14 @@ func TestGetProgress(t *testing.T) {
 				LpaUID: "lpa-uid",
 				Status: lpadata.StatusDoNotRegister,
 			},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			infoNotifications: []progressNotification{
 				{
 					Heading: "translated heading",
 					Body:    "translated body",
 				},
 			},
-			setupLocalizer: func() *mockLocalizer {
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
 				l := newMockLocalizer(t)
 				l.EXPECT().
 					T("thereIsAProblemWithYourLpa").
@@ -268,12 +281,11 @@ func TestGetProgress(t *testing.T) {
 				Return(task.Progress{DonorSigned: task.ProgressTask{Done: true}})
 
 			certificateProviderStore := newMockCertificateProviderStore(t)
-			if tc.setupCertificateProviderStore != nil {
-				tc.setupCertificateProviderStore(certificateProviderStore.EXPECT().GetAny(r.Context()))
-			}
+			tc.setupCertificateProviderStore(certificateProviderStore.EXPECT().
+				GetAny(r.Context()))
 
 			if tc.setupLocalizer != nil {
-				testAppData.Localizer = tc.setupLocalizer()
+				testAppData.Localizer = tc.setupLocalizer(t)
 			}
 
 			template := newMockTemplate(t)
@@ -317,17 +329,12 @@ func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		Get(mock.Anything).
 		Return(&lpadata.Lpa{Submitted: true}, nil)
 
-	progressTracker := newMockProgressTracker(t)
-	progressTracker.EXPECT().
-		Progress(mock.Anything).
-		Return(task.Progress{DonorSigned: task.ProgressTask{Done: true}})
-
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := Progress(nil, lpaStoreResolvingService, progressTracker, certificateProviderStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(nil, lpaStoreResolvingService, nil, certificateProviderStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -345,11 +352,16 @@ func TestGetProgressOnTemplateError(t *testing.T) {
 		Progress(mock.Anything).
 		Return(task.Progress{})
 
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }

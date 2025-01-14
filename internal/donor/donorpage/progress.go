@@ -32,6 +32,11 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return err
 		}
 
+		certificateProvider, certificateProviderErr := certificateProviderStore.GetAny(r.Context())
+		if certificateProviderErr != nil && !errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
+			return certificateProviderErr
+		}
+
 		data := &progressData{
 			App:      appData,
 			Donor:    donor,
@@ -46,14 +51,11 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		if lpa.Submitted && (lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) {
-			_, err := certificateProviderStore.GetAny(r.Context())
-			if errors.Is(err, dynamo.NotFoundError{}) {
+			if errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
 				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 					Heading: "youveSubmittedYourLpaToOpg",
 					Body:    "opgIsCheckingYourLpa",
 				})
-			} else if err != nil {
-				return err
 			}
 		}
 
@@ -109,6 +111,29 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				Body: appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.DoNotRegisterAt)},
+				),
+			})
+		}
+
+		if donor.IdentityUserData.Status.IsFailed() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("youHaveBeenUnableToConfirmYourIdentity"),
+				Body: appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.IdentityUserData.CheckedAt)},
+				),
+			})
+		}
+
+		if certificateProviderErr == nil && certificateProvider.IdentityUserData.Status.IsFailed() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.Format(
+					"certificateProviderHasBeenUnableToConfirmIdentity",
+					map[string]any{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
+				),
+				Body: appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.IdentityUserData.CheckedAt)},
 				),
 			})
 		}

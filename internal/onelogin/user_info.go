@@ -168,7 +168,7 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 		var insufficientEvidence bool
 		for _, code := range u.ReturnCodes {
 			if code.Fail() {
-				return identity.UserData{Status: identity.StatusFailed}, nil
+				return identity.UserData{Status: identity.StatusFailed, CheckedAt: c.now()}, nil
 			}
 
 			if !code.Pass() && !code.InsufficientEvidence() {
@@ -180,7 +180,7 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 
 		// A+P will be missing CoreIdentityJWT but is not a fail
 		if insufficientEvidence || u.CoreIdentityJWT == "" {
-			return identity.UserData{Status: identity.StatusInsufficientEvidence}, nil
+			return identity.UserData{Status: identity.StatusInsufficientEvidence, CheckedAt: c.now()}, nil
 		}
 	}
 
@@ -220,7 +220,7 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 
 	currentName := claims.Vc.CredentialSubject.CurrentNameParts()
 	if len(currentName) == 0 || claims.IssuedAt == nil {
-		return identity.UserData{Status: identity.StatusFailed}, nil
+		return identity.UserData{Status: identity.StatusFailed, CheckedAt: c.now()}, nil
 	}
 
 	var givenName, familyName []string
@@ -234,7 +234,7 @@ func (c *Client) ParseIdentityClaim(u UserInfo) (identity.UserData, error) {
 
 	birthDates := claims.Vc.CredentialSubject.BirthDate
 	if len(birthDates) == 0 || !birthDates[0].Value.Valid() {
-		return identity.UserData{Status: identity.StatusFailed}, nil
+		return identity.UserData{Status: identity.StatusFailed, CheckedAt: c.now()}, nil
 	}
 
 	var currentAddress credentialAddress
