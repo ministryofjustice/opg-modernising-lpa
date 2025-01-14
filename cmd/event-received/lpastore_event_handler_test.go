@@ -954,3 +954,183 @@ func TestHandleCannotRegisterWhenStoreErrors(t *testing.T) {
 	err := handleCannotRegister(ctx, scheduledStore, event)
 	assert.ErrorIs(t, err, expectedError)
 }
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChange(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"OPG_STATUS_CHANGE"}`),
+	}
+
+	updated := &donordata.Provided{
+		PK:              dynamo.LpaKey("123"),
+		SK:              dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		DoNotRegisterAt: testNow,
+		UpdatedAt:       testNow,
+	}
+	updated.UpdateHash()
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+	client.EXPECT().
+		Put(ctx, updated).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(ctx, "M-1111-2222-3333").
+		Return(&lpadata.Lpa{Status: lpadata.StatusDoNotRegister}, nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().DynamoClient().Return(client)
+	factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
+	factory.EXPECT().Now().Return(testNowFn)
+
+	handler := &lpastoreEventHandler{}
+
+	err := handler.Handle(ctx, factory, event)
+	assert.Nil(t, err)
+}
+
+func TestLpaStoreEventHandlerHandleLpaUpdatedOpgStatusChangeWhenFactoryErrors(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "lpa-updated",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","changeType":"OPG_STATUS_CHANGE"}`),
+	}
+
+	factory := newMockFactory(t)
+	factory.EXPECT().LpaStoreClient().Return(nil, expectedError)
+
+	handler := &lpastoreEventHandler{}
+
+	err := handler.Handle(ctx, factory, event)
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestOpgStatusChangeWhenNotDoNotRegister(t *testing.T) {
+	dynamodbClient := newMockDynamodbClient(t)
+	dynamodbClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+	dynamodbClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		Lpa(mock.Anything, mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
+	event := lpaUpdatedEvent{
+		UID:        "M-1111-2222-3333",
+		ChangeType: "OPG_STATUS_CHANGE",
+	}
+
+	err := handleOpgStatusChange(ctx, dynamodbClient, lpaStoreClient, testNowFn, event)
+	assert.Nil(t, err)
+}
+
+func TestOpgStatusChangeWhenErrors(t *testing.T) {
+	testcases := map[string]struct {
+		dynamoClient   func(*testing.T) *mockDynamodbClient
+		lpaStoreClient func(*testing.T) *mockLpaStoreClient
+		expectedError  error
+	}{
+		"OneByUID": {
+			dynamoClient: func(t *testing.T) *mockDynamodbClient {
+				client := newMockDynamodbClient(t)
+				client.EXPECT().
+					OneByUID(ctx, mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return client
+			},
+			lpaStoreClient: func(*testing.T) *mockLpaStoreClient { return nil },
+			expectedError:  fmt.Errorf("failed to resolve uid: %w", expectedError),
+		},
+		"One": {
+			dynamoClient: func(t *testing.T) *mockDynamodbClient {
+				client := newMockDynamodbClient(t)
+				client.EXPECT().
+					OneByUID(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+				client.EXPECT().
+					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return client
+			},
+			lpaStoreClient: func(*testing.T) *mockLpaStoreClient { return nil },
+			expectedError:  fmt.Errorf("failed to get LPA: %w", expectedError),
+		},
+		"LpaStore": {
+			dynamoClient: func(t *testing.T) *mockDynamodbClient {
+				client := newMockDynamodbClient(t)
+				client.EXPECT().
+					OneByUID(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+				client.EXPECT().
+					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
+
+				return client
+			},
+			lpaStoreClient: func(*testing.T) *mockLpaStoreClient {
+				client := newMockLpaStoreClient(t)
+				client.EXPECT().
+					Lpa(mock.Anything, mock.Anything).
+					Return(nil, expectedError)
+
+				return client
+			},
+			expectedError: fmt.Errorf("error getting lpa: %w", expectedError),
+		},
+		"Put": {
+			dynamoClient: func(t *testing.T) *mockDynamodbClient {
+				client := newMockDynamodbClient(t)
+				client.EXPECT().
+					OneByUID(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("pk"), SK: dynamo.DonorKey("sk")})
+				client.EXPECT().
+					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil)
+				client.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return client
+			},
+			lpaStoreClient: func(*testing.T) *mockLpaStoreClient {
+				client := newMockLpaStoreClient(t)
+				client.EXPECT().
+					Lpa(mock.Anything, mock.Anything).
+					Return(&lpadata.Lpa{Status: lpadata.StatusDoNotRegister}, nil)
+
+				return client
+			},
+			expectedError: fmt.Errorf("failed to update donor details: %w", expectedError),
+		},
+	}
+
+	for testName, tc := range testcases {
+		t.Run(testName, func(t *testing.T) {
+			event := lpaUpdatedEvent{
+				UID:        "M-1111-2222-3333",
+				ChangeType: "OPG_STATUS_CHANGE",
+			}
+
+			err := handleOpgStatusChange(ctx, tc.dynamoClient(t), tc.lpaStoreClient(t), testNowFn, event)
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
+}
