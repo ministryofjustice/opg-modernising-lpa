@@ -634,6 +634,7 @@ func updateLPAProgress(
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendChangeStatus(ctx, donorDetails.LpaUID, lpadata.StatusStatutoryWaitingPeriod, lpadata.StatusDoNotRegister)
 		})
+		donorDetails.DoNotRegisterAt = time.Now()
 	}
 
 	return donorDetails, fns, nil

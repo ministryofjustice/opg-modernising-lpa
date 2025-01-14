@@ -218,6 +218,38 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"do not register": {
+			donor: &donordata.Provided{
+				LpaUID:          "lpa-uid",
+				DoNotRegisterAt: testNow,
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Status: lpadata.StatusDoNotRegister,
+			},
+			infoNotifications: []progressNotification{
+				{
+					Heading: "translated heading",
+					Body:    "translated body",
+				},
+			},
+			setupLocalizer: func() *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("thereIsAProblemWithYourLpa").
+					Return("translated heading")
+				l.EXPECT().
+					Format(
+						"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+						map[string]any{"ContactedDate": "translated date"},
+					).
+					Return("translated body")
+				l.EXPECT().
+					FormatDate(testNow).
+					Return("translated date")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
