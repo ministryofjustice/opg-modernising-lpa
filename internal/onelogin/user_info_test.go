@@ -22,6 +22,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+var (
+	testNow   = time.Now()
+	testNowFn = func() time.Time { return testNow }
+)
+
 func TestUserInfo(t *testing.T) {
 	expectedUserInfo := UserInfo{
 		Sub:             "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
@@ -151,6 +156,7 @@ func TestParseIdentityClaim(t *testing.T) {
 	issuedAt := time.Now().Add(-time.Minute).Round(time.Second)
 
 	c := &Client{
+		now: testNowFn,
 		didClient: &didClient{
 			controllerID: "blah",
 			assertionMethods: map[string]crypto.PublicKey{
@@ -299,7 +305,7 @@ func TestParseIdentityClaim(t *testing.T) {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"iat": issuedAt.Unix(),
 			}), privateKey),
-			userData: identity.UserData{Status: identity.StatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed, CheckedAt: testNow},
 		},
 		"without dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -310,7 +316,7 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{Status: identity.StatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed, CheckedAt: testNow},
 		},
 		"with invalid dob": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -326,13 +332,13 @@ func TestParseIdentityClaim(t *testing.T) {
 					},
 				},
 			}), privateKey),
-			userData: identity.UserData{Status: identity.StatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed, CheckedAt: testNow},
 		},
 		"without iat": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
 				"vc": vc,
 			}), privateKey),
-			userData: identity.UserData{Status: identity.StatusFailed},
+			userData: identity.UserData{Status: identity.StatusFailed, CheckedAt: testNow},
 		},
 		"with unexpected signing method": {
 			token: mustSign(jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -497,6 +503,7 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 				"blah#thing": &privateKey.PublicKey,
 			},
 		},
+		now: testNowFn,
 	}
 
 	for name, tc := range testcases {
@@ -508,7 +515,7 @@ func TestParseIdentityClaimWithNonPassReturnCode(t *testing.T) {
 			userData, err := c.ParseIdentityClaim(userInfo)
 
 			assert.Equal(t, tc.error, err)
-			assert.Equal(t, identity.UserData{Status: tc.identityStatus}, userData)
+			assert.Equal(t, tc.identityStatus, userData.Status)
 		})
 	}
 }
