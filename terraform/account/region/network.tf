@@ -1,11 +1,22 @@
 module "network" {
-  source                         = "github.com/ministryofjustice/opg-terraform-aws-firewalled-network?ref=v0.2.13"
+  source                         = "github.com/ministryofjustice/opg-terraform-aws-firewalled-network?ref=v0.2.15-mlpab2794add.2"
   cidr                           = var.network_cidr_block
   enable_dns_hostnames           = true
   enable_dns_support             = true
   default_security_group_ingress = []
   default_security_group_egress  = []
   network_firewall_rules_file    = var.network_firewall_rules_file
+  domain_allow_list = [
+    ".amazon.com",
+    "api.notifications.service.gov.uk",
+    "api.os.uk",
+    "current.cvd.clamav.net",
+    "database.clamav.net",
+    "development.lpa-uid.api.opg.service.justice.gov.uk",
+    "integration.lpa-uid.api.opg.service.justice.gov.uk",
+    "oidc.integration.account.gov.uk",
+    "publicapi.payments.service.gov.uk",
+  ]
   providers = {
     aws = aws.region
   }
