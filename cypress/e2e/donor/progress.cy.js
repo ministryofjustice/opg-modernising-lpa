@@ -135,5 +135,21 @@ describe('Progress', () => {
 
             cy.contains('There is a problem with your LPA');
         });
+
+        it("when reduced fee approved and payment task complete", () => {
+            cy.visit('/fixtures?redirect=/progress&progress=payForTheLpa&feeType=NoFee');
+
+            cy.checkA11yApp();
+            cy.contains('Success: 1 notification from OPG');
+
+            cy.contains('We have approved your LPA fee request');
+            cy.contains('Your LPA is now paid.');
+
+            cy.reload()
+
+            cy.contains('Success: 1 notification from OPG').should('not.exist');
+            cy.contains('We have approved your LPA fee request').should('not.exist');
+            cy.contains('Your LPA is now paid.').should('not.exist');
+        })
     });
 });
