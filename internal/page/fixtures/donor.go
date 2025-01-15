@@ -33,6 +33,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 )
 
 type DynamoClient interface {
@@ -102,6 +103,7 @@ func Donor(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	shareCodeStore ShareCodeStore,
+	voucherStore *voucher.Store,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		acceptCookiesConsent(w)
@@ -117,7 +119,20 @@ func Donor(
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
-			return tmpl(w, &fixturesData{App: appData, Sub: data.DonorSub, DonorEmail: data.DonorEmail})
+			return tmpl(w, &fixturesData{
+				App:        appData,
+				Sub:        data.DonorSub,
+				DonorEmail: data.DonorEmail,
+				IdStatuses: []string{
+					identity.StatusUnknown.String(),
+					identity.StatusConfirmed.String(),
+					identity.StatusFailed.String(),
+					identity.StatusInsufficientEvidence.String(),
+					identity.StatusExpired.String(),
+					"post-office",
+					"vouched",
+				},
+			})
 		}
 
 		donorSessionID := base64.StdEncoding.EncodeToString([]byte(data.DonorSub))
@@ -132,7 +147,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
 		if err != nil {
 			return err
 		}
@@ -189,6 +204,7 @@ func updateLPAProgress(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	shareCodeStore ShareCodeStore,
+	voucherStore *voucher.Store,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 
@@ -429,6 +445,19 @@ func updateLPAProgress(
 			return nil, nil, errors.New("invalid value for idStatus - must be in format actor:status")
 		}
 
+		if idActor == "voucher" {
+			donorDetails.WantVoucher = form.Yes
+		}
+
+		if data.Voucher == "1" {
+			donorDetails.Voucher = makeVoucher(voucherName)
+			donorDetails.WantVoucher = form.Yes
+
+			if donorDetails.Tasks.PayForLpa.IsCompleted() {
+				donorDetails.VoucherInvitedAt = time.Now()
+			}
+		}
+
 		switch idStatus {
 		case "failed":
 			userData = identity.UserData{
@@ -448,6 +477,39 @@ func updateLPAProgress(
 		case "post-office":
 			userData = identity.UserData{}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+		case "vouched":
+			donorDetails.Voucher = makeVoucher(voucherName)
+
+			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
+
+			voucherDetails, err := createVoucher(ctx, shareCodeStore, voucherStore, donorDetails)
+			if err != nil {
+				return nil, nil, fmt.Errorf("error creating voucher: %v", err)
+			}
+
+			voucherDetails.FirstNames = donorDetails.Voucher.FirstNames
+			voucherDetails.LastName = donorDetails.Voucher.LastName
+			voucherDetails.SignedAt = time.Now()
+			voucherDetails.IdentityUserData = identity.UserData{
+				Status:      identity.StatusConfirmed,
+				FirstNames:  voucherDetails.FirstNames,
+				LastName:    voucherDetails.LastName,
+				DateOfBirth: donorDetails.Donor.DateOfBirth,
+				CheckedAt:   time.Now(),
+			}
+
+			userData = identity.UserData{
+				Status:         identity.StatusConfirmed,
+				FirstNames:     donorDetails.Donor.FirstNames,
+				LastName:       donorDetails.Donor.LastName,
+				DateOfBirth:    donorDetails.Donor.DateOfBirth,
+				CurrentAddress: donorDetails.Donor.Address,
+				CheckedAt:      time.Now(),
+			}
+
+			if err = voucherStore.Put(r.Context(), voucherDetails); err != nil {
+				return nil, nil, fmt.Errorf("error persisting voucher: %v", err)
+			}
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -455,19 +517,6 @@ func updateLPAProgress(
 				FirstNames:  donorDetails.Donor.FirstNames,
 				LastName:    donorDetails.Donor.LastName,
 				DateOfBirth: donorDetails.Donor.DateOfBirth,
-			}
-		}
-
-		if idActor == "voucher" {
-			donorDetails.WantVoucher = form.Yes
-		}
-
-		if data.Voucher == "1" {
-			donorDetails.Voucher = makeVoucher(voucherName)
-			donorDetails.WantVoucher = form.Yes
-
-			if donorDetails.Tasks.PayForLpa.IsCompleted() {
-				donorDetails.VoucherInvitedAt = time.Now()
 			}
 		}
 
