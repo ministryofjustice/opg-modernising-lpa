@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -18,14 +19,15 @@ type progressNotification struct {
 }
 
 type progressData struct {
-	App               appcontext.Data
-	Errors            validation.List
-	Donor             *donordata.Provided
-	Progress          task.Progress
-	InfoNotifications []progressNotification
+	App                  appcontext.Data
+	Errors               validation.List
+	Donor                *donordata.Provided
+	Progress             task.Progress
+	InfoNotifications    []progressNotification
+	SuccessNotifications []progressNotification
 }
 
-func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -136,6 +138,21 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(certificateProvider.IdentityUserData.CheckedAt)},
 				),
 			})
+		}
+
+		if !donor.HasSeenReducedFeeApprovalNotification &&
+			!donor.ReducedFeeApprovedAt.IsZero() &&
+			donor.Tasks.PayForLpa.IsCompleted() {
+			data.SuccessNotifications = append(data.SuccessNotifications, progressNotification{
+				Heading: "weHaveApprovedYourLPAFeeRequest",
+				Body:    "yourLPAIsNowPaid",
+			})
+
+			donor.HasSeenReducedFeeApprovalNotification = true
+
+			if err = donorStore.Put(r.Context(), donor); err != nil {
+				return fmt.Errorf("failed to update donor: %v", err)
+			}
 		}
 
 		return tmpl(w, data)
