@@ -181,8 +181,14 @@ type Provided struct {
 	// MoreEvidenceRequiredAt records when a request for further information on an exemption/remission was received.
 	MoreEvidenceRequiredAt time.Time `checkhash:"-"`
 
-	// HasViewedSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
-	HasViewedSuccessfulVouchBanner bool `checkhash:"-"`
+	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
+	HasSeenSuccessfulVouchBanner bool `checkhash:"-"`
+
+	// HasSeenReducedFeeApprovalNotification records if the donor has seen the progress tracker exemption/remission fee approved banner
+	HasSeenReducedFeeApprovalNotification bool `checkhash:"-"`
+
+	// ReducedFeeApprovedAt records when an exemption/remission was approved.
+	ReducedFeeApprovedAt time.Time `checkhash:"-"`
 
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }

@@ -175,6 +175,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		})
 
 	updatedDonorProvided := completedDonorProvided
+	updatedDonorProvided.ReducedFeeApprovedAt = testNow
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
 
@@ -244,6 +245,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		})
 
 	updatedDonorProvided := completedDonorProvided
+	updatedDonorProvided.ReducedFeeApprovedAt = testNow
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
 
@@ -310,6 +312,7 @@ func TestHandleFeeApprovedWhenNotSigned(t *testing.T) {
 		})
 
 	updatedDonorProvided := donorProvided
+	updatedDonorProvided.ReducedFeeApprovedAt = testNow
 	updatedDonorProvided.Tasks.PayForLpa = task.PaymentStateCompleted
 	updatedDonorProvided.UpdateHash()
 	updatedDonorProvided.UpdatedAt = testNow
@@ -497,6 +500,7 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 				})
 
 			updatedDonorProvided := *donorProvided
+			updatedDonorProvided.ReducedFeeApprovedAt = testNow
 			updatedDonorProvided.Tasks.PayForLpa = tc.updatedTaskState
 			updatedDonorProvided.FeeType = tc.approvedFeeType
 			updatedDonorProvided.UpdateHash()
@@ -538,7 +542,7 @@ func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 		Return(expectedError)
 
 	err := handleFeeApproved(ctx, client, event, nil, nil, nil, appcontext.Data{}, testNowFn)
-	assert.Equal(t, fmt.Errorf("failed to update LPA task status: %w", expectedError), err)
+	assert.Equal(t, fmt.Errorf("failed to update donor provided details: %w", expectedError), err)
 }
 
 func TestHandleFeeApprovedWhenShareCodeSenderError(t *testing.T) {
