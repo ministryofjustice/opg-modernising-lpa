@@ -26,8 +26,10 @@ func TestGetProgress(t *testing.T) {
 	testCases := map[string]struct {
 		donor                         *donordata.Provided
 		setupCertificateProviderStore func(*mockCertificateProviderStore_GetAny_Call)
+		setupDonorStore               func(*testing.T, *mockDonorStore)
 		lpa                           *lpadata.Lpa
 		infoNotifications             []progressNotification
+		successNotifications          []progressNotification
 		setupLocalizer                func(*testing.T) *mockLocalizer
 	}{
 		"none": {
@@ -340,6 +342,41 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"reduced fee approved payment task complete": {
+			donor: &donordata.Provided{
+				LpaUID:               "lpa-uid",
+				Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+				ReducedFeeApprovedAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			successNotifications: []progressNotification{
+				{
+					Heading: "weHaveApprovedYourLPAFeeRequest",
+					Body:    "yourLPAIsNowPaid",
+				},
+			},
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
+				s.EXPECT().
+					Put(mock.Anything, &donordata.Provided{
+						LpaUID:                                "lpa-uid",
+						Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+						ReducedFeeApprovedAt:                  testNow,
+						HasSeenReducedFeeApprovalNotification: true,
+					}).
+					Return(nil)
+			},
+		},
+		"reduced fee approved payment task complete - has seen notification": {
+			donor: &donordata.Provided{
+				LpaUID:                                "lpa-uid",
+				Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+				ReducedFeeApprovedAt:                  testNow,
+				HasSeenReducedFeeApprovalNotification: true,
+			},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+		},
 	}
 
 	for name, tc := range testCases {
@@ -361,6 +398,11 @@ func TestGetProgress(t *testing.T) {
 			tc.setupCertificateProviderStore(certificateProviderStore.EXPECT().
 				GetAny(r.Context()))
 
+			donorStore := newMockDonorStore(t)
+			if tc.setupDonorStore != nil {
+				tc.setupDonorStore(t, donorStore)
+			}
+
 			if tc.setupLocalizer != nil {
 				testAppData.Localizer = tc.setupLocalizer(t)
 			}
@@ -368,14 +410,15 @@ func TestGetProgress(t *testing.T) {
 			template := newMockTemplate(t)
 			template.EXPECT().
 				Execute(w, &progressData{
-					App:               testAppData,
-					Donor:             tc.donor,
-					Progress:          task.Progress{DonorSigned: task.ProgressTask{Done: true}},
-					InfoNotifications: tc.infoNotifications,
+					App:                  testAppData,
+					Donor:                tc.donor,
+					Progress:             task.Progress{DonorSigned: task.ProgressTask{Done: true}},
+					InfoNotifications:    tc.infoNotifications,
+					SuccessNotifications: tc.successNotifications,
 				}).
 				Return(nil)
 
-			err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore)(testAppData, w, r, tc.donor)
+			err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore, donorStore)(testAppData, w, r, tc.donor)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -393,7 +436,7 @@ func TestGetProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Get(mock.Anything).
 		Return(nil, expectedError)
 
-	err := Progress(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -411,7 +454,7 @@ func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(nil, expectedError)
 
-	err := Progress(nil, lpaStoreResolvingService, nil, certificateProviderStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(nil, lpaStoreResolvingService, nil, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -439,6 +482,6 @@ func TestGetProgressOnTemplateError(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
