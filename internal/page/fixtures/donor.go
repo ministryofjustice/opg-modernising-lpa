@@ -418,6 +418,12 @@ func updateLPAProgress(
 			if taskState.IsMoreEvidenceRequired() {
 				donorDetails.MoreEvidenceRequiredAt = testNow
 			}
+
+			if taskState.IsApproved() {
+				donorDetails.ReducedFeeApprovedAt = testNow
+			}
+		} else if data.FeeType != "" && data.FeeType != "FullFee" {
+			donorDetails.ReducedFeeApprovedAt = testNow
 		}
 	}
 
