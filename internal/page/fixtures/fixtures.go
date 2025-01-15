@@ -37,6 +37,7 @@ type fixturesData struct {
 	DonorEmail string
 	Errors     validation.List
 	Members    []Name
+	IdStatuses []string
 }
 
 type Name struct {

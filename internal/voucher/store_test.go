@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -32,6 +33,13 @@ func (m *mockDynamoClient) ExpectOne(ctx, pk, sk, data interface{}, err error) {
 			return err
 		}).
 		Once()
+}
+
+func (c *mockDynamoClient_OneByPartialSK_Call) SetData(data any) {
+	c.Run(func(_ context.Context, _ dynamo.PK, _ dynamo.SK, v any) {
+		b, _ := attributevalue.Marshal(data)
+		attributevalue.Unmarshal(b, v)
+	})
 }
 
 func TestNewStore(t *testing.T) {
@@ -209,5 +217,45 @@ func TestVoucherStorePut(t *testing.T) {
 	}
 
 	err := store.Put(ctx, &voucherdata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.VoucherKey("456"), LpaID: "123"})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestVoucherStoreGetAny(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.VoucherKey(""),
+			mock.Anything).
+		Return(nil).
+		SetData(&voucherdata.Provided{LpaID: "123"})
+
+	store := &Store{dynamoClient: dynamoClient, now: nil}
+
+	provided, err := store.GetAny(ctx)
+	assert.Nil(t, err)
+	assert.Equal(t, &voucherdata.Provided{LpaID: "123"}, provided)
+}
+
+func TestVoucherStoreGetAnyWhenMissingLpaID(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{})
+
+	store := &Store{dynamoClient: nil, now: nil}
+
+	_, err := store.GetAny(ctx)
+	assert.ErrorContains(t, err, "voucher.Store.GetAny requires LpaID")
+}
+
+func TestVoucherStoreGetAnyWhenDynamoClientError(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{LpaID: "123"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		OneByPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: nil}
+
+	_, err := store.GetAny(ctx)
 	assert.Equal(t, expectedError, err)
 }

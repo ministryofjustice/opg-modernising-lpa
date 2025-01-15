@@ -53,8 +53,7 @@ describe('Progress', () => {
 
             cy.visitLpa('/progress');
             cy.checkA11yApp();
-            cy.contains('Important:')
-            cy.contains('1 notification from OPG');
+            cy.contains('Important: 1 notification from OPG')
             cy.contains('You have chosen to confirm your identity at a Post Office');
 
             cy.contains('a', 'Go to task list').click();
@@ -70,16 +69,14 @@ describe('Progress', () => {
         it('when the lpa is submitted', () => {
             cy.visit('/fixtures?redirect=/progress&progress=signTheLpa');
             cy.checkA11yApp();
-            cy.contains('Important:')
-            cy.contains('1 notification from OPG');
+            cy.contains('Important: 1 notification from OPG')
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
         });
 
         it('when more evidence is required', () => {
             cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&paymentTaskProgress=MoreEvidenceRequired');
             cy.checkA11yApp();
-            cy.contains('Important:')
-            cy.contains('2 notifications from OPG');
+            cy.contains('Important: 2 notifications from OPG')
 
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
@@ -87,39 +84,32 @@ describe('Progress', () => {
             cy.contains('We contacted you on 2 April 2023 with guidance about what to do next.');
         });
 
-        context('when paid', () => {
-            it('when the voucher has been contacted', () => {
-                cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&idStatus=donor:insufficient-evidence');
-                cy.checkA11yApp();
-                cy.contains('Important:')
-                cy.contains('2 notifications from OPG');
+        it('when the voucher has been contacted', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&idStatus=donor:insufficient-evidence');
+            cy.checkA11yApp();
+            cy.contains('Important: 2 notifications from OPG')
 
-                cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
-                cy.contains('We have contacted Simone Sutherland to confirm your identity');
-                cy.contains('You do not need to take any action.');
-            });
-        })
+            cy.contains('We have contacted Simone Sutherland to confirm your identity');
+            cy.contains('You do not need to take any action.');
+        });
 
-        context('when not paid', () => {
-            it('when the voucher has not been contacted', () => {
-                cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&paymentTaskProgress=InProgress&idStatus=donor:insufficient-evidence');
-                cy.checkA11yApp();
-                cy.contains('Important:')
-                cy.contains('2 notifications from OPG');
+        it('when the voucher has not been contacted due to outstanding payment', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&paymentTaskProgress=InProgress&idStatus=donor:insufficient-evidence');
+            cy.checkA11yApp();
+            cy.contains('Important: 2 notifications from OPG')
 
-                cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
-                cy.contains('You must pay for your LPA');
-                cy.contains('Return to your task list to pay for your LPA. We will then be able to contact Simone Sutherland to ask them to confirm your identity.');
-            });
-        })
+            cy.contains('You must pay for your LPA');
+            cy.contains('Return to your task list to pay for your LPA. We will then be able to contact Simone Sutherland to ask them to confirm your identity.');
+        });
 
         it('when a vouch attempt has been unsuccessful', () => {
             cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&failedVouchAttempts=1&idStatus=donor:insufficient-evidence');
             cy.checkA11yApp();
-            cy.contains('Important:')
-            cy.contains('2 notifications from OPG');
+            cy.contains('Important: 2 notifications from OPG')
 
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
@@ -134,6 +124,42 @@ describe('Progress', () => {
             cy.contains('1 notification from OPG');
 
             cy.contains('There is a problem with your LPA');
+        });
+
+        it('when the voucher has successfully vouched - lpa not signed', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=confirmYourIdentity&voucher=1&idStatus=donor:vouched');
+            cy.checkA11yApp();
+            cy.contains('Success: 1 notification from OPG')
+
+            cy.contains('Simone Sutherland has confirmed your identity');
+            cy.contains('Return to your task list for information about what to do next.');
+
+            cy.reload()
+
+            cy.contains('Success: 1 notification from OPG').should('not.exist');
+            cy.contains('Simone Sutherland has confirmed your identity').should('not.exist');
+            cy.contains('Return to your task list for information about what to do next.').should('not.exist');
+        });
+
+        it('when the voucher has successfully vouched - lpa signed', () => {
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&idStatus=donor:vouched');
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG')
+
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
+
+            cy.contains('Success: 1 notification from OPG')
+
+            cy.contains('Simone Sutherland has confirmed your identity');
+            cy.contains('You do not need to take any action.');
+
+            cy.reload()
+
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('Success: 1 notification from OPG').should('not.exist');
+            cy.contains('Simone Sutherland has confirmed your identity').should('not.exist');
+            cy.contains('You do not need to take any action.').should('not.exist');
         });
     });
 });
