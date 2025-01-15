@@ -395,6 +395,8 @@ func updateLPAProgress(
 			if err := documentStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID}), previouslyUploaded); err != nil {
 				return nil, nil, err
 			}
+
+			donorDetails.ReducedFeeApprovedAt = time.Now()
 		} else {
 			donorDetails.FeeType = pay.FullFee
 		}
