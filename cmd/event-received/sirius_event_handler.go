@@ -148,8 +148,10 @@ func handleFeeApproved(
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
 	}
 
+	donor.ReducedFeeApprovedAt = now()
+
 	if err := putDonor(ctx, donor, now, client); err != nil {
-		return fmt.Errorf("failed to update LPA task status: %w", err)
+		return fmt.Errorf("failed to update donor provided details: %w", err)
 	}
 
 	return nil
