@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 )
@@ -34,6 +35,7 @@ type Client struct {
 	openidConfiguration *configurationClient
 	secretsClient       SecretsClient
 	randomString        func(int) string
+	now                 func() time.Time
 	didClient           *didClient
 
 	clientID    string
@@ -47,6 +49,7 @@ func New(ctx context.Context, logger Logger, httpClient *http.Client, secretsCli
 		httpClient:          httpClient,
 		secretsClient:       secretsClient,
 		randomString:        random.String,
+		now:                 time.Now,
 		clientID:            clientID,
 		redirectURL:         redirectURL,
 		openidConfiguration: getConfiguration(ctx, logger, httpClient, issuer),
