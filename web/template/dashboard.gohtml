@@ -41,14 +41,10 @@
             {{ end }}
         </div>
         <div class="app-dashboard-row">
-            {{ if .Item.Lpa.Status.IsWithdrawn }}
-                <div class="govuk-button-group">
-                    <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a>
-                </div>
-            {{ else if .Item.Lpa.Status.IsCannotRegister }}
+            {{ if or .Item.Lpa.Status.IsWithdrawn .Item.Lpa.Status.IsCannotRegister }}
                 <div class="govuk-button-group">
                     <a class="govuk-button" href="{{ link .App (global.Paths.ViewLPA.Format .Item.Lpa.LpaID) }}">{{ tr .App "viewLpa" }}</a><br/>
-                    <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpa" }}</a>
+                    <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .Item.Lpa.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
                 </div>
             {{ else if .Item.Lpa.Status.IsRegistered }}
 
