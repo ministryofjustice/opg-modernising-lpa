@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/stretchr/testify/assert"
@@ -441,6 +442,26 @@ func TestGetProgress(t *testing.T) {
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
+		},
+		"applied for reduced fee": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStatePending,
+				},
+				FeeType:        pay.HalfFee,
+				PaymentDetails: []donordata.Payment{{Amount: 4100}},
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("weAreReviewingTheEvidenceYouSent").Return("H")
+				l.EXPECT().T("ifYourEvidenceIsApprovedWillShowPaid").Return("B")
+				return l
+			},
 		},
 	}
 
