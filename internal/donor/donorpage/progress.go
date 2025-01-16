@@ -178,6 +178,25 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if donor.RegisteringWithCourtOfProtection {
+			if donor.Tasks.PayForLpa.IsCompleted() && !donor.WitnessedByCertificateProviderAt.IsZero() {
+				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
+					Body:    appData.Localizer.T("opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection"),
+				})
+			} else if donor.Tasks.PayForLpa.IsCompleted() {
+				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
+					Body:    appData.Localizer.T("returnToYourTaskListToSignThenOpgWillCheck"),
+				})
+			} else if !donor.WitnessedByCertificateProviderAt.IsZero() {
+				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
+					Body:    appData.Localizer.T("whenYouHavePaidOpgWillCheck"),
+				})
+			}
+		}
+
 		return tmpl(w, data)
 	}
 }
