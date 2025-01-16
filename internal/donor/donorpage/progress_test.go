@@ -494,6 +494,62 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"applying to court of protection and signed and paid": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateCompleted,
+				},
+				WitnessedByCertificateProviderAt: time.Now(),
+				RegisteringWithCourtOfProtection: true,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("yourLpaMustBeReviewedByCourtOfProtection").Return("H")
+				l.EXPECT().T("opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection").Return("B")
+				return l
+			},
+		},
+		"applying to court of protection and signed": {
+			donor: &donordata.Provided{
+				WitnessedByCertificateProviderAt: time.Now(),
+				RegisteringWithCourtOfProtection: true,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("yourLpaMustBeReviewedByCourtOfProtection").Return("H")
+				l.EXPECT().T("whenYouHavePaidOpgWillCheck").Return("B")
+				return l
+			},
+		},
+		"applying to court of protection and paid": {
+			donor: &donordata.Provided{
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateCompleted,
+				},
+				RegisteringWithCourtOfProtection: true,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("yourLpaMustBeReviewedByCourtOfProtection").Return("H")
+				l.EXPECT().T("returnToYourTaskListToSignThenOpgWillCheck").Return("B")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
