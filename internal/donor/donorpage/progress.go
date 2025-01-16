@@ -138,6 +138,13 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if donor.Tasks.PayForLpa.IsPending() && donor.FeeAmount() == 0 {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("weAreReviewingTheEvidenceYouSent"),
+				Body:    appData.Localizer.T("ifYourEvidenceIsApprovedWillShowPaid"),
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }
