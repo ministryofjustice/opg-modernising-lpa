@@ -448,6 +448,8 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 			Email:      l.Correspondent.Email,
 			Address:    l.Correspondent.Address,
 		},
+		PaymentInProgress: !l.Tasks.PayForLpa.IsCompleted() && !l.Tasks.PayForLpa.IsNotStarted(),
+		Paid:              l.Tasks.PayForLpa.IsCompleted(),
 	}
 
 	for _, a := range l.Attorneys.Attorneys {
