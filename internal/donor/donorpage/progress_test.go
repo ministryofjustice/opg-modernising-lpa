@@ -30,11 +30,11 @@ func TestGetProgress(t *testing.T) {
 		donor                         *donordata.Provided
 		setupCertificateProviderStore func(*mockCertificateProviderStore_GetAny_Call)
 		setupVoucherStore             func(*mockVoucherStore_GetAny_Call)
-		setupDonorStore               func(*testing.T) *mockDonorStore
+		setupDonorStore               func(*testing.T, *mockDonorStore)
 		lpa                           *lpadata.Lpa
 		infoNotifications             []progressNotification
-		setupLocalizer                func(*testing.T) *mockLocalizer
 		successNotifications          []progressNotification
+		setupLocalizer                func(*testing.T) *mockLocalizer
 	}{
 		"none": {
 			donor:                         &donordata.Provided{LpaUID: "lpa-uid"},
@@ -373,18 +373,16 @@ func TestGetProgress(t *testing.T) {
 			setupVoucherStore: func(call *mockVoucherStore_GetAny_Call) {
 				call.Return(&voucherdata.Provided{FirstNames: "c", LastName: "d", SignedAt: signedAt}, nil)
 			},
-			setupDonorStore: func(*testing.T) *mockDonorStore {
-				s := newMockDonorStore(t)
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
 				s.EXPECT().
 					Put(context.Background(), &donordata.Provided{
 						Tasks: donordata.Tasks{
 							ConfirmYourIdentity: task.IdentityStateCompleted,
 						},
-						Voucher:                        donordata.Voucher{FirstNames: "a", LastName: "b"},
-						HasViewedSuccessfulVouchBanner: true,
+						Voucher:                      donordata.Voucher{FirstNames: "a", LastName: "b"},
+						HasSeenSuccessfulVouchBanner: true,
 					}).
 					Return(nil)
-				return s
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
 		},
@@ -416,19 +414,17 @@ func TestGetProgress(t *testing.T) {
 			setupVoucherStore: func(call *mockVoucherStore_GetAny_Call) {
 				call.Return(&voucherdata.Provided{FirstNames: "c", LastName: "d", SignedAt: signedAt}, nil)
 			},
-			setupDonorStore: func(*testing.T) *mockDonorStore {
-				s := newMockDonorStore(t)
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
 				s.EXPECT().
 					Put(context.Background(), &donordata.Provided{
 						Tasks: donordata.Tasks{
 							ConfirmYourIdentity: task.IdentityStateCompleted,
 							SignTheLpa:          task.StateCompleted,
 						},
-						Voucher:                        donordata.Voucher{FirstNames: "a", LastName: "b"},
-						HasViewedSuccessfulVouchBanner: true,
+						Voucher:                      donordata.Voucher{FirstNames: "a", LastName: "b"},
+						HasSeenSuccessfulVouchBanner: true,
 					}).
 					Return(nil)
-				return s
 			},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
 		},
@@ -437,8 +433,43 @@ func TestGetProgress(t *testing.T) {
 				Tasks: donordata.Tasks{
 					ConfirmYourIdentity: task.IdentityStateCompleted,
 				},
-				Voucher:                        donordata.Voucher{FirstNames: "a", LastName: "b"},
-				HasViewedSuccessfulVouchBanner: true,
+				Voucher:                      donordata.Voucher{FirstNames: "a", LastName: "b"},
+				HasSeenSuccessfulVouchBanner: true,
+			},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+		},
+		"reduced fee approved payment task complete": {
+			donor: &donordata.Provided{
+				LpaUID:               "lpa-uid",
+				Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+				ReducedFeeApprovedAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			successNotifications: []progressNotification{
+				{
+					Heading: "weHaveApprovedYourLPAFeeRequest",
+					Body:    "yourLPAIsNowPaid",
+				},
+			},
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
+				s.EXPECT().
+					Put(mock.Anything, &donordata.Provided{
+						LpaUID:                                "lpa-uid",
+						Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+						ReducedFeeApprovedAt:                  testNow,
+						HasSeenReducedFeeApprovalNotification: true,
+					}).
+					Return(nil)
+			},
+		},
+		"reduced fee approved payment task complete - has seen notification": {
+			donor: &donordata.Provided{
+				LpaUID:                                "lpa-uid",
+				Tasks:                                 donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+				ReducedFeeApprovedAt:                  testNow,
+				HasSeenReducedFeeApprovalNotification: true,
 			},
 			lpa:                           &lpadata.Lpa{LpaUID: "lpa-uid"},
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
@@ -484,6 +515,11 @@ func TestGetProgress(t *testing.T) {
 			tc.setupCertificateProviderStore(certificateProviderStore.EXPECT().
 				GetAny(r.Context()))
 
+			donorStore := newMockDonorStore(t)
+			if tc.setupDonorStore != nil {
+				tc.setupDonorStore(t, donorStore)
+			}
+
 			if tc.setupLocalizer != nil {
 				testAppData.Localizer = tc.setupLocalizer(t)
 			}
@@ -491,11 +527,6 @@ func TestGetProgress(t *testing.T) {
 			voucherStore := newMockVoucherStore(t)
 			if tc.setupVoucherStore != nil {
 				tc.setupVoucherStore(voucherStore.EXPECT().GetAny(r.Context()))
-			}
-
-			donorStore := newMockDonorStore(t)
-			if tc.setupDonorStore != nil {
-				donorStore = tc.setupDonorStore(t)
 			}
 
 			template := newMockTemplate(t)
@@ -651,4 +682,37 @@ func TestGetProgressOnTemplateError(t *testing.T) {
 
 	err := Progress(template.Execute, lpaStoreResolvingService, progressTracker, certificateProviderStore, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestGetProgressOnDonorStoreError(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(&lpadata.Lpa{}, nil)
+
+	progressTracker := newMockProgressTracker(t)
+	progressTracker.EXPECT().
+		Progress(mock.Anything).
+		Return(task.Progress{})
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(nil, dynamo.NotFoundError{})
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := Progress(nil, lpaStoreResolvingService, progressTracker, certificateProviderStore, nil, donorStore)(testAppData, w, r, &donordata.Provided{
+		LpaUID:               "lpa-uid",
+		Tasks:                donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+		ReducedFeeApprovedAt: time.Now(),
+	})
+
+	assert.ErrorContains(t, err, "failed to update donor: err")
 }

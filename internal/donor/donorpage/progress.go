@@ -2,6 +2,7 @@ package donorpage
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -141,7 +142,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
-		if !donor.HasViewedSuccessfulVouchBanner &&
+		if !donor.HasSeenSuccessfulVouchBanner &&
 			donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
 			donor.Voucher.FirstNames != "" {
 			voucher, err := voucherStore.GetAny(r.Context())
@@ -163,7 +164,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Body: body,
 				})
 
-				donor.HasViewedSuccessfulVouchBanner = true
+				donor.HasSeenSuccessfulVouchBanner = true
 
 				if err = donorStore.Put(r.Context(), donor); err != nil {
 					return err
@@ -176,6 +177,21 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				Heading: appData.Localizer.T("weAreReviewingTheEvidenceYouSent"),
 				Body:    appData.Localizer.T("ifYourEvidenceIsApprovedWillShowPaid"),
 			})
+		}
+
+		if !donor.HasSeenReducedFeeApprovalNotification &&
+			!donor.ReducedFeeApprovedAt.IsZero() &&
+			donor.Tasks.PayForLpa.IsCompleted() {
+			data.SuccessNotifications = append(data.SuccessNotifications, progressNotification{
+				Heading: "weHaveApprovedYourLPAFeeRequest",
+				Body:    "yourLPAIsNowPaid",
+			})
+
+			donor.HasSeenReducedFeeApprovalNotification = true
+
+			if err = donorStore.Put(r.Context(), donor); err != nil {
+				return fmt.Errorf("failed to update donor: %v", err)
+			}
 		}
 
 		return tmpl(w, data)
