@@ -1415,5 +1415,9 @@
     "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} has confirmed your identity",
     "returnToYourTaskListForInformationAboutWhatToDoNext": "Return to your task list for information about what to do next.",
     "weAreReviewingTheEvidenceYouSent": "We are reviewing the evidence you sent about your LPA fee",
-    "ifYourEvidenceIsApprovedWillShowPaid": "If your evidence is approved, your LPA will show as paid."
+    "ifYourEvidenceIsApprovedWillShowPaid": "If your evidence is approved, your LPA will show as paid.",
+    "yourLpaMustBeReviewedByCourtOfProtection": "Your LPA must be reviewed by the Court of Protection",
+    "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection": "The Office of the Public Guardian is completing checks on your LPA so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next.",
+    "returnToYourTaskListToSignThenOpgWillCheck": "Return to your task list to sign your LPA. OPG will then be able to complete our checks on it so you can submit it to the Court of Protection.",
+    "whenYouHavePaidOpgWillCheck": "When you have paid for your LPA, the Office of the Public Guardian will complete our checks on it so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next."
 }
