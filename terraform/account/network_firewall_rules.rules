@@ -21,4 +21,4 @@ pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; co
 pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; content:"identity.integration.account.gov.uk"; startswith; endswith; msg:"matching TLS allowlisted FQDNs"; priority:1; flow:to_server, established; sid:220; rev:1;)
 pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; content:"publicapi.payments.service.gov.uk"; startswith; endswith; msg:"matching TLS allowlisted FQDNs"; priority:1; flow:to_server, established; sid:230; rev:1;)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"not matching any HTTP allowlisted FQDNs"; priority:1; flow:to_server, established; sid:240; rev:1;)
-alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"not matching any TLS allowlisted FQDNs"; priority:1; ssl_state:client_hello; flow:to_server, established; sid:250; rev:1;)
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"not matching any TLS allowlisted FQDNs."; metadata: requestline http.request_line; priority:1; ssl_state:client_hello; flow:to_server, established; sid:250; rev:1;)
