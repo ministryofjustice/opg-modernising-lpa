@@ -177,5 +177,19 @@ describe('Progress', () => {
             cy.contains('We have approved your LPA fee request').should('not.exist');
             cy.contains('Your LPA is now paid.').should('not.exist');
         })
+
+        it("when LPA withdrawn", () => {
+            cy.visit('/fixtures?redirect=/progress&progress=withdrawn');
+
+            cy.checkA11yApp();
+
+            cy.contains('Thank you for filling in your LPA').should('not.exist');
+
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('LPA revoked');
+            cy.contains('We contacted you on 2 April 2023 confirming your LPA has been revoked. OPG will not register it and it cannot be used as a legal document.');
+
+        })
     });
 });

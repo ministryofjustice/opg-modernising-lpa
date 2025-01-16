@@ -19,7 +19,9 @@
                 </dl>
             </div>
 
-            {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+            {{ if .Donor.WithdrawnAt.IsZero }}
+                {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+            {{ end }}
 
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 

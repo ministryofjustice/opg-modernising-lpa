@@ -47,6 +47,18 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			Progress: progressTracker.Progress(lpa),
 		}
 
+		if !donor.WithdrawnAt.IsZero() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: "lpaRevoked",
+				Body: appData.Localizer.Format(
+					"weContactedYouOnAboutLPARevokedOPGWillNotRegister",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.WithdrawnAt)},
+				),
+			})
+
+			return tmpl(w, data)
+		}
+
 		if donor.IdentityUserData.Status.IsUnknown() && donor.Tasks.ConfirmYourIdentity.IsPending() {
 			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 				Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
