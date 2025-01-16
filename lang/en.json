@@ -1413,5 +1413,7 @@
     "thereIsAProblemWithYourLpa": "There is a problem with your LPA",
     "certificateProviderHasBeenUnableToConfirmIdentity": "{{.CertificateProviderFullName}} has been unable to confirm their identity",
     "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} has confirmed your identity",
-    "returnToYourTaskListForInformationAboutWhatToDoNext": "Return to your task list for information about what to do next."
+    "returnToYourTaskListForInformationAboutWhatToDoNext": "Return to your task list for information about what to do next.",
+    "weAreReviewingTheEvidenceYouSent": "We are reviewing the evidence you sent about your LPA fee",
+    "ifYourEvidenceIsApprovedWillShowPaid": "If your evidence is approved, your LPA will show as paid."
 }
