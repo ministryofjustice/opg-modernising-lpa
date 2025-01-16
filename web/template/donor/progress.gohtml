@@ -19,7 +19,9 @@
                 </dl>
             </div>
 
-            {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+            {{ if .Donor.WithdrawnAt.IsZero }}
+                {{ trHtml .App "checkTheProgressOfYourLpaContent" }}
+            {{ end }}
 
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
@@ -65,12 +67,16 @@
                 </div>
             {{ end }}
 
-            {{ template "donor-lpa-progress" . }}
+            {{ if .Donor.WithdrawnAt.IsZero }}
+                {{ template "donor-lpa-progress" . }}
 
-            <div class="govuk-button-group">
+                <div class="govuk-button-group">
+                    {{ template "button" (button .App "returnToDashboard" "link" (link .App global.Paths.Dashboard.Format)) }}
+                    <a href="{{ link .App (global.Paths.TaskList.Format .Donor.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToTaskList" }}</a>
+                </div>
+            {{ else }}
                 {{ template "button" (button .App "returnToDashboard" "link" (link .App global.Paths.Dashboard.Format)) }}
-                <a href="{{ link .App (global.Paths.TaskList.Format .Donor.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToTaskList" }}</a>
-            </div>
+            {{ end }}
         </div>
     </div>
 {{ end }}
