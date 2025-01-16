@@ -99,10 +99,12 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 
 	if donor.SK.Equals(dynamo.DonorKey("PAPER")) {
 		lpa.Drafted = true
+		lpa.PaymentInProgress = false
 		lpa.Paid = true
 		lpa.Donor.Channel = lpadata.ChannelPaper
 	} else {
 		lpa.Drafted = donor.Tasks.CheckYourLpa.IsCompleted()
+		lpa.PaymentInProgress = !donor.Tasks.PayForLpa.IsCompleted() && !donor.Tasks.PayForLpa.IsNotStarted()
 		lpa.Paid = donor.Tasks.PayForLpa.IsCompleted()
 		_, lpa.IsOrganisationDonor = donor.SK.Organisation()
 
