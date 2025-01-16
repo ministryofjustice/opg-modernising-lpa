@@ -1,5 +1,5 @@
 plugin: openapi
-specFile: /opt/imposter/config/publicapi_spec.json
+specFile: publicapi_spec.json
 response:
   scriptFile: payments.js
 
