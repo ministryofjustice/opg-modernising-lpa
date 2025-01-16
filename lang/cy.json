@@ -1517,5 +1517,7 @@
     "thereIsAProblemWithYourLpa": "Welsh",
     "certificateProviderHasBeenUnableToConfirmIdentity": "{{.CertificateProviderFullName}} Welsh",
     "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} Welsh",
-    "returnToYourTaskListForInformationAboutWhatToDoNext": "Welsh"
+    "returnToYourTaskListForInformationAboutWhatToDoNext": "Welsh",
+    "weAreReviewingTheEvidenceYouSent": "Welsh",
+    "ifYourEvidenceIsApprovedWillShowPaid": "Welsh"
 }
