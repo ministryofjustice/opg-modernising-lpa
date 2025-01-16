@@ -1,3 +1,9 @@
 services:
   app:
     image: ${ECR_REGISTRY}/modernising-lpa/app:${TAG}
+
+  mock-pay:
+    build:
+      context: ..
+      dockerfile: docker/mock-pay/Dockerfile
+    container_name: mock-pay
