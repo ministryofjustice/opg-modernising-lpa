@@ -10,22 +10,25 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
+
+type progressData struct {
+	App                  appcontext.Data
+	Errors               validation.List
+	Donor                *donordata.Provided
+	Voucher              *voucherdata.Provided
+	Progress             task.Progress
+	InfoNotifications    []progressNotification
+	SuccessNotifications []progressNotification
+}
 
 type progressNotification struct {
 	Heading string
 	Body    string
 }
 
-type progressData struct {
-	App               appcontext.Data
-	Errors            validation.List
-	Donor             *donordata.Provided
-	Progress          task.Progress
-	InfoNotifications []progressNotification
-}
-
-func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore, voucherStore VoucherStore, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -136,6 +139,36 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(certificateProvider.IdentityUserData.CheckedAt)},
 				),
 			})
+		}
+
+		if !donor.HasViewedSuccessfulVouchBanner &&
+			donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			donor.Voucher.FirstNames != "" {
+			voucher, err := voucherStore.GetAny(r.Context())
+			if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+				return err
+			}
+
+			if voucher != nil && !voucher.SignedAt.IsZero() {
+				body := "returnToYourTaskListForInformationAboutWhatToDoNext"
+				if donor.Tasks.SignTheLpa.IsCompleted() {
+					body = "youDoNotNeedToTakeAnyAction"
+				}
+
+				data.SuccessNotifications = append(data.SuccessNotifications, progressNotification{
+					Heading: appData.Localizer.Format(
+						"voucherHasConfirmedYourIdentity",
+						map[string]any{"VoucherFullName": voucher.FullName()},
+					),
+					Body: body,
+				})
+
+				donor.HasViewedSuccessfulVouchBanner = true
+
+				if err = donorStore.Put(r.Context(), donor); err != nil {
+					return err
+				}
+			}
 		}
 
 		return tmpl(w, data)

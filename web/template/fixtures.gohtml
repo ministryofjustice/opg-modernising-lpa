@@ -48,6 +48,40 @@
     </div>
 
     <div class="govuk-form-group">
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-payment-progress" name="paymentTaskProgress" type="checkbox" value="InProgress">
+                <label class="govuk-label govuk-checkboxes__label" for="f-payment-progress">
+                    Payment in progress
+                </label>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="govuk-form-group">
+        <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+            <div class="govuk-checkboxes__item">
+                <input class="govuk-checkboxes__input" id="f-wants-voucher" name="voucher" type="checkbox" value="1">
+                <label class="govuk-label govuk-checkboxes__label" for="f-wants-voucher">
+                    Wants voucher
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-form-group">
+        <label class="govuk-label" for="sort">
+            Identification status
+        </label>
+        <select class="govuk-select" id="sort" name="idStatus">
+            {{ range $_, $s := .IdStatuses }}
+                <option value="donor:{{$s}}">{{$s}}</option>
+            {{ end }}
+        </select>
+    </div>
+
+    <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend">Progress</legend>
 
