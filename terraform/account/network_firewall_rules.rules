@@ -1,4 +1,3 @@
-#alert tcp any any -> any any (msg:"Routing is symmetric. You can safely remove this test rule."; flow:established; sid:10;)
 pass http $HOME_NET any -> $EXTERNAL_NET any (http.host; dotprefix; content:".amazon.com"; endswith; msg:"matching HTTP allowlisted FQDNs"; priority:1; flow:to_server, established; sid:20; rev:1;)
 pass http $HOME_NET any -> $EXTERNAL_NET any (http.host; dotprefix; content:".lpa-store.api.opg.service.justice.gov.uk"; endswith; msg:"matching HTTP allowlisted FQDNs"; priority:1; flow:to_server, established; sid:30; rev:1;)
 pass http $HOME_NET any -> $EXTERNAL_NET any (http.host; dotprefix; content:".lpa-uid.api.opg.service.justice.gov.uk"; endswith; msg:"matching HTTP allowlisted FQDNs"; priority:1; flow:to_server, established; sid:40; rev:1;)
@@ -21,5 +20,5 @@ pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; co
 pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; content:"oidc.integration.account.gov.uk"; startswith; endswith; msg:"matching TLS allowlisted FQDNs"; priority:1; flow:to_server, established; sid:210; rev:1;)
 pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; content:"identity.integration.account.gov.uk"; startswith; endswith; msg:"matching TLS allowlisted FQDNs"; priority:1; flow:to_server, established; sid:220; rev:1;)
 pass tls $HOME_NET any -> $EXTERNAL_NET any (ssl_state:client_hello; tls.sni; content:"publicapi.payments.service.gov.uk"; startswith; endswith; msg:"matching TLS allowlisted FQDNs"; priority:1; flow:to_server, established; sid:230; rev:1;)
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"Drop HTTP traffic"; priority:1; flow:to_server, established; sid:240; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"not matching any HTTP allowlisted FQDNs"; priority:1; flow:to_server, established; sid:240; rev:1;)
 alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"not matching any TLS allowlisted FQDNs"; priority:1; ssl_state:client_hello; flow:to_server, established; sid:250; rev:1;)
