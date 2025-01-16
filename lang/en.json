@@ -1415,5 +1415,7 @@
     "voucherHasConfirmedYourIdentity": "{{.VoucherFullName}} has confirmed your identity",
     "returnToYourTaskListForInformationAboutWhatToDoNext": "Return to your task list for information about what to do next.",
     "weAreReviewingTheEvidenceYouSent": "We are reviewing the evidence you sent about your LPA fee",
-    "ifYourEvidenceIsApprovedWillShowPaid": "If your evidence is approved, your LPA will show as paid."
+    "ifYourEvidenceIsApprovedWillShowPaid": "If your evidence is approved, your LPA will show as paid.",
+    "weHaveApprovedYourLPAFeeRequest": "We have approved your LPA fee request",
+    "yourLPAIsNowPaid": "Your LPA is now paid."
 }
