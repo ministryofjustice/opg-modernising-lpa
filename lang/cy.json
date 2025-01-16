@@ -1521,5 +1521,9 @@
     "weAreReviewingTheEvidenceYouSent": "Welsh",
     "ifYourEvidenceIsApprovedWillShowPaid": "Welsh",
     "weHaveApprovedYourLPAFeeRequest": "Welsh",
-    "yourLPAIsNowPaid": "Welsh"
+    "yourLPAIsNowPaid": "Welsh",
+    "yourLpaMustBeReviewedByCourtOfProtection": "Welsh",
+    "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection": "Welsh",
+    "returnToYourTaskListToSignThenOpgWillCheck": "Welsh",
+    "whenYouHavePaidOpgWillCheck": "Welsh"
 }
