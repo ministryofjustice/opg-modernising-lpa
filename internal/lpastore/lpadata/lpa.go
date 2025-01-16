@@ -61,6 +61,10 @@ type Lpa struct {
 	// lpa-store the application payment must be complete.
 	Paid bool
 
+	// PaymentInProgress is set if the donor has started the payment task for online
+	// applications and is always false for paper applications as they have already paid.
+	PaymentInProgress bool
+
 	// IsOrganisationDonor is set to true when the Lpa is being made by a
 	// supporter working for an organisation.
 	IsOrganisationDonor bool
