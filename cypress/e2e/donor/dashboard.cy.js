@@ -23,6 +23,45 @@ describe('Dashboard', () => {
         });
     })
 
+    context('when payment task started', () => {
+        it('LPAs have a track progress button', () => {
+            cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
+
+            cy.contains('a', 'Pay for the LPA').click()
+            cy.contains('a', 'Continue').click()
+            cy.get('input[name="yes-no"]').check('yes', { force: true });
+            cy.contains('button', 'Save and continue').click()
+
+            cy.contains('a', 'Manage your LPAs').click()
+
+            cy.get('button').should('not.contain', 'Continue');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'In progress');
+            cy.contains('a', 'Go to task list');
+            cy.contains('a', 'Delete LPA');
+            cy.contains('a', 'Check LPA progress').click();
+
+            cy.url().should('contain', '/progress');
+        });
+    });
+
+    context('when paid', () => {
+        it('LPAs have a track progress button', () => {
+            cy.visit('/fixtures?redirect=&progress=payForTheLpa');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'In progress');
+            cy.contains('a', 'Go to task list');
+            cy.contains('a', 'Delete LPA');
+            cy.contains('a', 'Check LPA progress').click();
+
+            cy.url().should('contain', '/progress');
+        });
+    });
+
     context('with submitted LPA', () => {
         it('completed LPAs have a track progress button', () => {
             Cypress.on('uncaught:exception', () => {
