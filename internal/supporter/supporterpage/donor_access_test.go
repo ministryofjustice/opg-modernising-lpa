@@ -140,7 +140,7 @@ func TestPostDonorAccess(t *testing.T) {
 		GetDonor(r.Context()).
 		Return(sharecodedata.Link{}, dynamo.NotFoundError{})
 	shareCodeStore.EXPECT().
-		PutDonor(r.Context(), testRandomString, sharecodedata.Link{
+		PutDonor(r.Context(), testHashedCode, sharecodedata.Link{
 			LpaOwnerKey:  dynamo.LpaOwnerKey(dynamo.OrganisationKey("org-id")),
 			LpaKey:       dynamo.LpaKey("lpa-id"),
 			ActorUID:     donorUID,
@@ -156,7 +156,7 @@ func TestPostDonorAccess(t *testing.T) {
 			LpaType:           "translation",
 			DonorName:         "Barry Boy",
 			URL:               "http://whatever/start",
-			ShareCode:         testRandomString,
+			ShareCode:         testStringCode,
 		}).
 		Return(nil)
 
@@ -166,7 +166,7 @@ func TestPostDonorAccess(t *testing.T) {
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{PK: dynamo.OrganisationKey("org-id"), ID: "org-id", Name: "Helpers"}, &supporterdata.Member{FirstNames: "John", LastName: "Smith"})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{PK: dynamo.OrganisationKey("org-id"), ID: "org-id", Name: "Helpers"}, &supporterdata.Member{FirstNames: "John", LastName: "Smith"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -218,7 +218,7 @@ func TestPostDonorAccessWhenShareCodeStoreErrors(t *testing.T) {
 		PutDonor(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -253,7 +253,7 @@ func TestPostDonorAccessWhenNotifyErrors(t *testing.T) {
 		Return("Translation")
 	testLpaAppData.Localizer = localizer
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, &supporterdata.Member{})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, notifyClient, "", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{ID: "org-id"}, &supporterdata.Member{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -310,7 +310,7 @@ func TestPostDonorAccessRecall(t *testing.T) {
 		Delete(r.Context(), shareCodeData).
 		Return(nil)
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -340,7 +340,7 @@ func TestPostDonorAccessRecallWhenDeleteErrors(t *testing.T) {
 		Delete(r.Context(), shareCodeData).
 		Return(expectedError)
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -419,7 +419,7 @@ func TestPostDonorAccessRemove(t *testing.T) {
 	logger.EXPECT().
 		InfoContext(r.Context(), "donor access removed", slog.String("lpa_id", "lpa-id"))
 
-	err := DonorAccess(logger, nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
+	err := DonorAccess(logger, nil, donorStore, shareCodeStore, nil, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -453,7 +453,7 @@ func TestPostDonorAccessRemoveWhenDonorHasPaid(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, nil)
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Error(t, err)
@@ -482,7 +482,7 @@ func TestPostDonorAccessRemoveWhenDeleteLinkError(t *testing.T) {
 		DeleteDonorAccess(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testRandomStringFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
+	err := DonorAccess(nil, nil, donorStore, shareCodeStore, nil, "http://whatever", testGenerateFn)(testLpaAppData, w, r, &supporterdata.Organisation{}, &supporterdata.Member{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)

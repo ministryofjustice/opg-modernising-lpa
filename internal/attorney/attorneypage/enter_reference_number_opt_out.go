@@ -3,7 +3,6 @@ package attorneypage
 import (
 	"errors"
 	"net/http"
-	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -11,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -26,7 +26,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				referenceNumber := data.Form.ReferenceNumber
+				referenceNumber := sharecodedata.HashedFromString(data.Form.ReferenceNumber)
 
 				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, referenceNumber)
 				if err != nil {
@@ -42,7 +42,7 @@ func EnterReferenceNumberOptOut(tmpl template.Template, shareCodeStore ShareCode
 					return err
 				}
 
-				return page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut.RedirectQuery(w, r, appData, url.Values{"referenceNumber": {referenceNumber}})
+				return page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut.RedirectQuery(w, r, appData, referenceNumber.Query())
 			}
 		}
 
