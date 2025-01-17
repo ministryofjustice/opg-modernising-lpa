@@ -177,5 +177,21 @@ describe('Progress', () => {
             cy.contains('We have approved your LPA fee request').should('not.exist');
             cy.contains('Your LPA is now paid.').should('not.exist');
         })
+
+        it("when six months after signing and identification not confirmed", () => {
+            const now = new Date();
+
+            const sixMonthsAndOneDayAgo = new Date()
+            sixMonthsAndOneDayAgo.setMonth(now.getMonth() - 6);
+            sixMonthsAndOneDayAgo.setDate(now.getDate() - 1);
+
+            cy.visit(`/fixtures?redirect=/progress&progress=signTheLpa&idStatus=donor:insufficient-evidence&signedAt=donor:${sixMonthsAndOneDayAgo.toLocaleDateString('en-GB')}`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('Your LPA cannot be registered by the Office of the Public Guardian (OPG)');
+            cy.contains('You did not confirm your identity within 6 months of signing your LPA, so OPG cannot register it. You can either get your existing LPA reviewed by the Court of Protection, or create a new LPA.');
+        })
     });
 });

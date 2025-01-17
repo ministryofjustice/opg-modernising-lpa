@@ -1421,5 +1421,7 @@
     "yourLpaMustBeReviewedByCourtOfProtection": "Your LPA must be reviewed by the Court of Protection",
     "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection": "The Office of the Public Guardian is completing checks on your LPA so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next.",
     "returnToYourTaskListToSignThenOpgWillCheck": "Return to your task list to sign your LPA. OPG will then be able to complete our checks on it so you can submit it to the Court of Protection.",
-    "whenYouHavePaidOpgWillCheck": "When you have paid for your LPA, the Office of the Public Guardian will complete our checks on it so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next."
+    "whenYouHavePaidOpgWillCheck": "When you have paid for your LPA, the Office of the Public Guardian will complete our checks on it so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next.",
+    "yourLPACannotBeRegisteredByOPG": "Your LPA cannot be registered by the Office of the Public Guardian (OPG)",
+    "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning": "You did not confirm your identity within 6 months of signing your LPA, so OPG cannot register it. You can either get your existing LPA reviewed by the Court of Protection, or create a new LPA."
 }

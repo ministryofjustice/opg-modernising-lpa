@@ -176,8 +176,8 @@ func Attorney(
 			attorneyCtx            = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: attorneySessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+		donorDetails.SignedAt = testNow
+		donorDetails.WitnessedByCertificateProviderAt = testNow
 		donorDetails.Donor = makeDonor(testEmail)
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
@@ -251,7 +251,7 @@ func Attorney(
 		}
 
 		certificateProvider.ContactLanguagePreference = localize.En
-		certificateProvider.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
+		certificateProvider.SignedAt = testNow
 
 		attorney, err := createAttorney(
 			attorneyCtx,
