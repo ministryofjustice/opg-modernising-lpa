@@ -24,7 +24,7 @@ describe('Dashboard', () => {
     })
 
     context('when payment task started', () => {
-        it('LPAs have a track progress button', () => {
+        it('shows the correct options', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=checkAndSendToYourCertificateProvider');
 
             cy.contains('a', 'Pay for the LPA').click()
@@ -38,6 +38,9 @@ describe('Dashboard', () => {
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
+
+            cy.get('.app-dashboard-row a').should('have.length', 3);
+
             cy.contains('strong', 'In progress');
             cy.contains('a', 'Go to task list');
             cy.contains('a', 'Delete LPA');
@@ -48,12 +51,15 @@ describe('Dashboard', () => {
     });
 
     context('when paid', () => {
-        it('LPAs have a track progress button', () => {
+        it('shows the correct options', () => {
             cy.visit('/fixtures?redirect=&progress=payForTheLpa');
 
             cy.contains('Property and affairs');
             cy.contains('Sam Smith');
             cy.contains('strong', 'In progress');
+
+            cy.get('.app-dashboard-row a').should('have.length', 3);
+
             cy.contains('a', 'Go to task list');
             cy.contains('a', 'Delete LPA');
             cy.contains('a', 'Check LPA progress').click();
@@ -63,7 +69,7 @@ describe('Dashboard', () => {
     });
 
     context('with submitted LPA', () => {
-        it('completed LPAs have a track progress button', () => {
+        it('shows the correct options', () => {
             Cypress.on('uncaught:exception', () => {
                 // TODO: remove this if this test works without, it is a problem
                 // in the moj-frontend package
@@ -110,8 +116,9 @@ describe('Dashboard', () => {
             cy.contains('Sam Smith');
             cy.contains('strong', 'Revoked');
             cy.contains('.app-dashboard-card a').should('not.exist');
-            cy.get('.app-dashboard-row a').should('have.length', 1);
+            cy.get('.app-dashboard-row a').should('have.length', 2);
             cy.contains('a', 'View LPA');
+            cy.contains('a', 'Check LPA progress');
         });
     });
 
