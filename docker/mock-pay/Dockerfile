@@ -7,9 +7,6 @@ COPY ./docker/mock-pay /opt/imposter/config/
 
 COPY --from=base /opt/publicapi_spec.json /opt/imposter/config/
 
-WORKDIR /opt/imposter/config/
-
-
 USER imposter
 
 EXPOSE 8080
