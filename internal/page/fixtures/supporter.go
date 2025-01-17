@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
@@ -34,15 +35,8 @@ type OrganisationStore interface {
 	CreateLPA(context.Context) (*donordata.Provided, error)
 }
 
-type MemberStore interface {
-	Create(ctx context.Context, firstNames, lastName string) (*supporterdata.Member, error)
-	CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error
-	CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, code string, permission supporterdata.Permission) error
-	Put(ctx context.Context, member *supporterdata.Member) error
-}
-
 type ShareCodeStore interface {
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
+	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
 	PutDonor(ctx context.Context, code string, data sharecodedata.Link) error
 }
 
@@ -51,10 +45,10 @@ func Supporter(
 	sessionStore *sesh.Store,
 	organisationStore OrganisationStore,
 	donorStore DonorStore,
-	memberStore MemberStore,
+	memberStore *supporter.MemberStore,
 	dynamoClient DynamoClient,
 	searchClient *search.Client,
-	shareCodeStore ShareCodeStore,
+	shareCodeStore *sharecode.Store,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
@@ -161,12 +155,14 @@ func Supporter(
 					return err
 				}
 
-				if err := shareCodeStore.PutDonor(r.Context(), accessCode, shareCodeData); err != nil {
+				hashedCode := sharecodedata.HashedFromString(accessCode)
+
+				if err := shareCodeStore.PutDonor(r.Context(), hashedCode, shareCodeData); err != nil {
 					return err
 				}
 
 				if linkDonor {
-					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(accessCode))
+					shareCodeData.PK = dynamo.ShareKey(dynamo.DonorShareKey(hashedCode.String()))
 					shareCodeData.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(org.PK, shareCodeData.LpaKey))
 					shareCodeData.UpdatedAt = time.Now()
 
@@ -244,6 +240,8 @@ func Supporter(
 						now = now.Add(time.Hour * -time.Duration(48))
 					}
 
+					_, hashedCode := sharecodedata.Generate()
+
 					invite := &supporterdata.MemberInvite{
 						PK:               dynamo.OrganisationKey(org.ID),
 						SK:               dynamo.MemberInviteKey(member.Email()),
@@ -254,7 +252,7 @@ func Supporter(
 						FirstNames:       member.Firstnames,
 						LastName:         member.Lastname,
 						Permission:       supporterdata.PermissionAdmin,
-						ReferenceNumber:  random.String(12),
+						ReferenceNumber:  hashedCode,
 					}
 
 					if err := dynamoClient.Create(appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID}), invite); err != nil {
@@ -284,6 +282,7 @@ func Supporter(
 					email := strings.ToLower(fmt.Sprintf("%s-%s@example.org", member.Firstnames, member.Lastname))
 					sub := []byte(random.String(16))
 					memberCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: base64.StdEncoding.EncodeToString(sub), Email: email})
+					_, hashedCode := sharecodedata.Generate()
 
 					if err = memberStore.CreateFromInvite(
 						memberCtx,
@@ -297,7 +296,7 @@ func Supporter(
 							FirstNames:      member.Firstnames,
 							LastName:        member.Lastname,
 							Permission:      permission,
-							ReferenceNumber: random.String(12),
+							ReferenceNumber: hashedCode,
 						},
 					); err != nil {
 						return err

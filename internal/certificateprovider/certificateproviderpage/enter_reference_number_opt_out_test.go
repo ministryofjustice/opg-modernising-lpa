@@ -74,7 +74,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
+		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id")), ActorUID: uid}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -88,7 +88,7 @@ func TestPostEnterReferenceNumberOptOut(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?referenceNumber=abcdef123456", resp.Header.Get("Location"))
+	assert.Equal(t, page.PathCertificateProviderConfirmDontWantToBeCertificateProviderLoggedOut.Format()+"?code=da4ec3358a10c9b0872eb877953cc7b07af5f4d75e4c1cb0597cbbf41e5dbe35", resp.Header.Get("Location"))
 }
 
 func TestPostEnterReferenceNumberOptOutErrors(t *testing.T) {
@@ -168,7 +168,7 @@ func TestPostEnterReferenceNumberOptOutOnShareCodeStoreNotFoundError(t *testing.
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeCertificateProvider, "abcdef123456").
+		Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey("session-id"))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumberOptOut(template.Execute, shareCodeStore, nil)(testAppData, w, r)

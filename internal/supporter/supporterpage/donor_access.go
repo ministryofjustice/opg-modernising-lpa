@@ -27,7 +27,7 @@ type donorAccessData struct {
 	ShareCode *sharecodedata.Link
 }
 
-func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, randomString func(int) string) Handler {
+func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, generate func() (sharecodedata.PlainText, sharecodedata.Hashed)) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, member *supporterdata.Member) error {
 		donor, err := donorStore.Get(r.Context())
 		if err != nil {
@@ -90,7 +90,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					}
 				}
 
-				shareCode := randomString(12)
+				plainCode, hashedCode := generate()
 				shareCodeData := sharecodedata.Link{
 					LpaOwnerKey:  dynamo.LpaOwnerKey(organisation.PK),
 					LpaKey:       dynamo.LpaKey(appData.LpaID),
@@ -98,7 +98,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					InviteSentTo: data.Form.Email,
 				}
 
-				if err := shareCodeStore.PutDonor(r.Context(), shareCode, shareCodeData); err != nil {
+				if err := shareCodeStore.PutDonor(r.Context(), hashedCode, shareCodeData); err != nil {
 					return err
 				}
 
@@ -108,7 +108,7 @@ func DonorAccess(logger Logger, tmpl template.Template, donorStore DonorStore, s
 					LpaType:           localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 					DonorName:         donor.Donor.FullName(),
 					URL:               appPublicURL + page.PathStart.Format(),
-					ShareCode:         shareCode,
+					ShareCode:         plainCode.Plain(),
 				}); err != nil {
 					return err
 				}

@@ -59,8 +59,8 @@ type OneLoginClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
+	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
 	Delete(ctx context.Context, shareCode sharecodedata.Link) error
 }
 

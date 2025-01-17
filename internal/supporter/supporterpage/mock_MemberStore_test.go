@@ -5,6 +5,7 @@ package supporterpage
 import (
 	context "context"
 
+	sharecodedata "github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	supporterdata "github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -130,7 +131,7 @@ func (_c *mockMemberStore_CreateFromInvite_Call) RunAndReturn(run func(context.C
 }
 
 // CreateMemberInvite provides a mock function with given fields: ctx, organisation, firstNames, lastname, email, code, permission
-func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code string, permission supporterdata.Permission) error {
+func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code sharecodedata.Hashed, permission supporterdata.Permission) error {
 	ret := _m.Called(ctx, organisation, firstNames, lastname, email, code, permission)
 
 	if len(ret) == 0 {
@@ -138,7 +139,7 @@ func (_m *mockMemberStore) CreateMemberInvite(ctx context.Context, organisation 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *supporterdata.Organisation, string, string, string, string, supporterdata.Permission) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *supporterdata.Organisation, string, string, string, sharecodedata.Hashed, supporterdata.Permission) error); ok {
 		r0 = rf(ctx, organisation, firstNames, lastname, email, code, permission)
 	} else {
 		r0 = ret.Error(0)
@@ -158,15 +159,15 @@ type mockMemberStore_CreateMemberInvite_Call struct {
 //   - firstNames string
 //   - lastname string
 //   - email string
-//   - code string
+//   - code sharecodedata.Hashed
 //   - permission supporterdata.Permission
 func (_e *mockMemberStore_Expecter) CreateMemberInvite(ctx interface{}, organisation interface{}, firstNames interface{}, lastname interface{}, email interface{}, code interface{}, permission interface{}) *mockMemberStore_CreateMemberInvite_Call {
 	return &mockMemberStore_CreateMemberInvite_Call{Call: _e.mock.On("CreateMemberInvite", ctx, organisation, firstNames, lastname, email, code, permission)}
 }
 
-func (_c *mockMemberStore_CreateMemberInvite_Call) Run(run func(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code string, permission supporterdata.Permission)) *mockMemberStore_CreateMemberInvite_Call {
+func (_c *mockMemberStore_CreateMemberInvite_Call) Run(run func(ctx context.Context, organisation *supporterdata.Organisation, firstNames string, lastname string, email string, code sharecodedata.Hashed, permission supporterdata.Permission)) *mockMemberStore_CreateMemberInvite_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*supporterdata.Organisation), args[2].(string), args[3].(string), args[4].(string), args[5].(string), args[6].(supporterdata.Permission))
+		run(args[0].(context.Context), args[1].(*supporterdata.Organisation), args[2].(string), args[3].(string), args[4].(string), args[5].(sharecodedata.Hashed), args[6].(supporterdata.Permission))
 	})
 	return _c
 }
@@ -176,7 +177,7 @@ func (_c *mockMemberStore_CreateMemberInvite_Call) Return(_a0 error) *mockMember
 	return _c
 }
 
-func (_c *mockMemberStore_CreateMemberInvite_Call) RunAndReturn(run func(context.Context, *supporterdata.Organisation, string, string, string, string, supporterdata.Permission) error) *mockMemberStore_CreateMemberInvite_Call {
+func (_c *mockMemberStore_CreateMemberInvite_Call) RunAndReturn(run func(context.Context, *supporterdata.Organisation, string, string, string, sharecodedata.Hashed, supporterdata.Permission) error) *mockMemberStore_CreateMemberInvite_Call {
 	_c.Call.Return(run)
 	return _c
 }

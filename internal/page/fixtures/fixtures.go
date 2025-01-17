@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -226,11 +227,11 @@ func acceptCookiesConsent(w http.ResponseWriter) {
 	})
 }
 
-func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
-	shareCode := random.String(16)
+func createAttorney(ctx context.Context, shareCodeStore *sharecode.Store, attorneyStore AttorneyStore, actorUID actoruid.UID, isReplacement, isTrustCorporation bool, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*attorneydata.Provided, error) {
+	_, hashedCode := sharecodedata.Generate()
 	shareCodeData := sharecodedata.Link{
-		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)),
-		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		PK:                    dynamo.ShareKey(dynamo.AttorneyShareKey(hashedCode.String())),
+		SK:                    dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:              actorUID,
 		IsReplacementAttorney: isReplacement,
 		IsTrustCorporation:    isTrustCorporation,
@@ -242,7 +243,7 @@ func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorney
 		attorneyType = actor.TypeReplacementAttorney
 	}
 
-	err := shareCodeStore.Put(ctx, attorneyType, shareCode, shareCodeData)
+	err := shareCodeStore.Put(ctx, attorneyType, hashedCode, shareCodeData)
 	if err != nil {
 		return nil, err
 	}
@@ -250,16 +251,16 @@ func createAttorney(ctx context.Context, shareCodeStore ShareCodeStore, attorney
 	return attorneyStore.Create(ctx, shareCodeData, email)
 }
 
-func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStore, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
-	shareCode := random.String(16)
+func createCertificateProvider(ctx context.Context, shareCodeStore *sharecode.Store, certificateProviderStore CertificateProviderStore, actorUID actoruid.UID, lpaOwnerKey dynamo.LpaOwnerKeyType, email string) (*certificateproviderdata.Provided, error) {
+	_, hashedCode := sharecodedata.Generate()
 	shareCodeData := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		PK:          dynamo.ShareKey(dynamo.CertificateProviderShareKey(hashedCode.String())),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:    actorUID,
 		LpaOwnerKey: lpaOwnerKey,
 	}
 
-	err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, shareCode, shareCodeData)
+	err := shareCodeStore.Put(ctx, actor.TypeCertificateProvider, hashedCode, shareCodeData)
 	if err != nil {
 		return nil, err
 	}
@@ -267,17 +268,17 @@ func createCertificateProvider(ctx context.Context, shareCodeStore ShareCodeStor
 	return certificateProviderStore.Create(ctx, shareCodeData, email)
 }
 
-func createVoucher(ctx context.Context, shareCodeStore ShareCodeStore, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
-	shareCode := random.String(16)
+func createVoucher(ctx context.Context, shareCodeStore *sharecode.Store, voucherStore *voucher.Store, donor *donordata.Provided) (*voucherdata.Provided, error) {
+	_, hashedCode := sharecodedata.Generate()
 	shareCodeData := sharecodedata.Link{
-		PK:          dynamo.ShareKey(dynamo.VoucherShareKey(shareCode)),
-		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(shareCode)),
+		PK:          dynamo.ShareKey(dynamo.VoucherShareKey(hashedCode.String())),
+		SK:          dynamo.ShareSortKey(dynamo.MetadataKey(hashedCode.String())),
 		ActorUID:    donor.Voucher.UID,
 		LpaOwnerKey: donor.SK,
 		LpaKey:      donor.PK,
 	}
 
-	err := shareCodeStore.Put(ctx, actor.TypeVoucher, shareCode, shareCodeData)
+	err := shareCodeStore.Put(ctx, actor.TypeVoucher, hashedCode, shareCodeData)
 	if err != nil {
 		return nil, err
 	}

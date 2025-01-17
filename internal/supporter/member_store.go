@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
@@ -39,7 +40,7 @@ func NewMemberStore(dynamoClient DynamoClient) *MemberStore {
 	}
 }
 
-func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, referenceNumber string, permission supporterdata.Permission) error {
+func (s *MemberStore) CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email string, referenceNumber sharecodedata.Hashed, permission supporterdata.Permission) error {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
 		return err

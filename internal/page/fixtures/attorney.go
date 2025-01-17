@@ -25,6 +25,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -56,8 +57,8 @@ func Attorney(
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	organisationStore OrganisationStore,
-	memberStore MemberStore,
-	shareCodeStore ShareCodeStore,
+	memberStore *supporter.MemberStore,
+	shareCodeStore *sharecode.Store,
 	dynamoClient DynamoClient,
 ) page.Handler {
 	progressValues := []string{
