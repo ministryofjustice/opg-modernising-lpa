@@ -17,7 +17,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
@@ -37,8 +36,8 @@ type Localizer interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error)
-	Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error
+	Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error)
+	Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
 }
 
 type NotifyClient interface {
@@ -68,7 +67,7 @@ type Sender struct {
 	notifyClient             NotifyClient
 	appPublicURL             string
 	eventClient              EventClient
-	randomString             func(int) string
+	generate                 func() (sharecodedata.PlainText, sharecodedata.Hashed)
 	now                      func() time.Time
 }
 
@@ -80,7 +79,7 @@ func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPubl
 		eventClient:              eventClient,
 		certificateProviderStore: certificateProviderStore,
 		scheduledStore:           scheduledStore,
-		randomString:             random.String,
+		generate:                 sharecodedata.Generate,
 		now:                      time.Now,
 	}
 }
@@ -119,7 +118,7 @@ func (s *Sender) SendCertificateProviderInvite(ctx context.Context, appData appc
 		DonorFirstNames:              invite.DonorFirstNames,
 		DonorFirstNamesPossessive:    appData.Localizer.Possessive(invite.DonorFirstNames),
 		WhatLpaCovers:                appData.Localizer.T(whatLpaCovers),
-		ShareCode:                    shareCode,
+		ShareCode:                    shareCode.Plain(),
 		CertificateProviderOptOutURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderEnterReferenceNumberOptOut),
 	})
 }
@@ -144,7 +143,7 @@ func (s *Sender) SendCertificateProviderPrompt(ctx context.Context, appData appc
 		DonorFullName:               donor.Donor.FullName(),
 		LpaType:                     localize.LowerFirst(appData.Localizer.T(donor.Type.String())),
 		CertificateProviderStartURL: fmt.Sprintf("%s%s", s.appPublicURL, page.PathCertificateProviderStart),
-		ShareCode:                   shareCode,
+		ShareCode:                   shareCode.Plain(),
 	})
 }
 
@@ -195,7 +194,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 
 	if provided.Donor.Mobile != "" {
 		if err := s.sendSMS(ctx, notify.ToDonor(provided), provided.LpaUID, notify.VouchingShareCodeSMS{
-			ShareCode:                 shareCode,
+			ShareCode:                 shareCode.Plain(),
 			DonorFullNamePossessive:   appData.Localizer.Possessive(provided.Donor.FullName()),
 			LpaType:                   appData.Localizer.T(provided.Type.String()),
 			VoucherFullName:           provided.Voucher.FullName(),
@@ -205,7 +204,7 @@ func (s *Sender) SendVoucherAccessCode(ctx context.Context, provided *donordata.
 		}
 	} else {
 		if err := s.sendEmail(ctx, notify.ToDonor(provided), provided.LpaUID, notify.VouchingShareCodeEmail{
-			ShareCode:       shareCode,
+			ShareCode:       shareCode.Plain(),
 			VoucherFullName: provided.Voucher.FullName(),
 			DonorFullName:   provided.Donor.FullName(),
 			LpaType:         appData.Localizer.T(provided.Type.String()),
@@ -246,7 +245,7 @@ func (s *Sender) sendOriginalAttorney(ctx context.Context, appData appcontext.Da
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
-			ShareCode:                 shareCode,
+			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
@@ -273,7 +272,7 @@ func (s *Sender) sendReplacementAttorney(ctx context.Context, appData appcontext
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      s.appPublicURL + page.PathAttorneyStart.Format(),
-			ShareCode:                 shareCode,
+			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
@@ -304,7 +303,7 @@ func (s *Sender) sendTrustCorporation(ctx context.Context, appData appcontext.Da
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
-			ShareCode:                 shareCode,
+			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
@@ -335,15 +334,17 @@ func (s *Sender) sendReplacementTrustCorporation(ctx context.Context, appData ap
 			DonorFullName:             lpa.Donor.FullName(),
 			LpaType:                   localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
 			AttorneyStartPageURL:      fmt.Sprintf("%s%s", s.appPublicURL, page.PathAttorneyStart),
-			ShareCode:                 shareCode,
+			ShareCode:                 shareCode.Plain(),
 			AttorneyOptOutURL:         s.appPublicURL + page.PathAttorneyEnterReferenceNumberOptOut.Format(),
 		})
 }
 
-func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (string, error) {
-	shareCode := s.randomString(12)
+func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, lpaOwnerKey dynamo.LpaOwnerKeyType, actorUID actoruid.UID, actorType actor.Type) (sharecodedata.PlainText, error) {
+	plainCode, hashedCode := s.generate()
+
 	if s.testCode != "" {
-		shareCode = s.testCode
+		plainCode = sharecodedata.PlainText(s.testCode)
+		hashedCode = sharecodedata.HashedFromString(s.testCode)
 		s.testCode = ""
 	}
 
@@ -355,11 +356,11 @@ func (s *Sender) createShareCode(ctx context.Context, lpaKey dynamo.LpaKeyType, 
 		IsTrustCorporation:    actorType == actor.TypeTrustCorporation || actorType == actor.TypeReplacementTrustCorporation,
 	}
 
-	if err := s.shareCodeStore.Put(ctx, actorType, shareCode, shareCodeData); err != nil {
+	if err := s.shareCodeStore.Put(ctx, actorType, hashedCode, shareCodeData); err != nil {
 		return "", fmt.Errorf("creating share failed: %w", err)
 	}
 
-	return shareCode, nil
+	return plainCode, nil
 }
 
 func (s *Sender) sendEmail(ctx context.Context, to notify.ToEmail, lpaUID string, email notify.Email) error {
@@ -378,12 +379,12 @@ func (s *Sender) sendSMS(ctx context.Context, to notify.ToMobile, lpaUID string,
 	return nil
 }
 
-func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode string) error {
+func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode sharecodedata.PlainText) error {
 	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 		UID:        lpaUID,
 		ActorType:  actorType.String(),
 		ActorUID:   actorUID,
-		AccessCode: shareCode,
+		AccessCode: shareCode.Plain(),
 	})
 }
 

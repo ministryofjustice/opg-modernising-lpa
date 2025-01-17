@@ -133,7 +133,7 @@ func TestGetConfirmDontWantToBeCertificateProviderLoggedOutErrors(t *testing.T) 
 }
 
 func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
-	r, _ := http.NewRequest(http.MethodPost, "/?referenceNumber=123", nil)
+	r, _ := http.NewRequest(http.MethodPost, "/?code=da4ec3358a10c9b0872eb877953cc7b07af5f4d75e4c1cb0597cbbf41e5dbe35", nil)
 	w := httptest.NewRecorder()
 	ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{LpaID: "lpa-id"})
 
@@ -270,7 +270,7 @@ func TestPostConfirmDontWantToBeCertificateProviderLoggedOut(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeCertificateProvider, "123").
+				Get(r.Context(), actor.TypeCertificateProvider, sharecodedata.HashedFromString("abcdef123456")).
 				Return(shareCodeData, nil)
 			shareCodeStore.EXPECT().
 				Delete(r.Context(), shareCodeData).

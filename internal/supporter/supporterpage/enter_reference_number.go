@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -36,7 +37,7 @@ func EnterReferenceNumber(logger Logger, tmpl template.Template, memberStore Mem
 					return err
 				}
 
-				if invite.ReferenceNumber != data.Form.ReferenceNumber {
+				if invite.ReferenceNumber != sharecodedata.HashedFromString(data.Form.ReferenceNumber) {
 					data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectReferenceNumber"})
 					return tmpl(w, data)
 				}

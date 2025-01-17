@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -40,7 +41,9 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 		}
 
 		if r.Method == http.MethodPost {
-			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, r.URL.Query().Get("referenceNumber"))
+			code := sharecodedata.HashedFromQuery(r.URL.Query())
+
+			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, code)
 			if err != nil {
 				return err
 			}
