@@ -1525,5 +1525,7 @@
     "yourLpaMustBeReviewedByCourtOfProtection": "Welsh",
     "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection": "Welsh",
     "returnToYourTaskListToSignThenOpgWillCheck": "Welsh",
-    "whenYouHavePaidOpgWillCheck": "Welsh"
+    "whenYouHavePaidOpgWillCheck": "Welsh",
+    "lpaRevoked": "Welsh",
+    "weContactedYouOnAboutLPARevokedOPGWillNotRegister": "Welsh {{.ContactedDate}} Welsh"
 }
