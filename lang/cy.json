@@ -1527,5 +1527,9 @@
     "returnToYourTaskListToSignThenOpgWillCheck": "Welsh",
     "whenYouHavePaidOpgWillCheck": "Welsh",
     "lpaRevoked": "Welsh",
-    "weContactedYouOnAboutLPARevokedOPGWillNotRegister": "Welsh {{.ContactedDate}} Welsh"
+    "weContactedYouOnAboutLPARevokedOPGWillNotRegister": "Welsh {{.ContactedDate}} Welsh",
+    "yourLPACannotBeRegisteredByOPG": "Welsh",
+    "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning": "Welsh",
+    "youMustConfirmYourIdentityAgain": "Welsh",
+    "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity": "Welsh"
 }

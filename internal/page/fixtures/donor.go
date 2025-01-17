@@ -92,6 +92,7 @@ type FixtureData struct {
 	IdStatus                  string
 	Voucher                   string
 	FailedVouchAttempts       string
+	SignedAt                  string
 }
 
 func Donor(
@@ -548,10 +549,28 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
+		donorDetails.SignedAt = testNow
+		donorDetails.WitnessedByCertificateProviderAt = testNow
+
+		if data.SignedAt != "" {
+			signedAtActor, signedAtDate, ok := strings.Cut(data.SignedAt, ":")
+			if !ok {
+				return nil, nil, errors.New("invalid value for signedAt - must be in format actor:DD/MM/YYYY")
+			}
+
+			if signedAtActor == "donor" {
+				signedAt, err := time.Parse("02/01/2006", signedAtDate)
+				if err != nil {
+					return nil, nil, fmt.Errorf("error parsing signedAt date: %v", err)
+				}
+
+				donorDetails.SignedAt = signedAt
+				donorDetails.WitnessedByCertificateProviderAt = signedAt
+			}
+		}
+
 		donorDetails.WantToApplyForLpa = true
 		donorDetails.WantToSignLpa = true
-		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.SignTheLpa = task.StateCompleted
 	}
 
@@ -719,5 +738,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		IdStatus:                  r.FormValue("idStatus"),
 		Voucher:                   r.FormValue("voucher"),
 		FailedVouchAttempts:       r.FormValue("failedVouchAttempts"),
+		SignedAt:                  r.FormValue("signedAt"),
 	}
 }
