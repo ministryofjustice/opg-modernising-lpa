@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -21,7 +22,7 @@ type inviteMemberData struct {
 	Options supporterdata.PermissionOptions
 }
 
-func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, randomString func(int) string, appPublicURL string) Handler {
+func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient NotifyClient, generate func() (sharecodedata.PlainText, sharecodedata.Hashed), appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, organisation *supporterdata.Organisation, _ *supporterdata.Member) error {
 		data := &inviteMemberData{
 			App:     appData,
@@ -34,14 +35,15 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				inviteCode := randomString(12)
+				plainCode, hashedCode := generate()
+
 				if err := memberStore.CreateMemberInvite(
 					r.Context(),
 					organisation,
 					data.Form.FirstNames,
 					data.Form.LastName,
 					data.Form.Email,
-					inviteCode,
+					hashedCode,
 					data.Form.Permission,
 				); err != nil {
 					return err
@@ -50,7 +52,7 @@ func InviteMember(tmpl template.Template, memberStore MemberStore, notifyClient 
 				if err := notifyClient.SendEmail(r.Context(), notify.ToCustomEmail(localize.En, data.Form.Email), notify.OrganisationMemberInviteEmail{
 					OrganisationName:      organisation.Name,
 					InviterEmail:          appData.LoginSessionEmail,
-					InviteCode:            inviteCode,
+					InviteCode:            plainCode.Plain(),
 					JoinAnOrganisationURL: appPublicURL + page.PathSupporterStart.Format(),
 				}); err != nil {
 					return err

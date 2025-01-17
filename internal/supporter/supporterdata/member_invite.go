@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 )
 
 const memberInviteExpireAfter = time.Hour * 48
@@ -28,7 +29,7 @@ type MemberInvite struct {
 	// Permission is the type of permissions assigned to the member to set available actions in an Organisation
 	Permission Permission
 	// ReferenceNumber is a unique code used to invite a Member to and Organisation
-	ReferenceNumber string
+	ReferenceNumber sharecodedata.Hashed
 }
 
 func (i MemberInvite) HasExpired() bool {

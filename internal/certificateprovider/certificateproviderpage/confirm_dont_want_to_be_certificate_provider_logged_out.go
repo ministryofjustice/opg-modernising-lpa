@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -42,7 +43,9 @@ func ConfirmDontWantToBeCertificateProviderLoggedOut(tmpl template.Template, sha
 		}
 
 		if r.Method == http.MethodPost {
-			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, r.URL.Query().Get("referenceNumber"))
+			code := sharecodedata.HashedFromQuery(r.URL.Query())
+
+			shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeCertificateProvider, code)
 			if err != nil {
 				return err
 			}

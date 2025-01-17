@@ -126,7 +126,7 @@ func (_c *mockShareCodeStore_GetDonor_Call) RunAndReturn(run func(context.Contex
 }
 
 // PutDonor provides a mock function with given fields: ctx, shareCode, data
-func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error {
+func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
 	ret := _m.Called(ctx, shareCode, data)
 
 	if len(ret) == 0 {
@@ -134,7 +134,7 @@ func (_m *mockShareCodeStore) PutDonor(ctx context.Context, shareCode string, da
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, sharecodedata.Link) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, sharecodedata.Hashed, sharecodedata.Link) error); ok {
 		r0 = rf(ctx, shareCode, data)
 	} else {
 		r0 = ret.Error(0)
@@ -150,15 +150,15 @@ type mockShareCodeStore_PutDonor_Call struct {
 
 // PutDonor is a helper method to define mock.On call
 //   - ctx context.Context
-//   - shareCode string
+//   - shareCode sharecodedata.Hashed
 //   - data sharecodedata.Link
 func (_e *mockShareCodeStore_Expecter) PutDonor(ctx interface{}, shareCode interface{}, data interface{}) *mockShareCodeStore_PutDonor_Call {
 	return &mockShareCodeStore_PutDonor_Call{Call: _e.mock.On("PutDonor", ctx, shareCode, data)}
 }
 
-func (_c *mockShareCodeStore_PutDonor_Call) Run(run func(ctx context.Context, shareCode string, data sharecodedata.Link)) *mockShareCodeStore_PutDonor_Call {
+func (_c *mockShareCodeStore_PutDonor_Call) Run(run func(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link)) *mockShareCodeStore_PutDonor_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(sharecodedata.Link))
+		run(args[0].(context.Context), args[1].(sharecodedata.Hashed), args[2].(sharecodedata.Link))
 	})
 	return _c
 }
@@ -168,7 +168,7 @@ func (_c *mockShareCodeStore_PutDonor_Call) Return(_a0 error) *mockShareCodeStor
 	return _c
 }
 
-func (_c *mockShareCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, string, sharecodedata.Link) error) *mockShareCodeStore_PutDonor_Call {
+func (_c *mockShareCodeStore_PutDonor_Call) RunAndReturn(run func(context.Context, sharecodedata.Hashed, sharecodedata.Link) error) *mockShareCodeStore_PutDonor_Call {
 	_c.Call.Return(run)
 	return _c
 }
