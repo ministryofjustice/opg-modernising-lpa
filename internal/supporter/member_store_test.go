@@ -6,6 +6,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -26,13 +27,13 @@ func TestMemberStoreCreateMemberInvite(t *testing.T) {
 			FirstNames:       "a",
 			LastName:         "b",
 			Permission:       supporterdata.PermissionNone,
-			ReferenceNumber:  "abcde",
+			ReferenceNumber:  sharecodedata.HashedFromString("abcde"),
 		}).
 		Return(nil)
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
+	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{ID: "a-uuid", Name: "org name"}, "a", "b", "email@example.com", sharecodedata.HashedFromString("abcde"), supporterdata.PermissionNone)
 	assert.Nil(t, err)
 }
 
@@ -47,7 +48,7 @@ func TestMemberStoreCreateMemberInviteWithSessionMissing(t *testing.T) {
 	for name, ctx := range testcases {
 		t.Run(name, func(t *testing.T) {
 
-			err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
+			err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", sharecodedata.HashedFromString("abcde"), supporterdata.PermissionNone)
 
 			assert.Error(t, err)
 		})
@@ -108,7 +109,7 @@ func TestMemberStoreCreateMemberInviteWhenErrors(t *testing.T) {
 
 	memberStore := &MemberStore{dynamoClient: dynamoClient, now: testNowFn}
 
-	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", "abcde", supporterdata.PermissionNone)
+	err := memberStore.CreateMemberInvite(ctx, &supporterdata.Organisation{}, "a", "b", "email@example.com", sharecodedata.HashedFromString("abcde"), supporterdata.PermissionNone)
 	assert.ErrorIs(t, err, expectedError)
 }
 

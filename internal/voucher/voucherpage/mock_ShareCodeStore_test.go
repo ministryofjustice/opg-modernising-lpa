@@ -73,7 +73,7 @@ func (_c *mockShareCodeStore_Delete_Call) RunAndReturn(run func(context.Context,
 }
 
 // Get provides a mock function with given fields: ctx, actorType, shareCode
-func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error) {
+func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error) {
 	ret := _m.Called(ctx, actorType, shareCode)
 
 	if len(ret) == 0 {
@@ -82,16 +82,16 @@ func (_m *mockShareCodeStore) Get(ctx context.Context, actorType actor.Type, sha
 
 	var r0 sharecodedata.Link
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) (sharecodedata.Link, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, sharecodedata.Hashed) (sharecodedata.Link, error)); ok {
 		return rf(ctx, actorType, shareCode)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string) sharecodedata.Link); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, sharecodedata.Hashed) sharecodedata.Link); ok {
 		r0 = rf(ctx, actorType, shareCode)
 	} else {
 		r0 = ret.Get(0).(sharecodedata.Link)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, actor.Type, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, actor.Type, sharecodedata.Hashed) error); ok {
 		r1 = rf(ctx, actorType, shareCode)
 	} else {
 		r1 = ret.Error(1)
@@ -108,14 +108,14 @@ type mockShareCodeStore_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - actorType actor.Type
-//   - shareCode string
+//   - shareCode sharecodedata.Hashed
 func (_e *mockShareCodeStore_Expecter) Get(ctx interface{}, actorType interface{}, shareCode interface{}) *mockShareCodeStore_Get_Call {
 	return &mockShareCodeStore_Get_Call{Call: _e.mock.On("Get", ctx, actorType, shareCode)}
 }
 
-func (_c *mockShareCodeStore_Get_Call) Run(run func(ctx context.Context, actorType actor.Type, shareCode string)) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) Run(run func(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed)) *mockShareCodeStore_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(actor.Type), args[2].(string))
+		run(args[0].(context.Context), args[1].(actor.Type), args[2].(sharecodedata.Hashed))
 	})
 	return _c
 }
@@ -125,13 +125,13 @@ func (_c *mockShareCodeStore_Get_Call) Return(_a0 sharecodedata.Link, _a1 error)
 	return _c
 }
 
-func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, actor.Type, string) (sharecodedata.Link, error)) *mockShareCodeStore_Get_Call {
+func (_c *mockShareCodeStore_Get_Call) RunAndReturn(run func(context.Context, actor.Type, sharecodedata.Hashed) (sharecodedata.Link, error)) *mockShareCodeStore_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, actorType, shareCode, data
-func (_m *mockShareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error {
+func (_m *mockShareCodeStore) Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
 	ret := _m.Called(ctx, actorType, shareCode, data)
 
 	if len(ret) == 0 {
@@ -139,7 +139,7 @@ func (_m *mockShareCodeStore) Put(ctx context.Context, actorType actor.Type, sha
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, string, sharecodedata.Link) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, actor.Type, sharecodedata.Hashed, sharecodedata.Link) error); ok {
 		r0 = rf(ctx, actorType, shareCode, data)
 	} else {
 		r0 = ret.Error(0)
@@ -156,15 +156,15 @@ type mockShareCodeStore_Put_Call struct {
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
 //   - actorType actor.Type
-//   - shareCode string
+//   - shareCode sharecodedata.Hashed
 //   - data sharecodedata.Link
 func (_e *mockShareCodeStore_Expecter) Put(ctx interface{}, actorType interface{}, shareCode interface{}, data interface{}) *mockShareCodeStore_Put_Call {
 	return &mockShareCodeStore_Put_Call{Call: _e.mock.On("Put", ctx, actorType, shareCode, data)}
 }
 
-func (_c *mockShareCodeStore_Put_Call) Run(run func(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link)) *mockShareCodeStore_Put_Call {
+func (_c *mockShareCodeStore_Put_Call) Run(run func(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link)) *mockShareCodeStore_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(actor.Type), args[2].(string), args[3].(sharecodedata.Link))
+		run(args[0].(context.Context), args[1].(actor.Type), args[2].(sharecodedata.Hashed), args[3].(sharecodedata.Link))
 	})
 	return _c
 }
@@ -174,7 +174,7 @@ func (_c *mockShareCodeStore_Put_Call) Return(_a0 error) *mockShareCodeStore_Put
 	return _c
 }
 
-func (_c *mockShareCodeStore_Put_Call) RunAndReturn(run func(context.Context, actor.Type, string, sharecodedata.Link) error) *mockShareCodeStore_Put_Call {
+func (_c *mockShareCodeStore_Put_Call) RunAndReturn(run func(context.Context, actor.Type, sharecodedata.Hashed, sharecodedata.Link) error) *mockShareCodeStore_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

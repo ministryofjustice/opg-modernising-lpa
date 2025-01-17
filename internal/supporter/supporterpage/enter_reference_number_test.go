@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -68,7 +69,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
 	invite := &supporterdata.MemberInvite{
-		ReferenceNumber:  "abcd12345678",
+		ReferenceNumber:  sharecodedata.HashedFromString("abcd12345678"),
 		OrganisationID:   "org-id",
 		OrganisationName: "org name",
 		CreatedAt:        time.Now().Add(-47 * time.Hour),
@@ -114,7 +115,7 @@ func TestPostEnterReferenceNumberWhenIncorrectReferenceNumber(t *testing.T) {
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
-		Return(&supporterdata.MemberInvite{ReferenceNumber: "notmatch123", OrganisationID: "org-id"}, nil)
+		Return(&supporterdata.MemberInvite{ReferenceNumber: sharecodedata.HashedFromString("notmatch123"), OrganisationID: "org-id"}, nil)
 
 	template := newMockTemplate(t)
 	template.EXPECT().
@@ -147,7 +148,7 @@ func TestPostEnterReferenceNumberWhenInviteExpired(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(r.Context()).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: "match1234789",
+			ReferenceNumber: sharecodedata.HashedFromString("match1234789"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now().Add(-49 * time.Hour),
 		}, nil)
@@ -190,7 +191,7 @@ func TestPostEnterReferenceNumberWhenMemberStoreCreateError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: "abcd12345678",
+			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
@@ -217,7 +218,7 @@ func TestPostEnterReferenceNumberWhenSessionGetError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: "abcd12345678",
+			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
@@ -250,7 +251,7 @@ func TestPostEnterReferenceNumberWhenSessionSaveError(t *testing.T) {
 	memberStore.EXPECT().
 		InvitedMember(mock.Anything).
 		Return(&supporterdata.MemberInvite{
-			ReferenceNumber: "abcd12345678",
+			ReferenceNumber: sharecodedata.HashedFromString("abcd12345678"),
 			OrganisationID:  "org-id",
 			CreatedAt:       time.Now(),
 		}, nil)
