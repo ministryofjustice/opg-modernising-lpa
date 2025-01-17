@@ -69,7 +69,7 @@ func TestPostInviteMember(t *testing.T) {
 
 	memberStore := newMockMemberStore(t)
 	memberStore.EXPECT().
-		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", "abcde", supporterdata.PermissionAdmin).
+		CreateMemberInvite(r.Context(), organisation, "a", "b", "email@example.com", testHashedCode, supporterdata.PermissionAdmin).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -77,12 +77,12 @@ func TestPostInviteMember(t *testing.T) {
 		SendEmail(r.Context(), notify.ToCustomEmail(localize.En, "email@example.com"), notify.OrganisationMemberInviteEmail{
 			OrganisationName:      "My organisation",
 			InviterEmail:          "supporter@example.com",
-			InviteCode:            "abcde",
+			InviteCode:            testStringCode,
 			JoinAnOrganisationURL: "http://base" + page.PathSupporterStart.Format(),
 		}).
 		Return(nil)
 
-	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testOrgMemberAppData, w, r, organisation, nil)
+	err := InviteMember(nil, memberStore, notifyClient, testGenerateFn, "http://base")(testOrgMemberAppData, w, r, organisation, nil)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -141,7 +141,7 @@ func TestPostInviteMemberWhenCreateMemberInviteErrors(t *testing.T) {
 		CreateMemberInvite(r.Context(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, memberStore, nil, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	err := InviteMember(nil, memberStore, nil, testGenerateFn, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 
@@ -167,7 +167,7 @@ func TestPostInviteMemberWhenNotifySendErrors(t *testing.T) {
 		SendEmail(r.Context(), mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := InviteMember(nil, memberStore, notifyClient, func(int) string { return "abcde" }, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
+	err := InviteMember(nil, memberStore, notifyClient, testGenerateFn, "http://base")(testAppData, w, r, &supporterdata.Organisation{}, nil)
 	assert.Equal(t, expectedError, err)
 }
 

@@ -23,6 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 )
@@ -37,8 +38,8 @@ func CertificateProvider(
 	lpaStoreClient *lpastore.Client,
 	dynamoClient DynamoClient,
 	organisationStore OrganisationStore,
-	memberStore MemberStore,
-	shareCodeStore ShareCodeStore,
+	memberStore *supporter.MemberStore,
+	shareCodeStore *sharecode.Store,
 ) page.Handler {
 	progressValues := []string{
 		"paid",

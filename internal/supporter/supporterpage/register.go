@@ -45,7 +45,13 @@ type OrganisationStore interface {
 type MemberStore interface {
 	Create(ctx context.Context, firstNames, lastName string) (*supporterdata.Member, error)
 	CreateFromInvite(ctx context.Context, invite *supporterdata.MemberInvite) error
-	CreateMemberInvite(ctx context.Context, organisation *supporterdata.Organisation, firstNames, lastname, email, code string, permission supporterdata.Permission) error
+	CreateMemberInvite(
+		ctx context.Context,
+		organisation *supporterdata.Organisation,
+		firstNames, lastname, email string,
+		code sharecodedata.Hashed,
+		permission supporterdata.Permission,
+	) error
 	DeleteMemberInvite(ctx context.Context, organisationID, email string) error
 	Get(ctx context.Context) (*supporterdata.Member, error)
 	GetAny(ctx context.Context) (*supporterdata.Member, error)
@@ -91,7 +97,7 @@ type NotifyClient interface {
 }
 
 type ShareCodeStore interface {
-	PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error
+	PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link) error
 	GetDonor(ctx context.Context) (sharecodedata.Link, error)
 	Delete(ctx context.Context, data sharecodedata.Link) error
 }
@@ -162,16 +168,16 @@ func Register(
 	handleWithSupporter(supporter.PathEditOrganisationName, RequireAdmin,
 		EditOrganisationName(tmpls.Get("edit_organisation_name.gohtml"), organisationStore))
 	handleWithSupporter(supporter.PathManageTeamMembers, RequireAdmin,
-		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, random.String, notifyClient, appPublicURL))
+		ManageTeamMembers(tmpls.Get("manage_team_members.gohtml"), memberStore, sharecodedata.Generate, notifyClient, appPublicURL))
 	handleWithSupporter(supporter.PathInviteMember, CanGoBack|RequireAdmin,
-		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, random.String, appPublicURL))
+		InviteMember(tmpls.Get("invite_member.gohtml"), memberStore, notifyClient, sharecodedata.Generate, appPublicURL))
 	handleWithSupporter(supporter.PathDeleteOrganisation, CanGoBack,
 		DeleteOrganisation(logger, tmpls.Get("delete_organisation.gohtml"), organisationStore, sessionStore, searchClient))
 	handleWithSupporter(supporter.PathEditMember, CanGoBack,
 		EditMember(logger, tmpls.Get("edit_member.gohtml"), memberStore))
 
 	handleWithSupporter(supporter.PathDonorAccess, CanGoBack,
-		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, random.String))
+		DonorAccess(logger, tmpls.Get("donor_access.gohtml"), donorStore, shareCodeStore, notifyClient, appPublicURL, sharecodedata.Generate))
 }
 
 type HandleOpt byte

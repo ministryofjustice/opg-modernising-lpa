@@ -29,7 +29,7 @@ func NewStore(dynamoClient DynamoClient) *Store {
 	return &Store{dynamoClient: dynamoClient, now: time.Now}
 }
 
-func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode string) (sharecodedata.Link, error) {
+func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed) (sharecodedata.Link, error) {
 	var data sharecodedata.Link
 
 	pk, err := shareCodeKey(actorType, shareCode)
@@ -48,7 +48,7 @@ func (s *Store) Get(ctx context.Context, actorType actor.Type, shareCode string)
 	return data, err
 }
 
-func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string, data sharecodedata.Link) error {
+func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
 	pk, err := shareCodeKey(actorType, shareCode)
 	if err != nil {
 		return err
@@ -58,19 +58,19 @@ func (s *Store) Put(ctx context.Context, actorType actor.Type, shareCode string,
 	if actorType.IsVoucher() {
 		data.SK = dynamo.ShareSortKey(dynamo.VoucherShareSortKey(data.LpaKey))
 	} else {
-		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode))
+		data.SK = dynamo.ShareSortKey(dynamo.MetadataKey(shareCode.String()))
 	}
 
 	return s.dynamoClient.CreateOnly(ctx, data)
 }
 
-func (s *Store) PutDonor(ctx context.Context, shareCode string, data sharecodedata.Link) error {
+func (s *Store) PutDonor(ctx context.Context, shareCode sharecodedata.Hashed, data sharecodedata.Link) error {
 	organisationKey, ok := data.LpaOwnerKey.Organisation()
 	if !ok {
 		return errors.New("shareCodeStore.PutDonor can only be used by organisations")
 	}
 
-	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode))
+	data.PK = dynamo.ShareKey(dynamo.DonorShareKey(shareCode.String()))
 	data.SK = dynamo.ShareSortKey(dynamo.DonorInviteKey(organisationKey, data.LpaKey))
 	data.UpdatedAt = s.now()
 
@@ -95,18 +95,18 @@ func (s *Store) Delete(ctx context.Context, shareCode sharecodedata.Link) error 
 	return s.dynamoClient.DeleteOne(ctx, shareCode.PK, shareCode.SK)
 }
 
-func shareCodeKey(actorType actor.Type, shareCode string) (pk dynamo.ShareKeyType, err error) {
+func shareCodeKey(actorType actor.Type, shareCode sharecodedata.Hashed) (pk dynamo.ShareKeyType, err error) {
 	switch actorType {
 	case actor.TypeDonor:
-		return dynamo.ShareKey(dynamo.DonorShareKey(shareCode)), nil
+		return dynamo.ShareKey(dynamo.DonorShareKey(shareCode.String())), nil
 	// As attorneys and replacement attorneys share the same landing page we can't
 	// differentiate between them
 	case actor.TypeAttorney, actor.TypeReplacementAttorney, actor.TypeTrustCorporation, actor.TypeReplacementTrustCorporation:
-		return dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode)), nil
+		return dynamo.ShareKey(dynamo.AttorneyShareKey(shareCode.String())), nil
 	case actor.TypeCertificateProvider:
-		return dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode)), nil
+		return dynamo.ShareKey(dynamo.CertificateProviderShareKey(shareCode.String())), nil
 	case actor.TypeVoucher:
-		return dynamo.ShareKey(dynamo.VoucherShareKey(shareCode)), nil
+		return dynamo.ShareKey(dynamo.VoucherShareKey(shareCode.String())), nil
 	default:
 		return dynamo.ShareKey(nil), fmt.Errorf("cannot have share code for actorType=%v", actorType)
 	}

@@ -162,7 +162,7 @@ type LpaStoreClient interface {
 }
 
 type ShareCodeStore interface {
-	Get(ctx context.Context, actorType actor.Type, code string) (sharecodedata.Link, error)
+	Get(ctx context.Context, actorType actor.Type, code sharecodedata.Hashed) (sharecodedata.Link, error)
 }
 
 type ScheduledStore interface {

@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -31,7 +32,7 @@ func EnterReferenceNumber(tmpl template.Template, shareCodeStore ShareCodeStore,
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				referenceNumber := data.Form.ReferenceNumber
+				referenceNumber := sharecodedata.HashedFromString(data.Form.ReferenceNumber)
 
 				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeAttorney, referenceNumber)
 				if err != nil {

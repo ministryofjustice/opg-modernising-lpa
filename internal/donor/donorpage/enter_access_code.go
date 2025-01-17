@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -31,7 +32,7 @@ func EnterAccessCode(logger Logger, tmpl template.Template, shareCodeStore Share
 			data.Errors = data.Form.Validate()
 
 			if len(data.Errors) == 0 {
-				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeDonor, data.Form.AccessCode)
+				shareCode, err := shareCodeStore.Get(r.Context(), actor.TypeDonor, sharecodedata.HashedFromString(data.Form.AccessCode))
 				if err != nil {
 					if errors.Is(err, dynamo.NotFoundError{}) {
 						data.Errors.Add("reference-number", validation.CustomError{Label: "incorrectAccessCode"})
