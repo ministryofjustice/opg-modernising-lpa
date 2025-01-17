@@ -31,6 +31,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -102,7 +103,7 @@ func Donor(
 	documentStore DocumentStore,
 	eventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
-	shareCodeStore ShareCodeStore,
+	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
 ) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
@@ -203,7 +204,7 @@ func updateLPAProgress(
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
 	eventClient *event.Client,
-	shareCodeStore ShareCodeStore,
+	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
 ) (*donordata.Provided, []func(context.Context, *lpastore.Client, *lpadata.Lpa) error, error) {
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
