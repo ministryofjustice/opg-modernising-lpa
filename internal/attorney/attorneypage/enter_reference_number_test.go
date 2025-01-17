@@ -112,7 +112,7 @@ func TestPostEnterReferenceNumber(t *testing.T) {
 
 			shareCodeStore := newMockShareCodeStore(t)
 			shareCodeStore.EXPECT().
-				Get(r.Context(), actor.TypeAttorney, "abcdef123456").
+				Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 				Return(tc.shareCode, nil)
 
 			attorneyStore := newMockAttorneyStore(t)
@@ -151,7 +151,7 @@ func TestPostEnterReferenceNumberOnDonorStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, expectedError)
 
 	err := EnterReferenceNumber(nil, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -184,7 +184,7 @@ func TestPostEnterReferenceNumberOnShareCodeStoreNotFoundError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, dynamo.NotFoundError{})
 
 	err := EnterReferenceNumber(template.Execute, shareCodeStore, nil, nil)(testAppData, w, r)
@@ -206,7 +206,7 @@ func TestPostEnterReferenceNumberOnSessionGetError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	sessionStore := newMockSessionStore(t)
@@ -230,7 +230,7 @@ func TestPostEnterReferenceNumberOnAttorneyStoreError(t *testing.T) {
 
 	shareCodeStore := newMockShareCodeStore(t)
 	shareCodeStore.EXPECT().
-		Get(r.Context(), actor.TypeAttorney, "abcdef123456").
+		Get(r.Context(), actor.TypeAttorney, sharecodedata.HashedFromString("abcdef123456")).
 		Return(sharecodedata.Link{LpaKey: dynamo.LpaKey("lpa-id"), LpaOwnerKey: dynamo.LpaOwnerKey(dynamo.DonorKey(""))}, nil)
 
 	attorneyStore := newMockAttorneyStore(t)
