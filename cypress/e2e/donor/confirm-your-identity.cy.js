@@ -22,8 +22,10 @@ describe('Confirm your identity', () => {
             cy.checkA11yApp();
             cy.contains('button', 'Continue').click();
 
-            cy.contains('label', 'Sam Smith (donor)').click();
-            cy.contains('button', 'Continue').click();
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('label', 'Sam Smith (donor)').click();
+                cy.contains('button', 'Continue').click();
+            });
 
             cy.url().should('contain', '/identity-details');
             cy.checkA11yApp();
@@ -78,8 +80,10 @@ describe('Confirm your identity', () => {
             cy.checkA11yApp();
             cy.contains('button', 'Continue').click();
 
-            cy.contains('label', 'Failed identity check (T)').click();
-            cy.contains('button', 'Continue').click();
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('label', 'Failed identity check (T)').click();
+                cy.contains('button', 'Continue').click();
+            });
 
             cy.url().should('contain', '/register-with-court-of-protection');
             cy.checkA11yApp();
@@ -105,8 +109,10 @@ describe('Confirm your identity', () => {
             cy.checkA11yApp();
             cy.contains('button', 'Continue').click();
 
-            cy.contains('label', 'Failed identity check (T)').click();
-            cy.contains('button', 'Continue').click();
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('label', 'Failed identity check (T)').click();
+                cy.contains('button', 'Continue').click();
+            });
 
             cy.url().should('contain', '/register-with-court-of-protection');
             cy.checkA11yApp();
@@ -132,8 +138,10 @@ describe('Confirm your identity', () => {
                 cy.checkA11yApp();
                 cy.contains('button', 'Continue').click();
 
-                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-                cy.contains('button', 'Continue').click();
+                cy.origin('http://localhost:7012', () => {
+                    cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                    cy.contains('button', 'Continue').click();
+                });
 
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
@@ -166,8 +174,10 @@ describe('Confirm your identity', () => {
                 cy.checkA11yApp();
                 cy.contains('button', 'Continue').click();
 
-                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-                cy.contains('button', 'Continue').click();
+                cy.origin('http://localhost:7012', () => {
+                    cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                    cy.contains('button', 'Continue').click();
+                });
 
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
@@ -194,8 +204,10 @@ describe('Confirm your identity', () => {
                 cy.checkA11yApp();
                 cy.contains('button', 'Continue').click();
 
-                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-                cy.contains('button', 'Continue').click();
+                cy.origin('http://localhost:7012', () => {
+                    cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                    cy.contains('button', 'Continue').click();
+                });
 
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
@@ -223,8 +235,10 @@ describe('Confirm your identity', () => {
                 cy.contains('label', 'confirm my identity another way').click();
                 cy.contains('button', 'Continue').click();
 
-                cy.contains('label', 'Charlie Cooper (certificate provider)').click();
-                cy.contains('button', 'Continue').click();
+                cy.origin('http://localhost:7012', () => {
+                    cy.contains('label', 'Charlie Cooper (certificate provider)').click();
+                    cy.contains('button', 'Continue').click();
+                });
 
                 cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
@@ -253,7 +267,9 @@ describe('Confirm your identity', () => {
             cy.url().should('contain', '/confirm-your-identity');
             cy.contains('button', 'Continue').click();
 
-            cy.go(-2);
+            cy.origin('http://localhost:7012', () => {
+                cy.go(-2);
+            });
             cy.contains('li', "Confirm your identity")
                 .should('contain', 'In progress')
                 .find('a')
