@@ -679,7 +679,7 @@ func updateLPAProgress(
 		fns = append(fns, func(ctx context.Context, client *lpastore.Client, _ *lpadata.Lpa) error {
 			return client.SendDonorWithdrawLPA(ctx, donorDetails.LpaUID)
 		})
-		donorDetails.WithdrawnAt = time.Now()
+		donorDetails.WithdrawnAt = testNow
 	}
 
 	if data.Progress == slices.Index(progressValues, "certificateProviderOptedOut") {

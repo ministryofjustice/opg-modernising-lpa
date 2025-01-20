@@ -1421,5 +1421,7 @@
     "yourLpaMustBeReviewedByCourtOfProtection": "Your LPA must be reviewed by the Court of Protection",
     "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection": "The Office of the Public Guardian is completing checks on your LPA so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next.",
     "returnToYourTaskListToSignThenOpgWillCheck": "Return to your task list to sign your LPA. OPG will then be able to complete our checks on it so you can submit it to the Court of Protection.",
-    "whenYouHavePaidOpgWillCheck": "When you have paid for your LPA, the Office of the Public Guardian will complete our checks on it so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next."
+    "whenYouHavePaidOpgWillCheck": "When you have paid for your LPA, the Office of the Public Guardian will complete our checks on it so you can submit it to the Court of Protection. We’ll contact you with guidance on what to do next.",
+    "lpaRevoked": "LPA revoked",
+    "weContactedYouOnAboutLPARevokedOPGWillNotRegister": "We contacted you on {{.ContactedDate}} confirming your LPA has been revoked. OPG will not register it and it cannot be used as a legal document."
 }
