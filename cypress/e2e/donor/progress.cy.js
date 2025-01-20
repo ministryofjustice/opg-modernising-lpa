@@ -45,8 +45,12 @@ describe('Progress', () => {
             cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
 
             cy.contains('a', 'Confirm your identity').click();
-            cy.contains('button', 'Continue').click();
-            cy.go(-2);
+
+            cy.url().then(u => {
+                cy.contains('button', 'Continue').click();
+                cy.visit(u.split('/').slice(3, -1).join('/') + '/task-list');
+            });
+
             cy.contains('a', 'Confirm your identity').click();
             cy.contains('label', 'I will confirm my identity at a Post Office').click();
             cy.contains('button', 'Continue').click();
