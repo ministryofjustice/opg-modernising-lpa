@@ -8,8 +8,10 @@ describe('Enter reference number', () => {
         cy.visit(`/fixtures/voucher?redirect=&withShareCode=${shareCode}`);
 
         cy.contains('a', 'Start').click()
-        cy.contains('label', 'Random value').click();
-        cy.contains('button', 'Continue').click();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Random value').click();
+            cy.contains('button', 'Continue').click();
+        });
         cy.url().should('contain', '/voucher-enter-reference-number')
     });
 
