@@ -46,7 +46,9 @@ describe('Progress', () => {
 
             cy.contains('a', 'Confirm your identity').click();
             cy.contains('button', 'Continue').click();
-            cy.go(-2);
+            cy.origin('http://localhost:7012', () => {
+                cy.go(-2);
+            });
             cy.contains('a', 'Confirm your identity').click();
             cy.contains('label', 'I will confirm my identity at a Post Office').click();
             cy.contains('button', 'Continue').click();
