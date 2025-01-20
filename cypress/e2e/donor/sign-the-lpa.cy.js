@@ -169,8 +169,10 @@ describe('Sign the LPA', () => {
                     const uid = text.split(':')[1].trim();
                     cy.visit(`http://localhost:9001/?detail-type=paper-form-requested&detail=${uid}`);
 
-                    cy.contains(`"uid":"${uid}"`)
-                    cy.contains(`"actorType":"certificateProvider"`)
+                    cy.origin('http://localhost:9001', () => {
+                        cy.contains(`"uid":"${uid}"`)
+                        cy.contains(`"actorType":"certificateProvider"`)
+                    });
                 });
         });
     })
