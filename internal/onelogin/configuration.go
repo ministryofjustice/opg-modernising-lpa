@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/MicahParks/jwkset"
@@ -130,12 +129,7 @@ func (c *configurationClient) refresh() error {
 		return err
 	}
 
-	uri, err := url.ParseRequestURI(v.JwksURI)
-	if err != nil {
-		return err
-	}
-
-	storage, err := jwkset.NewStorageFromHTTP(uri, jwkset.HTTPClientStorageOptions{
+	storage, err := jwkset.NewStorageFromHTTP(v.JwksURI, jwkset.HTTPClientStorageOptions{
 		Ctx:                       c.ctx,
 		Client:                    c.httpClient,
 		RefreshInterval:           refreshInterval,
@@ -151,7 +145,7 @@ func (c *configurationClient) refresh() error {
 
 	client, err := jwkset.NewHTTPClient(jwkset.HTTPClientOptions{
 		HTTPURLs: map[string]jwkset.Storage{
-			uri.String(): storage,
+			v.JwksURI: storage,
 		},
 		RefreshUnknownKID: rate.NewLimiter(rate.Every(refreshRateLimit), 1),
 	})
