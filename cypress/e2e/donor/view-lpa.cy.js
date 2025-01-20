@@ -1,7 +1,7 @@
 describe('View LPA', () => {
     describe('when signed by donor', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/view-lpa&progress=signTheLpa');
+            cy.visit('/fixtures?redirect=/view-lpa&progress=signTheLpa&signedAt=donor:02/01/2023');
         });
 
         it('shows the actors', () => {
@@ -34,7 +34,7 @@ describe('View LPA', () => {
 
     describe('when signed by everyone', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=statutoryWaitingPeriod');
+            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=statutoryWaitingPeriod&signedAt=donor:02/01/2023');
         });
 
         it('shows all signatures', () => {
