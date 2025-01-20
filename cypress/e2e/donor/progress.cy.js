@@ -198,5 +198,30 @@ describe('Progress', () => {
             cy.contains('Thank you for filling in your LPA.').should('not.exist');
             cy.contains('Go to task list').should('not.exist');
         })
+
+        it("when six months after signing and identification not confirmed", () => {
+            const now = new Date();
+
+            const sixMonthsAndOneDayAgo = new Date()
+            sixMonthsAndOneDayAgo.setMonth(now.getMonth() - 6);
+
+            cy.visit(`/fixtures?redirect=/progress&progress=signTheLpa&idStatus=donor:insufficient-evidence&signedAt=donor:${sixMonthsAndOneDayAgo.toLocaleDateString('en-GB')}`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('Your LPA cannot be registered by the Office of the Public Guardian (OPG)');
+            cy.contains('You did not confirm your identity within 6 months of signing your LPA, so OPG cannot register it.');
+        })
+
+        it("when identification expired and not signed", () => {
+            cy.visit(`/fixtures?redirect=/progress&progress=confirmYourIdentity&idStatus=donor:expired`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('You must confirm your identity again');
+            cy.contains('You did not sign your LPA within 6 months of confirming your identity, so your identity check has expired.');
+        })
     });
 });
