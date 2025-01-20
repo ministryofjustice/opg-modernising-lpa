@@ -13,10 +13,12 @@ describe('Start', () => {
         cy.contains('a', 'Continue to GOV.UK One Login').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/authorize')
+            cy.origin('http://localhost:7012', () => {
+                cy.url().should('contain', '/authorize')
 
-            cy.get('#f-email').type(Math.random() + '@example.org')
-            cy.contains('button', 'Continue').click();
+                cy.get('#f-email').type(Math.random() + '@example.org')
+                cy.contains('button', 'Continue').click();
+            });
 
             cy.url().should('contain', '/enter-your-name')
         } else {
