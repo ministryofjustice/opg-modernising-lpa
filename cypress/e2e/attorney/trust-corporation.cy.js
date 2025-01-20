@@ -7,8 +7,10 @@ describe('As a trust corporation', () => {
 
         // start
         cy.contains('a', 'Start').click();
-        cy.contains('label', 'Random value').click();
-        cy.get('form').submit();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Random value').click();
+            cy.get('form').submit();
+        });
 
         // enter reference number
         cy.get('#f-reference-number').type(shareCode);
