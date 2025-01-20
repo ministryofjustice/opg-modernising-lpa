@@ -37,8 +37,10 @@ describe('LPA type', () => {
         cy.url().should('contain', '/task-list');
 
         cy.url().then((url) => {
-            cy.visit(`http://localhost:9001/?detail-type=uid-requested&detail=${url.split('/')[4]}`);
-            cy.contains(`"lpaID":"${url.split('/')[4]}"`);
+            cy.origin('http://localhost:9001', { args: { url } }, ({ url }) => {
+                cy.visit(`/?detail-type=uid-requested&detail=${url.split('/')[4]}`);
+                cy.contains(`"lpaID":"${url.split('/')[4]}"`);
+            });
         });
 
         cy.visit('/dashboard')
@@ -47,10 +49,12 @@ describe('LPA type', () => {
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=application-updated&detail=${uid}`);
 
-                cy.contains(`"uid":"${uid}"`);
-                cy.contains('"type":"property-and-affairs"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=application-updated&detail=${uid}`);
+                    cy.contains(`"uid":"${uid}"`);
+                    cy.contains('"type":"property-and-affairs"');
+                });
             });
     });
 
