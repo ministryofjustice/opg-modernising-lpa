@@ -8,8 +8,10 @@ describe('Enter reference number', () => {
         cy.visit(`/fixtures/certificate-provider?redirect=/certificate-provider-start&withShareCode=${shareCode}&email=${TestEmail}`);
 
         cy.contains('a', 'Start').click()
-        cy.contains('label', 'Random value').click();
-        cy.contains('button', 'Continue').click();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Random value').click();
+            cy.contains('button', 'Continue').click();
+        });
         cy.url().should('contain', '/certificate-provider-enter-reference-number')
     });
 

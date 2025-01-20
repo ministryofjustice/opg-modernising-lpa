@@ -11,8 +11,10 @@ describe('Confirm your identity', () => {
     it('can be confirmed', () => {
         cy.checkA11yApp();
         cy.contains('button', 'Continue').click();
-        cy.contains('label', 'Vivian Vaughn').click();
-        cy.contains('button', 'Continue').click();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Vivian Vaughn').click();
+            cy.contains('button', 'Continue').click();
+        });
 
         cy.url().should('contain', '/one-login-identity-details');
         cy.checkA11yApp();
@@ -41,8 +43,10 @@ describe('Confirm your identity', () => {
 
         cy.checkA11yApp();
         cy.contains('button', 'Continue').click();
-        cy.contains('label', 'Charlie Cooper').click();
-        cy.contains('button', 'Continue').click();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Charlie Cooper').click();
+            cy.contains('button', 'Continue').click();
+        });
 
         cy.url().should('contain', '/confirm-allowed-to-vouch');
         cy.checkA11yApp();
@@ -55,8 +59,10 @@ describe('Confirm your identity', () => {
 
     it('can fail', () => {
         cy.contains('button', 'Continue').click();
-        cy.contains('label', 'Sam Smith').click();
-        cy.contains('button', 'Continue').click();
+        cy.origin('http://localhost:7012', () => {
+            cy.contains('label', 'Sam Smith').click();
+            cy.contains('button', 'Continue').click();
+        });
 
         cy.url().should('contain', '/voucher-unable-to-confirm-identity');
     });

@@ -28,10 +28,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
             .invoke('text')
             .then((uid) => {
-                cy.visit(`http://localhost:9001/?detail-type=payment-received&detail=${uid}`);
-
-                cy.contains('"amount":8200');
-                cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=payment-received&detail=${uid}`);
+                    cy.contains('"amount":8200');
+                    cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                });
             });
     });
 
@@ -112,11 +113,13 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"HalfFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=reduced-fee-requested&detail=${uid}`);
+                    cy.contains('"requestType":"HalfFee"');
+                    cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+                    cy.contains('"evidenceDelivery":"upload"');
+                });
             });
     });
 
@@ -187,11 +190,13 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=reduced-fee-requested&detail=${uid}`);
+                    cy.contains('"requestType":"NoFee"');
+                    cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+                    cy.contains('"evidenceDelivery":"upload"');
+                });
             });
     });
 
@@ -262,11 +267,13 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"NoFee"');
-                cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
-                cy.contains('"evidenceDelivery":"upload"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=reduced-fee-requested&detail=${uid}`);
+                    cy.contains('"requestType":"NoFee"');
+                    cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
+                    cy.contains('"evidenceDelivery":"upload"');
+                });
             });
     });
 
@@ -345,11 +352,13 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             .invoke('text')
             .then((text) => {
                 const uid = text.split(':')[1].trim();
-                cy.visit(`http://localhost:9001/?detail-type=reduced-fee-requested&detail=${uid}`);
 
-                cy.contains('"requestType":"HardshipFee"');
-                cy.contains('"evidence"').should('not.exist');
-                cy.contains('"evidenceDelivery":"post"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=reduced-fee-requested&detail=${uid}`);
+                    cy.contains('"requestType":"HardshipFee"');
+                    cy.contains('"evidence"').should('not.exist');
+                    cy.contains('"evidenceDelivery":"post"');
+                });
             });
     });
 
@@ -371,10 +380,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
             .invoke('text')
             .then((uid) => {
-                cy.visit(`http://localhost:9001/?detail-type=payment-received&detail=${uid}`);
-
-                cy.contains('"amount":4100');
-                cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=payment-received&detail=${uid}`);
+                    cy.contains('"amount":4100');
+                    cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                });
             });
     });
 
@@ -396,10 +406,11 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.contains('.govuk-summary-list__row', 'Reference number').find('.govuk-summary-list__value')
             .invoke('text')
             .then((uid) => {
-                cy.visit(`http://localhost:9001/?detail-type=payment-received&detail=${uid}`);
-
-                cy.contains('"amount":8200');
-                cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
+                    cy.visit(`/?detail-type=payment-received&detail=${uid}`);
+                    cy.contains('"amount":8200');
+                    cy.contains('"paymentId":"hu20sqlact5260q2nanm0q8u93"');
+                });
             });
     });
 
