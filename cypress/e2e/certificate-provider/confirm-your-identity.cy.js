@@ -10,9 +10,10 @@ describe('confirm your identity', () => {
 
     it('can see details when successful', () => {
         cy.contains('button', 'Continue').click()
-        cy.get('[name="user"]').check('certificate-provider', { force: true })
-
-        cy.contains('button', 'Continue').click()
+        cy.origin('http://localhost:7012', () => {
+            cy.get('[name="user"]').check('certificate-provider', { force: true })
+            cy.contains('button', 'Continue').click()
+        });
 
         cy.url().should('contain', '/identity-details');
         cy.checkA11yApp();
@@ -32,9 +33,10 @@ describe('confirm your identity', () => {
 
     it('can see details when not matched', () => {
         cy.contains('button', 'Continue').click()
-        cy.get('[name="user"]').check('donor', { force: true })
-
-        cy.contains('button', 'Continue').click()
+        cy.origin('http://localhost:7012', () => {
+            cy.get('[name="user"]').check('donor', { force: true })
+            cy.contains('button', 'Continue').click()
+        });
 
         cy.url().should('contain', '/identity-details');
         cy.checkA11yApp();
@@ -54,9 +56,10 @@ describe('confirm your identity', () => {
 
     it('can see next steps when failing', () => {
         cy.contains('button', 'Continue').click()
-        cy.get('[name="return-code"]').check('T', { force: true })
-
-        cy.contains('button', 'Continue').click()
+        cy.origin('http://localhost:7012', () => {
+            cy.get('[name="return-code"]').check('T', { force: true })
+            cy.contains('button', 'Continue').click()
+        });
 
         cy.url().should('contain', '/identity-details');
         cy.checkA11yApp();
@@ -72,9 +75,10 @@ describe('confirm your identity', () => {
 
     it('can see next steps when has insufficient evidence', () => {
         cy.contains('button', 'Continue').click()
-        cy.get('[name="return-code"]').check('X', { force: true })
-
-        cy.contains('button', 'Continue').click()
+        cy.origin('http://localhost:7012', () => {
+            cy.get('[name="return-code"]').check('X', { force: true })
+            cy.contains('button', 'Continue').click()
+        })
 
         cy.url().should('contain', '/identity-details');
         cy.checkA11yApp();
