@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=build /app/create-s3-replication-job /var/task/create-s3-replication-job
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
-COPY --from=adot-builder-alpine /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
+COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
 
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
@@ -52,7 +52,7 @@ RUN chmod +x "/app/install_lambda_insights.sh" \
 COPY --from=build /app/create-s3-replication-job ./create-s3-replication-job
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
-COPY --from=adot-builder-alpine /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
+COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
 
 RUN chmod 755 /opt/config/config.yaml
 
