@@ -7,7 +7,9 @@ describe('Start', () => {
         cy.contains('a', 'Start').click();
 
         if (Cypress.config().baseUrl.includes('localhost')) {
-            cy.url().should('contain', '/authorize')
+            cy.origin('http://localhost:7012', () => {
+                cy.url().should('contain', '/authorize')
+            });
         } else {
             cy.origin('https://signin.integration.account.gov.uk', () => {
                 cy.url().should('contain', '/')
