@@ -1,7 +1,7 @@
 describe('View LPA', () => {
     describe('when signed by donor', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/view-lpa&progress=signTheLpa');
+            cy.visit('/fixtures?redirect=/view-lpa&progress=signTheLpa&donor=signature-expired');
         });
 
         it('shows the actors', () => {
@@ -23,8 +23,8 @@ describe('View LPA', () => {
         });
 
         it('contains the donor signature', () => {
-            cy.contains('Signed by Sam Smith on: 2 January 2023');
-            cy.contains('Witnessed by Charlie Cooper on: 2 January 2023');
+            cy.contains('Signed by Sam Smith on: 1 January 2024');
+            cy.contains('Witnessed by Charlie Cooper on: 1 January 2024');
         });
 
         it('does not contain other signatures', () => {
@@ -34,18 +34,18 @@ describe('View LPA', () => {
 
     describe('when signed by everyone', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=statutoryWaitingPeriod');
+            cy.visit('/fixtures?redirect=/view-lpa&attorneys=trust-corporation&progress=statutoryWaitingPeriod&donor=signature-expired');
         });
 
         it('shows all signatures', () => {
-            cy.contains('Signed by Sam Smith on: 2 January 2023');
-            cy.contains('Witnessed by Charlie Cooper on: 2 January 2023');
-            cy.contains('Signed by Charlie Cooper on: 5 January 2023');
-            cy.contains('Signed by Jessie Jones on: 12 January 2023');
-            cy.contains('Signed by Robin Redcar on: 12 January 2023');
-            cy.contains('Signed by A Sign on: 17 January 2023');
-            cy.contains('Signed by Blake Buckley on: 12 January 2023');
-            cy.contains('Signed by Taylor Thompson on: 12 January 2023');
+            cy.contains('Signed by Sam Smith on: 1 January 2024');
+            cy.contains('Witnessed by Charlie Cooper on: 1 January 2024');
+            cy.contains('Signed by Charlie Cooper on: 4 January 2024');
+            cy.contains('Signed by Jessie Jones on: 11 January 2024');
+            cy.contains('Signed by Robin Redcar on: 11 January 2024');
+            cy.contains('Signed by A Sign on: 16 January 2024');
+            cy.contains('Signed by Blake Buckley on: 11 January 2024');
+            cy.contains('Signed by Taylor Thompson on: 11 January 2024');
         });
     });
 });
