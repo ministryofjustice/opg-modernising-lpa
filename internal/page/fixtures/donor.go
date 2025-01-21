@@ -92,7 +92,6 @@ type FixtureData struct {
 	IdStatus                  string
 	Voucher                   string
 	FailedVouchAttempts       string
-	SignedAt                  string
 }
 
 func Donor(
@@ -552,21 +551,10 @@ func updateLPAProgress(
 		donorDetails.SignedAt = time.Now()
 		donorDetails.WitnessedByCertificateProviderAt = time.Now()
 
-		if data.SignedAt != "" {
-			signedAtActor, signedAtDate, ok := strings.Cut(data.SignedAt, ":")
-			if !ok {
-				return nil, nil, errors.New("invalid value for signedAt - must be in format actor:DD/MM/YYYY")
-			}
-
-			if signedAtActor == "donor" {
-				signedAt, err := time.Parse("02/01/2006", signedAtDate)
-				if err != nil {
-					return nil, nil, fmt.Errorf("error parsing signedAt date: %v", err)
-				}
-
-				donorDetails.SignedAt = signedAt
-				donorDetails.WitnessedByCertificateProviderAt = signedAt
-			}
+		if data.Donor == "signature-expired" {
+			signedAt := time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)
+			donorDetails.SignedAt = signedAt
+			donorDetails.WitnessedByCertificateProviderAt = signedAt
 		}
 
 		donorDetails.WantToApplyForLpa = true
@@ -738,6 +726,5 @@ func setFixtureData(r *http.Request) FixtureData {
 		IdStatus:                  r.FormValue("idStatus"),
 		Voucher:                   r.FormValue("voucher"),
 		FailedVouchAttempts:       r.FormValue("failedVouchAttempts"),
-		SignedAt:                  r.FormValue("signedAt"),
 	}
 }
