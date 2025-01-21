@@ -1,17 +1,12 @@
 FROM golang:bullseye AS adot-builder
 WORKDIR /app
-RUN apt-get update && apt-get -y --no-install-recommends install git=1:2.30.2-1+deb11u3 zip=3.0-12 unzip=6.0-26+deb11u1
-RUN git clone --recurse-submodules https://github.com/aws-observability/aws-otel-lambda.git
+RUN apt-get update && apt-get -y --no-install-recommends install \
+  git=1:2.30.2-1+deb11u3 \
+  zip=3.0-12 \
+  unzip=6.0-26+deb11u1 && \
+  git clone --recurse-submodules https://github.com/aws-observability/aws-otel-lambda.git
 WORKDIR /app/aws-otel-lambda/go
-RUN ls -al && ./build.sh
-
-# FROM golang:1.23.5-alpine AS adot-builder-alpine
-# WORKDIR /app
-# RUN apk add --no-cache git=2.47.2-r0 zip=3.0-r13 unzip=6.0-r15
-# RUN git clone --recurse-submodules https://github.com/aws-observability/aws-otel-lambda.git
-# WORKDIR /app/aws-otel-lambda/go
-# RUN ls -al && ./build.sh
-
+RUN ./build.sh
 
 FROM golang:1.23.5-alpine AS build
 
