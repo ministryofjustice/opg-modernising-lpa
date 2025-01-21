@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -29,7 +30,7 @@ type progressNotification struct {
 	Body    string
 }
 
-func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore, voucherStore VoucherStore, donorStore DonorStore) Handler {
+func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, progressTracker ProgressTracker, certificateProviderStore CertificateProviderStore, voucherStore VoucherStore, donorStore DonorStore, now func() time.Time) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -223,6 +224,20 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					Body:    appData.Localizer.T("whenYouHavePaidOpgWillCheck"),
 				})
 			}
+		}
+
+		if now().After(donor.IdentityDeadline()) && donor.Tasks.SignTheLpa.IsCompleted() && !donor.Tasks.ConfirmYourIdentity.IsCompleted() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("yourLPACannotBeRegisteredByOPG"),
+				Body:    appData.Localizer.T("youDidNotConfirmYourIdentityWithinSixMonthsOfSigning"),
+			})
+		}
+
+		if donor.IdentityUserData.Status.IsExpired() && donor.Tasks.SignTheLpa.IsCompleted() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("youMustConfirmYourIdentityAgain"),
+				Body:    appData.Localizer.T("youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity"),
+			})
 		}
 
 		return tmpl(w, data)
