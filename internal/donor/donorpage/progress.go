@@ -67,9 +67,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
-		if now().Before(donor.IdentityDeadline()) &&
-			lpa.Submitted &&
-			(lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) {
+		if lpa.Submitted && (lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) {
 			if errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
 				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 					Heading: "youveSubmittedYourLpaToOpg",
@@ -228,14 +226,14 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			}
 		}
 
-		if now().After(donor.IdentityDeadline()) && donor.Tasks.SignTheLpa.IsCompleted() {
+		if now().After(donor.IdentityDeadline()) && donor.Tasks.SignTheLpa.IsCompleted() && !donor.Tasks.ConfirmYourIdentity.IsCompleted() {
 			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 				Heading: appData.Localizer.T("yourLPACannotBeRegisteredByOPG"),
 				Body:    appData.Localizer.T("youDidNotConfirmYourIdentityWithinSixMonthsOfSigning"),
 			})
 		}
 
-		if donor.IdentityUserData.Status.IsExpired() && donor.WitnessedByCertificateProviderAt.IsZero() {
+		if donor.IdentityUserData.Status.IsExpired() && donor.Tasks.SignTheLpa.IsCompleted() {
 			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
 				Heading: appData.Localizer.T("youMustConfirmYourIdentityAgain"),
 				Body:    appData.Localizer.T("youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity"),
