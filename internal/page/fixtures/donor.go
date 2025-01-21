@@ -548,10 +548,17 @@ func updateLPAProgress(
 	}
 
 	if data.Progress >= slices.Index(progressValues, "signTheLpa") {
+		donorDetails.SignedAt = time.Now()
+		donorDetails.WitnessedByCertificateProviderAt = time.Now()
+
+		if data.Donor == "signature-expired" {
+			signedAt := time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)
+			donorDetails.SignedAt = signedAt
+			donorDetails.WitnessedByCertificateProviderAt = signedAt
+		}
+
 		donorDetails.WantToApplyForLpa = true
 		donorDetails.WantToSignLpa = true
-		donorDetails.SignedAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
-		donorDetails.WitnessedByCertificateProviderAt = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 		donorDetails.Tasks.SignTheLpa = task.StateCompleted
 	}
 

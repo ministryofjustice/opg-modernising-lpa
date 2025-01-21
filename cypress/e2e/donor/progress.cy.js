@@ -87,7 +87,7 @@ describe('Progress', () => {
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
             cy.contains('We need some more evidence to make a decision about your LPA fee');
-            cy.contains('We contacted you on 2 April 2023 with guidance about what to do next.');
+            cy.contains('We contacted you on 2 January 2023 with guidance about what to do next.');
         });
 
         it('when the voucher has been contacted', () => {
@@ -120,7 +120,7 @@ describe('Progress', () => {
             cy.contains('You’ve submitted your LPA to the Office of the Public Guardian');
 
             cy.contains('Simone Sutherland has been unable to confirm your identity');
-            cy.contains('We contacted you on 2 April 2023 with guidance about what to do next.');
+            cy.contains('We contacted you on 2 January 2023 with guidance about what to do next.');
         });
 
         it('when status is do not register', () => {
@@ -194,7 +194,7 @@ describe('Progress', () => {
             cy.contains('Important: 1 notification from OPG');
 
             cy.contains('LPA revoked');
-            cy.contains('We contacted you on 2 April 2023 confirming your LPA has been revoked. OPG will not register it and it cannot be used as a legal document.');
+            cy.contains('We contacted you on 2 January 2023 confirming your LPA has been revoked. OPG will not register it and it cannot be used as a legal document.');
 
             cy.contains('Success: 1 notification from OPG').should('not.exist');
             cy.contains('We have approved your LPA fee request').should('not.exist');
@@ -203,6 +203,30 @@ describe('Progress', () => {
             cy.get('#progress').should('not.exist');
             cy.contains('Thank you for filling in your LPA.').should('not.exist');
             cy.contains('Go to task list').should('not.exist');
+        })
+
+        it("when six months after signing and identification not confirmed", () => {
+            cy.visit(`/fixtures?redirect=/progress&progress=signTheLpa&idStatus=donor:insufficient-evidence&donor=signature-expired`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 2 notifications from OPG');
+
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian (OPG)');
+
+            cy.contains('Your LPA cannot be registered by the Office of the Public Guardian (OPG)');
+            cy.contains('You did not confirm your identity within 6 months of signing your LPA, so OPG cannot register it.');
+        })
+
+        it("when signed and identity confirmation expired", () => {
+            cy.visit(`/fixtures?redirect=/progress&progress=signTheLpa&idStatus=donor:expired`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 2 notifications from OPG');
+
+            cy.contains('You’ve submitted your LPA to the Office of the Public Guardian (OPG)');
+
+            cy.contains('You must confirm your identity again');
+            cy.contains('You did not sign your LPA within 6 months of confirming your identity, so your identity check has expired.');
         })
     });
 });
