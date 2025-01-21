@@ -1,5 +1,4 @@
-// TODO unskip MLPAB-2700
-describe.skip('You cannot sign your LPA yet', () => {
+describe('You cannot sign your LPA yet', () => {
     it('lists attorneys and replacement attorneys that are under 18', () => {
         const today = new Date()
         cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=peopleToNotifyAboutYourLpa');
