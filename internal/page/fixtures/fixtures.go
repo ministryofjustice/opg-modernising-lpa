@@ -89,7 +89,7 @@ var (
 		Firstnames: "Simone",
 		Lastname:   "Sutherland",
 	}
-	testNow = time.Date(2023, time.April, 2, 3, 4, 5, 6, time.UTC)
+	testNow = time.Date(2023, time.January, 2, 3, 4, 5, 6, time.UTC)
 )
 
 func makeAttorney(name Name) donordata.Attorney {
