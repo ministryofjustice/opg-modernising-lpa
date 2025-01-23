@@ -1,9 +1,10 @@
 package pay
 
 import (
+	"slices"
+	"strconv"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
@@ -79,7 +80,19 @@ type SettlementSummary struct {
 type AmountPence int
 
 func (a AmountPence) String() string {
-	return "£" + humanize.CommafWithDigits(float64(a)/100, 2)
+	s := []byte(strconv.Itoa(int(a)))
+	switch len(s) {
+	case 1:
+		s = []byte{'0', '0', s[0]}
+	case 2:
+		s = []byte{'0', s[0], s[1]}
+	}
+
+	if s[len(s)-2] == '0' && s[len(s)-1] == '0' {
+		return "£" + string(s[:len(s)-2])
+	} else {
+		return "£" + string(slices.Insert(s, len(s)-2, '.'))
+	}
 }
 
 func (a AmountPence) Pence() int {

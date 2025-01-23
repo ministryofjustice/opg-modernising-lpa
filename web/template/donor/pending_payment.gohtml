@@ -1,0 +1,65 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "whatHappensNext" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ if .Donor.Tasks.PayForLpa.IsMoreEvidenceRequired }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weContactYouToAskForMoreEvidence") "heading") }}
+            {{ else }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "weAreReviewingTheEvidenceYouSent") "heading") }}
+            {{ end }}
+
+            <div class="govuk-inset-text">
+                <dl class="govuk-summary-list govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                    {{ if .Donor.FeeType.IsRepeatApplicationFee }}
+                        {{ if .Donor.PreviousFee.Empty }}
+                            {{ template "summary-row" (staticSummaryRow .App "feeType"
+                                (printf "repeatApplication:%s" .Donor.CostOfRepeatApplication.String | tr .App)) }}
+                        {{ else }}
+                            {{ template "summary-row" (staticSummaryRow .App "feeType"
+                                (printf "repeatApplication:%s" .Donor.PreviousFee.String | tr .App)) }}
+                        {{ end }}
+                    {{ else }}
+                        {{ template "summary-row" (staticSummaryRow .App "feeType"
+                            (tr .App .Donor.FeeType.String)) }}
+                    {{ end }}
+                    {{ template "summary-row" (staticSummaryRow .App "feePaid"
+                        .Donor.Paid.String) }}
+                    {{ if not .Donor.PaidAt.IsZero }}
+                        {{ template "summary-row" (staticSummaryRow .App "datePaid"
+                            (formatDate .App .Donor.PaidAt)) }}
+                    {{ end }}
+                </dl>
+            </div>
+
+            <h1 class="govuk-heading-xl">{{ tr .App "whatHappensNext" }}</h1>
+
+            {{ if .Donor.Tasks.PayForLpa.IsMoreEvidenceRequired }}
+                <p class="govuk-body">{{ tr .App "youMustUploadMoreEvidenceAboutLpaFeeWeContactYou" }}</p>
+                {{ trHtml .App "weWillContactYouIfRepeatExemptionContent" }}
+            {{ else if and .Donor.FeeType.IsRepeatApplicationFee (or .Donor.PreviousFee.IsExemption .Donor.PreviousFee.IsHardship) }}
+                {{ trHtml .App "weWillContactYouIfRepeatExemptionContent" }}
+            {{ else }}
+                <p class="govuk-body">{{ tr .App "weWillContactYouIfWeNeedMoreInformationOrIsUnsuccessful" }}</p>
+                <p class="govuk-body">{{ tr .App "ifEvidenceIsApprovedLpaWillShowPaidWhenCheckProgress" }}</p>
+            {{ end }}
+
+            {{ if not .Donor.Tasks.SignTheLpa.IsCompleted }}
+                <h2 class="govuk-heading-m">{{ tr .App "signYourLpa" }}</h2>
+
+                <p class="govuk-body">{{ tr .App "youCanStillSignWhileWeReviewEvidence" }}</p>
+            {{ end }}
+
+            {{ if .Donor.Tasks.PayForLpa.IsMoreEvidenceRequired }}
+                {{ template "buttons" (button .App "uploadYourEvidence" "link" (global.Paths.UploadEvidence.Format .App.LpaID)) }}
+            {{ else }}
+                <div class="govuk-button-group">
+                    <a class="govuk-button" href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}">{{ tr .App "returnToTaskList" }}</a>
+                    <a class="govuk-button govuk-button--secondary" href="{{ link .App (global.Paths.Progress.Format .App.LpaID) }}">{{ tr .App "trackLpaProgress" }}</a>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+{{ end }}
