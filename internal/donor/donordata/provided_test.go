@@ -11,7 +11,9 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -406,6 +408,32 @@ func TestTrustCorporationOriginal(t *testing.T) {
 	}
 
 	assert.Equal(t, []string{"Corp", "Trust"}, donor.TrustCorporationsNames())
+}
+
+func TestProvidedCost(t *testing.T) {
+	denied := &Provided{Tasks: Tasks{PayForLpa: task.PaymentStateDenied}}
+	assert.Equal(t, 8200, denied.Cost())
+
+	halfFee := &Provided{FeeType: pay.HalfFee}
+	assert.Equal(t, 4100, halfFee.Cost())
+}
+
+func TestProvidedPaid(t *testing.T) {
+	notPaid := &Provided{}
+	assert.Equal(t, pay.AmountPence(0), notPaid.Paid())
+
+	hasPaid := &Provided{
+		PaymentDetails: []Payment{{Amount: 100}, {Amount: 20}, {Amount: 3}},
+	}
+	assert.Equal(t, pay.AmountPence(123), hasPaid.Paid())
+}
+
+func TestProvidedFeeAmount(t *testing.T) {
+	notPaid := &Provided{}
+	assert.Equal(t, pay.AmountPence(8200), notPaid.FeeAmount())
+
+	halfFeePaid := &Provided{FeeType: pay.HalfFee, PaymentDetails: []Payment{{Amount: 4100}}}
+	assert.Equal(t, pay.AmountPence(0), halfFeePaid.FeeAmount())
 }
 
 func TestNamesChanged(t *testing.T) {

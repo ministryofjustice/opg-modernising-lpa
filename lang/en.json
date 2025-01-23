@@ -1427,5 +1427,22 @@
     "yourLPACannotBeRegisteredByOPG": "Your LPA cannot be registered by the Office of the Public Guardian (OPG)",
     "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning": "You did not confirm your identity within 6 months of signing your LPA, so OPG cannot register it. You can either get your existing LPA reviewed by the Court of Protection, or create a new LPA.",
     "youMustConfirmYourIdentityAgain": "You must confirm your identity again",
-    "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity": "You did not sign your LPA within 6 months of confirming your identity, so your identity check has expired. Return to your task list for guidance on confirming your identity again."
+    "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity": "You did not sign your LPA within 6 months of confirming your identity, so your identity check has expired. Return to your task list for guidance on confirming your identity again.",
+    "feeType": "Fee type",
+    "feePaid": "Fee paid",
+    "datePaid": "Date paid",
+    "weWillContactYouIfWeNeedMoreInformationOrIsUnsuccessful": "We will contact you if we need more information or if your application for a reduced or no fee is unsuccessful.",
+    "ifEvidenceIsApprovedLpaWillShowPaidWhenCheckProgress": "If your evidence is approved, your LPA will show as paid when you check the progress of your LPA.",
+    "youCanStillSignWhileWeReviewEvidence": "You can still sign your LPA while we’re reviewing your evidence.",
+    "HalfFee": "Half fee (remission)",
+    "NoFee": "No fee (exemption)",
+    "HardshipFee": "Hardship",
+    "repeatApplication:Full": "Repeat application",
+    "repeatApplication:Half": "Repeat application, half fee (remission)",
+    "repeatApplication:Exemption": "Repeat application, no fee (exemption)",
+    "repeatApplication:Hardship": "Repeat application, hardship",
+    "repeatApplication:NoFee": "Repeat application, no fee",
+    "weWillContactYouIfRepeatExemptionContent": "<p class=\"govuk-body\">We will contact you if:</p><ul class=\"govuk-list govuk-list--bullet\"><li>we need more information</li><li>your application for a reduced or no fee is unsuccessful and there is a fee to pay</li><li>your application for a reduced or no fee is successful and your LPA is paid</li></ul>",
+    "weContactYouToAskForMoreEvidence": "We contacted you to ask for more evidence about you LPA fee",
+    "youMustUploadMoreEvidenceAboutLpaFeeWeContactYou": "You must upload more evidence about your LPA fee. We contacted you with details about the information we need."
 }
