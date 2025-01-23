@@ -35,8 +35,9 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 
 		paymentDetail := donordata.Payment{
 			PaymentReference: payment.Reference,
-			PaymentId:        payment.PaymentID,
+			PaymentID:        payment.PaymentID,
 			Amount:           payment.AmountPence.Pence(),
+			CreatedAt:        payment.CreatedDate,
 		}
 		if !slices.Contains(provided.PaymentDetails, paymentDetail) {
 			provided.PaymentDetails = append(provided.PaymentDetails, paymentDetail)
