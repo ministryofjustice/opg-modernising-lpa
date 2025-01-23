@@ -156,9 +156,9 @@ func taskListPaymentSection(provided *donordata.Provided) taskListSection {
 	switch provided.Tasks.PayForLpa {
 	case task.PaymentStateApproved, task.PaymentStateDenied:
 		paymentPath = donor.PathPayFee.Format(provided.LpaID)
-	case task.PaymentStateMoreEvidenceRequired:
-		paymentPath = donor.PathUploadEvidence.Format(provided.LpaID)
-	case task.PaymentStatePending, task.PaymentStateCompleted:
+	case task.PaymentStateMoreEvidenceRequired, task.PaymentStatePending:
+		paymentPath = donor.PathPendingPayment.Format(provided.LpaID)
+	case task.PaymentStateCompleted:
 		paymentPath = ""
 	default:
 		paymentPath = donor.PathAboutPayment.Format(provided.LpaID)
