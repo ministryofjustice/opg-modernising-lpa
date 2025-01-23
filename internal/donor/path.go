@@ -78,6 +78,7 @@ const (
 	PathPayFee                                               = Path("/pay-fee")
 	PathPaymentConfirmation                                  = Path("/payment-confirmation")
 	PathPaymentSuccessful                                    = Path("/payment-successful")
+	PathPendingPayment                                       = Path("/pending-payment")
 	PathPreviousApplicationNumber                            = Path("/previous-application-number")
 	PathPreviousFee                                          = Path("/how-much-did-you-previously-pay-for-your-lpa")
 	PathProgress                                             = Path("/progress")
