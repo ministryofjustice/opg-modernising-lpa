@@ -157,19 +157,19 @@ jobs:
       cypress_record_key: ${{ secrets.CYPRESS_RECORD_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  always_remove_ingress:
-    name: Remove CI ingress from environment
-    if: always()
-    uses: ./.github/workflows/remove_ingress_job.yml
-    needs: [
-      # ui_tests_pr_env,
-      pr_deploy
-    ]
-    with:
-      environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
+  # always_remove_ingress:
+  #   name: Remove CI ingress from environment
+  #   if: always()
+  #   uses: ./.github/workflows/remove_ingress_job.yml
+  #   needs: [
+  #     # ui_tests_pr_env,
+  #     pr_deploy
+  #   ]
+  #   with:
+  #     environment_config_json: ${{ needs.pr_deploy.outputs.environment_config_json }}
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
 
   end_of_pr_workflow:
     name: End of PR Workflow

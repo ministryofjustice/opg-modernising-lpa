@@ -35,7 +35,7 @@ COPY --from=adot-builder-alpine /app/aws-otel-lambda/opentelemetry-lambda/collec
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/collector-config/config.yaml"
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/collector-config/config.yaml"
 
 ENTRYPOINT ["./create-s3-replication-job"]
 
@@ -55,6 +55,6 @@ COPY --from=adot-builder-alpine /app/aws-otel-lambda/opentelemetry-lambda/collec
 RUN chmod 755 /opt/collector-config/config.yaml
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/collector-config/config.yaml"
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/collector-config/config.yaml"
 
 ENTRYPOINT ["./create-s3-replication-job"]
