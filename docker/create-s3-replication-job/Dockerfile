@@ -27,12 +27,12 @@ WORKDIR /app
 COPY --from=build /app/create-s3-replication-job /var/task/create-s3-replication-job
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
-COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
+COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/ /opt/
 
 COPY --link docker/aws-lambda-rie ./aws-lambda-rie
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/collector-config/config.yaml"
 
 ENTRYPOINT ["./create-s3-replication-job"]
 
@@ -47,11 +47,11 @@ RUN chmod +x "/app/install_lambda_insights.sh" \
 COPY --from=build /app/create-s3-replication-job ./create-s3-replication-job
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
-COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
+COPY --from=adot-builder /app/aws-otel-lambda/opentelemetry-lambda/collector/build/ /opt
 
-RUN chmod 755 /opt/config/config.yaml
+RUN chmod 755 /opt/collector-config/config.yaml
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/config/config.yaml"
+ENV OPENTELEMETRY_COLLECTOR_CONFIG_FILE="/opt/collector-config/config.yaml"
 
 ENTRYPOINT ["./create-s3-replication-job"]
