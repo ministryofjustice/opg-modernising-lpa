@@ -8,7 +8,8 @@ RUN apk add --no-cache\
   unzip=6.0-r15 && \
   git clone https://github.com/open-telemetry/opentelemetry-lambda
 WORKDIR /app/opentelemetry-lambda/
-RUN git checkout -b newbranch layer-collector/0.12.0
+# commit hash of layer-collector/0.12.0 is bd1365b
+RUN git checkout -b newbranch layer-collector/0.11.0
 WORKDIR /app/opentelemetry-lambda/collector
 RUN make build
 
