@@ -105,10 +105,13 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.contains('a', 'Return to task list').click()
 
         cy.url().should('contain', '/task-list');
-        cy.contains('li', "Pay for the LPA").should('contain', 'Pending');
+        cy.contains('li', "Pay for the LPA").should('contain', 'Pending').click();
+
+        cy.url().should('contain', '/pending-payment');
+        cy.checkA11yApp();
+        cy.contains('Half fee (remission)');
 
         cy.visit('/dashboard');
-
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
             .then((text) => {
@@ -123,7 +126,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
             });
     });
 
-    it('can apply for a no fee remission', () => {
+    it('can apply for a no fee exemption', () => {
         cy.visit('/fixtures?redirect=/about-payment&progress=checkAndSendToYourCertificateProvider');
         cy.checkA11yApp();
 
@@ -184,6 +187,14 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
 
         cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
+
+        cy.contains('a', 'Return to task list').click()
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', "Pay for the LPA").should('contain', 'Pending').click();
+
+        cy.url().should('contain', '/pending-payment');
+        cy.checkA11yApp();
+        cy.contains('No fee (exemption)');
 
         cy.visit('/dashboard');
         cy.contains('.govuk-body-s', 'Reference number:')
@@ -250,7 +261,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none');
 
         // spoofing virus scan completing
-        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=NoFee');
+        cy.visit('/fixtures?redirect=/upload-evidence&progress=payForTheLpa&paymentTaskProgress=InProgress&feeType=HardshipFee');
         cy.url().should('contain', '/upload-evidence');
 
         cy.get('#uploaded .govuk-summary-list').within(() => {
@@ -262,6 +273,14 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contain', '/evidence-successfully-uploaded');
         cy.checkA11yApp();
 
+        cy.contains('a', 'Return to task list').click()
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', "Pay for the LPA").should('contain', 'Pending').click();
+
+        cy.url().should('contain', '/pending-payment');
+        cy.checkA11yApp();
+        cy.contains('Hardship');
+
         cy.visit('/dashboard');
         cy.contains('.govuk-body-s', 'Reference number:')
             .invoke('text')
@@ -270,7 +289,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
 
                 cy.origin('http://localhost:9001', { args: { uid } }, ({ uid }) => {
                     cy.visit(`/?detail-type=reduced-fee-requested&detail=${uid}`);
-                    cy.contains('"requestType":"NoFee"');
+                    cy.contains('"requestType":"HardshipFee"');
                     cy.contains(new RegExp(`{"path":"${uid}/evidence/.+","filename":"supporting-evidence.png"}`))
                     cy.contains('"evidenceDelivery":"upload"');
                 });
@@ -464,6 +483,15 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
 
         cy.url().should('contain', '/payment-successful');
         cy.checkA11yApp();
+        cy.contains('a', 'Continue').click()
+
+        cy.contains('a', 'Return to task list').click()
+        cy.url().should('contain', '/task-list');
+        cy.contains('li', "Pay for the LPA").should('contain', 'Pending').click();
+
+        cy.url().should('contain', '/pending-payment');
+        cy.checkA11yApp();
+        cy.contains('Repeat application, half fee (remission)');
     });
 
     it('errors when unselected', () => {

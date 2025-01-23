@@ -19,7 +19,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.37.9
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.56.7
 	github.com/aws/smithy-go v1.22.2
-	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/golang-jwt/jwt/v5 v5.2.1
