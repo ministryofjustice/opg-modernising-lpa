@@ -11,7 +11,6 @@ WORKDIR /app/opentelemetry-lambda/
 RUN git checkout -b newbranch layer-collector/0.12.0
 WORKDIR /app/opentelemetry-lambda/collector
 RUN make build
-WORKDIR /app/opentelemetry-lambda/collector/build/extensions
 
 FROM golang:1.23.5-alpine AS build
 
