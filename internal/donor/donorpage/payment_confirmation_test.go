@@ -71,7 +71,7 @@ func TestGetPaymentConfirmationFullFee(t *testing.T) {
 						Email: "certificateprovider@example.com",
 					},
 					PaymentDetails: []donordata.Payment{{
-						PaymentId:        "abc123",
+						PaymentID:        "abc123",
 						PaymentReference: "123456789012",
 						Amount:           8200,
 					}},
@@ -147,7 +147,7 @@ func TestGetPaymentConfirmationHalfFee(t *testing.T) {
 				Email: "certificateprovider@example.com",
 			},
 			PaymentDetails: []donordata.Payment{{
-				PaymentId:        "abc123",
+				PaymentID:        "abc123",
 				PaymentReference: "123456789012",
 				Amount:           4100,
 			}},
@@ -240,7 +240,7 @@ func TestGetPaymentConfirmationRepeatApplicationFee(t *testing.T) {
 						Email: "certificateprovider@example.com",
 					},
 					PaymentDetails: []donordata.Payment{{
-						PaymentId:        "abc123",
+						PaymentID:        "abc123",
 						PaymentReference: "123456789012",
 						Amount:           8200,
 					}},
@@ -318,7 +318,7 @@ func TestGetPaymentConfirmationApprovedOrDenied(t *testing.T) {
 						Email: "certificateprovider@example.com",
 					},
 					PaymentDetails: []donordata.Payment{{
-						PaymentId:        "abc123",
+						PaymentID:        "abc123",
 						PaymentReference: "123456789012",
 						Amount:           8200,
 					}},
@@ -381,7 +381,7 @@ func TestGetPaymentConfirmationApprovedOrDeniedWhenSigned(t *testing.T) {
 					Email: "certificateprovider@example.com",
 				},
 				PaymentDetails: []donordata.Payment{{
-					PaymentId:        "abc123",
+					PaymentID:        "abc123",
 					PaymentReference: "123456789012",
 					Amount:           8200,
 				}},
