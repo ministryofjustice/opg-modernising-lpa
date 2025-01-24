@@ -418,14 +418,29 @@ func (p *Provided) Cost() int {
 	return pay.Cost(p.FeeType, p.PreviousFee, p.CostOfRepeatApplication)
 }
 
-func (p *Provided) FeeAmount() pay.AmountPence {
-	paid := 0
-
+func (p *Provided) Paid() pay.AmountPence {
+	var paid pay.AmountPence
 	for _, payment := range p.PaymentDetails {
-		paid += payment.Amount
+		paid += pay.AmountPence(payment.Amount)
 	}
 
-	return pay.AmountPence(p.Cost() - paid)
+	return paid
+}
+
+func (p *Provided) FeeAmount() pay.AmountPence {
+	return pay.AmountPence(p.Cost()) - p.Paid()
+}
+
+// PaidAt returns the latest date a payment was made.
+func (p *Provided) PaidAt() time.Time {
+	var at time.Time
+	for _, payment := range p.PaymentDetails {
+		if payment.CreatedAt.After(at) {
+			at = payment.CreatedAt
+		}
+	}
+
+	return at
 }
 
 // CertificateProviderSharesDetails will return true if the last name or address

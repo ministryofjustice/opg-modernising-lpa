@@ -71,8 +71,10 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#f-first-names').clear().type('Changed')
-        cy.get('#f-last-name').clear().type('Altered')
+        cy.get('#f-first-names').clear();
+        cy.get('#f-first-names').type('Changed');
+        cy.get('#f-last-name').clear();
+        cy.get('#f-last-name').type('Altered');
 
         cy.contains('button', 'Save and continue').click();
 
@@ -85,11 +87,16 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#f-address-line-1').clear().type('1 New Road');
-        cy.get('#f-address-line-2').clear().type('Changeville');
-        cy.get('#f-address-line-3').clear().type('Newington');
-        cy.get('#f-address-town').clear().type('Newshire');
-        cy.get('#f-address-postcode').clear().type('A12 3BC');
+        cy.get('#f-address-line-1').clear();
+        cy.get('#f-address-line-1').type('1 New Road');
+        cy.get('#f-address-line-2').clear();
+        cy.get('#f-address-line-2').type('Changeville');
+        cy.get('#f-address-line-3').clear();
+        cy.get('#f-address-line-3').type('Newington');
+        cy.get('#f-address-town').clear();
+        cy.get('#f-address-town').type('Newshire');
+        cy.get('#f-address-postcode').clear();
+        cy.get('#f-address-postcode').type('A12 3BC');
 
         cy.contains('button', 'Save and continue').click();
 

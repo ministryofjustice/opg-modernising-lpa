@@ -201,7 +201,7 @@ func CertificateProvider(
 		if progress >= slices.Index(progressValues, "paid") {
 			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
 				PaymentReference: random.String(12),
-				PaymentId:        random.String(12),
+				PaymentID:        random.String(12),
 			})
 			donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
 		}
