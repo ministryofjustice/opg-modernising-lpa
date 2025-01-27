@@ -37,7 +37,7 @@ COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
 
 RUN chmod 755 /opt/config/config.yaml
-RUN chmod 755 /opt/extension/collector
+RUN chmod 755 /opt/extensions/collector
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
 ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/config/config.yaml"
