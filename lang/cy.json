@@ -1531,5 +1531,22 @@
     "yourLPACannotBeRegisteredByOPG": "Welsh",
     "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning": "Welsh",
     "youMustConfirmYourIdentityAgain": "Welsh",
-    "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity": "Welsh"
+    "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity": "Welsh",
+    "feeType": "Welsh",
+    "feePaid": "Welsh",
+    "datePaid": "Welsh",
+    "weWillContactYouIfWeNeedMoreInformationOrIsUnsuccessful": "Welsh",
+    "ifEvidenceIsApprovedLpaWillShowPaidWhenCheckProgress": "Welsh",
+    "youCanStillSignWhileWeReviewEvidence": "Welsh",
+    "HalfFee": "Welsh",
+    "NoFee": "Welsh",
+    "HardshipFee": "Welsh",
+    "repeatApplication:Full": "Welsh",
+    "repeatApplication:Half": "Welsh",
+    "repeatApplication:Exemption": "Welsh",
+    "repeatApplication:Hardship": "Welsh",
+    "repeatApplication:NoFee": "Welsh",
+    "weWillContactYouIfRepeatExemptionContent": "<p class=\"govuk-body\">Welsh</p>",
+    "weContactYouToAskForMoreEvidence": "Welsh",
+    "youMustUploadMoreEvidenceAboutLpaFeeWeContactYou": "Welsh"
 }
