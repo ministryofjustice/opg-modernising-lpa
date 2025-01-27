@@ -23,12 +23,13 @@ func TestGetEnterReplacementTrustCorporation(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &enterReplacementTrustCorporationData{
-			App:  testAppData,
-			Form: &enterTrustCorporationForm{},
+			App:                            testAppData,
+			Form:                           &enterTrustCorporationForm{},
+			ChooseReplacementAttorneysPath: donor.PathChooseReplacementAttorneys.FormatQuery("", url.Values{"id": {testUID.String()}}),
 		}).
 		Return(nil)
 
-	err := EnterReplacementTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterReplacementTrustCorporation(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -41,13 +42,10 @@ func TestGetEnterReplacementTrustCorporationWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &enterReplacementTrustCorporationData{
-			App:  testAppData,
-			Form: &enterTrustCorporationForm{},
-		}).
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := EnterReplacementTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := EnterReplacementTrustCorporation(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -82,7 +80,7 @@ func TestPostEnterReplacementTrustCorporation(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := EnterReplacementTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+	err := EnterReplacementTrustCorporation(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		LpaID: "lpa-id",
 	})
 	resp := w.Result()
@@ -109,7 +107,7 @@ func TestPostEnterReplacementTrustCorporationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := EnterReplacementTrustCorporation(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
+	err := EnterReplacementTrustCorporation(template.Execute, nil, testUIDFn)(testAppData, w, r, &donordata.Provided{
 		Donor: donordata.Donor{FirstNames: "Jane", LastName: "Doe"},
 	})
 	resp := w.Result()
@@ -134,7 +132,7 @@ func TestPostEnterReplacementTrustCorporationWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := EnterReplacementTrustCorporation(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := EnterReplacementTrustCorporation(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
