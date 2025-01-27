@@ -17,7 +17,7 @@ service:
       exporters: [awsxray]
     metrics:
       receivers: [otlp]
-      exporters: [logging]
+      exporters: [debug]
   telemetry:
     metrics:
       address: localhost:8888
