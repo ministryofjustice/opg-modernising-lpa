@@ -399,6 +399,8 @@ func Register(
 		Guidance(tmpls.Get("what_happens_next_post_evidence.gohtml")))
 	handleWithDonor(donor.PathWhatHappensNextRepeatApplicationNoFee, page.None,
 		Guidance(tmpls.Get("what_happens_next_repeat_application_no_fee.gohtml")))
+	handleWithDonor(donor.PathPendingPayment, page.None,
+		Guidance(tmpls.Get("pending_payment.gohtml")))
 
 	handleWithDonor(donor.PathConfirmYourIdentity, page.CanGoBack,
 		ConfirmYourIdentity(tmpls.Get("prove_your_identity.gohtml"), donorStore))
