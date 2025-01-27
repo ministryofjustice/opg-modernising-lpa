@@ -18,6 +18,7 @@ describe('You cannot sign your LPA yet', () => {
         cy.contains('a', 'Check and send to your certificate provider').click()
         cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
 
+        cy.scrollTo('bottom');
         cy.contains('.govuk-summary-list__row', 'Jessie Jones').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys')
