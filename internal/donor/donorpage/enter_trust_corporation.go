@@ -2,8 +2,10 @@ package donorpage
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -12,13 +14,14 @@ import (
 )
 
 type enterTrustCorporationData struct {
-	App    appcontext.Data
-	Errors validation.List
-	Form   *enterTrustCorporationForm
-	LpaID  string
+	App                 appcontext.Data
+	Errors              validation.List
+	Form                *enterTrustCorporationForm
+	LpaID               string
+	ChooseAttorneysPath string
 }
 
-func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handler {
+func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		trustCorporation := provided.Attorneys.TrustCorporation
 
@@ -29,7 +32,8 @@ func EnterTrustCorporation(tmpl template.Template, donorStore DonorStore) Handle
 				CompanyNumber: trustCorporation.CompanyNumber,
 				Email:         trustCorporation.Email,
 			},
-			LpaID: provided.LpaID,
+			LpaID:               provided.LpaID,
+			ChooseAttorneysPath: donor.PathChooseAttorneys.FormatQuery(provided.LpaID, url.Values{"id": {newUID().String()}}),
 		}
 
 		if r.Method == http.MethodPost {
