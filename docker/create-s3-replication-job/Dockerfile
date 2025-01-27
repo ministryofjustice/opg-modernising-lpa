@@ -20,8 +20,8 @@ RUN apk add --no-cache\
   unzip=6.0-r15 && \
   git clone https://github.com/open-telemetry/opentelemetry-lambda
 WORKDIR /app/opentelemetry-lambda/
-# commit hash of layer-collector/0.12.0 is 21052d8
-RUN git checkout -b newbranch layer-collector/0.11.0
+# commit hash 21052d8 is 0.36.0
+RUN git checkout -b newbranch 21052d8
 WORKDIR /app/opentelemetry-lambda/collector
 RUN make build
 
@@ -47,8 +47,8 @@ RUN chmod +x "/app/install_lambda_insights.sh" \
 
 COPY --from=build /app/create-s3-replication-job ./create-s3-replication-job
 COPY --link ./docker/adot-collector/config/config.yaml /opt/collector-config/config.yaml
-COPY --from=adot-builder-alpine /app/aws-otel-collector/build/linux/amd64/aoc /opt/extensions/collector
-# COPY --from=adot-builder-alpine /app/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
+# COPY --from=adot-builder-alpine /app/aws-otel-collector/build/linux/amd64/aoc /opt/extensions/collector
+COPY --from=adot-builder-alpine /app/opentelemetry-lambda/collector/build/extensions/collector /opt/extensions/collector
 
 RUN chmod 755 /opt/collector-config/config.yaml
 
