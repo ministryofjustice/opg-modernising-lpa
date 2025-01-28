@@ -153,8 +153,8 @@ func TestTranslationContentMustMatch(t *testing.T) {
 	cy := maps.Collect(loadTranslations("../../lang/cy.json").Flat())
 
 	mustMatch := map[string]string{
-		"yourLegalRightsAndResponsibilitiesContent:property-and-affairs": "yourLegalRightsAndResponsibilitiesContent:property-and-affairs:h3",
-		"yourLegalRightsAndResponsibilitiesContent:personal-welfare":     "yourLegalRightsAndResponsibilitiesContent:personal-welfare:h3",
+		"yourLegalRightsAndResponsibilitiesContent:property-and-affairs": "yourLegalRightsAndResponsibilitiesContent:property-and-affairs:h4",
+		"yourLegalRightsAndResponsibilitiesContent:personal-welfare":     "yourLegalRightsAndResponsibilitiesContent:personal-welfare:h4",
 	}
 
 	for a, b := range mustMatch {
