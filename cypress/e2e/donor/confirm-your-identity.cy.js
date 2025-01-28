@@ -310,6 +310,16 @@ describe('Confirm your identity', () => {
         })
     })
 
+    describe('when voucher has vouched', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures?redirect=/identity-details&progress=confirmYourIdentity&idStatus=donor:vouched');
+        });
+
+        it('it shows a success banner', () => {
+            cy.contains('Thank you for confirming your identity through vouching');
+        })
+    })
+
     describe('when a voucher has been unable to vouch', () => {
         beforeEach(() => {
             cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&failedVouchAttempts=1');
