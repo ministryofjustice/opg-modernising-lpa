@@ -64,7 +64,14 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 
 					return donor.PathIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{"detailsUpdated": {"1"}})
 				} else {
-					return donor.PathWithdrawThisLpa.Redirect(w, r, appData, provided)
+					provided.ContinueWithMismatchedIdentity = true
+					provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+
+					if err := donorStore.Put(r.Context(), provided); err != nil {
+						return err
+					}
+
+					return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
 				}
 			}
 		}
