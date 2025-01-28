@@ -226,5 +226,15 @@ describe('Progress', () => {
             cy.contains('You must confirm your identity again');
             cy.contains('You did not sign your LPA within 6 months of confirming your identity, so your identity check has expired.');
         })
+
+        it('when statutory waiting period', () => {
+            cy.visit(`/fixtures?redirect=/progress&progress=statutoryWaitingPeriod`);
+
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('Your LPA is awaiting registration');
+            cy.contains('at the end of our statutory 4-week waiting period');
+        });
     });
 });

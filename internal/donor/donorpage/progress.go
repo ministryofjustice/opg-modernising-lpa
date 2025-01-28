@@ -240,6 +240,13 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if lpa.Status.IsStatutoryWaitingPeriod() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("yourLpaIsAwaitingRegistration"),
+				Body:    appData.Localizer.T("theOpgWillRegisterYourLpaAtEndOfWaitingPeriod"),
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }
