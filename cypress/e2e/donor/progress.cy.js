@@ -236,5 +236,27 @@ describe('Progress', () => {
             cy.contains('Your LPA is awaiting registration');
             cy.contains('at the end of our statutory 4-week waiting period');
         });
+
+        it('when continue with identity mismatch', () => {
+            cy.visit(`/fixtures?redirect=/task-list&progress=payForTheLpa`);
+
+            cy.contains('a', 'Confirm your identity').click();
+            cy.contains('button', 'Continue').click();
+            cy.origin('http://localhost:7012', () => {
+                cy.contains('label', 'Charlie Cooper').click();
+                cy.contains('button', 'Continue').click();
+            });
+
+            cy.contains('label', 'No').click();
+            cy.contains('button', 'Continue').click();
+
+            cy.visitLpa('/progress');
+
+            cy.checkA11yApp();
+            cy.contains('Important: 1 notification from OPG');
+
+            cy.contains('Confirmation of identity pending');
+            cy.contains('You do not need to take any action');
+        });
     });
 });
