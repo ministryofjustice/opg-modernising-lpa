@@ -1,12 +1,14 @@
 {{ define "contextual-lpa" }}
     <div class="app-print-background"></div>
 
+    <h2 class="govuk-heading-l">{{ trFormat .App "donorsTypeLpa" "DonorFullName" .Lpa.Donor.FullName "LpaType" (tr .App .Lpa.Type.String) }}</h2>
+    
     {{ template "contextual-lpa-warning" . }}
 
     {{ with .Lpa.Donor }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "donor" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "donor" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
@@ -24,7 +26,7 @@
     {{ with .Lpa.CertificateProvider }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "certificateProvider" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "certificateProvider" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
@@ -42,7 +44,7 @@
     {{ range .Lpa.Attorneys.Attorneys }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "attorney" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "attorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
@@ -67,7 +69,7 @@
         {{ with .Lpa.Attorneys.TrustCorporation }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "trustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "trustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
@@ -86,7 +88,7 @@
     {{ range .Lpa.ReplacementAttorneys.Attorneys }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "replacementAttorney" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "replacementAttorney" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
             </div>
             <div class="govuk-summary-card__content">
                 <dl class="govuk-summary-list">
@@ -111,7 +113,7 @@
         {{ with .Lpa.ReplacementAttorneys.TrustCorporation }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "replacementTrustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "replacementTrustCorporationAttorney" }}: <span class="app-unbold">{{ .Name }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
@@ -131,7 +133,7 @@
         {{ range .Lpa.PeopleToNotify }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
@@ -144,7 +146,7 @@
     {{ else }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "personToNotify" }}:</h3>
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body">{{ tr .App "theDonorHasChosenNotToFormallyNotifyAnyone" }}</p>
@@ -156,7 +158,7 @@
         {{ with .Lpa.AuthorisedSignatory }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "authorisedSignatory" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "authorisedSignatory" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
                 </div>
             </div>
         {{ end }}
@@ -166,7 +168,7 @@
         {{ with .Lpa.IndependentWitness }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "independentWitness" }}: <span class="app-unbold">{{ .FullName }}</span></h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "independentWitness" }}: <span class="app-unbold">{{ .FullName }}</span></h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <dl class="govuk-summary-list">
@@ -182,7 +184,7 @@
 
     {{ template "contextual-lpa-warning" . }}
 
-    <h2 class="govuk-heading-m">{{ tr .App "howLpaCanBeUsed" }}</h2>
+    <h3 class="govuk-heading-m">{{ tr .App "howLpaCanBeUsed" }}</h3>
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Lpa.WhenCanTheLpaBeUsed }}
@@ -243,7 +245,7 @@
 
     {{ template "contextual-lpa-warning" . }}
 
-    <h2 class="govuk-heading-m">{{ tr .App "restrictions" }}</h2>
+    <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ if .Lpa.AttorneyDecisions.How.IsJointlyForSomeSeverallyForOthers }}
@@ -267,18 +269,18 @@
 
     {{ template "contextual-lpa-warning" . }}
 
-    <h2 class="govuk-heading-m">{{ tr .App "legalRightsAndResponsibilities" }}</h2>
+    <h3 class="govuk-heading-m">{{ tr .App "legalRightsAndResponsibilities" }}</h3>
 
-    {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s:h3" .Lpa.Type.String) }}
+    {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s:h4" .Lpa.Type.String) }}
 
     {{ if not .Lpa.SignedAt.IsZero }}
         {{ template "contextual-lpa-warning" . }}
 
-        <h2 class="govuk-heading-l">{{ tr .App "signatures" }}</h2>
+        <h3 class="govuk-heading-l">{{ tr .App "signatures" }}</h3>
 
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "donorSignature" }}</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "donorSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body govuk-!-font-weight-bold">{{ tr .App "iConfirmThat" }}</p>
@@ -324,7 +326,7 @@
 
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "witnessingOfDonorSignature" }}</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "witnessingOfDonorSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body">{{ tr .App "iConfirmTheLpaWasSignedInMyPresence" }}</p>
@@ -342,7 +344,7 @@
     {{ if .Lpa.AuthorisedSignatory.FirstNames }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "witnessingOfDonorSignature" }}</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "witnessingOfDonorSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body">{{ tr .App "iConfirmTheLpaWasSignedInMyPresence" }}</p>
@@ -360,7 +362,7 @@
     {{ if and .Lpa.CertificateProvider.SignedAt (not .Lpa.CertificateProvider.SignedAt.IsZero) }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "certificateProviderSignature" }}</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "certificateProviderSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
                 {{ trHtml .App "provideTheCertificateForThisLpaContent" }}
@@ -379,7 +381,7 @@
         {{ if and .SignedAt (not .SignedAt.IsZero) }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "attorneySignature" }}</h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "attorneySignature" }}</h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
@@ -409,7 +411,7 @@
     {{ if .Lpa.Attorneys.TrustCorporation.Signatories }}
         <div class="govuk-summary-card">
             <div class="govuk-summary-card__title-wrapper">
-                <h2 class="govuk-summary-card__title">{{ tr $.App "trustCorporationSignature" }}</h2>
+                <h3 class="govuk-summary-card__title">{{ tr $.App "trustCorporationSignature" }}</h3>
             </div>
             <div class="govuk-summary-card__content">
                 <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
@@ -441,7 +443,7 @@
         {{ if and .SignedAt (not .SignedAt.IsZero) }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "replacementAttorneySignature" }}</h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "replacementAttorneySignature" }}</h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
@@ -474,7 +476,7 @@
         {{ with .Lpa.ReplacementAttorneys.TrustCorporation }}
             <div class="govuk-summary-card">
                 <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">{{ tr $.App "replacementTrustCorporationSignature" }}</h2>
+                    <h3 class="govuk-summary-card__title">{{ tr $.App "replacementTrustCorporationSignature" }}</h3>
                 </div>
                 <div class="govuk-summary-card__content">
                     <p class="govuk-body govuk-!-font-weight-bold">{{ tr $.App "iUnderstandAndConfirmThat" }}</p>
