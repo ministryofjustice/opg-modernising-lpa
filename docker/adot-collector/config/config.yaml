@@ -7,7 +7,7 @@ receivers:
         endpoint: "localhost:4318"
 
 exporters:
-  logging:
+  debug:
   awsxray:
 
 service:
