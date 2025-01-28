@@ -35,7 +35,8 @@ unzip=6.0-r15 && \
 git clone --recurse-submodules https://github.com/aws-observability/aws-otel-lambda
 WORKDIR /app/aws-otel-lambda/
 # commit hash 84e2c7fe8444c7476cf7eb6d97c009dac4da1615 is collector layer v0.42.0
-RUN git checkout -b newbranch 84e2c7fe8444c7476cf7eb6d97c009dac4da1615
+# commit hash b00475323dc3f1964151770dbea82d308d6924e3 is collector layer v0.36.0
+RUN git checkout -b newbranch b00475323dc3f1964151770dbea82d308d6924e3
 WORKDIR /app/aws-otel-lambda/opentelemetry-lambda/collector
 RUN make package
 
