@@ -1551,5 +1551,9 @@
     "voucherHasSuccessfullyConfirmedYourIdentity": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">{{.VoucherFullName}} Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
     "yourLpaIsAwaitingRegistration": "Welsh",
     "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod": "Welsh",
-    "viewYourLpa": "Welsh"
+    "viewYourLpa": "Welsh",
+    "youCanUpdateTheDetailsOnYourLpaToMatchContent": "<p class=\"govuk-body\">Welsh</p>",
+    "theOpgIsCheckingYourMismatchedIdentityDetails": "Welsh",
+    "someOfTheDetailsDoNotMatchYouAskedOpgToCheck": "<p class=\"govuk-body\">Welsh</p>",
+    "confirmationOfIdentityPending": "Welsh"
 }

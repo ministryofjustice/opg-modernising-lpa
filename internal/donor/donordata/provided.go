@@ -129,6 +129,9 @@ type Provided struct {
 	// RegisteringWithCourtOfProtection is set when the donor wishes to take the
 	// Lpa to the Court of Protection for registration.
 	RegisteringWithCourtOfProtection bool `checkhash:"-"`
+	// ContinueWithMismatchedIdentity is set when the donor wishes to continue
+	// their application with mismatched identity details
+	ContinueWithMismatchedIdentity bool `checkhash:"-"`
 	// Version is the number of times the LPA has been updated (auto-incremented
 	// on PUT)
 	Version int `hash:"-" checkhash:"-"`

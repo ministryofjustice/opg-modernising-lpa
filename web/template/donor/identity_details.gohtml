@@ -7,9 +7,10 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {{ if .DetailsUpdated }}
+            {{ if .Provided.ContinueWithMismatchedIdentity }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theOpgIsCheckingYourMismatchedIdentityDetails") "heading") }}                
+            {{ else if .DetailsUpdated }}
                 {{ template "notification-banner" (notificationBanner .App "success" (trHtml .App "yourLPADetailsHaveBeenUpdatedToMatchIdentitySuccess") "success" "heading") }}
-
             {{ else if .DetailsMatch }}
                 {{ if .Provided.WantVoucher.IsYes }}
                     {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "voucherHasSuccessfullyConfirmedYourIdentity" "VoucherFullName" .Provided.Voucher.FullName) "success" "contents" ) }}
@@ -71,15 +72,19 @@
 
             {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
-            {{ if not .Provided.CanChange }}
-                <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
+            {{ if .Provided.ContinueWithMismatchedIdentity }}
+                {{ trHtml .App "someOfTheDetailsDoNotMatchYouAskedOpgToCheck" }}
+            {{ else if .Provided.CanChange }}
+                {{ trHtml .App "youCanUpdateTheDetailsOnYourLpaToMatchContent" }}
+            {{ else }}
                 {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
 
                 {{ template "warning" (content .App "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning") }}
             {{ end }}
 
-            {{ if or .DetailsMatch (not .Provided.CanChange) }}
+            {{ if or .DetailsMatch .Provided.ContinueWithMismatchedIdentity (not .Provided.CanChange) }}
                 {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .Provided.LpaID)) }}
             {{ else }}
                 <form novalidate method="post">
