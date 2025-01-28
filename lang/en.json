@@ -1445,5 +1445,7 @@
     "weWillContactYouIfRepeatExemptionContent": "<p class=\"govuk-body\">We will contact you if:</p><ul class=\"govuk-list govuk-list--bullet\"><li>we need more information</li><li>your application for a reduced or no fee is unsuccessful and there is a fee to pay</li><li>your application for a reduced or no fee is successful and your LPA is paid</li></ul>",
     "weContactYouToAskForMoreEvidence": "We contacted you to ask for more evidence about you LPA fee",
     "youMustUploadMoreEvidenceAboutLpaFeeWeContactYou": "You must upload more evidence about your LPA fee. We contacted you with details about the information we need.",
-    "voucherHasSuccessfullyConfirmedYourIdentity": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">{{.VoucherFullName}} has successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity through vouching. Your details match those you entered in your LPA.</p></div>"
+    "voucherHasSuccessfullyConfirmedYourIdentity": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">{{.VoucherFullName}} has successfully confirmed your identity</h2><p class=\"govuk-body\">Thank you for confirming your identity through vouching. Your details match those you entered in your LPA.</p></div>",
+    "yourLpaIsAwaitingRegistration": "Your LPA is awaiting registration",
+    "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod": "The Office of the Public Guardian will register your LPA at the end of our statutory 4-week waiting period, if no objections are raised."
 }
