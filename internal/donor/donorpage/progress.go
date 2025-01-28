@@ -247,6 +247,13 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if donor.Tasks.ConfirmYourIdentity.IsPending() && donor.ContinueWithMismatchedIdentity {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("confirmationOfIdentityPending"),
+				Body:    appData.Localizer.T("youDoNotNeedToTakeAnyAction"),
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }
