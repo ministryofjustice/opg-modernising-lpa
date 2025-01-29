@@ -619,6 +619,42 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"statutory waiting period": {
+			donor: &donordata.Provided{},
+			lpa: &lpadata.Lpa{
+				Status: lpadata.StatusStatutoryWaitingPeriod,
+			},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("yourLpaIsAwaitingRegistration").Return("H")
+				l.EXPECT().T("theOpgWillRegisterYourLpaAtEndOfWaitingPeriod").Return("B")
+				return l
+			},
+		},
+		"identity mismatch pending": {
+			donor: &donordata.Provided{
+				ContinueWithMismatchedIdentity: true,
+				IdentityUserData:               identity.UserData{Status: identity.StatusConfirmed},
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStatePending,
+				},
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("confirmationOfIdentityPending").Return("H")
+				l.EXPECT().T("youDoNotNeedToTakeAnyAction").Return("B")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
