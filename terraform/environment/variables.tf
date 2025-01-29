@@ -17,6 +17,12 @@ variable "pagerduty_api_key" {
   sensitive = true
 }
 
+variable "ecs_aws_otel_collector_version" {
+  type        = string
+  description = "semver tag for the public ecr tag of the aws-otel-collector image"
+  default     = "v0.42.0"
+}
+
 output "container_version" {
   value = var.container_version
 }
