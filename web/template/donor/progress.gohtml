@@ -67,12 +67,14 @@
                 </div>
             {{ end }}
 
-            {{ if .Donor.WithdrawnAt.IsZero }}
+            {{ if and .Donor.WithdrawnAt.IsZero }}
                 {{ template "donor-lpa-progress" . }}
 
                 <div class="govuk-button-group">
                     {{ template "button" (button .App "returnToDashboard" "link" (link .App global.Paths.Dashboard.Format)) }}
-                    <a href="{{ link .App (global.Paths.TaskList.Format .Donor.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToTaskList" }}</a>
+                    {{ if not .Donor.CompletedAllTasks }}
+                        <a href="{{ link .App (global.Paths.TaskList.Format .Donor.LpaID) }}" class="govuk-button govuk-button--secondary">{{ tr .App "goToTaskList" }}</a>
+                    {{ end }}
                 </div>
             {{ else }}
                 {{ template "button" (button .App "returnToDashboard" "link" (link .App global.Paths.Dashboard.Format)) }}
