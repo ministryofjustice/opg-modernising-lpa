@@ -268,7 +268,7 @@ func Register(
 	handleWithDonor(donor.PathChooseAttorneysAddress, page.CanGoBack,
 		ChooseAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathEnterTrustCorporation, page.CanGoBack,
-		EnterTrustCorporation(tmpls.Get("enter_trust_corporation.gohtml"), donorStore))
+		EnterTrustCorporation(tmpls.Get("enter_trust_corporation.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathEnterTrustCorporationAddress, page.CanGoBack,
 		EnterTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathChooseAttorneysSummary, page.CanGoBack,
@@ -291,7 +291,7 @@ func Register(
 	handleWithDonor(donor.PathChooseReplacementAttorneysAddress, page.CanGoBack,
 		ChooseReplacementAttorneysAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathEnterReplacementTrustCorporation, page.CanGoBack,
-		EnterReplacementTrustCorporation(tmpls.Get("enter_replacement_trust_corporation.gohtml"), donorStore))
+		EnterReplacementTrustCorporation(tmpls.Get("enter_replacement_trust_corporation.gohtml"), donorStore, actoruid.New))
 	handleWithDonor(donor.PathEnterReplacementTrustCorporationAddress, page.CanGoBack,
 		EnterReplacementTrustCorporationAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathChooseReplacementAttorneysSummary, page.CanGoBack,

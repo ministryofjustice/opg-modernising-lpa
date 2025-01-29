@@ -240,6 +240,20 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			})
 		}
 
+		if lpa.Status.IsStatutoryWaitingPeriod() {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("yourLpaIsAwaitingRegistration"),
+				Body:    appData.Localizer.T("theOpgWillRegisterYourLpaAtEndOfWaitingPeriod"),
+			})
+		}
+
+		if donor.Tasks.ConfirmYourIdentity.IsPending() && donor.ContinueWithMismatchedIdentity {
+			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+				Heading: appData.Localizer.T("confirmationOfIdentityPending"),
+				Body:    appData.Localizer.T("youDoNotNeedToTakeAnyAction"),
+			})
+		}
+
 		return tmpl(w, data)
 	}
 }

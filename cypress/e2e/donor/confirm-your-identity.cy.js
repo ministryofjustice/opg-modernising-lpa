@@ -164,8 +164,7 @@ describe('Confirm your identity', () => {
                 cy.get('main').should('not.contain', '2 January 2000');
             })
 
-
-            it('can withdraw LPA', () => {
+            it('can get OPG to check', () => {
                 cy.visit('/fixtures?redirect=/task-list&progress=payForTheLpa');
                 cy.contains('li', "Confirm your identity")
                     .should('contain', 'Not started')
@@ -191,8 +190,14 @@ describe('Confirm your identity', () => {
                 cy.contains('label', 'No').click();
                 cy.contains('button', 'Continue').click();
 
-                cy.url().should('contain', '/withdraw-this-lpa');
+                cy.url().should('contain', '/identity-details');
                 cy.checkA11yApp();
+
+                cy.contains('The Office of the Public Guardian (OPG) is checking your mismatched identity details');
+                cy.contains('a', 'Return to task list').click();
+
+                cy.contains('li', "Confirm your identity")
+                    .should('contain', 'Pending');
             })
 
             it('errors when option not selected', () => {
@@ -307,6 +312,16 @@ describe('Confirm your identity', () => {
             cy.contains('dt', 'First names').parent().should('not.contain', 'Change');
             cy.contains('dt', 'Last name').parent().should('not.contain', 'Change');
             cy.contains('dt', 'Date of birth').parent().should('not.contain', 'Change');
+        })
+    })
+
+    describe('when voucher has vouched', () => {
+        beforeEach(() => {
+            cy.visit('/fixtures?redirect=/identity-details&progress=confirmYourIdentity&idStatus=donor:vouched');
+        });
+
+        it('it shows a success banner', () => {
+            cy.contains('Thank you for confirming your identity through vouching');
         })
     })
 

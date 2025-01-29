@@ -23,9 +23,9 @@ describe('Sign the LPA', () => {
             cy.url().should('contain', '/read-your-lpa');
             cy.checkA11yApp();
 
-            cy.contains('h2', "Donor:");
-            cy.contains('h2', "Attorney:");
-            cy.contains('h2', "Replacement attorney:");
+            cy.contains('h3', "Donor:");
+            cy.contains('h3', "Attorney:");
+            cy.contains('h3', "Replacement attorney:");
             cy.contains('a', 'Continue').click();
 
             cy.url().should('contain', '/your-lpa-language');
@@ -122,9 +122,9 @@ describe('Sign the LPA', () => {
             cy.url().should('contain', '/read-your-lpa');
             cy.checkA11yApp();
 
-            cy.contains('h2', "Donor:");
-            cy.contains('h2', "Attorney:");
-            cy.contains('h2', "Replacement attorney:");
+            cy.contains('h3', "Donor:");
+            cy.contains('h3', "Attorney:");
+            cy.contains('h3', "Replacement attorney:");
             cy.contains('a', 'Continue').click();
 
             cy.url().should('contain', '/your-lpa-language');
