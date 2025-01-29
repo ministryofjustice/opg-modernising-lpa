@@ -3,8 +3,7 @@ module "s3_create_batch_replication_jobs" {
   lambda_name = "create-s3-batch-replication-jobs"
   description = "Function to create and run batch replication jobs in ${data.aws_region.current.name}"
   environment_variables = {
-    ENVIRONMENT                        = data.aws_default_tags.current.tags.environment-name
-    OPENTELEMETRY_COLLECTOR_CONFIG_URI = "/opt/collector-config/config.yaml"
+    ENVIRONMENT = data.aws_default_tags.current.tags.environment-name
   }
   image_uri    = "${var.s3_replication.lambda_function_image_ecr_url}:${var.s3_replication.lambda_function_image_tag}"
   aws_iam_role = var.create_s3_batch_replication_jobs_lambda_iam_role
