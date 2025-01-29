@@ -169,6 +169,31 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 }
 
 func (p Path) canVisit(donor *donordata.Provided) bool {
+	if !donor.SignedAt.IsZero() {
+		// then prevent accessing completed tasks
+		switch p {
+		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa, PathTaskList:
+			return true
+
+		case PathAboutPayment, PathAreYouApplyingForFeeDiscountOrExemption, PathWhichFeeTypeAreYouApplyingFor,
+			PathPreviousApplicationNumber, PathPreviousFee, PathCostOfRepeatApplication, PathEvidenceRequired,
+			PathHowWouldYouLikeToSendEvidence, PathUploadEvidence, PathSendUsYourEvidenceByPost, PathPayFee,
+			PathPaymentConfirmation, PathPaymentSuccessful, PathEvidenceSuccessfullyUploaded, PathWhatHappensNextPostEvidence,
+			PathWhatHappensNextRepeatApplicationNoFee, PathPendingPayment, PathUploadEvidenceSSE:
+			return !donor.Tasks.PayForLpa.IsCompleted()
+
+		case PathConfirmYourIdentity, PathHowWillYouConfirmYourIdentity, PathCompletingYourIdentityConfirmation,
+			PathIdentityWithOneLogin, PathIdentityWithOneLoginCallback, PathIdentityDetails, PathRegisterWithCourtOfProtection,
+			PathUnableToConfirmIdentity, PathChooseSomeoneToVouchForYou, PathEnterVoucher, PathConfirmPersonAllowedToVouch,
+			PathCheckYourDetails, PathWeHaveContactedVoucher, PathWhatYouCanDoNow, PathWhatYouCanDoNowExpired,
+			PathWhatHappensNextRegisteringWithCourtOfProtection, PathAreYouSureYouNoLongerNeedVoucher,
+			PathWeHaveInformedVoucherNoLongerNeeded:
+			return !donor.Tasks.ConfirmYourIdentity.IsCompleted()
+		}
+
+		return false
+	}
+
 	section1Completed := donor.Tasks.YourDetails.IsCompleted() &&
 		donor.Tasks.ChooseAttorneys.IsCompleted() &&
 		donor.Tasks.ChooseReplacementAttorneys.IsCompleted() &&
