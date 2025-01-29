@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestOneLoginIdentityDetailsDataDetailsMatch(t *testing.T) {
+func TestIdentityDetailsDataDetailsMatch(t *testing.T) {
 	assert.True(t, identityDetailsData{
 		FirstNamesMatch:  true,
 		LastNameMatch:    true,
@@ -30,7 +30,7 @@ func TestOneLoginIdentityDetailsDataDetailsMatch(t *testing.T) {
 	assert.False(t, identityDetailsData{}.DetailsMatch())
 }
 
-func TestGetOneLoginIdentityDetails(t *testing.T) {
+func TestGetIdentityDetails(t *testing.T) {
 	dob := date.New("1", "2", "3")
 
 	testcases := map[string]struct {
@@ -98,13 +98,7 @@ func TestGetOneLoginIdentityDetails(t *testing.T) {
 	}
 }
 
-func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
-	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
+func TestPostIdentityDetails(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
@@ -116,58 +110,77 @@ func TestPostOneLoginIdentityDetailsWhenYes(t *testing.T) {
 	}
 	updated.UpdateCheckedHash()
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), updated).
-		Return(nil)
+	testcases := map[form.YesNo]struct {
+		provided *donordata.Provided
+		redirect string
+	}{
+		form.Yes: {
+			provided: updated,
+			redirect: donor.PathIdentityDetails.Format("lpa-id") + "?detailsUpdated=1",
+		},
+		form.No: {
+			provided: &donordata.Provided{
+				LpaID:                          "lpa-id",
+				Donor:                          donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData:               identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+				ContinueWithMismatchedIdentity: true,
+			},
+			redirect: donor.PathIdentityDetails.Format("lpa-id"),
+		},
+	}
 
-	err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
-		LpaID:            "lpa-id",
-		Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
-		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-	})
-	resp := w.Result()
+	for yesNo, tc := range testcases {
+		t.Run(yesNo.String(), func(t *testing.T) {
+			f := url.Values{form.FieldNames.YesNo: {yesNo.String()}}
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathIdentityDetails.Format("lpa-id")+"?detailsUpdated=1", resp.Header.Get("Location"))
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), tc.provided).
+				Return(nil)
+
+			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "b", LastName: "b", DateOfBirth: existingDob, Address: testAddress},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+			})
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, tc.redirect, resp.Header.Get("Location"))
+		})
+	}
 }
 
-func TestPostOneLoginIdentityDetailsWhenNo(t *testing.T) {
-	f := url.Values{form.FieldNames.YesNo: {form.No.String()}}
+func TestPostIdentityDetailsWhenDonorStoreError(t *testing.T) {
+	for _, yesNo := range []form.YesNo{form.Yes, form.No} {
+		t.Run(yesNo.String(), func(t *testing.T) {
+			f := url.Values{form.FieldNames.YesNo: {yesNo.String()}}
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	err := IdentityDetails(nil, nil)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
-	resp := w.Result()
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), mock.Anything).
+				Return(expectedError)
 
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathWithdrawThisLpa.Format("lpa-id"), resp.Header.Get("Location"))
+			err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+			resp := w.Result()
+
+			assert.Equal(t, expectedError, err)
+			assert.Equal(t, http.StatusOK, resp.StatusCode)
+		})
+	}
 }
 
-func TestPostOneLoginIdentityDetailsWhenDonorStoreError(t *testing.T) {
-	f := url.Values{form.FieldNames.YesNo: {form.Yes.String()}}
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
-		Return(expectedError)
-
-	err := IdentityDetails(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
-	resp := w.Result()
-
-	assert.Equal(t, expectedError, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
-func TestPostOneLoginIdentityDetailsWhenValidationError(t *testing.T) {
+func TestPostIdentityDetailsWhenValidationError(t *testing.T) {
 	f := url.Values{form.FieldNames.YesNo: {""}}
 
 	w := httptest.NewRecorder()
