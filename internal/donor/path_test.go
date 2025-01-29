@@ -90,20 +90,15 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	}
 }
 
-func TestDonorCanGoTo(t *testing.T) {
+func TestPathCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		donor    *donordata.Provided
-		url      string
+		path     Path
 		expected bool
 	}{
-		"empty path": {
-			donor:    &donordata.Provided{},
-			url:      "",
-			expected: false,
-		},
 		"unexpected path": {
 			donor:    &donordata.Provided{},
-			url:      "/whatever",
+			path:     "/whatever",
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
@@ -120,7 +115,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					AddCorrespondent:           task.StateCompleted,
 				},
 			},
-			url:      PathCheckYourLpa.Format("123"),
+			path:     PathCheckYourLpa,
 			expected: false,
 		},
 		"check your lpa when can sign": {
@@ -138,12 +133,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					AddCorrespondent:           task.StateCompleted,
 				},
 			},
-			url:      PathCheckYourLpa.Format("123"),
+			path:     PathCheckYourLpa,
 			expected: true,
 		},
 		"about payment without task": {
 			donor:    &donordata.Provided{LpaID: "123"},
-			url:      PathAboutPayment.Format("123"),
+			path:     PathAboutPayment,
 			expected: false,
 		},
 		"about payment with tasks": {
@@ -163,12 +158,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					CheckYourLpa:               task.StateCompleted,
 				},
 			},
-			url:      PathAboutPayment.Format("123"),
+			path:     PathAboutPayment,
 			expected: true,
 		},
 		"identity without task": {
 			donor:    &donordata.Provided{},
-			url:      PathIdentityWithOneLogin.Format("123"),
+			path:     PathIdentityWithOneLogin,
 			expected: false,
 		},
 		"identity with tasks": {
@@ -189,12 +184,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
-			url:      PathIdentityWithOneLogin.Format("123"),
+			path:     PathIdentityWithOneLogin,
 			expected: true,
 		},
 		"read lpa without task": {
 			donor:    &donordata.Provided{},
-			url:      PathReadYourLpa.Format("123"),
+			path:     PathReadYourLpa,
 			expected: false,
 		},
 		"read lpa with tasks": {
@@ -216,26 +211,26 @@ func TestDonorCanGoTo(t *testing.T) {
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
-			url:      PathReadYourLpa.Format("123"),
+			path:     PathReadYourLpa,
 			expected: true,
 		},
 		"your name when can change personal details": {
 			donor:    &donordata.Provided{},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
 			expected: true,
 		},
 		"your name when cannot change personal details": {
 			donor: &donordata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
 			expected: false,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.donor, tc.url))
+			assert.Equal(t, tc.expected, tc.path.CanGoTo(tc.donor))
 		})
 	}
 }
