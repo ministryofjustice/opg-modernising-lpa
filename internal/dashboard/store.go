@@ -155,6 +155,7 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 		return results, err
 	}
 
+	donorMap := map[string]dashboarddata.Actor{}
 	certificateProviderMap := map[string]dashboarddata.Actor{}
 	attorneyMap := map[string]dashboarddata.Actor{}
 	voucherMap := map[string]dashboarddata.Actor{}
@@ -162,7 +163,7 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 	for _, lpa := range resolvedLpas {
 		switch keyMap[lpa.LpaID] {
 		case actor.TypeDonor:
-			results.Donor = append(results.Donor, dashboarddata.Actor{Lpa: lpa})
+			donorMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
 		case actor.TypeAttorney:
 			attorneyMap[lpa.LpaID] = dashboarddata.Actor{Lpa: lpa}
 		case actor.TypeCertificateProvider:
@@ -179,6 +180,20 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 		}
 
 		switch ks.SK.(type) {
+		case dynamo.DonorKeyType:
+			donorProvidedDetails := &donordata.Provided{}
+			if err := attributevalue.UnmarshalMap(item, donorProvidedDetails); err != nil {
+				return results, err
+			}
+
+			lpaID := donorProvidedDetails.LpaID
+
+			if entry, ok := donorMap[lpaID]; ok {
+				entry.Donor = donorProvidedDetails
+				donorMap[lpaID] = entry
+				continue
+			}
+
 		case dynamo.AttorneyKeyType:
 			attorneyProvidedDetails := &attorneydata.Provided{}
 			if err := attributevalue.UnmarshalMap(item, attorneyProvidedDetails); err != nil {
@@ -235,6 +250,7 @@ func (s *Store) GetAll(ctx context.Context) (results dashboarddata.Results, err 
 		}
 	}
 
+	results.Donor = mapValues(donorMap)
 	results.CertificateProvider = mapValues(certificateProviderMap)
 	results.Attorney = mapValues(attorneyMap)
 	results.Voucher = mapValues(voucherMap)
