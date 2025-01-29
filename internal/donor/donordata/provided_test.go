@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
@@ -23,6 +24,145 @@ var address = place.Address{
 	Line3:      "c",
 	TownOrCity: "d",
 	Postcode:   "e",
+}
+
+func TestProvidedCompletedAllTasks(t *testing.T) {
+	testcases := map[string]struct {
+		provided *Provided
+		expected bool
+	}{
+		"none": {
+			provided: &Provided{},
+		},
+		"missing property and affairs": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePropertyAndAffairs,
+				Donor: Donor{CanSign: form.Yes},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+		},
+		"all property and affairs": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePropertyAndAffairs,
+				Donor: Donor{CanSign: form.Yes},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					WhenCanTheLpaBeUsed:        task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+			expected: true,
+		},
+		"missing personal welfare": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePersonalWelfare,
+				Donor: Donor{CanSign: form.Yes},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+		},
+		"all personal welfare": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePersonalWelfare,
+				Donor: Donor{CanSign: form.Yes},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					LifeSustainingTreatment:    task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+			expected: true,
+		},
+		"missing cannot sign": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePersonalWelfare,
+				Donor: Donor{CanSign: form.No},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					LifeSustainingTreatment:    task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+		},
+		"all cannot sign": {
+			provided: &Provided{
+				Type:  lpadata.LpaTypePersonalWelfare,
+				Donor: Donor{CanSign: form.No},
+				Tasks: Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					LifeSustainingTreatment:    task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					ChooseYourSignatory:        task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+			expected: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.provided.CompletedAllTasks())
+		})
+	}
 }
 
 func TestProvidedCanChange(t *testing.T) {

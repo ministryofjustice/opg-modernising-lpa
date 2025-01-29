@@ -1555,5 +1555,7 @@
     "youCanUpdateTheDetailsOnYourLpaToMatchContent": "<p class=\"govuk-body\">Welsh</p>",
     "theOpgIsCheckingYourMismatchedIdentityDetails": "Welsh",
     "someOfTheDetailsDoNotMatchYouAskedOpgToCheck": "<p class=\"govuk-body\">Welsh</p>",
-    "confirmationOfIdentityPending": "Welsh"
+    "confirmationOfIdentityPending": "Welsh",
+    "whyCantEditMyLpa": "Welsh",
+    "whyCantEditMyLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a></p>"
 }
