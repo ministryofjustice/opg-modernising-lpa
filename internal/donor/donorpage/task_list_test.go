@@ -57,7 +57,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathPendingPayment.Format("lpa-id"), PaymentState: task.PaymentStateMoreEvidenceRequired},
+					{Name: "payForTheLpa", Path: donor.PathPendingPayment, PaymentState: task.PaymentStateMoreEvidenceRequired},
 				}
 
 				return sections
@@ -69,7 +69,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathPayFee.Format("lpa-id"), PaymentState: task.PaymentStateDenied},
+					{Name: "payForTheLpa", Path: donor.PathPayFee, PaymentState: task.PaymentStateDenied},
 				}
 
 				return sections
@@ -81,7 +81,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathPayFee.Format("lpa-id"), PaymentState: task.PaymentStateApproved},
+					{Name: "payForTheLpa", Path: donor.PathPayFee, PaymentState: task.PaymentStateApproved},
 				}
 
 				return sections
@@ -93,7 +93,7 @@ func TestGetTaskList(t *testing.T) {
 			evidenceReceived: true,
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathPendingPayment.Format("lpa-id"), PaymentState: task.PaymentStatePending},
+					{Name: "payForTheLpa", Path: donor.PathPendingPayment, PaymentState: task.PaymentStatePending},
 				}
 
 				return sections
@@ -117,7 +117,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[3] = taskListItem{
 					Name: "lifeSustainingTreatment",
-					Path: donor.PathLifeSustainingTreatment.Format("lpa-id"),
+					Path: donor.PathLifeSustainingTreatment,
 				}
 
 				return sections
@@ -132,8 +132,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -147,7 +147,7 @@ func TestGetTaskList(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathIdentityDetails.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathIdentityDetails
 
 				return sections
 			},
@@ -160,7 +160,7 @@ func TestGetTaskList(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusFailed, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathRegisterWithCourtOfProtection.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathRegisterWithCourtOfProtection
 
 				return sections
 			},
@@ -176,8 +176,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -195,8 +195,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature},
 				}
 
 				return sections
@@ -215,8 +215,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa},
 				}
 
 				return sections
@@ -231,8 +231,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatYouCanDoNowExpired.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatYouCanDoNowExpired},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -246,7 +246,7 @@ func TestGetTaskList(t *testing.T) {
 				IdentityUserData: identity.UserData{Status: identity.StatusInsufficientEvidence, LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathUnableToConfirmIdentity.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathUnableToConfirmIdentity
 
 				return sections
 			},
@@ -260,7 +260,7 @@ func TestGetTaskList(t *testing.T) {
 				Voucher:          donordata.Voucher{FirstNames: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathUnableToConfirmIdentity.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathUnableToConfirmIdentity
 
 				return sections
 			},
@@ -274,7 +274,7 @@ func TestGetTaskList(t *testing.T) {
 				WantVoucher:      form.No,
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathWhatYouCanDoNow.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathWhatYouCanDoNow
 
 				return sections
 			},
@@ -288,7 +288,7 @@ func TestGetTaskList(t *testing.T) {
 				WantVoucher:      form.Yes,
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathEnterVoucher.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathEnterVoucher
 
 				return sections
 			},
@@ -303,7 +303,7 @@ func TestGetTaskList(t *testing.T) {
 				Voucher:          donordata.Voucher{Allowed: true},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathWeHaveContactedVoucher.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathWeHaveContactedVoucher
 
 				return sections
 			},
@@ -318,7 +318,7 @@ func TestGetTaskList(t *testing.T) {
 				FailedVouchAttempts: 99,
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[2].Items[0].Path = donor.PathWhatYouCanDoNow.Format("lpa-id")
+				sections[2].Items[0].Path = donor.PathWhatYouCanDoNow
 
 				return sections
 			},
@@ -334,8 +334,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -353,8 +353,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature},
 				}
 
 				return sections
@@ -373,8 +373,8 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection.Format("lpa-id")},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
+					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa},
 				}
 
 				return sections
@@ -392,12 +392,12 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items[1] = taskListItem{
 					Name:  "chooseYourAttorneys",
-					Path:  donor.PathChooseAttorneysSummary.Format("lpa-id"),
+					Path:  donor.PathChooseAttorneysSummary,
 					State: task.StateNotStarted,
 					Count: 1,
 				}
 
-				sections[0].Items[9] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathYouCannotSignYourLpaYet.Format("lpa-id")}
+				sections[0].Items[9] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathYouCannotSignYourLpaYet}
 
 				return sections
 			},
@@ -410,7 +410,7 @@ func TestGetTaskList(t *testing.T) {
 				CertificateProvider: donordata.CertificateProvider{LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[9].Path = donor.PathConfirmYourCertificateProviderIsNotRelated.Format("lpa-id")
+				sections[0].Items[9].Path = donor.PathConfirmYourCertificateProviderIsNotRelated
 
 				return sections
 			},
@@ -441,20 +441,20 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateInProgress, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateInProgress},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateInProgress},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id")},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateInProgress, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateInProgress},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateInProgress},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
-					{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id"), PaymentState: task.PaymentStateInProgress},
+					{Name: "payForTheLpa", Path: donor.PathAboutPayment, PaymentState: task.PaymentStateInProgress},
 				}
 
 				return sections
@@ -488,16 +488,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
@@ -505,8 +505,8 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathHowWillYouConfirmYourIdentity.Format("lpa-id"), IdentityState: task.IdentityStateInProgress},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathHowWillYouConfirmYourIdentity, IdentityState: task.IdentityStateInProgress},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -540,16 +540,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
@@ -557,8 +557,8 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathCompletingYourIdentityConfirmation.Format("lpa-id"), IdentityState: task.IdentityStatePending},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathCompletingYourIdentityConfirmation, IdentityState: task.IdentityStatePending},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -593,16 +593,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
@@ -610,8 +610,8 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
-					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails, IdentityState: task.IdentityStateCompleted},
+					{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 				}
 
 				return sections
@@ -648,16 +648,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
@@ -665,8 +665,8 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
-					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails, IdentityState: task.IdentityStateCompleted},
+					{Name: "signTheLpa", Path: donor.PathWitnessingYourSignature, State: task.StateCompleted},
 				}
 
 				return sections
@@ -704,16 +704,16 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateCompleted, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateCompleted},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
 				sections[1].Items = []taskListItem{
@@ -721,8 +721,8 @@ func TestGetTaskList(t *testing.T) {
 				}
 
 				sections[2].Items = []taskListItem{
-					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails.Format("lpa-id"), IdentityState: task.IdentityStateCompleted},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa.Format("lpa-id"), State: task.StateCompleted},
+					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails, IdentityState: task.IdentityStateCompleted},
+					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa, State: task.StateCompleted},
 				}
 
 				return sections
@@ -757,15 +757,15 @@ func TestGetTaskList(t *testing.T) {
 			},
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[0].Items = []taskListItem{
-					{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary.Format("lpa-id"), State: task.StateCompleted, Count: 2},
-					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary.Format("lpa-id"), State: task.StateInProgress, Count: 1},
-					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id"), State: task.StateInProgress},
-					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id"), State: task.StateCompleted},
-					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id"), State: task.StateInProgress},
-					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id"), State: task.StateNotStarted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
+					{Name: "provideYourDetails", Path: donor.PathYourDetails, State: task.StateCompleted},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysSummary, State: task.StateCompleted, Count: 2},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathChooseReplacementAttorneysSummary, State: task.StateInProgress, Count: 1},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed, State: task.StateInProgress},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions, State: task.StateCompleted},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateInProgress},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateNotStarted},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 				}
 
 				return sections[0:1]
@@ -788,29 +788,29 @@ func TestGetTaskList(t *testing.T) {
 						{
 							Heading: "fillInTheLpa",
 							Items: []taskListItem{
-								{Name: "provideYourDetails", Path: donor.PathYourDetails.Format("lpa-id")},
-								{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysGuidance.Format("lpa-id")},
-								{Name: "chooseYourReplacementAttorneys", Path: donor.PathDoYouWantReplacementAttorneys.Format("lpa-id")},
-								{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed.Format("lpa-id")},
-								{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions.Format("lpa-id")},
-								{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes.Format("lpa-id")},
-								{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople.Format("lpa-id")},
-								{Name: "addCorrespondent", Path: donor.PathAddCorrespondent.Format("lpa-id")},
-								{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning.Format("lpa-id"), Hidden: true},
-								{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa.Format("lpa-id")},
+								{Name: "provideYourDetails", Path: donor.PathYourDetails},
+								{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysGuidance},
+								{Name: "chooseYourReplacementAttorneys", Path: donor.PathDoYouWantReplacementAttorneys},
+								{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed},
+								{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions},
+								{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes},
+								{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+								{Name: "addCorrespondent", Path: donor.PathAddCorrespondent},
+								{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
+								{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa},
 							},
 						},
 						{
 							Heading: "payForTheLpa",
 							Items: []taskListItem{
-								{Name: "payForTheLpa", Path: donor.PathAboutPayment.Format("lpa-id")},
+								{Name: "payForTheLpa", Path: donor.PathAboutPayment},
 							},
 						},
 						{
 							Heading: "confirmYourIdentityAndSign",
 							Items: []taskListItem{
-								{Name: "confirmYourIdentity", Path: donor.PathConfirmYourIdentity.Format("lpa-id")},
-								{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa.Format("lpa-id")},
+								{Name: "confirmYourIdentity", Path: donor.PathConfirmYourIdentity},
+								{Name: "signTheLpa", Path: donor.PathHowToSignYourLpa},
 							},
 						},
 					}),

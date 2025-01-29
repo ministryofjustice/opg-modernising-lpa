@@ -230,7 +230,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			assert.Nil(t, err)
 
 			assert.Equal(t, dashboarddata.Results{
-				Donor:               []dashboarddata.Actor{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}},
+				Donor:               []dashboarddata.Actor{{Lpa: lpa123, Donor: lpa123Donor}, {Lpa: lpa0, Donor: lpa0Donor}, {Lpa: lpaReferenced}},
 				CertificateProvider: []dashboarddata.Actor{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}},
 				Attorney:            []dashboarddata.Actor{{Lpa: lpa789, Attorney: lpa789Attorney}},
 				Voucher:             []dashboarddata.Actor{{Lpa: lpaVouched, Voucher: lpaVouchedVoucher}},

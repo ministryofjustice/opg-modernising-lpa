@@ -56,7 +56,20 @@
                 </div>
             {{ end }}
 
-            {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
+            {{ if .Donor.SignedAt.IsZero }}
+                {{ template "details" (details . "taskListHelp" "taskListHelpContent" false) }}
+            {{ else }}
+                <details class="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">
+                            {{ tr .App "whyCantEditMyLpa" }}
+                        </span>
+                    </summary>
+                    <div class="govuk-details__text">
+                        {{ trFormatHtml .App "whyCantEditMyLpaContent" "Link" (link .App (global.Paths.ViewLPA.Format .App.LpaID)) }}
+                    </div>
+                </details>
+            {{ end }}
 
             {{ if .EvidenceReceived }}
                 <p class="govuk-body">
@@ -69,12 +82,12 @@
                 <ul class="govuk-task-list">
                     {{ range $j, $_ := .Items }}
                         {{ if not .Hidden }}
-                            {{ $hasLink := donorCanGoTo $.Donor .Path }}
+                            {{ $hasLink := .Path.CanGoTo $.Donor }}
 
                             <li class="govuk-task-list__item {{ if $hasLink }}govuk-task-list__item--with-link{{ end }}">
                                 <span class="govuk-task-list__name-and-hint">
                                     {{ if $hasLink }}
-                                        <a href="{{ link $.App .Path }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $j }} {{ if gt .Count 0 }}{{ fieldID "task-hint" $j }}{{ end }}">{{ tr $.App .Name }}</a>
+                                        <a href="{{ link $.App (.Path.Format $.App.LpaID) }}" class="govuk-link govuk-task-list__link" aria-describedby="{{ fieldID "status" $j }} {{ if gt .Count 0 }}{{ fieldID "task-hint" $j }}{{ end }}">{{ tr $.App .Name }}</a>
                                     {{ else }}
                                         <div aria-describedby="{{ fieldID "status" $j }}">{{ tr $.App .Name }}</div>
                                     {{ end }}
@@ -99,7 +112,7 @@
                                         <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "thereIsAProblem" }}</strong>
                                     {{ else if .IdentityState.IsPending }}
                                         <strong class="app-tag govuk-tag--light-blue">{{ tr $.App "pending" }}</strong>
-                                    {{ else if not (donorCanGoTo $.Donor .Path) }}
+                                    {{ else if not (.Path.CanGoTo $.Donor) }}
                                         <span class="govuk-hint">{{ tr $.App "cannotStartYet" }}</span>
                                     {{ else }}
                                         <strong class="app-tag govuk-tag--blue">{{ tr $.App "notStarted" }}</strong>
