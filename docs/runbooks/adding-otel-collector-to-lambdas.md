@@ -16,11 +16,19 @@ The following instructions fetch the URL for the Lambda layer from the official 
 
 The URL is used to download the layer zip which is then unzipped to retrieve the ADOT Collector binary.
 
+versions of the arn;
+
+- aws-otel-collector-amd64-ver-0-102-1:1
+- aws-otel-collector-arm64-ver-0-102-1:1
+- aws-otel-collector-amd64-ver-0-115-0:2
+- aws-otel-collector-arm64-ver-0-115-0:2
+
 ```sh
-export VERSION=0-112-0
-URL=$(aws-vault exec management-operator -- aws lambda get-layer-version-by-arn --arn arn:aws:lambda:eu-west-1:901920570463:layer:aws-otel-collector-amd64-ver-${VERSION}:1 --query Content.Location --output text)
+export VERSION=amd64-ver-0-115-0:2
+URL=$(aws-vault exec management-operator -- aws lambda get-layer-version-by-arn --arn arn:aws:lambda:eu-west-1:901920570463:layer:aws-otel-collector-${VERSION} --query Content.Location --output text)
 curl $URL -o aws-otel-collector-amd64-ver-${VERSION}.zip
 unzip aws-otel-collector-amd64-ver-${VERSION}.zip
+rm aws-otel-collector-amd64-ver-${VERSION}.zip
 ```
 
 ```sh
