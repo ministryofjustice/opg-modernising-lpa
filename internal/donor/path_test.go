@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	time "time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -90,20 +91,15 @@ func TestLpaPathRedirectQuery(t *testing.T) {
 	}
 }
 
-func TestDonorCanGoTo(t *testing.T) {
+func TestPathCanGoTo(t *testing.T) {
 	testCases := map[string]struct {
 		donor    *donordata.Provided
-		url      string
+		path     Path
 		expected bool
 	}{
-		"empty path": {
-			donor:    &donordata.Provided{},
-			url:      "",
-			expected: false,
-		},
 		"unexpected path": {
 			donor:    &donordata.Provided{},
-			url:      "/whatever",
+			path:     "/whatever",
 			expected: true,
 		},
 		"check your lpa when unsure if can sign": {
@@ -120,7 +116,7 @@ func TestDonorCanGoTo(t *testing.T) {
 					AddCorrespondent:           task.StateCompleted,
 				},
 			},
-			url:      PathCheckYourLpa.Format("123"),
+			path:     PathCheckYourLpa,
 			expected: false,
 		},
 		"check your lpa when can sign": {
@@ -138,12 +134,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					AddCorrespondent:           task.StateCompleted,
 				},
 			},
-			url:      PathCheckYourLpa.Format("123"),
+			path:     PathCheckYourLpa,
 			expected: true,
 		},
 		"about payment without task": {
 			donor:    &donordata.Provided{LpaID: "123"},
-			url:      PathAboutPayment.Format("123"),
+			path:     PathAboutPayment,
 			expected: false,
 		},
 		"about payment with tasks": {
@@ -163,12 +159,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					CheckYourLpa:               task.StateCompleted,
 				},
 			},
-			url:      PathAboutPayment.Format("123"),
+			path:     PathAboutPayment,
 			expected: true,
 		},
 		"identity without task": {
 			donor:    &donordata.Provided{},
-			url:      PathIdentityWithOneLogin.Format("123"),
+			path:     PathIdentityWithOneLogin,
 			expected: false,
 		},
 		"identity with tasks": {
@@ -189,12 +185,12 @@ func TestDonorCanGoTo(t *testing.T) {
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
-			url:      PathIdentityWithOneLogin.Format("123"),
+			path:     PathIdentityWithOneLogin,
 			expected: true,
 		},
 		"read lpa without task": {
 			donor:    &donordata.Provided{},
-			url:      PathReadYourLpa.Format("123"),
+			path:     PathReadYourLpa,
 			expected: false,
 		},
 		"read lpa with tasks": {
@@ -216,26 +212,130 @@ func TestDonorCanGoTo(t *testing.T) {
 					PayForLpa:                  task.PaymentStateCompleted,
 				},
 			},
-			url:      PathReadYourLpa.Format("123"),
+			path:     PathReadYourLpa,
 			expected: true,
 		},
 		"your name when can change personal details": {
 			donor:    &donordata.Provided{},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
 			expected: true,
 		},
 		"your name when cannot change personal details": {
 			donor: &donordata.Provided{
 				IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
 			},
-			url:      PathYourName.Format("123"),
+			path:     PathYourName,
+			expected: false,
+		},
+		"signed can go to basic pages": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+			},
+			path:     PathProgress,
+			expected: true,
+		},
+		"signed open task can go to task list": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+			},
+			path:     PathTaskList,
+			expected: true,
+		},
+		"signed completed all tasks can not go to task list": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Type:     lpadata.LpaTypePropertyAndAffairs,
+				Donor:    donordata.Donor{CanSign: form.Yes},
+				Tasks: donordata.Tasks{
+					YourDetails:                task.StateCompleted,
+					ChooseAttorneys:            task.StateCompleted,
+					ChooseReplacementAttorneys: task.StateCompleted,
+					WhenCanTheLpaBeUsed:        task.StateCompleted,
+					Restrictions:               task.StateCompleted,
+					CertificateProvider:        task.StateCompleted,
+					PeopleToNotify:             task.StateCompleted,
+					AddCorrespondent:           task.StateCompleted,
+					CheckYourLpa:               task.StateCompleted,
+					PayForLpa:                  task.PaymentStateCompleted,
+					ConfirmYourIdentity:        task.IdentityStateCompleted,
+					SignTheLpa:                 task.StateCompleted,
+				},
+			},
+			path:     PathTaskList,
+			expected: false,
+		},
+		"signed payment pending can go to payment page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStatePending,
+				},
+			},
+			path:     PathPayFee,
+			expected: true,
+		},
+		"signed payment complete can not go to payment page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					PayForLpa: task.PaymentStateCompleted,
+				},
+			},
+			path:     PathPayFee,
+			expected: false,
+		},
+		"signed identity pending can go to identity page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStatePending,
+				},
+			},
+			path:     PathIdentityWithOneLogin,
+			expected: true,
+		},
+		"signed identity complete can not go to identity page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateCompleted,
+				},
+			},
+			path:     PathIdentityWithOneLogin,
+			expected: false,
+		},
+		"signed task not completed can go to signing page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					SignTheLpa: task.StateInProgress,
+				},
+			},
+			path:     PathWitnessingAsCertificateProvider,
+			expected: true,
+		},
+		"signed task completed can not go to identity page": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+				Tasks: donordata.Tasks{
+					SignTheLpa: task.StateCompleted,
+				},
+			},
+			path:     PathWitnessingAsCertificateProvider,
+			expected: false,
+		},
+		"signed blocks other pages": {
+			donor: &donordata.Provided{
+				SignedAt: time.Now(),
+			},
+			path:     PathChooseAttorneys,
 			expected: false,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, CanGoTo(tc.donor, tc.url))
+			assert.Equal(t, tc.expected, tc.path.CanGoTo(tc.donor))
 		})
 	}
 }
