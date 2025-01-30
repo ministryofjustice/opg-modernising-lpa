@@ -1332,3 +1332,62 @@ func TestHandleCertificateProviderSubmissionCompletedWhenAppDataFactoryErrors(t 
 	err := handler.Handle(ctx, factory, certificateProviderSubmissionCompletedEvent)
 	assert.Equal(t, expectedError, err)
 }
+
+func TestHandlePriorityCorrespondenceSent(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "priority-correspondence-sent",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","sentAt":"2024-01-18T00:00:00.000Z"}`),
+	}
+
+	updated := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456")), UpdatedAt: testNow}
+	updated.UpdateHash()
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+	client.EXPECT().
+		Put(ctx, updated).
+		Return(nil)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(client)
+	factory.EXPECT().
+		Now().
+		Return(testNowFn)
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
+	assert.Nil(t, err)
+}
+
+func TestHandlePriorityCorrespondenceSentWhenPutError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "priority-correspondence-sent",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","sentAt":"2024-01-18T00:00:00.000Z"}`),
+	}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+	client.EXPECT().
+		Put(ctx, mock.Anything).
+		Return(expectedError)
+
+	err := handlePriorityCorrespondenceSent(ctx, client, event, testNowFn)
+	assert.Equal(t, fmt.Errorf("failed to update lpa: %w", expectedError), err)
+}
