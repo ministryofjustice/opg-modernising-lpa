@@ -68,7 +68,7 @@ describe('Dashboard', () => {
         });
     });
 
-    context('with submitted LPA', () => {
+    context('with signed LPA having pending task', () => {
         it('shows the correct options', () => {
             Cypress.on('uncaught:exception', () => {
                 // TODO: remove this if this test works without, it is a problem
@@ -76,7 +76,7 @@ describe('Dashboard', () => {
                 return false
             })
 
-            cy.visit('/fixtures?redirect=&progress=signTheLpa');
+            cy.visit('/fixtures?redirect=&progress=signTheLpa&idStatus=donor:insufficient-evidence');
 
             cy.get('button').should('not.contain', 'Continue');
 
@@ -91,6 +91,25 @@ describe('Dashboard', () => {
             cy.contains('a', 'Check LPA progress').click();
 
             cy.url().should('contain', '/progress');
+            cy.contains('a', 'Go to task list');
+        });
+    });
+
+    context('with submitted LPA', () => {
+        it('shows the correct options', () => {
+            cy.visit('/fixtures?redirect=&progress=signTheLpa');
+
+            cy.get('button').should('not.contain', 'Continue');
+
+            cy.contains('Property and affairs');
+            cy.contains('Sam Smith');
+            cy.contains('strong', 'In progress');
+            cy.contains('a', 'View LPA');
+            cy.contains('a', 'Revoke LPA');
+            cy.contains('a', 'Check LPA progress').click();
+
+            cy.url().should('contain', '/progress');
+            cy.contains('a', 'Go to task list').should('not.exist');
         });
     });
 
