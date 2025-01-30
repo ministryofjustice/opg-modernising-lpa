@@ -137,14 +137,6 @@ describe('People to notify', () => {
         cy.url().should('contain', '/do-you-want-to-notify-people');
     });
 
-    it('hides action links when LPA has been signed', () => {
-        cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=signTheLpa');
-
-        cy.checkA11yApp();
-
-        cy.contains('Jordan Jefferson').parent().contains('a', 'Change').should('not.exist');
-    });
-
     it('limits people to notify to 5', () => {
         cy.visit('/fixtures?redirect=/choose-people-to-notify-summary&progress=peopleToNotifyAboutYourLpa&peopleToNotify=max');
 

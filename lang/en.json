@@ -1451,5 +1451,7 @@
     "youCanUpdateTheDetailsOnYourLpaToMatchContent": "<p class=\"govuk-body\">You can update the details on your LPA to match your confirmed identity details and continue to sign your LPA.</p><p class=\"govuk-body\">Or, you can ask the Office of the Public Guardian (OPG) to check the mismatch in your identity details.</p><p class=\"govuk-body\">If the mismatch is serious, OPG will not be able to register your LPA. We’ll contact you to ask if you want to apply to the Court of Protection to register your LPA.</p><p class=\"govuk-body\">It costs £408 to register your LPA through the Court of Protection and will take several months.</p><p class=\"govuk-body\">To delete this LPA, return to ‘Manage your LPAs’.</p>",
     "theOpgIsCheckingYourMismatchedIdentityDetails": "The Office of the Public Guardian (OPG) is checking your mismatched identity details",
     "someOfTheDetailsDoNotMatchYouAskedOpgToCheck": "<p class=\"govuk-body\">Some of the details on your LPA do not match your confirmed identity details. You have asked OPG to check this mismatch.</p><p class=\"govuk-body\">We will contact you if you need to take further action.</p>",
-    "confirmationOfIdentityPending": "Confirmation of identity pending"
+    "confirmationOfIdentityPending": "Confirmation of identity pending",
+    "whyCantEditMyLpa": "Why can’t I edit my LPA?",
+    "whyCantEditMyLpaContent": "<p class=\"govuk-body\">You have signed your LPA, so you cannot change the decisions you made when you filled it in.</p><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">View LPA</a></p>"
 }
