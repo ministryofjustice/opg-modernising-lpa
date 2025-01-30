@@ -45,28 +45,28 @@ func TestDashboardStoreGetAll(t *testing.T) {
 	sessionID := "an-id"
 	aTime := time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC)
 
-	lpa0 := &lpadata.Lpa{LpaID: "0", LpaUID: "M", UpdatedAt: aTime}
+	lpa0 := &lpadata.Lpa{LpaID: "0", LpaUID: "M-0", UpdatedAt: aTime}
 	lpa0Donor := &donordata.Provided{
 		PK:        dynamo.LpaKey("0"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)),
 		LpaID:     "0",
-		LpaUID:    "M",
+		LpaUID:    "M-0",
 		UpdatedAt: aTime,
 	}
-	lpa123 := &lpadata.Lpa{LpaID: "123", LpaUID: "M", UpdatedAt: aTime}
+	lpa123 := &lpadata.Lpa{LpaID: "123", LpaUID: "M-123", UpdatedAt: aTime}
 	lpa123Donor := &donordata.Provided{
 		PK:        dynamo.LpaKey("123"),
 		SK:        dynamo.LpaOwnerKey(dynamo.DonorKey(sessionID)),
 		LpaID:     "123",
-		LpaUID:    "M",
+		LpaUID:    "M-123",
 		UpdatedAt: aTime,
 	}
-	lpa456 := &lpadata.Lpa{LpaID: "456", LpaUID: "M"}
+	lpa456 := &lpadata.Lpa{LpaID: "456", LpaUID: "M-456"}
 	lpa456Donor := &donordata.Provided{
 		PK:     dynamo.LpaKey("456"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
 		LpaID:  "456",
-		LpaUID: "M",
+		LpaUID: "M-456",
 	}
 	lpa456CertificateProvider := &certificateproviderdata.Provided{
 		PK:    dynamo.LpaKey("456"),
@@ -74,12 +74,12 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID: "456",
 		Tasks: certificateproviderdata.Tasks{ConfirmYourDetails: task.StateCompleted},
 	}
-	lpa789 := &lpadata.Lpa{LpaID: "789", LpaUID: "M"}
+	lpa789 := &lpadata.Lpa{LpaID: "789", LpaUID: "M-789"}
 	lpa789Donor := &donordata.Provided{
 		PK:     dynamo.LpaKey("789"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("different-id")),
 		LpaID:  "789",
-		LpaUID: "M",
+		LpaUID: "M-789",
 	}
 	lpa789Attorney := &attorneydata.Provided{
 		PK:    dynamo.LpaKey("789"),
@@ -93,12 +93,12 @@ func TestDashboardStoreGetAll(t *testing.T) {
 		LpaID:     "999",
 		UpdatedAt: aTime,
 	}
-	lpaCertified := &lpadata.Lpa{LpaID: "signed-by-cp", LpaUID: "M"}
+	lpaCertified := &lpadata.Lpa{LpaID: "signed-by-cp", LpaUID: "M-signed-by-cp"}
 	lpaCertifiedDonor := &donordata.Provided{
 		PK:     dynamo.LpaKey("signed-by-cp"),
 		SK:     dynamo.LpaOwnerKey(dynamo.DonorKey("another-id")),
 		LpaID:  "signed-by-cp",
-		LpaUID: "M",
+		LpaUID: "M-signed-by-cp",
 	}
 	lpaCertifiedCertificateProvider := &certificateproviderdata.Provided{
 		PK:       dynamo.LpaKey("signed-by-cp"),
@@ -230,7 +230,7 @@ func TestDashboardStoreGetAll(t *testing.T) {
 			assert.Nil(t, err)
 
 			assert.Equal(t, dashboarddata.Results{
-				Donor:               []dashboarddata.Actor{{Lpa: lpa123}, {Lpa: lpa0}, {Lpa: lpaReferenced}},
+				Donor:               []dashboarddata.Actor{{Lpa: lpa123, Donor: lpa123Donor}, {Lpa: lpa0, Donor: lpa0Donor}, {Lpa: lpaReferenced}},
 				CertificateProvider: []dashboarddata.Actor{{Lpa: lpa456, CertificateProvider: lpa456CertificateProvider}},
 				Attorney:            []dashboarddata.Actor{{Lpa: lpa789, Attorney: lpa789Attorney}},
 				Voucher:             []dashboarddata.Actor{{Lpa: lpaVouched, Voucher: lpaVouchedVoucher}},
