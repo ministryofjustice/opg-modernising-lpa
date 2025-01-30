@@ -31,6 +31,7 @@ data "aws_iam_policy_document" "execution_role" {
     actions = [
       "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchImportUpstreamImage",
       "ecr:GetDownloadUrlForLayer",
       "ecr:BatchGetImage",
     ]

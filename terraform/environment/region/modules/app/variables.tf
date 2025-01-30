@@ -160,3 +160,8 @@ variable "waf_alb_association_enabled" {
   description = "Enable WAF association with the ALB"
   default     = true
 }
+
+variable "ecs_aws_otel_collector_version" {
+  type        = string
+  description = "semver tag for the public ecr tag of the aws-otel-collector image"
+}
