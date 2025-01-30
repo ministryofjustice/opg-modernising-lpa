@@ -1,4 +1,4 @@
-# Setting up the AWS Distro for OpenTelemetry Collector (ADOT Collector) for Go Lambda Function Images
+# Updating the Lambda Runtime Interface
 
 ## Introduction
 
