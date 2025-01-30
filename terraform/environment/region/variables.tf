@@ -210,3 +210,8 @@ variable "egress_checker_enabled" {
   type    = bool
   default = false
 }
+
+variable "ecs_aws_otel_collector_version" {
+  type        = string
+  description = "semver tag for the public ecr tag of the aws-otel-collector image"
+}
