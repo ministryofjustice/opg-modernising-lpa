@@ -181,8 +181,13 @@ type Provided struct {
 	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
 	VoucherInvitedAt time.Time `checkhash:"-"`
 
-	// MoreEvidenceRequiredAt records when a request for further information on an exemption/remission was received.
+	// MoreEvidenceRequiredAt records when a request for further information on an
+	// exemption/remission was received.
 	MoreEvidenceRequiredAt time.Time `checkhash:"-"`
+
+	// PriorityCorrespondenceSentAt records when a caseworker sent a letter to the
+	// donor informing them of a problem.
+	PriorityCorrespondenceSentAt time.Time `checkhash:"-"`
 
 	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
 	HasSeenSuccessfulVouchBanner bool `checkhash:"-"`
