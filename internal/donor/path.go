@@ -168,7 +168,34 @@ func (p Path) RedirectQuery(w http.ResponseWriter, r *http.Request, appData appc
 	return nil
 }
 
-func (p Path) canVisit(donor *donordata.Provided) bool {
+func (p Path) CanGoTo(donor *donordata.Provided) bool {
+	if !donor.SignedAt.IsZero() {
+		switch p {
+		case PathProgress, PathViewLPA, PathDeleteThisLpa, PathWithdrawThisLpa:
+			return true
+
+		case PathTaskList:
+			return !donor.CompletedAllTasks()
+
+		case PathAboutPayment, PathAreYouApplyingForFeeDiscountOrExemption, PathWhichFeeTypeAreYouApplyingFor,
+			PathPreviousApplicationNumber, PathPreviousFee, PathCostOfRepeatApplication, PathEvidenceRequired,
+			PathHowWouldYouLikeToSendEvidence, PathUploadEvidence, PathSendUsYourEvidenceByPost, PathPayFee,
+			PathPaymentConfirmation, PathPaymentSuccessful, PathEvidenceSuccessfullyUploaded, PathWhatHappensNextPostEvidence,
+			PathWhatHappensNextRepeatApplicationNoFee, PathPendingPayment, PathUploadEvidenceSSE:
+			return !donor.Tasks.PayForLpa.IsCompleted()
+
+		case PathConfirmYourIdentity, PathHowWillYouConfirmYourIdentity, PathCompletingYourIdentityConfirmation,
+			PathIdentityWithOneLogin, PathIdentityWithOneLoginCallback, PathIdentityDetails, PathRegisterWithCourtOfProtection,
+			PathUnableToConfirmIdentity, PathChooseSomeoneToVouchForYou, PathEnterVoucher, PathConfirmPersonAllowedToVouch,
+			PathCheckYourDetails, PathWeHaveContactedVoucher, PathWhatYouCanDoNow, PathWhatYouCanDoNowExpired,
+			PathWhatHappensNextRegisteringWithCourtOfProtection, PathAreYouSureYouNoLongerNeedVoucher,
+			PathWeHaveInformedVoucherNoLongerNeeded:
+			return !donor.Tasks.ConfirmYourIdentity.IsCompleted()
+		}
+
+		return false
+	}
+
 	section1Completed := donor.Tasks.YourDetails.IsCompleted() &&
 		donor.Tasks.ChooseAttorneys.IsCompleted() &&
 		donor.Tasks.ChooseReplacementAttorneys.IsCompleted() &&
@@ -231,20 +258,6 @@ func (p Path) canVisit(donor *donordata.Provided) bool {
 	default:
 		return true
 	}
-}
-
-func CanGoTo(donor *donordata.Provided, url string) bool {
-	path, _, _ := strings.Cut(url, "?")
-	if path == "" {
-		return false
-	}
-
-	if strings.HasPrefix(path, "/lpa/") {
-		_, lpaPath, _ := strings.Cut(strings.TrimPrefix(path, "/lpa/"), "/")
-		return Path("/" + lpaPath).canVisit(donor)
-	}
-
-	return true
 }
 
 func canFrom(fromURL string, lpaID string) bool {

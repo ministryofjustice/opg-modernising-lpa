@@ -23,7 +23,7 @@ type taskListData struct {
 
 type taskListItem struct {
 	Name          string
-	Path          string
+	Path          donor.Path
 	State         task.State
 	PaymentState  task.PaymentState
 	IdentityState task.IdentityState
@@ -43,14 +43,14 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			return err
 		}
 
-		chooseAttorneysLink := donor.PathChooseAttorneysGuidance.Format(provided.LpaID)
+		chooseAttorneysLink := donor.PathChooseAttorneysGuidance
 		if provided.Attorneys.Len() > 0 {
-			chooseAttorneysLink = donor.PathChooseAttorneysSummary.Format(provided.LpaID)
+			chooseAttorneysLink = donor.PathChooseAttorneysSummary
 		}
 
-		chooseReplacementAttorneysLink := donor.PathDoYouWantReplacementAttorneys.Format(provided.LpaID)
+		chooseReplacementAttorneysLink := donor.PathDoYouWantReplacementAttorneys
 		if provided.ReplacementAttorneys.Len() > 0 {
-			chooseReplacementAttorneysLink = donor.PathChooseReplacementAttorneysSummary.Format(provided.LpaID)
+			chooseReplacementAttorneysLink = donor.PathChooseReplacementAttorneysSummary
 		}
 
 		section1 := taskListSection{
@@ -58,7 +58,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 			Items: []taskListItem{
 				{
 					Name:  "provideYourDetails",
-					Path:  donor.PathYourDetails.Format(provided.LpaID),
+					Path:  donor.PathYourDetails,
 					State: provided.Tasks.YourDetails,
 				},
 				{
@@ -76,28 +76,28 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 				taskListTypeSpecificStep(provided),
 				{
 					Name:  "addRestrictionsToTheLpa",
-					Path:  donor.PathRestrictions.Format(provided.LpaID),
+					Path:  donor.PathRestrictions,
 					State: provided.Tasks.Restrictions,
 				},
 				{
 					Name:  "chooseYourCertificateProvider",
-					Path:  donor.PathWhatACertificateProviderDoes.Format(provided.LpaID),
+					Path:  donor.PathWhatACertificateProviderDoes,
 					State: provided.Tasks.CertificateProvider,
 				},
 				{
 					Name:  "peopleToNotifyAboutYourLpa",
-					Path:  donor.PathDoYouWantToNotifyPeople.Format(provided.LpaID),
+					Path:  donor.PathDoYouWantToNotifyPeople,
 					State: provided.Tasks.PeopleToNotify,
 					Count: len(provided.PeopleToNotify),
 				},
 				{
 					Name:  "addCorrespondent",
-					Path:  donor.PathAddCorrespondent.Format(provided.LpaID),
+					Path:  donor.PathAddCorrespondent,
 					State: provided.Tasks.AddCorrespondent,
 				},
 				{
 					Name:   "chooseYourSignatoryAndIndependentWitness",
-					Path:   donor.PathGettingHelpSigning.Format(provided.LpaID),
+					Path:   donor.PathGettingHelpSigning,
 					State:  provided.Tasks.ChooseYourSignatory,
 					Hidden: !provided.Donor.CanSign.IsNo(),
 				},
@@ -110,7 +110,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		} else {
 			section1.Items = append(section1.Items, taskListItem{
 				Name:  "checkAndSendToYourCertificateProvider",
-				Path:  taskListCheckLpaPath(provided).Format(provided.LpaID),
+				Path:  taskListCheckLpaPath(provided),
 				State: provided.Tasks.CheckYourLpa,
 			})
 			sections = []taskListSection{section1, taskListPaymentSection(provided), taskListSignSection(provided)}
@@ -129,14 +129,14 @@ func taskListTypeSpecificStep(provided *donordata.Provided) taskListItem {
 	if provided.Type == lpadata.LpaTypePersonalWelfare {
 		return taskListItem{
 			Name:  "lifeSustainingTreatment",
-			Path:  donor.PathLifeSustainingTreatment.Format(provided.LpaID),
+			Path:  donor.PathLifeSustainingTreatment,
 			State: provided.Tasks.LifeSustainingTreatment,
 		}
 	}
 
 	return taskListItem{
 		Name:  "chooseWhenTheLpaCanBeUsed",
-		Path:  donor.PathWhenCanTheLpaBeUsed.Format(provided.LpaID),
+		Path:  donor.PathWhenCanTheLpaBeUsed,
 		State: provided.Tasks.WhenCanTheLpaBeUsed,
 	}
 }
@@ -152,16 +152,16 @@ func taskListCheckLpaPath(provided *donordata.Provided) donor.Path {
 }
 
 func taskListPaymentSection(provided *donordata.Provided) taskListSection {
-	var paymentPath string
+	var paymentPath donor.Path
 	switch provided.Tasks.PayForLpa {
 	case task.PaymentStateApproved, task.PaymentStateDenied:
-		paymentPath = donor.PathPayFee.Format(provided.LpaID)
+		paymentPath = donor.PathPayFee
 	case task.PaymentStateMoreEvidenceRequired, task.PaymentStatePending:
-		paymentPath = donor.PathPendingPayment.Format(provided.LpaID)
+		paymentPath = donor.PathPendingPayment
 	case task.PaymentStateCompleted:
 		paymentPath = ""
 	default:
-		paymentPath = donor.PathAboutPayment.Format(provided.LpaID)
+		paymentPath = donor.PathAboutPayment
 	}
 
 	return taskListSection{
@@ -240,12 +240,12 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		Items: []taskListItem{
 			{
 				Name:          "confirmYourIdentity",
-				Path:          confirmYourIdentityPath.Format(provided.LpaID),
+				Path:          confirmYourIdentityPath,
 				IdentityState: provided.Tasks.ConfirmYourIdentity,
 			},
 			{
 				Name:  "signTheLpa",
-				Path:  signTheLpaPath.Format(provided.LpaID),
+				Path:  signTheLpaPath,
 				State: provided.Tasks.SignTheLpa,
 			},
 		},

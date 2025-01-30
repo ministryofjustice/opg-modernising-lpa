@@ -3,6 +3,7 @@ package dashboarddata
 import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/attorney/attorneydata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
@@ -16,6 +17,7 @@ type Results struct {
 
 type Actor struct {
 	Lpa                 *lpadata.Lpa
+	Donor               *donordata.Provided
 	CertificateProvider *certificateproviderdata.Provided
 	Attorney            *attorneydata.Provided
 	Voucher             *voucherdata.Provided
