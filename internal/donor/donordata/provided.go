@@ -196,6 +196,23 @@ type Provided struct {
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
+func (p *Provided) CompletedAllTasks() bool {
+	return p.Tasks.YourDetails.IsCompleted() &&
+		p.Tasks.ChooseAttorneys.IsCompleted() &&
+		p.Tasks.ChooseReplacementAttorneys.IsCompleted() &&
+		(p.Type.IsPropertyAndAffairs() && p.Tasks.WhenCanTheLpaBeUsed.IsCompleted() ||
+			p.Type.IsPersonalWelfare() && p.Tasks.LifeSustainingTreatment.IsCompleted()) &&
+		p.Tasks.Restrictions.IsCompleted() &&
+		p.Tasks.CertificateProvider.IsCompleted() &&
+		p.Tasks.PeopleToNotify.IsCompleted() &&
+		p.Tasks.AddCorrespondent.IsCompleted() &&
+		(p.Donor.CanSign.IsYes() || p.Tasks.ChooseYourSignatory.IsCompleted()) &&
+		p.Tasks.CheckYourLpa.IsCompleted() &&
+		p.Tasks.PayForLpa.IsCompleted() &&
+		p.Tasks.ConfirmYourIdentity.IsCompleted() &&
+		p.Tasks.SignTheLpa.IsCompleted()
+}
+
 // CanChange returns true if the donor can make changes to their LPA.
 func (p *Provided) CanChange() bool {
 	return p.SignedAt.IsZero()

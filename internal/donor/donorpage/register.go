@@ -545,7 +545,7 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 				return
 			}
 
-			if !donor.CanGoTo(lpa, r.URL.String()) {
+			if !path.CanGoTo(lpa) {
 				http.Redirect(w, r, appData.Lang.URL(donor.PathTaskList.Format(lpa.LpaID)), http.StatusFound)
 			}
 
