@@ -15,6 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -126,18 +127,32 @@ func TestPostCheckYourLpaDigitalCertificateProviderOnFirstCheck(t *testing.T) {
 
 			uid := actoruid.New()
 			provided := &donordata.Provided{
-				LpaID:               "lpa-id",
-				Hash:                5,
-				Tasks:               donordata.Tasks{CheckYourLpa: existingTaskState},
-				CertificateProvider: donordata.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: lpadata.ChannelOnline},
+				LpaID: "lpa-id",
+				Hash:  5,
+				Tasks: donordata.Tasks{CheckYourLpa: existingTaskState},
+				CertificateProvider: donordata.CertificateProvider{
+					UID:        uid,
+					FirstNames: "John",
+					LastName:   "Smith",
+					Email:      "john@example.com",
+					Address:    place.Address{Postcode: "A"},
+					CarryOutBy: lpadata.ChannelOnline,
+				},
 			}
 
 			updatedDonor := &donordata.Provided{
-				LpaID:                        "lpa-id",
-				Hash:                         5,
-				CheckedAt:                    testNow,
-				Tasks:                        donordata.Tasks{CheckYourLpa: task.StateCompleted},
-				CertificateProvider:          donordata.CertificateProvider{UID: uid, FirstNames: "John", LastName: "Smith", Email: "john@example.com", CarryOutBy: lpadata.ChannelOnline},
+				LpaID:     "lpa-id",
+				Hash:      5,
+				CheckedAt: testNow,
+				Tasks:     donordata.Tasks{CheckYourLpa: task.StateCompleted},
+				CertificateProvider: donordata.CertificateProvider{
+					UID:        uid,
+					FirstNames: "John",
+					LastName:   "Smith",
+					Email:      "john@example.com",
+					Address:    place.Address{Postcode: "A"},
+					CarryOutBy: lpadata.ChannelOnline,
+				},
 				CertificateProviderInvitedAt: testNow,
 			}
 			updatedDonor.UpdateCheckedHash()

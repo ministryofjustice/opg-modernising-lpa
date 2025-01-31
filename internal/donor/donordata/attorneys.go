@@ -9,7 +9,7 @@ import (
 )
 
 type Attorneys struct {
-	TrustCorporation TrustCorporation
+	TrustCorporation TrustCorporation `relatedhash:"-"`
 	Attorneys        []Attorney
 }
 
