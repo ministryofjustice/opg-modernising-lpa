@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	currentHashVersion        uint8 = 0
-	currentCheckedHashVersion uint8 = 0
+	currentHashVersion                                       uint8 = 0
+	currentCheckedHashVersion                                uint8 = 0
+	currentCertificateProviderNotRelatedConfirmedHashVersion uint8 = 0
 )
 
 type Tasks struct {
@@ -110,6 +111,12 @@ type Provided struct {
 	// CertificateProviderNotRelatedConfirmedAt is when the donor confirmed the
 	// certificate provider is not related to another similar actor
 	CertificateProviderNotRelatedConfirmedAt time.Time
+	// CertificateProviderNotRelatedConfirmedHash is the hash of data that was confirmed by
+	// CertificateProviderNotRelatedConfirmedAt
+	CertificateProviderNotRelatedConfirmedHash uint64
+	// CertificateProviderNotRelatedConfirmedHashVersion is used to determine the
+	// fields used to calculate CertificateProviderNotRelatedConfirmedHash
+	CertificateProviderNotRelatedConfirmedHashVersion uint8
 	// CheckedAt is when the donor checked their LPA
 	CheckedAt time.Time `checkhash:"-"`
 	// CheckedHash is the Hash value of the LPA when last checked
@@ -198,6 +205,11 @@ type Provided struct {
 	// ReducedFeeApprovedAt records when an exemption/remission was approved.
 	ReducedFeeApprovedAt time.Time `checkhash:"-"`
 
+	// IdentityDetailsCausedCheck is set when details are updated to match
+	// confirmed identity, and check and send hasn't been done with those new
+	// details
+	IdentityDetailsCausedCheck bool `checkhash:"-"`
+
 	HasSentApplicationUpdatedEvent bool `hash:"-" checkhash:"-"`
 }
 
@@ -251,6 +263,18 @@ func (c toCheck) HashInclude(field string, _ any) (bool, error) {
 	return true, nil
 }
 
+// toConfirmCertificateProviderNotRelated filters the fields used for hashing to
+// only those used in CertificateProviderSharesDetails
+type toConfirmCertificateProviderNotRelated Provided
+
+func (c toConfirmCertificateProviderNotRelated) HashInclude(field string, _ any) (bool, error) {
+	if c.CertificateProviderNotRelatedConfirmedHashVersion > currentCertificateProviderNotRelatedConfirmedHashVersion {
+		return false, errors.New("CertificateProviderNotRelatedConfirmedHashVersion too high")
+	}
+
+	return field == "CertificateProvider" || field == "Donor" || field == "Attorneys" || field == "ReplacementAttorneys", nil
+}
+
 func (p *Provided) NamesChanged(firstNames, lastName, otherNames string) bool {
 	return p.Donor.FirstNames != firstNames || p.Donor.LastName != lastName || p.Donor.OtherNames != otherNames
 }
@@ -288,6 +312,26 @@ func (p *Provided) UpdateCheckedHash() (err error) {
 
 func (p *Provided) generateCheckedHash() (uint64, error) {
 	return hashstructure.Hash(toCheck(*p), hashstructure.FormatV2, &hashstructure.HashOptions{TagName: "checkhash"})
+}
+
+func (p *Provided) CertificateProviderNotRelatedConfirmedHashChanged() bool {
+	hash, _ := p.generateCertificateProviderNotRelatedConfirmedHash()
+
+	return hash != p.CertificateProviderNotRelatedConfirmedHash
+}
+
+// UpdateCertificateProviderNotRelatedConfirmedHash will generate a value that
+// can be compared to check if any fields containing LPA data have
+// changed. Fields that do not contain LPA data, so should be ignored for this
+// calculation, are tagged with `relatedhash:"-"`.
+func (p *Provided) UpdateCertificateProviderNotRelatedConfirmedHash() (err error) {
+	p.CertificateProviderNotRelatedConfirmedHashVersion = currentCertificateProviderNotRelatedConfirmedHashVersion
+	p.CertificateProviderNotRelatedConfirmedHash, err = p.generateCertificateProviderNotRelatedConfirmedHash()
+	return err
+}
+
+func (p *Provided) generateCertificateProviderNotRelatedConfirmedHash() (uint64, error) {
+	return hashstructure.Hash(toConfirmCertificateProviderNotRelated(*p), hashstructure.FormatV2, &hashstructure.HashOptions{TagName: "relatedhash"})
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {
@@ -473,6 +517,10 @@ func (p *Provided) PaidAt() time.Time {
 // attorneys. For a match of the last name we break on '-' to account for
 // double-barrelled names.
 func (p *Provided) CertificateProviderSharesDetails() bool {
+	if !p.CertificateProviderNotRelatedConfirmedAt.IsZero() && !p.CertificateProviderNotRelatedConfirmedHashChanged() {
+		return false
+	}
+
 	certificateProviderParts := strings.Split(p.CertificateProvider.LastName, "-")
 
 	donorParts := strings.Split(p.Donor.LastName, "-")
