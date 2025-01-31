@@ -7,7 +7,7 @@ The Lambda Runtime Interface Emulator (RIE) can be used to locally test a lambda
 We keep a copy of the RIE in the repository. It can be updated using the following command
 
 ```sh
-curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && \
+curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/v1.22/download/aws-lambda-rie && \
     chmod +x docker/aws-lambda-rie/aws-lambda-rie
 ```
 

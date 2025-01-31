@@ -12,10 +12,12 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -ldflags="-X ma
 
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS lambda-rie
 
+ARG LAMBDA_RIE_TAG=v1.22
+
 WORKDIR /aws-lambda-rie
 
-RUN curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && \
-chmod +x docker/aws-lambda-rie/aws-lambda-rie
+RUN curl -Lo aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/tag/${LAMBDA_RIE_TAG}/download/aws-lambda-rie && \
+chmod +x aws-lambda-rie
 
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
 
