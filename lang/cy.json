@@ -1557,5 +1557,7 @@
     "someOfTheDetailsDoNotMatchYouAskedOpgToCheck": "<p class=\"govuk-body\">Welsh</p>",
     "confirmationOfIdentityPending": "Welsh",
     "whyCantEditMyLpa": "Welsh",
-    "whyCantEditMyLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a></p>"
+    "whyCantEditMyLpaContent": "<p class=\"govuk-body\">Welsh</p><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">Welsh</a></p>",
+    "yourCertificateProviderMustBeNotifiedDetailsUpdated": "<p class=\"govuk-body\">Welsh</p>",
+    "yourLpaDetailsHaveBeenUpdatedToMatchIdentityMustBeNotified": "<div class=\"govuk-notification-banner__content\"><h3 class=\"govuk-notification-banner__heading\">Welsh</h3><p class=\"govuk-body\">Welsh</p></div>"
 }
