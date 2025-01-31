@@ -655,6 +655,32 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"priority correspondence sent": {
+			donor: &donordata.Provided{
+				PriorityCorrespondenceSentAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			infoNotifications: []progressNotification{
+				{Heading: "H", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().T("thereIsAProblemWithYourLpa").Return("H")
+				l.EXPECT().Format("weContactedYouOnWithGuidanceAboutWhatToDoNext", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
+			},
+		},
+		"priority correspondence sent registered": {
+			donor: &donordata.Provided{
+				PriorityCorrespondenceSentAt: testNow,
+			},
+			lpa: &lpadata.Lpa{
+				Status: lpadata.StatusRegistered,
+			},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+		},
 	}
 
 	for name, tc := range testCases {

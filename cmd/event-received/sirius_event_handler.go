@@ -73,6 +73,9 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 	case "certificate-provider-submission-completed":
 		return handleCertificateProviderSubmissionCompleted(ctx, cloudWatchEvent, factory)
 
+	case "priority-correspondence-sent":
+		return handlePriorityCorrespondenceSent(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
+
 	default:
 		return fmt.Errorf("unknown sirius event")
 	}
@@ -312,6 +315,31 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 		if err := putDonor(ctx, donor, now, dynamoClient); err != nil {
 			return fmt.Errorf("failed to put donor: %w", err)
 		}
+	}
+
+	return nil
+}
+
+type priorityCorrespondenceSentEvent struct {
+	UID      string    `json:"uid"`
+	SentDate time.Time `json:"sentDate"`
+}
+
+func handlePriorityCorrespondenceSent(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time) error {
+	var v priorityCorrespondenceSentEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	donor, err := getDonorByLpaUID(ctx, client, v.UID)
+	if err != nil {
+		return fmt.Errorf("failed to get lpa: %w", err)
+	}
+
+	donor.PriorityCorrespondenceSentAt = v.SentDate
+
+	if err := putDonor(ctx, donor, now, client); err != nil {
+		return fmt.Errorf("failed to update lpa: %w", err)
 	}
 
 	return nil
