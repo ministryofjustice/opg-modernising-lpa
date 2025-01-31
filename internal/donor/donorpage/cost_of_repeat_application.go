@@ -33,18 +33,20 @@ func CostOfRepeatApplication(tmpl template.Template, donorStore DonorStore) Hand
 			if data.Errors.None() {
 				if provided.CostOfRepeatApplication != data.Form.Selected {
 					provided.CostOfRepeatApplication = data.Form.Selected
-					provided.Tasks.PayForLpa = task.PaymentStatePending
+					if provided.CostOfRepeatApplication.IsNoFee() {
+						provided.Tasks.PayForLpa = task.PaymentStatePending
+					}
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return err
 					}
 				}
 
-				if provided.CostOfRepeatApplication.IsHalfFee() {
-					return donor.PathPreviousFee.Redirect(w, r, appData, provided)
+				if provided.CostOfRepeatApplication.IsNoFee() {
+					return donor.PathWhatHappensNextRepeatApplicationNoFee.Redirect(w, r, appData, provided)
 				}
 
-				return donor.PathWhatHappensNextRepeatApplicationNoFee.Redirect(w, r, appData, provided)
+				return donor.PathPreviousFee.Redirect(w, r, appData, provided)
 			}
 		}
 

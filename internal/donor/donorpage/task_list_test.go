@@ -38,7 +38,18 @@ func TestGetTaskList(t *testing.T) {
 			appData: testAppData,
 			donor:   &donordata.Provided{LpaID: "lpa-id", Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}, CanSign: form.No}},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[8].Hidden = false
+				sections[0].Items = []taskListItem{
+					{Name: "provideYourDetails", Path: donor.PathYourDetails},
+					{Name: "chooseYourAttorneys", Path: donor.PathChooseAttorneysGuidance},
+					{Name: "chooseYourReplacementAttorneys", Path: donor.PathDoYouWantReplacementAttorneys},
+					{Name: "chooseWhenTheLpaCanBeUsed", Path: donor.PathWhenCanTheLpaBeUsed},
+					{Name: "addRestrictionsToTheLpa", Path: donor.PathRestrictions},
+					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes},
+					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
+					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent},
+					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning},
+					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa},
+				}
 
 				return sections
 			},
@@ -397,7 +408,7 @@ func TestGetTaskList(t *testing.T) {
 					Count: 1,
 				}
 
-				sections[0].Items[9] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathYouCannotSignYourLpaYet}
+				sections[0].Items[8] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathYouCannotSignYourLpaYet}
 
 				return sections
 			},
@@ -410,7 +421,7 @@ func TestGetTaskList(t *testing.T) {
 				CertificateProvider: donordata.CertificateProvider{LastName: "a"},
 			},
 			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[9].Path = donor.PathConfirmYourCertificateProviderIsNotRelated
+				sections[0].Items[8].Path = donor.PathConfirmYourCertificateProviderIsNotRelated
 
 				return sections
 			},
@@ -449,7 +460,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -496,7 +506,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -548,7 +557,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -601,7 +609,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -656,7 +663,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -712,7 +718,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateCompleted},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateCompleted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 					{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa, State: task.StateCompleted},
 				}
 
@@ -765,7 +770,6 @@ func TestGetTaskList(t *testing.T) {
 					{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes, State: task.StateInProgress},
 					{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 					{Name: "addCorrespondent", Path: donor.PathAddCorrespondent, State: task.StateNotStarted},
-					{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 				}
 
 				return sections[0:1]
@@ -796,7 +800,6 @@ func TestGetTaskList(t *testing.T) {
 								{Name: "chooseYourCertificateProvider", Path: donor.PathWhatACertificateProviderDoes},
 								{Name: "peopleToNotifyAboutYourLpa", Path: donor.PathDoYouWantToNotifyPeople},
 								{Name: "addCorrespondent", Path: donor.PathAddCorrespondent},
-								{Name: "chooseYourSignatoryAndIndependentWitness", Path: donor.PathGettingHelpSigning, Hidden: true},
 								{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathCheckYourLpa},
 							},
 						},
