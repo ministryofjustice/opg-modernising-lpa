@@ -10,6 +10,15 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -ldflags="-X main.Tag=${TAG}" -o schedule-runner ./cmd/schedule-runner
 
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS lambda-rie
+
+ARG LAMBDA_RIE_TAG=v1.22
+
+WORKDIR /aws-lambda-rie
+
+RUN curl -Lo aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/tag/${LAMBDA_RIE_TAG}/download/aws-lambda-rie && \
+chmod +x aws-lambda-rie
+
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
 
 WORKDIR /app
@@ -17,7 +26,7 @@ WORKDIR /app
 COPY --from=build /app/schedule-runner /var/task/schedule-runner
 COPY --link lang ./lang
 COPY --link ./docker/adot-collector/ /opt
-COPY --link docker/aws-lambda-rie ./aws-lambda-rie
+COPY --from=lambda-rie --link /aws-lambda-rie/aws-lambda-rie ./aws-lambda-rie
 
 ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
 ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/config/config.yaml"
