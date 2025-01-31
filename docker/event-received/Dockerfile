@@ -10,20 +10,6 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
-
-WORKDIR /app
-
-COPY --from=build /app/event-received /var/task/event-received
-COPY --link lang /var/task/lang
-COPY --link ./docker/adot-collector/ /opt
-COPY --link docker/aws-lambda-rie ./aws-lambda-rie
-
-ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/config/config.yaml"
-
-ENTRYPOINT ["./event-received"]
-
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS production
 
 WORKDIR /app
