@@ -73,10 +73,20 @@ func TestGetCostOfRepeatApplicationWhenTemplateErrors(t *testing.T) {
 }
 
 func TestPostCostOfRepeatApplication(t *testing.T) {
-	for cost, path := range map[pay.CostOfRepeatApplication]donor.Path{
-		pay.CostOfRepeatApplicationNoFee:   donor.PathWhatHappensNextRepeatApplicationNoFee,
-		pay.CostOfRepeatApplicationHalfFee: donor.PathPreviousFee,
-	} {
+	testcases := map[pay.CostOfRepeatApplication]struct {
+		redirect  donor.Path
+		taskState task.PaymentState
+	}{
+		pay.CostOfRepeatApplicationNoFee: {
+			redirect:  donor.PathWhatHappensNextRepeatApplicationNoFee,
+			taskState: task.PaymentStatePending,
+		},
+		pay.CostOfRepeatApplicationHalfFee: {
+			redirect: donor.PathPreviousFee,
+		},
+	}
+
+	for cost, tc := range testcases {
 		t.Run(cost.String(), func(t *testing.T) {
 			form := url.Values{
 				form.FieldNames.Select: {cost.String()},
@@ -89,7 +99,7 @@ func TestPostCostOfRepeatApplication(t *testing.T) {
 			provided := &donordata.Provided{
 				LpaID:                   "lpa-id",
 				CostOfRepeatApplication: cost,
-				Tasks:                   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+				Tasks:                   donordata.Tasks{PayForLpa: tc.taskState},
 			}
 
 			donorStore := newMockDonorStore(t)
@@ -102,7 +112,7 @@ func TestPostCostOfRepeatApplication(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, path.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, tc.redirect.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }

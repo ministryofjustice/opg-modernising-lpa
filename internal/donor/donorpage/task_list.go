@@ -28,7 +28,6 @@ type taskListItem struct {
 	PaymentState  task.PaymentState
 	IdentityState task.IdentityState
 	Count         int
-	Hidden        bool
 }
 
 type taskListSection struct {
@@ -95,13 +94,15 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 					Path:  donor.PathAddCorrespondent,
 					State: provided.Tasks.AddCorrespondent,
 				},
-				{
-					Name:   "chooseYourSignatoryAndIndependentWitness",
-					Path:   donor.PathGettingHelpSigning,
-					State:  provided.Tasks.ChooseYourSignatory,
-					Hidden: !provided.Donor.CanSign.IsNo(),
-				},
 			},
+		}
+
+		if provided.Donor.CanSign.IsNo() {
+			section1.Items = append(section1.Items, taskListItem{
+				Name:  "chooseYourSignatoryAndIndependentWitness",
+				Path:  donor.PathGettingHelpSigning,
+				State: provided.Tasks.ChooseYourSignatory,
+			})
 		}
 
 		var sections []taskListSection

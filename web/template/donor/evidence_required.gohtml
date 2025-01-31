@@ -2,9 +2,9 @@
 
 {{ define "pageTitle" }}
   {{ if .Donor.FeeType.IsRepeatApplicationFee }}
-    {{ tr .App (printf "newEvidenceRequired%s" .Donor.PreviousFee.String) }}
+    {{ tr .App (printf "newEvidenceRequired:%s" .Donor.PreviousFee.String) }}
   {{ else }}
-    {{ tr .App (printf "evidenceRequired%s" .Donor.FeeType.String) }}
+    {{ tr .App (printf "evidenceRequired:%s" .Donor.FeeType.String) }}
   {{ end }}
 {{ end }}
 
