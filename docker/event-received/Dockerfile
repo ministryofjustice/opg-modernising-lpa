@@ -10,29 +10,6 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o event-received ./cmd/event-received
 
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS lambda-rie
-
-ARG LAMBDA_RIE_TAG=v1.22
-
-WORKDIR /aws-lambda-rie
-
-RUN curl -Lo aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/tag/${LAMBDA_RIE_TAG}/download/aws-lambda-rie && \
-chmod +x aws-lambda-rie
-
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
-
-WORKDIR /app
-
-COPY --from=build /app/event-received /var/task/event-received
-COPY --link lang /var/task/lang
-COPY --link ./docker/adot-collector/ /opt
-COPY --from=lambda-rie --link /aws-lambda-rie/aws-lambda-rie ./aws-lambda-rie
-
-ENV AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-ENV OPENTELEMETRY_COLLECTOR_CONFIG_URI="/opt/config/config.yaml"
-
-ENTRYPOINT ["./event-received"]
-
 FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS production
 
 WORKDIR /app
