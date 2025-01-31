@@ -1,31 +1,33 @@
-# Updating the Lambda Runtime Interface
+# Using the Lambda Runtime Interface Emulator
 
 ## Introduction
 
 The Lambda Runtime Interface Emulator (RIE) can be used to locally test a lambda image.
 
-We keep a copy of the RIE in the repository. It can be updated using the following command
+These instructions are from [Deploy Go Lambda functions with container images](https://docs.aws.amazon.com/lambda/latest/dg/go-image.html)
 
-```sh
-curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && \
-    chmod +x docker/aws-lambda-rie/aws-lambda-rie
+The RIE can be downloaded to you home directory with the following command.
+
+```shell
+mkdir -p ~/.aws-lambda-rie && \
+    curl -Lo ~/.aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && \
+    chmod +x ~/.aws-lambda-rie/aws-lambda-rie
 ```
+
+The arm64 emulator is at `https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie-arm64`
 
 ## Using the Lambda RIE in a docker container
 
-The following Dockerfile instructions can be used to add the Lambda RIE
+You can run the container with the RIE by mounting in the volume.
 
-```Dockerfile
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS lambda-rie
+Note the following
 
-ARG LAMBDA_RIE_TAG=v1.22
+- docker-image is the image name and test is the tag.
+- /main is the ENTRYPOINT from your Dockerfile.
 
-WORKDIR /aws-lambda-rie
-
-RUN curl -Lo aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/tag/${LAMBDA_RIE_TAG}/download/aws-lambda-rie && \
-chmod +x aws-lambda-rie
-
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
-
-COPY --from=lambda-rie --link /aws-lambda-rie/aws-lambda-rie ./aws-lambda-rie
+```shell
+docker run --platform linux/amd64 -d -v ~/.aws-lambda-rie:/aws-lambda -p 9000:8080 \
+    --entrypoint /aws-lambda/aws-lambda-rie \
+    docker-image:test \
+        /main
 ```
