@@ -4,6 +4,7 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
+	"net/url"
 	"reflect"
 	"slices"
 	"strings"
@@ -90,6 +91,7 @@ func All(globals *Globals) map[string]any {
 		"legend":             legend,
 		"legendHeading":      legendHeading,
 		"fieldset":           fieldset,
+		"query":              query,
 	}
 }
 
@@ -562,4 +564,18 @@ func fieldset(top any, name string, value any, legend legendData, is ...any) fie
 		Legend: legend,
 		Items:  items(top, name, value, is...),
 	}
+}
+
+func query(args ...string) url.Values {
+	q := url.Values{}
+
+	if len(args)%2 != 0 {
+		panic("must have even number of args")
+	}
+
+	for i := 0; i < len(args); i += 2 {
+		q.Add(args[i], args[i+1])
+	}
+
+	return q
 }
