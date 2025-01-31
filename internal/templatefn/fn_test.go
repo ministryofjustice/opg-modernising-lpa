@@ -3,6 +3,7 @@ package templatefn
 import (
 	"fmt"
 	"html/template"
+	"net/url"
 	"testing"
 	"time"
 
@@ -623,4 +624,13 @@ func TestFieldset(t *testing.T) {
 		Legend: aLegend,
 		Items:  items("top", "a-name", "a-value", anItem),
 	}, fieldset("top", "a-name", "a-value", aLegend, anItem))
+}
+
+func TestQuery(t *testing.T) {
+	assert.Equal(t, url.Values{}, query())
+	assert.Equal(t, url.Values{"a": {"b"}}, query("a", "b"))
+	assert.Equal(t, url.Values{"a": {"b"}, "c": {"d"}}, query("a", "b", "c", "d"))
+	assert.Equal(t, url.Values{"a": {"b"}, "c": {"d", "e"}}, query("a", "b", "c", "d", "c", "e"))
+
+	assert.Panics(t, func() { query("1") })
 }
