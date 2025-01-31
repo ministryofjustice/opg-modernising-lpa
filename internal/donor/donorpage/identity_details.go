@@ -2,7 +2,6 @@ package donorpage
 
 import (
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
@@ -22,7 +21,6 @@ type identityDetailsData struct {
 	LastNameMatch    bool
 	DateOfBirthMatch bool
 	AddressMatch     bool
-	DetailsUpdated   bool
 	Form             *form.YesNoForm
 }
 
@@ -36,7 +34,6 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 			App:              appData,
 			Form:             form.NewYesNoForm(form.YesNoUnknown),
 			Provided:         provided,
-			DetailsUpdated:   r.FormValue("detailsUpdated") == "1",
 			FirstNamesMatch:  strings.EqualFold(provided.Donor.FirstNames, provided.IdentityUserData.FirstNames),
 			LastNameMatch:    strings.EqualFold(provided.Donor.LastName, provided.IdentityUserData.LastName),
 			DateOfBirthMatch: provided.Donor.DateOfBirth == provided.IdentityUserData.DateOfBirth,
@@ -48,31 +45,30 @@ func IdentityDetails(tmpl template.Template, donorStore DonorStore) Handler {
 			data.Errors = f.Validate()
 
 			if data.Errors.None() {
+				var redirect donor.Path
+
 				if f.YesNo.IsYes() {
 					provided.Donor.FirstNames = provided.IdentityUserData.FirstNames
 					provided.Donor.LastName = provided.IdentityUserData.LastName
 					provided.Donor.DateOfBirth = provided.IdentityUserData.DateOfBirth
 					provided.Donor.Address = provided.IdentityUserData.CurrentAddress
+					provided.Tasks.CheckYourLpa = task.StateInProgress
 					provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-					if err := provided.UpdateCheckedHash(); err != nil {
-						return err
-					}
+					provided.IdentityDetailsCausedCheck = true
 
-					if err := donorStore.Put(r.Context(), provided); err != nil {
-						return err
-					}
-
-					return donor.PathIdentityDetails.RedirectQuery(w, r, appData, provided, url.Values{"detailsUpdated": {"1"}})
+					redirect = donor.PathIdentityDetailsUpdated
 				} else {
 					provided.ContinueWithMismatchedIdentity = true
 					provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 
-					if err := donorStore.Put(r.Context(), provided); err != nil {
-						return err
-					}
-
-					return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
+					redirect = donor.PathIdentityDetails
 				}
+
+				if err := donorStore.Put(r.Context(), provided); err != nil {
+					return err
+				}
+
+				return redirect.Redirect(w, r, appData, provided)
 			}
 		}
 
