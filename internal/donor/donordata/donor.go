@@ -17,29 +17,29 @@ type Donor struct {
 	// UID for the actor
 	UID actoruid.UID
 	// First names of the donor
-	FirstNames string
+	FirstNames string `relatedhash:"-"`
 	// Last name of the donor
 	LastName string
 	// Email of the donor
-	Email string
+	Email string `relatedhash:"-"`
 	// Other names the donor is known by
-	OtherNames string
+	OtherNames string `relatedhash:"-"`
 	// Date of birth of the donor
-	DateOfBirth date.Date
+	DateOfBirth date.Date `relatedhash:"-"`
 	// Address of the donor
 	Address place.Address
 	// Mobile phone number to contact the donor
-	Mobile string
+	Mobile string `relatedhash:"-"`
 	// ThinksCanSign is what the donor thinks about their ability to sign online
-	ThinksCanSign YesNoMaybe
+	ThinksCanSign YesNoMaybe `relatedhash:"-"`
 	// CanSign is Yes if the donor has said they will sign online
-	CanSign form.YesNo
+	CanSign form.YesNo `relatedhash:"-"`
 	// Channel is how the Donor is applying for their LPA (paper or online)
-	Channel lpadata.Channel
+	Channel lpadata.Channel `relatedhash:"-"`
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
-	ContactLanguagePreference localize.Lang
+	ContactLanguagePreference localize.Lang `relatedhash:"-"`
 	// LpaLanguagePreference is the language the donor prefers to receive the registered LPA in
-	LpaLanguagePreference localize.Lang
+	LpaLanguagePreference localize.Lang `relatedhash:"-"`
 }
 
 func (d Donor) FullName() string {

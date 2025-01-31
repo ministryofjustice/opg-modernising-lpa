@@ -22,23 +22,23 @@ type CertificateProvider struct {
 	// UID for the actor
 	UID actoruid.UID
 	// First names of the certificate provider
-	FirstNames string
+	FirstNames string `relatedhash:"-"`
 	// Last name of the certificate provider
 	LastName string
 	// Address of the certificate provider
-	Address place.Address
+	Address place.Address `relatedhash:"-"`
 	// Mobile number of the certificate provider, used to send witness codes
-	Mobile string `checkhash:"-"`
+	Mobile string `checkhash:"-" relatedhash:"-"`
 	// HasNonUKMobile indicates whether the value of Mobile is a non-UK mobile number
-	HasNonUKMobile bool `checkhash:"-"`
+	HasNonUKMobile bool `checkhash:"-" relatedhash:"-"`
 	// Email of the certificate provider
-	Email string
+	Email string `relatedhash:"-"`
 	// How the certificate provider wants to perform their role (paper or online)
-	CarryOutBy lpadata.Channel
+	CarryOutBy lpadata.Channel `relatedhash:"-"`
 	// The certificate provider's relationship to the applicant
-	Relationship lpadata.CertificateProviderRelationship
+	Relationship lpadata.CertificateProviderRelationship `relatedhash:"-"`
 	// Amount of time Relationship has been in place if Personally
-	RelationshipLength CertificateProviderRelationshipLength
+	RelationshipLength CertificateProviderRelationshipLength `relatedhash:"-"`
 }
 
 func (c CertificateProvider) FullName() string {
