@@ -16,5 +16,14 @@ curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-
 The following Dockerfile instructions can be used to add the Lambda RIE
 
 ```Dockerfile
-COPY --link docker/aws-lambda-rie ./aws-lambda-rie
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS lambda-rie
+
+WORKDIR /aws-lambda-rie
+
+RUN curl -Lo docker/aws-lambda-rie/aws-lambda-rie https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie && \
+chmod +x docker/aws-lambda-rie/aws-lambda-rie
+
+FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12 AS dev
+
+COPY --from=lambda-rie --link /aws-lambda-rie/aws-lambda-rie ./aws-lambda-rie
 ```
