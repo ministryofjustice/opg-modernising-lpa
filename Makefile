@@ -11,16 +11,16 @@ ECR_LOGIN ?= @aws-vault exec management -- aws ecr get-login-password --region e
 # A category can be added with @category
 # This was made possible by https://gist.github.com/prwhite/8168133#gistcomment-1727513
 HELP_FUN = \
-    %help; \
-    while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^([a-zA-Z0-9\-]+)\s*:.*\#\#(?:@([a-zA-Z\-]+))?\s(.*)$$/ }; \
-    print "usage: make [target]\n\n"; \
-    for (sort keys %help) { \
-    print "${WHITE}$$_:${RESET}\n"; \
-    for (@{$$help{$$_}}) { \
-    $$sep = " " x (32 - length $$_->[0]); \
-    print "  ${YELLOW}$$_->[0]${RESET}$$sep${GREEN}$$_->[1]${RESET}\n"; \
-    }; \
-    print "\n"; }
+		%help; \
+		while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^([a-zA-Z0-9\-]+)\s*:.*\#\#(?:@([a-zA-Z\-]+))?\s(.*)$$/ }; \
+		print "usage: make [target]\n\n"; \
+		for (sort keys %help) { \
+		print "${WHITE}$$_:${RESET}\n"; \
+		for (@{$$help{$$_}}) { \
+		$$sep = " " x (32 - length $$_->[0]); \
+		print "  ${YELLOW}$$_->[0]${RESET}$$sep${GREEN}$$_->[1]${RESET}\n"; \
+		}; \
+		print "\n"; }
 
 help: ##@other Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
@@ -119,12 +119,12 @@ delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
 		delete-table --table-name lpas
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb create-table \
-             --region eu-west-1 \
-             --table-name lpas \
-             --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
-             --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
-             --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-             --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
+						 --region eu-west-1 \
+						 --table-name lpas \
+						 --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+						 --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+						 --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+						 --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
 
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
 	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
@@ -181,6 +181,15 @@ emit-lpa-updated-event: ##@events emits an lpa-updated event with the given chan
 		--function-name event-received text \
 		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
+emit-priority-correspondence-sent: ##@events emits a priority-correspondence-sent event with the given LpaUID e.g. emit-priority-correspondence-sent uid=abc-123
+	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"priority-correspondence-sent","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","sentDate":"2024-01-02T12:13:14.000006Z"}}' | sed 's/"/\\"/g'))
+
+	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
+		--endpoint-url=http://localhost:4566 \
+		--region eu-west-1 \
+		--function-name event-received text \
+		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+
 emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
 		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "infected" }]}'
@@ -205,12 +214,12 @@ emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event 
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-without-virus ; \
-    done
+		done
 
 set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-with-virus ; \
-    done
+		done
 
 tail-logs: ##@app tails logs for app mock-notify, mock-onelogin, mock-lpa-store, mock-uid and mock-pay
 	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify mock-onelogin mock-lpa-store mock-uid mock-pay -f
@@ -246,9 +255,9 @@ endif
 
 run-schedule-runner: ##@scheduler invokes the schedule-runner lambda
 	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-    	 --endpoint-url=http://localhost:4566 \
-    	 --region eu-west-1 \
-    	 --function-name schedule-runner text
+			 --endpoint-url=http://localhost:4566 \
+			 --region eu-west-1 \
+			 --function-name schedule-runner text
 
 test-schedule-runner: add-scheduled-tasks run-schedule-runner ##@scheduler seeds scheduled tasks and runs the schedule-runner (defaults to 10 seeded tasks) e.g. test-schedule-runner count=100
 	docker compose -f docker/docker-compose.yml exec localstack awslocal cloudwatch get-metric-data \
