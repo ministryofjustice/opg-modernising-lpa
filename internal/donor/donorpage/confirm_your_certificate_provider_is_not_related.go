@@ -50,6 +50,7 @@ func ConfirmYourCertificateProviderIsNotRelated(tmpl template.Template, donorSto
 
 			if data.Errors.None() && data.Form.YesNo.IsYes() {
 				provided.CertificateProviderNotRelatedConfirmedAt = now()
+				provided.UpdateCertificateProviderNotRelatedConfirmedHash()
 				provided.Tasks.CheckYourLpa = task.StateInProgress
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {

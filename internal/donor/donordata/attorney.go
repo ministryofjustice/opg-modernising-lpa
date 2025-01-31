@@ -14,13 +14,13 @@ type Attorney struct {
 	// UID for the actor
 	UID actoruid.UID
 	// First names of the attorney
-	FirstNames string
+	FirstNames string `relatedhash:"-"`
 	// Last name of the attorney
 	LastName string
 	// Email of the attorney
-	Email string
+	Email string `relatedhash:"-"`
 	// Date of birth of the attorney
-	DateOfBirth date.Date
+	DateOfBirth date.Date `relatedhash:"-"`
 	// Address of the attorney
 	Address place.Address
 }
