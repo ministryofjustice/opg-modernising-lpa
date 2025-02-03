@@ -86,25 +86,28 @@ func TestPostConfirmYourCertificateProviderIsNotRelated(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	updated := &donordata.Provided{
+		LpaID:                          "lpa-id",
+		Donor:                          donordata.Donor{CanSign: form.Yes},
+		HasSentApplicationUpdatedEvent: true,
+		Tasks: donordata.Tasks{
+			YourDetails:                task.StateCompleted,
+			ChooseAttorneys:            task.StateCompleted,
+			ChooseReplacementAttorneys: task.StateCompleted,
+			WhenCanTheLpaBeUsed:        task.StateCompleted,
+			Restrictions:               task.StateCompleted,
+			CertificateProvider:        task.StateCompleted,
+			PeopleToNotify:             task.StateCompleted,
+			AddCorrespondent:           task.StateCompleted,
+			CheckYourLpa:               task.StateInProgress,
+		},
+		CertificateProviderNotRelatedConfirmedAt: testNow,
+	}
+	updated.UpdateCertificateProviderNotRelatedConfirmedHash()
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID:                          "lpa-id",
-			Donor:                          donordata.Donor{CanSign: form.Yes},
-			HasSentApplicationUpdatedEvent: true,
-			Tasks: donordata.Tasks{
-				YourDetails:                task.StateCompleted,
-				ChooseAttorneys:            task.StateCompleted,
-				ChooseReplacementAttorneys: task.StateCompleted,
-				WhenCanTheLpaBeUsed:        task.StateCompleted,
-				Restrictions:               task.StateCompleted,
-				CertificateProvider:        task.StateCompleted,
-				PeopleToNotify:             task.StateCompleted,
-				AddCorrespondent:           task.StateCompleted,
-				CheckYourLpa:               task.StateInProgress,
-			},
-			CertificateProviderNotRelatedConfirmedAt: testNow,
-		}).
+		Put(r.Context(), updated).
 		Return(nil)
 
 	err := ConfirmYourCertificateProviderIsNotRelated(nil, donorStore, testNowFn)(testAppData, w, r, &donordata.Provided{

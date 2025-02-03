@@ -128,6 +128,14 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if len(provided.Under18ActorDetails()) > 0 {
+			return donor.PathYouCannotSignYourLpaYet.Redirect(w, r, appData, provided)
+		}
+
+		if provided.CertificateProviderSharesDetails() {
+			return donor.PathConfirmYourCertificateProviderIsNotRelated.Redirect(w, r, appData, provided)
+		}
+
 		data := &checkYourLpaData{
 			App:   appData,
 			Donor: provided,
@@ -135,7 +143,10 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 				CheckedAndHappy: !provided.CheckedAt.IsZero(),
 			},
 			CertificateProviderContacted: !provided.CheckedAt.IsZero(),
-			CanContinue:                  provided.CheckedHashChanged(),
+			// need to consider CheckYourLpa.IsInProgress for the scenario of changing
+			// something, then changing it back, otherwise you'd never be able to
+			// continue
+			CanContinue: provided.CheckedHashChanged() || provided.Tasks.CheckYourLpa.IsInProgress(),
 		}
 
 		if r.Method == http.MethodPost && data.CanContinue {
@@ -145,6 +156,7 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 			if data.Errors.None() {
 				provided.Tasks.CheckYourLpa = task.StateCompleted
 				provided.CheckedAt = now()
+				provided.IdentityDetailsCausedCheck = false
 				if err := provided.UpdateCheckedHash(); err != nil {
 					return err
 				}
