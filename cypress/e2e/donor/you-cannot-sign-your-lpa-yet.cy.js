@@ -1,7 +1,7 @@
 describe('You cannot sign your LPA yet', () => {
     it('lists attorneys and replacement attorneys that are under 18', () => {
         const today = new Date()
-        cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=peopleToNotifyAboutYourLpa');
+        cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=addCorrespondent');
 
         cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
         cy.get('#f-date-of-birth-year').clear();
