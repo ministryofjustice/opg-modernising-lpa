@@ -1,29 +1,52 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "chooseWhichTypeOfLpaToMake" }}{{ end }}
+{{ define "pageTitle" }}
+    {{ if .CanChange }}
+        {{ tr .App "chooseWhichTypeOfLpaToMake" }}
+    {{ else }}
+        {{ tr .App "changingYourLpaType" }}
+    {{ end }}
+{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">{{ tr .App "chooseWhichTypeOfLpaToMake" }}</h1>
-
-            {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
-
-            <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . "lpa-type" .Form.LpaType.String
-                    (legend "whichTypeOfLpaToMake" "govuk-fieldset__legend--m")
-                    (item .Options.PropertyAndAffairs.String .Options.PropertyAndAffairs.String "hint" "propertyAndAffairsHint")
-                    (item .Options.PersonalWelfare.String .Options.PersonalWelfare.String "hint" "personalWelfareHint")
-                    ) }}
-
-                {{ if .CanTaskList }}
-                    {{ template "buttons" (button .App "saveAndContinue") }}
+            {{ if not .CanChange }}
+                {{ if .Form.LpaType.IsPropertyAndAffairs }}
+                    {{ template "warning-banner" (content .App "yourPropertyAndAffairsLpaTypeCannotBeChanged") }}
                 {{ else }}
-                    {{ template "button" (button .App "saveAndContinue") }}
+                    {{ template "warning-banner" (content .App "yourPersonalWelfareLpaTypeCannotBeChanged") }}
                 {{ end }}
+            {{ end }}
 
-                {{ template "csrf-field" . }}
-            </form>
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+            
+            {{ if .CanChange }}
+                {{ trHtml .App "whichTypeOfLpaToMakeContent" }}
+
+                <form novalidate method="post">
+                    {{ template "radios-fieldset" (fieldset . "lpa-type" .Form.LpaType.String
+                        (legend "whichTypeOfLpaToMake" "govuk-fieldset__legend--m")
+                        (item .Options.PropertyAndAffairs.String .Options.PropertyAndAffairs.String "hint" "propertyAndAffairsHint")
+                        (item .Options.PersonalWelfare.String .Options.PersonalWelfare.String "hint" "personalWelfareHint")
+                        ) }}
+
+                    {{ if .CanTaskList }}
+                        {{ template "buttons" (button .App "saveAndContinue") }}
+                    {{ else }}
+                        {{ template "button" (button .App "saveAndContinue") }}
+                    {{ end }}
+
+                    {{ template "csrf-field" . }}
+                </form>
+            {{ else }}
+                {{ trFormatHtml .App "changingYourLpaTypeContent" "TypeLpa" (trFormat .App "typeLpa" "Type" (tr .App .Form.LpaType.String | lowerFirst)) }}
+
+                <div class="govuk-button-group">
+                    <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "returnToTaskList" }}</a>
+                    <a href="{{ link .App global.Paths.Dashboard.Format }}" class="govuk-button govuk-button--secondary">{{ tr .App "manageYourLpas" }}</a>
+                </div>
+            {{ end }}
         </div>
     </div>
 {{ end }}

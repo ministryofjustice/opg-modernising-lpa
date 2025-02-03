@@ -21,6 +21,7 @@ type lpaTypeData struct {
 	Form        *lpaTypeForm
 	Options     lpadata.LpaTypeOptions
 	CanTaskList bool
+	CanChange   bool
 }
 
 func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
@@ -32,9 +33,10 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 			},
 			Options:     lpadata.LpaTypeValues,
 			CanTaskList: !provided.Type.Empty(),
+			CanChange:   provided.LpaUID == "",
 		}
 
-		if r.Method == http.MethodPost {
+		if data.CanChange && r.Method == http.MethodPost {
 			data.Form = readLpaTypeForm(r)
 			data.Errors = data.Form.Validate(provided.Attorneys.TrustCorporation.Name != "" || provided.ReplacementAttorneys.TrustCorporation.Name != "")
 
@@ -55,20 +57,18 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 					return err
 				}
 
-				if provided.LpaUID == "" {
-					if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
-						LpaID:          provided.LpaID,
-						DonorSessionID: session.SessionID,
-						OrganisationID: session.OrganisationID,
-						Type:           provided.Type.String(),
-						Donor: uid.DonorDetails{
-							Name:     provided.Donor.FullName(),
-							Dob:      provided.Donor.DateOfBirth,
-							Postcode: provided.Donor.Address.Postcode,
-						},
-					}); err != nil {
-						return err
-					}
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+					LpaID:          provided.LpaID,
+					DonorSessionID: session.SessionID,
+					OrganisationID: session.OrganisationID,
+					Type:           provided.Type.String(),
+					Donor: uid.DonorDetails{
+						Name:     provided.Donor.FullName(),
+						Dob:      provided.Donor.DateOfBirth,
+						Postcode: provided.Donor.Address.Postcode,
+					},
+				}); err != nil {
+					return err
 				}
 
 				return donor.PathTaskList.Redirect(w, r, appData, provided)
