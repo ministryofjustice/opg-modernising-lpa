@@ -27,14 +27,14 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
         name: Run Against Image/aws-cli-action
       - name: Manage Ingress/Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
           role-duration-seconds: 900
           role-session-name: OPGModernisingLPATerraformGithubAction
-      - uses: actions/setup-python@v5.3.0
+      - uses: actions/setup-python@v5.4.0
         with:
           python-version: '3.9'
           check-latest: true
