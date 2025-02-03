@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           aws-region: eu-west-1
           role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
@@ -85,7 +85,7 @@ jobs:
           echo "Lambda Function Zip SHA256 Hash: $(cat myFunction.zip.sha256sum)" >> $GITHUB_STEP_SUMMARY
 
       - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_ACTIONS }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ACTIONS }}
@@ -140,7 +140,7 @@ jobs:
         run: |
           terraform-workspace-manager -register-workspace=${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }} -time-to-protect=0 -aws-account-id=653761790766 -aws-iam-role=modernising-lpa-ci
       - name: Configure AWS Credentials For AWS CLI
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-cloudwatch-log-group-delete
           aws-region: eu-west-1
@@ -150,7 +150,7 @@ jobs:
         run: |
           aws logs delete-log-group --log-group-name /aws/ecs/containerinsights/${{ needs.generate_environment_workspace_name.outputs.environment_workspace_name }}/performance
       - name: Configure AWS Credentials For opensearch
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.0.3
         with:
           role-to-assume: arn:aws:iam::653761790766:role/modernising-lpa-github-actions-opensearch-delete-index
           aws-region: eu-west-1
