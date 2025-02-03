@@ -39,7 +39,6 @@ func TestGetIdentityDetails(t *testing.T) {
 		expectedLastNameMatch    bool
 		expectedDateOfBirthMatch bool
 		expectedAddressMatch     bool
-		expectedDetailsUpdated   bool
 		url                      string
 	}{
 		"details match": {
@@ -60,14 +59,6 @@ func TestGetIdentityDetails(t *testing.T) {
 			},
 			url: "/",
 		},
-		"details updated": {
-			donorProvided: &donordata.Provided{
-				Donor:            donordata.Donor{FirstNames: "a", LastName: "b", DateOfBirth: dob, Address: testAddress},
-				IdentityUserData: identity.UserData{FirstNames: "b"},
-			},
-			url:                    "/?detailsUpdated=1",
-			expectedDetailsUpdated: true,
-		},
 	}
 
 	for name, tc := range testcases {
@@ -81,7 +72,6 @@ func TestGetIdentityDetails(t *testing.T) {
 					App:              testAppData,
 					Form:             form.NewYesNoForm(form.YesNoUnknown),
 					Provided:         tc.donorProvided,
-					DetailsUpdated:   tc.expectedDetailsUpdated,
 					FirstNamesMatch:  tc.expectedFirstNamesMatch,
 					LastNameMatch:    tc.expectedLastNameMatch,
 					DateOfBirthMatch: tc.expectedDateOfBirthMatch,
@@ -102,21 +92,22 @@ func TestPostIdentityDetails(t *testing.T) {
 	existingDob := date.New("1", "2", "3")
 	identityDob := date.New("4", "5", "6")
 
-	updated := &donordata.Provided{
-		LpaID:            "lpa-id",
-		Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
-		IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
-		Tasks:            donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
-	}
-	updated.UpdateCheckedHash()
-
 	testcases := map[form.YesNo]struct {
 		provided *donordata.Provided
 		redirect string
 	}{
 		form.Yes: {
-			provided: updated,
-			redirect: donor.PathIdentityDetails.Format("lpa-id") + "?detailsUpdated=1",
+			provided: &donordata.Provided{
+				LpaID:            "lpa-id",
+				Donor:            donordata.Donor{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, Address: place.Address{Line1: "a"}},
+				IdentityUserData: identity.UserData{FirstNames: "B", LastName: "B", DateOfBirth: identityDob, CurrentAddress: place.Address{Line1: "a"}},
+				Tasks: donordata.Tasks{
+					CheckYourLpa:        task.StateInProgress,
+					ConfirmYourIdentity: task.IdentityStateCompleted,
+				},
+				IdentityDetailsCausedCheck: true,
+			},
+			redirect: donor.PathIdentityDetailsUpdated.Format("lpa-id"),
 		},
 		form.No: {
 			provided: &donordata.Provided{

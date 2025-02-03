@@ -111,7 +111,7 @@ func TaskList(tmpl template.Template, evidenceReceivedStore EvidenceReceivedStor
 		} else {
 			section1.Items = append(section1.Items, taskListItem{
 				Name:  "checkAndSendToYourCertificateProvider",
-				Path:  taskListCheckLpaPath(provided),
+				Path:  donor.PathCheckYourLpa,
 				State: provided.Tasks.CheckYourLpa,
 			})
 			sections = []taskListSection{section1, taskListPaymentSection(provided), taskListSignSection(provided)}
@@ -139,16 +139,6 @@ func taskListTypeSpecificStep(provided *donordata.Provided) taskListItem {
 		Name:  "chooseWhenTheLpaCanBeUsed",
 		Path:  donor.PathWhenCanTheLpaBeUsed,
 		State: provided.Tasks.WhenCanTheLpaBeUsed,
-	}
-}
-
-func taskListCheckLpaPath(provided *donordata.Provided) donor.Path {
-	if len(provided.Under18ActorDetails()) > 0 {
-		return donor.PathYouCannotSignYourLpaYet
-	} else if provided.CertificateProviderSharesDetails() {
-		return donor.PathConfirmYourCertificateProviderIsNotRelated
-	} else {
-		return donor.PathCheckYourLpa
 	}
 }
 
