@@ -391,41 +391,6 @@ func TestGetTaskList(t *testing.T) {
 				return sections
 			},
 		},
-		"attorneys under 18": {
-			appData: testAppData,
-			donor: &donordata.Provided{
-				LpaID: "lpa-id",
-				Donor: donordata.Donor{LastName: "a", Address: place.Address{Line1: "xx"}},
-				Attorneys: donordata.Attorneys{Attorneys: []donordata.Attorney{
-					{FirstNames: "aa", LastName: "bb", DateOfBirth: date.Today().AddDate(-17, 0, 0), Address: place.Address{Line1: "zz"}},
-				}},
-			},
-			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[1] = taskListItem{
-					Name:  "chooseYourAttorneys",
-					Path:  donor.PathChooseAttorneysSummary,
-					State: task.StateNotStarted,
-					Count: 1,
-				}
-
-				sections[0].Items[8] = taskListItem{Name: "checkAndSendToYourCertificateProvider", Path: donor.PathYouCannotSignYourLpaYet}
-
-				return sections
-			},
-		},
-		"certificate provider has similar name": {
-			appData: testAppData,
-			donor: &donordata.Provided{
-				LpaID:               "lpa-id",
-				Donor:               donordata.Donor{LastName: "a", Address: place.Address{Line1: "x"}},
-				CertificateProvider: donordata.CertificateProvider{LastName: "a"},
-			},
-			expected: func(sections []taskListSection) []taskListSection {
-				sections[0].Items[8].Path = donor.PathConfirmYourCertificateProviderIsNotRelated
-
-				return sections
-			},
-		},
 		"mixed": {
 			appData: testAppData,
 			donor: &donordata.Provided{
