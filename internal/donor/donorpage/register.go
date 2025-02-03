@@ -412,8 +412,10 @@ func Register(
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
 		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
-	handleWithDonor(donor.PathIdentityDetails, page.CanGoBack,
+	handleWithDonor(donor.PathIdentityDetails, page.None,
 		IdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
+	handleWithDonor(donor.PathIdentityDetailsUpdated, page.None,
+		Guidance(tmpls.Get("identity_details_updated.gohtml")))
 	handleWithDonor(donor.PathRegisterWithCourtOfProtection, page.None,
 		RegisterWithCourtOfProtection(tmpls.Get("register_with_court_of_protection.gohtml"), donorStore))
 
