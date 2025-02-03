@@ -217,14 +217,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x44d4ab7efe0264f8
+	const modified uint64 = 0xd6e3407c0de9ebec
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x48b67658eed0ea5c,
+		0: 0x424aa066b6c0f772,
 	}
 
 	for version, initial := range testcases {
@@ -274,13 +274,13 @@ func TestGenerateCheckedHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0x57e9d1a5d8be941c
+	const modified uint64 = 0xa7c4938116dcc5b8
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// toCheck.HashInclude and adding another testcase for the new version.
 	testcases := map[uint8]uint64{
-		0: 0x1e557764b9674996,
+		0: 0xf0e651ba75bcfbd1,
 	}
 
 	for version, initial := range testcases {
@@ -317,6 +317,60 @@ func TestGenerateCheckedHashVersionTooHigh(t *testing.T) {
 	}
 
 	_, err := donor.generateCheckedHash()
+	assert.Error(t, err)
+}
+
+func TestGenerateCertificateProviderNotRelatedConfirmedHash(t *testing.T) {
+	makeDonor := func(version uint8, hash uint64) *Provided {
+		return &Provided{
+			CertificateProviderNotRelatedConfirmedHashVersion: version,
+			CertificateProviderNotRelatedConfirmedHash:        hash,
+			Donor: Donor{LastName: "A"},
+		}
+	}
+
+	// DO change this value to match the updates
+	const modified uint64 = 0xb612d07c1239d4aa
+
+	// DO NOT change these initial hash values. If a field has been added/removed
+	// you will need to handle the version gracefully by modifying
+	// toCheck.HashInclude and adding another testcase for the new version.
+	testcases := map[uint8]uint64{
+		0: 0x146c0cfa169b6685,
+	}
+
+	for version, initial := range testcases {
+		t.Run(fmt.Sprintf("Version%d", version), func(t *testing.T) {
+			donor := makeDonor(version, initial)
+			hash, _ := donor.generateCertificateProviderNotRelatedConfirmedHash()
+
+			assert.Equal(t, donor.CertificateProviderNotRelatedConfirmedHash, hash)
+			assert.False(t, donor.CertificateProviderNotRelatedConfirmedHashChanged())
+
+			donor.Donor.FirstNames = "B"
+			assert.Equal(t, donor.CertificateProviderNotRelatedConfirmedHash, hash)
+			assert.False(t, donor.CertificateProviderNotRelatedConfirmedHashChanged())
+
+			donor.CertificateProvider.LastName = "X"
+			assert.True(t, donor.CertificateProviderNotRelatedConfirmedHashChanged())
+
+			err := donor.UpdateCertificateProviderNotRelatedConfirmedHash()
+			assert.Nil(t, err)
+			assert.Equal(t, modified, donor.CertificateProviderNotRelatedConfirmedHash)
+			assert.Equal(t, uint8(currentCertificateProviderNotRelatedConfirmedHashVersion), donor.CertificateProviderNotRelatedConfirmedHashVersion)
+		})
+	}
+}
+
+func TestGenerateCertificateProviderNotRelatedConfirmedHashVersionTooHigh(t *testing.T) {
+	donor := &Provided{
+		CertificateProviderNotRelatedConfirmedHashVersion: currentCertificateProviderNotRelatedConfirmedHashVersion + 1,
+		Donor: Donor{
+			LastName: "A",
+		},
+	}
+
+	_, err := donor.generateCertificateProviderNotRelatedConfirmedHash()
 	assert.Error(t, err)
 }
 
@@ -584,6 +638,180 @@ func TestProvidedPaidAt(t *testing.T) {
 		PaymentDetails: []Payment{{CreatedAt: testNow.Add(-2 * time.Second)}, {CreatedAt: testNow}, {CreatedAt: testNow.Add(-time.Second)}},
 	}
 	assert.Equal(t, testNow, hasPaid.PaidAt())
+}
+
+func TestCertificateProviderSharesDetailsWhenNoChange(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider:                      CertificateProvider{LastName: "X"},
+		CertificateProviderNotRelatedConfirmedAt: time.Now(),
+	}
+	provided.UpdateCertificateProviderNotRelatedConfirmedHash()
+
+	assert.False(t, provided.CertificateProviderSharesDetails())
+}
+
+func TestCertificateProviderSharesDetailsNames(t *testing.T) {
+	testcases := map[string]struct {
+		certificateProvider  string
+		donor                string
+		attorneys            []string
+		replacementAttorneys []string
+		expected             bool
+	}{
+		"no match": {
+			certificateProvider:  "a",
+			attorneys:            []string{"b"},
+			replacementAttorneys: []string{"c"},
+		},
+		"match donor": {
+			certificateProvider: "a",
+			donor:               "a",
+			expected:            true,
+		},
+		"match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-start on certificate provider match donor": {
+			certificateProvider: "a-c",
+			donor:               "a",
+			expected:            true,
+		},
+		"half-end on certificate provider match donor": {
+			certificateProvider: "c-a",
+			donor:               "a",
+			expected:            true,
+		},
+		"half-start on donor match donor": {
+			certificateProvider: "a",
+			donor:               "a-c",
+			expected:            true,
+		},
+		"half-end on donor match donor": {
+			certificateProvider: "a",
+			donor:               "c-a",
+			expected:            true,
+		},
+		"half-start on certificate provider match attorney": {
+			certificateProvider: "a-c",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"half-end on certificate provider match attorney": {
+			certificateProvider: "c-a",
+			attorneys:           []string{"b", "a"},
+			expected:            true,
+		},
+		"half-start on attorney match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "a-c"},
+			expected:            true,
+		},
+		"half-end on attorney match attorney": {
+			certificateProvider: "a",
+			attorneys:           []string{"b", "c-a"},
+			expected:            true,
+		},
+		"half-start on certificate provider match replacement attorney": {
+			certificateProvider:  "a-c",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-end on certificate provider match replacement attorney": {
+			certificateProvider:  "c-a",
+			replacementAttorneys: []string{"b", "a"},
+			expected:             true,
+		},
+		"half-start on replacement attorney match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "a-c"},
+			expected:             true,
+		},
+		"half-end on replacement attorney match replacement attorney": {
+			certificateProvider:  "a",
+			replacementAttorneys: []string{"b", "c-a"},
+			expected:             true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			donor := &Provided{
+				Donor:               Donor{LastName: tc.donor},
+				CertificateProvider: CertificateProvider{LastName: tc.certificateProvider, Address: place.Address{Line1: "x"}},
+			}
+
+			for _, a := range tc.attorneys {
+				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, Attorney{LastName: a})
+			}
+
+			for _, a := range tc.replacementAttorneys {
+				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, Attorney{LastName: a})
+			}
+
+			assert.Equal(t, tc.expected, donor.CertificateProviderSharesDetails())
+		})
+	}
+}
+
+func TestCertificateProviderSharesDetailsAddresses(t *testing.T) {
+	a := place.Address{Line1: "a", Postcode: "a"}
+	b := place.Address{Line1: "b", Postcode: "a"}
+	c := place.Address{Line1: "a", Postcode: "b"}
+
+	testcases := map[string]struct {
+		certificateProvider  place.Address
+		donor                place.Address
+		attorneys            []place.Address
+		replacementAttorneys []place.Address
+		expected             bool
+	}{
+		"no match": {
+			certificateProvider:  a,
+			attorneys:            []place.Address{b},
+			replacementAttorneys: []place.Address{c},
+		},
+		"match donor": {
+			certificateProvider: a,
+			donor:               a,
+			expected:            true,
+		},
+		"match attorney": {
+			certificateProvider: a,
+			attorneys:           []place.Address{b, a},
+			expected:            true,
+		},
+		"match replacement attorney": {
+			certificateProvider:  a,
+			replacementAttorneys: []place.Address{b, a},
+			expected:             true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			donor := &Provided{
+				Donor:               Donor{Address: tc.donor},
+				CertificateProvider: CertificateProvider{LastName: "x", Address: tc.certificateProvider},
+			}
+
+			for _, attorney := range tc.attorneys {
+				donor.Attorneys.Attorneys = append(donor.Attorneys.Attorneys, Attorney{Address: attorney})
+			}
+
+			for _, attorney := range tc.replacementAttorneys {
+				donor.ReplacementAttorneys.Attorneys = append(donor.ReplacementAttorneys.Attorneys, Attorney{Address: attorney})
+			}
+
+			assert.Equal(t, tc.expected, donor.CertificateProviderSharesDetails())
+		})
+	}
 }
 
 func TestNamesChanged(t *testing.T) {
