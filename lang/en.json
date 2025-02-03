@@ -1455,5 +1455,9 @@
     "whyCantEditMyLpa": "Why can’t I edit my LPA?",
     "whyCantEditMyLpaContent": "<p class=\"govuk-body\">You have signed your LPA, so you cannot change the decisions you made when you filled it in.</p><p class=\"govuk-body\"><a href=\"{{.Link}}\" class=\"govuk-link\">View LPA</a></p>",
     "yourCertificateProviderMustBeNotifiedDetailsUpdated": "<p class=\"govuk-body\">Your certificate provider must be notified of any updates to your LPA.</p><p class=\"govuk-body\">When you select ‘Continue’ you will be able to check your LPA and send a notification to your certificate provider that your LPA has been updated.</p>",
-    "yourLpaDetailsHaveBeenUpdatedToMatchIdentityMustBeNotified": "<div class=\"govuk-notification-banner__content\"><h3 class=\"govuk-notification-banner__heading\">Your LPA details have been updated to match your confirmed identity</h3><p class=\"govuk-body\">Your certificate provider must be notified of any updates to your LPA.</p></div>"
+    "yourLpaDetailsHaveBeenUpdatedToMatchIdentityMustBeNotified": "<div class=\"govuk-notification-banner__content\"><h3 class=\"govuk-notification-banner__heading\">Your LPA details have been updated to match your confirmed identity</h3><p class=\"govuk-body\">Your certificate provider must be notified of any updates to your LPA.</p></div>",
+    "changingYourLpaType": "Changing your LPA type",
+    "changingYourLpaTypeContent": "<p class=\"govuk-body\">You cannot change the type of this LPA once you have entered your personal details.</p><p class=\"govuk-body\">However, you can create a new LPA.</p><p class=\"govuk-body\">Visit ‘Manage your LPAs’ to delete this LPA and create a new {{.TypeLpa}}.</p>",
+    "yourPropertyAndAffairsLpaTypeCannotBeChanged": "Your property and affairs LPA cannot be changed to a personal welfare LPA",
+    "yourPersonalWelfareLpaTypeCannotBeChanged": "Your persoanl welfare LPA cannot be changed to a property and affairs LPA"
 }

@@ -30,9 +30,10 @@ func TestGetLpaType(t *testing.T) {
 	template := newMockTemplate(t)
 	template.EXPECT().
 		Execute(w, &lpaTypeData{
-			App:     testAppData,
-			Form:    &lpaTypeForm{},
-			Options: lpadata.LpaTypeValues,
+			App:       testAppData,
+			Form:      &lpaTypeForm{},
+			Options:   lpadata.LpaTypeValues,
+			CanChange: true,
 		}).
 		Return(nil)
 
@@ -56,6 +57,7 @@ func TestGetLpaTypeFromStore(t *testing.T) {
 			},
 			Options:     lpadata.LpaTypeValues,
 			CanTaskList: true,
+			CanChange:   true,
 		}).
 		Return(nil)
 
@@ -170,12 +172,12 @@ func TestPostLpaTypeWhenLpaUIDExists(t *testing.T) {
 	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+	template := newMockTemplate(t)
+	template.EXPECT().
+		Execute(mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := LpaType(nil, donorStore, nil)(testAppData, w, r, &donordata.Provided{
+	err := LpaType(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{
 		LpaID:  "lpa-id",
 		LpaUID: "lpa-uid",
 		Donor: donordata.Donor{
@@ -189,8 +191,7 @@ func TestPostLpaTypeWhenLpaUIDExists(t *testing.T) {
 	resp := w.Result()
 
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusFound, resp.StatusCode)
-	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
 func TestPostLpaTypeWhenTrustCorporation(t *testing.T) {
