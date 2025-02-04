@@ -20,7 +20,7 @@ type confirmDontWantToBeAttorneyData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) Handler {
+func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, attorneyProvidedDetails *attorneydata.Provided, lpa *lpadata.Lpa) error {
 		data := &confirmDontWantToBeAttorneyData{
 			App: appData,
@@ -34,12 +34,9 @@ func ConfirmDontWantToBeAttorney(tmpl template.Template, attorneyStore AttorneyS
 			}
 
 			email := notify.AttorneyOptedOutEmail{
-				Greeting:          notifyClient.EmailGreeting(lpa),
-				AttorneyFullName:  fullName,
-				DonorFullName:     lpa.Donor.FullName(),
-				LpaType:           appData.Localizer.T(lpa.Type.String()),
-				LpaUID:            lpa.LpaUID,
-				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+				Greeting:         notifyClient.EmailGreeting(lpa),
+				AttorneyFullName: fullName,
+				LpaType:          appData.Localizer.T(lpa.Type.String()),
 			}
 
 			if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {
