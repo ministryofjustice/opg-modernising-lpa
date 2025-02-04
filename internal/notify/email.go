@@ -256,16 +256,17 @@ func (e PaymentConfirmationEmail) emailID(isProduction bool, lang localize.Lang)
 }
 
 type AttorneyOptedOutEmail struct {
-	Greeting          string
-	AttorneyFullName  string
-	DonorFullName     string
-	LpaType           string
-	LpaUID            string
-	DonorStartPageURL string
+	Greeting         string
+	AttorneyFullName string
+	LpaType          string
 }
 
 func (e AttorneyOptedOutEmail) emailID(isProduction bool, _ localize.Lang) string {
-	return "TODO"
+	if isProduction {
+		return "38bf7a04-b15c-4563-8214-bada37284744"
+	}
+
+	return "8d912d5a-f3df-4720-808e-167703e03326"
 }
 
 type DonorIdentityCheckExpiredEmail struct{}
