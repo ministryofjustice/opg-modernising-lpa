@@ -44,7 +44,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -60,7 +60,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenSessionStoreErrors(t *testin
 		LpaData(r).
 		Return(&sesh.LpaDataSession{}, expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, nil, sessionStore, nil, "example.com", nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, nil, sessionStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -81,7 +81,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenLpaStoreResolvingServiceErro
 		Get(mock.Anything).
 		Return(&lpadata.Lpa{}, expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, nil, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -107,7 +107,7 @@ func TestGetConfirmDontWantToBeAttorneyLoggedOutWhenTemplateErrors(t *testing.T)
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(template.Execute, nil, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -205,12 +205,9 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				Return("Dear donor")
 			notifyClient.EXPECT().
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.AttorneyOptedOutEmail{
-					Greeting:          "Dear donor",
-					AttorneyFullName:  tc.attorneyFullName,
-					DonorFullName:     "a b c",
-					LpaType:           "Personal welfare",
-					LpaUID:            "lpa-uid",
-					DonorStartPageURL: "example.com" + page.PathStart.Format(),
+					Greeting:         "Dear donor",
+					AttorneyFullName: tc.attorneyFullName,
+					LpaType:          "Personal welfare",
 				}).
 				Return(nil)
 
@@ -226,7 +223,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOut(t *testing.T) {
 				SendAttorneyOptOut(r.Context(), "lpa-uid", tc.uid, tc.actorType).
 				Return(nil)
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r)
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient)(testAppData, w, r)
 
 			resp := w.Result()
 
@@ -270,7 +267,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutWhenAttorneyNotFound(t *testing
 			Type: lpadata.LpaTypePersonalWelfare,
 		}, nil)
 
-	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, "example.com", nil)(testAppData, w, r)
+	err := ConfirmDontWantToBeAttorneyLoggedOut(nil, shareCodeStore, lpaStoreResolvingService, sessionStore, nil, nil)(testAppData, w, r)
 	assert.EqualError(t, err, "attorney not found")
 }
 
@@ -466,7 +463,7 @@ func TestPostConfirmDontWantToBeAttorneyLoggedOutErrors(t *testing.T) {
 
 			testAppData.Localizer = evalT(tc.localizer, t)
 
-			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.shareCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r)
+			err := ConfirmDontWantToBeAttorneyLoggedOut(nil, evalT(tc.shareCodeStore, t), evalT(tc.lpaStoreResolvingService, t), evalT(tc.sessionStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r)
 
 			resp := w.Result()
 

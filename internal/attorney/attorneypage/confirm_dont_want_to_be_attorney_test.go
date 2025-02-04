@@ -33,7 +33,7 @@ func TestGetConfirmDontWantToBeAttorney(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{}, lpa)
+	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, lpa)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -49,7 +49,7 @@ func TestGetConfirmDontWantToBeAttorneyWhenTemplateErrors(t *testing.T) {
 		Execute(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
+	err := ConfirmDontWantToBeAttorney(template.Execute, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -94,12 +94,9 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		Return("Dear donor")
 	notifyClient.EXPECT().
 		SendActorEmail(r.Context(), notify.ToLpaDonor(lpa), "lpa-uid", notify.AttorneyOptedOutEmail{
-			Greeting:          "Dear donor",
-			AttorneyFullName:  "d e f",
-			DonorFullName:     "a b c",
-			LpaType:           "Personal welfare",
-			LpaUID:            "lpa-uid",
-			DonorStartPageURL: "example.com" + page.PathStart.Format(),
+			Greeting:         "Dear donor",
+			AttorneyFullName: "d e f",
+			LpaType:          "Personal welfare",
 		}).
 		Return(nil)
 
@@ -108,7 +105,7 @@ func TestPostConfirmDontWantToBeAttorney(t *testing.T) {
 		SendAttorneyOptOut(r.Context(), "lpa-uid", uid, actor.TypeAttorney).
 		Return(nil)
 
-	err := ConfirmDontWantToBeAttorney(nil, certificateProviderStore, notifyClient, "example.com", lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
+	err := ConfirmDontWantToBeAttorney(nil, certificateProviderStore, notifyClient, lpaStoreClient)(testAppData, w, r, &attorneydata.Provided{
 		UID: uid,
 	}, lpa)
 
@@ -124,7 +121,7 @@ func TestPostConfirmDontWantToBeAttorneyWhenAttorneyNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	uid := actoruid.New()
 
-	err := ConfirmDontWantToBeAttorney(nil, nil, nil, "example.com", nil)(testAppData, w, r, &attorneydata.Provided{
+	err := ConfirmDontWantToBeAttorney(nil, nil, nil, nil)(testAppData, w, r, &attorneydata.Provided{
 		UID: uid,
 	}, &lpadata.Lpa{
 		LpaUID:   "lpa-uid",
@@ -219,7 +216,7 @@ func TestPostConfirmDontWantToBeAttorneyErrors(t *testing.T) {
 
 			testAppData.Localizer = localizer
 
-			err := ConfirmDontWantToBeAttorney(nil, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), "example.com", evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()})
+			err := ConfirmDontWantToBeAttorney(nil, evalT(tc.attorneyStore, t), evalT(tc.notifyClient, t), evalT(tc.lpaStoreClient, t))(testAppData, w, r, &attorneydata.Provided{}, &lpadata.Lpa{LpaUID: "lpa-uid", SignedAt: time.Now()})
 
 			resp := w.Result()
 

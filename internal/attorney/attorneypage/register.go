@@ -105,7 +105,6 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
-	appPublicURL string,
 ) {
 	handleRoot := makeHandle(rootMux, sessionStore, errorHandler)
 
@@ -118,7 +117,7 @@ func Register(
 	handleRoot(page.PathAttorneyEnterReferenceNumberOptOut, None,
 		EnterReferenceNumberOptOut(tmpls.Get("enter_reference_number_opt_out.gohtml"), shareCodeStore, sessionStore))
 	handleRoot(page.PathAttorneyConfirmDontWantToBeAttorneyLoggedOut, None,
-		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, appPublicURL, lpaStoreClient))
+		ConfirmDontWantToBeAttorneyLoggedOut(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), shareCodeStore, lpaStoreResolvingService, sessionStore, notifyClient, lpaStoreClient))
 	handleRoot(page.PathAttorneyYouHaveDecidedNotToBeAttorney, None,
 		page.Guidance(tmpls.Get("you_have_decided_not_to_be_attorney.gohtml")))
 
@@ -150,7 +149,7 @@ func Register(
 		Progress(tmpls.Get("progress.gohtml")))
 
 	handleAttorney(attorney.PathConfirmDontWantToBeAttorney, CanGoBack,
-		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), attorneyStore, notifyClient, appPublicURL, lpaStoreClient))
+		ConfirmDontWantToBeAttorney(tmpls.Get("confirm_dont_want_to_be_attorney.gohtml"), attorneyStore, notifyClient, lpaStoreClient))
 }
 
 type handleOpt byte

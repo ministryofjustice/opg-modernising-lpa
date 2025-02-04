@@ -21,7 +21,7 @@ type confirmDontWantToBeAttorneyDataLoggedOut struct {
 	Lpa    *lpadata.Lpa
 }
 
-func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, sessionStore SessionStore, notifyClient NotifyClient, appPublicURL string, lpaStoreClient LpaStoreClient) page.Handler {
+func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore ShareCodeStore, lpaStoreResolvingService LpaStoreResolvingService, sessionStore SessionStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient) page.Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request) error {
 		session, err := sessionStore.LpaData(r)
 		if err != nil {
@@ -54,12 +54,9 @@ func ConfirmDontWantToBeAttorneyLoggedOut(tmpl template.Template, shareCodeStore
 			}
 
 			email := notify.AttorneyOptedOutEmail{
-				Greeting:          notifyClient.EmailGreeting(lpa),
-				AttorneyFullName:  fullName,
-				DonorFullName:     lpa.Donor.FullName(),
-				LpaType:           appData.Localizer.T(lpa.Type.String()),
-				LpaUID:            lpa.LpaUID,
-				DonorStartPageURL: appPublicURL + page.PathStart.Format(),
+				Greeting:         notifyClient.EmailGreeting(lpa),
+				AttorneyFullName: fullName,
+				LpaType:          appData.Localizer.T(lpa.Type.String()),
 			}
 
 			if err := notifyClient.SendActorEmail(ctx, notify.ToLpaDonor(lpa), lpa.LpaUID, email); err != nil {
