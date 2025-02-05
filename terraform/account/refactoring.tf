@@ -249,3 +249,8 @@ moved {
   from = pagerduty_service_integration.opensearch
   to   = module.eu_west_1[0].pagerduty_service_integration.opensearch
 }
+
+moved {
+  from = aws_opensearchserverless_access_policy.team_breakglass_access[0]
+  to   = module.eu_west_1[0].aws_opensearchserverless_access_policy.team_breakglass_access[0]
+}
