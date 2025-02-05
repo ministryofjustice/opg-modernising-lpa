@@ -1563,5 +1563,6 @@
     "changingYourLpaType": "Welsh",
     "changingYourLpaTypeContent": "<p class=\"govuk-body\">Welsh {{.TypeLpa}}.</p>",
     "yourPropertyAndAffairsLpaTypeCannotBeChanged": "Welsh",
-    "yourPersonalWelfareLpaTypeCannotBeChanged": "Welsh"
+    "yourPersonalWelfareLpaTypeCannotBeChanged": "Welsh",
+    "newEvidenceRequired:Exemption": "Welsh"
 }
