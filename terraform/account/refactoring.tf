@@ -194,3 +194,58 @@ moved {
   from = module.eu_west_1[0].module.aws_backup_vaults.aws_sns_topic_policy.aws_backup_failure_events
   to   = module.aws_backup_vaults_eu_west_1.aws_sns_topic_policy.aws_backup_failure_events
 }
+
+moved {
+  from = aws_cloudwatch_metric_alarm.opensearch_4xx_errors
+  to   = module.eu_west_1[0].aws_cloudwatch_metric_alarm.opensearch_4xx_errors
+}
+
+moved {
+  from = aws_cloudwatch_metric_alarm.opensearch_5xx_errors
+  to   = module.eu_west_1[0].aws_cloudwatch_metric_alarm.opensearch_5xx_errors
+}
+
+moved {
+  from = aws_opensearchserverless_access_policy.github_actions_access[0]
+  to   = module.eu_west_1[0].aws_opensearchserverless_access_policy.github_actions_access[0]
+}
+
+moved {
+  from = aws_opensearchserverless_access_policy.team_operator_access[0]
+  to   = module.eu_west_1[0].aws_opensearchserverless_access_policy.team_operator_access[0]
+}
+
+moved {
+  from = aws_opensearchserverless_collection.lpas_collection
+  to   = module.eu_west_1[0].aws_opensearchserverless_collection.lpas_collection
+}
+
+moved {
+  from = aws_opensearchserverless_security_policy.lpas_collection_development_network_policy[0]
+  to   = module.eu_west_1[0].aws_opensearchserverless_security_policy.lpas_collection_development_network_policy[0]
+}
+
+moved {
+  from = aws_opensearchserverless_security_policy.lpas_collection_network_policy
+  to   = module.eu_west_1[0].aws_opensearchserverless_security_policy.lpas_collection_network_policy
+}
+
+moved {
+  from = aws_sns_topic.opensearch
+  to   = module.eu_west_1[0].aws_sns_topic.opensearch
+}
+
+moved {
+  from = aws_opensearchserverless_security_policy.lpas_collection_encryption_policy
+  to   = module.eu_west_1[0].aws_opensearchserverless_security_policy.lpas_collection_encryption_policy
+}
+
+moved {
+  from = aws_sns_topic_subscription.opensearch
+  to   = module.eu_west_1[0].aws_sns_topic_subscription.opensearch
+}
+
+moved {
+  from = pagerduty_service_integration.opensearch
+  to   = module.eu_west_1[0].pagerduty_service_integration.opensearch
+}
