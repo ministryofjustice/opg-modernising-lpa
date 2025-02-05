@@ -1459,5 +1459,6 @@
     "changingYourLpaType": "Changing your LPA type",
     "changingYourLpaTypeContent": "<p class=\"govuk-body\">You cannot change the type of this LPA once you have entered your personal details.</p><p class=\"govuk-body\">However, you can create a new LPA.</p><p class=\"govuk-body\">Visit ‘Manage your LPAs’ to delete this LPA and create a new {{.TypeLpa}}.</p>",
     "yourPropertyAndAffairsLpaTypeCannotBeChanged": "Your property and affairs LPA cannot be changed to a personal welfare LPA",
-    "yourPersonalWelfareLpaTypeCannotBeChanged": "Your persoanl welfare LPA cannot be changed to a property and affairs LPA"
+    "yourPersonalWelfareLpaTypeCannotBeChanged": "Your personal welfare LPA cannot be changed to a property and affairs LPA",
+    "newEvidenceRequired:Exemption": "New evidence required for a fee exemption"
 }
