@@ -14,7 +14,7 @@
                     <h2 class="govuk-heading-m">{{ trFormat .App "discussWithCertificateProviderStep" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}</h2>
 
                     <p class="govuk-body">
-                        {{ if eq (len .Donor.TrustCorporationsNames) 0 }}
+                        {{ if not .Donor.HasTrustCorporations }}
                             {{ trFormatCount .App "meetFaceToFaceWithoutAttorneys"
                                 (len .Donor.AllLayAttorneysFullNames)
                                 "CertificateProviderFullName" .Donor.CertificateProvider.FullName
@@ -22,19 +22,19 @@
                         {{ else if eq (len .Donor.AllLayAttorneysFullNames) 0 }}
                             {{ trFormat .App "meetFaceToFaceWithoutTrustCorporation"
                                 "CertificateProviderFullName" .Donor.CertificateProvider.FullName
-                                "TrustCorporationsNames" (concatAnd .App .Donor.TrustCorporationsNames) }}
+                                "TrustCorporationName" .Donor.TrustCorporation.Name }}
                         {{ else }}
                             {{ trFormatCount .App "meetFaceToFaceWithoutAttorneysAndTrustCorporation"
                                 (len .Donor.AllLayAttorneysFullNames)
                                 "CertificateProviderFullName" .Donor.CertificateProvider.FullName
-                                "TrustCorporationsNames" (concatAnd .App .Donor.TrustCorporationsNames)
+                                "TrustCorporationName" .Donor.TrustCorporation.Name
                                 "AttorneysFullNames" (concatAnd .App .Donor.AllLayAttorneysFullNames) }}
                         {{ end }}
                     </p>
 
                     {{ trFormatHtml .App "discussWithCertificateProviderContent"
                         "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
-                    
+
                     {{ if .Donor.Donor.CanSign.IsYes }}
                         {{ trFormatHtml .App "signYourLpaStep" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
                     {{ else }}
