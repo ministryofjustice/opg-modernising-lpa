@@ -340,6 +340,20 @@ func (p *Provided) DonorIdentityConfirmed() bool {
 		p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
 }
 
+// SignerFullNames returns the full names of the non-donor actors expected to
+// sign the LPA.
+func (p *Provided) SignerFullNames() []string {
+	var names []string
+
+	for person := range p.Actors() {
+		if person.Type.IsCertificateProvider() || person.Type.IsAttorney() || person.Type.IsReplacementAttorney() {
+			names = append(names, person.FullName())
+		}
+	}
+
+	return names
+}
+
 // SigningDeadline gives the date at which the LPA should be signed by the
 // certificate provider and attorneys.
 func (p *Provided) SigningDeadline() time.Time {
@@ -347,7 +361,7 @@ func (p *Provided) SigningDeadline() time.Time {
 		return p.SignedAt.AddDate(0, 4, 14)
 	}
 
-	return p.SignedAt.AddDate(0, 0, 28)
+	return p.SignedAt.AddDate(2, 0, 0)
 }
 
 // IdentityDeadline gives the date which the donor must complete their identity
@@ -364,6 +378,12 @@ func (p *Provided) IdentityDeadline() time.Time {
 // must be submitted to the Court of Protection, if registering through this
 // route.
 func (p *Provided) CourtOfProtectionSubmissionDeadline() time.Time {
+	return p.SignedAt.AddDate(0, 6, 0)
+}
+
+// CertificateProviderDeadline gives the date at which the certificate provider
+// should act.
+func (p *Provided) CertificateProviderDeadline() time.Time {
 	return p.SignedAt.AddDate(0, 6, 0)
 }
 
