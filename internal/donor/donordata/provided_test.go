@@ -447,12 +447,48 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
+func TestSignerFullNames(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "C", LastName: "D"}},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "E", LastName: "F"}},
+		},
+		PeopleToNotify: PeopleToNotify{{FirstNames: "X", LastName: "Y"}},
+	}
+
+	assert.Equal(t, []string{"A B", "C D", "E F"}, provided.SignatoryNames(nil))
+}
+
+func TestSignerFullNamesWhenTrustCorporation(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "C", LastName: "D"}},
+		},
+		ReplacementAttorneys: Attorneys{
+			TrustCorporation: TrustCorporation{Name: "Trusted"},
+			Attorneys:        []Attorney{{FirstNames: "E", LastName: "F"}},
+		},
+		PeopleToNotify: PeopleToNotify{{FirstNames: "X", LastName: "Y"}},
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Format("aSignatoryFromTrustCorporation", map[string]any{"TrustCorporationName": "Trusted"}).
+		Return("signatory")
+
+	assert.Equal(t, []string{"A B", "signatory", "C D", "E F"}, provided.SignatoryNames(localizer))
+}
+
 func TestSigningDeadline(t *testing.T) {
 	donor := Provided{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
+	expected := time.Date(2022, time.January, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
 
 	donor.RegisteringWithCourtOfProtection = true
@@ -467,6 +503,15 @@ func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {
 
 	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.CourtOfProtectionSubmissionDeadline())
+}
+
+func TestCertificateProviderDeadline(t *testing.T) {
+	donor := Provided{
+		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+	}
+
+	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, donor.CertificateProviderDeadline())
 }
 
 func TestUnder18ActorDetails(t *testing.T) {
