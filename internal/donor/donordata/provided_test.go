@@ -447,12 +447,27 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
+func TestSignerFullNames(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "C", LastName: "D"}},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "E", LastName: "F"}},
+		},
+		PeopleToNotify: PeopleToNotify{{FirstNames: "X", LastName: "Y"}},
+	}
+
+	assert.Equal(t, []string{"A B", "C D", "E F"}, provided.SignerFullNames())
+}
+
 func TestSigningDeadline(t *testing.T) {
 	donor := Provided{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
+	expected := time.Date(2022, time.January, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
 
 	donor.RegisteringWithCourtOfProtection = true
@@ -467,6 +482,15 @@ func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {
 
 	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.CourtOfProtectionSubmissionDeadline())
+}
+
+func TestCertificateProviderDeadline(t *testing.T) {
+	donor := Provided{
+		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+	}
+
+	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, donor.CertificateProviderDeadline())
 }
 
 func TestUnder18ActorDetails(t *testing.T) {
