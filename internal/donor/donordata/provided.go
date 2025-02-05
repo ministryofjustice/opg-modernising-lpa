@@ -21,6 +21,10 @@ import (
 	"github.com/mitchellh/hashstructure/v2"
 )
 
+type Localizer interface {
+	Format(string, map[string]any) string
+}
+
 const (
 	currentHashVersion                                       uint8 = 0
 	currentCheckedHashVersion                                uint8 = 0
@@ -340,6 +344,25 @@ func (p *Provided) DonorIdentityConfirmed() bool {
 		p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
 }
 
+// SignatoriesNames returns the full names of the non-donor actors expected to
+// sign the LPA.
+func (p *Provided) SignatoriesNames(localizer Localizer) []string {
+	return append([]string{p.CertificateProvider.FullName()}, p.AttorneysNames(localizer)...)
+}
+
+// AttorneysNames returns the full names of the attorneys and trust corporation.
+func (p *Provided) AttorneysNames(localizer Localizer) []string {
+	var names []string
+
+	if p.HasTrustCorporation() {
+		names = append(names, localizer.Format("aSignatoryFromTrustCorporation", map[string]any{
+			"TrustCorporationName": p.TrustCorporation().Name,
+		}))
+	}
+
+	return append(names, p.AllLayAttorneysFullNames()...)
+}
+
 // SigningDeadline gives the date at which the LPA should be signed by the
 // certificate provider and attorneys.
 func (p *Provided) SigningDeadline() time.Time {
@@ -347,7 +370,7 @@ func (p *Provided) SigningDeadline() time.Time {
 		return p.SignedAt.AddDate(0, 4, 14)
 	}
 
-	return p.SignedAt.AddDate(0, 0, 28)
+	return p.SignedAt.AddDate(2, 0, 0)
 }
 
 // IdentityDeadline gives the date which the donor must complete their identity
@@ -364,6 +387,12 @@ func (p *Provided) IdentityDeadline() time.Time {
 // must be submitted to the Court of Protection, if registering through this
 // route.
 func (p *Provided) CourtOfProtectionSubmissionDeadline() time.Time {
+	return p.SignedAt.AddDate(0, 6, 0)
+}
+
+// CertificateProviderDeadline gives the date at which the certificate provider
+// should act.
+func (p *Provided) CertificateProviderDeadline() time.Time {
 	return p.SignedAt.AddDate(0, 6, 0)
 }
 
@@ -465,18 +494,16 @@ func (p *Provided) AllLayAttorneysFullNames() []string {
 	return names
 }
 
-func (p *Provided) TrustCorporationsNames() []string {
-	var names []string
+func (p *Provided) HasTrustCorporation() bool {
+	return p.Attorneys.TrustCorporation.Name != "" || p.ReplacementAttorneys.TrustCorporation.Name != ""
+}
 
+func (p *Provided) TrustCorporation() TrustCorporation {
 	if p.Attorneys.TrustCorporation.Name != "" {
-		names = append(names, p.Attorneys.TrustCorporation.Name)
+		return p.Attorneys.TrustCorporation
 	}
 
-	if p.ReplacementAttorneys.TrustCorporation.Name != "" {
-		names = append(names, p.ReplacementAttorneys.TrustCorporation.Name)
-	}
-
-	return names
+	return p.ReplacementAttorneys.TrustCorporation
 }
 
 func (p *Provided) Cost() int {
