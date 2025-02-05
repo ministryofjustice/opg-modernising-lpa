@@ -9,9 +9,9 @@ variable "cloudwatch_log_group_kms_key_alias" {
   description = "The alias of the KMS Key to use when encrypting Cloudwatch log data."
 }
 
-variable "sns_kms_key_alias" {
-  description = "The alias of the KMS key used to encrypt the SNS topic"
-  type        = string
+variable "sns_kms_key" {
+  type        = any
+  description = "The KMS key used to encrypt the SNS topic"
 }
 
 variable "secrets_manager_kms_key_alias" {
@@ -32,4 +32,13 @@ variable "dynamodb_exports_s3_bucket_server_side_encryption_key_id" {
 variable "network_firewall_rules_file" {
   type        = string
   description = "The path to the file containing the network firewall rules."
+}
+
+variable "opensearch_kms_target_key_arn" {
+  type        = string
+  description = "kms target key ARN for opensearch serverless encryption"
+}
+
+variable "pagerduty_service_name" {
+  type = string
 }

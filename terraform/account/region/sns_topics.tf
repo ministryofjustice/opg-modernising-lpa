@@ -1,5 +1,5 @@
 data "aws_kms_alias" "sns_kms_key_alias" {
-  name     = var.sns_kms_key_alias
+  name     = var.sns_kms_key.kms_key_alias_name
   provider = aws.region
 }
 
