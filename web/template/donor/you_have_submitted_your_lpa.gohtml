@@ -9,7 +9,7 @@
                 <h1 class="govuk-panel__title">{{ tr .App "submittedYourLpa" }}</h1>
             </div>
 
-            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+            <h2 class="govuk-heading-l">{{ tr .App "whatHappensNext" }}</h2>
 
             {{ if .Donor.RegisteringWithCourtOfProtection }}
                 <p class="govuk-body">{{ tr .App "thanksWeCannotRegisterUntilCourtOfProtection" }}</p>
@@ -23,27 +23,36 @@
                 </ol>
 
                 <p class="govuk-body">{{ tr .App "youCanTrackTheProgressByLoggingBackIn" }}</p>
-                
+
                 {{ template "warning" (content .App (trFormatCount .App "copSignDeadlineWarning" .Donor.Attorneys.Len
                     "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames
                     "SigningDeadline" (formatDate .App .Donor.SigningDeadline)
                     "SubmissionDeadline" (formatDate .App .Donor.CourtOfProtectionSubmissionDeadline))) }}
 
-            {{ else }}      
+            {{ else }}
+                <p class="govuk-body">{{ tr .App "nowYouHaveSubmittedMustBeSignedWithinTwoYears" }}</p>
+
+                <div class="govuk-inset-text">
+                    <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Donor.SigningDeadline }}</p>
+                </div>
+
                 <ol class="govuk-list govuk-list--number govuk-list--spaced">
-                    <li>{{ trFormat .App "weWillContactYourCertificateProvider" "FirstNames" .Donor.CertificateProvider.FirstNames }}</li>
-                    <li>{{ trFormatCount .App "weWillThenContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.Attorneys.FullNames) }}</li>
+                    {{ if not .Donor.Tasks.ConfirmYourIdentity.IsCompleted }}
+                        <li>{{ tr .App "confirmYourIdentityByReturning" }}</li>
+                    {{ end }}
+                    <li>{{ trFormat .App "opgWillContactCertificateProviderWithin" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "DeadlineDate" (formatDate .App .Donor.CertificateProviderDeadline) }}</li>
+                    <li>{{ trFormatCount .App "opgWillThenContactAttorneys" .Donor.Attorneys.Len "FullNames" (concatAnd .App .Donor.AllLayAttorneysFullNames) }}</li>
                     <li>{{ tr .App "onceEveryoneHasSigned" }}</li>
                     <li>{{ tr .App "wellRegisteredYourLpa" }}</li>
                 </ol>
 
                 {{ trHtml .App "weWillEmailYou" }}
 
-                {{ template "warning" (content .App (trFormatCount .App "signIn4WeeksWarning" .Donor.Attorneys.Len
-                    "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames
+                {{ template "warning" (content .App (trFormat .App "signByDeadlineWarning"
+                    "SignerFullNames" (concatAnd .App .Donor.SignerFullNames)
                     "SigningDeadline" (formatDate .App .Donor.SigningDeadline))) }}
             {{ end }}
-            
+
             <a class="govuk-button" href="{{ link .App global.Paths.Dashboard.Format }}" data-module="govuk-button">
                 {{ tr .App "continue" }}
             </a>
