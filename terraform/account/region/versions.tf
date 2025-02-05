@@ -11,5 +11,9 @@ terraform {
         aws.global,
       ]
     }
+    pagerduty = {
+      source  = "PagerDuty/pagerduty"
+      version = "3.19.4"
+    }
   }
 }

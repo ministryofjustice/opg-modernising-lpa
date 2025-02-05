@@ -1,29 +1,29 @@
 resource "aws_opensearchserverless_security_policy" "lpas_collection_encryption_policy" {
-  name        = "policy-shared-${local.account_name}"
+  name        = "policy-shared-${data.aws_default_tags.current.tags.account-name}"
   type        = "encryption"
   description = "encryption policy for collection"
   policy = jsonencode({
     Rules = [
       {
-        Resource     = ["collection/shared-collection-${local.account_name}"],
+        Resource     = ["collection/shared-collection-${data.aws_default_tags.current.tags.account-name}"],
         ResourceType = "collection"
       }
     ],
     AWSOwnedKey = false
-    KmsARN      = module.opensearch_kms.eu_west_1_target_key_arn
+    KmsARN      = var.opensearch_kms_target_key_arn
   })
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_opensearchserverless_collection" "lpas_collection" {
-  name       = "shared-collection-${local.account_name}"
+  name       = "shared-collection-${data.aws_default_tags.current.tags.account-name}"
   type       = "SEARCH"
   depends_on = [aws_opensearchserverless_security_policy.lpas_collection_encryption_policy]
-  provider   = aws.eu_west_1
+  provider   = aws.region
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_network_policy" {
-  name        = "policy-shared-${local.account_name}"
+  name        = "policy-shared-${data.aws_default_tags.current.tags.account-name}"
   type        = "network"
   description = "VPC access for collection endpoint"
   policy = jsonencode([
@@ -32,12 +32,12 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       Rules = [
         {
           ResourceType = "collection",
-          Resource     = ["collection/shared-collection-${local.account_name}"]
+          Resource     = ["collection/shared-collection-${data.aws_default_tags.current.tags.account-name}"]
         }
       ],
       AllowFromPublic = false,
       SourceVPCEs = [
-        module.eu_west_1[0].opensearch_lpas_collection_vpc_endpoint.id,
+        aws_opensearchserverless_vpc_endpoint.lpas_collection_vpc_endpoint.id,
       ]
     },
     {
@@ -45,17 +45,17 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_network_pol
       Description     = "public access to dashboard"
       Rules = [
         {
-          Resource     = ["collection/shared-collection-${local.account_name}"]
+          Resource     = ["collection/shared-collection-${data.aws_default_tags.current.tags.account-name}"]
           ResourceType = "dashboard"
         }
       ]
     }
   ])
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_opensearchserverless_security_policy" "lpas_collection_development_network_policy" {
-  count       = local.account_name == "development" ? 1 : 0
+  count       = data.aws_default_tags.current.tags.account-name == "development" ? 1 : 0
   name        = "development-public-access"
   type        = "network"
   description = "Public access for development collection endpoints"
@@ -71,11 +71,11 @@ resource "aws_opensearchserverless_security_policy" "lpas_collection_development
       AllowFromPublic = true,
     },
   ])
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_opensearchserverless_access_policy" "github_actions_access" {
-  count       = local.account_name == "development" ? 1 : 0
+  count       = data.aws_default_tags.current.tags.account-name == "development" ? 1 : 0
   name        = "github-access-shared-development"
   type        = "data"
   description = "allow index and collection access for team"
@@ -94,16 +94,16 @@ resource "aws_opensearchserverless_access_policy" "github_actions_access" {
         }
       ],
       Principal = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/modernising-lpa-github-actions-opensearch-delete-index"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/modernising-lpa-github-actions-opensearch-delete-index"
       ]
     }
   ])
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_opensearchserverless_access_policy" "team_operator_access" {
-  count       = local.account_name == "production" ? 0 : 1
-  name        = "team-access-shared-${local.account_name}"
+  count       = data.aws_default_tags.current.tags.account-name == "production" ? 0 : 1
+  name        = "team-access-shared-${data.aws_default_tags.current.tags.account-name}"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
@@ -111,26 +111,26 @@ resource "aws_opensearchserverless_access_policy" "team_operator_access" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/shared-collection-${local.account_name}/*"],
+          Resource     = ["index/shared-collection-${data.aws_default_tags.current.tags.account-name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/shared-collection-${local.account_name}"],
+          Resource     = ["collection/shared-collection-${data.aws_default_tags.current.tags.account-name}"],
           Permission   = ["aoss:*"]
         }
       ],
       Principal = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/operator"
       ]
     }
   ])
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_opensearchserverless_access_policy" "team_breakglass_access" {
-  count       = local.account_name == "production" ? 1 : 0
-  name        = "team-access-shared-${local.account_name}"
+  count       = data.aws_default_tags.current.tags.account-name == "production" ? 1 : 0
+  name        = "team-access-shared-${data.aws_default_tags.current.tags.account-name}"
   type        = "data"
   description = "allow index and collection access for team"
   policy = jsonencode([
@@ -138,25 +138,25 @@ resource "aws_opensearchserverless_access_policy" "team_breakglass_access" {
       Rules = [
         {
           ResourceType = "index",
-          Resource     = ["index/shared-collection-${local.account_name}/*"],
+          Resource     = ["index/shared-collection-${data.aws_default_tags.current.tags.account-name}/*"],
           Permission   = ["aoss:*"]
         },
         {
           ResourceType = "collection",
-          Resource     = ["collection/shared-collection-${local.account_name}"],
+          Resource     = ["collection/shared-collection-${data.aws_default_tags.current.tags.account-name}"],
           Permission   = ["aoss:*"]
         }
       ],
       Principal = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass"
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/breakglass"
       ]
     }
   ])
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_cloudwatch_metric_alarm" "opensearch_4xx_errors" {
-  alarm_name                = "${local.account_name}-opensearch-4xx-errors"
+  alarm_name                = "${data.aws_default_tags.current.tags.account-name}-opensearch-4xx-errors"
   alarm_actions             = [aws_sns_topic.opensearch.arn]
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -165,17 +165,17 @@ resource "aws_cloudwatch_metric_alarm" "opensearch_4xx_errors" {
   period                    = "30"
   statistic                 = "Maximum"
   threshold                 = "1"
-  alarm_description         = "This metric monitors AWS OpenSearch Service 4xx error count for ${local.account_name}"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 4xx error count for ${data.aws_default_tags.current.tags.account-name}"
   insufficient_data_actions = []
   dimensions = {
     CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
     CollectionName = aws_opensearchserverless_collection.lpas_collection.name
   }
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 resource "aws_cloudwatch_metric_alarm" "opensearch_5xx_errors" {
-  alarm_name                = "${local.account_name}-opensearch-5xx-errors"
+  alarm_name                = "${data.aws_default_tags.current.tags.account-name}-opensearch-5xx-errors"
   alarm_actions             = [aws_sns_topic.opensearch.arn]
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -184,13 +184,13 @@ resource "aws_cloudwatch_metric_alarm" "opensearch_5xx_errors" {
   period                    = "30"
   statistic                 = "Maximum"
   threshold                 = "1"
-  alarm_description         = "This metric monitors AWS OpenSearch Service 5xx error count for ${local.account_name}"
+  alarm_description         = "This metric monitors AWS OpenSearch Service 5xx error count for ${data.aws_default_tags.current.tags.account-name}"
   insufficient_data_actions = []
   dimensions = {
     CollectionId   = aws_opensearchserverless_collection.lpas_collection.id
     CollectionName = aws_opensearchserverless_collection.lpas_collection.name
   }
-  provider = aws.eu_west_1
+  provider = aws.region
 }
 
 data "pagerduty_vendor" "cloudwatch" {
@@ -198,12 +198,12 @@ data "pagerduty_vendor" "cloudwatch" {
 }
 
 data "pagerduty_service" "main" {
-  name = local.account.pagerduty_service_name
+  name = var.pagerduty_service_name
 }
 
 resource "aws_sns_topic" "opensearch" {
-  name                                     = "${local.account_name}-opensearch-alarms"
-  kms_master_key_id                        = module.sns_kms.eu_west_1_target_key_id
+  name                                     = "${data.aws_default_tags.current.tags.account-name}-opensearch-alarms"
+  kms_master_key_id                        = var.sns_kms_key.eu_west_1_target_key_id
   application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
   application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
   application_success_feedback_sample_rate = 100
@@ -219,11 +219,11 @@ resource "aws_sns_topic" "opensearch" {
   sqs_failure_feedback_role_arn            = data.aws_iam_role.sns_failure_feedback.arn
   sqs_success_feedback_role_arn            = data.aws_iam_role.sns_success_feedback.arn
   sqs_success_feedback_sample_rate         = 100
-  provider                                 = aws.eu_west_1
+  provider                                 = aws.region
 }
 
 resource "pagerduty_service_integration" "opensearch" {
-  name    = "Modernising LPA Shared ${local.account_name} OpenSearch Alarm"
+  name    = "Modernising LPA Shared ${data.aws_default_tags.current.tags.account-name} OpenSearch Alarm"
   service = data.pagerduty_service.main.id
   vendor  = data.pagerduty_vendor.cloudwatch.id
 }
@@ -233,5 +233,5 @@ resource "aws_sns_topic_subscription" "opensearch" {
   protocol               = "https"
   endpoint_auto_confirms = true
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.opensearch.integration_key}/enqueue"
-  provider               = aws.eu_west_1
+  provider               = aws.region
 }
