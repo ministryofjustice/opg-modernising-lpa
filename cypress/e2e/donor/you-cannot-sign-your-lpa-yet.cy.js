@@ -4,15 +4,15 @@ describe('You cannot sign your LPA yet', () => {
         cy.visit('/fixtures?redirect=/choose-attorneys-summary&progress=addCorrespondent');
 
         cy.contains('.govuk-summary-card', 'Jessie Jones').contains('a', 'Change').click();
-        cy.get('#f-date-of-birth-year').clear();
-        cy.get('#f-date-of-birth-year').type(today.getFullYear() - 1);
+        cy.get('#f-date-of-birth-year').focus().clear();
+        cy.get('#f-date-of-birth-year').focus().type(today.getFullYear() - 1);
         cy.contains('button', 'Save and continue').click()
         cy.contains('button', 'Save and continue').click()
         cy.visitLpa('/choose-replacement-attorneys-summary')
 
         cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Change').click();
-        cy.get('#f-date-of-birth-year').clear();
-        cy.get('#f-date-of-birth-year').type(today.getFullYear() - 1);
+        cy.get('#f-date-of-birth-year').focus().clear();
+        cy.get('#f-date-of-birth-year').focus().type(today.getFullYear() - 1);
         cy.contains('button', 'Save and continue').click()
         cy.contains('button', 'Save and continue').click()
         cy.contains('a', 'Return to task list').click()
@@ -24,16 +24,16 @@ describe('You cannot sign your LPA yet', () => {
         cy.contains('.govuk-summary-list__row', 'Jessie Jones').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-attorneys')
-        cy.get('#f-date-of-birth-year').clear();
-        cy.get('#f-date-of-birth-year').type("2000");
+        cy.get('#f-date-of-birth-year').focus().clear();
+        cy.get('#f-date-of-birth-year').focus().type("2000");
         cy.contains('button', 'Save and continue').click()
         cy.url().should('contain', '/you-cannot-sign-your-lpa-yet')
 
         cy.contains('.govuk-summary-list__row', 'Blake Buckley').contains('a', 'Change').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys')
-        cy.get('#f-date-of-birth-year').clear();
-        cy.get('#f-date-of-birth-year').type("2000");
+        cy.get('#f-date-of-birth-year').focus().clear();
+        cy.get('#f-date-of-birth-year').focus().type("2000");
         cy.contains('button', 'Save and continue').click()
         cy.url().should('contain', '/task-list')
     });
