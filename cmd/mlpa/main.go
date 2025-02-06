@@ -286,7 +286,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	mux.Handle("/cy/", http.StripPrefix("/cy", app.App(
 		devMode,
 		logger,
-		bundle.For(localize.Cy),
+		bundle,
 		localize.Cy,
 		tmpls,
 		donorTmpls,
@@ -311,7 +311,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	mux.Handle("/", app.App(
 		devMode,
 		logger,
-		bundle.For(localize.En),
+		bundle,
 		localize.En,
 		tmpls,
 		donorTmpls,
