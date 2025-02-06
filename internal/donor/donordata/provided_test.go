@@ -447,12 +447,48 @@ func TestIdentityConfirmed(t *testing.T) {
 	}
 }
 
+func TestSignatoriesNames(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "C", LastName: "D"}},
+		},
+		ReplacementAttorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "E", LastName: "F"}},
+		},
+		PeopleToNotify: PeopleToNotify{{FirstNames: "X", LastName: "Y"}},
+	}
+
+	assert.Equal(t, []string{"A B", "C D", "E F"}, provided.SignatoriesNames(nil))
+}
+
+func TestSignatoriesNamesWhenTrustCorporation(t *testing.T) {
+	provided := &Provided{
+		CertificateProvider: CertificateProvider{FirstNames: "A", LastName: "B"},
+		Attorneys: Attorneys{
+			Attorneys: []Attorney{{FirstNames: "C", LastName: "D"}},
+		},
+		ReplacementAttorneys: Attorneys{
+			TrustCorporation: TrustCorporation{Name: "Trusted"},
+			Attorneys:        []Attorney{{FirstNames: "E", LastName: "F"}},
+		},
+		PeopleToNotify: PeopleToNotify{{FirstNames: "X", LastName: "Y"}},
+	}
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Format("aSignatoryFromTrustCorporation", map[string]any{"TrustCorporationName": "Trusted"}).
+		Return("signatory")
+
+	assert.Equal(t, []string{"A B", "signatory", "C D", "E F"}, provided.SignatoriesNames(localizer))
+}
+
 func TestSigningDeadline(t *testing.T) {
 	donor := Provided{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
 	}
 
-	expected := time.Date(2020, time.January, 30, 3, 4, 5, 6, time.UTC)
+	expected := time.Date(2022, time.January, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.SigningDeadline())
 
 	donor.RegisteringWithCourtOfProtection = true
@@ -467,6 +503,15 @@ func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {
 
 	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
 	assert.Equal(t, expected, donor.CourtOfProtectionSubmissionDeadline())
+}
+
+func TestCertificateProviderDeadline(t *testing.T) {
+	donor := Provided{
+		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+	}
+
+	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, donor.CertificateProviderDeadline())
 }
 
 func TestUnder18ActorDetails(t *testing.T) {
@@ -595,13 +640,23 @@ func TestAllLayAttorneysFullNames(t *testing.T) {
 	assert.Equal(t, []string{"John Smith", "Barry Smith", "John2 Smithe", "Barry2 Smithe"}, donor.AllLayAttorneysFullNames())
 }
 
-func TestTrustCorporationOriginal(t *testing.T) {
-	donor := &Provided{
-		Attorneys:            Attorneys{TrustCorporation: TrustCorporation{Name: "Corp"}},
-		ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Trust"}},
-	}
+func TestHasTrustCorporation(t *testing.T) {
+	none := &Provided{}
+	original := &Provided{Attorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Corp"}}}
+	replacement := &Provided{ReplacementAttorneys: Attorneys{TrustCorporation: TrustCorporation{Name: "Trust"}}}
 
-	assert.Equal(t, []string{"Corp", "Trust"}, donor.TrustCorporationsNames())
+	assert.False(t, none.HasTrustCorporation())
+	assert.True(t, original.HasTrustCorporation())
+	assert.True(t, replacement.HasTrustCorporation())
+}
+
+func TestTrustCorporation(t *testing.T) {
+	corporation := TrustCorporation{Name: "Corp"}
+	original := &Provided{Attorneys: Attorneys{TrustCorporation: corporation}}
+	replacement := &Provided{ReplacementAttorneys: Attorneys{TrustCorporation: corporation}}
+
+	assert.Equal(t, corporation, original.TrustCorporation())
+	assert.Equal(t, corporation, replacement.TrustCorporation())
 }
 
 func TestProvidedCost(t *testing.T) {
