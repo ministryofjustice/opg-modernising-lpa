@@ -19,10 +19,17 @@ type progressData struct {
 	App                  appcontext.Data
 	Errors               validation.List
 	Donor                *donordata.Provided
-	Voucher              *voucherdata.Provided
 	Progress             task.Progress
 	InfoNotifications    []progressNotification
 	SuccessNotifications []progressNotification
+}
+
+func (d *progressData) addInfo(heading, body string) {
+	d.InfoNotifications = append(d.InfoNotifications, progressNotification{Heading: heading, Body: body})
+}
+
+func (d *progressData) addSuccess(heading, body string) {
+	d.SuccessNotifications = append(d.SuccessNotifications, progressNotification{Heading: heading, Body: body})
 }
 
 type progressNotification struct {
@@ -42,6 +49,14 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			return certificateProviderErr
 		}
 
+		var voucher *voucherdata.Provided
+		if donor.Voucher.FirstNames != "" {
+			voucher, err = voucherStore.GetAny(r.Context())
+			if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+				return err
+			}
+		}
+
 		data := &progressData{
 			App:      appData,
 			Donor:    donor,
@@ -49,219 +64,206 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 		}
 
 		if !donor.WithdrawnAt.IsZero() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: "lpaRevoked",
-				Body: appData.Localizer.Format(
+			data.addInfo("lpaRevoked",
+				appData.Localizer.Format(
 					"weContactedYouOnAboutLPARevokedOPGWillNotRegister",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.WithdrawnAt)},
 				),
-			})
-
-			return tmpl(w, data)
+			)
 		}
 
-		if donor.IdentityUserData.Status.IsUnknown() && donor.Tasks.ConfirmYourIdentity.IsPending() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: "youHaveChosenToConfirmYourIdentityAtPostOffice",
-				Body:    "whenYouHaveConfirmedAtPostOfficeReturnToTaskList",
-			})
+		if lpa.Submitted &&
+			(lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) &&
+			errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
+			data.addInfo("youveSubmittedYourLpaToOpg", "opgIsCheckingYourLpa")
 		}
 
-		if lpa.Submitted && (lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) {
-			if errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: "youveSubmittedYourLpaToOpg",
-					Body:    "opgIsCheckingYourLpa",
-				})
-			}
+		if donor.IdentityUserData.Status.IsUnknown() &&
+			donor.Tasks.ConfirmYourIdentity.IsPending() {
+			data.addInfo("youHaveChosenToConfirmYourIdentityAtPostOffice", "whenYouHaveConfirmedAtPostOfficeReturnToTaskList")
 		}
 
 		if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
-				Body: appData.Localizer.Format(
+			data.addInfo(
+				"weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MoreEvidenceRequiredAt)},
-				),
-			})
+				))
 		}
 
-		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() && donor.Voucher.FirstNames != "" {
-			if donor.VoucherInvitedAt.IsZero() && !donor.Tasks.PayForLpa.IsCompleted() {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: "youMustPayForYourLPA",
-					Body: appData.Localizer.Format(
-						"returnToTaskListToPayForLPAWeWillThenContactVoucher",
-						map[string]any{"VoucherFullName": donor.Voucher.FullName()},
-					),
-				})
-			} else if !donor.VoucherInvitedAt.IsZero() {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: appData.Localizer.Format(
-						"weHaveContactedVoucherToConfirmYourIdentity",
-						map[string]any{"VoucherFullName": donor.Voucher.FullName()},
-					),
-					Body: "youDoNotNeedToTakeAnyAction",
-				})
-			}
+		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			donor.Voucher.FirstNames != "" &&
+			donor.VoucherInvitedAt.IsZero() &&
+			!donor.Tasks.PayForLpa.IsCompleted() {
+			data.addInfo(
+				"youMustPayForYourLPA",
+				appData.Localizer.Format(
+					"returnToTaskListToPayForLPAWeWillThenContactVoucher",
+					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+				),
+			)
+		}
+
+		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			donor.Voucher.FirstNames != "" &&
+			!donor.VoucherInvitedAt.IsZero() {
+			data.addInfo(
+				appData.Localizer.Format(
+					"weHaveContactedVoucherToConfirmYourIdentity",
+					map[string]any{"VoucherFullName": donor.Voucher.FullName()},
+				),
+				"youDoNotNeedToTakeAnyAction",
+			)
 		}
 
 		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
 			!donor.FailedVoucher.FailedAt.IsZero() &&
 			!donor.WantVoucher.IsNo() &&
 			donor.Voucher.FirstNames == "" {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.Format(
+			data.addInfo(
+				appData.Localizer.Format(
 					"voucherHasBeenUnableToConfirmYourIdentity",
 					map[string]any{"VoucherFullName": donor.FailedVoucher.FullName()},
 				),
-				Body: appData.Localizer.Format(
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.FailedVoucher.FailedAt)},
 				),
-			})
+			)
 		}
 
-		if lpa.Status.IsDoNotRegister() && !donor.DoNotRegisterAt.IsZero() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("thereIsAProblemWithYourLpa"),
-				Body: appData.Localizer.Format(
+		if lpa.Status.IsDoNotRegister() &&
+			!donor.DoNotRegisterAt.IsZero() {
+			data.addInfo(
+				"thereIsAProblemWithYourLpa",
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.DoNotRegisterAt)},
 				),
-			})
+			)
 		}
 
 		if donor.IdentityUserData.Status.IsFailed() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("youHaveBeenUnableToConfirmYourIdentity"),
-				Body: appData.Localizer.Format(
+			data.addInfo(
+				"youHaveBeenUnableToConfirmYourIdentity",
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.IdentityUserData.CheckedAt)},
 				),
-			})
+			)
 		}
 
-		if certificateProviderErr == nil && certificateProvider.IdentityUserData.Status.IsFailed() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.Format(
+		if certificateProviderErr == nil &&
+			certificateProvider.IdentityUserData.Status.IsFailed() {
+			data.addInfo(
+				appData.Localizer.Format(
 					"certificateProviderHasBeenUnableToConfirmIdentity",
 					map[string]any{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
 				),
-				Body: appData.Localizer.Format(
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(certificateProvider.IdentityUserData.CheckedAt)},
 				),
-			})
+			)
 		}
 
 		if !donor.HasSeenSuccessfulVouchBanner &&
 			donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
-			donor.Voucher.FirstNames != "" {
-			voucher, err := voucherStore.GetAny(r.Context())
-			if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-				return err
-			}
+			!donor.Tasks.SignTheLpa.IsCompleted() &&
+			voucher != nil &&
+			!voucher.SignedAt.IsZero() {
+			data.addSuccess(
+				appData.Localizer.Format(
+					"voucherHasConfirmedYourIdentity",
+					map[string]any{"VoucherFullName": voucher.FullName()},
+				),
+				"returnToYourTaskListForInformationAboutWhatToDoNext",
+			)
 
-			if voucher != nil && !voucher.SignedAt.IsZero() {
-				body := "returnToYourTaskListForInformationAboutWhatToDoNext"
-				if donor.Tasks.SignTheLpa.IsCompleted() {
-					body = "youDoNotNeedToTakeAnyAction"
-				}
-
-				data.SuccessNotifications = append(data.SuccessNotifications, progressNotification{
-					Heading: appData.Localizer.Format(
-						"voucherHasConfirmedYourIdentity",
-						map[string]any{"VoucherFullName": voucher.FullName()},
-					),
-					Body: body,
-				})
-
-				donor.HasSeenSuccessfulVouchBanner = true
-
-				if err = donorStore.Put(r.Context(), donor); err != nil {
-					return err
-				}
-			}
+			donor.HasSeenSuccessfulVouchBanner = true
 		}
 
-		if donor.Tasks.PayForLpa.IsPending() && donor.FeeAmount() == 0 {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("weAreReviewingTheEvidenceYouSent"),
-				Body:    appData.Localizer.T("ifYourEvidenceIsApprovedWillShowPaid"),
-			})
+		if !donor.HasSeenSuccessfulVouchBanner &&
+			donor.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			donor.Tasks.SignTheLpa.IsCompleted() &&
+			voucher != nil &&
+			!voucher.SignedAt.IsZero() {
+			data.addSuccess(
+				appData.Localizer.Format(
+					"voucherHasConfirmedYourIdentity",
+					map[string]any{"VoucherFullName": voucher.FullName()},
+				),
+				"youDoNotNeedToTakeAnyAction",
+			)
+
+			donor.HasSeenSuccessfulVouchBanner = true
+		}
+
+		if donor.Tasks.PayForLpa.IsPending() &&
+			donor.FeeAmount() == 0 {
+			data.addInfo("weAreReviewingTheEvidenceYouSent", "ifYourEvidenceIsApprovedWillShowPaid")
 		}
 
 		if !donor.HasSeenReducedFeeApprovalNotification &&
 			!donor.ReducedFeeApprovedAt.IsZero() &&
 			donor.Tasks.PayForLpa.IsCompleted() {
-			data.SuccessNotifications = append(data.SuccessNotifications, progressNotification{
-				Heading: "weHaveApprovedYourLPAFeeRequest",
-				Body:    "yourLPAIsNowPaid",
-			})
+			data.addSuccess("weHaveApprovedYourLPAFeeRequest", "yourLPAIsNowPaid")
 
 			donor.HasSeenReducedFeeApprovalNotification = true
-
-			if err = donorStore.Put(r.Context(), donor); err != nil {
-				return fmt.Errorf("failed to update donor: %v", err)
-			}
 		}
 
-		if donor.RegisteringWithCourtOfProtection {
-			if donor.Tasks.PayForLpa.IsCompleted() && !donor.WitnessedByCertificateProviderAt.IsZero() {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
-					Body:    appData.Localizer.T("opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection"),
-				})
-			} else if donor.Tasks.PayForLpa.IsCompleted() {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
-					Body:    appData.Localizer.T("returnToYourTaskListToSignThenOpgWillCheck"),
-				})
-			} else if !donor.WitnessedByCertificateProviderAt.IsZero() {
-				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-					Heading: appData.Localizer.T("yourLpaMustBeReviewedByCourtOfProtection"),
-					Body:    appData.Localizer.T("whenYouHavePaidOpgWillCheck"),
-				})
-			}
+		if donor.RegisteringWithCourtOfProtection &&
+			donor.Tasks.PayForLpa.IsCompleted() &&
+			!donor.WitnessedByCertificateProviderAt.IsZero() {
+			data.addInfo("yourLpaMustBeReviewedByCourtOfProtection", "opgIsCompletingChecksSoYouCanSubmitToCourtOfProtection")
 		}
 
-		if now().After(donor.IdentityDeadline()) && donor.Tasks.SignTheLpa.IsCompleted() && !donor.Tasks.ConfirmYourIdentity.IsCompleted() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("yourLPACannotBeRegisteredByOPG"),
-				Body:    appData.Localizer.T("youDidNotConfirmYourIdentityWithinSixMonthsOfSigning"),
-			})
+		if donor.RegisteringWithCourtOfProtection &&
+			donor.Tasks.PayForLpa.IsCompleted() &&
+			donor.WitnessedByCertificateProviderAt.IsZero() {
+			data.addInfo("yourLpaMustBeReviewedByCourtOfProtection", "returnToYourTaskListToSignThenOpgWillCheck")
 		}
 
-		if donor.IdentityUserData.Status.IsExpired() && !donor.Tasks.SignTheLpa.IsCompleted() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("youMustConfirmYourIdentityAgain"),
-				Body:    appData.Localizer.T("youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity"),
-			})
+		if donor.RegisteringWithCourtOfProtection &&
+			!donor.Tasks.PayForLpa.IsCompleted() &&
+			!donor.WitnessedByCertificateProviderAt.IsZero() {
+			data.addInfo("yourLpaMustBeReviewedByCourtOfProtection", "whenYouHavePaidOpgWillCheck")
+		}
+
+		if now().After(donor.IdentityDeadline()) &&
+			donor.Tasks.SignTheLpa.IsCompleted() &&
+			!donor.Tasks.ConfirmYourIdentity.IsCompleted() {
+			data.addInfo("yourLPACannotBeRegisteredByOPG", "youDidNotConfirmYourIdentityWithinSixMonthsOfSigning")
+		}
+
+		if donor.IdentityUserData.Status.IsExpired() &&
+			!donor.Tasks.SignTheLpa.IsCompleted() {
+			data.addInfo("youMustConfirmYourIdentityAgain", "youDidNotSignYourLPAWithinSixMonthsOfConfirmingYourIdentity")
 		}
 
 		if lpa.Status.IsStatutoryWaitingPeriod() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("yourLpaIsAwaitingRegistration"),
-				Body:    appData.Localizer.T("theOpgWillRegisterYourLpaAtEndOfWaitingPeriod"),
-			})
+			data.addInfo("yourLpaIsAwaitingRegistration", "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod")
 		}
 
-		if donor.Tasks.ConfirmYourIdentity.IsPending() && donor.ContinueWithMismatchedIdentity {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("confirmationOfIdentityPending"),
-				Body:    appData.Localizer.T("youDoNotNeedToTakeAnyAction"),
-			})
+		if donor.Tasks.ConfirmYourIdentity.IsPending() &&
+			donor.ContinueWithMismatchedIdentity {
+			data.addInfo("confirmationOfIdentityPending", "youDoNotNeedToTakeAnyAction")
 		}
 
-		if !lpa.Status.IsRegistered() && !donor.PriorityCorrespondenceSentAt.IsZero() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: appData.Localizer.T("thereIsAProblemWithYourLpa"),
-				Body: appData.Localizer.Format(
+		if !lpa.Status.IsRegistered() &&
+			!donor.PriorityCorrespondenceSentAt.IsZero() {
+			data.addInfo(
+				"thereIsAProblemWithYourLpa",
+				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.PriorityCorrespondenceSentAt)},
 				),
-			})
+			)
+		}
+
+		if err := donorStore.Put(r.Context(), donor); err != nil {
+			return fmt.Errorf("failed to update donor: %v", err)
 		}
 
 		return tmpl(w, data)
