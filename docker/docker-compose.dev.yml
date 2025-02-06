@@ -21,9 +21,3 @@ services:
       - SYS_PTRACE
     ports:
       - "2345:2345"
-
-  mock-pay:
-    image: outofcoffee/imposter:latest
-    container_name: mock-pay
-    volumes:
-      - ./mock-pay/:/opt/imposter/config/
