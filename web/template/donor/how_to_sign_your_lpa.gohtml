@@ -49,7 +49,7 @@
                 {{ template "warning" (content .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
             {{ end }}
 
-            {{ template "buttons" (button .App "start" "link" (global.Paths.ReadYourLpa.Format .App.LpaID)) }}
+            {{ template "buttons" (button .App "start" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
         </div>
     </div>
 {{ end }}

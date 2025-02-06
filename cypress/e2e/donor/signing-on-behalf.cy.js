@@ -4,12 +4,12 @@ describe('Signing on behalf of the donor', () => {
 
         cy.contains('a', 'Start').click();
 
+        cy.url().should('contain', '/your-lpa-language');
+        cy.contains('label', 'Register my LPA in English').click();
+        cy.contains('button', 'Save and continue').click();
+
         cy.url().should('contain', '/read-your-lpa');
         cy.contains('a', 'Continue').click();
-
-        cy.url().should('contain', '/your-lpa-language');
-        cy.contains('label', 'Continue and register my LPA in English').click();
-        cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/your-legal-rights-and-responsibilities');
         cy.contains('a', 'Continue to signing page').click();
