@@ -2,8 +2,8 @@
     <div class="app-print-background"></div>
 
     <h2 class="govuk-heading-l">{{ trFormat .App "donorsTypeLpa" "DonorFullName" .Lpa.Donor.FullName "LpaType" (tr .App .Lpa.Type.String) }}</h2>
-    
-    {{ template "contextual-lpa-warning" . }}
+
+    {{ template "contextual-lpa-warning" .App }}
 
     {{ with .Lpa.Donor }}
         <div class="govuk-summary-card">
@@ -182,7 +182,7 @@
         {{ end }}
     {{ end }}
 
-    {{ template "contextual-lpa-warning" . }}
+    {{ template "contextual-lpa-warning" .App }}
 
     <h3 class="govuk-heading-m">{{ tr .App "howLpaCanBeUsed" }}</h3>
 
@@ -243,7 +243,7 @@
         {{ end }}
     </dl>
 
-    {{ template "contextual-lpa-warning" . }}
+    {{ template "contextual-lpa-warning" .App }}
 
     <h3 class="govuk-heading-m">{{ tr .App "restrictions" }}</h3>
 
@@ -267,14 +267,14 @@
             .Lpa.Restrictions) }}
     </dl>
 
-    {{ template "contextual-lpa-warning" . }}
+    {{ template "contextual-lpa-warning" .App }}
 
     <h3 class="govuk-heading-m">{{ tr .App "legalRightsAndResponsibilities" }}</h3>
 
     {{ trHtml .App (printf "yourLegalRightsAndResponsibilitiesContent:%s:h4" .Lpa.Type.String) }}
 
     {{ if not .Lpa.SignedAt.IsZero }}
-        {{ template "contextual-lpa-warning" . }}
+        {{ template "contextual-lpa-warning" .App }}
 
         <h3 class="govuk-heading-l">{{ tr .App "signatures" }}</h3>
 
@@ -507,5 +507,5 @@
         {{ end }}
     {{ end }}
 
-    {{ template "contextual-lpa-warning" . }}
+    {{ template "contextual-lpa-warning" .App }}
 {{ end }}

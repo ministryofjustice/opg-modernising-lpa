@@ -76,14 +76,16 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			}
 		}
 
-		if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
-			data.InfoNotifications = append(data.InfoNotifications, progressNotification{
-				Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
-				Body: appData.Localizer.Format(
-					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
-					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MoreEvidenceRequiredAt)},
-				),
-			})
+		{
+			if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
+				data.InfoNotifications = append(data.InfoNotifications, progressNotification{
+					Heading: "weNeedMoreEvidenceToMakeADecisionAboutYourLPAFee",
+					Body: appData.Localizer.Format(
+						"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+						map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MoreEvidenceRequiredAt)},
+					),
+				})
+			}
 		}
 
 		if !donor.Tasks.ConfirmYourIdentity.IsCompleted() && donor.Voucher.FirstNames != "" {
