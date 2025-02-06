@@ -7,6 +7,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 )
 
 type Lpa struct {
@@ -15,6 +16,7 @@ type Lpa struct {
 	LpaID                                      string
 	LpaUID                                     string
 	Status                                     Status
+	Language                                   localize.Lang
 	RegisteredAt                               time.Time
 	WithdrawnAt                                time.Time
 	StatutoryWaitingPeriodAt                   time.Time

@@ -11,6 +11,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
@@ -21,6 +22,7 @@ type abstractError struct {
 type CreateLpa struct {
 	LpaType                                     lpadata.LpaType                    `json:"lpaType"`
 	Channel                                     lpadata.Channel                    `json:"channel"`
+	Language                                    localize.Lang                      `json:"language"`
 	Donor                                       lpadata.Donor                      `json:"donor"`
 	Attorneys                                   []lpadata.Attorney                 `json:"attorneys"`
 	TrustCorporations                           []lpadata.TrustCorporation         `json:"trustCorporations,omitempty"`
@@ -45,8 +47,9 @@ type CreateLpa struct {
 
 func CreateLpaFromDonorProvided(donor *donordata.Provided) CreateLpa {
 	body := CreateLpa{
-		LpaType: donor.Type,
-		Channel: lpadata.ChannelOnline,
+		LpaType:  donor.Type,
+		Channel:  lpadata.ChannelOnline,
+		Language: donor.Donor.LpaLanguagePreference,
 		Donor: lpadata.Donor{
 			UID:                       donor.Donor.UID,
 			FirstNames:                donor.Donor.FirstNames,
@@ -244,6 +247,7 @@ type lpaResponse struct {
 	LpaType                                     lpadata.LpaType                    `json:"lpaType"`
 	Donor                                       lpadata.Donor                      `json:"donor"`
 	Channel                                     lpadata.Channel                    `json:"channel"`
+	Language                                    localize.Lang                      `json:"language"`
 	Attorneys                                   []lpadata.Attorney                 `json:"attorneys"`
 	TrustCorporations                           []lpadata.TrustCorporation         `json:"trustCorporations"`
 	CertificateProvider                         lpadata.CertificateProvider        `json:"certificateProvider"`
@@ -274,6 +278,7 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		Submitted:    true,
 		LpaUID:       l.UID,
 		Status:       l.Status,
+		Language:     l.Language,
 		RegisteredAt: l.RegistrationDate,
 		UpdatedAt:    l.UpdatedAt,
 		Type:         l.LpaType,
@@ -404,6 +409,7 @@ func LpaFromDonorProvided(l *donordata.Provided) *lpadata.Lpa {
 		LpaUID:    l.LpaUID,
 		UpdatedAt: l.UpdatedAt,
 		Type:      l.Type,
+		Language:  l.Donor.LpaLanguagePreference,
 		Donor: lpadata.Donor{
 			UID:                       l.Donor.UID,
 			FirstNames:                l.Donor.FirstNames,
