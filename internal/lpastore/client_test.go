@@ -90,6 +90,7 @@ func TestClientServiceContract(t *testing.T) {
 					JSONBody(matchers.Map{
 						"lpaType":                       matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
 						"channel":                       matchers.String("online"),
+						"language":                      matchers.Regex("en", "en|cy"),
 						"lifeSustainingTreatmentOption": matchers.Regex("option-a", "option-a|option-b"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
@@ -195,6 +196,7 @@ func TestClientServiceContract(t *testing.T) {
 					Email:                     "john@example.com",
 					Address:                   address,
 					ContactLanguagePreference: localize.En,
+					LpaLanguagePreference:     localize.En,
 				},
 				Attorneys: donordata.Attorneys{
 					Attorneys: []donordata.Attorney{{
@@ -254,8 +256,9 @@ func TestClientServiceContract(t *testing.T) {
 					// Header("X-Amz-Date", matchers.String("20000102T000000Z")).
 					// Header("X-Jwt-Authorization", matchers.Regex("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGcucG9hcy5tYWtlcmVnaXN0ZXIiLCJzdWIiOiJ0b2RvIiwiaWF0Ijo5NDY3NzEyMDB9.teh381oIhucqUD3EhBTaaBTLFI1O2FOWGe-44Ftk0LY", "Bearer .+")).
 					JSONBody(matchers.Map{
-						"lpaType": matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
-						"channel": matchers.String("online"),
+						"lpaType":  matchers.Regex("personal-welfare", "personal-welfare|property-and-affairs"),
+						"channel":  matchers.String("online"),
+						"language": matchers.Regex("en", "en|cy"),
 						"donor": matchers.Like(map[string]any{
 							"uid":         matchers.UUID(),
 							"firstNames":  matchers.String("John Johnson"),
@@ -360,6 +363,7 @@ func TestClientServiceContract(t *testing.T) {
 					Address:                   address,
 					OtherNames:                "JJ",
 					ContactLanguagePreference: localize.Cy,
+					LpaLanguagePreference:     localize.Cy,
 				},
 				Attorneys: donordata.Attorneys{
 					Attorneys: []donordata.Attorney{{
