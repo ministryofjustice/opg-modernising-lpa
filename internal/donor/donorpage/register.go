@@ -18,6 +18,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
@@ -180,6 +181,10 @@ type VoucherStore interface {
 	GetAny(ctx context.Context) (*voucherdata.Provided, error)
 }
 
+type Bundle interface {
+	For(lang localize.Lang) *localize.Localizer
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -205,6 +210,7 @@ func Register(
 	lpaStoreResolvingService LpaStoreResolvingService,
 	scheduledStore ScheduledStore,
 	voucherStore VoucherStore,
+	bundle Bundle,
 ) {
 	payer := Pay(logger, sessionStore, donorStore, payClient, appPublicURL)
 
@@ -444,10 +450,10 @@ func Register(
 
 	handleWithDonor(donor.PathHowToSignYourLpa, page.None,
 		Guidance(tmpls.Get("how_to_sign_your_lpa.gohtml")))
-	handleWithDonor(donor.PathReadYourLpa, page.CanGoBack,
-		Guidance(tmpls.Get("read_your_lpa.gohtml")))
 	handleWithDonor(donor.PathYourLpaLanguage, page.CanGoBack,
 		YourLpaLanguage(tmpls.Get("your_lpa_language.gohtml"), donorStore))
+	handleWithDonor(donor.PathReadYourLpa, page.CanGoBack,
+		ReadYourLpa(tmpls.Get("read_your_lpa.gohtml"), bundle))
 	handleWithDonor(donor.PathLpaYourLegalRightsAndResponsibilities, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities.gohtml")))
 	handleWithDonor(donor.PathSignYourLpa, page.CanGoBack,
