@@ -5,6 +5,13 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {{ if ne .App.Lang .LpaLanguageApp.Lang }}
+                {{ $inSelected := tr .App (printf "in:%s" .LpaLanguageApp.Lang.String) }}
+                {{ $betweenSelected := tr .App (printf "between:%s" .LpaLanguageApp.Lang.String) }}
+                {{ $andUnselected := tr .App (printf "and:%s" .App.Lang.String) }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "youMustReadYourLpaInContent" "InSelected" $inSelected "BetweenSelected" $betweenSelected "AndUnselected" $andUnselected) "contents")  }}
+            {{ end }}
+
             <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>
 
             <p class="govuk-body">{{ tr .App "thisPageOutlinesTheDecisionsYouMade" }}</p>
@@ -13,7 +20,7 @@
 
             {{ template "changeable-contextual-lpa" . }}
 
-            {{ template "buttons" (button .App "continue" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
+            {{ template "buttons" (button .App "continue" "link" (global.Paths.LpaYourLegalRightsAndResponsibilities.Format .App.LpaID)) }}
         </div>
     </div>
 {{ end }}
