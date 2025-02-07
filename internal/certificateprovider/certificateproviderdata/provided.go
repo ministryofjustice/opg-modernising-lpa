@@ -38,6 +38,16 @@ type Provided struct {
 	ContactLanguagePreference localize.Lang
 	// Email is the email address returned from OneLogin when the certificate provider logged in
 	Email string
+	// IdentityDetailsMismatched is set when details are updated to match confirmed identity
+	IdentityDetailsMismatched bool
+
+	// MaterialChangeConfirmedAt records when a material change to LPA data was
+	// confirmed by a caseworker
+	MaterialChangeConfirmedAt time.Time
+
+	// ImmaterialChangeConfirmedAt records when an immaterial change to LPA data was
+	// confirmed by a caseworker
+	ImmaterialChangeConfirmedAt time.Time
 }
 
 func (c *Provided) CertificateProviderIdentityConfirmed(firstNames, lastName string) bool {
