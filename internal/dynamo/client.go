@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -87,6 +88,7 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 		return fmt.Errorf("failed to query UID: %w", err)
 	}
 	if len(response.Items) == 0 {
+		log.Println("searching with UID:", uid)
 		return NotFoundError{}
 	}
 

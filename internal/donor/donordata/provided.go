@@ -200,11 +200,23 @@ type Provided struct {
 	// donor informing them of a problem.
 	PriorityCorrespondenceSentAt time.Time `checkhash:"-"`
 
+	// MaterialChangeConfirmedAt records when a material change to LPA data was
+	// confirmed by a caseworker
+	MaterialChangeConfirmedAt time.Time `checkhash:"-"`
+
+	// ImmaterialChangeConfirmedAt records when an immaterial change to LPA data was
+	// confirmed by a caseworker
+	ImmaterialChangeConfirmedAt time.Time `checkhash:"-"`
+
 	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
 	HasSeenSuccessfulVouchBanner bool `checkhash:"-"`
 
 	// HasSeenReducedFeeApprovalNotification records if the donor has seen the progress tracker exemption/remission fee approved banner
 	HasSeenReducedFeeApprovalNotification bool `checkhash:"-"`
+
+	// HasSeenIdentityMismatchResolvedNotification records if the donor has seen the progress tracker identity
+	// confirmed banner
+	HasSeenIdentityMismatchResolvedNotification bool `checkhash:"-"`
 
 	// ReducedFeeApprovedAt records when an exemption/remission was approved.
 	ReducedFeeApprovedAt time.Time `checkhash:"-"`
@@ -339,9 +351,13 @@ func (p *Provided) generateCertificateProviderNotRelatedConfirmedHash() (uint64,
 }
 
 func (p *Provided) DonorIdentityConfirmed() bool {
-	return p.IdentityUserData.Status.IsConfirmed() &&
-		p.IdentityUserData.MatchName(p.Donor.FirstNames, p.Donor.LastName) &&
-		p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth)
+	if p.IdentityUserData.Status.IsConfirmed() {
+		return p.IdentityUserData.MatchName(p.Donor.FirstNames, p.Donor.LastName) &&
+			p.IdentityUserData.DateOfBirth.Equals(p.Donor.DateOfBirth) ||
+			p.ContinueWithMismatchedIdentity && !p.ImmaterialChangeConfirmedAt.IsZero()
+	}
+
+	return false
 }
 
 // SignatoriesNames returns the full names of the non-donor actors expected to

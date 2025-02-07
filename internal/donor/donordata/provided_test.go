@@ -217,14 +217,14 @@ func TestGenerateHash(t *testing.T) {
 	}
 
 	// DO change this value to match the updates
-	const modified uint64 = 0xd6e3407c0de9ebec
+	const modified uint64 = 0x36a5cdec8213af5f
 
 	// DO NOT change these initial hash values. If a field has been added/removed
 	// you will need to handle the version gracefully by modifying
 	// (*Provided).HashInclude and adding another testcase for the new
 	// version.
 	testcases := map[uint8]uint64{
-		0: 0x424aa066b6c0f772,
+		0: 0xf98e16c61a112c74,
 	}
 
 	for version, initial := range testcases {
@@ -376,11 +376,11 @@ func TestGenerateCertificateProviderNotRelatedConfirmedHashVersionTooHigh(t *tes
 
 func TestIdentityConfirmed(t *testing.T) {
 	testCases := map[string]struct {
-		lpa      *Provided
+		donor    *Provided
 		expected bool
 	}{
 		"confirmed": {
-			lpa: &Provided{
+			donor: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -391,7 +391,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: true,
 		},
 		"failed": {
-			lpa: &Provided{
+			donor: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusFailed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -402,7 +402,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"name does not match": {
-			lpa: &Provided{
+			donor: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -413,7 +413,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"dob does not match": {
-			lpa: &Provided{
+			donor: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -424,7 +424,7 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"insufficient evidence": {
-			lpa: &Provided{
+			donor: &Provided{
 				IdentityUserData: identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusInsufficientEvidence, DateOfBirth: date.New("2000", "1", "1")},
 				Donor: Donor{
 					FirstNames:  "a",
@@ -435,14 +435,22 @@ func TestIdentityConfirmed(t *testing.T) {
 			expected: false,
 		},
 		"none": {
-			lpa:      &Provided{},
+			donor:    &Provided{},
 			expected: false,
+		},
+		"identity details mismatch confirmed as immaterial": {
+			donor: &Provided{
+				IdentityUserData:               identity.UserData{FirstNames: "a", LastName: "b", Status: identity.StatusConfirmed, DateOfBirth: date.New("2000", "1", "1")},
+				ContinueWithMismatchedIdentity: true,
+				ImmaterialChangeConfirmedAt:    testNow,
+			},
+			expected: true,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			assert.Equal(t, tc.expected, tc.lpa.DonorIdentityConfirmed())
+			assert.Equal(t, tc.expected, tc.donor.DonorIdentityConfirmed())
 		})
 	}
 }
