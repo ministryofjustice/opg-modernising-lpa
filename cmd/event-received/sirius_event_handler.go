@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -76,6 +77,12 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 	case "priority-correspondence-sent":
 		return handlePriorityCorrespondenceSent(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
 
+	case "immaterial-change-confirmed":
+		return handleChangeConfirmed(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now(), false)
+
+	case "material-change-confirmed":
+		return handleChangeConfirmed(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now(), true)
+
 	default:
 		return fmt.Errorf("unknown sirius event")
 	}
@@ -120,7 +127,7 @@ func handleFeeApproved(
 
 	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get donor: %w", err)
 	}
 
 	if donor.Tasks.PayForLpa.IsCompleted() || donor.Tasks.PayForLpa.IsApproved() {
@@ -168,7 +175,7 @@ func handleFurtherInfoRequested(ctx context.Context, client dynamodbClient, even
 
 	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get donor: %w", err)
 	}
 
 	if donor.Tasks.PayForLpa.IsMoreEvidenceRequired() {
@@ -193,7 +200,7 @@ func handleFeeDenied(ctx context.Context, client dynamodbClient, event *events.C
 
 	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get donor: %w", err)
 	}
 
 	if donor.Tasks.PayForLpa.IsDenied() {
@@ -333,13 +340,67 @@ func handlePriorityCorrespondenceSent(ctx context.Context, client dynamodbClient
 
 	donor, err := getDonorByLpaUID(ctx, client, v.UID)
 	if err != nil {
-		return fmt.Errorf("failed to get lpa: %w", err)
+		return fmt.Errorf("failed to get donor: %w", err)
 	}
 
 	donor.PriorityCorrespondenceSentAt = v.SentDate
 
 	if err := putDonor(ctx, donor, now, client); err != nil {
-		return fmt.Errorf("failed to update lpa: %w", err)
+		return fmt.Errorf("failed to update donor: %w", err)
+	}
+
+	return nil
+}
+
+type changeConfirmedEvent struct {
+	UID       string     `json:"uid"`
+	ActorType actor.Type `json:"actorType"`
+	ActorUID  string     `json:"actorUID"`
+}
+
+func handleChangeConfirmed(ctx context.Context, client dynamodbClient, event *events.CloudWatchEvent, now func() time.Time, materialChange bool) error {
+	var v changeConfirmedEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	switch v.ActorType {
+	case actor.TypeDonor:
+		donor, err := getDonorByLpaUID(ctx, client, v.UID)
+		if err != nil {
+			return fmt.Errorf("failed to get donor: %w", err)
+		}
+
+		if donor.Tasks.ConfirmYourIdentity.IsProblem() {
+			if materialChange {
+				donor.MaterialChangeConfirmedAt = now()
+			} else {
+				donor.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+			}
+
+			if err := putDonor(ctx, donor, now, client); err != nil {
+				return fmt.Errorf("failed to update donor: %w", err)
+			}
+		}
+	case actor.TypeCertificateProvider:
+		certificateProvider, err := getCertificateProviderByLpaUID(ctx, client, v.UID)
+		if err != nil {
+			return fmt.Errorf("failed to get certificate provider: %w", err)
+		}
+
+		if certificateProvider.Tasks.ConfirmYourIdentity.IsProblem() {
+			if materialChange {
+				certificateProvider.MaterialChangeConfirmedAt = now()
+			} else {
+				certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+			}
+
+			if err := putCertificateProvider(ctx, certificateProvider, now, client); err != nil {
+				return fmt.Errorf("failed to update certificate provider: %w", err)
+			}
+		}
+	default:
+		return fmt.Errorf("invalid actorType, got %s, want donor or certificateProvider", v.ActorType.String())
 	}
 
 	return nil

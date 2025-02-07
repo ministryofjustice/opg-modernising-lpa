@@ -1478,5 +1478,6 @@
     "and:en": "and English",
     "and:cy": "and Welsh",
     "donorHasChosenToHaveTheirLpaRegisteredInContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{.DonorFullName}} has chosen to have their LPA registered {{.InSelected}}</p><p class=\"govuk-body\">When reading the LPA, you can switch {{.BetweenSelected}} {{.AndUnselected}}.</p><p class=\"govuk-body\">Bear in mind that any restrictions and conditions {{.DonorFullName}} has written {{.InSelected}} will not be translated.</p></div>",
-    "donorHasChosenToHaveTheirLpaRegisteredInAttorneyContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{.DonorFullName}} has chosen to have their LPA registered {{.InSelected}}. This is a translation.</p><p class=\"govuk-body\">Bear in mind that any restrictions and conditions {{.DonorFullName}} has written {{.InSelected}} will not be translated.</p></div>"
+    "donorHasChosenToHaveTheirLpaRegisteredInAttorneyContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">{{.DonorFullName}} has chosen to have their LPA registered {{.InSelected}}. This is a translation.</p><p class=\"govuk-body\">Bear in mind that any restrictions and conditions {{.DonorFullName}} has written {{.InSelected}} will not be translated.</p></div>",
+    "yourIdentityHadBeenConfirmed": "Your identity has been confirmed"
 }
