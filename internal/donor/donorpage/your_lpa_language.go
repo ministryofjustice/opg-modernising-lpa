@@ -47,7 +47,7 @@ func YourLpaLanguage(tmpl template.Template, donorStore DonorStore) Handler {
 					}
 				}
 
-				return donor.PathLpaYourLegalRightsAndResponsibilities.Redirect(w, r, appData, provided)
+				return donor.PathReadYourLpa.Redirect(w, r, appData, provided)
 			}
 		}
 
