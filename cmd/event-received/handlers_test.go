@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -183,32 +184,26 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	assert.Equal(t, fmt.Errorf("failed to update scan results: %w", expectedError), err)
 }
 
-func TestGetLpaByUID(t *testing.T) {
+func TestGetDonorByLPAUID(t *testing.T) {
 	expectedDonor := &donordata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))}
 
 	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
-			return nil
-		})
-	client.
-		On("One", ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
-		Return(func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
-			b, _ := json.Marshal(expectedDonor)
-			json.Unmarshal(b, v)
-			return nil
-		})
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(expectedDonor)
 
-	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
+	donor, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Equal(t, expectedDonor, lpa)
+	assert.Equal(t, expectedDonor, donor)
 	assert.Nil(t, err)
 }
 
-func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
+func TestGetDonorByLPAUIDWhenClientOneByUidError(t *testing.T) {
 	client := newMockDynamodbClient(t)
 	client.EXPECT().
 		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
@@ -220,37 +215,113 @@ func TestGetLpaByUIDWhenClientOneByUidError(t *testing.T) {
 	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
 }
 
-func TestGetLpaByUIDWhenPKMissing(t *testing.T) {
+func TestGetDonorByLPAUIDWhenPKMissing(t *testing.T) {
 	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
-			return nil
-		})
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{SK: dynamo.DonorKey("456")})
 
-	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
+	donor, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Nil(t, lpa)
+	assert.Nil(t, donor)
 	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
 }
 
-func TestGetLpaByUIDWhenClientOneError(t *testing.T) {
+func TestGetDonorByLPAUIDWhenClientOneError(t *testing.T) {
 	client := newMockDynamodbClient(t)
-	client.
-		On("OneByUID", ctx, "M-1111-2222-3333", mock.Anything).
-		Return(func(ctx context.Context, uid string, v interface{}) error {
-			b, _ := json.Marshal(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
-			json.Unmarshal(b, v)
-			return nil
-		})
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
 	client.EXPECT().
 		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
 		Return(expectedError)
 
-	lpa, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
+	donor, err := getDonorByLpaUID(ctx, client, "M-1111-2222-3333")
 
-	assert.Nil(t, lpa)
+	assert.Nil(t, donor)
 	assert.Equal(t, fmt.Errorf("failed to get LPA: %w", expectedError), err)
+}
+
+func TestGetCertificateProviderByLpaUID(t *testing.T) {
+	expectedCertificateProvider := certificateproviderdata.Provided{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("")}
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456")})
+	client.EXPECT().
+		OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey(""), mock.Anything).
+		Return(nil).
+		SetData(expectedCertificateProvider)
+
+	certificateProvider, err := getCertificateProviderByLpaUID(ctx, client, "M-1111-2222-3333")
+
+	assert.Nil(t, err)
+	assert.Equal(t, &expectedCertificateProvider, certificateProvider)
+}
+
+func TestGetCertificateProviderByLpaUIDWhenClientOneByUidError(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(expectedError)
+
+	certificateProvider, err := getCertificateProviderByLpaUID(ctx, client, "M-1111-2222-3333")
+
+	assert.Nil(t, certificateProvider)
+	assert.Equal(t, fmt.Errorf("failed to resolve uid: %w", expectedError), err)
+}
+
+func TestGetCertificateProviderByLpaUIDWhenPKMissing(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{SK: dynamo.CertificateProviderKey("456")})
+
+	certificateProvider, err := getCertificateProviderByLpaUID(ctx, client, "M-1111-2222-3333")
+
+	assert.Nil(t, certificateProvider)
+	assert.Equal(t, errors.New("PK missing from LPA in response"), err)
+}
+
+func TestGetCertificateProviderByLpaUIDWhenClientOneByPartialSKError(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.CertificateProviderKey("456")})
+	client.EXPECT().
+		OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey(""), mock.Anything).
+		Return(expectedError)
+
+	certificateProvider, err := getCertificateProviderByLpaUID(ctx, client, "M-1111-2222-3333")
+
+	assert.Nil(t, certificateProvider)
+	assert.Equal(t, fmt.Errorf("failed to get certificate provider: %w", expectedError), err)
+}
+
+func TestPutCertificateProvider(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		Put(ctx, &certificateproviderdata.Provided{PK: dynamo.LpaKey("123"), UpdatedAt: testNow}).
+		Return(nil)
+
+	err := putCertificateProvider(ctx, &certificateproviderdata.Provided{PK: dynamo.LpaKey("123"), UpdatedAt: testNow}, testNowFn, client)
+
+	assert.Nil(t, err)
+}
+
+func TestPutCertificateProviderWhenClientError(t *testing.T) {
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		Put(ctx, &certificateproviderdata.Provided{PK: dynamo.LpaKey("123"), UpdatedAt: testNow}).
+		Return(expectedError)
+
+	err := putCertificateProvider(ctx, &certificateproviderdata.Provided{PK: dynamo.LpaKey("123"), UpdatedAt: testNow}, testNowFn, client)
+
+	assert.Equal(t, expectedError, err)
 }
