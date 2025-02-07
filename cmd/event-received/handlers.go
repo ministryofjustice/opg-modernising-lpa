@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 )
@@ -77,4 +78,28 @@ func getDonorByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*
 	}
 
 	return &donor, nil
+}
+
+func putCertificateProvider(ctx context.Context, certificateProvider *certificateproviderdata.Provided, now func() time.Time, client dynamodbClient) error {
+	certificateProvider.UpdatedAt = now()
+
+	return client.Put(ctx, certificateProvider)
+}
+
+func getCertificateProviderByLpaUID(ctx context.Context, client dynamodbClient, uid string) (*certificateproviderdata.Provided, error) {
+	var key dynamo.Keys
+	if err := client.OneByUID(ctx, uid, &key); err != nil {
+		return nil, fmt.Errorf("failed to resolve uid: %w", err)
+	}
+
+	if key.PK == nil {
+		return nil, fmt.Errorf("PK missing from LPA in response")
+	}
+
+	var certificateProvider certificateproviderdata.Provided
+	if err := client.OneByPartialSK(ctx, key.PK, dynamo.CertificateProviderKey(""), &certificateProvider); err != nil {
+		return nil, fmt.Errorf("failed to get certificate provider: %w", err)
+	}
+
+	return &certificateProvider, nil
 }
