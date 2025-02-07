@@ -258,5 +258,15 @@ describe('Progress', () => {
             cy.contains('Confirmation of identity pending');
             cy.contains('You do not need to take any action');
         });
+
+        // TODO add test when we can send events during test runs (or some other work around)
+        // it('when identity mismatch resolved as immaterial', () => {
+        //
+        // });
+
+        // TODO add test when we can send events during test runs (or some other work around)
+        // it('when identity mismatch resolved as material', () => {
+        //
+        // });
     });
 });
