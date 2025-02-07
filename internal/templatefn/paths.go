@@ -109,6 +109,7 @@ type appPaths struct {
 	Voucher             voucherPaths
 	HealthCheck         healthCheckPaths
 
+	AccessibilityStatement      page.Path
 	AttorneyFixtures            page.Path
 	AuthRedirect                page.Path
 	CertificateProviderFixtures page.Path
@@ -336,6 +337,7 @@ var paths = appPaths{
 		Dependency: page.PathHealthCheckDependency,
 	},
 
+	AccessibilityStatement:      page.PathAccessibilityStatement,
 	AttorneyFixtures:            page.PathAttorneyFixtures,
 	AuthRedirect:                page.PathAuthRedirect,
 	CertificateProviderFixtures: page.PathCertificateProviderFixtures,
