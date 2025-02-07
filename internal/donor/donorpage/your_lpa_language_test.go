@@ -75,7 +75,7 @@ func TestPostYourLpaLanguageWhenContinue(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathLpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
@@ -121,7 +121,7 @@ func TestPostYourLpaLanguageWhenSwitch(t *testing.T) {
 
 			assert.Nil(t, err)
 			assert.Equal(t, http.StatusFound, resp.StatusCode)
-			assert.Equal(t, donor.PathLpaYourLegalRightsAndResponsibilities.Format("lpa-id"), resp.Header.Get("Location"))
+			assert.Equal(t, donor.PathReadYourLpa.Format("lpa-id"), resp.Header.Get("Location"))
 		})
 	}
 }
