@@ -5,8 +5,13 @@ package main
 import (
 	context "context"
 
-	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
+	certificateproviderdata "github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
+
+	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+
 	lpadata "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+
+	lpastore "github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -79,6 +84,101 @@ func (_c *mockLpaStoreClient_Lpa_Call) Return(_a0 *lpadata.Lpa, _a1 error) *mock
 }
 
 func (_c *mockLpaStoreClient_Lpa_Call) RunAndReturn(run func(context.Context, string) (*lpadata.Lpa, error)) *mockLpaStoreClient_Lpa_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendCertificateProviderConfirmIdentity provides a mock function with given fields: ctx, lpaUID, certificateProvider
+func (_m *mockLpaStoreClient) SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error {
+	ret := _m.Called(ctx, lpaUID, certificateProvider)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCertificateProviderConfirmIdentity")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, *certificateproviderdata.Provided) error); ok {
+		r0 = rf(ctx, lpaUID, certificateProvider)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCertificateProviderConfirmIdentity'
+type mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call struct {
+	*mock.Call
+}
+
+// SendCertificateProviderConfirmIdentity is a helper method to define mock.On call
+//   - ctx context.Context
+//   - lpaUID string
+//   - certificateProvider *certificateproviderdata.Provided
+func (_e *mockLpaStoreClient_Expecter) SendCertificateProviderConfirmIdentity(ctx interface{}, lpaUID interface{}, certificateProvider interface{}) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	return &mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call{Call: _e.mock.On("SendCertificateProviderConfirmIdentity", ctx, lpaUID, certificateProvider)}
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) Run(run func(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided)) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(*certificateproviderdata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) Return(_a0 error) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call) RunAndReturn(run func(context.Context, string, *certificateproviderdata.Provided) error) *mockLpaStoreClient_SendCertificateProviderConfirmIdentity_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendDonorConfirmIdentity provides a mock function with given fields: ctx, donor
+func (_m *mockLpaStoreClient) SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error {
+	ret := _m.Called(ctx, donor)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendDonorConfirmIdentity")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
+		r0 = rf(ctx, donor)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockLpaStoreClient_SendDonorConfirmIdentity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendDonorConfirmIdentity'
+type mockLpaStoreClient_SendDonorConfirmIdentity_Call struct {
+	*mock.Call
+}
+
+// SendDonorConfirmIdentity is a helper method to define mock.On call
+//   - ctx context.Context
+//   - donor *donordata.Provided
+func (_e *mockLpaStoreClient_Expecter) SendDonorConfirmIdentity(ctx interface{}, donor interface{}) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	return &mockLpaStoreClient_SendDonorConfirmIdentity_Call{Call: _e.mock.On("SendDonorConfirmIdentity", ctx, donor)}
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Run(run func(ctx context.Context, donor *donordata.Provided)) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
+	})
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) Return(_a0 error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLpaStoreClient_SendDonorConfirmIdentity_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockLpaStoreClient_SendDonorConfirmIdentity_Call {
 	_c.Call.Return(run)
 	return _c
 }
