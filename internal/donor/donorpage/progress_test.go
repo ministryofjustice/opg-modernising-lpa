@@ -666,6 +666,67 @@ func TestGetProgress(t *testing.T) {
 			setupCertificateProviderStore: certificateProviderStoreNotFound,
 			setupDonorStore:               donorStoreNoUpdate,
 		},
+		"identity mismatch resolved": {
+			donor: &donordata.Provided{
+				ContinueWithMismatchedIdentity: true,
+				IdentityUserData:               identity.UserData{Status: identity.StatusConfirmed},
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateCompleted,
+				},
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			successNotifications: []progressNotification{
+				{Heading: "yourIdentityHadBeenConfirmed", Body: "youDoNotNeedToTakeAnyAction"},
+			},
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
+				s.EXPECT().
+					Put(mock.Anything, &donordata.Provided{
+						ContinueWithMismatchedIdentity: true,
+						IdentityUserData:               identity.UserData{Status: identity.StatusConfirmed},
+						Tasks: donordata.Tasks{
+							ConfirmYourIdentity: task.IdentityStateCompleted,
+						},
+						HasSeenIdentityMismatchResolvedNotification: true,
+					}).
+					Return(nil)
+			},
+		},
+		"identity mismatch resolved when already seen": {
+			donor: &donordata.Provided{
+				ContinueWithMismatchedIdentity: true,
+				IdentityUserData:               identity.UserData{Status: identity.StatusConfirmed},
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateCompleted,
+				},
+				HasSeenIdentityMismatchResolvedNotification: true,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			setupDonorStore:               donorStoreNoUpdate,
+		},
+		"identity mismatch material change confirmed": {
+			donor: &donordata.Provided{
+				ContinueWithMismatchedIdentity: true,
+				IdentityUserData:               identity.UserData{Status: identity.StatusConfirmed},
+				Tasks: donordata.Tasks{
+					ConfirmYourIdentity: task.IdentityStateProblem,
+				},
+				MaterialChangeConfirmedAt: testNow,
+			},
+			lpa:                           &lpadata.Lpa{},
+			setupCertificateProviderStore: certificateProviderStoreNotFound,
+			setupDonorStore:               donorStoreNoUpdate,
+			infoNotifications: []progressNotification{
+				{Heading: "yourLPACannotBeRegisteredByOPG", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format("weContactedYouOnWithGuidanceAboutWhatToDoNext", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {

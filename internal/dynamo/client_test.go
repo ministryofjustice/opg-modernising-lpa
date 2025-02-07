@@ -104,7 +104,6 @@ func TestOneByUID(t *testing.T) {
 			},
 			KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
 			FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
-			Limit:                  aws.Int32(1),
 		}).
 		Return(&dynamodb.QueryOutput{
 			Items: []map[string]types.AttributeValue{{
@@ -133,6 +132,31 @@ func TestOneByUIDWhenQueryError(t *testing.T) {
 	err := c.OneByUID(ctx, "M-1111-2222-3333", mock.Anything)
 
 	assert.Equal(t, fmt.Errorf("failed to query UID: %w", expectedError), err)
+}
+
+func TestOneByUIDWhenMultipleItems(t *testing.T) {
+	dynamoDB := newMockDynamoDB(t)
+	dynamoDB.EXPECT().
+		Query(ctx, mock.Anything).
+		Return(&dynamodb.QueryOutput{
+			Items: []map[string]types.AttributeValue{
+				{
+					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+				{
+					"PK":     &types.AttributeValueMemberS{Value: "LPA#123"},
+					"LpaUID": &types.AttributeValueMemberS{Value: "M-1111-2222-3333"},
+				},
+			},
+		}, nil)
+
+	c := &Client{table: "this", svc: dynamoDB}
+
+	var v map[string]any
+	err := c.OneByUID(ctx, "M-1111-2222-3333", &v)
+
+	assert.ErrorContains(t, err, "expected to resolve partial PK and SK but got 2 items")
 }
 
 func TestOneByUIDWhenNoItems(t *testing.T) {

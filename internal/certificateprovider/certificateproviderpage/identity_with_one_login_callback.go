@@ -48,6 +48,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		certificateProvider.IdentityUserData = userData
 
 		if userData.Status.IsConfirmed() && !certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
+			certificateProvider.IdentityDetailsMismatched = true
 			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 		} else {
 			certificateProvider.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
