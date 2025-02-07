@@ -1582,5 +1582,6 @@
     "and:en": "Welsh",
     "and:cy": "Welsh",
     "donorHasChosenToHaveTheirLpaRegisteredInContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}</p><p class=\"govuk-body\">{{.BetweenSelected}} {{.AndUnselected}}.</p><p class=\"govuk-body\">{{.DonorFullName}} {{.InSelected}}</p></div>",
-    "donorHasChosenToHaveTheirLpaRegisteredInAttorneyContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}</p><p class=\"govuk-body\">{{.DonorFullName}} {{.InSelected}}</p></div>"
+    "donorHasChosenToHaveTheirLpaRegisteredInAttorneyContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}</p><p class=\"govuk-body\">{{.DonorFullName}} {{.InSelected}}</p></div>",
+    "yourIdentityHadBeenConfirmed": "Welsh"
 }
