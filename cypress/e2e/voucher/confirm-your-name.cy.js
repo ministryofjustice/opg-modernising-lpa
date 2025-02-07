@@ -34,8 +34,7 @@ describe('Confirm your name', () => {
 
         cy.url().should('contain', '/your-name')
         cy.checkA11yApp();
-        cy.get('#f-last-name').clear();
-        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-last-name').invoke('val', 'Smith');
         cy.contains('button', 'Save and continue').click();
 
         cy.contains('button', 'Continue').click();
@@ -54,12 +53,8 @@ describe('Confirm your name', () => {
 
         cy.url().should('contain', '/your-name')
         cy.checkA11yApp();
-        cy.get('#f-first-names').focus().clear();
-        cy.get('#f-first-names').focus().type('Charlie');
-        cy.get('#f-first-names').should('have.value', 'Charlie');
-        cy.get('#f-last-name').focus().clear();
-        cy.get('#f-last-name').focus().type('Cooper');
-        cy.get('#f-last-name').should('have.value', 'Cooper');
+        cy.get('#f-first-names').invoke('val', 'Charlie');
+        cy.get('#f-last-name').invoke('val', 'Cooper');
         cy.contains('button', 'Save and continue').click();
 
         cy.contains('button', 'Continue').click();

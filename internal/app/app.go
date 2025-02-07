@@ -83,10 +83,14 @@ type SessionStore interface {
 	Login(r *http.Request) (*sesh.LoginSession, error)
 }
 
+type Bundle interface {
+	For(lang localize.Lang) *localize.Localizer
+}
+
 func App(
 	devMode bool,
 	logger *slog.Logger,
-	localizer page.Localizer,
+	bundle Bundle,
 	lang localize.Lang,
 	tmpls, donorTmpls, certificateProviderTmpls, attorneyTmpls, supporterTmpls, voucherTmpls template.Templates,
 	sessionStore *sesh.Store,
@@ -102,6 +106,7 @@ func App(
 	searchClient *search.Client,
 	useURL string,
 ) http.Handler {
+	localizer := bundle.For(lang)
 	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
 
 	donorStore := donor.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
@@ -259,6 +264,7 @@ func App(
 		lpaStoreResolvingService,
 		scheduledStore,
 		voucherStore,
+		bundle,
 	)
 
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
