@@ -20,6 +20,10 @@ describe('Sign the LPA', () => {
             cy.checkA11yApp();
             cy.contains('a', 'Start').click();
 
+            cy.url().should('contain', '/your-lpa-language');
+            cy.contains('label', 'Register my LPA in English').click();
+            cy.contains('button', 'Save and continue').click();
+
             cy.url().should('contain', '/read-your-lpa');
             cy.checkA11yApp();
 
@@ -27,10 +31,6 @@ describe('Sign the LPA', () => {
             cy.contains('h3', "Attorney:");
             cy.contains('h3', "Replacement attorney:");
             cy.contains('a', 'Continue').click();
-
-            cy.url().should('contain', '/your-lpa-language');
-            cy.contains('label', 'Continue and register my LPA in English').click();
-            cy.contains('button', 'Save and continue').click();
 
             cy.url().should('contain', '/your-legal-rights-and-responsibilities');
             cy.checkA11yApp();
@@ -86,9 +86,9 @@ describe('Sign the LPA', () => {
                 .click();
 
             cy.contains('a', 'Start').click();
-            cy.contains('a', 'Continue').click();
-            cy.contains('label', 'Continue and register my LPA in English').click();
+            cy.contains('label', 'Register my LPA in English').click();
             cy.contains('button', 'Save and continue').click();
+            cy.contains('a', 'Continue').click();
             cy.contains('a', 'Continue to signing page').click();
             cy.contains('label', 'I want to sign this LPA as a deed').click();
             cy.contains('label', 'I want to apply to register this LPA').click();
@@ -126,10 +126,6 @@ describe('Sign the LPA', () => {
             cy.contains('h3', "Attorney:");
             cy.contains('h3', "Replacement attorney:");
             cy.contains('a', 'Continue').click();
-
-            cy.url().should('contain', '/your-lpa-language');
-            cy.contains('label', 'Continue and register my LPA in English').click();
-            cy.contains('button', 'Save and continue').click();
 
             cy.url().should('contain', '/your-legal-rights-and-responsibilities');
             cy.checkA11yApp();
