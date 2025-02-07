@@ -200,11 +200,19 @@ type Provided struct {
 	// donor informing them of a problem.
 	PriorityCorrespondenceSentAt time.Time `checkhash:"-"`
 
+	// MaterialChangeConfirmedAt records when a material change to LPA data was
+	// confirmed by a caseworker
+	MaterialChangeConfirmedAt time.Time `checkhash:"-"`
+
 	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
 	HasSeenSuccessfulVouchBanner bool `checkhash:"-"`
 
 	// HasSeenReducedFeeApprovalNotification records if the donor has seen the progress tracker exemption/remission fee approved banner
 	HasSeenReducedFeeApprovalNotification bool `checkhash:"-"`
+
+	// HasSeenIdentityMismatchResolvedNotification records if the donor has seen the progress tracker identity
+	// confirmed banner
+	HasSeenIdentityMismatchResolvedNotification bool `checkhash:"-"`
 
 	// ReducedFeeApprovedAt records when an exemption/remission was approved.
 	ReducedFeeApprovedAt time.Time `checkhash:"-"`
