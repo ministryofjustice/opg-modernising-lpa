@@ -39,7 +39,7 @@ type Donor struct {
 	// ContactLanguagePreference is the language the donor prefers to receive notifications in
 	ContactLanguagePreference localize.Lang `relatedhash:"-"`
 	// LpaLanguagePreference is the language the donor prefers to receive the registered LPA in
-	LpaLanguagePreference localize.Lang `relatedhash:"-"`
+	LpaLanguagePreference localize.Lang `checkhash:"-" relatedhash:"-"`
 }
 
 func (d Donor) FullName() string {

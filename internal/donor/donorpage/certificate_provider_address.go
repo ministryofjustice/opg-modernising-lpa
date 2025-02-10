@@ -47,6 +47,12 @@ func CertificateProviderAddress(logger Logger, tmpl template.Template, addressCl
 				provided.CertificateProvider.Address = address
 				provided.Tasks.CertificateProvider = task.StateCompleted
 
+				// Allow changing address for certificate provider on the page they
+				// witness, without having to be notified.
+				if !provided.SignedAt.IsZero() {
+					provided.UpdateCheckedHash()
+				}
+
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}

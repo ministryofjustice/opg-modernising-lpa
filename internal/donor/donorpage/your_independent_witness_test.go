@@ -138,6 +138,45 @@ func TestPostYourIndependentWitness(t *testing.T) {
 	}
 }
 
+func TestPostYourIndependentWitnessWhenSigned(t *testing.T) {
+	f := url.Values{
+		"first-names": {"John"},
+		"last-name":   {"Doe"},
+	}
+
+	w := httptest.NewRecorder()
+
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	updated := &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+		IndependentWitness: donordata.IndependentWitness{
+			UID:        testUID,
+			FirstNames: "John",
+			LastName:   "Doe",
+		},
+		Tasks: donordata.Tasks{ChooseYourSignatory: task.StateInProgress},
+	}
+	updated.UpdateCheckedHash()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), updated).
+		Return(nil)
+
+	err := YourIndependentWitness(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathYourIndependentWitnessMobile.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostYourIndependentWitnessWhenTaskCompleted(t *testing.T) {
 	f := url.Values{
 		"first-names": {"John"},

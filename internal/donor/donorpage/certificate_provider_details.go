@@ -73,6 +73,12 @@ func CertificateProviderDetails(tmpl template.Template, donorStore DonorStore, n
 					provided.Tasks.CertificateProvider = task.StateInProgress
 				}
 
+				// Allow changing details for certificate provider on the page they
+				// witness, without having to be notified.
+				if !provided.SignedAt.IsZero() {
+					provided.UpdateCheckedHash()
+				}
+
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}

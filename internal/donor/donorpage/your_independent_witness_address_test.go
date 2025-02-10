@@ -164,6 +164,48 @@ func TestPostYourIndependentWitnessAddressManual(t *testing.T) {
 	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
 }
 
+func TestPostYourIndependentWitnessAddressManualWhenSigned(t *testing.T) {
+	f := url.Values{
+		form.FieldNames.Address.Action:     {"manual"},
+		form.FieldNames.Address.Line1:      {"a"},
+		form.FieldNames.Address.Line2:      {"b"},
+		form.FieldNames.Address.Line3:      {"c"},
+		form.FieldNames.Address.TownOrCity: {"d"},
+		form.FieldNames.Address.Postcode:   {"e"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	updated := &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+		IndependentWitness: donordata.IndependentWitness{
+			Address: testAddress,
+		},
+		Tasks: donordata.Tasks{
+			ChooseYourSignatory: task.StateCompleted,
+		},
+	}
+	updated.UpdateCheckedHash()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), updated).
+		Return(nil)
+
+	err := YourIndependentWitnessAddress(nil, nil, nil, donorStore)(testAppData, w, r, &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostYourIndependentWitnessAddressManualWhenStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.Address.Action:     {"manual"},

@@ -3,56 +3,59 @@
 {{ define "pageTitle" }}{{ tr .App "confirmYouWitnessedTheDonorSign" }}{{ end }}
 
 {{ define "main" }}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-xl">{{ trFormat .App "personConfirmYouWitnessedTheDonorSign" "FullName" .Donor.IndependentWitness.FullName }}</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">{{ trFormat .App "personConfirmYouWitnessedTheDonorSign" "FullName" .Donor.IndependentWitness.FullName }}</h1>
 
-      <h2 class="govuk-heading-l">{{ tr .App "confirmYourDetails" }}</h2>
+            <h2 class="govuk-heading-l">{{ tr .App "confirmYourDetails" }}</h2>
 
-      <p class="govuk-body">{{ trFormat .App "theseAreTheDetailsDonorProvidedCheck" "DonorFullName" .Donor.Donor.FullName }}</p>
+            <p class="govuk-body">{{ trFormat .App "theseAreTheDetailsDonorProvidedCheck" "DonorFullName" .Donor.Donor.FullName }}</p>
 
-      <dl class="govuk-summary-list">
-          {{ template "summary-row" (summaryRow .App "firstNames"
-              .Donor.IndependentWitness.FirstNames
-              "" "" false false) }}
-          {{ template "summary-row" (summaryRow .App "lastName"
-              .Donor.IndependentWitness.LastName
-              "" "" false false) }}
-          {{ template "address-summary-row" (summaryRow .App "address"
-              .Donor.IndependentWitness.Address
-              "" "" false false) }}
-      </dl>
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "firstNames"
+                    .Donor.IndependentWitness.FirstNames
+                    (fromLink .App global.Paths.YourIndependentWitness "#f-first-names")
+                    .Donor.IndependentWitness.FullName true false) }}
+                {{ template "summary-row" (summaryRow .App "lastName"
+                    .Donor.IndependentWitness.LastName
+                    (fromLink .App global.Paths.YourIndependentWitness "#f-first-names")
+                    .Donor.IndependentWitness.FullName true false) }}
+                {{ template "address-summary-row" (summaryRow .App "address"
+                    .Donor.IndependentWitness.Address
+                    (fromLink .App global.Paths.YourIndependentWitnessAddress "#f-address-line-1")
+                    .Donor.IndependentWitness.FullName true false) }}
+            </dl>
 
-      {{ template "warning" (content .App "itMayCauseDelaysIfDetailsAreNotCorrect") }}
+            {{ template "warning" (content .App "itMayCauseDelaysIfDetailsAreNotCorrect") }}
 
-      <h3 class="govuk-heading-m">{{ tr .App "whatToDoIfTheseDetailsAreNotCorrect" }}</h3>
+            <h3 class="govuk-heading-m">{{ tr .App "whatToDoIfTheseDetailsAreNotCorrect" }}</h3>
 
-      {{ trFormatHtml .App "whatToDoIfTheseDetailsAreNotCorrectContent" "DonorFullName" .Donor.Donor.FullName }}
+            <p class="govuk-body">{{ trFormatHtml .App "whatToDoIfTheseDetailsAreNotCorrectIndependentWitness" "DonorFullName" .Donor.Donor.FullName }}<p>
 
-      <h2 class="govuk-heading-l">{{ tr .App "confirmYouWitnessedTheDonorSignTheirLpa" }}</h2>
+                <h2 class="govuk-heading-l">{{ trFormat .App "confirmYouWitnessedTheDonorSignTheirLpa" "DonorFullName" .Donor.Donor.FullName }}</h2>
 
-      <p class="govuk-inset-text">
-        {{ trFormatHtml .App "weHaveSentAWitnessCodeTo" "Mobile" (formatPhone .Donor.IndependentWitness.Mobile) }}
-      </p>
+                <p class="govuk-inset-text">
+                    {{ trFormatHtml .App "weHaveSentAWitnessCodeTo" "Mobile" (formatPhone .Donor.IndependentWitness.Mobile) }}
+                </p>
 
-      <p class="govuk-body">{{ tr .App "byEnteringThisWitnessCodeYouAreConfirming" }}</p>
+                <p class="govuk-body">{{ tr .App "byEnteringThisWitnessCodeYouAreConfirming" }}</p>
 
-      <form novalidate method="post">
-        {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code
-            "hint" "typeInTheCodeToProveYouWitnessed"
-            "classes" "govuk-input--width-5"
-            "labelClasses" "govuk-label--s"
-            "autocomplete" "off") }}
+                <form novalidate method="post">
+                    {{ template "input" (input . "witness-code" "enter4DigitCode" .Form.Code
+                        "hint" "typeInTheCodeToProveYouWitnessed"
+                        "classes" "govuk-input--width-5"
+                        "labelClasses" "govuk-label--s"
+                        "autocomplete" "off") }}
 
-        {{ template "buttons" (button .App "continue") }}
-        {{ template "csrf-field" . }}
-      </form>
+                    {{ template "details" (details . "imHavingProblemWithCode" (
+                        trFormat .App "imHavingProblemWithCodeContent"
+                        "ResendLink" (link .App (global.Paths.ResendIndependentWitnessCode.Format .Donor.LpaID))
+                        "ChangeLink" (link .App (global.Paths.ChangeIndependentWitnessMobileNumber.Format .Donor.LpaID))
+                        ) false) }}
 
-      {{ template "details" (details . "imHavingProblemWithCode" (
-        trFormat .App "imHavingProblemWithCodeContent"
-        "ResendLink" (link .App (global.Paths.ResendIndependentWitnessCode.Format .Donor.LpaID))
-        "ChangeLink" (link .App (global.Paths.ChangeIndependentWitnessMobileNumber.Format .Donor.LpaID))
-      ) false) }}
+                    {{ template "buttons" (button .App "continue") }}
+                    {{ template "csrf-field" . }}
+                </form>
+        </div>
     </div>
-  </div>
 {{ end }}
