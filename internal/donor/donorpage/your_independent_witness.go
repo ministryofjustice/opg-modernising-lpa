@@ -59,6 +59,12 @@ func YourIndependentWitness(tmpl template.Template, donorStore DonorStore, newUI
 					provided.Tasks.ChooseYourSignatory = task.StateInProgress
 				}
 
+				// Allow changing details for independent witness on the page they
+				// witness, without certificate provider having to be notified.
+				if !provided.SignedAt.IsZero() {
+					provided.UpdateCheckedHash()
+				}
+
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
 				}
