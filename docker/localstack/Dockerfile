@@ -25,14 +25,14 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o cmd/schedule
   && chmod 755 cmd/scheduled-task-adder/bootstrap \
   && zip -r -j scheduled-task-adder.zip cmd/scheduled-task-adder/bootstrap
 
-FROM --platform=${TARGETARCH} localstack/localstack:4.1.1 AS localstack
+FROM localstack/localstack:4.1.1 AS localstack
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 COPY --from=build /app/schedule-runner.zip /etc/schedule-runner.zip
 COPY --from=build /app/scheduled-task-adder.zip /etc/scheduled-task-adder.zip
 
 COPY ./docker/localstack/localstack-init.sh /etc/localstack/init/ready.d/localstack-init.sh
-COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json ./dynamodb-lpa-gsi-schema.json
-COPY ./docker/localstack/schedule-runner-metrics-query.json ./schedule-runner-metrics-query.json
+COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json /usr/dynamodb-lpa-gsi-schema.json
+COPY ./docker/localstack/schedule-runner-metrics-query.json /usr/schedule-runner-metrics-query.json
 
 RUN chmod 544 /etc/localstack/init/ready.d/localstack-init.sh
