@@ -1,4 +1,4 @@
-FROM golang:1.23.5-alpine AS build
+FROM golang:1.23.6-alpine AS build
 
 RUN apk add --no-cache zip=3.0-r13 unzip=6.0-r15
 
@@ -25,7 +25,7 @@ RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o cmd/schedule
   && chmod 755 cmd/scheduled-task-adder/bootstrap \
   && zip -r -j scheduled-task-adder.zip cmd/scheduled-task-adder/bootstrap
 
-FROM --platform=${TARGETARCH} localstack/localstack:4.1.0 AS localstack
+FROM --platform=${TARGETARCH} localstack/localstack:4.1.1 AS localstack
 
 COPY --from=build /app/event-received.zip /etc/event-received.zip
 COPY --from=build /app/schedule-runner.zip /etc/schedule-runner.zip
