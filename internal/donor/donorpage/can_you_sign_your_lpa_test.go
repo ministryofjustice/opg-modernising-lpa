@@ -11,6 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -54,16 +55,19 @@ func TestGetCanYouSignYourLpaWhenTemplateErrors(t *testing.T) {
 func TestPostCanYouSignYourLpa(t *testing.T) {
 	testCases := map[string]struct {
 		form     url.Values
-		person   donordata.Donor
+		provided *donordata.Provided
 		redirect donor.Path
 	}{
 		"can sign": {
 			form: url.Values{
 				form.FieldNames.Select: {donordata.Yes.String()},
 			},
-			person: donordata.Donor{
-				ThinksCanSign: donordata.Yes,
-				CanSign:       form.Yes,
+			provided: &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					ThinksCanSign: donordata.Yes,
+					CanSign:       form.Yes,
+				},
 			},
 			redirect: donor.PathYourPreferredLanguage,
 		},
@@ -71,8 +75,14 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 			form: url.Values{
 				form.FieldNames.Select: {donordata.No.String()},
 			},
-			person: donordata.Donor{
-				ThinksCanSign: donordata.No,
+			provided: &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					ThinksCanSign: donordata.No,
+				},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A"},
+				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I"},
+				Tasks:               donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 			},
 			redirect: donor.PathCheckYouCanSign,
 		},
@@ -80,8 +90,14 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 			form: url.Values{
 				form.FieldNames.Select: {donordata.Maybe.String()},
 			},
-			person: donordata.Donor{
-				ThinksCanSign: donordata.Maybe,
+			provided: &donordata.Provided{
+				LpaID: "lpa-id",
+				Donor: donordata.Donor{
+					ThinksCanSign: donordata.Maybe,
+				},
+				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A"},
+				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I"},
+				Tasks:               donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 			},
 			redirect: donor.PathCheckYouCanSign,
 		},
@@ -96,14 +112,14 @@ func TestPostCanYouSignYourLpa(t *testing.T) {
 
 			donorStore := newMockDonorStore(t)
 			donorStore.
-				On("Put", r.Context(), &donordata.Provided{
-					LpaID: "lpa-id",
-					Donor: tc.person,
-				}).
+				On("Put", r.Context(), tc.provided).
 				Return(nil)
 
 			err := CanYouSignYourLpa(nil, donorStore)(testAppData, w, r, &donordata.Provided{
-				LpaID: "lpa-id",
+				LpaID:               "lpa-id",
+				AuthorisedSignatory: donordata.AuthorisedSignatory{FirstNames: "A"},
+				IndependentWitness:  donordata.IndependentWitness{FirstNames: "I"},
+				Tasks:               donordata.Tasks{ChooseYourSignatory: task.StateCompleted},
 			})
 			resp := w.Result()
 

@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -32,6 +33,12 @@ func CheckYouCanSign(tmpl template.Template, donorStore DonorStore) Handler {
 
 			if data.Errors.None() {
 				provided.Donor.CanSign = data.Form.YesNo
+
+				if provided.Donor.CanSign.IsYes() {
+					provided.AuthorisedSignatory = donordata.AuthorisedSignatory{}
+					provided.IndependentWitness = donordata.IndependentWitness{}
+					provided.Tasks.ChooseYourSignatory = task.StateNotStarted
+				}
 
 				if err := donorStore.Put(r.Context(), provided); err != nil {
 					return err
