@@ -14,7 +14,11 @@
 
             <h1 class="govuk-heading-xl">{{ tr .App "readYourLpa" }}</h1>
 
-            <p class="govuk-body">{{ tr .App "thisPageOutlinesTheDecisionsYouMade" }}</p>
+            {{ if .Donor.Donor.CanSign.IsYes }}
+                {{ trFormatHtml .App "thisPageOutlinesTheDecisionsYouMade" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+            {{ else }}
+                {{ trFormatHtml .App "thisPageOutlinesTheDecisionsYouMadeCannotSign" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
+            {{ end }}
 
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
