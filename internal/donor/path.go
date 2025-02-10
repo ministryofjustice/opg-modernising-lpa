@@ -196,7 +196,8 @@ func (p Path) CanGoTo(donor *donordata.Provided) bool {
 		case PathHowToSignYourLpa, PathReadYourLpa, PathYourLpaLanguage, PathLpaYourLegalRightsAndResponsibilities,
 			PathSignYourLpa, PathSignTheLpaOnBehalf, PathWitnessingYourSignature, PathWitnessingAsIndependentWitness,
 			PathResendIndependentWitnessCode, PathChangeIndependentWitnessMobileNumber, PathWitnessingAsCertificateProvider,
-			PathResendCertificateProviderCode, PathChangeCertificateProviderMobileNumber:
+			PathResendCertificateProviderCode, PathChangeCertificateProviderMobileNumber,
+			PathCertificateProviderDetails, PathCertificateProviderAddress, PathYourIndependentWitness, PathYourIndependentWitnessAddress:
 			return !donor.Tasks.SignTheLpa.IsCompleted()
 		}
 

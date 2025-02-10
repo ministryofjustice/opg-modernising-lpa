@@ -208,6 +208,46 @@ func TestPostCertificateProviderDetails(t *testing.T) {
 	}
 }
 
+func TestPostCertificateProviderDetailsWhenSigned(t *testing.T) {
+	form := url.Values{
+		"first-names": {"John"},
+		"last-name":   {"Rey"},
+		"mobile":      {"07535111111"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	updated := &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+		CertificateProvider: donordata.CertificateProvider{
+			UID:        testUID,
+			FirstNames: "John",
+			LastName:   "Rey",
+			Mobile:     "07535111111",
+		},
+		Tasks: donordata.Tasks{CertificateProvider: task.StateInProgress},
+	}
+	updated.UpdateCheckedHash()
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), updated).
+		Return(nil)
+
+	err := CertificateProviderDetails(nil, donorStore, testUIDFn)(testAppData, w, r, &donordata.Provided{
+		LpaID:    "lpa-id",
+		SignedAt: testNow,
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathHowDoYouKnowYourCertificateProvider.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
 func TestPostCertificateProviderDetailsWhenAmendingDetailsAfterStateComplete(t *testing.T) {
 	form := url.Values{
 		"first-names": {"John"},
