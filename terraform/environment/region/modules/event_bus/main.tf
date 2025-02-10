@@ -77,7 +77,7 @@ resource "aws_sns_topic" "event_bus_dead_letter_queue" {
 
 resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
+  comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "ApproximateNumberOfMessagesVisible"
   namespace           = "AWS/SQS"
