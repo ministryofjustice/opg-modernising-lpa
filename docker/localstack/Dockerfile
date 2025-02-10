@@ -32,7 +32,7 @@ COPY --from=build /app/schedule-runner.zip /etc/schedule-runner.zip
 COPY --from=build /app/scheduled-task-adder.zip /etc/scheduled-task-adder.zip
 
 COPY ./docker/localstack/localstack-init.sh /etc/localstack/init/ready.d/localstack-init.sh
-COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json ./dynamodb-lpa-gsi-schema.json
-COPY ./docker/localstack/schedule-runner-metrics-query.json ./schedule-runner-metrics-query.json
+COPY ./docker/localstack/dynamodb-lpa-gsi-schema.json /usr/dynamodb-lpa-gsi-schema.json
+COPY ./docker/localstack/schedule-runner-metrics-query.json /usr/schedule-runner-metrics-query.json
 
 RUN chmod 544 /etc/localstack/init/ready.d/localstack-init.sh
