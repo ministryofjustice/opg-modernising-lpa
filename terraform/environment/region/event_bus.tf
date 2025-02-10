@@ -5,5 +5,6 @@ module "event_bus" {
   receive_account_ids  = var.receive_account_ids
   providers = {
     aws.region = aws.region
+    aws.global = aws.global
   }
 }

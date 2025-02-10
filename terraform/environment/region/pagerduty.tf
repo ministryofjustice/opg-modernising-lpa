@@ -75,3 +75,17 @@ resource "aws_sns_topic_subscription" "event_alarms" {
   endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.event_alarms.integration_key}/enqueue"
   provider               = aws.region
 }
+
+resource "pagerduty_service_integration" "environment_event_bus_dlq_alarms" {
+  name    = "Modernising LPA ${data.aws_default_tags.current.tags.environment-name} ${data.aws_region.current.name} Eventbus DLQ Alarms"
+  service = data.pagerduty_service.main.id
+  vendor  = data.pagerduty_vendor.cloudwatch.id
+}
+
+resource "aws_sns_topic_subscription" "environment_event_bus_dlq_alarms" {
+  topic_arn              = module.event_bus.event_bus_dead_letter_queue_aws_sns_topic_arn
+  protocol               = "https"
+  endpoint_auto_confirms = true
+  endpoint               = "https://events.pagerduty.com/integration/${pagerduty_service_integration.environment_event_bus_dlq_alarms.integration_key}/enqueue"
+  provider               = aws.region
+}
