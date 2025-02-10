@@ -83,7 +83,7 @@ resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   namespace           = "AWS/SQS"
   period              = 60
   statistic           = "Sum"
-  threshold           = 1
+  threshold           = 0
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} event bus dead letter queue has messages"
   alarm_actions       = [aws_sns_topic.event_bus_dead_letter_queue.arn]
   provider            = aws.region
