@@ -39,6 +39,7 @@ const (
 	PathVoucherUnableToConfirmIdentity                                     = Path("/voucher-unable-to-confirm-identity")
 	PathVoucherDonorDetailsDoNotMatch                                      = Path("/voucher-donor-details-do-not-match")
 
+	PathAccessibilityStatement      = Path("/accessibility-statement")
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
 	PathAuthRedirect                = Path("/auth/redirect")
 	PathCertificateProviderFixtures = Path("/fixtures/certificate-provider")

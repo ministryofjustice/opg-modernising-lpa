@@ -165,6 +165,8 @@ func App(
 		page.Guidance(tmpls.Get("lpa_deleted.gohtml")))
 	handleRoot(page.PathLpaWithdrawn, RequireSession,
 		page.Guidance(tmpls.Get("lpa_withdrawn.gohtml")))
+	handleRoot(page.PathAccessibilityStatement, None,
+		page.Guidance(tmpls.Get("accessibility_statement.gohtml")))
 
 	voucherpage.Register(
 		rootMux,
