@@ -34,13 +34,17 @@
                         {{ template "input" (input . .Form.FieldNames.TownOrCity "townOrCity" .Form.Address.TownOrCity "classes" "govuk-!-width-two-thirds" "autocomplete" "address-level1") }}
                         {{ template "input" (input . .Form.FieldNames.Postcode "postcode" .Form.Address.Postcode "classes" "govuk-input--width-10" "autocomplete" "postal-code") }}
 
+                        <div class="govuk-inset-text">
+                            {{ trHtml .App "youMustUsuallyBeResidentContent" }}
+                        </div>
+
                         {{ if .CanTaskList }}
                             {{ template "buttons" (button .App "saveAndContinue") }}
                         {{ else }}
                             {{ template "button" (button .App "saveAndContinue") }}
                         {{ end }}
                         <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="manual" />
-                        
+
                     {{ else if eq .Form.Action "postcode-select" "postcode-lookup" }}
                         <input type="hidden" name="lookup-postcode" value="{{ .Form.LookupPostcode }}" />
 
@@ -80,7 +84,7 @@
                                 {{ tr .App "enterAddressManually" }}
                             </a>
                         </p>
-       
+
                         {{ template "button" (button .App "findAddress") }}
                         <input type="hidden" name="{{ .Form.FieldNames.Action }}" value="postcode-lookup" />
                     {{ end }}
