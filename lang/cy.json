@@ -1587,5 +1587,6 @@
     "donorHasChosenToHaveTheirLpaRegisteredInAttorneyContent": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh {{.DonorFullName}} {{.InSelected}}</p><p class=\"govuk-body\">{{.DonorFullName}} {{.InSelected}}</p></div>",
     "accessibilityStatement": "Welsh",
     "accessibilityStatementForMakeAndRegister": "Welsh",
-    "accessibilityStatementContent": "<p class=\"govuk-body\">Welsh</p>"
+    "accessibilityStatementContent": "<p class=\"govuk-body\">Welsh</p>",
+    "yourIdentityHadBeenConfirmed": "Welsh"
 }
