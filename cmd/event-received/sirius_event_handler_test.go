@@ -1406,3 +1406,365 @@ func TestHandlePriorityCorrespondenceSentWhenPutError(t *testing.T) {
 	err := handlePriorityCorrespondenceSent(ctx, client, event, testNowFn)
 	assert.ErrorIs(t, err, expectedError)
 }
+
+func TestHandleImmaterialChangeConfirmed(t *testing.T) {
+	testcases := map[string]struct {
+		setupDynamoClient   func(*testing.T) *mockDynamodbClient
+		setupLpaStoreClient func(*testing.T) *mockLpaStoreClient
+	}{
+		"donor": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				updated := &donordata.Provided{
+					PK:                             dynamo.LpaKey("123"),
+					SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+					Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+					ContinueWithMismatchedIdentity: true,
+					ImmaterialChangeConfirmedAt:    testNow,
+					UpdatedAt:                      testNow,
+				}
+				updated.UpdateHash()
+
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:                             dynamo.LpaKey("123"),
+						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						ContinueWithMismatchedIdentity: true,
+					})
+				c.EXPECT().
+					Put(ctx, updated).
+					Return(nil)
+
+				return c
+			},
+			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				c := newMockLpaStoreClient(t)
+				c.EXPECT().
+					SendDonorConfirmIdentity(ctx, &donordata.Provided{
+						PK:                             dynamo.LpaKey("123"),
+						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+						ContinueWithMismatchedIdentity: true,
+						ImmaterialChangeConfirmedAt:    testNow,
+					}).
+					Return(nil)
+
+				return c
+			},
+		},
+		"certificateProvider": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey(""), mock.Anything).
+					Return(nil).
+					SetData(&certificateproviderdata.Provided{
+						PK:                        dynamo.LpaKey("123"),
+						SK:                        dynamo.CertificateProviderKey("789"),
+						Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						IdentityDetailsMismatched: true,
+					})
+				c.EXPECT().
+					Put(ctx, &certificateproviderdata.Provided{
+						PK:                          dynamo.LpaKey("123"),
+						SK:                          dynamo.CertificateProviderKey("789"),
+						Tasks:                       certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+						IdentityDetailsMismatched:   true,
+						ImmaterialChangeConfirmedAt: testNow,
+						UpdatedAt:                   testNow,
+					}).
+					Return(nil)
+
+				return c
+			},
+			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				return newMockLpaStoreClient(t)
+			},
+		},
+	}
+
+	for actorType, tc := range testcases {
+		t.Run(actorType, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "immaterial-change-confirmed",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+			}
+
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				DynamoClient().
+				Return(tc.setupDynamoClient(t))
+			factory.EXPECT().
+				LpaStoreClient().
+				Return(tc.setupLpaStoreClient(t), nil)
+			factory.EXPECT().
+				Now().
+				Return(testNowFn)
+
+			handler := &siriusEventHandler{}
+			err := handler.Handle(ctx, factory, event)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestHandleChangeConfirmedWhenIdentityTaskNotPending(t *testing.T) {
+	testcases := map[string]struct {
+		setupDynamoClient func() *mockDynamodbClient
+	}{
+		"donor": {
+			setupDynamoClient: func() *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:    dynamo.LpaKey("123"),
+						SK:    dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks: donordata.Tasks{ConfirmYourIdentity: task.IdentityStateInProgress},
+					})
+
+				return c
+			},
+		},
+		"certificateProvider": {
+			setupDynamoClient: func() *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey(""), mock.Anything).
+					Return(nil).
+					SetData(&certificateproviderdata.Provided{
+						PK:    dynamo.LpaKey("123"),
+						SK:    dynamo.CertificateProviderKey("789"),
+						Tasks: certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateInProgress},
+					})
+
+				return c
+			},
+		},
+	}
+
+	for actorType, tc := range testcases {
+		t.Run(actorType, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "immaterial-change-confirmed",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+			}
+
+			err := handleChangeConfirmed(ctx, tc.setupDynamoClient(), event, testNowFn, nil, false)
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestHandleChangeConfirmedWhenDynamoClientPutError(t *testing.T) {
+	testcases := map[string]struct {
+		setupDynamoClient   func(t *testing.T) *mockDynamodbClient
+		setupLpaStoreClient func(t *testing.T) *mockLpaStoreClient
+	}{
+		"donor": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:                             dynamo.LpaKey("123"),
+						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						ContinueWithMismatchedIdentity: true,
+					})
+				c.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(expectedError)
+
+				return c
+			},
+			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				c := newMockLpaStoreClient(t)
+				c.EXPECT().
+					SendDonorConfirmIdentity(ctx, mock.Anything).
+					Return(nil)
+
+				return c
+			},
+		},
+		"certificateProvider": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					OneByPartialSK(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					Return(nil).
+					SetData(&certificateproviderdata.Provided{
+						PK:                        dynamo.LpaKey("123"),
+						SK:                        dynamo.CertificateProviderKey("789"),
+						Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						IdentityDetailsMismatched: true,
+					})
+				c.EXPECT().
+					Put(ctx, mock.Anything).
+					Return(expectedError)
+
+				return c
+			},
+			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				return newMockLpaStoreClient(t)
+			},
+		},
+	}
+
+	for actorType, tc := range testcases {
+		t.Run(actorType, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "immaterial-change-confirmed",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+			}
+
+			err := handleChangeConfirmed(ctx, tc.setupDynamoClient(t), event, testNowFn, tc.setupLpaStoreClient(t), false)
+
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
+}
+
+func TestHandleImmaterialChangeConfirmedWhenUnexpectedActorType(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "immaterial-change-confirmed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"attorney"}`),
+	}
+
+	err := handleChangeConfirmed(ctx, nil, event, testNowFn, nil, false)
+
+	assert.ErrorContains(t, err, "invalid actorType, got attorney, want donor or certificateProvider")
+}
+
+func TestHandleMaterialChangeConfirmed(t *testing.T) {
+	testcases := map[string]struct {
+		setupDynamoClient   func() *mockDynamodbClient
+		setupLpaStoreClient func() *mockLpaStoreClient
+	}{
+		"donor": {
+			setupDynamoClient: func() *mockDynamodbClient {
+				updated := &donordata.Provided{
+					PK:                             dynamo.LpaKey("123"),
+					SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+					Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
+					ContinueWithMismatchedIdentity: true,
+					UpdatedAt:                      testNow,
+					MaterialChangeConfirmedAt:      testNow,
+				}
+				updated.UpdateHash()
+
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:                             dynamo.LpaKey("123"),
+						SK:                             dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:                          donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						ContinueWithMismatchedIdentity: true,
+					})
+				c.EXPECT().
+					Put(ctx, updated).
+					Return(nil)
+
+				return c
+			},
+			setupLpaStoreClient: func() *mockLpaStoreClient {
+				return newMockLpaStoreClient(t)
+			},
+		},
+		"certificateProvider": {
+			setupDynamoClient: func() *mockDynamodbClient {
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					OneByPartialSK(ctx, dynamo.LpaKey("123"), dynamo.CertificateProviderKey(""), mock.Anything).
+					Return(nil).
+					SetData(&certificateproviderdata.Provided{
+						PK:                        dynamo.LpaKey("123"),
+						SK:                        dynamo.CertificateProviderKey("789"),
+						Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						IdentityDetailsMismatched: true,
+					})
+				c.EXPECT().
+					Put(ctx, &certificateproviderdata.Provided{
+						PK:                        dynamo.LpaKey("123"),
+						SK:                        dynamo.CertificateProviderKey("789"),
+						Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
+						IdentityDetailsMismatched: true,
+						UpdatedAt:                 testNow,
+						MaterialChangeConfirmedAt: testNow,
+					}).
+					Return(nil)
+
+				return c
+			},
+			setupLpaStoreClient: func() *mockLpaStoreClient {
+				return newMockLpaStoreClient(t)
+			},
+		},
+	}
+
+	for actorType, tc := range testcases {
+		t.Run(actorType, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "material-change-confirmed",
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+			}
+
+			factory := newMockFactory(t)
+			factory.EXPECT().
+				DynamoClient().
+				Return(tc.setupDynamoClient())
+			factory.EXPECT().
+				LpaStoreClient().
+				Return(tc.setupLpaStoreClient(), nil)
+			factory.EXPECT().
+				Now().
+				Return(testNowFn)
+
+			handler := &siriusEventHandler{}
+			err := handler.Handle(ctx, factory, event)
+
+			assert.Nil(t, err)
+		})
+	}
+}
