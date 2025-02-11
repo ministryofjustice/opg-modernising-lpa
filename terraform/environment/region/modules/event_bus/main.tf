@@ -53,6 +53,28 @@ data "aws_iam_policy_document" "event_bus_dead_letter_queue" {
   provider = aws.region
 }
 
+resource "aws_sns_topic" "event_bus_dead_letter_queue" {
+  name                                     = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue-alarms"
+  kms_master_key_id                        = data.aws_kms_alias.sns_kms_key_alias.target_key_id
+  application_failure_feedback_role_arn    = data.aws_iam_role.sns_failure_feedback.arn
+  application_success_feedback_role_arn    = data.aws_iam_role.sns_success_feedback.arn
+  application_success_feedback_sample_rate = 100
+  firehose_failure_feedback_role_arn       = data.aws_iam_role.sns_failure_feedback.arn
+  firehose_success_feedback_role_arn       = data.aws_iam_role.sns_success_feedback.arn
+  firehose_success_feedback_sample_rate    = 100
+  http_failure_feedback_role_arn           = data.aws_iam_role.sns_failure_feedback.arn
+  http_success_feedback_role_arn           = data.aws_iam_role.sns_success_feedback.arn
+  http_success_feedback_sample_rate        = 100
+  lambda_failure_feedback_role_arn         = data.aws_iam_role.sns_failure_feedback.arn
+  lambda_success_feedback_role_arn         = data.aws_iam_role.sns_success_feedback.arn
+  lambda_success_feedback_sample_rate      = 100
+  sqs_failure_feedback_role_arn            = data.aws_iam_role.sns_failure_feedback.arn
+  sqs_success_feedback_role_arn            = data.aws_iam_role.sns_success_feedback.arn
+  sqs_success_feedback_sample_rate         = 100
+  provider                                 = aws.region
+}
+
+
 resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   alarm_name          = "${data.aws_default_tags.current.tags.environment-name}-event-bus-dead-letter-queue"
   comparison_operator = "GreaterThanOrEqualToThreshold"
@@ -63,8 +85,11 @@ resource "aws_cloudwatch_metric_alarm" "event_bus_dead_letter_queue" {
   statistic           = "Sum"
   threshold           = 1
   alarm_description   = "${data.aws_default_tags.current.tags.environment-name} event bus dead letter queue has messages"
-  alarm_actions       = [data.aws_sns_topic.custom_cloudwatch_alarms.arn]
-  provider            = aws.region
+  alarm_actions       = [aws_sns_topic.event_bus_dead_letter_queue.arn]
+  dimensions = {
+    QueueName = aws_sqs_queue.event_bus_dead_letter_queue.name
+  }
+  provider = aws.region
 }
 
 # Send event to remote account event bus
