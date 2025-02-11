@@ -81,13 +81,18 @@ func (c *Client) OneByUID(ctx context.Context, uid string, v interface{}) error 
 		},
 		KeyConditionExpression: aws.String("#LpaUID = :LpaUID"),
 		FilterExpression:       aws.String("begins_with(#PK, :PK) and begins_with(#SK, :SK)"),
-		Limit:                  aws.Int32(1),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to query UID: %w", err)
 	}
 	if len(response.Items) == 0 {
 		return NotFoundError{}
+	}
+
+	// limits are applied before filters so we need to manually handle > 1
+	// see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Other.html#Query.Limit
+	if len(response.Items) > 1 {
+		return fmt.Errorf("expected to resolve partial PK and SK but got %d items", len(response.Items))
 	}
 
 	return attributevalue.UnmarshalMap(response.Items[0], v)
