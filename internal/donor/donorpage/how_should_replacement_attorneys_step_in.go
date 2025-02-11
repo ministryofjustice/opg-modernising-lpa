@@ -84,6 +84,8 @@ func (f *howShouldReplacementAttorneysStepInForm) Validate() validation.List {
 	if f.WhenToStepIn == lpadata.ReplacementAttorneysStepInAnotherWay {
 		errors.String("other-details", "detailsOfWhenToStepIn", f.OtherDetails,
 			validation.Empty())
+		errors.String("other-details", "yourInstructionsForAttorneys", f.OtherDetails,
+			validation.NoLinks())
 	}
 
 	return errors

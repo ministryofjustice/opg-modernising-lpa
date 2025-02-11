@@ -400,3 +400,17 @@ func (c ReferenceNumberCheck) CheckString(label, value string) FormattableError 
 func ReferenceNumber() ReferenceNumberCheck {
 	return ReferenceNumberCheck{}
 }
+
+type NoLinksCheck struct{}
+
+func (c NoLinksCheck) CheckString(label, value string) FormattableError {
+	if strings.Contains(value, "://") {
+		return NoLinksError{Label: label}
+	}
+
+	return nil
+}
+
+func NoLinks() NoLinksCheck {
+	return NoLinksCheck{}
+}
