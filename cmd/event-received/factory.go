@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -31,8 +32,10 @@ type LambdaClient interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 	Lpa(ctx context.Context, uid string) (*lpadata.Lpa, error)
+	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
+	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 }
 
 type SecretsClient interface {

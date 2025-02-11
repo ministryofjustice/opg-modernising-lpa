@@ -1589,5 +1589,6 @@
     "accessibilityStatementForMakeAndRegister": "Welsh",
     "accessibilityStatementContent": "<p class=\"govuk-body\">Welsh</p>",
     "youMustUsuallyBeResidentContent": "<p class=\"govuk-body\">Welsh</p>",
-    "iAmResidentOrHaveExplained": "Welsh"
+    "iAmResidentOrHaveExplained": "Welsh",
+    "yourIdentityHadBeenConfirmed": "Welsh"
 }

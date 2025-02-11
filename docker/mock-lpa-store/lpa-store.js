@@ -31,6 +31,7 @@ if (context.request.method == 'GET') {
         let update = JSON.parse(context.request.body);
         let lpa = JSON.parse(lpaStore.load(lpaUID));
         if (!lpa) {
+            console.log(`LPA with UID ${lpaUID} not found in store`)
             respond().withStatusCode(404);
             return void 0;
         }
@@ -91,6 +92,20 @@ if (context.request.method == 'GET') {
 
             case 'OPG_STATUS_CHANGE':
                 lpa.status = update.changes.find(x => x.key == '/status').new;
+                break;
+
+            case 'DONOR_CONFIRM_IDENTITY':
+                const donorCheckedAt = update.changes.find(x => x.key.includes('checkedAt')).new;
+                const donorType = update.changes.find(x => x.key.includes('type')).new;
+
+                lpa.donor.identityCheck = {checkedAt: donorCheckedAt, type: donorType}
+                break;
+
+            case 'CERTIFICATE_PROVIDER_CONFIRM_IDENTITY':
+                const certificateProviderCheckedAt = update.changes.find(x => x.key.includes('checkedAt')).new;
+                const certificateProviderType = update.changes.find(x => x.key.includes('type')).new;
+
+                lpa.certificateProvider.identityCheck = {checkedAt: certificateProviderCheckedAt, type: certificateProviderType}
                 break;
         }
 
