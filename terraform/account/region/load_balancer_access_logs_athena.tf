@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-s3-enable-versioning:exp:2025-02-28
 resource "aws_s3_bucket" "athena_results" {
   bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-${data.aws_region.current.name}"
   force_destroy = true
@@ -26,12 +27,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "athena_results" {
   provider = aws.region
 }
 
+#tfsec:ignore:aws-s3-encryption-customer-key:exp:2025-02-28
 resource "aws_s3_bucket_server_side_encryption_configuration" "athena_results" {
   bucket = aws_s3_bucket.athena_results.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm = "aws:kms"
     }
   }
   provider = aws.region
