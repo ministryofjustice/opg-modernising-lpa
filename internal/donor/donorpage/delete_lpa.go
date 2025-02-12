@@ -1,12 +1,15 @@
 package donorpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
@@ -17,11 +20,26 @@ type deleteLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func DeleteLpa(tmpl template.Template, donorStore DonorStore) Handler {
+func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if err := donorStore.Delete(r.Context()); err != nil {
-				return err
+				return fmt.Errorf("error deleting donor: %v", err)
+			}
+
+			if !provided.CertificateProviderInvitedAt.IsZero() {
+				email := notify.InformCertificateProviderLPAHasBeenDeleted{
+					DonorFullName:                   provided.Donor.FullName(),
+					DonorFullNamePossessive:         appData.Localizer.Possessive(provided.Donor.FullName()),
+					LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+					CertificateProviderFullName:     provided.CertificateProvider.FullName(),
+					InvitedDate:                     appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
+					CertificateProviderStartPageURL: appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+				}
+
+				if err := notifyClient.SendActorEmail(r.Context(), notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, email); err != nil {
+					return fmt.Errorf("error sending LPA deleted email to certificate provider: %v", err)
+				}
 			}
 
 			return page.PathLpaDeleted.RedirectQuery(w, r, appData, url.Values{"uid": {provided.LpaUID}})

@@ -631,3 +631,37 @@ func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID
 
 	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
 }
+
+type InformCertificateProviderLPAHasBeenDeleted struct {
+	DonorFullName                   string
+	DonorFullNamePossessive         string
+	LpaType                         string
+	CertificateProviderFullName     string
+	InvitedDate                     string
+	CertificateProviderStartPageURL string
+}
+
+func (e InformCertificateProviderLPAHasBeenDeleted) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "842ee10d-bf79-42e7-a500-dcbd03d69194"
+	}
+
+	return "e1f99656-9b6c-4bb8-9ee6-7662d2b64790"
+}
+
+type InformCertificateProviderLPAHasBeenRevoked struct {
+	DonorFullName                   string
+	DonorFullNamePossessive         string
+	LpaType                         string
+	CertificateProviderFullName     string
+	InvitedDate                     string
+	CertificateProviderStartPageURL string
+}
+
+func (e InformCertificateProviderLPAHasBeenRevoked) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "d565b694-caea-42ff-9f9c-19ec7b79e229"
+	}
+
+	return "ae71eea8-ac37-4937-9ab7-b15e56eba1d2"
+}
