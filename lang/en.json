@@ -1062,7 +1062,7 @@
     "recallInvite": "Recall invite",
     "youSentAnInviteTo": "You sent an invite to <span class=\"govuk-!-font-weight-bold\">{{.Email}}</span> to access their LPA online.",
     "enterYourAccessCode": "Add your LPA",
-    "youCanFindThisInTheEmail": "To add your LPA, enter your donor access code. You’ll find your code in the email the Office of the Public Guardian sent about your LPA.",
+    "youCanFindThisInTheEmail": "To add your LPA, enter your donor access code. You’ll find your code in the email or letter the Office of the Public Guardian sent about your LPA.",
     "accessCode": "Enter code",
     "accessCodeHint": "Your access code will be 12 characters long and a mixture of upper and lower case letters and numbers.",
     "incorrectAccessCode": "The access code you entered is incorrect, please check it and try again",
