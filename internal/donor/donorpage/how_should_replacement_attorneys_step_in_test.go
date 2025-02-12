@@ -330,6 +330,13 @@ func TestHowShouldReplacementAttorneysStepInFormValidate(t *testing.T) {
 			},
 			expectedErrors: validation.With("other-details", validation.EnterError{Label: "detailsOfWhenToStepIn"}),
 		},
+		"has links": {
+			form: &howShouldReplacementAttorneysStepInForm{
+				WhenToStepIn: lpadata.ReplacementAttorneysStepInAnotherWay,
+				OtherDetails: "://",
+			},
+			expectedErrors: validation.With("other-details", validation.NoLinksError{Label: "yourInstructionsForAttorneys"}),
+		},
 	}
 
 	for name, tc := range testCases {
