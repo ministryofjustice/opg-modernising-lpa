@@ -255,6 +255,13 @@ func TestHowShouldAttorneysMakeDecisionsFormValidate(t *testing.T) {
 			},
 			errors: validation.With("mixed-details", validation.EnterError{Label: "xyz"}),
 		},
+		"has links": {
+			form: &howShouldAttorneysMakeDecisionsForm{
+				DecisionsType:    lpadata.JointlyForSomeSeverallyForOthers,
+				DecisionsDetails: "://",
+			},
+			errors: validation.With("mixed-details", validation.NoLinksError{Label: "yourInstructionsForAttorneys"}),
+		},
 	}
 
 	for name, tc := range testCases {
