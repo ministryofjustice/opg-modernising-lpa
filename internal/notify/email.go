@@ -631,3 +631,35 @@ func (e InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail) emailID
 
 	return "0b0f45d6-6ff1-4f66-905e-ba68905231c1"
 }
+
+type VoucherLpaDeleted struct {
+	DonorFullName           string
+	DonorFullNamePossessive string
+	InvitedDate             string
+	LpaType                 string
+	VoucherFullName         string
+}
+
+func (e VoucherLpaDeleted) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "95cfb64d-6548-4319-b886-63abf8a79259"
+	}
+
+	return "967b60f0-1371-43fa-81af-8ba269152706"
+}
+
+type VoucherLpaRevoked struct {
+	DonorFullName           string
+	DonorFullNamePossessive string
+	InvitedDate             string
+	LpaType                 string
+	VoucherFullName         string
+}
+
+func (e VoucherLpaRevoked) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "b6c87143-4cd2-41bf-b7a1-06fd0eb950c0"
+	}
+
+	return "c6a886b2-4ac8-4c36-a89e-2ddd84634423"
+}
