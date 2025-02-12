@@ -51,11 +51,12 @@
     "errorDateMustBeReal": "Rhaid i’r {{lowerFirst .Label}} fod yn ddyddiad go iawn",
     "errorDateMustBePast": "Rhaid i’r {{lowerFirst .Label}} fod yn y gorffennol",
     "errorMobile": "Rhaid i’r {{lowerFirst .Label}} fod yn rhif ffôn symudol yn y DU, fel 07700 900 982 neu +44 7700 900 982",
-    "errorPhone": "Mae’n rhaid i {{.Label}} fod yn rhif ffôn",
+    "errorPhone": "Mae’n rhaid i {{lowerFirst .Label}} fod yn rhif ffôn",
     "errorSelect": "Dewiswch {{lowerFirst .Label}}",
     "errorEmail": "Rhaid i’r {{lowerFirst .Label}} fod yn y fformat cywir, fel enw@enghraifft.com",
     "errorPostcode": "Rhaid i’r {{lowerFirst .Label}} fod yn god post yn y DU",
     "errorReferenceNumber": "Rhaid i’r {{lowerFirst .Label}} ddechrau â’r rhif 7 neu’r llythyren M",
+    "errorNoLinks": "Welsh {{.Label}}",
     "donorMatchesActorWarning": "{{.FirstNames}} {{.LastName}} yw enw’r rhoddwr hefyd. Ni all y rhoddwr fod yn {{.ArticleAndType}}.",
     "attorneyMatchesActorWarning": "Mae yna atwrnai o’r enw {{.FirstNames}} {{.LastName}} hefyd. Ni all atwrnai fod yn {{.ArticleAndType}}.",
     "attorneyMatchesAttorneyWarning": "Mae yna atwrnai yn barod o’r enw {{.FirstNames}} {{.LastName}} .",
@@ -1589,5 +1590,7 @@
     "accessibilityStatementForMakeAndRegister": "Welsh",
     "accessibilityStatementContent": "<p class=\"govuk-body\">Welsh</p>",
     "youMustUsuallyBeResidentContent": "<p class=\"govuk-body\">Welsh</p>",
-    "iAmResidentOrHaveExplained": "Welsh"
+    "iAmResidentOrHaveExplained": "Welsh",
+    "yourRestrictionsAndConditions": "your restrictions and conditions",
+    "yourInstructionsForAttorneys": "your instructions for attorneys"
 }

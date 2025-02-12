@@ -230,6 +230,15 @@ func TestCheckString(t *testing.T) {
 			checks:   []StringChecker{ReferenceNumber()},
 			expected: With(name, ReferenceNumberError{Label: label}),
 		},
+		"no links valid": {
+			input:  "hey google.com",
+			checks: []StringChecker{NoLinks()},
+		},
+		"no links invalid": {
+			input:    "://",
+			checks:   []StringChecker{NoLinks()},
+			expected: With(name, NoLinksError{Label: label}),
+		},
 	}
 
 	for scenario, tc := range testcases {
