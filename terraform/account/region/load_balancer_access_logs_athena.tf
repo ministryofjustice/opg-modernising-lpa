@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "athena_results" {
-  bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-results-${data.aws_region.current.name}"
+  bucket        = "${data.aws_default_tags.current.tags.application}-${data.aws_default_tags.current.tags.account-name}-lb-logs-athena-${data.aws_region.current.name}"
   force_destroy = true
   provider      = aws.region
 }
