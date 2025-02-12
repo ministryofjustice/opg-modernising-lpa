@@ -89,6 +89,8 @@ func (f *howShouldAttorneysMakeDecisionsForm) Validate() validation.List {
 	if f.DecisionsType == lpadata.JointlyForSomeSeverallyForOthers {
 		errors.String("mixed-details", f.detailsErrorLabel, f.DecisionsDetails,
 			validation.Empty())
+		errors.String("mixed-details", "yourInstructionsForAttorneys", f.DecisionsDetails,
+			validation.NoLinks())
 	}
 
 	return errors

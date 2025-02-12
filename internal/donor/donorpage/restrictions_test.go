@@ -14,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetRestrictions(t *testing.T) {
@@ -24,6 +25,7 @@ func TestGetRestrictions(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &restrictionsData{
 			App:   testAppData,
+			Form:  &restrictionsForm{},
 			Donor: &donordata.Provided{},
 		}).
 		Return(nil)
@@ -43,6 +45,7 @@ func TestGetRestrictionsFromStore(t *testing.T) {
 	template.EXPECT().
 		Execute(w, &restrictionsData{
 			App:   testAppData,
+			Form:  &restrictionsForm{Restrictions: "blah"},
 			Donor: &donordata.Provided{Restrictions: "blah"},
 		}).
 		Return(nil)
@@ -60,10 +63,7 @@ func TestGetRestrictionsWhenTemplateErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &restrictionsData{
-			App:   testAppData,
-			Donor: &donordata.Provided{},
-		}).
+		Execute(w, mock.Anything).
 		Return(expectedError)
 
 	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
@@ -132,11 +132,9 @@ func TestPostRestrictionsWhenValidationErrors(t *testing.T) {
 
 	template := newMockTemplate(t)
 	template.EXPECT().
-		Execute(w, &restrictionsData{
-			App:    testAppData,
-			Errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
-			Donor:  &donordata.Provided{},
-		}).
+		Execute(w, mock.MatchedBy(func(data *restrictionsData) bool {
+			return assert.Equal(t, data.Errors, validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}))
+		})).
 		Return(nil)
 
 	err := Restrictions(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
@@ -169,14 +167,20 @@ func TestRestrictionsFormValidate(t *testing.T) {
 				Restrictions: "blah",
 			},
 		},
-		"too-long": {
+		"missing": {
+			form: &restrictionsForm{},
+		},
+		"too long": {
 			form: &restrictionsForm{
 				Restrictions: random.String(10001),
 			},
 			errors: validation.With("restrictions", validation.StringTooLongError{Label: "restrictions", Length: 10000}),
 		},
-		"missing": {
-			form: &restrictionsForm{},
+		"has links": {
+			form: &restrictionsForm{
+				Restrictions: "http://example.com",
+			},
+			errors: validation.With("restrictions", validation.NoLinksError{Label: "yourRestrictionsAndConditions"}),
 		},
 	}
 

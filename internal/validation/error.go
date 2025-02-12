@@ -57,7 +57,7 @@ type SelectError struct {
 
 func (e SelectError) Format(l Localizer) string {
 	return l.Format("errorSelect", map[string]any{
-		"Label": lowerFirst(l.T(e.Label)),
+		"Label": l.T(e.Label),
 	})
 }
 
@@ -67,7 +67,7 @@ type EnterError struct {
 
 func (e EnterError) Format(l Localizer) string {
 	return l.Format("errorEnter", map[string]any{
-		"Label": lowerFirst(l.T(e.Label)),
+		"Label": l.T(e.Label),
 	})
 }
 
@@ -178,6 +178,16 @@ type ReferenceNumberError struct {
 
 func (e ReferenceNumberError) Format(l Localizer) string {
 	return l.Format("errorReferenceNumber", map[string]any{
+		"Label": l.T(e.Label),
+	})
+}
+
+type NoLinksError struct {
+	Label string
+}
+
+func (e NoLinksError) Format(l Localizer) string {
+	return l.Format("errorNoLinks", map[string]any{
 		"Label": l.T(e.Label),
 	})
 }
