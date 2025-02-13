@@ -132,24 +132,24 @@ data "aws_iam_policy_document" "access_log" {
     }
   }
 
-  statement {
-    sid     = "AllowSSLRequestsOnly"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.access_log.arn,
-      "${aws_s3_bucket.access_log.arn}/*",
-    ]
-    condition {
-      test     = "Bool"
-      values   = ["false"]
-      variable = "aws:SecureTransport"
-    }
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-  }
+  # statement {
+  #   sid     = "AllowSSLRequestsOnly"
+  #   effect  = "Deny"
+  #   actions = ["s3:*"]
+  #   resources = [
+  #     aws_s3_bucket.access_log.arn,
+  #     "${aws_s3_bucket.access_log.arn}/*",
+  #   ]
+  #   condition {
+  #     test     = "Bool"
+  #     values   = ["false"]
+  #     variable = "aws:SecureTransport"
+  #   }
+  #   principals {
+  #     identifiers = ["*"]
+  #     type        = "AWS"
+  #   }
+  # }
 
   # statement {
   #   sid = "DenyUnEncryptedObjectUploads"
