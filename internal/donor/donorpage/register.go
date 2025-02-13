@@ -229,9 +229,9 @@ func Register(
 		ViewLpa(tmpls.Get("view_lpa.gohtml"), lpaStoreClient))
 
 	handleWithDonor(donor.PathDeleteThisLpa, page.None,
-		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient))
+		DeleteLpa(tmpls.Get("delete_this_lpa.gohtml"), donorStore, notifyClient, appPublicURL))
 	handleWithDonor(donor.PathWithdrawThisLpa, page.None,
-		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService))
+		WithdrawLpa(tmpls.Get("withdraw_this_lpa.gohtml"), donorStore, time.Now, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, appPublicURL))
 
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))

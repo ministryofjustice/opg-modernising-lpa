@@ -20,9 +20,24 @@ type deleteLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient) Handler {
+func DeleteLpa(tmpl template.Template, donorStore DonorStore, notifyClient NotifyClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
+			if !provided.CertificateProviderInvitedAt.IsZero() {
+				email := notify.InformCertificateProviderLPAHasBeenDeleted{
+					DonorFullName:                   provided.Donor.FullName(),
+					DonorFullNamePossessive:         appData.Localizer.Possessive(provided.Donor.FullName()),
+					LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+					CertificateProviderFullName:     provided.CertificateProvider.FullName(),
+					InvitedDate:                     appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
+					CertificateProviderStartPageURL: appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+				}
+
+				if err := notifyClient.SendActorEmail(r.Context(), notify.ToCertificateProvider(provided.CertificateProvider), provided.LpaUID, email); err != nil {
+					return fmt.Errorf("error sending LPA deleted email to certificate provider: %w", err)
+				}
+			}
+
 			if !provided.VoucherInvitedAt.IsZero() {
 				if err := notifyClient.SendActorEmail(r.Context(), notify.ToVoucher(provided.Voucher), provided.LpaUID, notify.VoucherLpaDeleted{
 					DonorFullName:           provided.Donor.FullName(),
