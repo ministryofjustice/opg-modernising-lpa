@@ -20,6 +20,7 @@ resource "aws_security_group" "lambda_egress" {
   provider = aws.region
 }
 
+#tfsec:ignore:aws-ec2-no-public-egress-sgr egress is managed by AWS Network Firewall
 resource "aws_security_group_rule" "lambda_egress" {
   type              = "egress"
   protocol          = "-1"
