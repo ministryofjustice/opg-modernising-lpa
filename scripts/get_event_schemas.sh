@@ -16,6 +16,7 @@ for v in uid-requested \
              correspondent-updated \
              lpa-access-granted \
              letter-requested
+#            TODO add material/immaterial-change-confirmed when agreed
 do
     echo $v
     curl -o internal/event/testdata/$v.json "https://raw.githubusercontent.com/ministryofjustice/opg-event-store/main/domains/POAS/events/$v/schema.json"

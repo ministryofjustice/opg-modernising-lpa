@@ -61,18 +61,19 @@ var (
 )
 
 type factory interface {
-	Now() func() time.Time
-	Bundle() (Bundle, error)
-	DynamoClient() dynamodbClient
-	UuidString() func() string
 	AppData() (appcontext.Data, error)
-	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	Bundle() (Bundle, error)
+	CertificateProviderStore() CertificateProviderStore
+	DynamoClient() dynamodbClient
+	EventClient() EventClient
 	LpaStoreClient() (LpaStoreClient, error)
 	NotifyClient(ctx context.Context) (NotifyClient, error)
-	UidStore() (UidStore, error)
-	UidClient() UidClient
-	EventClient() EventClient
+	Now() func() time.Time
 	ScheduledStore() ScheduledStore
+	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	UidClient() UidClient
+	UidStore() (UidStore, error)
+	UuidString() func() string
 }
 
 type Handler interface {
