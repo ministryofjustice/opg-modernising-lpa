@@ -21,7 +21,7 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient) Handler {
+func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
 			if !provided.VoucherInvitedAt.IsZero() {
@@ -33,6 +33,42 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 					VoucherFullName:         provided.Voucher.FullName(),
 				}); err != nil {
 					return fmt.Errorf("error sending voucher email: %w", err)
+				}
+			}
+
+			if !provided.AttorneysInvitedAt.IsZero() {
+				lpa, err := lpaStoreResolvingService.Get(r.Context())
+				if err != nil {
+					return fmt.Errorf("error getting lpa: %w", err)
+				}
+
+				for _, attorney := range append(lpa.Attorneys.Attorneys, lpa.ReplacementAttorneys.Attorneys...) {
+					if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaAttorney(attorney), lpa.LpaUID, notify.AttorneyLpaRevoked{
+						AttorneyFullName:        attorney.FullName(),
+						DonorFullName:           lpa.Donor.FullName(),
+						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
+						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
+						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+					}); err != nil {
+						return fmt.Errorf("error sending attorney email: %w", err)
+					}
+				}
+
+				trustCorporation := lpa.Attorneys.TrustCorporation
+				if trustCorporation.Name == "" {
+					trustCorporation = lpa.ReplacementAttorneys.TrustCorporation
+				}
+
+				if trustCorporation.Name != "" {
+					if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaTrustCorporation(trustCorporation), lpa.LpaUID, notify.AttorneyLpaRevoked{
+						AttorneyFullName:        trustCorporation.Name,
+						DonorFullName:           lpa.Donor.FullName(),
+						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
+						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
+						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+					}); err != nil {
+						return fmt.Errorf("error sending trust corporation email: %w", err)
+					}
 				}
 			}
 
