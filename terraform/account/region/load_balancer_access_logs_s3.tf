@@ -111,8 +111,11 @@ data "aws_iam_policy_document" "access_log" {
     effect  = "Allow"
     actions = ["s3:PutObject"]
     principals {
-      identifiers = [data.aws_elb_service_account.main.id]
-      type        = "AWS"
+      identifiers = [
+        data.aws_elb_service_account.main.id,
+        data.aws_caller_identity.current.account_id
+      ]
+      type = "AWS"
     }
   }
 
