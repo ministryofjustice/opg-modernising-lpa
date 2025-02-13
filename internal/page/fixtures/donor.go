@@ -365,6 +365,7 @@ func updateLPAProgress(
 	if data.Progress >= slices.Index(progressValues, "checkAndSendToYourCertificateProvider") {
 		donorDetails.CheckedAt = time.Now()
 		donorDetails.Tasks.CheckYourLpa = task.StateCompleted
+		donorDetails.CertificateProviderInvitedAt = time.Now()
 	}
 
 	if data.Progress >= slices.Index(progressValues, "payForTheLpa") {
