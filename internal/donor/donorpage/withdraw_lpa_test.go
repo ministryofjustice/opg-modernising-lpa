@@ -7,7 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -27,7 +29,7 @@ func TestGetWithdrawLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +45,7 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -55,12 +57,19 @@ func TestPostWithdrawLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	updatedDonor := &donordata.Provided{
+		LpaUID: "lpa-uid",
+		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
+		Type:   lpadata.LpaTypePersonalWelfare,
+		CertificateProvider: donordata.CertificateProvider{
+			FirstNames: "c", LastName: "d", Email: "a@b.com",
+		},
+		WithdrawnAt: testNow,
+	}
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaUID:      "lpa-uid",
-			WithdrawnAt: testNow,
-		}).
+		Put(r.Context(), updatedDonor).
 		Return(nil)
 
 	lpaStoreClient := newMockLpaStoreClient(t)
@@ -68,7 +77,98 @@ func TestPostWithdrawLpa(t *testing.T) {
 		SendDonorWithdrawLPA(r.Context(), "lpa-uid").
 		Return(nil)
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil, nil, nil, "app://")(testAppData, w, r, &donordata.Provided{
+		LpaUID: "lpa-uid",
+		Donor:  donordata.Donor{FirstNames: "a", LastName: "b"},
+		Type:   lpadata.LpaTypePersonalWelfare,
+		CertificateProvider: donordata.CertificateProvider{
+			FirstNames: "c", LastName: "d", Email: "a@b.com",
+		},
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.PathLpaWithdrawn.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
+}
+
+func TestPostWithdrawLpaWhenCertificateProviderInvited(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	updatedDonor := &donordata.Provided{
+		LpaUID:                       "lpa-uid",
+		Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
+		Type:                         lpadata.LpaTypePersonalWelfare,
+		CertificateProviderInvitedAt: testNow,
+		WithdrawnAt:                  testNow,
+	}
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), updatedDonor).
+		Return(nil)
+
+	lpaStoreClient := newMockLpaStoreClient(t)
+	lpaStoreClient.EXPECT().
+		SendDonorWithdrawLPA(r.Context(), "lpa-uid").
+		Return(nil)
+
+	lpa := &lpadata.Lpa{
+		LpaUID: "lpa-uid",
+		Type:   lpadata.LpaTypePropertyAndAffairs,
+		Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+		CertificateProvider: lpadata.CertificateProvider{
+			FirstNames: "C", LastName: "D",
+			Email:                     "a@b.com",
+			ContactLanguagePreference: localize.Cy,
+		},
+	}
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(lpa, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&certificateproviderdata.Provided{ContactLanguagePreference: localize.Cy}, nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		Possessive("A B").
+		Return("possessive")
+	localizer.EXPECT().
+		T(lpadata.LpaTypePersonalWelfare.String()).
+		Return("Type")
+	localizer.EXPECT().
+		FormatDate(testNow).
+		Return("formatted date")
+
+	testAppData.Localizer = localizer
+
+	expectedEmail := notify.InformCertificateProviderLPAHasBeenRevoked{
+		DonorFullName:                   "A B",
+		DonorFullNamePossessive:         "possessive",
+		LpaType:                         "type",
+		CertificateProviderFullName:     "C D",
+		InvitedDate:                     "formatted date",
+		CertificateProviderStartPageURL: "app://" + "/certificate-provider-start",
+	}
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(&certificateproviderdata.Provided{ContactLanguagePreference: localize.Cy}, lpa), "lpa-uid", expectedEmail).
+		Return(nil)
+
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, certificateProviderStore, "app://")(testAppData, w, r, &donordata.Provided{
+		Donor:                        donordata.Donor{FirstNames: "a", LastName: "b"},
+		LpaUID:                       "lpa-uid",
+		Type:                         lpadata.LpaTypePersonalWelfare,
+		CertificateProviderInvitedAt: testNow,
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -125,7 +225,7 @@ func TestPostWithdrawLpaWhenVoucherInvited(t *testing.T) {
 	appData := testAppData
 	appData.Localizer = localizer
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, nil)(appData, w, r, provided)
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, nil, nil, "")(appData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -308,7 +408,7 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 			appData := testAppData
 			appData.Localizer = localizer
 
-			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService)(appData, w, r, provided)
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService, nil, "")(appData, w, r, provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -320,8 +420,9 @@ func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
 
 func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
 	testcases := map[string]struct {
-		provided *donordata.Provided
-		lpa      *lpadata.Lpa
+		provided            *donordata.Provided
+		lpa                 *lpadata.Lpa
+		certificateProvider *certificateproviderdata.Provided
 	}{
 		"voucher": {
 			provided: &donordata.Provided{
@@ -360,6 +461,18 @@ func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
 				},
 			},
 		},
+		"certificate provider": {
+			provided: &donordata.Provided{CertificateProviderInvitedAt: testNow},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				CertificateProvider: lpadata.CertificateProvider{
+					FirstNames: "C", LastName: "D",
+				},
+			},
+			certificateProvider: &certificateproviderdata.Provided{},
+		},
 	}
 
 	for name, tc := range testcases {
@@ -375,40 +488,52 @@ func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
 					Return(tc.lpa, nil)
 			}
 
-			notifyClient := newMockNotifyClient(t)
-			notifyClient.EXPECT().
-				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-				Return(expectedError)
+			certificateProviderStore := newMockCertificateProviderStore(t)
+			if tc.certificateProvider != nil {
+				certificateProviderStore.EXPECT().
+					GetAny(mock.Anything).
+					Return(tc.certificateProvider, nil)
+			}
 
 			localizer := newMockLocalizer(t)
 			localizer.EXPECT().Possessive(mock.Anything).Return("A B's")
 			localizer.EXPECT().FormatDate(mock.Anything).Return("2 January 2020")
 			localizer.EXPECT().T(mock.Anything).Return("Property and affairs")
 
-			appData := testAppData
-			appData.Localizer = localizer
+			testAppData.Localizer = localizer
 
-			err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient, lpaStoreResolvingService)(appData, w, r, tc.provided)
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+
+			err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient, lpaStoreResolvingService, certificateProviderStore, "")(testAppData, w, r, tc.provided)
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
 }
 
 func TestPostWithdrawLpaWhenLpaStoreResolvingServiceErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
+	testcases := map[string]*donordata.Provided{
+		"attorneys":            {AttorneysInvitedAt: testNow},
+		"certificate provider": {CertificateProviderInvitedAt: testNow},
+	}
 
-	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
-	lpaStoreResolvingService.EXPECT().
-		Get(mock.Anything).
-		Return(nil, expectedError)
+	for name, provided := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	err := WithdrawLpa(nil, nil, testNowFn, nil, nil, lpaStoreResolvingService)(testAppData, w, r, &donordata.Provided{
-		LpaUID:             "lpa-uid",
-		AttorneysInvitedAt: testNow,
-	})
-	assert.ErrorIs(t, err, expectedError)
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(mock.Anything).
+				Return(nil, expectedError)
+
+			err := WithdrawLpa(nil, nil, testNowFn, nil, nil, lpaStoreResolvingService, nil, "")(testAppData, w, r, provided)
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
 }
 
 func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
@@ -421,7 +546,7 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -440,6 +565,26 @@ func TestPostWithdrawLpaWhenLpaStoreClientErrors(t *testing.T) {
 		SendDonorWithdrawLPA(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil, nil, nil, "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
+}
+
+func TestPostWithdrawLpaWhenCertificateProviderStoreErrors(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(mock.Anything).
+		Return(nil, nil)
+
+	certificateProviderStore := newMockCertificateProviderStore(t)
+	certificateProviderStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(&certificateproviderdata.Provided{}, expectedError)
+
+	err := WithdrawLpa(nil, nil, time.Now, nil, nil, lpaStoreResolvingService, certificateProviderStore, "")(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid", CertificateProviderInvitedAt: testNow})
+
+	assert.ErrorIs(t, err, expectedError)
 }
