@@ -1591,6 +1591,7 @@
     "accessibilityStatementContent": "<p class=\"govuk-body\">Welsh</p>",
     "youMustUsuallyBeResidentContent": "<p class=\"govuk-body\">Welsh</p>",
     "iAmResidentOrHaveExplained": "Welsh",
-    "yourRestrictionsAndConditions": "your restrictions and conditions",
-    "yourInstructionsForAttorneys": "your instructions for attorneys"
+    "yourRestrictionsAndConditions": "Welsh",
+    "yourInstructionsForAttorneys": "Welsh",
+    "yourIdentityHadBeenConfirmed": "Welsh"
 }

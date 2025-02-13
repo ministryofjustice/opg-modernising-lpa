@@ -84,10 +84,11 @@ func TestGetIdentityWithOneLoginCallbackWhenIdentityMismatched(t *testing.T) {
 	certificateProviderStore := newMockCertificateProviderStore(t)
 	certificateProviderStore.EXPECT().
 		Put(r.Context(), &certificateproviderdata.Provided{
-			LpaID:            "lpa-id",
-			UID:              actorUID,
-			IdentityUserData: userData,
-			Tasks:            certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+			LpaID:                     "lpa-id",
+			UID:                       actorUID,
+			IdentityUserData:          userData,
+			Tasks:                     certificateproviderdata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+			IdentityDetailsMismatched: true,
 		}).
 		Return(nil)
 

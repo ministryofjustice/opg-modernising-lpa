@@ -44,7 +44,14 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusCreated {
+	switch resp.StatusCode {
+	case http.StatusCreated:
+		return nil
+
+	case http.StatusNotFound:
+		return ErrNotFound
+
+	default:
 		body, _ := io.ReadAll(resp.Body)
 
 		return responseError{
@@ -52,8 +59,6 @@ func (c *Client) sendUpdate(ctx context.Context, lpaUID string, actorUID actorui
 			body: string(body),
 		}
 	}
-
-	return nil
 }
 
 func (c *Client) SendRegister(ctx context.Context, lpaUID string) error {
