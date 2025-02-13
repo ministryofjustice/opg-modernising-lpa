@@ -1488,5 +1488,6 @@
     "youMustUsuallyBeResidentContent": "<p class=\"govuk-body\">You must usually be a resident of England or Wales to make an LPA.</p><p class=\"govuk-body\">If you are not a resident of England or Wales, you must give us information in the ‘Add restrictions to the LPA’ section, explaining why you are eligible to make an LPA.</p>",
     "iAmResidentOrHaveExplained": "I am either a resident of England or Wales, or have explained in the ‘Add restrictions to the LPA’ section why I am eligible to make an LPA",
     "yourRestrictionsAndConditions": "your restrictions and conditions",
-    "yourInstructionsForAttorneys": "your instructions for attorneys"
+    "yourInstructionsForAttorneys": "your instructions for attorneys",
+    "yourIdentityHadBeenConfirmed": "Your identity has been confirmed"
 }
