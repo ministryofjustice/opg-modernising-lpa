@@ -109,7 +109,7 @@ func (s *ResolvingService) merge(lpa *lpadata.Lpa, donor *donordata.Provided) *l
 
 		lpa.Donor.Channel = lpadata.ChannelOnline
 		lpa.Donor.Mobile = donor.Donor.Mobile
-		if lpa.Donor.IdentityCheck == nil && donor.IdentityUserData.Status.IsConfirmed() {
+		if lpa.Donor.IdentityCheck == nil && donor.DonorIdentityConfirmed() {
 			lpa.Donor.IdentityCheck = &lpadata.IdentityCheck{
 				CheckedAt: donor.IdentityUserData.CheckedAt,
 				Type:      "one-login",

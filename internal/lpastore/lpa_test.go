@@ -388,12 +388,12 @@ func TestClientSendLpaWhenDoerError(t *testing.T) {
 }
 
 func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
-	testcases := map[int]string{
-		http.StatusBadRequest:          "expected 201 response but got 400",
-		http.StatusInternalServerError: "expected 201 response but got 500",
+	testcases := map[int]error{
+		http.StatusBadRequest:          responseError{name: "expected 201 response but got 400", body: "hey"},
+		http.StatusInternalServerError: responseError{name: "expected 201 response but got 500", body: "hey"},
 	}
 
-	for code, errorName := range testcases {
+	for code, expectedErr := range testcases {
 		t.Run(strconv.Itoa(code), func(t *testing.T) {
 			ctx := context.Background()
 
@@ -410,7 +410,7 @@ func TestClientSendLpaWhenStatusCodeIsNotOK(t *testing.T) {
 			client := New("http://base", secretsClient, "secret", doer)
 			err := client.SendLpa(ctx, "", CreateLpa{})
 
-			assert.Equal(t, responseError{name: errorName, body: "hey"}, err)
+			assert.Equal(t, expectedErr, err)
 		})
 	}
 }

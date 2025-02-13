@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -1134,4 +1135,33 @@ func TestCheckHealthWhenNotOK(t *testing.T) {
 	client := New(server.URL, nil, "secret", server.Client())
 	err := client.CheckHealth(context.Background())
 	assert.NotNil(t, err)
+}
+
+func TestClientSendUpdateWhenStatusCodeIsNotOK(t *testing.T) {
+	testcases := map[int]error{
+		http.StatusBadRequest:          responseError{name: "expected 201 response but got 400", body: "hey"},
+		http.StatusNotFound:            ErrNotFound,
+		http.StatusInternalServerError: responseError{name: "expected 201 response but got 500", body: "hey"},
+	}
+
+	for code, expectedErr := range testcases {
+		t.Run(strconv.Itoa(code), func(t *testing.T) {
+			ctx := context.Background()
+
+			secretsClient := newMockSecretsClient(t)
+			secretsClient.EXPECT().
+				Secret(mock.Anything, mock.Anything).
+				Return("secret", nil)
+
+			doer := newMockDoer(t)
+			doer.EXPECT().
+				Do(mock.Anything).
+				Return(&http.Response{StatusCode: code, Body: io.NopCloser(strings.NewReader("hey"))}, nil)
+
+			client := New("http://base", secretsClient, "secret", doer)
+			err := client.sendUpdate(ctx, "", actoruid.New(), updateRequest{})
+
+			assert.Equal(t, expectedErr, err)
+		})
+	}
 }
