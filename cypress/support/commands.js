@@ -58,3 +58,34 @@ Cypress.Commands.add('checkA11yApp', (options= {}) => {
 Cypress.Commands.add('visitLpa', (path, opts = {}) => {
     cy.url().then(u => cy.visit(u.split('/').slice(3, -1).join('/') + path, opts));
 });
+
+// Function to poll a page until element contains text or timeout occurs
+Cypress.Commands.add('waitForTextByReloading', (selector, expectedText) => {
+    const options = {
+        timeout: 6000,
+        interval: 500,
+    };
+
+    const startTime = Date.now();
+
+    const checkTextAndReload = () => {
+        return cy.get('body').then($body => {
+            const $el = $body.find(selector);
+            const found = $el.length > 0 && $el.text().includes(expectedText);
+
+            if (found) {
+                return;
+            }
+
+            if (Date.now() - startTime >= options.timeout) {
+                throw new Error(`Timed out after ${options.timeout}ms waiting for "${selector}" to contain "${expectedText}"`);
+            }
+
+            cy.reload();
+            cy.wait(options.interval);
+            cy.then(checkTextAndReload);
+        });
+    };
+
+    return cy.then(checkTextAndReload);
+});
