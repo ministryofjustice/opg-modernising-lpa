@@ -126,7 +126,7 @@ resource "aws_athena_workgroup" "alb_logs" {
 }
 
 resource "aws_athena_database" "access_logs" {
-  name          = "${data.aws_default_tags.current.tags.account-name}_load_balancer_logs"
+  name          = "load_balancer_logs"
   bucket        = aws_s3_bucket.athena_results.id
   force_destroy = true
 
