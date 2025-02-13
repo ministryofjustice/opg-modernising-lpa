@@ -27,7 +27,7 @@ func TestGetWithdrawLpa(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -43,7 +43,7 @@ func TestGetWithdrawLpaWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(template.Execute, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
+	err := WithdrawLpa(template.Execute, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Equal(t, expectedError, err)
@@ -68,7 +68,7 @@ func TestPostWithdrawLpa(t *testing.T) {
 		SendDonorWithdrawLPA(r.Context(), "lpa-uid").
 		Return(nil)
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -125,7 +125,7 @@ func TestPostWithdrawLpaWhenVoucherInvited(t *testing.T) {
 	appData := testAppData
 	appData.Localizer = localizer
 
-	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient)(appData, w, r, provided)
+	err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, nil)(appData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -133,34 +133,265 @@ func TestPostWithdrawLpaWhenVoucherInvited(t *testing.T) {
 	assert.Equal(t, page.PathLpaWithdrawn.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
 }
 
-func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
-	r.Header.Add("Content-Type", page.FormUrlEncoded)
-
-	provided := &donordata.Provided{
-		LpaUID:           "lpa-uid",
-		Type:             lpadata.LpaTypePropertyAndAffairs,
-		Donor:            donordata.Donor{FirstNames: "A", LastName: "B"},
-		Voucher:          donordata.Voucher{FirstNames: "C", LastName: "D"},
-		VoucherInvitedAt: testNow,
+func TestPostWithdrawLpaWhenAttorneysInvited(t *testing.T) {
+	testcases := map[string]struct {
+		lpa               *lpadata.Lpa
+		setupNotifyClient func(*lpadata.Lpa, *mockNotifyClient)
+	}{
+		"no trust corporations": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{FirstNames: "C", LastName: "D", Email: "a@example.com"}},
+				},
+				ReplacementAttorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{FirstNames: "E", LastName: "F", Email: "r@example.com"}},
+				},
+			},
+			setupNotifyClient: func(lpa *lpadata.Lpa, notifyClient *mockNotifyClient) {
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "C D",
+					}).
+					Return(nil).
+					Once()
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "E F",
+					}).
+					Return(nil).
+					Once()
+			},
+		},
+		"trust corporation": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				Attorneys: lpadata.Attorneys{
+					Attorneys:        []lpadata.Attorney{{FirstNames: "C", LastName: "D", Email: "a@example.com"}},
+					TrustCorporation: lpadata.TrustCorporation{Name: "t", Email: "t@example.com"},
+				},
+				ReplacementAttorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{FirstNames: "E", LastName: "F", Email: "r@example.com"}},
+				},
+			},
+			setupNotifyClient: func(lpa *lpadata.Lpa, notifyClient *mockNotifyClient) {
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "C D",
+					}).
+					Return(nil).
+					Once()
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "E F",
+					}).
+					Return(nil).
+					Once()
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "t",
+					}).
+					Return(nil).
+					Once()
+			},
+		},
+		"replacement trust corporation": {
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{FirstNames: "C", LastName: "D", Email: "a@example.com"}},
+				},
+				ReplacementAttorneys: lpadata.Attorneys{
+					Attorneys:        []lpadata.Attorney{{FirstNames: "E", LastName: "F", Email: "r@example.com"}},
+					TrustCorporation: lpadata.TrustCorporation{Name: "t", Email: "t@example.com"},
+				},
+			},
+			setupNotifyClient: func(lpa *lpadata.Lpa, notifyClient *mockNotifyClient) {
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "C D",
+					}).
+					Return(nil).
+					Once()
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "E F",
+					}).
+					Return(nil).
+					Once()
+				notifyClient.EXPECT().
+					SendActorEmail(mock.Anything, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.AttorneyLpaRevoked{
+						DonorFullName:           "A B",
+						DonorFullNamePossessive: "A B's",
+						InvitedDate:             "2 January 2020",
+						LpaType:                 "property and affairs",
+						AttorneyFullName:        "t",
+					}).
+					Return(nil).
+					Once()
+			},
+		},
 	}
 
-	notifyClient := newMockNotifyClient(t)
-	notifyClient.EXPECT().
-		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(expectedError)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	localizer := newMockLocalizer(t)
-	localizer.EXPECT().Possessive(mock.Anything).Return("A B's")
-	localizer.EXPECT().FormatDate(mock.Anything).Return("2 January 2020")
-	localizer.EXPECT().T(mock.Anything).Return("Property and affairs")
+			provided := &donordata.Provided{
+				LpaUID:             "lpa-uid",
+				AttorneysInvitedAt: testNow,
+			}
 
-	appData := testAppData
-	appData.Localizer = localizer
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &donordata.Provided{
+					LpaUID:             "lpa-uid",
+					AttorneysInvitedAt: testNow,
+					WithdrawnAt:        testNow,
+				}).
+				Return(nil)
 
-	err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient)(appData, w, r, provided)
-	assert.ErrorIs(t, err, expectedError)
+			lpaStoreClient := newMockLpaStoreClient(t)
+			lpaStoreClient.EXPECT().
+				SendDonorWithdrawLPA(r.Context(), "lpa-uid").
+				Return(nil)
+
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(tc.lpa, nil)
+
+			notifyClient := newMockNotifyClient(t)
+			tc.setupNotifyClient(tc.lpa, notifyClient)
+
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().Possessive("A B").Return("A B's")
+			localizer.EXPECT().FormatDate(testNow).Return("2 January 2020")
+			localizer.EXPECT().T("property-and-affairs").Return("Property and affairs")
+
+			appData := testAppData
+			appData.Localizer = localizer
+
+			err := WithdrawLpa(nil, donorStore, testNowFn, lpaStoreClient, notifyClient, lpaStoreResolvingService)(appData, w, r, provided)
+			resp := w.Result()
+
+			assert.Nil(t, err)
+			assert.Equal(t, http.StatusFound, resp.StatusCode)
+			assert.Equal(t, page.PathLpaWithdrawn.Format()+"?uid=lpa-uid", resp.Header.Get("Location"))
+		})
+	}
+}
+
+func TestPostWithdrawLpaWhenNotifyErrors(t *testing.T) {
+	testcases := map[string]struct {
+		provided *donordata.Provided
+		lpa      *lpadata.Lpa
+	}{
+		"voucher": {
+			provided: &donordata.Provided{
+				LpaUID:           "lpa-uid",
+				Type:             lpadata.LpaTypePropertyAndAffairs,
+				Donor:            donordata.Donor{FirstNames: "A", LastName: "B"},
+				Voucher:          donordata.Voucher{FirstNames: "C", LastName: "D"},
+				VoucherInvitedAt: testNow,
+			},
+		},
+		"attorney": {
+			provided: &donordata.Provided{
+				LpaUID:             "lpa-uid",
+				AttorneysInvitedAt: testNow,
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				Attorneys: lpadata.Attorneys{
+					Attorneys: []lpadata.Attorney{{FirstNames: "C", LastName: "D", Email: "a@example.com"}},
+				},
+			},
+		},
+		"trust corporation": {
+			provided: &donordata.Provided{
+				LpaUID:             "lpa-uid",
+				AttorneysInvitedAt: testNow,
+			},
+			lpa: &lpadata.Lpa{
+				LpaUID: "lpa-uid",
+				Type:   lpadata.LpaTypePropertyAndAffairs,
+				Donor:  lpadata.Donor{FirstNames: "A", LastName: "B"},
+				Attorneys: lpadata.Attorneys{
+					TrustCorporation: lpadata.TrustCorporation{Name: "t", Email: "t@example.com"},
+				},
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(""))
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			if tc.lpa != nil {
+				lpaStoreResolvingService.EXPECT().
+					Get(mock.Anything).
+					Return(tc.lpa, nil)
+			}
+
+			notifyClient := newMockNotifyClient(t)
+			notifyClient.EXPECT().
+				SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(expectedError)
+
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().Possessive(mock.Anything).Return("A B's")
+			localizer.EXPECT().FormatDate(mock.Anything).Return("2 January 2020")
+			localizer.EXPECT().T(mock.Anything).Return("Property and affairs")
+
+			appData := testAppData
+			appData.Localizer = localizer
+
+			err := WithdrawLpa(nil, nil, testNowFn, nil, notifyClient, lpaStoreResolvingService)(appData, w, r, tc.provided)
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
 }
 
 func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
@@ -173,7 +404,7 @@ func TestPostWithdrawLpaWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -192,6 +423,6 @@ func TestPostWithdrawLpaWhenLpaStoreClientErrors(t *testing.T) {
 		SendDonorWithdrawLPA(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
+	err := WithdrawLpa(nil, donorStore, time.Now, lpaStoreClient, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
 	assert.Equal(t, expectedError, err)
 }
