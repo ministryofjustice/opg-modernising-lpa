@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lambda"
@@ -31,8 +32,10 @@ type LambdaClient interface {
 }
 
 type LpaStoreClient interface {
-	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 	Lpa(ctx context.Context, uid string) (*lpadata.Lpa, error)
+	SendCertificateProviderConfirmIdentity(ctx context.Context, lpaUID string, certificateProvider *certificateproviderdata.Provided) error
+	SendDonorConfirmIdentity(ctx context.Context, donor *donordata.Provided) error
+	SendLpa(ctx context.Context, uid string, body lpastore.CreateLpa) error
 }
 
 type SecretsClient interface {
@@ -51,6 +54,11 @@ type UidStore interface {
 
 type UidClient interface {
 	CreateCase(context.Context, *uid.CreateCaseRequestBody) (string, error)
+}
+
+type CertificateProviderStore interface {
+	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
+	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
 type Factory struct {
@@ -73,16 +81,17 @@ type Factory struct {
 	httpClient            *http.Client
 
 	// previously constructed values
-	appData         *appcontext.Data
-	bundle          Bundle
-	lambdaClient    LambdaClient
-	secretsClient   SecretsClient
-	shareCodeSender ShareCodeSender
-	lpaStoreClient  LpaStoreClient
-	uidStore        UidStore
-	uidClient       UidClient
-	scheduledStore  ScheduledStore
-	notifyClient    NotifyClient
+	appData                  *appcontext.Data
+	bundle                   Bundle
+	certificateProviderStore CertificateProviderStore
+	lambdaClient             LambdaClient
+	lpaStoreClient           LpaStoreClient
+	notifyClient             NotifyClient
+	secretsClient            SecretsClient
+	shareCodeSender          ShareCodeSender
+	scheduledStore           ScheduledStore
+	uidStore                 UidStore
+	uidClient                UidClient
 }
 
 func (f *Factory) Now() func() time.Time {
@@ -234,4 +243,12 @@ func (f *Factory) NotifyClient(ctx context.Context) (NotifyClient, error) {
 	}
 
 	return f.notifyClient, nil
+}
+
+func (f *Factory) CertificateProviderStore() CertificateProviderStore {
+	if f.certificateProviderStore == nil {
+		f.certificateProviderStore = certificateprovider.NewStore(f.dynamoClient)
+	}
+
+	return f.certificateProviderStore
 }

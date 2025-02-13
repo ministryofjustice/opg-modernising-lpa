@@ -137,6 +137,53 @@ func (_c *mockFactory_Bundle_Call) RunAndReturn(run func() (Bundle, error)) *moc
 	return _c
 }
 
+// CertificateProviderStore provides a mock function with given fields:
+func (_m *mockFactory) CertificateProviderStore() CertificateProviderStore {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for CertificateProviderStore")
+	}
+
+	var r0 CertificateProviderStore
+	if rf, ok := ret.Get(0).(func() CertificateProviderStore); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(CertificateProviderStore)
+		}
+	}
+
+	return r0
+}
+
+// mockFactory_CertificateProviderStore_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CertificateProviderStore'
+type mockFactory_CertificateProviderStore_Call struct {
+	*mock.Call
+}
+
+// CertificateProviderStore is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) CertificateProviderStore() *mockFactory_CertificateProviderStore_Call {
+	return &mockFactory_CertificateProviderStore_Call{Call: _e.mock.On("CertificateProviderStore")}
+}
+
+func (_c *mockFactory_CertificateProviderStore_Call) Run(run func()) *mockFactory_CertificateProviderStore_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_CertificateProviderStore_Call) Return(_a0 CertificateProviderStore) *mockFactory_CertificateProviderStore_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_CertificateProviderStore_Call) RunAndReturn(run func() CertificateProviderStore) *mockFactory_CertificateProviderStore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DynamoClient provides a mock function with given fields:
 func (_m *mockFactory) DynamoClient() dynamodbClient {
 	ret := _m.Called()

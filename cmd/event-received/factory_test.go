@@ -244,3 +244,17 @@ func TestFactoryBundleWhenSet(t *testing.T) {
 	assert.Equal(t, expected, bundle)
 	assert.Nil(t, err)
 }
+
+func TestFactoryCertificateProviderStore(t *testing.T) {
+	factory := &Factory{}
+
+	assert.NotNil(t, factory.CertificateProviderStore())
+}
+
+func TestFactoryCertificateProviderStoreWhenSet(t *testing.T) {
+	expected := newMockCertificateProviderStore(t)
+	factory := &Factory{certificateProviderStore: expected}
+
+	store := factory.CertificateProviderStore()
+	assert.Equal(t, expected, store)
+}
