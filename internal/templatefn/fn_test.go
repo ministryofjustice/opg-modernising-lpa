@@ -525,8 +525,18 @@ func TestContent(t *testing.T) {
 
 	v := content(app, componentContent)
 
-	assert.Equal(t, app, v["App"])
-	assert.Equal(t, componentContent, v["Content"])
+	assert.Equal(t, app, v.App)
+	assert.Equal(t, componentContent, v.Content)
+}
+
+func TestHTMLContent(t *testing.T) {
+	app := appcontext.Data{SessionID: "abc"}
+	componentContent := template.HTML("content")
+
+	v := htmlContent(app, componentContent)
+
+	assert.Equal(t, app, v.App)
+	assert.Equal(t, componentContent, v.HTML)
 }
 
 func TestNotificationBanner(t *testing.T) {
