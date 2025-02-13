@@ -663,3 +663,19 @@ func (e VoucherLpaRevoked) emailID(isProduction bool, _ localize.Lang) string {
 
 	return "c6a886b2-4ac8-4c36-a89e-2ddd84634423"
 }
+
+type AttorneyLpaRevoked struct {
+	AttorneyFullName        string
+	DonorFullName           string
+	DonorFullNamePossessive string
+	InvitedDate             string
+	LpaType                 string
+}
+
+func (e AttorneyLpaRevoked) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "f248eeb7-9be5-43c9-87c1-e40710c10f10"
+	}
+
+	return "ae71eea8-ac37-4937-9ab7-b15e56eba1d2"
+}
