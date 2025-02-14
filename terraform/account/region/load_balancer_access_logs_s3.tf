@@ -113,7 +113,6 @@ data "aws_iam_policy_document" "access_log" {
     principals {
       identifiers = [
         data.aws_elb_service_account.main.id,
-        data.aws_caller_identity.current.account_id
       ]
       type = "AWS"
     }
