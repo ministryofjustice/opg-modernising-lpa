@@ -402,7 +402,7 @@ func handleChangeConfirmed(ctx context.Context, client dynamodbClient, certifica
 			}
 		}
 	case actor.TypeCertificateProvider:
-		certificateProvider, err := certificateProviderStore.GetAny(ctx)
+		certificateProvider, err := certificateProviderStore.OneByUID(ctx, v.UID)
 		if err != nil {
 			return fmt.Errorf("failed to get certificate provider: %w", err)
 		}
