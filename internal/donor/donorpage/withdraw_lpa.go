@@ -21,9 +21,32 @@ type withdrawLpaData struct {
 	Donor  *donordata.Provided
 }
 
-func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService) Handler {
+func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.Time, lpaStoreClient LpaStoreClient, notifyClient NotifyClient, lpaStoreResolvingService LpaStoreResolvingService, certificateProviderStore CertificateProviderStore, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if r.Method == http.MethodPost {
+			if !provided.CertificateProviderInvitedAt.IsZero() {
+				lpa, err := lpaStoreResolvingService.Get(r.Context())
+				if err != nil {
+					return fmt.Errorf("error getting lpa: %w", err)
+				}
+
+				// Ignoring if not found as CP may not exist yet
+				certificateProvider, _ := certificateProviderStore.GetAny(r.Context())
+
+				email := notify.InformCertificateProviderLPAHasBeenRevoked{
+					DonorFullName:                   lpa.Donor.FullName(),
+					DonorFullNamePossessive:         appData.Localizer.Possessive(lpa.Donor.FullName()),
+					LpaType:                         localize.LowerFirst(appData.Localizer.T(provided.Type.String())),
+					CertificateProviderFullName:     lpa.CertificateProvider.FullName(),
+					InvitedDate:                     appData.Localizer.FormatDate(provided.CertificateProviderInvitedAt),
+					CertificateProviderStartPageURL: appPublicURL + appData.Lang.URL(page.PathCertificateProviderStart.Format()),
+				}
+
+				if err := notifyClient.SendActorEmail(r.Context(), notify.ToLpaCertificateProvider(certificateProvider, lpa), provided.LpaUID, email); err != nil {
+					return fmt.Errorf("error sending LPA revoked email to certificate provider: %w", err)
+				}
+			}
+
 			if !provided.VoucherInvitedAt.IsZero() {
 				if err := notifyClient.SendActorEmail(r.Context(), notify.ToVoucher(provided.Voucher), provided.LpaUID, notify.VoucherLpaRevoked{
 					DonorFullName:           provided.Donor.FullName(),
@@ -49,6 +72,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
 						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
 						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+						AttorneyStartPageURL:    appPublicURL + appData.Lang.URL(page.PathAttorneyStart.Format()),
 					}); err != nil {
 						return fmt.Errorf("error sending attorney email: %w", err)
 					}
@@ -66,6 +90,7 @@ func WithdrawLpa(tmpl template.Template, donorStore DonorStore, now func() time.
 						DonorFullNamePossessive: appData.Localizer.Possessive(lpa.Donor.FullName()),
 						InvitedDate:             appData.Localizer.FormatDate(provided.AttorneysInvitedAt),
 						LpaType:                 localize.LowerFirst(appData.Localizer.T(lpa.Type.String())),
+						AttorneyStartPageURL:    appPublicURL + appData.Lang.URL(page.PathAttorneyStart.Format()),
 					}); err != nil {
 						return fmt.Errorf("error sending trust corporation email: %w", err)
 					}
