@@ -670,6 +670,7 @@ type AttorneyLpaRevoked struct {
 	DonorFullNamePossessive string
 	InvitedDate             string
 	LpaType                 string
+	AttorneyStartPageURL    string
 }
 
 func (e AttorneyLpaRevoked) emailID(isProduction bool, _ localize.Lang) string {
