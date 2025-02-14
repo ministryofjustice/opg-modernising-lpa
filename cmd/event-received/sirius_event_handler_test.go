@@ -1492,7 +1492,7 @@ func TestHandleImmaterialChangeConfirmed(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(mock.Anything, mock.Anything).
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
@@ -1572,7 +1572,7 @@ func TestHandleChangeConfirmedWhenIdentityTaskNotPending(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(ctx, "M-1111-2222-3333").
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
@@ -1682,7 +1682,7 @@ func TestHandleChangeConfirmedWhenLpaStoreClientError(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(mock.Anything, mock.Anything).
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
@@ -1706,7 +1706,7 @@ func TestHandleChangeConfirmedWhenLpaStoreClientError(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(mock.Anything, mock.Anything).
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
@@ -1787,7 +1787,7 @@ func TestHandleChangeConfirmedWhenPutError(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(mock.Anything, mock.Anything).
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
@@ -1877,7 +1877,7 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
 				s := newMockCertificateProviderStore(t)
 				s.EXPECT().
-					GetAny(ctx).
+					OneByUID(mock.Anything, mock.Anything).
 					Return(&certificateproviderdata.Provided{
 						PK:                        dynamo.LpaKey("123"),
 						SK:                        dynamo.CertificateProviderKey("789"),
