@@ -208,15 +208,22 @@ type Provided struct {
 	// confirmed by a caseworker
 	ImmaterialChangeConfirmedAt time.Time `checkhash:"-"`
 
-	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress tracker successful vouch banner
+	// HasSeenSuccessfulVouchBanner records if the donor has seen the progress
+	// tracker successful vouch banner
 	HasSeenSuccessfulVouchBanner bool `checkhash:"-"`
 
-	// HasSeenReducedFeeApprovalNotification records if the donor has seen the progress tracker exemption/remission fee approved banner
+	// HasSeenReducedFeeApprovalNotification records if the donor has seen the
+	// progress tracker exemption/remission fee approved banner
 	HasSeenReducedFeeApprovalNotification bool `checkhash:"-"`
 
-	// HasSeenIdentityMismatchResolvedNotification records if the donor has seen the progress tracker identity
-	// confirmed banner
+	// HasSeenIdentityMismatchResolvedNotification records if the donor has seen
+	// the progress tracker identity confirmed banner
 	HasSeenIdentityMismatchResolvedNotification bool `checkhash:"-"`
+
+	// HasSeenCertificateProviderIdentityMismatchResolvedNotification records if
+	// the donor has seen the progress tracker certificate provider identity
+	// confirmed banner
+	HasSeenCertificateProviderIdentityMismatchResolvedNotification bool `checkhash:"-"`
 
 	// ReducedFeeApprovedAt records when an exemption/remission was approved.
 	ReducedFeeApprovedAt time.Time `checkhash:"-"`

@@ -57,7 +57,7 @@ type UidClient interface {
 }
 
 type CertificateProviderStore interface {
-	GetAny(ctx context.Context) (*certificateproviderdata.Provided, error)
+	OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error)
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
