@@ -44,7 +44,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS {PICK YOUR ENVIRONMENT NAME} (
             'input.regex' =
         '([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*):([0-9]*) ([^ ]*)[:-]([0-9]*) ([-.0-9]*) ([-.0-9]*) ([-.0-9]*) (|[-0-9]*) (-|[-0-9]*) ([-0-9]*) ([-0-9]*) \"([^ ]*) (.*) (- |[^ ]*)\" \"([^\"]*)\" ([A-Z0-9-_]+) ([A-Za-z0-9.-]*) ([^ ]*) \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" ([-.0-9]*) ([^ ]*) \"([^\"]*)\" \"([^\"]*)\" \"([^ ]*)\" \"([^\\s]+?)\" \"([^\\s]+)\" \"([^ ]*)\" \"([^ ]*)\" ?([^ ]*)?'
             )
-            LOCATION 's3://${bucket}/{PICK YOUR ENVIRONMENT NAME}/AWSLogs/${account_id}/elasticloadbalancing/${region}/'
+            LOCATION 's3://${bucket}/app-{PICK YOUR ENVIRONMENT NAME}/AWSLogs/${account_id}/elasticloadbalancing/${region}/'
             TBLPROPERTIES
             (
              "projection.enabled" = "true",
@@ -53,5 +53,5 @@ CREATE EXTERNAL TABLE IF NOT EXISTS {PICK YOUR ENVIRONMENT NAME} (
              "projection.day.format" = "yyyy/MM/dd",
              "projection.day.interval" = "1",
              "projection.day.interval.unit" = "DAYS",
-             "storage.location.template" = "s3://${bucket}/{PICK YOUR ENVIRONMENT NAME}/AWSLogs/${account_id}/elasticloadbalancing/${region}/$${day}"
+             "storage.location.template" = "s3://${bucket}/app-{PICK YOUR ENVIRONMENT NAME}/AWSLogs/${account_id}/elasticloadbalancing/${region}/$${day}"
             )
