@@ -792,7 +792,7 @@ func TestGetProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	err := Progress(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
@@ -810,7 +810,7 @@ func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	err := Progress(nil, lpaStoreResolvingService, nil, certificateProviderStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressWhenVoucherStoreErrors(t *testing.T) {
@@ -837,7 +837,7 @@ func TestGetProgressWhenVoucherStoreErrors(t *testing.T) {
 		Tasks:   donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 		Voucher: donordata.Voucher{FirstNames: "a"},
 	})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressOnTemplateError(t *testing.T) {
