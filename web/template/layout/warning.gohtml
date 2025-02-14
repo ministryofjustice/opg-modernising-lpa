@@ -3,7 +3,7 @@
         <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
         <strong class="govuk-warning-text__text">
             <span class="govuk-visually-hidden">{{ tr .App "warning" }}</span>
-            {{ tr .App .Content }}
+            {{ if .Content }}{{ tr .App .Content }}{{ else }}{{ .HTML }}{{ end }}
         </strong>
     </div>
 {{ end }}
