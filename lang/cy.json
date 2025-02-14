@@ -1593,5 +1593,8 @@
     "iAmResidentOrHaveExplained": "Welsh",
     "yourRestrictionsAndConditions": "Welsh",
     "yourInstructionsForAttorneys": "Welsh",
-    "yourIdentityHadBeenConfirmed": "Welsh"
+    "yourIdentityHadBeenConfirmed": "Welsh",
+    "certificateProviderConfirmationOfIdentityPending": "{{.CertificateProviderFullName}} Welsh",
+    "wellContactYouIfYouNeedToTakeAnyAction": "Welsh",
+    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh"
 }
