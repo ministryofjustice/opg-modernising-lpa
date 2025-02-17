@@ -84,7 +84,7 @@ func (_c *mockDynamodbClient_AllByKeys_Call) RunAndReturn(run func(context.Conte
 }
 
 // AllByLpaUIDAndPartialSK provides a mock function with given fields: ctx, uid, partialSK, v
-func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid string, partialSK dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, uid, partialSK, v)
 
 	if len(ret) == 0 {
@@ -92,7 +92,7 @@ func (_m *mockDynamodbClient) AllByLpaUIDAndPartialSK(ctx context.Context, uid s
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, uid, partialSK, v)
 	} else {
 		r0 = ret.Error(0)
@@ -110,14 +110,14 @@ type mockDynamodbClient_AllByLpaUIDAndPartialSK_Call struct {
 //   - ctx context.Context
 //   - uid string
 //   - partialSK dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) AllByLpaUIDAndPartialSK(ctx interface{}, uid interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	return &mockDynamodbClient_AllByLpaUIDAndPartialSK_Call{Call: _e.mock.On("AllByLpaUIDAndPartialSK", ctx, uid, partialSK, v)}
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v any)) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Run(run func(ctx context.Context, uid string, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(any))
+		run(args[0].(context.Context), args[1].(string), args[2].(dynamo.SK), args[3].(interface{}))
 	})
 	return _c
 }
@@ -127,13 +127,13 @@ func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) Return(_a0 error) *mo
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, any) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
+func (_c *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call) RunAndReturn(run func(context.Context, string, dynamo.SK, interface{}) error) *mockDynamodbClient_AllByLpaUIDAndPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // AllByPartialSK provides a mock function with given fields: ctx, pk, partialSK, v
-func (_m *mockDynamodbClient) AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) AllByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSK, v)
 
 	if len(ret) == 0 {
@@ -141,7 +141,7 @@ func (_m *mockDynamodbClient) AllByPartialSK(ctx context.Context, pk dynamo.PK, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, pk, partialSK, v)
 	} else {
 		r0 = ret.Error(0)
@@ -159,14 +159,14 @@ type mockDynamodbClient_AllByPartialSK_Call struct {
 //   - ctx context.Context
 //   - pk dynamo.PK
 //   - partialSK dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) AllByPartialSK(ctx interface{}, pk interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_AllByPartialSK_Call {
 	return &mockDynamodbClient_AllByPartialSK_Call{Call: _e.mock.On("AllByPartialSK", ctx, pk, partialSK, v)}
 }
 
-func (_c *mockDynamodbClient_AllByPartialSK_Call) Run(run func(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any)) *mockDynamodbClient_AllByPartialSK_Call {
+func (_c *mockDynamodbClient_AllByPartialSK_Call) Run(run func(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_AllByPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(any))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(interface{}))
 	})
 	return _c
 }
@@ -176,13 +176,13 @@ func (_c *mockDynamodbClient_AllByPartialSK_Call) Return(_a0 error) *mockDynamod
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllByPartialSK_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, any) error) *mockDynamodbClient_AllByPartialSK_Call {
+func (_c *mockDynamodbClient_AllByPartialSK_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, interface{}) error) *mockDynamodbClient_AllByPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // AllBySK provides a mock function with given fields: ctx, sk, v
-func (_m *mockDynamodbClient) AllBySK(ctx context.Context, sk dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) AllBySK(ctx context.Context, sk dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
 
 	if len(ret) == 0 {
@@ -190,7 +190,7 @@ func (_m *mockDynamodbClient) AllBySK(ctx context.Context, sk dynamo.SK, v any) 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, sk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -207,14 +207,14 @@ type mockDynamodbClient_AllBySK_Call struct {
 // AllBySK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sk dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) AllBySK(ctx interface{}, sk interface{}, v interface{}) *mockDynamodbClient_AllBySK_Call {
 	return &mockDynamodbClient_AllBySK_Call{Call: _e.mock.On("AllBySK", ctx, sk, v)}
 }
 
-func (_c *mockDynamodbClient_AllBySK_Call) Run(run func(ctx context.Context, sk dynamo.SK, v any)) *mockDynamodbClient_AllBySK_Call {
+func (_c *mockDynamodbClient_AllBySK_Call) Run(run func(ctx context.Context, sk dynamo.SK, v interface{})) *mockDynamodbClient_AllBySK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(interface{}))
 	})
 	return _c
 }
@@ -224,7 +224,7 @@ func (_c *mockDynamodbClient_AllBySK_Call) Return(_a0 error) *mockDynamodbClient
 	return _c
 }
 
-func (_c *mockDynamodbClient_AllBySK_Call) RunAndReturn(run func(context.Context, dynamo.SK, any) error) *mockDynamodbClient_AllBySK_Call {
+func (_c *mockDynamodbClient_AllBySK_Call) RunAndReturn(run func(context.Context, dynamo.SK, interface{}) error) *mockDynamodbClient_AllBySK_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -289,7 +289,7 @@ func (_c *mockDynamodbClient_AllKeysByPK_Call) RunAndReturn(run func(context.Con
 }
 
 // AnyByPK provides a mock function with given fields: ctx, pk, v
-func (_m *mockDynamodbClient) AnyByPK(ctx context.Context, pk dynamo.PK, v any) error {
+func (_m *mockDynamodbClient) AnyByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
 	ret := _m.Called(ctx, pk, v)
 
 	if len(ret) == 0 {
@@ -297,7 +297,7 @@ func (_m *mockDynamodbClient) AnyByPK(ctx context.Context, pk dynamo.PK, v any) 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
 		r0 = rf(ctx, pk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -314,14 +314,14 @@ type mockDynamodbClient_AnyByPK_Call struct {
 // AnyByPK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - pk dynamo.PK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) AnyByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamodbClient_AnyByPK_Call {
 	return &mockDynamodbClient_AnyByPK_Call{Call: _e.mock.On("AnyByPK", ctx, pk, v)}
 }
 
-func (_c *mockDynamodbClient_AnyByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v any)) *mockDynamodbClient_AnyByPK_Call {
+func (_c *mockDynamodbClient_AnyByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamodbClient_AnyByPK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
 	})
 	return _c
 }
@@ -331,13 +331,13 @@ func (_c *mockDynamodbClient_AnyByPK_Call) Return(_a0 error) *mockDynamodbClient
 	return _c
 }
 
-func (_c *mockDynamodbClient_AnyByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, any) error) *mockDynamodbClient_AnyByPK_Call {
+func (_c *mockDynamodbClient_AnyByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamodbClient_AnyByPK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // BatchPut provides a mock function with given fields: ctx, items
-func (_m *mockDynamodbClient) BatchPut(ctx context.Context, items []any) error {
+func (_m *mockDynamodbClient) BatchPut(ctx context.Context, items []interface{}) error {
 	ret := _m.Called(ctx, items)
 
 	if len(ret) == 0 {
@@ -345,7 +345,7 @@ func (_m *mockDynamodbClient) BatchPut(ctx context.Context, items []any) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, []any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []interface{}) error); ok {
 		r0 = rf(ctx, items)
 	} else {
 		r0 = ret.Error(0)
@@ -361,14 +361,14 @@ type mockDynamodbClient_BatchPut_Call struct {
 
 // BatchPut is a helper method to define mock.On call
 //   - ctx context.Context
-//   - items []any
+//   - items []interface{}
 func (_e *mockDynamodbClient_Expecter) BatchPut(ctx interface{}, items interface{}) *mockDynamodbClient_BatchPut_Call {
 	return &mockDynamodbClient_BatchPut_Call{Call: _e.mock.On("BatchPut", ctx, items)}
 }
 
-func (_c *mockDynamodbClient_BatchPut_Call) Run(run func(ctx context.Context, items []any)) *mockDynamodbClient_BatchPut_Call {
+func (_c *mockDynamodbClient_BatchPut_Call) Run(run func(ctx context.Context, items []interface{})) *mockDynamodbClient_BatchPut_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]any))
+		run(args[0].(context.Context), args[1].([]interface{}))
 	})
 	return _c
 }
@@ -378,13 +378,13 @@ func (_c *mockDynamodbClient_BatchPut_Call) Return(_a0 error) *mockDynamodbClien
 	return _c
 }
 
-func (_c *mockDynamodbClient_BatchPut_Call) RunAndReturn(run func(context.Context, []any) error) *mockDynamodbClient_BatchPut_Call {
+func (_c *mockDynamodbClient_BatchPut_Call) RunAndReturn(run func(context.Context, []interface{}) error) *mockDynamodbClient_BatchPut_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Create provides a mock function with given fields: ctx, v
-func (_m *mockDynamodbClient) Create(ctx context.Context, v any) error {
+func (_m *mockDynamodbClient) Create(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
 
 	if len(ret) == 0 {
@@ -392,7 +392,7 @@ func (_m *mockDynamodbClient) Create(ctx context.Context, v any) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
 	} else {
 		r0 = ret.Error(0)
@@ -408,14 +408,14 @@ type mockDynamodbClient_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) Create(ctx interface{}, v interface{}) *mockDynamodbClient_Create_Call {
 	return &mockDynamodbClient_Create_Call{Call: _e.mock.On("Create", ctx, v)}
 }
 
-func (_c *mockDynamodbClient_Create_Call) Run(run func(ctx context.Context, v any)) *mockDynamodbClient_Create_Call {
+func (_c *mockDynamodbClient_Create_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(any))
+		run(args[0].(context.Context), args[1].(interface{}))
 	})
 	return _c
 }
@@ -425,13 +425,13 @@ func (_c *mockDynamodbClient_Create_Call) Return(_a0 error) *mockDynamodbClient_
 	return _c
 }
 
-func (_c *mockDynamodbClient_Create_Call) RunAndReturn(run func(context.Context, any) error) *mockDynamodbClient_Create_Call {
+func (_c *mockDynamodbClient_Create_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // CreateOnly provides a mock function with given fields: ctx, v
-func (_m *mockDynamodbClient) CreateOnly(ctx context.Context, v any) error {
+func (_m *mockDynamodbClient) CreateOnly(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
 
 	if len(ret) == 0 {
@@ -439,7 +439,7 @@ func (_m *mockDynamodbClient) CreateOnly(ctx context.Context, v any) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
 	} else {
 		r0 = ret.Error(0)
@@ -455,14 +455,14 @@ type mockDynamodbClient_CreateOnly_Call struct {
 
 // CreateOnly is a helper method to define mock.On call
 //   - ctx context.Context
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) CreateOnly(ctx interface{}, v interface{}) *mockDynamodbClient_CreateOnly_Call {
 	return &mockDynamodbClient_CreateOnly_Call{Call: _e.mock.On("CreateOnly", ctx, v)}
 }
 
-func (_c *mockDynamodbClient_CreateOnly_Call) Run(run func(ctx context.Context, v any)) *mockDynamodbClient_CreateOnly_Call {
+func (_c *mockDynamodbClient_CreateOnly_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_CreateOnly_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(any))
+		run(args[0].(context.Context), args[1].(interface{}))
 	})
 	return _c
 }
@@ -472,7 +472,7 @@ func (_c *mockDynamodbClient_CreateOnly_Call) Return(_a0 error) *mockDynamodbCli
 	return _c
 }
 
-func (_c *mockDynamodbClient_CreateOnly_Call) RunAndReturn(run func(context.Context, any) error) *mockDynamodbClient_CreateOnly_Call {
+func (_c *mockDynamodbClient_CreateOnly_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_CreateOnly_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -573,7 +573,7 @@ func (_c *mockDynamodbClient_DeleteOne_Call) RunAndReturn(run func(context.Conte
 }
 
 // LatestForActor provides a mock function with given fields: ctx, sk, v
-func (_m *mockDynamodbClient) LatestForActor(ctx context.Context, sk dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) LatestForActor(ctx context.Context, sk dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
 
 	if len(ret) == 0 {
@@ -581,7 +581,7 @@ func (_m *mockDynamodbClient) LatestForActor(ctx context.Context, sk dynamo.SK, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, sk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -598,14 +598,14 @@ type mockDynamodbClient_LatestForActor_Call struct {
 // LatestForActor is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sk dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) LatestForActor(ctx interface{}, sk interface{}, v interface{}) *mockDynamodbClient_LatestForActor_Call {
 	return &mockDynamodbClient_LatestForActor_Call{Call: _e.mock.On("LatestForActor", ctx, sk, v)}
 }
 
-func (_c *mockDynamodbClient_LatestForActor_Call) Run(run func(ctx context.Context, sk dynamo.SK, v any)) *mockDynamodbClient_LatestForActor_Call {
+func (_c *mockDynamodbClient_LatestForActor_Call) Run(run func(ctx context.Context, sk dynamo.SK, v interface{})) *mockDynamodbClient_LatestForActor_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(interface{}))
 	})
 	return _c
 }
@@ -615,13 +615,13 @@ func (_c *mockDynamodbClient_LatestForActor_Call) Return(_a0 error) *mockDynamod
 	return _c
 }
 
-func (_c *mockDynamodbClient_LatestForActor_Call) RunAndReturn(run func(context.Context, dynamo.SK, any) error) *mockDynamodbClient_LatestForActor_Call {
+func (_c *mockDynamodbClient_LatestForActor_Call) RunAndReturn(run func(context.Context, dynamo.SK, interface{}) error) *mockDynamodbClient_LatestForActor_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Move provides a mock function with given fields: ctx, oldKeys, value
-func (_m *mockDynamodbClient) Move(ctx context.Context, oldKeys dynamo.Keys, value any) error {
+func (_m *mockDynamodbClient) Move(ctx context.Context, oldKeys dynamo.Keys, value interface{}) error {
 	ret := _m.Called(ctx, oldKeys, value)
 
 	if len(ret) == 0 {
@@ -629,7 +629,7 @@ func (_m *mockDynamodbClient) Move(ctx context.Context, oldKeys dynamo.Keys, val
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Keys, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.Keys, interface{}) error); ok {
 		r0 = rf(ctx, oldKeys, value)
 	} else {
 		r0 = ret.Error(0)
@@ -646,14 +646,14 @@ type mockDynamodbClient_Move_Call struct {
 // Move is a helper method to define mock.On call
 //   - ctx context.Context
 //   - oldKeys dynamo.Keys
-//   - value any
+//   - value interface{}
 func (_e *mockDynamodbClient_Expecter) Move(ctx interface{}, oldKeys interface{}, value interface{}) *mockDynamodbClient_Move_Call {
 	return &mockDynamodbClient_Move_Call{Call: _e.mock.On("Move", ctx, oldKeys, value)}
 }
 
-func (_c *mockDynamodbClient_Move_Call) Run(run func(ctx context.Context, oldKeys dynamo.Keys, value any)) *mockDynamodbClient_Move_Call {
+func (_c *mockDynamodbClient_Move_Call) Run(run func(ctx context.Context, oldKeys dynamo.Keys, value interface{})) *mockDynamodbClient_Move_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.Keys), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.Keys), args[2].(interface{}))
 	})
 	return _c
 }
@@ -663,13 +663,13 @@ func (_c *mockDynamodbClient_Move_Call) Return(_a0 error) *mockDynamodbClient_Mo
 	return _c
 }
 
-func (_c *mockDynamodbClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, any) error) *mockDynamodbClient_Move_Call {
+func (_c *mockDynamodbClient_Move_Call) RunAndReturn(run func(context.Context, dynamo.Keys, interface{}) error) *mockDynamodbClient_Move_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // One provides a mock function with given fields: ctx, pk, sk, v
-func (_m *mockDynamodbClient) One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) One(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, pk, sk, v)
 
 	if len(ret) == 0 {
@@ -677,7 +677,7 @@ func (_m *mockDynamodbClient) One(ctx context.Context, pk dynamo.PK, sk dynamo.S
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, pk, sk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -695,14 +695,14 @@ type mockDynamodbClient_One_Call struct {
 //   - ctx context.Context
 //   - pk dynamo.PK
 //   - sk dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) One(ctx interface{}, pk interface{}, sk interface{}, v interface{}) *mockDynamodbClient_One_Call {
 	return &mockDynamodbClient_One_Call{Call: _e.mock.On("One", ctx, pk, sk, v)}
 }
 
-func (_c *mockDynamodbClient_One_Call) Run(run func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v any)) *mockDynamodbClient_One_Call {
+func (_c *mockDynamodbClient_One_Call) Run(run func(ctx context.Context, pk dynamo.PK, sk dynamo.SK, v interface{})) *mockDynamodbClient_One_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(any))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(interface{}))
 	})
 	return _c
 }
@@ -712,13 +712,13 @@ func (_c *mockDynamodbClient_One_Call) Return(_a0 error) *mockDynamodbClient_One
 	return _c
 }
 
-func (_c *mockDynamodbClient_One_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, any) error) *mockDynamodbClient_One_Call {
+func (_c *mockDynamodbClient_One_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, interface{}) error) *mockDynamodbClient_One_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OneByPK provides a mock function with given fields: ctx, pk, v
-func (_m *mockDynamodbClient) OneByPK(ctx context.Context, pk dynamo.PK, v any) error {
+func (_m *mockDynamodbClient) OneByPK(ctx context.Context, pk dynamo.PK, v interface{}) error {
 	ret := _m.Called(ctx, pk, v)
 
 	if len(ret) == 0 {
@@ -726,7 +726,7 @@ func (_m *mockDynamodbClient) OneByPK(ctx context.Context, pk dynamo.PK, v any) 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, interface{}) error); ok {
 		r0 = rf(ctx, pk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -743,14 +743,14 @@ type mockDynamodbClient_OneByPK_Call struct {
 // OneByPK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - pk dynamo.PK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) OneByPK(ctx interface{}, pk interface{}, v interface{}) *mockDynamodbClient_OneByPK_Call {
 	return &mockDynamodbClient_OneByPK_Call{Call: _e.mock.On("OneByPK", ctx, pk, v)}
 }
 
-func (_c *mockDynamodbClient_OneByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v any)) *mockDynamodbClient_OneByPK_Call {
+func (_c *mockDynamodbClient_OneByPK_Call) Run(run func(ctx context.Context, pk dynamo.PK, v interface{})) *mockDynamodbClient_OneByPK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(interface{}))
 	})
 	return _c
 }
@@ -760,13 +760,13 @@ func (_c *mockDynamodbClient_OneByPK_Call) Return(_a0 error) *mockDynamodbClient
 	return _c
 }
 
-func (_c *mockDynamodbClient_OneByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, any) error) *mockDynamodbClient_OneByPK_Call {
+func (_c *mockDynamodbClient_OneByPK_Call) RunAndReturn(run func(context.Context, dynamo.PK, interface{}) error) *mockDynamodbClient_OneByPK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OneByPartialSK provides a mock function with given fields: ctx, pk, partialSK, v
-func (_m *mockDynamodbClient) OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) OneByPartialSK(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, pk, partialSK, v)
 
 	if len(ret) == 0 {
@@ -774,7 +774,7 @@ func (_m *mockDynamodbClient) OneByPartialSK(ctx context.Context, pk dynamo.PK, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.PK, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, pk, partialSK, v)
 	} else {
 		r0 = ret.Error(0)
@@ -792,14 +792,14 @@ type mockDynamodbClient_OneByPartialSK_Call struct {
 //   - ctx context.Context
 //   - pk dynamo.PK
 //   - partialSK dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) OneByPartialSK(ctx interface{}, pk interface{}, partialSK interface{}, v interface{}) *mockDynamodbClient_OneByPartialSK_Call {
 	return &mockDynamodbClient_OneByPartialSK_Call{Call: _e.mock.On("OneByPartialSK", ctx, pk, partialSK, v)}
 }
 
-func (_c *mockDynamodbClient_OneByPartialSK_Call) Run(run func(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v any)) *mockDynamodbClient_OneByPartialSK_Call {
+func (_c *mockDynamodbClient_OneByPartialSK_Call) Run(run func(ctx context.Context, pk dynamo.PK, partialSK dynamo.SK, v interface{})) *mockDynamodbClient_OneByPartialSK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(any))
+		run(args[0].(context.Context), args[1].(dynamo.PK), args[2].(dynamo.SK), args[3].(interface{}))
 	})
 	return _c
 }
@@ -809,13 +809,13 @@ func (_c *mockDynamodbClient_OneByPartialSK_Call) Return(_a0 error) *mockDynamod
 	return _c
 }
 
-func (_c *mockDynamodbClient_OneByPartialSK_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, any) error) *mockDynamodbClient_OneByPartialSK_Call {
+func (_c *mockDynamodbClient_OneByPartialSK_Call) RunAndReturn(run func(context.Context, dynamo.PK, dynamo.SK, interface{}) error) *mockDynamodbClient_OneByPartialSK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OneBySK provides a mock function with given fields: ctx, sk, v
-func (_m *mockDynamodbClient) OneBySK(ctx context.Context, sk dynamo.SK, v any) error {
+func (_m *mockDynamodbClient) OneBySK(ctx context.Context, sk dynamo.SK, v interface{}) error {
 	ret := _m.Called(ctx, sk, v)
 
 	if len(ret) == 0 {
@@ -823,7 +823,7 @@ func (_m *mockDynamodbClient) OneBySK(ctx context.Context, sk dynamo.SK, v any) 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, dynamo.SK, interface{}) error); ok {
 		r0 = rf(ctx, sk, v)
 	} else {
 		r0 = ret.Error(0)
@@ -840,14 +840,14 @@ type mockDynamodbClient_OneBySK_Call struct {
 // OneBySK is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sk dynamo.SK
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) OneBySK(ctx interface{}, sk interface{}, v interface{}) *mockDynamodbClient_OneBySK_Call {
 	return &mockDynamodbClient_OneBySK_Call{Call: _e.mock.On("OneBySK", ctx, sk, v)}
 }
 
-func (_c *mockDynamodbClient_OneBySK_Call) Run(run func(ctx context.Context, sk dynamo.SK, v any)) *mockDynamodbClient_OneBySK_Call {
+func (_c *mockDynamodbClient_OneBySK_Call) Run(run func(ctx context.Context, sk dynamo.SK, v interface{})) *mockDynamodbClient_OneBySK_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(any))
+		run(args[0].(context.Context), args[1].(dynamo.SK), args[2].(interface{}))
 	})
 	return _c
 }
@@ -857,13 +857,13 @@ func (_c *mockDynamodbClient_OneBySK_Call) Return(_a0 error) *mockDynamodbClient
 	return _c
 }
 
-func (_c *mockDynamodbClient_OneBySK_Call) RunAndReturn(run func(context.Context, dynamo.SK, any) error) *mockDynamodbClient_OneBySK_Call {
+func (_c *mockDynamodbClient_OneBySK_Call) RunAndReturn(run func(context.Context, dynamo.SK, interface{}) error) *mockDynamodbClient_OneBySK_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OneByUID provides a mock function with given fields: ctx, uid, v
-func (_m *mockDynamodbClient) OneByUID(ctx context.Context, uid string, v any) error {
+func (_m *mockDynamodbClient) OneByUID(ctx context.Context, uid string, v interface{}) error {
 	ret := _m.Called(ctx, uid, v)
 
 	if len(ret) == 0 {
@@ -871,7 +871,7 @@ func (_m *mockDynamodbClient) OneByUID(ctx context.Context, uid string, v any) e
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) error); ok {
 		r0 = rf(ctx, uid, v)
 	} else {
 		r0 = ret.Error(0)
@@ -888,14 +888,14 @@ type mockDynamodbClient_OneByUID_Call struct {
 // OneByUID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - uid string
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) OneByUID(ctx interface{}, uid interface{}, v interface{}) *mockDynamodbClient_OneByUID_Call {
 	return &mockDynamodbClient_OneByUID_Call{Call: _e.mock.On("OneByUID", ctx, uid, v)}
 }
 
-func (_c *mockDynamodbClient_OneByUID_Call) Run(run func(ctx context.Context, uid string, v any)) *mockDynamodbClient_OneByUID_Call {
+func (_c *mockDynamodbClient_OneByUID_Call) Run(run func(ctx context.Context, uid string, v interface{})) *mockDynamodbClient_OneByUID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(any))
+		run(args[0].(context.Context), args[1].(string), args[2].(interface{}))
 	})
 	return _c
 }
@@ -905,13 +905,13 @@ func (_c *mockDynamodbClient_OneByUID_Call) Return(_a0 error) *mockDynamodbClien
 	return _c
 }
 
-func (_c *mockDynamodbClient_OneByUID_Call) RunAndReturn(run func(context.Context, string, any) error) *mockDynamodbClient_OneByUID_Call {
+func (_c *mockDynamodbClient_OneByUID_Call) RunAndReturn(run func(context.Context, string, interface{}) error) *mockDynamodbClient_OneByUID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Put provides a mock function with given fields: ctx, v
-func (_m *mockDynamodbClient) Put(ctx context.Context, v any) error {
+func (_m *mockDynamodbClient) Put(ctx context.Context, v interface{}) error {
 	ret := _m.Called(ctx, v)
 
 	if len(ret) == 0 {
@@ -919,7 +919,7 @@ func (_m *mockDynamodbClient) Put(ctx context.Context, v any) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, any) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) error); ok {
 		r0 = rf(ctx, v)
 	} else {
 		r0 = ret.Error(0)
@@ -935,14 +935,14 @@ type mockDynamodbClient_Put_Call struct {
 
 // Put is a helper method to define mock.On call
 //   - ctx context.Context
-//   - v any
+//   - v interface{}
 func (_e *mockDynamodbClient_Expecter) Put(ctx interface{}, v interface{}) *mockDynamodbClient_Put_Call {
 	return &mockDynamodbClient_Put_Call{Call: _e.mock.On("Put", ctx, v)}
 }
 
-func (_c *mockDynamodbClient_Put_Call) Run(run func(ctx context.Context, v any)) *mockDynamodbClient_Put_Call {
+func (_c *mockDynamodbClient_Put_Call) Run(run func(ctx context.Context, v interface{})) *mockDynamodbClient_Put_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(any))
+		run(args[0].(context.Context), args[1].(interface{}))
 	})
 	return _c
 }
@@ -952,7 +952,7 @@ func (_c *mockDynamodbClient_Put_Call) Return(_a0 error) *mockDynamodbClient_Put
 	return _c
 }
 
-func (_c *mockDynamodbClient_Put_Call) RunAndReturn(run func(context.Context, any) error) *mockDynamodbClient_Put_Call {
+func (_c *mockDynamodbClient_Put_Call) RunAndReturn(run func(context.Context, interface{}) error) *mockDynamodbClient_Put_Call {
 	_c.Call.Return(run)
 	return _c
 }

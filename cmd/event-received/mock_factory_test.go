@@ -25,7 +25,7 @@ func (_m *mockFactory) EXPECT() *mockFactory_Expecter {
 	return &mockFactory_Expecter{mock: &_m.Mock}
 }
 
-// AppData provides a mock function with given fields:
+// AppData provides a mock function with no fields
 func (_m *mockFactory) AppData() (appcontext.Data, error) {
 	ret := _m.Called()
 
@@ -80,7 +80,7 @@ func (_c *mockFactory_AppData_Call) RunAndReturn(run func() (appcontext.Data, er
 	return _c
 }
 
-// Bundle provides a mock function with given fields:
+// Bundle provides a mock function with no fields
 func (_m *mockFactory) Bundle() (Bundle, error) {
 	ret := _m.Called()
 
@@ -137,7 +137,7 @@ func (_c *mockFactory_Bundle_Call) RunAndReturn(run func() (Bundle, error)) *moc
 	return _c
 }
 
-// CertificateProviderStore provides a mock function with given fields:
+// CertificateProviderStore provides a mock function with no fields
 func (_m *mockFactory) CertificateProviderStore() CertificateProviderStore {
 	ret := _m.Called()
 
@@ -184,7 +184,7 @@ func (_c *mockFactory_CertificateProviderStore_Call) RunAndReturn(run func() Cer
 	return _c
 }
 
-// DynamoClient provides a mock function with given fields:
+// DynamoClient provides a mock function with no fields
 func (_m *mockFactory) DynamoClient() dynamodbClient {
 	ret := _m.Called()
 
@@ -231,7 +231,7 @@ func (_c *mockFactory_DynamoClient_Call) RunAndReturn(run func() dynamodbClient)
 	return _c
 }
 
-// EventClient provides a mock function with given fields:
+// EventClient provides a mock function with no fields
 func (_m *mockFactory) EventClient() EventClient {
 	ret := _m.Called()
 
@@ -278,7 +278,7 @@ func (_c *mockFactory_EventClient_Call) RunAndReturn(run func() EventClient) *mo
 	return _c
 }
 
-// LpaStoreClient provides a mock function with given fields:
+// LpaStoreClient provides a mock function with no fields
 func (_m *mockFactory) LpaStoreClient() (LpaStoreClient, error) {
 	ret := _m.Called()
 
@@ -393,7 +393,7 @@ func (_c *mockFactory_NotifyClient_Call) RunAndReturn(run func(context.Context) 
 	return _c
 }
 
-// Now provides a mock function with given fields:
+// Now provides a mock function with no fields
 func (_m *mockFactory) Now() func() time.Time {
 	ret := _m.Called()
 
@@ -440,7 +440,7 @@ func (_c *mockFactory_Now_Call) RunAndReturn(run func() func() time.Time) *mockF
 	return _c
 }
 
-// ScheduledStore provides a mock function with given fields:
+// ScheduledStore provides a mock function with no fields
 func (_m *mockFactory) ScheduledStore() ScheduledStore {
 	ret := _m.Called()
 
@@ -545,7 +545,7 @@ func (_c *mockFactory_ShareCodeSender_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
-// UidClient provides a mock function with given fields:
+// UidClient provides a mock function with no fields
 func (_m *mockFactory) UidClient() UidClient {
 	ret := _m.Called()
 
@@ -592,7 +592,7 @@ func (_c *mockFactory_UidClient_Call) RunAndReturn(run func() UidClient) *mockFa
 	return _c
 }
 
-// UidStore provides a mock function with given fields:
+// UidStore provides a mock function with no fields
 func (_m *mockFactory) UidStore() (UidStore, error) {
 	ret := _m.Called()
 
@@ -649,7 +649,7 @@ func (_c *mockFactory_UidStore_Call) RunAndReturn(run func() (UidStore, error)) 
 	return _c
 }
 
-// UuidString provides a mock function with given fields:
+// UuidString provides a mock function with no fields
 func (_m *mockFactory) UuidString() func() string {
 	ret := _m.Called()
 

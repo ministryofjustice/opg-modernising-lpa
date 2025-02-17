@@ -8,7 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/place"
 )
 
-//go:generate enumerator -type CertificateProviderRelationshipLength -linecomment
+//go:generate go tool enumerator -type CertificateProviderRelationshipLength -linecomment
 type CertificateProviderRelationshipLength uint8
 
 const (
