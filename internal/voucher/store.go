@@ -77,9 +77,11 @@ func (s *Store) Get(ctx context.Context) (*voucherdata.Provided, error) {
 	}
 
 	var provided voucherdata.Provided
-	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(data.SessionID), &provided)
+	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(data.SessionID), &provided); err != nil {
+		return nil, err
+	}
 
-	return &provided, err
+	return &provided, nil
 }
 
 func (s *Store) GetAny(ctx context.Context) (*voucherdata.Provided, error) {
@@ -93,9 +95,11 @@ func (s *Store) GetAny(ctx context.Context) (*voucherdata.Provided, error) {
 	}
 
 	var provided voucherdata.Provided
-	err = s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(""), &provided)
+	if err := s.dynamoClient.OneByPartialSK(ctx, dynamo.LpaKey(data.LpaID), dynamo.VoucherKey(""), &provided); err != nil {
+		return nil, err
+	}
 
-	return &provided, err
+	return &provided, nil
 }
 
 func (s *Store) Put(ctx context.Context, provided *voucherdata.Provided) error {
