@@ -7,8 +7,10 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
 
+            {{ trHtml .App "viewYourLpaContent" }}
+
             <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-            
+
             {{ template "contextual-lpa" . }}
         </div>
     </div>

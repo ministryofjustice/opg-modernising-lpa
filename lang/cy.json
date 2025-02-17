@@ -1598,5 +1598,6 @@
     "wellContactYouIfYouNeedToTakeAnyAction": "Welsh",
     "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh",
     "yourLpaWillBeSignedBy": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}} {{.CertificateProviderFullName}}",
-    "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}"
+    "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}",
+    "viewYourLpaContent": "<p class=\"govuk-body\">Welsh</p>"
 }
