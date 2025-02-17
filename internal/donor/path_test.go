@@ -227,6 +227,11 @@ func TestPathCanGoTo(t *testing.T) {
 			path:     PathYourName,
 			expected: false,
 		},
+		"view lpa": {
+			donor:    &donordata.Provided{},
+			path:     PathViewLPA,
+			expected: false,
+		},
 		"signed can go to basic pages": {
 			donor: &donordata.Provided{
 				SignedAt: time.Now(),
