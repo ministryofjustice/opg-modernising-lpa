@@ -1,6 +1,6 @@
 package donordata
 
-//go:generate enumerator -type NoVoucherDecision -linecomment -empty
+//go:generate go tool enumerator -type NoVoucherDecision -linecomment -empty
 type NoVoucherDecision uint8
 
 const (

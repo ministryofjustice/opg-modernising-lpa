@@ -20,7 +20,7 @@ func (_m *mockTo) EXPECT() *mockTo_Expecter {
 	return &mockTo_Expecter{mock: &_m.Mock}
 }
 
-// ignore provides a mock function with given fields:
+// ignore provides a mock function with no fields
 func (_m *mockTo) ignore() bool {
 	ret := _m.Called()
 
@@ -65,7 +65,7 @@ func (_c *mockTo_ignore_Call) RunAndReturn(run func() bool) *mockTo_ignore_Call 
 	return _c
 }
 
-// toEmail provides a mock function with given fields:
+// toEmail provides a mock function with no fields
 func (_m *mockTo) toEmail() (string, localize.Lang) {
 	ret := _m.Called()
 
@@ -120,7 +120,7 @@ func (_c *mockTo_toEmail_Call) RunAndReturn(run func() (string, localize.Lang)) 
 	return _c
 }
 
-// toMobile provides a mock function with given fields:
+// toMobile provides a mock function with no fields
 func (_m *mockTo) toMobile() (string, localize.Lang) {
 	ret := _m.Called()
 

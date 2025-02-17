@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type Status -trimprefix -linecomment
+//go:generate go tool enumerator -type Status -trimprefix -linecomment
 type Status uint8
 
 const (

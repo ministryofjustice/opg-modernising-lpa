@@ -2,7 +2,7 @@
 // can be in.
 package task
 
-//go:generate enumerator -type State -linecomment -trimprefix
+//go:generate go tool enumerator -type State -linecomment -trimprefix
 type State uint8
 
 const (
@@ -11,7 +11,7 @@ const (
 	StateCompleted               // completed
 )
 
-//go:generate enumerator -type PaymentState -trimprefix
+//go:generate go tool enumerator -type PaymentState -trimprefix
 type PaymentState uint8
 
 const (
@@ -24,7 +24,7 @@ const (
 	PaymentStateCompleted
 )
 
-//go:generate enumerator -type IdentityState -trimprefix
+//go:generate go tool enumerator -type IdentityState -trimprefix
 type IdentityState uint8
 
 const (

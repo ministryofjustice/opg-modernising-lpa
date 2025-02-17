@@ -52,7 +52,7 @@ func (_c *mockErrorHandler_Execute_Call) Return() *mockErrorHandler_Execute_Call
 }
 
 func (_c *mockErrorHandler_Execute_Call) RunAndReturn(run func(http.ResponseWriter, *http.Request, error)) *mockErrorHandler_Execute_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 

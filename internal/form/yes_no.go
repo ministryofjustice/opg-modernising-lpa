@@ -1,6 +1,6 @@
 package form
 
-//go:generate enumerator -type YesNo -linecomment -trimprefix
+//go:generate go tool enumerator -type YesNo -linecomment -trimprefix
 type YesNo uint8
 
 const (

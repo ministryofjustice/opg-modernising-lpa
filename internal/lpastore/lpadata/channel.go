@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type Channel -linecomment -empty -trimprefix
+//go:generate go tool enumerator -type Channel -linecomment -empty -trimprefix
 type Channel uint8
 
 const (

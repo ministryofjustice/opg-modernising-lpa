@@ -17,7 +17,7 @@ func (_m *mockSupporterPath) EXPECT() *mockSupporterPath_Expecter {
 	return &mockSupporterPath_Expecter{mock: &_m.Mock}
 }
 
-// IsManageOrganisation provides a mock function with given fields:
+// IsManageOrganisation provides a mock function with no fields
 func (_m *mockSupporterPath) IsManageOrganisation() bool {
 	ret := _m.Called()
 
@@ -62,7 +62,7 @@ func (_c *mockSupporterPath_IsManageOrganisation_Call) RunAndReturn(run func() b
 	return _c
 }
 
-// String provides a mock function with given fields:
+// String provides a mock function with no fields
 func (_m *mockSupporterPath) String() string {
 	ret := _m.Called()
 
