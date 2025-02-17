@@ -9,6 +9,15 @@
 
             <p class="govuk-body-l">{{ trFormat .App "howToSignYourLpaIntro" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}</p>
 
+            {{ if .Donor.Donor.CanSign.IsNo }}
+                <p class="govuk-body-l">
+                    {{ trFormat .App "yourLpaWillBeSignedBy"
+                        "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName
+                        "IndependentWitnessFullName" .Donor.IndependentWitness.FullName
+                        "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
+                </p>
+            {{ end }}
+
             <div class="moj-ticket-panel govuk-!-margin-bottom-6">
                 <div class="moj-ticket-panel__content moj-ticket-panel__content--blue">
                     <h2 class="govuk-heading-m">{{ trFormat .App "discussWithCertificateProviderStep" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}</h2>
@@ -32,13 +41,24 @@
                         {{ end }}
                     </p>
 
+                    {{ if .Donor.Donor.CanSign.IsNo }}
+                        <p class="govuk-body">
+                            {{ trFormat .App "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom"
+                                "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName
+                                "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
+                        </p>
+                    {{ end }}
+
                     {{ trFormatHtml .App "discussWithCertificateProviderContent"
                         "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
 
                     {{ if .Donor.Donor.CanSign.IsYes }}
                         {{ trFormatHtml .App "signYourLpaStep" "CertificateProviderFullName" .Donor.CertificateProvider.FullName }}
                     {{ else }}
-                        {{ trFormatHtml .App "signYourLpaStepCannotSign" "CertificateProviderFullName" .Donor.CertificateProvider.FullName "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
+                        {{ trFormatHtml .App "signYourLpaStepCannotSign"
+                            "CertificateProviderFullName" .Donor.CertificateProvider.FullName
+                            "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName
+                            "IndependentWitnessFullName" .Donor.IndependentWitness.FullName }}
                     {{ end }}
                 </div>
             </div>
@@ -46,7 +66,10 @@
             {{ if .Donor.Donor.CanSign.IsYes }}
                 {{ template "warning" (content .App (trFormat .App "yourCertificateProviderMustBeWithYou" "CertificateProviderName" .Donor.CertificateProvider.FullName)) }}
             {{ else if .Donor.Donor.CanSign.IsNo }}
-                {{ template "warning" (content .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou") }}
+                {{ template "warning" (htmlContent .App (trFormatHtml .App "yourCertificateProviderAndIndependentWitnessMustBeWithYou"
+                    "CertificateProviderFullName" .Donor.CertificateProvider.FullName
+                    "AuthorisedSignatoryFullName" .Donor.AuthorisedSignatory.FullName
+                    "IndependentWitnessFullName" .Donor.IndependentWitness.FullName)) }}
             {{ end }}
 
             {{ template "buttons" (button .App "start" "link" (global.Paths.YourLpaLanguage.Format .App.LpaID)) }}
