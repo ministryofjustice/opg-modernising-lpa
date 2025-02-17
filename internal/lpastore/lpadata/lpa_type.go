@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type LpaType -linecomment -trimprefix -empty
+//go:generate go tool enumerator -type LpaType -linecomment -trimprefix -empty
 type LpaType uint8
 
 const (

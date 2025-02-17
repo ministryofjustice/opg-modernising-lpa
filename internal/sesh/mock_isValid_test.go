@@ -17,7 +17,7 @@ func (_m *mockIsValid) EXPECT() *mockIsValid_Expecter {
 	return &mockIsValid_Expecter{mock: &_m.Mock}
 }
 
-// Valid provides a mock function with given fields:
+// Valid provides a mock function with no fields
 func (_m *mockIsValid) Valid() bool {
 	ret := _m.Called()
 

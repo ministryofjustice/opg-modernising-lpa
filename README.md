@@ -77,16 +77,14 @@ We use [Pact](https://pact.io/) for contract tests. To install the necessary
 tools to run the tests do:
 
 ```
-go install github.com/pact-foundation/pact-go/v2
-pact-go install
+go tool pact-go install
 ```
 
 #### Code generation
 
 We make use of [mockery](https://github.com/vektra/mockery) for generating mocks
-and [enumerator](./cmd/enumerator) for generating enums. To use you'll need
-to `go install ./cmd/enumerator`, then running `make go-generate` will
-create code from any declarations.
+and [enumerator](./cmd/enumerator) for generating enums. Run `make go-generate`
+to create code from the declarations.
 
 ## Licence
 

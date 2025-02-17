@@ -1,3 +1,4 @@
+issue-845-fix: true
 disable-version-string: true
 with-expecter: true
 inpackage: true

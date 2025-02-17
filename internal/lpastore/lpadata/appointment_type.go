@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type AppointmentType -trimprefix -linecomment
+//go:generate go tool enumerator -type AppointmentType -trimprefix -linecomment
 type AppointmentType uint8
 
 const (
