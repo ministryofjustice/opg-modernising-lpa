@@ -1490,6 +1490,9 @@
     "yourRestrictionsAndConditions": "your restrictions and conditions",
     "yourInstructionsForAttorneys": "your instructions for attorneys",
     "yourIdentityHadBeenConfirmed": "Your identity has been confirmed",
+    "certificateProviderConfirmationOfIdentityPending": "{{.CertificateProviderFullName}} confirmation of identity pending",
+    "wellContactYouIfYouNeedToTakeAnyAction": "We’ll contact you if you need to take any action.",
+    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} identity confirmed",
     "yourLpaWillBeSignedBy": "Your LPA will be signed by {{.AuthorisedSignatoryFullName}}, witnessed by {{.IndependentWitnessFullName}} and {{.CertificateProviderFullName}}.",
     "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Your authorised signatory, {{.AuthorisedSignatoryFullName}}, and independent witness, {{.IndependentWitnessFullName}}, should also be out of the room for this discussion."
 }
