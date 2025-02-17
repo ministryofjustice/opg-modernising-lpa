@@ -263,6 +263,9 @@ func (p Path) CanGoTo(donor *donordata.Provided) bool {
 	case PathYourName, PathYourDateOfBirth:
 		return donor.CanChangePersonalDetails()
 
+	case PathViewLPA:
+		return false
+
 	default:
 		return true
 	}

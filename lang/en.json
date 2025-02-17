@@ -1494,5 +1494,6 @@
     "wellContactYouIfYouNeedToTakeAnyAction": "We’ll contact you if you need to take any action.",
     "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} identity confirmed",
     "yourLpaWillBeSignedBy": "Your LPA will be signed by {{.AuthorisedSignatoryFullName}}, witnessed by {{.IndependentWitnessFullName}} and {{.CertificateProviderFullName}}.",
-    "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Your authorised signatory, {{.AuthorisedSignatoryFullName}}, and independent witness, {{.IndependentWitnessFullName}}, should also be out of the room for this discussion."
+    "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Your authorised signatory, {{.AuthorisedSignatoryFullName}}, and independent witness, {{.IndependentWitnessFullName}}, should also be out of the room for this discussion.",
+    "viewYourLpaContent": "<p class=\"govuk-body\">This is your completed LPA. Because you have signed it, you can no longer make changes to it. Your LPA will now be checked by the Office of the Public Guardian.</p><p class=\"govuk-body\">You have the option of revoking this LPA and making a new LPA. To do this, return to ‘Manage your LPAs’.</p>"
 }
