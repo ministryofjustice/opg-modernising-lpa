@@ -90,6 +90,7 @@ func All(globals *Globals) map[string]any {
 		"legend":             legend,
 		"legendHeading":      legendHeading,
 		"fieldset":           fieldset,
+		"htmlContent":        htmlContent,
 	}
 }
 
@@ -455,11 +456,18 @@ func concatComma(list []string) string {
 	return strings.Join(list, ", ")
 }
 
-func content(app appcontext.Data, content string) map[string]interface{} {
-	return map[string]interface{}{
-		"App":     app,
-		"Content": content,
-	}
+type contentData struct {
+	App     appcontext.Data
+	Content string
+	HTML    template.HTML
+}
+
+func content(app appcontext.Data, content string) contentData {
+	return contentData{App: app, Content: content}
+}
+
+func htmlContent(app appcontext.Data, content template.HTML) contentData {
+	return contentData{App: app, HTML: content}
 }
 
 type notificationBannerData struct {
