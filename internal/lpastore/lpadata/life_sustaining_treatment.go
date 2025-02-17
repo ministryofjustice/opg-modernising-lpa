@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
+//go:generate go tool enumerator -type LifeSustainingTreatment -linecomment -trimprefix -empty
 type LifeSustainingTreatment uint8
 
 const (

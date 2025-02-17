@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
+//go:generate go tool enumerator -type CanBeUsedWhen -linecomment -trimprefix -empty
 type CanBeUsedWhen uint8
 
 const (

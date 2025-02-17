@@ -17,7 +17,7 @@ func (_m *mockSK) EXPECT() *mockSK_Expecter {
 	return &mockSK_Expecter{mock: &_m.Mock}
 }
 
-// SK provides a mock function with given fields:
+// SK provides a mock function with no fields
 func (_m *mockSK) SK() string {
 	ret := _m.Called()
 

@@ -1,6 +1,6 @@
 package supporterdata
 
-//go:generate enumerator -type Permission -linecomment -trimprefix
+//go:generate go tool enumerator -type Permission -linecomment -trimprefix
 type Permission uint8
 
 const (

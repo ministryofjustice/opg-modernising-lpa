@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
-//go:generate enumerator -type howYouWillConfirmYourIdentity -empty -trimprefix
+//go:generate go tool enumerator -type howYouWillConfirmYourIdentity -empty -trimprefix
 type howYouWillConfirmYourIdentity uint8
 
 const (
