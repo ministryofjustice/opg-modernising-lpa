@@ -476,7 +476,7 @@
     },
     "discussWithCertificateProviderContent": "<p class=\"govuk-body\">Darllenwch drwy eich LPA i wneud yn siŵr ei bod yn gywir – gallwch wneud newidiadau os oes angen.</p><p class=\"govuk-body\">Trafodwch eich LPA gyda {{.CertificateProviderFullName}}. Y person hwn sy’n gyfrifol am wneud yn siŵr:</p><ul class=\"govuk-list govuk-list--bullet\"><li>eich bod chi’n deall y penderfyniadau a wnaethoch yn yr LPA a’i phwrpas</li><li>nad ydych chi’n cael eich rhoi o dan bwysau gormodol i wneud yr LPA</li><li>nad oes elfen o dwyll ynghlwm wrth greu’r LPA</li><li>nad oes rheswm arall pam na ellir creu eich LPA</li></ul>",
     "signYourLpaStep": "<h2 class=\"govuk-heading-m\">2. Llofnodi eich LPA</h2><p class=\"govuk-body\">Pan fyddwch chi wedi llofnodi eich LPA (gallwch wneud hyn ar-lein) byddwn ni’n anfon cod unigryw at {{.CertificateProviderFullName}} drwy neges destun.</p><p class=\"govuk-body\">Bydd rhaid i {{.CertificateProviderFullName}} roi’r cod i’r gwasanaeth o fewn 30 munud i brofi eu bod wedi bod yn dyst i’ch llofnod.</p>",
-    "signYourLpaStepCannotSign": "<h2 class=\"govuk-heading-m\">2. Llofnodi eich LPA</h2><div class=\"govuk-body\"><p>Bydd eich llofnodwr awdurdodedig, {{.AuthorisedSignatoryFullName}}, yn llofnodi eich LPA ar-lein.</p><p>Anfonir codau unigryw drwy neges testun at eich darparwr tystysgrif, {{.CertificateProviderFullName}}, a’ch tyst annibynnol, {{.IndependentWitnessFullName}}. Rhaid i’r ddau nodi eu codau unigryw i brofi eu bod yno pan gafodd eich LPA ei llofnodi.</p></div>",
+    "signYourLpaStepCannotSign": "<h2 class=\"govuk-heading-m\">Welsh {{.AuthorisedSignatoryFullName}} {{.AuthorisedSignatoryFullName}} {{.AuthorisedSignatoryFullName}} {{.AuthorisedSignatoryFullName}} {{.CertificateProviderFullName}} {{.CertificateProviderFullName}} {{.CertificateProviderFullName}} {{.IndependentWitness}} {{.IndependentWitnessFullName}} {{.IndependentWitnessFullName}}</h2>",
     "trackLpaProgress": "Dilyn trywydd eich LPA",
     "myLpa": "Fy LPA {{ .LpaType }}",
     "yourLegalRightsAndResponsibilities": "Eich hawliau a’ch cyfrifoldebau cyfreithiol",
@@ -791,7 +791,7 @@
     "weNeedYourIndependentWitnessMobileNumberSo": "Mae angen rhif ffôn symudol eich tyst annibynnol arnom er mwyn i ni allu anfon cod atynt pan fyddant yn gweld {{.SignatoryFullName}} yn llofnodi’r LPA ar eich rhan.",
     "aMobilePhoneNumber": "rhif ffôn symudol",
     "aUKMobileNumber": "rhif ffôn symudol yn y DU",
-    "yourCertificateProviderAndIndependentWitnessMustBeWithYou": "Rhaid i’ch darparwr tystysgrif a’ch tyst annibynnol fod gyda chi’n bersonol pan fydd eich llofnodwr awdurdodedig yn llofnodi eich LPA.",
+    "yourCertificateProviderAndIndependentWitnessMustBeWithYou": "Welsh {{.AuthorisedSignatoryFullName}} {{.CertificateProviderFullName}} {{.CertificateProviderFullName}} {{.IndependentWitnessFullName}}",
     "bySigningOnBehalfIConfirm": "Drwy lofnodi, rwyf i, {{.DonorFullName}}, yn deall ac yn cadarnhau pob un o’r canlynol:",
     "iConfirmAsAuthorisedSignatoryThat": "Rwyf i, {{.SignatoryFullName}}, fel y llofnodwr awdurdodedig, yn cadarnhau:",
     "donorWantsToSignThisLpa": "Mae {{.DonorFullName}} yn dymuno llofnodi’r LPA hon fel gweithred",
@@ -1596,5 +1596,7 @@
     "yourIdentityHadBeenConfirmed": "Welsh",
     "certificateProviderConfirmationOfIdentityPending": "{{.CertificateProviderFullName}} Welsh",
     "wellContactYouIfYouNeedToTakeAnyAction": "Welsh",
-    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh"
+    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh",
+    "yourLpaWillBeSignedBy": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}} {{.CertificateProviderFullName}}",
+    "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}"
 }
