@@ -41,19 +41,22 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
-			return err
+			return fmt.Errorf("error getting lpa: %w", err)
 		}
 
-		certificateProvider, certificateProviderErr := certificateProviderStore.GetAny(r.Context())
-		if certificateProviderErr != nil && !errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
-			return certificateProviderErr
+		certificateProvider, err := certificateProviderStore.GetAny(r.Context())
+		if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
+			return fmt.Errorf("error getting certificate provider: %w", err)
+		}
+		if errors.Is(err, dynamo.NotFoundError{}) {
+			certificateProvider = nil
 		}
 
 		var voucher *voucherdata.Provided
 		if donor.Voucher.FirstNames != "" {
 			voucher, err = voucherStore.GetAny(r.Context())
 			if err != nil && !errors.Is(err, dynamo.NotFoundError{}) {
-				return err
+				return fmt.Errorf("error getting voucher: %w", err)
 			}
 		}
 
@@ -76,7 +79,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 
 		if lpa.Submitted &&
 			(lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero()) &&
-			errors.Is(certificateProviderErr, dynamo.NotFoundError{}) {
+			certificateProvider == nil {
 			data.addInfo("youveSubmittedYourLpaToOpg", "opgIsCheckingYourLpa")
 		}
 
@@ -156,8 +159,7 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			)
 		}
 
-		if certificateProviderErr == nil &&
-			certificateProvider.IdentityUserData.Status.IsFailed() {
+		if certificateProvider != nil && certificateProvider.IdentityUserData.Status.IsFailed() {
 			data.addInfo(
 				appData.Localizer.Format(
 					"certificateProviderHasBeenUnableToConfirmIdentity",
@@ -167,6 +169,16 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(certificateProvider.IdentityUserData.CheckedAt)},
 				),
+			)
+		}
+
+		if certificateProvider != nil && certificateProvider.Tasks.ConfirmYourIdentity.IsPending() {
+			data.addInfo(
+				appData.Localizer.Format(
+					"certificateProviderConfirmationOfIdentityPending",
+					map[string]any{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
+				),
+				"wellContactYouIfYouNeedToTakeAnyAction",
 			)
 		}
 
@@ -261,6 +273,21 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			donor.HasSeenIdentityMismatchResolvedNotification = true
 		}
 
+		if certificateProvider != nil &&
+			certificateProvider.Tasks.ConfirmYourIdentity.IsCompleted() &&
+			!certificateProvider.ImmaterialChangeConfirmedAt.IsZero() &&
+			!donor.HasSeenCertificateProviderIdentityMismatchResolvedNotification {
+			data.addSuccess(
+				appData.Localizer.Format(
+					"certificateProviderIdentityConfirmed",
+					map[string]any{"CertificateProviderFullName": lpa.CertificateProvider.FullName()},
+				),
+				"youDoNotNeedToTakeAnyAction",
+			)
+
+			donor.HasSeenCertificateProviderIdentityMismatchResolvedNotification = true
+		}
+
 		if !lpa.Status.IsRegistered() &&
 			!donor.PriorityCorrespondenceSentAt.IsZero() {
 			data.addInfo(
@@ -280,6 +307,18 @@ func Progress(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 				appData.Localizer.Format(
 					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
 					map[string]any{"ContactedDate": appData.Localizer.FormatDate(donor.MaterialChangeConfirmedAt)},
+				),
+			)
+		}
+
+		if certificateProvider != nil &&
+			certificateProvider.Tasks.ConfirmYourIdentity.IsProblem() &&
+			!certificateProvider.MaterialChangeConfirmedAt.IsZero() {
+			data.addInfo(
+				"yourLPACannotBeRegisteredByOPG",
+				appData.Localizer.Format(
+					"weContactedYouOnWithGuidanceAboutWhatToDoNext",
+					map[string]any{"ContactedDate": appData.Localizer.FormatDate(certificateProvider.MaterialChangeConfirmedAt)},
 				),
 			)
 		}

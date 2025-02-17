@@ -727,6 +727,104 @@ func TestGetProgress(t *testing.T) {
 				return l
 			},
 		},
+		"certificate provider identity mismatch pending": {
+			donor: &donordata.Provided{},
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+			},
+			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
+				call.Return(&certificateproviderdata.Provided{
+					IdentityUserData: identity.UserData{Status: identity.StatusConfirmed},
+					Tasks: certificateproviderdata.Tasks{
+						ConfirmYourIdentity: task.IdentityStatePending,
+					},
+				}, nil)
+			},
+			infoNotifications: []progressNotification{
+				{Heading: "heading", Body: "wellContactYouIfYouNeedToTakeAnyAction"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format(
+					"certificateProviderConfirmationOfIdentityPending",
+					map[string]any{"CertificateProviderFullName": "A B"},
+				).Return("heading")
+				return l
+			},
+			setupDonorStore: donorStoreNoUpdate,
+		},
+		"certificate provider identity mismatch resolved": {
+			donor: &donordata.Provided{},
+			lpa: &lpadata.Lpa{
+				CertificateProvider: lpadata.CertificateProvider{FirstNames: "A", LastName: "B"},
+			},
+			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
+				call.Return(&certificateproviderdata.Provided{
+					ImmaterialChangeConfirmedAt: testNow,
+					IdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+					Tasks: certificateproviderdata.Tasks{
+						ConfirmYourIdentity: task.IdentityStateCompleted,
+					},
+				}, nil)
+			},
+			successNotifications: []progressNotification{
+				{Heading: "heading", Body: "youDoNotNeedToTakeAnyAction"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format(
+					"certificateProviderIdentityConfirmed",
+					map[string]any{"CertificateProviderFullName": "A B"},
+				).Return("heading")
+				return l
+			},
+			setupDonorStore: func(_ *testing.T, s *mockDonorStore) {
+				s.EXPECT().
+					Put(mock.Anything, &donordata.Provided{
+						HasSeenCertificateProviderIdentityMismatchResolvedNotification: true,
+					}).
+					Return(nil)
+			},
+		},
+		"certificate provider identity mismatch resolved when already seen": {
+			donor: &donordata.Provided{
+				HasSeenCertificateProviderIdentityMismatchResolvedNotification: true,
+			},
+			lpa: &lpadata.Lpa{},
+			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
+				call.Return(&certificateproviderdata.Provided{
+					ImmaterialChangeConfirmedAt: testNow,
+					IdentityUserData:            identity.UserData{Status: identity.StatusConfirmed},
+					Tasks: certificateproviderdata.Tasks{
+						ConfirmYourIdentity: task.IdentityStateCompleted,
+					},
+				}, nil)
+			},
+			setupDonorStore: donorStoreNoUpdate,
+		},
+		"certificate provider identity mismatch material change confirmed": {
+			donor: &donordata.Provided{},
+			lpa:   &lpadata.Lpa{},
+			setupCertificateProviderStore: func(call *mockCertificateProviderStore_GetAny_Call) {
+				call.Return(&certificateproviderdata.Provided{
+					MaterialChangeConfirmedAt: testNow,
+					IdentityUserData:          identity.UserData{Status: identity.StatusConfirmed},
+					Tasks: certificateproviderdata.Tasks{
+						ConfirmYourIdentity: task.IdentityStateProblem,
+					},
+				}, nil)
+			},
+			setupDonorStore: donorStoreNoUpdate,
+			infoNotifications: []progressNotification{
+				{Heading: "yourLPACannotBeRegisteredByOPG", Body: "B"},
+			},
+			setupLocalizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().Format("weContactedYouOnWithGuidanceAboutWhatToDoNext", map[string]any{"ContactedDate": "translated date"}).Return("B")
+				l.EXPECT().FormatDate(testNow).Return("translated date")
+				return l
+			},
+		},
 	}
 
 	for name, tc := range testCases {
@@ -792,7 +890,7 @@ func TestGetProgressWhenLpaStoreClientErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	err := Progress(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
@@ -810,7 +908,7 @@ func TestGetProgressWhenCertificateProviderStoreErrors(t *testing.T) {
 		Return(nil, expectedError)
 
 	err := Progress(nil, lpaStoreResolvingService, nil, certificateProviderStore, nil, nil, nil)(testAppData, w, r, &donordata.Provided{LpaUID: "lpa-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressWhenVoucherStoreErrors(t *testing.T) {
@@ -837,7 +935,7 @@ func TestGetProgressWhenVoucherStoreErrors(t *testing.T) {
 		Tasks:   donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
 		Voucher: donordata.Voucher{FirstNames: "a"},
 	})
-	assert.Equal(t, expectedError, err)
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestGetProgressOnTemplateError(t *testing.T) {

@@ -1594,6 +1594,9 @@
     "yourRestrictionsAndConditions": "Welsh",
     "yourInstructionsForAttorneys": "Welsh",
     "yourIdentityHadBeenConfirmed": "Welsh",
+    "certificateProviderConfirmationOfIdentityPending": "{{.CertificateProviderFullName}} Welsh",
+    "wellContactYouIfYouNeedToTakeAnyAction": "Welsh",
+    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh",
     "yourLpaWillBeSignedBy": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}} {{.CertificateProviderFullName}}",
     "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}"
 }
