@@ -1,6 +1,6 @@
 package pay
 
-//go:generate enumerator -type EvidenceDelivery -linecomment -empty
+//go:generate go tool enumerator -type EvidenceDelivery -linecomment -empty
 type EvidenceDelivery uint8
 
 const (

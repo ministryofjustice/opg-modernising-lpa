@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type AttorneysAct -linecomment -empty
+//go:generate go tool enumerator -type AttorneysAct -linecomment -empty
 type AttorneysAct uint8
 
 const (

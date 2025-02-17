@@ -1,6 +1,6 @@
 package localize
 
-//go:generate enumerator -type Lang -linecomment -empty
+//go:generate go tool enumerator -type Lang -linecomment -empty
 type Lang byte
 
 func (i Lang) URL(path string) string {

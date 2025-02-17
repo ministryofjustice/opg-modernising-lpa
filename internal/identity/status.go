@@ -1,6 +1,6 @@
 package identity
 
-//go:generate enumerator -type Status --linecomment --trimprefix
+//go:generate go tool enumerator -type Status --linecomment --trimprefix
 type Status uint8
 
 const (

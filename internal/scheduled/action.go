@@ -1,6 +1,6 @@
 package scheduled
 
-//go:generate enumerator -type Action -trimprefix
+//go:generate go tool enumerator -type Action -trimprefix
 type Action uint8
 
 const (
