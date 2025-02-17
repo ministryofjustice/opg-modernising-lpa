@@ -1489,5 +1489,8 @@
     "iAmResidentOrHaveExplained": "I am either a resident of England or Wales, or have explained in the ‘Add restrictions to the LPA’ section why I am eligible to make an LPA",
     "yourRestrictionsAndConditions": "your restrictions and conditions",
     "yourInstructionsForAttorneys": "your instructions for attorneys",
-    "yourIdentityHadBeenConfirmed": "Your identity has been confirmed"
+    "yourIdentityHadBeenConfirmed": "Your identity has been confirmed",
+    "certificateProviderConfirmationOfIdentityPending": "{{.CertificateProviderFullName}} confirmation of identity pending",
+    "wellContactYouIfYouNeedToTakeAnyAction": "We’ll contact you if you need to take any action.",
+    "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} identity confirmed"
 }

@@ -96,13 +96,6 @@ func (s *Store) GetAny(ctx context.Context) (*certificateproviderdata.Provided, 
 	return s.One(ctx, dynamo.LpaKey(data.LpaID))
 }
 
-func (s *Store) One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateproviderdata.Provided, error) {
-	var certificateProvider certificateproviderdata.Provided
-	err := s.dynamoClient.OneByPartialSK(ctx, pk, dynamo.CertificateProviderKey(""), &certificateProvider)
-
-	return &certificateProvider, err
-}
-
 func (s *Store) Get(ctx context.Context) (*certificateproviderdata.Provided, error) {
 	data, err := appcontext.SessionFromContext(ctx)
 	if err != nil {
@@ -114,9 +107,32 @@ func (s *Store) Get(ctx context.Context) (*certificateproviderdata.Provided, err
 	}
 
 	var certificateProvider certificateproviderdata.Provided
-	err = s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID), &certificateProvider)
+	if err := s.dynamoClient.One(ctx, dynamo.LpaKey(data.LpaID), dynamo.CertificateProviderKey(data.SessionID), &certificateProvider); err != nil {
+		return nil, err
+	}
+
+	return &certificateProvider, nil
+}
+
+func (s *Store) One(ctx context.Context, pk dynamo.LpaKeyType) (*certificateproviderdata.Provided, error) {
+	var certificateProvider certificateproviderdata.Provided
+	err := s.dynamoClient.OneByPartialSK(ctx, pk, dynamo.CertificateProviderKey(""), &certificateProvider)
 
 	return &certificateProvider, err
+}
+
+func (s *Store) OneByUID(ctx context.Context, uid string) (*certificateproviderdata.Provided, error) {
+	var key dynamo.Keys
+	if err := s.dynamoClient.OneByUID(ctx, uid, &key); err != nil {
+		return nil, fmt.Errorf("failed to resolve uid: %w", err)
+	}
+
+	lpaKey, ok := key.PK.(dynamo.LpaKeyType)
+	if !ok {
+		return nil, dynamo.NotFoundError{}
+	}
+
+	return s.One(ctx, lpaKey)
 }
 
 func (s *Store) Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error {
