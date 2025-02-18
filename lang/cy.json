@@ -1543,7 +1543,7 @@
     "repeatApplication:NoFee": "Welsh",
     "weWillContactYouIfRepeatExemptionContent": "<p class=\"govuk-body\">Welsh</p>",
     "weContactYouToAskForMoreEvidence": "Welsh",
-    "youMustUploadMoreEvidenceAboutLpaFeeWeContactYou": "Welsh",
+    "youMustSendUsMoreEvidence": "Welsh",
     "voucherHasSuccessfullyConfirmedYourIdentity": "<div class=\"govuk-notification-banner__content\"><h2 class=\"govuk-notification-banner__heading\">{{.VoucherFullName}} Welsh</h2><p class=\"govuk-body\">Welsh</p></div>",
     "yourLpaIsAwaitingRegistration": "Welsh",
     "theOpgWillRegisterYourLpaAtEndOfWaitingPeriod": "Welsh",
@@ -1599,5 +1599,6 @@
     "certificateProviderIdentityConfirmed": "{{.CertificateProviderFullName}} Welsh",
     "yourLpaWillBeSignedBy": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}} {{.CertificateProviderFullName}}",
     "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}",
-    "viewYourLpaContent": "<p class=\"govuk-body\">Welsh</p>"
+    "viewYourLpaContent": "<p class=\"govuk-body\">Welsh</p>",
+    "sendYourEvidence": "Welsh"
 }
