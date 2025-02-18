@@ -1,17 +1,15 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "completingYourIdentityConfirmation" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "confirmYourIdentityAtPostOffice" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveChosenToConfirmAtPostOfficeHeading") "heading") }}
-            
-            <h1 class="govuk-heading-xl">{{ tr .App "completingYourIdentityConfirmation" }}</h1>
 
-            {{ trFormatHtml .App "completingYourIdentityConfirmationVoucherContent" "DonorFullName" .Donor.FullName }}
+            <h1 class="govuk-heading-xl">{{ tr .App "confirmYourIdentityAtPostOffice" }}</h1>
 
-            {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
+            {{ trHtml .App "completingYourIdentityConfirmationContent" }}
 
             {{ if not .Deadline.IsZero }}
                 <div class="govuk-inset-text">
@@ -23,7 +21,7 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Deadline }}</p>
                 </div>
             {{ end }}
-            
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
