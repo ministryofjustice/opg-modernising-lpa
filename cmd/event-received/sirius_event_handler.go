@@ -17,6 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode"
@@ -94,6 +95,18 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 
 		return handleChangeConfirmed(ctx, factory.DynamoClient(), factory.CertificateProviderStore(), cloudWatchEvent, factory.Now(), lpaStoreClient, true)
 
+	case "certificate-provider-identity-check-failed":
+		notifyClient, err := factory.NotifyClient(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to instantiaite notifyClient: %w", err)
+		}
+
+		bundle, err := factory.Bundle()
+		if err != nil {
+			return fmt.Errorf("failed to instantiaite bundle: %w", err)
+		}
+
+		return handleCertificateProviderIdentityCheckedFailed(ctx, factory.DynamoClient(), notifyClient, bundle, factory.AppPublicURL(), cloudWatchEvent)
 	default:
 		return fmt.Errorf("unknown sirius event")
 	}
@@ -431,4 +444,24 @@ func handleChangeConfirmed(ctx context.Context, client dynamodbClient, certifica
 	}
 
 	return nil
+}
+
+func handleCertificateProviderIdentityCheckedFailed(ctx context.Context, dynamoClient dynamodbClient, notifyClient NotifyClient, bundle Bundle, appPublicURL string, event *events.CloudWatchEvent) error {
+	var v uidEvent
+	if err := json.Unmarshal(event.Detail, &v); err != nil {
+		return fmt.Errorf("failed to unmarshal detail: %w", err)
+	}
+
+	provided, err := getDonorByLpaUID(ctx, dynamoClient, v.UID)
+	if err != nil {
+		return fmt.Errorf("failed to get donor: %w", err)
+	}
+
+	localizer := bundle.For(provided.Donor.ContactLanguagePreference)
+
+	return notifyClient.SendActorEmail(ctx, notify.ToDonor(provided), v.UID, notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+		CertificateProviderFullName: provided.CertificateProvider.FullName(),
+		LpaType:                     localize.LowerFirst(localizer.T(provided.Type.String())),
+		DonorStartPageURL:           appPublicURL + localizer.Lang.URL(page.PathStart.Format()),
+	})
 }
