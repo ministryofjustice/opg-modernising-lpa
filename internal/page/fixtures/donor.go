@@ -132,6 +132,7 @@ func Donor(
 					identity.StatusExpired.String(),
 					"post-office",
 					"vouched",
+					"mismatch",
 				},
 			})
 		}
@@ -519,6 +520,16 @@ func updateLPAProgress(
 			if err = voucherStore.Put(r.Context(), voucherDetails); err != nil {
 				return nil, nil, fmt.Errorf("error persisting voucher: %v", err)
 			}
+		case "mismatch":
+			userData = identity.UserData{
+				Status:      identity.StatusConfirmed,
+				CheckedAt:   time.Now(),
+				FirstNames:  donorDetails.Donor.FirstNames + " 1",
+				LastName:    donorDetails.Donor.LastName + " 2",
+				DateOfBirth: donorDetails.Donor.DateOfBirth,
+			}
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+			donorDetails.ContinueWithMismatchedIdentity = true
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
