@@ -258,3 +258,9 @@ func TestFactoryCertificateProviderStoreWhenSet(t *testing.T) {
 	store := factory.CertificateProviderStore()
 	assert.Equal(t, expected, store)
 }
+
+func TestFactoryAppPublicURL(t *testing.T) {
+	factory := &Factory{appPublicURL: "a"}
+
+	assert.Equal(t, "a", factory.AppPublicURL())
+}
