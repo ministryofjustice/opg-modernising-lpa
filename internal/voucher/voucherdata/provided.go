@@ -61,6 +61,11 @@ func (p *Provided) NameMatches(lpa *lpadata.Lpa) actor.Type {
 	}
 
 	for person := range lpa.Actors() {
+		if person.Type.IsDonor() &&
+			strings.EqualFold(person.LastName, p.LastName) {
+			return person.Type
+		}
+
 		if strings.EqualFold(person.FirstNames, p.FirstNames) &&
 			strings.EqualFold(person.LastName, p.LastName) {
 			return person.Type
