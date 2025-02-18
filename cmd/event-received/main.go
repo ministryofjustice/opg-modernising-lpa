@@ -62,6 +62,7 @@ var (
 
 type factory interface {
 	AppData() (appcontext.Data, error)
+	AppPublicURL() string
 	Bundle() (Bundle, error)
 	CertificateProviderStore() CertificateProviderStore
 	DynamoClient() dynamodbClient

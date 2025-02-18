@@ -80,6 +80,51 @@ func (_c *mockFactory_AppData_Call) RunAndReturn(run func() (appcontext.Data, er
 	return _c
 }
 
+// AppPublicURL provides a mock function with no fields
+func (_m *mockFactory) AppPublicURL() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AppPublicURL")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// mockFactory_AppPublicURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AppPublicURL'
+type mockFactory_AppPublicURL_Call struct {
+	*mock.Call
+}
+
+// AppPublicURL is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) AppPublicURL() *mockFactory_AppPublicURL_Call {
+	return &mockFactory_AppPublicURL_Call{Call: _e.mock.On("AppPublicURL")}
+}
+
+func (_c *mockFactory_AppPublicURL_Call) Run(run func()) *mockFactory_AppPublicURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_AppPublicURL_Call) Return(_a0 string) *mockFactory_AppPublicURL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_AppPublicURL_Call) RunAndReturn(run func() string) *mockFactory_AppPublicURL_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Bundle provides a mock function with no fields
 func (_m *mockFactory) Bundle() (Bundle, error) {
 	ret := _m.Called()
