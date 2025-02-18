@@ -38,6 +38,7 @@ const (
 	PathVoucherEnterReferenceNumber                                        = Path("/voucher-enter-reference-number")
 	PathVoucherUnableToConfirmIdentity                                     = Path("/voucher-unable-to-confirm-identity")
 	PathVoucherDonorDetailsDoNotMatch                                      = Path("/voucher-donor-details-do-not-match")
+	PathYouCannotVouchForDonor                                             = Path("/you-cannot-vouch-for-donor")
 
 	PathAccessibilityStatement      = Path("/accessibility-statement")
 	PathAttorneyFixtures            = Path("/fixtures/attorney")
