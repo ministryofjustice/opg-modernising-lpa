@@ -252,3 +252,7 @@ func (f *Factory) CertificateProviderStore() CertificateProviderStore {
 
 	return f.certificateProviderStore
 }
+
+func (f *Factory) AppPublicURL() string {
+	return f.appPublicURL
+}
