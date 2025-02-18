@@ -1,6 +1,6 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "completingYourIdentityConfirmation" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "confirmYourIdentityAtPostOffice" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
@@ -10,12 +10,10 @@
             {{ else }}
                 {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youHaveChosenToConfirmAtPostOfficeHeading") "heading") }}
             {{ end }}
-            
-            <h1 class="govuk-heading-xl">{{ tr .App "completingYourIdentityConfirmation" }}</h1>
+
+            <h1 class="govuk-heading-xl">{{ tr .App "confirmYourIdentityAtPostOffice" }}</h1>
 
             {{ trHtml .App "completingYourIdentityConfirmationContent" }}
-
-            {{ template "details" (details . "howToConfirmYourIdentityAtPostOffice" "howToConfirmYourIdentityAtPostOfficeContent" false) }}
 
             {{ if not .Deadline.IsZero }}
                 <div class="govuk-inset-text">
@@ -23,7 +21,7 @@
                     <p class="govuk-body govuk-!-font-weight-bold">{{ formatDate .App .Deadline }}</p>
                 </div>
             {{ end }}
-            
+
             <form novalidate method="post">
                 {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.Selected.String
                     (legend "howWouldYouLikeToContinue" "govuk-fieldset__legend--m")
