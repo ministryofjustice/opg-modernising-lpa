@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	sqstypes "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/ministryofjustice/opg-go-common/env"
 )
 
@@ -41,6 +41,8 @@ type message struct {
 	Source     string
 }
 
+var cfg aws.Config
+
 func main() {
 	var (
 		awsBaseURL = env.Get("AWS_BASE_URL", "")
@@ -52,7 +54,8 @@ func main() {
 		messages []message
 	)
 
-	cfg, err := config.LoadDefaultConfig(ctx)
+	var err error
+	cfg, err = config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Fatal(fmt.Errorf("unable to load SDK config: %w", err))
 	}
@@ -77,7 +80,7 @@ func main() {
 			}
 
 			messageResponse, err := client.ReceiveMessage(ctx, &sqs.ReceiveMessageInput{
-				MessageAttributeNames: []string{string(types.QueueAttributeNameAll)},
+				MessageAttributeNames: []string{string(sqstypes.QueueAttributeNameAll)},
 				QueueUrl:              aws.String(queueURL),
 				MaxNumberOfMessages:   10, // may as well ask for as many as possible
 				VisibilityTimeout:     5,
@@ -92,10 +95,10 @@ func main() {
 				continue
 			}
 
-			var toDelete []types.DeleteMessageBatchRequestEntry
+			var toDelete []sqstypes.DeleteMessageBatchRequestEntry
 
 			for _, m := range messageResponse.Messages {
-				toDelete = append(toDelete, types.DeleteMessageBatchRequestEntry{Id: m.MessageId, ReceiptHandle: m.ReceiptHandle})
+				toDelete = append(toDelete, sqstypes.DeleteMessageBatchRequestEntry{Id: m.MessageId, ReceiptHandle: m.ReceiptHandle})
 
 				var v message
 				if err := json.Unmarshal([]byte(*m.Body), &v); err != nil {
@@ -165,6 +168,42 @@ func main() {
 		}
 
 		fmt.Fprint(w, "</tbody></table></body>")
+	})
+
+	http.HandleFunc("/emit/{detailType}", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			sqsClient := &sqsClient{
+				svc:      sqs.NewFromConfig(cfg),
+				queueURL: "http://localhost:4566/000000000000/event-bus-queue",
+			}
+
+			detailType := r.PathValue("detailType")
+			if detailType == "" {
+				log.Println("missing detail type from path")
+			}
+
+			var detail json.RawMessage
+			if err := json.NewDecoder(r.Body).Decode(&detail); err != nil {
+				log.Printf("failed to unmarshal %s: %v", detailType, err)
+			}
+
+			var sendErr error
+
+			switch detailType {
+			case "immaterial-change-confirmed":
+				sendErr = sqsClient.SendMessage(r.Context(), detailType, detail)
+			case "material-change-confirmed":
+				sendErr = sqsClient.SendMessage(r.Context(), detailType, detail)
+			default:
+				log.Println("unsupported event type:", detailType)
+			}
+
+			if sendErr != nil {
+				log.Printf("failed to send %s: %v", detailType, err)
+			} else {
+				log.Println("successfully handled", detailType)
+			}
+		}
 	})
 
 	http.ListenAndServe(":"+port, nil)
