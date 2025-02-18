@@ -210,22 +210,14 @@ emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event 
 		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
 emit-immaterial-change-confirmed: ##@events emits a immaterial-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-immaterial-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"immaterial-change-confirmed","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","actorType":"$(actorType)","actorUid":"$(actorUid)","sentDate":"2024-01-02T12:13:14.000006Z"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/immaterial-change-confirmed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "'$${uid}'", "actorType": "'$${actorType}'", "actorUID": "'$${actorUID}'"}'
 
 emit-material-change-confirmed: ##@events emits a material-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-material-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"material-change-confirmed","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","actorType":"$(actorType)","actorUid":"$(actorUid)","sentDate":"2024-01-02T12:13:14.000006Z"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/material-change-confirmed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "'$${uid}'", "actorType": "'$${actorType}'", "actorUID": "'$${actorUID}'"}'
 
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
