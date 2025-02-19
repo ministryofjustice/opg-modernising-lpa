@@ -9,6 +9,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -134,11 +135,42 @@ func TestPostYourName(t *testing.T) {
 			LpaID:      "lpa-id",
 			FirstNames: "John",
 			LastName:   "Doe",
+			Tasks:      voucherdata.Tasks{ConfirmYourName: task.StateInProgress},
 		}).
 		Return(nil)
 
 	err := YourName(nil, lpaStoreResolvingService, voucherStore)(testAppData, w, r, &voucherdata.Provided{
 		LpaID: "lpa-id",
+	})
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, voucher.PathConfirmYourName.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostYourNameWhenNotChanged(t *testing.T) {
+	form := url.Values{
+		"first-names": {"John"},
+		"last-name":   {"Doe"},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+	lpaStoreResolvingService.EXPECT().
+		Get(r.Context()).
+		Return(&lpadata.Lpa{
+			Voucher: lpadata.Voucher{FirstNames: "V", LastName: "W"},
+		}, nil)
+
+	err := YourName(nil, lpaStoreResolvingService, nil)(testAppData, w, r, &voucherdata.Provided{
+		LpaID:      "lpa-id",
+		FirstNames: "John",
+		LastName:   "Doe",
+		Tasks:      voucherdata.Tasks{ConfirmYourName: task.StateCompleted},
 	})
 	resp := w.Result()
 

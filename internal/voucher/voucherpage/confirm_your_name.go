@@ -2,7 +2,6 @@ package voucherpage
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
@@ -46,8 +45,7 @@ func ConfirmYourName(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 			provided.FirstNames = firstNames
 			provided.LastName = lastName
 
-			if !provided.Tasks.ConfirmYourName.IsCompleted() &&
-				(strings.EqualFold(lastName, lpa.Donor.LastName) || !provided.NameMatches(lpa).IsNone()) {
+			if !provided.Tasks.ConfirmYourName.IsCompleted() && !provided.NameMatches(lpa).IsNone() {
 				redirect = voucher.PathConfirmAllowedToVouch
 				state = task.StateInProgress
 			}
