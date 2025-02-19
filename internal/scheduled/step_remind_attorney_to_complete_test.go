@@ -212,7 +212,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				Return(nil).
 				Once()
 
-			localizer := &localize.Localizer{}
+			localizer := &localize.DefaultLocalizer{}
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
@@ -581,7 +581,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.En).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	runner := &Runner{
 		donorStore:               donorStore,
@@ -943,7 +943,7 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 				notifyClient := newMockNotifyClient(t)
 				setupNotify(notifyClient)
 
-				localizer := &localize.Localizer{}
+				localizer := &localize.DefaultLocalizer{}
 
 				bundle := newMockBundle(t)
 				bundle.EXPECT().

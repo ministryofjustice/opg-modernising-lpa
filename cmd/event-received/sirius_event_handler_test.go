@@ -2044,7 +2044,7 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().

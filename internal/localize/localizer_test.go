@@ -9,13 +9,13 @@ import (
 )
 
 func TestShowTranslationKey(t *testing.T) {
-	localizer := Localizer{showTranslationKeys: true}
+	localizer := DefaultLocalizer{showTranslationKeys: true}
 	assert.True(t, localizer.ShowTranslationKeys())
 }
 
 func TestPossessive(t *testing.T) {
-	en := Localizer{Lang: En}
-	cy := Localizer{Lang: Cy}
+	en := DefaultLocalizer{lang: En}
+	cy := DefaultLocalizer{lang: Cy}
 
 	testCases := map[string]struct {
 		Str      string
@@ -59,8 +59,8 @@ func TestConcat(t *testing.T) {
 }
 
 func TestFormatDate(t *testing.T) {
-	en := Localizer{Lang: En}
-	cy := Localizer{Lang: Cy}
+	en := DefaultLocalizer{lang: En}
+	cy := DefaultLocalizer{lang: Cy}
 
 	assert.Equal(t, "7 March 2020", en.FormatDate(time.Date(2020, time.March, 7, 3, 4, 5, 6, time.UTC)))
 	assert.Equal(t, "7 March 2020", en.FormatDate(date.New("2020", "3", "7")))
@@ -70,8 +70,8 @@ func TestFormatDate(t *testing.T) {
 }
 
 func TestFormatTime(t *testing.T) {
-	en := Localizer{Lang: En}
-	cy := Localizer{Lang: Cy}
+	en := DefaultLocalizer{lang: En}
+	cy := DefaultLocalizer{lang: Cy}
 
 	assert.Equal(t, "", en.FormatTime(time.Time{}))
 
@@ -89,8 +89,8 @@ func TestFormatTime(t *testing.T) {
 }
 
 func TestFormatDateTime(t *testing.T) {
-	en := Localizer{Lang: En}
-	cy := Localizer{Lang: Cy}
+	en := DefaultLocalizer{lang: En}
+	cy := DefaultLocalizer{lang: Cy}
 
 	assert.Equal(t, "", en.FormatDateTime(time.Time{}))
 

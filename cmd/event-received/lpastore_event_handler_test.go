@@ -89,7 +89,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(client)
@@ -167,7 +167,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonor(t *testing.T) 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -203,7 +203,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorWithNoMobile(t 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -240,7 +240,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorAndNotifyErrors
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	err := handleCreate(ctx, nil, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -295,7 +295,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testi
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
 				For(mock.Anything).
-				Return(&localize.Localizer{})
+				Return(&localize.DefaultLocalizer{})
 
 			client := newMockDynamodbClient(t)
 			setupDynamodbClient(client)
@@ -348,7 +348,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenNotifyErrors(t *testing.T
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	err := handleCreate(ctx, client, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -409,7 +409,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSign(t *testing.
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(client)
@@ -492,7 +492,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -532,7 +532,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -569,7 +569,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	err := handleCertificateProviderSign(ctx, nil, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -624,7 +624,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenDonorSto
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
 				For(mock.Anything).
-				Return(&localize.Localizer{})
+				Return(&localize.DefaultLocalizer{})
 
 			client := newMockDynamodbClient(t)
 			setupDynamodbClient(client)
@@ -677,7 +677,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenNotifyEr
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	err := handleCertificateProviderSign(ctx, client, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)

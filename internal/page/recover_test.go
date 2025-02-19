@@ -33,7 +33,7 @@ func TestRecover(t *testing.T) {
 				Execute(w, &errorData{App: appcontext.Data{
 					CookieConsentSet: true,
 					Lang:             lang,
-					Localizer:        (*localize.Localizer)(nil),
+					Localizer:        (localize.Localizer)(nil),
 				}}).
 				Return(nil)
 
