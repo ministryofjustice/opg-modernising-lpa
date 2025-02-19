@@ -219,6 +219,11 @@ emit-material-change-confirmed: ##@events emits a material-change-confirmed even
 		-H "Content-Type: application/json" \
 		-d '{"uid": "'$${uid}'", "actorType": "'$${actorType}'", "actorUID": "'$${actorUID}'"}'
 
+emit-certificate-provider-identity-check-failed: ##@events emits a certificate-provider-identity-check-failed event with the given LpaUID e.g. certificate-provider-identity-check-failed uid=abc-123
+	curl -X POST "localhost:9001/emit/certificate-provider-identity-check-failed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "'$${uid}'"}'
+
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-without-virus ; \
