@@ -4,6 +4,8 @@ package page
 
 import (
 	date "github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	localize "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+
 	mock "github.com/stretchr/testify/mock"
 
 	time "time"
@@ -345,6 +347,51 @@ func (_c *mockLocalizer_FormatTime_Call) Return(_a0 string) *mockLocalizer_Forma
 }
 
 func (_c *mockLocalizer_FormatTime_Call) RunAndReturn(run func(time.Time) string) *mockLocalizer_FormatTime_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Lang provides a mock function with no fields
+func (_m *mockLocalizer) Lang() localize.Lang {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Lang")
+	}
+
+	var r0 localize.Lang
+	if rf, ok := ret.Get(0).(func() localize.Lang); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(localize.Lang)
+	}
+
+	return r0
+}
+
+// mockLocalizer_Lang_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Lang'
+type mockLocalizer_Lang_Call struct {
+	*mock.Call
+}
+
+// Lang is a helper method to define mock.On call
+func (_e *mockLocalizer_Expecter) Lang() *mockLocalizer_Lang_Call {
+	return &mockLocalizer_Lang_Call{Call: _e.mock.On("Lang")}
+}
+
+func (_c *mockLocalizer_Lang_Call) Run(run func()) *mockLocalizer_Lang_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockLocalizer_Lang_Call) Return(_a0 localize.Lang) *mockLocalizer_Lang_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockLocalizer_Lang_Call) RunAndReturn(run func() localize.Lang) *mockLocalizer_Lang_Call {
 	_c.Call.Return(run)
 	return _c
 }

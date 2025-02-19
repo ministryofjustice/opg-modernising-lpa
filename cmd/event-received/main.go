@@ -139,7 +139,7 @@ type NotifyClient interface {
 }
 
 type Bundle interface {
-	For(lang localize.Lang) *localize.Localizer
+	For(lang localize.Lang) localize.Localizer
 }
 
 type Event struct {
