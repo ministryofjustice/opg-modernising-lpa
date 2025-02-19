@@ -10,7 +10,7 @@ COPY --link internal ./internal
 
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} CGO_ENABLED=0 go build -o scheduled-task-adder ./cmd/main.go
 
-FROM public.ecr.aws/lambda/provided:al2023.2024.10.14.12
+FROM public.ecr.aws/lambda/provided:al2.2025.02.18.01
 
 WORKDIR /app
 
