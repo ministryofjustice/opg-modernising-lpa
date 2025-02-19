@@ -2,12 +2,14 @@ package voucherpage
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -48,7 +50,9 @@ func ConfirmAllowedToVouch(tmpl template.Template, lpaStoreResolvingService LpaS
 						return err
 					}
 
-					return voucher.PathYouCannotVouchForDonor.Redirect(w, r, appData, appData.LpaID)
+					return page.PathYouCannotVouchForDonor.RedirectQuery(w, r, appData, url.Values{
+						"donorFullName": {lpa.Donor.FullName()},
+					})
 				}
 
 				if provided.Tasks.ConfirmYourIdentity.IsInProgress() {
