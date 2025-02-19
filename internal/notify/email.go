@@ -714,3 +714,17 @@ func (e InformCertificateProviderLPAHasBeenRevoked) emailID(isProduction bool, _
 
 	return "3a766df6-15b5-4a4a-ac18-a571dff44c91"
 }
+
+type InformDonorPaperCertificateProviderIdentityCheckFailed struct {
+	CertificateProviderFullName string
+	LpaType                     string
+	DonorStartPageURL           string
+}
+
+func (e InformDonorPaperCertificateProviderIdentityCheckFailed) emailID(isProduction bool, _ localize.Lang) string {
+	if isProduction {
+		return "ee349ded-8cfb-4a28-beac-5a4fb90aa823"
+	}
+
+	return "26d337be-eef3-405f-96ed-cb2ed76002b3"
+}
