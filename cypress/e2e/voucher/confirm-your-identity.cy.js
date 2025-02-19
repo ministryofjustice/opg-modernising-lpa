@@ -39,6 +39,8 @@ describe('Confirm your identity', () => {
         cy.get('#f-last-name').clear().type('Cooper');
         cy.contains('button', 'Save and continue').click();
         cy.contains('button', 'Continue').click();
+        cy.contains('label', 'Yes').click();
+        cy.contains('button', 'Continue').click();
         cy.visitLpa('/confirm-your-identity');
 
         cy.checkA11yApp();
