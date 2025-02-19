@@ -21,19 +21,19 @@ func (_m *mockBundle) EXPECT() *mockBundle_Expecter {
 }
 
 // For provides a mock function with given fields: lang
-func (_m *mockBundle) For(lang localize.Lang) *localize.Localizer {
+func (_m *mockBundle) For(lang localize.Lang) localize.Localizer {
 	ret := _m.Called(lang)
 
 	if len(ret) == 0 {
 		panic("no return value specified for For")
 	}
 
-	var r0 *localize.Localizer
-	if rf, ok := ret.Get(0).(func(localize.Lang) *localize.Localizer); ok {
+	var r0 localize.Localizer
+	if rf, ok := ret.Get(0).(func(localize.Lang) localize.Localizer); ok {
 		r0 = rf(lang)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*localize.Localizer)
+			r0 = ret.Get(0).(localize.Localizer)
 		}
 	}
 
@@ -58,12 +58,12 @@ func (_c *mockBundle_For_Call) Run(run func(lang localize.Lang)) *mockBundle_For
 	return _c
 }
 
-func (_c *mockBundle_For_Call) Return(_a0 *localize.Localizer) *mockBundle_For_Call {
+func (_c *mockBundle_For_Call) Return(_a0 localize.Localizer) *mockBundle_For_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *mockBundle_For_Call) RunAndReturn(run func(localize.Lang) *localize.Localizer) *mockBundle_For_Call {
+func (_c *mockBundle_For_Call) RunAndReturn(run func(localize.Lang) localize.Localizer) *mockBundle_For_Call {
 	_c.Call.Return(run)
 	return _c
 }

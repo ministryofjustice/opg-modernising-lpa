@@ -1926,3 +1926,178 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "certificate-provider-identity-check-failed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	provided := &donordata.Provided{
+		PK:                  dynamo.LpaKey("123"),
+		SK:                  dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		Type:                lpadata.LpaTypePropertyAndAffairs,
+		Donor:               donordata.Donor{ContactLanguagePreference: localize.En},
+		CertificateProvider: donordata.CertificateProvider{FirstNames: "a", LastName: "b"},
+		Tasks:               donordata.Tasks{SignTheLpa: task.StateCompleted},
+	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	dynamoClient.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(provided)
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, notify.ToDonor(provided), "M-1111-2222-3333", notify.InformDonorPaperCertificateProviderIdentityCheckFailed{
+			CertificateProviderFullName: "a b",
+			LpaType:                     "property and affairs",
+			DonorStartPageURL:           "app:///start",
+		}).
+		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("property-and-affairs").
+		Return("Property and affairs")
+	localizer.EXPECT().
+		Lang().
+		Return(localize.En)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.En).
+		Return(localizer)
+
+	factory := newMockFactory(t)
+	factory.EXPECT().
+		DynamoClient().
+		Return(dynamoClient)
+	factory.EXPECT().
+		NotifyClient(ctx).
+		Return(notifyClient, nil)
+	factory.EXPECT().
+		Bundle().
+		Return(bundle, nil)
+	factory.EXPECT().
+		AppPublicURL().
+		Return("app://")
+
+	handler := &siriusEventHandler{}
+	err := handler.Handle(ctx, factory, event)
+
+	assert.Nil(t, err)
+}
+
+func TestHandleCertificateProviderIdentityCheckFailedWhenGetError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "certificate-provider-identity-check-failed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, nil, nil, "", event)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderIdentityCheckFailedWhenPutError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "certificate-provider-identity-check-failed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, nil, nil, "", event)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "certificate-provider-identity-check-failed",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+	}
+
+	provided := &donordata.Provided{
+		Tasks: donordata.Tasks{SignTheLpa: task.StateCompleted},
+		Donor: donordata.Donor{ContactLanguagePreference: localize.En},
+	}
+
+	dynamoClient := newMockDynamodbClient(t)
+	dynamoClient.EXPECT().
+		OneByUID(mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+	dynamoClient.EXPECT().
+		One(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData(provided)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(mock.Anything).
+		Return(&localize.DefaultLocalizer{})
+
+	notifyClient := newMockNotifyClient(t)
+	notifyClient.EXPECT().
+		SendActorEmail(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := handleCertificateProviderIdentityCheckedFailed(ctx, dynamoClient, notifyClient, bundle, "", event)
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestHandleCertificateProviderIdentityCheckFailedWhenFactoryErrors(t *testing.T) {
+	testcases := map[string]func(*testing.T) *mockFactory{
+		"NotifyClient": func(t *testing.T) *mockFactory {
+			f := newMockFactory(t)
+			f.EXPECT().
+				NotifyClient(ctx).
+				Return(newMockNotifyClient(t), expectedError)
+			return f
+		},
+		"Bundle": func(t *testing.T) *mockFactory {
+			f := newMockFactory(t)
+			f.EXPECT().
+				NotifyClient(ctx).
+				Return(newMockNotifyClient(t), nil)
+			f.EXPECT().
+				Bundle().
+				Return(newMockBundle(t), expectedError)
+			return f
+		},
+	}
+
+	for name, setupFactory := range testcases {
+		t.Run(name, func(t *testing.T) {
+			event := &events.CloudWatchEvent{
+				DetailType: "certificate-provider-identity-check-failed",
+				Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333"}`),
+			}
+
+			handler := &siriusEventHandler{}
+			err := handler.Handle(ctx, setupFactory(t), event)
+
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
+}

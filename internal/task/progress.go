@@ -1,24 +1,12 @@
 package task
 
 import (
-	"time"
-
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 )
 
 type Localizer interface {
-	Concat(list []string, joiner string) string
-	Count(messageID string, count int) string
-	Format(messageID string, data map[string]interface{}) string
-	FormatCount(messageID string, count int, data map[string]any) string
-	FormatDate(t date.TimeOrDate) string
-	FormatTime(t time.Time) string
-	FormatDateTime(t time.Time) string
-	Possessive(s string) string
-	SetShowTranslationKeys(s bool)
-	ShowTranslationKeys() bool
-	T(messageID string) string
+	localize.Localizer
 }
 
 type ProgressTracker struct {

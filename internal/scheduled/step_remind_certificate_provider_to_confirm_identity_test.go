@@ -295,7 +295,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 			if notifyClient != nil {
 				bundle.EXPECT().
 					For(localize.En).
-					Return(&localize.Localizer{})
+					Return(&localize.DefaultLocalizer{})
 			}
 
 			runner := &Runner{
@@ -510,7 +510,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentityWhenNotifyClientErrors(
 			notifyClient := newMockNotifyClient(t)
 			setupNotifyClient(notifyClient)
 
-			localizer := &localize.Localizer{}
+			localizer := &localize.DefaultLocalizer{}
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
