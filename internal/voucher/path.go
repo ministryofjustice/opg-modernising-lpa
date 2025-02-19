@@ -21,7 +21,6 @@ const (
 	PathTaskList                           = Path("/task-list")
 	PathThankYou                           = Path("/thank-you")
 	PathVerifyDonorDetails                 = Path("/verify-donor-details")
-	PathYouCannotVouchForDonor             = Path("/you-cannot-vouch-for-donor")
 	PathYourName                           = Path("/your-name")
 )
 

@@ -124,6 +124,8 @@ func Register(
 		page.Guidance(tmpls.Get("unable_to_confirm_identity.gohtml")))
 	handleRoot(page.PathVoucherDonorDetailsDoNotMatch, None,
 		page.Guidance(tmpls.Get("donor_details_do_not_match.gohtml")))
+	handleRoot(page.PathYouCannotVouchForDonor, None,
+		page.Guidance(tmpls.Get("you_cannot_vouch_for_donor.gohtml")))
 
 	handleVoucher := makeVoucherHandle(rootMux, sessionStore, errorHandler, voucherStore)
 
@@ -136,8 +138,6 @@ func Register(
 		YourName(tmpls.Get("your_name.gohtml"), lpaStoreResolvingService, voucherStore))
 	handleVoucher(voucher.PathConfirmAllowedToVouch, None,
 		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
-	handleVoucher(voucher.PathYouCannotVouchForDonor, None,
-		Guidance(tmpls.Get("you_cannot_vouch_for_donor.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
 		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
