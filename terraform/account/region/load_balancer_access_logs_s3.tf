@@ -111,8 +111,11 @@ data "aws_iam_policy_document" "access_log" {
     effect  = "Allow"
     actions = ["s3:PutObject"]
     principals {
-      identifiers = [data.aws_elb_service_account.main.id]
-      type        = "AWS"
+      identifiers = [
+        data.aws_elb_service_account.main.id,
+        data.aws_caller_identity.current.account_id
+      ]
+      type = "AWS"
     }
   }
 
@@ -129,24 +132,24 @@ data "aws_iam_policy_document" "access_log" {
     }
   }
 
-  statement {
-    sid     = "AllowSSLRequestsOnly"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.access_log.arn,
-      "${aws_s3_bucket.access_log.arn}/*",
-    ]
-    condition {
-      test     = "Bool"
-      values   = ["false"]
-      variable = "aws:SecureTransport"
-    }
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-  }
+  # statement {
+  #   sid     = "AllowSSLRequestsOnly"
+  #   effect  = "Deny"
+  #   actions = ["s3:*"]
+  #   resources = [
+  #     aws_s3_bucket.access_log.arn,
+  #     "${aws_s3_bucket.access_log.arn}/*",
+  #   ]
+  #   condition {
+  #     test     = "Bool"
+  #     values   = ["false"]
+  #     variable = "aws:SecureTransport"
+  #   }
+  #   principals {
+  #     identifiers = ["*"]
+  #     type        = "AWS"
+  #   }
+  # }
 
   # statement {
   #   sid = "DenyUnEncryptedObjectUploads"
