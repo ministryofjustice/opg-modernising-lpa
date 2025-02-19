@@ -151,6 +151,6 @@ func verifyCy(v map[string]parsedMessage) error {
 	return nil
 }
 
-func (b *Bundle) For(lang Lang) *Localizer {
-	return &Localizer{b.messages[lang.String()], false, lang}
+func (b *Bundle) For(lang Lang) Localizer {
+	return &DefaultLocalizer{b.messages[lang.String()], false, lang}
 }

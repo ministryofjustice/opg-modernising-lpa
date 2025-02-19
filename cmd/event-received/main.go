@@ -62,6 +62,7 @@ var (
 
 type factory interface {
 	AppData() (appcontext.Data, error)
+	AppPublicURL() string
 	Bundle() (Bundle, error)
 	CertificateProviderStore() CertificateProviderStore
 	DynamoClient() dynamodbClient
@@ -138,7 +139,7 @@ type NotifyClient interface {
 }
 
 type Bundle interface {
-	For(lang localize.Lang) *localize.Localizer
+	For(lang localize.Lang) localize.Localizer
 }
 
 type Event struct {

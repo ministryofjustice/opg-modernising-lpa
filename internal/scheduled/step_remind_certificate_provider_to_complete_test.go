@@ -339,7 +339,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 			notifyClient := tc.notifyClient(t, ctx, tc.lpa)
 			eventClient := tc.eventClient(t, ctx, tc.lpa)
 
-			localizer := &localize.Localizer{}
+			localizer := &localize.DefaultLocalizer{}
 
 			bundle := newMockBundle(t)
 			if notifyClient != nil {
@@ -663,7 +663,7 @@ func TestRunnerRemindCertificateProviderToCompleteWhenNotifyClientErrors(t *test
 			notifyClient := newMockNotifyClient(t)
 			setupNotifyClient(notifyClient)
 
-			localizer := &localize.Localizer{}
+			localizer := &localize.DefaultLocalizer{}
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().

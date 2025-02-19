@@ -129,7 +129,7 @@ type RequestSigner interface {
 }
 
 type Localizer interface {
-	page.Localizer
+	localize.Localizer
 }
 
 type DocumentStore interface {
@@ -182,7 +182,7 @@ type VoucherStore interface {
 }
 
 type Bundle interface {
-	For(lang localize.Lang) *localize.Localizer
+	For(lang localize.Lang) localize.Localizer
 }
 
 func Register(
