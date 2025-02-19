@@ -9,7 +9,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/certificateprovider/certificateproviderdata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
@@ -22,17 +21,7 @@ import (
 )
 
 type Localizer interface {
-	Concat(list []string, joiner string) string
-	Count(messageID string, count int) string
-	Format(messageID string, data map[string]interface{}) string
-	FormatCount(messageID string, count int, data map[string]any) string
-	FormatDate(t date.TimeOrDate) string
-	FormatTime(t time.Time) string
-	FormatDateTime(t time.Time) string
-	Possessive(s string) string
-	SetShowTranslationKeys(s bool)
-	ShowTranslationKeys() bool
-	T(messageID string) string
+	localize.Localizer
 }
 
 type ShareCodeStore interface {

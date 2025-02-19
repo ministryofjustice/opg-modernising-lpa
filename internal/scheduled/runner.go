@@ -60,8 +60,12 @@ type MetricsClient interface {
 	PutMetrics(ctx context.Context, input *cloudwatch.PutMetricDataInput) error
 }
 
+type Localizer interface {
+	localize.Localizer
+}
+
 type Bundle interface {
-	For(lang localize.Lang) *localize.Localizer
+	For(lang localize.Lang) localize.Localizer
 }
 
 type EventClient interface {

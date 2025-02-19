@@ -12,13 +12,29 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 )
 
-type Localizer struct {
-	messages            Messages
-	showTranslationKeys bool
-	Lang                Lang
+type Localizer interface {
+	Concat(list []string, joiner string) string
+	Count(messageID string, count int) string
+	Format(messageID string, data map[string]interface{}) string
+	FormatCount(messageID string, count int, data map[string]any) string
+	FormatDate(t date.TimeOrDate) string
+	FormatDateTime(t time.Time) string
+	FormatTime(t time.Time) string
+	Lang() Lang
+	Possessive(s string) string
+	ShowTranslationKeys() bool
+	SetShowTranslationKeys(s bool)
+	T(messageID string) string
 }
 
-func (l *Localizer) T(messageID string) string {
+// defaultLocalizer is instantiated via Bundle.For()
+type defaultLocalizer struct {
+	messages            Messages
+	showTranslationKeys bool
+	lang                Lang
+}
+
+func (l *defaultLocalizer) T(messageID string) string {
 	msg, ok := l.messages.Find(messageID)
 	if !ok {
 		return l.translate(messageID, messageID)
@@ -27,7 +43,7 @@ func (l *Localizer) T(messageID string) string {
 	return l.translate(msg.S, messageID)
 }
 
-func (l *Localizer) Format(messageID string, data map[string]interface{}) string {
+func (l *defaultLocalizer) Format(messageID string, data map[string]interface{}) string {
 	msg, ok := l.messages.Find(messageID)
 	if !ok {
 		return l.translate(messageID, messageID)
@@ -36,11 +52,11 @@ func (l *Localizer) Format(messageID string, data map[string]interface{}) string
 	return l.translate(msg.Execute(data), messageID)
 }
 
-func (l *Localizer) Count(messageID string, count int) string {
+func (l *defaultLocalizer) Count(messageID string, count int) string {
 	return l.FormatCount(messageID, count, map[string]any{})
 }
 
-func (l *Localizer) FormatCount(messageID string, count int, data map[string]any) string {
+func (l *defaultLocalizer) FormatCount(messageID string, count int, data map[string]any) string {
 	msg, ok := l.messages.FindPlural(messageID, count)
 	if !ok {
 		return l.translate(messageID, messageID)
@@ -50,7 +66,7 @@ func (l *Localizer) FormatCount(messageID string, count int, data map[string]any
 	return l.translate(msg.Execute(data), messageID)
 }
 
-func (l *Localizer) translate(translation, messageID string) string {
+func (l *defaultLocalizer) translate(translation, messageID string) string {
 	if l.showTranslationKeys {
 		return fmt.Sprintf("{%s} [%s]", translation, messageID)
 	} else {
@@ -58,16 +74,16 @@ func (l *Localizer) translate(translation, messageID string) string {
 	}
 }
 
-func (l *Localizer) ShowTranslationKeys() bool {
+func (l *defaultLocalizer) ShowTranslationKeys() bool {
 	return l.showTranslationKeys
 }
 
-func (l *Localizer) SetShowTranslationKeys(s bool) {
+func (l *defaultLocalizer) SetShowTranslationKeys(s bool) {
 	l.showTranslationKeys = s
 }
 
-func (l *Localizer) Possessive(s string) string {
-	if l.Lang == Cy {
+func (l *defaultLocalizer) Possessive(s string) string {
+	if l.lang == Cy {
 		return s
 	}
 
@@ -80,7 +96,7 @@ func (l *Localizer) Possessive(s string) string {
 	return fmt.Sprintf(format, s)
 }
 
-func (l *Localizer) Concat(list []string, joiner string) string {
+func (l *defaultLocalizer) Concat(list []string, joiner string) string {
 	switch len(list) {
 	case 0:
 		return ""
@@ -107,24 +123,24 @@ var monthsCy = map[time.Month]string{
 	time.December:  "Rhagfyr",
 }
 
-func (l *Localizer) FormatDate(t date.TimeOrDate) string {
+func (l *defaultLocalizer) FormatDate(t date.TimeOrDate) string {
 	if t.IsZero() {
 		return ""
 	}
 
-	if l.Lang == Cy {
+	if l.lang == Cy {
 		return fmt.Sprintf("%d %s %d", t.Day(), monthsCy[t.Month()], t.Year())
 	}
 
 	return t.Format("2 January 2006")
 }
 
-func (l *Localizer) FormatTime(t time.Time) string {
+func (l *defaultLocalizer) FormatTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
 
-	if l.Lang == Cy {
+	if l.lang == Cy {
 		amPm := "yb"
 		if t.Hour() >= 12 {
 			amPm = "yp"
@@ -136,12 +152,12 @@ func (l *Localizer) FormatTime(t time.Time) string {
 	return t.Format("3:04pm")
 }
 
-func (l *Localizer) FormatDateTime(t time.Time) string {
+func (l *defaultLocalizer) FormatDateTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
 	}
 
-	if l.Lang == Cy {
+	if l.lang == Cy {
 		amPm := "yb"
 		if t.Hour() >= 12 {
 			amPm = "yp"
@@ -151,6 +167,10 @@ func (l *Localizer) FormatDateTime(t time.Time) string {
 	}
 
 	return t.Format("2 January 2006 at 3:04pm")
+}
+
+func (l *defaultLocalizer) Lang() Lang {
+	return l.lang
 }
 
 func LowerFirst(s string) string {

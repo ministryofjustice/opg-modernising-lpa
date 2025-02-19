@@ -82,14 +82,19 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreate(t *testing.T) {
 	notifyClient.EXPECT().
 		SendActorEmail(ctx, notify.ToDonor(donor), "M-1111-2222-3333", notify.DigitalDonorLpaSubmittedEmail{
 			Greeting: "hello",
-			LpaType:  "personal-welfare",
+			LpaType:  "personal welfare",
 		}).
 		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare")
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(client)
@@ -160,14 +165,19 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonor(t *testing.T) 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorSMS(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.PaperDonorLpaSubmittedSMS{
-			LpaType: "personal-welfare",
+			LpaType: "personal welfare",
 		}).
 		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare")
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -203,7 +213,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorWithNoMobile(t 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(newMockLocalizer(t))
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -237,10 +247,15 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenPaperDonorAndNotifyErrors
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	err := handleCreate(ctx, nil, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -295,7 +310,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenDonorStoreErrors(t *testi
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
 				For(mock.Anything).
-				Return(&localize.Localizer{})
+				Return(newMockLocalizer(t))
 
 			client := newMockDynamodbClient(t)
 			setupDynamodbClient(client)
@@ -345,10 +360,15 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCreateWhenNotifyErrors(t *testing.T
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	err := handleCreate(ctx, client, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -402,14 +422,19 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSign(t *testing.
 		SendActorEmail(ctx, notify.ToDonor(donor), "M-1111-2222-3333", notify.DigitalDonorCertificateProvidedEmail{
 			Greeting:                    "hello",
 			CertificateProviderFullName: "a b",
-			LpaType:                     "personal-welfare",
+			LpaType:                     "personal welfare",
 		}).
 		Return(nil)
+
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare")
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(client)
@@ -484,15 +509,20 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
 		SendActorSMS(ctx, notify.ToLpaDonor(lpa), "M-1111-2222-3333", notify.PaperDonorCertificateProvidedSMS{
-			LpaType:                     "personal-welfare",
+			LpaType:                     "personal welfare",
 			CertificateProviderFullName: "a b",
 		}).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -532,7 +562,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.Cy).
-		Return(&localize.Localizer{})
+		Return(newMockLocalizer(t))
 
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(nil)
@@ -566,10 +596,15 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenPaperDon
 		SendActorSMS(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	err := handleCertificateProviderSign(ctx, nil, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
@@ -624,7 +659,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenDonorSto
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
 				For(mock.Anything).
-				Return(&localize.Localizer{})
+				Return(newMockLocalizer(t))
 
 			client := newMockDynamodbClient(t)
 			setupDynamodbClient(client)
@@ -674,10 +709,15 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedCertificateProviderSignWhenNotifyEr
 		SendActorEmail(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T(mock.Anything).
+		Return("")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	err := handleCertificateProviderSign(ctx, client, lpaStoreClient, notifyClient, bundle, lpaUpdatedEvent{})
 	assert.ErrorIs(t, err, expectedError)
