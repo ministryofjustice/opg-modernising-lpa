@@ -1,6 +1,6 @@
 package lpadata
 
-//go:generate enumerator -type CertificateProviderRelationship -linecomment -empty
+//go:generate go tool enumerator -type CertificateProviderRelationship -linecomment -empty
 type CertificateProviderRelationship uint8
 
 const (

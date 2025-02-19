@@ -18,7 +18,7 @@ func (_m *mockLocalizer) EXPECT() *mockLocalizer_Expecter {
 }
 
 // Format provides a mock function with given fields: _a0, _a1
-func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]any) string {
+func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]interface{}) string {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -26,7 +26,7 @@ func (_m *mockLocalizer) Format(_a0 string, _a1 map[string]any) string {
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, map[string]any) string); ok {
+	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) string); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(string)
@@ -42,14 +42,14 @@ type mockLocalizer_Format_Call struct {
 
 // Format is a helper method to define mock.On call
 //   - _a0 string
-//   - _a1 map[string]any
+//   - _a1 map[string]interface{}
 func (_e *mockLocalizer_Expecter) Format(_a0 interface{}, _a1 interface{}) *mockLocalizer_Format_Call {
 	return &mockLocalizer_Format_Call{Call: _e.mock.On("Format", _a0, _a1)}
 }
 
-func (_c *mockLocalizer_Format_Call) Run(run func(_a0 string, _a1 map[string]any)) *mockLocalizer_Format_Call {
+func (_c *mockLocalizer_Format_Call) Run(run func(_a0 string, _a1 map[string]interface{})) *mockLocalizer_Format_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(map[string]any))
+		run(args[0].(string), args[1].(map[string]interface{}))
 	})
 	return _c
 }
@@ -59,7 +59,7 @@ func (_c *mockLocalizer_Format_Call) Return(_a0 string) *mockLocalizer_Format_Ca
 	return _c
 }
 
-func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]any) string) *mockLocalizer_Format_Call {
+func (_c *mockLocalizer_Format_Call) RunAndReturn(run func(string, map[string]interface{}) string) *mockLocalizer_Format_Call {
 	_c.Call.Return(run)
 	return _c
 }

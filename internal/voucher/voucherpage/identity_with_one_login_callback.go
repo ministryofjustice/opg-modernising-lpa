@@ -47,6 +47,11 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 
 		provided.IdentityUserData = userData
 
+		if userData.Status.IsConfirmed() {
+			provided.FirstNames = userData.FirstNames
+			provided.LastName = userData.LastName
+		}
+
 		if provided.NameMatches(lpa).IsNone() {
 			provided.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
 		}
@@ -55,7 +60,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 			return fmt.Errorf("error voucher put: %w", err)
 		}
 
-		if !provided.IdentityConfirmed() {
+		if !provided.IdentityUserData.Status.IsConfirmed() {
 			if err := fail(r.Context(), provided, lpa); err != nil {
 				return fmt.Errorf("error failing vouch: %w", err)
 			}

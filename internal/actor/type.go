@@ -1,6 +1,6 @@
 package actor
 
-//go:generate enumerator -type Type -linecomment -trimprefix
+//go:generate go tool enumerator -type Type -linecomment -trimprefix
 type Type uint8
 
 const (

@@ -6,7 +6,7 @@ const (
 	feeQuarter = 2050
 )
 
-//go:generate enumerator -type FeeType
+//go:generate go tool enumerator -type FeeType
 type FeeType uint8
 
 const (
@@ -18,7 +18,7 @@ const (
 	RepeatApplicationFee
 )
 
-//go:generate enumerator -type PreviousFee -empty -trimprefix
+//go:generate go tool enumerator -type PreviousFee -empty -trimprefix
 type PreviousFee uint8
 
 const (
@@ -28,7 +28,7 @@ const (
 	PreviousFeeHardship
 )
 
-//go:generate enumerator -type CostOfRepeatApplication -empty -trimprefix
+//go:generate go tool enumerator -type CostOfRepeatApplication -empty -trimprefix
 type CostOfRepeatApplication uint8
 
 const (

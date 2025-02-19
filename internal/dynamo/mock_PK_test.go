@@ -17,7 +17,7 @@ func (_m *mockPK) EXPECT() *mockPK_Expecter {
 	return &mockPK_Expecter{mock: &_m.Mock}
 }
 
-// PK provides a mock function with given fields:
+// PK provides a mock function with no fields
 func (_m *mockPK) PK() string {
 	ret := _m.Called()
 

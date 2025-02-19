@@ -17,7 +17,7 @@ func (_m *mockWaiter) EXPECT() *mockWaiter_Expecter {
 	return &mockWaiter_Expecter{mock: &_m.Mock}
 }
 
-// Reset provides a mock function with given fields:
+// Reset provides a mock function with no fields
 func (_m *mockWaiter) Reset() {
 	_m.Called()
 }
@@ -45,11 +45,11 @@ func (_c *mockWaiter_Reset_Call) Return() *mockWaiter_Reset_Call {
 }
 
 func (_c *mockWaiter_Reset_Call) RunAndReturn(run func()) *mockWaiter_Reset_Call {
-	_c.Call.Return(run)
+	_c.Run(run)
 	return _c
 }
 
-// Wait provides a mock function with given fields:
+// Wait provides a mock function with no fields
 func (_m *mockWaiter) Wait() error {
 	ret := _m.Called()
 

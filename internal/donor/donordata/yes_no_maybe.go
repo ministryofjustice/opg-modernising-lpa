@@ -1,6 +1,6 @@
 package donordata
 
-//go:generate enumerator -type YesNoMaybe -linecomment -empty
+//go:generate go tool enumerator -type YesNoMaybe -linecomment -empty
 type YesNoMaybe uint8
 
 const (
