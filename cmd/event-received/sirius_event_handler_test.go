@@ -1961,8 +1961,18 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 		}).
 		Return(nil)
 
-	bundle, err := localize.NewBundle("../../lang/en.json", "../../lang/cy.json")
-	assert.Nil(t, err)
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("property-and-affairs").
+		Return("Property and affairs")
+	localizer.EXPECT().
+		Lang().
+		Return(localize.En)
+
+	bundle := newMockBundle(t)
+	bundle.EXPECT().
+		For(localize.En).
+		Return(localizer)
 
 	factory := newMockFactory(t)
 	factory.EXPECT().
@@ -1979,7 +1989,7 @@ func TestHandleCertificateProviderIdentityCheckFailed(t *testing.T) {
 		Return("app://")
 
 	handler := &siriusEventHandler{}
-	err = handler.Handle(ctx, factory, event)
+	err := handler.Handle(ctx, factory, event)
 
 	assert.Nil(t, err)
 }
@@ -2044,7 +2054,7 @@ func TestHandleCertificateProviderIdentityCheckFailedWhenNotifyError(t *testing.
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(&localize.DefaultLocalizer{})
 
 	notifyClient := newMockNotifyClient(t)
 	notifyClient.EXPECT().
