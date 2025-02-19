@@ -31,10 +31,14 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 	nilNotifyClient := func(*testing.T, context.Context, *lpadata.Lpa) *mockNotifyClient { return nil }
 	nilEventClient := func(*testing.T, context.Context, *lpadata.Lpa) *mockEventClient { return nil }
 
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+	invitedAt := testNow.AddDate(0, -3, 0)
+
 	testcases := map[string]struct {
 		lpa          *lpadata.Lpa
 		notifyClient func(*testing.T, context.Context, *lpadata.Lpa) *mockNotifyClient
 		eventClient  func(*testing.T, context.Context, *lpadata.Lpa) *mockEventClient
+		localizer    func(*testing.T) *mockLocalizer
 	}{
 		"online donor online certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -51,7 +55,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 					SignedAt:                  pt(testNow.AddDate(0, -3, 0).Add(-time.Second)),
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
 				notifyClient := newMockNotifyClient(t)
@@ -62,7 +67,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToConfirmIdentityEmail{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						CertificateProviderFullName:     "c d",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
@@ -73,7 +78,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorCertificateProviderHasNotConfirmedIdentityEmail{
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -82,6 +87,20 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 				return notifyClient
 			},
 			eventClient: nilEventClient,
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare").
+					Twice()
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				return l
+			},
 		},
 		"online donor paper certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -99,7 +118,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					Channel:                   lpadata.ChannelPaper,
 					SignedAt:                  pt(testNow.AddDate(0, -3, 0).Add(-time.Second)),
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
 				notifyClient := newMockNotifyClient(t)
@@ -110,7 +130,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperCertificateProviderHasNotConfirmedIdentityEmail{
 						Greeting:                    "hey",
 						CertificateProviderFullName: "c d",
-						LpaType:                     "personal-welfare",
+						LpaType:                     "Personal welfare",
+						PostedDate:                  "1 January 2000",
 						DeadlineDate:                "1 April 2000",
 					}).
 					Return(nil).
@@ -129,6 +150,19 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					Return(nil)
 				return eventClient
 			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 January 2000")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				return l
+			},
 		},
 		"paper donor online certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -146,7 +180,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					SignedAt:                  pt(testNow.AddDate(0, -3, -1)),
 					ContactLanguagePreference: localize.En,
 				},
-				SignedAt: testNow.AddDate(0, -3, 0).Add(-time.Second),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
 				notifyClient := newMockNotifyClient(t)
@@ -154,9 +189,9 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToConfirmIdentityEmail{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						CertificateProviderFullName:     "c d",
-						DeadlineDate:                    "2 April 2000",
+						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
 					Return(nil).
@@ -175,6 +210,19 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					Return(nil)
 				return eventClient
 			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				return l
+			},
 		},
 		"paper donor paper certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -192,7 +240,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					Channel:    lpadata.ChannelPaper,
 					SignedAt:   pt(testNow.AddDate(0, -3, -1)),
 				},
-				SignedAt: testNow.AddDate(0, -3, 0).Add(-time.Second),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			notifyClient: nilNotifyClient,
 			eventClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockEventClient {
@@ -237,7 +286,8 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 					UID:     correspondentUID,
 					Address: place.Address{Line1: "123"},
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			notifyClient: nilNotifyClient,
 			eventClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockEventClient {
@@ -295,7 +345,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 			if notifyClient != nil {
 				bundle.EXPECT().
 					For(localize.En).
-					Return(&localize.Localizer{})
+					Return(tc.localizer(t))
 			}
 
 			runner := &Runner{
@@ -510,7 +560,16 @@ func TestRunnerRemindCertificateProviderToConfirmIdentityWhenNotifyClientErrors(
 			notifyClient := newMockNotifyClient(t)
 			setupNotifyClient(notifyClient)
 
-			localizer := &localize.Localizer{}
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				Possessive(mock.Anything).
+				Return("a b’s")
+			localizer.EXPECT().
+				T(mock.Anything).
+				Return("Personal welfare")
+			localizer.EXPECT().
+				FormatDate(mock.Anything).
+				Return("1 April 2000")
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().

@@ -17,7 +17,8 @@ func TestReadYourLpa(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	donor := &donordata.Provided{Donor: donordata.Donor{LpaLanguagePreference: localize.Cy}}
-	localizer := &localize.Localizer{Lang: localize.Cy}
+
+	localizer := newMockLocalizer(t)
 
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
@@ -53,7 +54,7 @@ func TestReadYourLpaWhenTemplateErrors(t *testing.T) {
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(mock.Anything).
-		Return(&localize.Localizer{})
+		Return(newMockLocalizer(t))
 
 	template := newMockTemplate(t)
 	template.EXPECT().
