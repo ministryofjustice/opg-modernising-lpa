@@ -8,7 +8,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {{ if .Provided.ContinueWithMismatchedIdentity }}
-                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theOpgIsCheckingYourMismatchedIdentityDetails") "heading") }}                
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "theOpgIsCheckingYourMismatchedIdentityDetails") "heading") }}
             {{ else if .DetailsMatch }}
                 {{ if .Provided.WantVoucher.IsYes }}
                     {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App "voucherHasSuccessfullyConfirmedYourIdentity" "VoucherFullName" .Provided.Voucher.FullName) "success" "contents" ) }}
@@ -70,16 +70,18 @@
 
             {{ template "identity-details" (card .App .Provided.IdentityUserData) }}
 
-            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+            {{ if not .DetailsMatch }}
+                <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
 
-            {{ if .Provided.ContinueWithMismatchedIdentity }}
-                {{ trHtml .App "someOfTheDetailsDoNotMatchYouAskedOpgToCheck" }}
-            {{ else if .Provided.CanChange }}
-                {{ trHtml .App "youCanUpdateTheDetailsOnYourLpaToMatchContent" }}
-            {{ else }}
-                {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
+                {{ if .Provided.ContinueWithMismatchedIdentity }}
+                    {{ trHtml .App "someOfTheDetailsDoNotMatchYouAskedOpgToCheck" }}
+                {{ else if .Provided.CanChange }}
+                    {{ trHtml .App "youCanUpdateTheDetailsOnYourLpaToMatchContent" }}
+                {{ else }}
+                    {{ trHtml .App "theDetailsOnYourLpaCannotBeUpdatedAsSigned" }}
 
-                {{ template "warning" (content .App "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning") }}
+                    {{ template "warning" (content .App "ifYouDoNotWantRegisteredWithConfirmedDetailsWarning") }}
+                {{ end }}
             {{ end }}
 
             {{ if or .DetailsMatch .Provided.ContinueWithMismatchedIdentity (not .Provided.CanChange) }}
