@@ -17,7 +17,7 @@ describe('As a trust corporation', () => {
         cy.contains('button', 'Save and continue').click();
 
         // acting as an attorney
-        cy.contains('We have identified the trust corporation’s attorney reference number');
+        cy.contains('We have identified the trust corporation’s attorney access code');
         cy.contains('a', 'Continue').click();
 
         // task list
