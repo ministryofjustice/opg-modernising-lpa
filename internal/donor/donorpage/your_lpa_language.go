@@ -9,6 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 )
 
@@ -41,10 +42,12 @@ func YourLpaLanguage(tmpl template.Template, donorStore DonorStore) Handler {
 			if data.Errors.None() {
 				if f.YesNo.IsNo() {
 					provided.Donor.LpaLanguagePreference = data.UnselectedLanguage
+				}
 
-					if err := donorStore.Put(r.Context(), provided); err != nil {
-						return err
-					}
+				provided.Tasks.SignTheLpa = task.StateInProgress
+
+				if err := donorStore.Put(r.Context(), provided); err != nil {
+					return err
 				}
 
 				return donor.PathReadYourLpa.Redirect(w, r, appData, provided)
