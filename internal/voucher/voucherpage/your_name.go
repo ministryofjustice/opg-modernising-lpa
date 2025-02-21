@@ -6,6 +6,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
@@ -47,11 +48,15 @@ func YourName(tmpl template.Template, lpaStoreResolvingService LpaStoreResolving
 			data.Errors = data.Form.Validate()
 
 			if data.Errors.None() {
-				provided.FirstNames = data.Form.FirstNames
-				provided.LastName = data.Form.LastName
+				if provided.FirstNames != data.Form.FirstNames || provided.LastName != data.Form.LastName {
+					provided.FirstNames = data.Form.FirstNames
+					provided.LastName = data.Form.LastName
 
-				if err := voucherStore.Put(r.Context(), provided); err != nil {
-					return err
+					provided.Tasks.ConfirmYourName = task.StateInProgress
+
+					if err := voucherStore.Put(r.Context(), provided); err != nil {
+						return err
+					}
 				}
 
 				return voucher.PathConfirmYourName.Redirect(w, r, appData, appData.LpaID)
