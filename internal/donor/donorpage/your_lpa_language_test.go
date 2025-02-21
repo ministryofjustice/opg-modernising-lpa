@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -67,7 +68,16 @@ func TestPostYourLpaLanguageWhenContinue(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := YourLpaLanguage(nil, nil)(testAppData, w, r, &donordata.Provided{
+			donorStore := newMockDonorStore(t)
+			donorStore.EXPECT().
+				Put(r.Context(), &donordata.Provided{
+					LpaID: "lpa-id",
+					Donor: donordata.Donor{LpaLanguagePreference: lang},
+					Tasks: donordata.Tasks{SignTheLpa: task.StateInProgress},
+				}).
+				Return(nil)
+
+			err := YourLpaLanguage(nil, donorStore)(testAppData, w, r, &donordata.Provided{
 				LpaID: "lpa-id",
 				Donor: donordata.Donor{LpaLanguagePreference: lang},
 			})
@@ -110,6 +120,7 @@ func TestPostYourLpaLanguageWhenSwitch(t *testing.T) {
 				Put(r.Context(), &donordata.Provided{
 					LpaID: "lpa-id",
 					Donor: donordata.Donor{LpaLanguagePreference: tc.expectedLanguage},
+					Tasks: donordata.Tasks{SignTheLpa: task.StateInProgress},
 				}).
 				Return(nil)
 
