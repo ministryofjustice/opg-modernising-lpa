@@ -1,6 +1,6 @@
 const { TestEmail, randomShareCode } = require("../../support/e2e");
 
-describe('Enter reference number', () => {
+describe('Enter access code', () => {
     let shareCode = ''
     beforeEach(() => {
         shareCode = randomShareCode()
@@ -15,7 +15,7 @@ describe('Enter reference number', () => {
         cy.url().should('contain', '/certificate-provider-enter-reference-number')
     });
 
-    it('can enter a valid reference number', { pageLoadTimeout: 6000 }, () => {
+    it('can enter a valid access code', { pageLoadTimeout: 6000 }, () => {
         cy.checkA11yApp();
 
         cy.get('#f-reference-number').type(shareCode);
@@ -30,10 +30,10 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('Enter your 12 character reference number');
+            cy.contains('Enter your access code');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your 12 character reference number');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'Enter your access code');
     });
 
     it('errors when incorrect code', () => {
@@ -43,10 +43,10 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The reference number you entered is incorrect, please check it and try again');
+            cy.contains('The access code you entered is incorrect, please check it and try again');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you entered is incorrect, please check it and try again');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you entered is incorrect, please check it and try again');
     });
 
     it('errors when incorrect code length', () => {
@@ -56,10 +56,10 @@ describe('Enter reference number', () => {
         cy.checkA11yApp();
 
         cy.get('.govuk-error-summary').within(() => {
-            cy.contains('The reference number you enter must be 12 characters');
+            cy.contains('The access code you enter must be 12 characters');
         });
 
-        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The reference number you enter must be 12 characters');
+        cy.contains('[for=f-reference-number] ~ .govuk-error-message', 'The access code you enter must be 12 characters');
     });
 
 });
