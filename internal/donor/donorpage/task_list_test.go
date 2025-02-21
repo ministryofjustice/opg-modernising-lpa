@@ -227,7 +227,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
 					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa},
+					{Name: "signTheLpa", Path: ""},
 				}
 
 				return sections
@@ -385,7 +385,7 @@ func TestGetTaskList(t *testing.T) {
 			expected: func(sections []taskListSection) []taskListSection {
 				sections[2].Items = []taskListItem{
 					{Name: "confirmYourIdentity", Path: donor.PathWhatHappensNextRegisteringWithCourtOfProtection},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa},
+					{Name: "signTheLpa", Path: ""},
 				}
 
 				return sections
@@ -692,7 +692,7 @@ func TestGetTaskList(t *testing.T) {
 
 				sections[2].Items = []taskListItem{
 					{Name: "confirmYourIdentity", Path: donor.PathIdentityDetails, IdentityState: task.IdentityStateCompleted},
-					{Name: "signTheLpa", Path: donor.PathYouHaveSubmittedYourLpa, State: task.StateCompleted},
+					{Name: "signTheLpa", Path: "", State: task.StateCompleted},
 				}
 
 				return sections
