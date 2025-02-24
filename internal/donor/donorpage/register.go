@@ -554,7 +554,12 @@ func makeLpaHandle(mux *http.ServeMux, store SessionStore, errorHandler page.Err
 			}
 
 			if !path.CanGoTo(lpa) {
-				http.Redirect(w, r, appData.Lang.URL(donor.PathTaskList.Format(lpa.LpaID)), http.StatusFound)
+				if donor.PathTaskList.CanGoTo(lpa) {
+					donor.PathTaskList.Redirect(w, r, appData, lpa)
+				} else {
+					page.PathDashboard.Redirect(w, r, appData)
+				}
+				return
 			}
 
 			if lpa.Donor.Email == "" && loginSession.OrganisationID == "" {
