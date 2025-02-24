@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
@@ -13,6 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
@@ -355,6 +357,54 @@ func TestMakeLpaHandleWhenCannotGoToURL(t *testing.T) {
 
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathTaskList.Format("123"), resp.Header.Get("Location"))
+}
+
+func TestMakeLpaHandleWhenCannotGoToTaskList(t *testing.T) {
+	path := donor.PathWhenCanTheLpaBeUsed
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, path.Format("123"), nil)
+
+	mux := http.NewServeMux()
+
+	sessionStore := newMockSessionStore(t)
+	sessionStore.EXPECT().
+		Login(r).
+		Return(&sesh.LoginSession{Sub: "random"}, nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Get(mock.Anything).
+		Return(&donordata.Provided{
+			LpaID:    "123",
+			Type:     lpadata.LpaTypePropertyAndAffairs,
+			Donor:    donordata.Donor{CanSign: form.Yes, Email: "a@example.com"},
+			SignedAt: time.Now(),
+			Tasks: donordata.Tasks{
+				YourDetails:                task.StateCompleted,
+				ChooseAttorneys:            task.StateCompleted,
+				ChooseReplacementAttorneys: task.StateCompleted,
+				WhenCanTheLpaBeUsed:        task.StateCompleted,
+				Restrictions:               task.StateCompleted,
+				CertificateProvider:        task.StateCompleted,
+				PeopleToNotify:             task.StateCompleted,
+				AddCorrespondent:           task.StateCompleted,
+				CheckYourLpa:               task.StateCompleted,
+				PayForLpa:                  task.PaymentStateCompleted,
+				ConfirmYourIdentity:        task.IdentityStateCompleted,
+				SignTheLpa:                 task.StateCompleted,
+			},
+		}, nil)
+
+	handle := makeLpaHandle(mux, sessionStore, nil, donorStore)
+	handle(path, page.None, func(_ appcontext.Data, _ http.ResponseWriter, _ *http.Request, _ *donordata.Provided) error {
+		return nil
+	})
+
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, page.PathDashboard.Format(), resp.Header.Get("Location"))
 }
 
 func TestMakeLpaHandleSessionExistingSession(t *testing.T) {
