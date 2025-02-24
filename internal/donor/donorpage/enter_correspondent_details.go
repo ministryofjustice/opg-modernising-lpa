@@ -24,7 +24,7 @@ type enterCorrespondentDetailsData struct {
 	NameWarning *actor.SameNameWarning
 }
 
-func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, eventClient EventClient, newUID func() actoruid.UID) Handler {
+func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, siriusEventClient EventClient, newUID func() actoruid.UID) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &enterCorrespondentDetailsData{
 			App: appData,
@@ -59,7 +59,7 @@ func EnterCorrespondentDetails(tmpl template.Template, donorStore DonorStore, ev
 					provided.Correspondent.Address = place.Address{}
 					provided.Tasks.AddCorrespondent = task.StateCompleted
 
-					if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
+					if err := siriusEventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 						UID:        provided.LpaUID,
 						ActorUID:   &provided.Correspondent.UID,
 						FirstNames: provided.Correspondent.FirstNames,

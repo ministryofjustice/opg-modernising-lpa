@@ -72,7 +72,7 @@ func (h *lpastoreEventHandler) Handle(ctx context.Context, factory factory, clou
 				return fmt.Errorf("could not create LpaStoreClient: %w", err)
 			}
 
-			return handleRegister(ctx, factory.DynamoClient(), lpaStoreClient, factory.EventClient(), v)
+			return handleRegister(ctx, factory.DynamoClient(), lpaStoreClient, factory.UseAnLPAEventClient(), v)
 
 		case "STATUTORY_WAITING_PERIOD":
 			return handleStatutoryWaitingPeriod(ctx, factory.DynamoClient(), factory.Now(), v)
@@ -168,7 +168,7 @@ func handleCertificateProviderSign(ctx context.Context, client dynamodbClient, l
 	return nil
 }
 
-func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, eventClient EventClient, v lpaUpdatedEvent) error {
+func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient LpaStoreClient, useAnLPAEventClient EventClient, v lpaUpdatedEvent) error {
 	lpa, err := lpaStoreClient.Lpa(ctx, v.UID)
 	if err != nil {
 		return fmt.Errorf("error getting lpa: %w", err)
@@ -199,7 +199,7 @@ func handleRegister(ctx context.Context, client dynamodbClient, lpaStoreClient L
 		})
 	}
 
-	return eventClient.SendLpaAccessGranted(ctx, data)
+	return useAnLPAEventClient.SendLpaAccessGranted(ctx, data)
 }
 
 func handleStatutoryWaitingPeriod(ctx context.Context, client dynamodbClient, now func() time.Time, event lpaUpdatedEvent) error {

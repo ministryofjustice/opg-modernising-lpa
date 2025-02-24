@@ -781,7 +781,7 @@ func TestLpaStoreEventHandlerHandleLpaUpdatedRegister(t *testing.T) {
 	factory := newMockFactory(t)
 	factory.EXPECT().DynamoClient().Return(client)
 	factory.EXPECT().LpaStoreClient().Return(lpaStoreClient, nil)
-	factory.EXPECT().EventClient().Return(eventClient)
+	factory.EXPECT().UseAnLPAEventClient().Return(eventClient)
 
 	handler := &lpastoreEventHandler{}
 

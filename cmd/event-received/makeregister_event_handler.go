@@ -24,7 +24,7 @@ func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, 
 
 		uidClient := factory.UidClient()
 		dynamoClient := factory.DynamoClient()
-		eventClient := factory.EventClient()
+		eventClient := factory.SiriusEventClient()
 
 		return handleUidRequested(ctx, uidStore, uidClient, cloudWatchEvent, dynamoClient, eventClient)
 
@@ -33,7 +33,7 @@ func (h *makeregisterEventHandler) Handle(ctx context.Context, factory factory, 
 	}
 }
 
-func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e *events.CloudWatchEvent, dynamoClient dynamodbClient, eventClient EventClient) error {
+func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidClient, e *events.CloudWatchEvent, dynamoClient dynamodbClient, siriusEventClient EventClient) error {
 	var v event.UidRequested
 	if err := json.Unmarshal(e.Detail, &v); err != nil {
 		return fmt.Errorf("failed to unmarshal detail: %w", err)
@@ -62,7 +62,7 @@ func handleUidRequested(ctx context.Context, uidStore UidStore, uidClient UidCli
 		return fmt.Errorf("failed to set uid: %w", err)
 	}
 
-	if err := eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
+	if err := siriusEventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 		UID:       uid,
 		Type:      donor.Type.String(),
 		CreatedAt: donor.CreatedAt,

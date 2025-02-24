@@ -17,7 +17,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, eventClient EventClient, notifyClient NotifyClient) Handler {
+func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorStore, sessionStore SessionStore, shareCodeSender ShareCodeSender, lpaStoreClient LpaStoreClient, siriusEventClient EventClient, notifyClient NotifyClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		paymentSession, err := sessionStore.Payment(r)
 		if err != nil {
@@ -42,7 +42,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 		if !slices.Contains(provided.PaymentDetails, paymentDetail) {
 			provided.PaymentDetails = append(provided.PaymentDetails, paymentDetail)
 
-			if err := eventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
+			if err := siriusEventClient.SendPaymentReceived(r.Context(), event.PaymentReceived{
 				UID:       provided.LpaUID,
 				PaymentID: payment.PaymentID,
 				Amount:    payment.AmountPence.Pence(),
@@ -97,7 +97,7 @@ func PaymentConfirmation(logger Logger, payClient PayClient, donorStore DonorSto
 						return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 					}
 
-					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+					if err := siriusEventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
 						UID: provided.LpaUID,
 					}); err != nil {
 						return fmt.Errorf("failed to send certificate-provider-started event: %w", err)

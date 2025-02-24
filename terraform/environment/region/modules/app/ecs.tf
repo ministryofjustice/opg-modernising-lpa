@@ -467,7 +467,7 @@ locals {
           value = var.app_env_vars.onelogin_url
         },
         {
-          name  = "EVENT_BUS_NAME",
+          name  = "SIRIUS_EVENT_BUS_NAME",
           value = var.event_bus.name
         },
         {

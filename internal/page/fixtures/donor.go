@@ -101,7 +101,7 @@ func Donor(
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
 	documentStore DocumentStore,
-	eventClient *event.Client,
+	siriusEventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	shareCodeStore *sharecode.Store,
 	voucherStore *voucher.Store,
@@ -149,7 +149,7 @@ func Donor(
 		}
 
 		var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
-		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, eventClient, shareCodeStore, voucherStore)
+		donorDetails, fns, err = updateLPAProgress(data, donorDetails, donorSessionID, r, certificateProviderStore, attorneyStore, documentStore, siriusEventClient, shareCodeStore, voucherStore)
 		if err != nil {
 			return err
 		}

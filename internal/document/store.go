@@ -48,20 +48,20 @@ type EventClient interface {
 }
 
 type Store struct {
-	dynamoClient DynamoClient
-	s3Client     S3Client
-	eventClient  EventClient
-	randomUUID   func() string
-	now          func() time.Time
+	dynamoClient      DynamoClient
+	s3Client          S3Client
+	siriusEventClient EventClient
+	randomUUID        func() string
+	now               func() time.Time
 }
 
-func NewStore(dynamoClient DynamoClient, s3Client S3Client, eventClient EventClient) *Store {
+func NewStore(dynamoClient DynamoClient, s3Client S3Client, siriusEventClient EventClient) *Store {
 	return &Store{
-		dynamoClient: dynamoClient,
-		s3Client:     s3Client,
-		eventClient:  eventClient,
-		randomUUID:   random.UuidString,
-		now:          time.Now,
+		dynamoClient:      dynamoClient,
+		s3Client:          s3Client,
+		siriusEventClient: siriusEventClient,
+		randomUUID:        random.UuidString,
+		now:               time.Now,
 	}
 }
 
@@ -169,7 +169,7 @@ func (s *Store) Submit(ctx context.Context, donor *donordata.Provided, documents
 	}
 
 	if len(unsentDocuments) > 0 {
-		if err := s.eventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
+		if err := s.siriusEventClient.SendReducedFeeRequested(ctx, event.ReducedFeeRequested{
 			UID:              donor.LpaUID,
 			RequestType:      donor.FeeType.String(),
 			Evidence:         unsentEvidence,

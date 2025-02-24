@@ -101,15 +101,15 @@ func App(
 	addressClient *place.Client,
 	oneLoginClient *onelogin.Client,
 	s3Client S3Client,
-	eventClient *event.Client,
+	siriusEventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	searchClient *search.Client,
 	useURL string,
 ) http.Handler {
 	localizer := bundle.For(lang)
-	documentStore := document.NewStore(lpaDynamoClient, s3Client, eventClient)
+	documentStore := document.NewStore(lpaDynamoClient, s3Client, siriusEventClient)
 
-	donorStore := donor.NewStore(lpaDynamoClient, eventClient, logger, searchClient)
+	donorStore := donor.NewStore(lpaDynamoClient, siriusEventClient, logger, searchClient)
 	certificateProviderStore := certificateprovider.NewStore(lpaDynamoClient)
 	attorneyStore := attorney.NewStore(lpaDynamoClient)
 	shareCodeStore := sharecode.NewStore(lpaDynamoClient)
@@ -121,7 +121,7 @@ func App(
 	scheduledStore := scheduled.NewStore(lpaDynamoClient)
 	progressTracker := task.ProgressTracker{Localizer: localizer}
 
-	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, eventClient, certificateProviderStore, scheduledStore)
+	shareCodeSender := sharecode.NewSender(shareCodeStore, notifyClient, appPublicURL, siriusEventClient, certificateProviderStore, scheduledStore)
 	witnessCodeSender := donor.NewWitnessCodeSender(donorStore, certificateProviderStore, notifyClient, localizer)
 
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
@@ -134,13 +134,13 @@ func App(
 
 	if devMode {
 		handleRoot(page.PathFixtures, None,
-			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, shareCodeStore, voucherStore))
+			fixtures.Donor(tmpls.Get("fixtures.gohtml"), sessionStore, donorStore, certificateProviderStore, attorneyStore, documentStore, siriusEventClient, lpaStoreClient, shareCodeStore, voucherStore))
 		handleRoot(page.PathCertificateProviderFixtures, None,
-			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, eventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
+			fixtures.CertificateProvider(tmpls.Get("certificate_provider_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, siriusEventClient, lpaStoreClient, lpaDynamoClient, organisationStore, memberStore, shareCodeStore))
 		handleRoot(page.PathAttorneyFixtures, None,
-			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, eventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore, lpaDynamoClient))
+			fixtures.Attorney(tmpls.Get("attorney_fixtures.gohtml"), sessionStore, shareCodeSender, donorStore, certificateProviderStore, attorneyStore, siriusEventClient, lpaStoreClient, organisationStore, memberStore, shareCodeStore, lpaDynamoClient))
 		handleRoot(page.PathSupporterFixtures, None,
-			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, eventClient, lpaStoreClient, voucherStore))
+			fixtures.Supporter(tmpls.Get("supporter_fixtures.gohtml"), sessionStore, organisationStore, donorStore, memberStore, lpaDynamoClient, searchClient, shareCodeStore, certificateProviderStore, attorneyStore, documentStore, siriusEventClient, lpaStoreClient, voucherStore))
 		handleRoot(page.PathVoucherFixtures, None,
 			fixtures.Voucher(tmpls.Get("voucher_fixtures.gohtml"), sessionStore, shareCodeStore, shareCodeSender, donorStore, voucherStore, lpaStoreClient))
 		handleRoot(page.PathDashboardFixtures, None,
@@ -220,7 +220,7 @@ func App(
 		lpaStoreClient,
 		lpaStoreResolvingService,
 		donorStore,
-		eventClient,
+		siriusEventClient,
 		scheduledStore,
 		appPublicURL,
 	)
@@ -258,7 +258,7 @@ func App(
 		notifyClient,
 		evidenceReceivedStore,
 		documentStore,
-		eventClient,
+		siriusEventClient,
 		dashboardStore,
 		lpaStoreClient,
 		shareCodeStore,

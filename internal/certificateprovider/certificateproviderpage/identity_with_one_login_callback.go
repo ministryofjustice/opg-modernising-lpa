@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, eventClient EventClient, appPublicURL string) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, certificateProviderStore CertificateProviderStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, siriusEventClient EventClient, appPublicURL string) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, certificateProvider *certificateproviderdata.Provided, lpa *lpadata.Lpa) error {
 		if certificateProvider.CertificateProviderIdentityConfirmed(lpa.CertificateProvider.FirstNames, lpa.CertificateProvider.LastName) {
 			return certificateprovider.PathIdentityDetails.Redirect(w, r, appData, certificateProvider.LpaID)
@@ -67,7 +67,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if certificateProvider.IdentityUserData.Status.IsConfirmed() || certificateProvider.IdentityUserData.Status.IsFailed() {
-			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+			if err := siriusEventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 				LpaUID:   lpa.LpaUID,
 				ActorUID: certificateProvider.UID,
 				Provided: event.IdentityCheckMismatchedDetails{

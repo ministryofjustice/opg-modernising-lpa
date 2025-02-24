@@ -54,33 +54,33 @@ type Bundle interface {
 }
 
 type Client struct {
-	logger       Logger
-	baseURL      string
-	doer         Doer
-	issuer       string
-	secretKey    []byte
-	now          func() time.Time
-	isProduction bool
-	eventClient  EventClient
-	bundle       Bundle
+	logger            Logger
+	baseURL           string
+	doer              Doer
+	issuer            string
+	secretKey         []byte
+	now               func() time.Time
+	isProduction      bool
+	siriusEventClient EventClient
+	bundle            Bundle
 }
 
-func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, eventClient EventClient, bundle Bundle) (*Client, error) {
+func New(logger Logger, isProduction bool, baseURL, apiKey string, httpClient Doer, siriusEventClient EventClient, bundle Bundle) (*Client, error) {
 	keyParts := strings.Split(apiKey, "-")
 	if len(keyParts) != 11 {
 		return nil, errors.New("invalid apiKey format")
 	}
 
 	return &Client{
-		logger:       logger,
-		baseURL:      baseURL,
-		doer:         httpClient,
-		issuer:       strings.Join(keyParts[1:6], "-"),
-		secretKey:    []byte(strings.Join(keyParts[6:11], "-")),
-		now:          time.Now,
-		isProduction: isProduction,
-		eventClient:  eventClient,
-		bundle:       bundle,
+		logger:            logger,
+		baseURL:           baseURL,
+		doer:              httpClient,
+		issuer:            strings.Join(keyParts[1:6], "-"),
+		secretKey:         []byte(strings.Join(keyParts[6:11], "-")),
+		now:               time.Now,
+		isProduction:      isProduction,
+		siriusEventClient: siriusEventClient,
+		bundle:            bundle,
 	}, nil
 }
 
@@ -206,7 +206,7 @@ func (c *Client) SendActorEmail(ctx context.Context, to ToEmail, lpaUID string, 
 	span.SetAttributes(attribute.KeyValue{Key: "notify_id", Value: attribute.StringValue(resp.ID)})
 
 	if !slices.Contains(simulatedEmails, address) {
-		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+		if err := c.siriusEventClient.SendNotificationSent(ctx, event.NotificationSent{
 			UID:            lpaUID,
 			NotificationID: resp.ID,
 		}); err != nil {
@@ -251,7 +251,7 @@ func (c *Client) SendActorSMS(ctx context.Context, to ToMobile, lpaUID string, s
 	span.SetAttributes(attribute.KeyValue{Key: "notification_id", Value: attribute.StringValue(resp.ID)})
 
 	if !slices.Contains(simulatedPhones, number) {
-		if err := c.eventClient.SendNotificationSent(ctx, event.NotificationSent{
+		if err := c.siriusEventClient.SendNotificationSent(ctx, event.NotificationSent{
 			UID:            lpaUID,
 			NotificationID: resp.ID,
 		}); err != nil {

@@ -31,7 +31,7 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, "http://base", client.baseURL)
 	assert.Equal(t, "f33517ff-2a88-4f6e-b855-c550268ce08a", client.issuer)
 	assert.Equal(t, []byte("740e5834-3a29-46b4-9a6f-16142fde533a"), client.secretKey)
-	assert.Equal(t, newMockEventClient(t), client.eventClient)
+	assert.Equal(t, newMockEventClient(t), client.siriusEventClient)
 	assert.Equal(t, bundle, client.bundle)
 }
 

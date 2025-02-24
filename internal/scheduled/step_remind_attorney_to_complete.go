@@ -98,7 +98,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 			ActorUID:   attorney.UID,
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send attorney letter request: %w", err)
 		}
 	} else {
@@ -135,7 +135,7 @@ func (r *Runner) stepRemindAttorneyToCompleteAttorney(ctx context.Context, lpa *
 			letterRequest.ActorUID = lpa.Correspondent.UID
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send donor letter request: %w", err)
 		}
 	} else {
@@ -179,7 +179,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 			ActorUID:   trustCorporation.UID,
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send certificate provider letter request: %w", err)
 		}
 	} else {
@@ -216,7 +216,7 @@ func (r *Runner) stepRemindAttorneyToCompleteTrustCorporation(ctx context.Contex
 			letterRequest.ActorUID = lpa.Correspondent.UID
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send donor letter request: %w", err)
 		}
 	} else {

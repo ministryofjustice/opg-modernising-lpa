@@ -203,7 +203,7 @@ func Register(
 	notifyClient NotifyClient,
 	evidenceReceivedStore EvidenceReceivedStore,
 	documentStore DocumentStore,
-	eventClient EventClient,
+	siriusEventClient EventClient,
 	dashboardStore DashboardStore,
 	lpaStoreClient LpaStoreClient,
 	shareCodeStore ShareCodeStore,
@@ -261,7 +261,7 @@ func Register(
 	handleWithDonor(donor.PathYourLegalRightsAndResponsibilitiesIfYouMakeLpa, page.CanGoBack,
 		Guidance(tmpls.Get("your_legal_rights_and_responsibilities_if_you_make_lpa.gohtml")))
 	handleWithDonor(donor.PathLpaType, page.CanGoBack,
-		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, eventClient))
+		LpaType(tmpls.Get("lpa_type.gohtml"), donorStore, siriusEventClient))
 	handleWithDonor(donor.PathNeedHelpSigningConfirmation, page.None,
 		Guidance(tmpls.Get("need_help_signing_confirmation.gohtml")))
 
@@ -348,11 +348,11 @@ func Register(
 		RemovePersonToNotify(tmpls.Get("remove_person_to_notify.gohtml"), donorStore))
 
 	handleWithDonor(donor.PathAddCorrespondent, page.None,
-		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, eventClient))
+		AddCorrespondent(tmpls.Get("add_correspondent.gohtml"), donorStore, siriusEventClient))
 	handleWithDonor(donor.PathEnterCorrespondentDetails, page.CanGoBack,
-		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, eventClient, actoruid.New))
+		EnterCorrespondentDetails(tmpls.Get("enter_correspondent_details.gohtml"), donorStore, siriusEventClient, actoruid.New))
 	handleWithDonor(donor.PathEnterCorrespondentAddress, page.CanGoBack,
-		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, eventClient))
+		EnterCorrespondentAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore, siriusEventClient))
 
 	handleWithDonor(donor.PathGettingHelpSigning, page.CanGoBack,
 		Guidance(tmpls.Get("getting_help_signing.gohtml")))
@@ -393,11 +393,11 @@ func Register(
 	handleWithDonor(donor.PathUploadEvidence, page.CanGoBack,
 		UploadEvidence(tmpls.Get("upload_evidence.gohtml"), logger, payer, documentStore))
 	handleWithDonor(donor.PathSendUsYourEvidenceByPost, page.CanGoBack,
-		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, eventClient))
+		SendUsYourEvidenceByPost(tmpls.Get("send_us_your_evidence_by_post.gohtml"), payer, siriusEventClient))
 	handleWithDonor(donor.PathPayFee, page.None,
 		payer)
 	handleWithDonor(donor.PathPaymentConfirmation, page.None,
-		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, eventClient, notifyClient))
+		PaymentConfirmation(logger, payClient, donorStore, sessionStore, shareCodeSender, lpaStoreClient, siriusEventClient, notifyClient))
 	handleWithDonor(donor.PathPaymentSuccessful, page.None,
 		Guidance(tmpls.Get("payment_successful.gohtml")))
 	handleWithDonor(donor.PathEvidenceSuccessfullyUploaded, page.None,
@@ -418,7 +418,7 @@ func Register(
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleWithDonor(donor.PathIdentityWithOneLoginCallback, page.CanGoBack,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, eventClient))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, donorStore, scheduledStore, siriusEventClient))
 	handleWithDonor(donor.PathIdentityDetails, page.None,
 		IdentityDetails(tmpls.Get("identity_details.gohtml"), donorStore))
 	handleWithDonor(donor.PathIdentityDetailsUpdated, page.None,
@@ -470,7 +470,7 @@ func Register(
 	handleWithDonor(donor.PathChangeIndependentWitnessMobileNumber, page.CanGoBack,
 		ChangeMobileNumber(tmpls.Get("change_mobile_number.gohtml"), witnessCodeSender, actor.TypeIndependentWitness))
 	handleWithDonor(donor.PathWitnessingAsCertificateProvider, page.None,
-		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, eventClient, time.Now))
+		WitnessingAsCertificateProvider(tmpls.Get("witnessing_as_certificate_provider.gohtml"), donorStore, shareCodeSender, lpaStoreClient, siriusEventClient, time.Now))
 	handleWithDonor(donor.PathResendCertificateProviderCode, page.CanGoBack,
 		ResendWitnessCode(tmpls.Get("resend_witness_code.gohtml"), witnessCodeSender, actor.TypeCertificateProvider))
 	handleWithDonor(donor.PathChangeCertificateProviderMobileNumber, page.CanGoBack,

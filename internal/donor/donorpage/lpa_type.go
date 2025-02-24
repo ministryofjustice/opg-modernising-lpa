@@ -24,7 +24,7 @@ type lpaTypeData struct {
 	CanChange   bool
 }
 
-func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
+func LpaType(tmpl template.Template, donorStore DonorStore, siriusEventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &lpaTypeData{
 			App: appData,
@@ -57,7 +57,7 @@ func LpaType(tmpl template.Template, donorStore DonorStore, eventClient EventCli
 					return err
 				}
 
-				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+				if err := siriusEventClient.SendUidRequested(r.Context(), event.UidRequested{
 					LpaID:          provided.LpaID,
 					DonorSessionID: session.SessionID,
 					OrganisationID: session.OrganisationID,

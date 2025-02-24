@@ -14,7 +14,7 @@ module "event_received" {
     SEARCH_ENDPOINT            = var.search_endpoint
     SEARCH_INDEX_NAME          = var.search_index_name
     SEARCH_INDEXING_DISABLED   = 1
-    EVENT_BUS_NAME             = var.event_bus_name
+    SIRIUS_EVENT_BUS_NAME      = var.event_bus_name
     JWT_KEY_SECRET_ARN         = data.aws_secretsmanager_secret.lpa_store_jwt_key.arn
     XRAY_ENABLED               = 1
   }

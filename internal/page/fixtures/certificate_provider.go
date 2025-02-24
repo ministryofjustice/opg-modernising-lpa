@@ -34,7 +34,7 @@ func CertificateProvider(
 	shareCodeSender *sharecode.Sender,
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
-	eventClient *event.Client,
+	siriusEventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	dynamoClient DynamoClient,
 	organisationStore OrganisationStore,
@@ -165,7 +165,7 @@ func CertificateProvider(
 		}
 
 		if useRealUID {
-			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+			if err := siriusEventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
 				DonorSessionID: donorSessionID,
 				Type:           donorDetails.Type.String(),

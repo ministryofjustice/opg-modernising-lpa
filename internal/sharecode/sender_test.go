@@ -490,10 +490,10 @@ func TestShareCodeSenderSendCertificateProviderPromptPaper(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
+		shareCodeStore:    shareCodeStore,
+		appPublicURL:      "http://app",
+		generate:          testGenerateFn,
+		siriusEventClient: eventClient,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
 
@@ -652,10 +652,10 @@ func TestShareCodeSenderSendCertificateProviderPromptPaperWhenEventClientError(t
 		Return(expectedError)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
+		shareCodeStore:    shareCodeStore,
+		appPublicURL:      "http://app",
+		generate:          testGenerateFn,
+		siriusEventClient: eventClient,
 	}
 	err := sender.SendCertificateProviderPrompt(ctx, testAppData, donor)
 
@@ -971,13 +971,13 @@ func TestShareCodeSenderSendAttorneys(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
-		scheduledStore: scheduledStore,
-		now:            testNowFn,
+		shareCodeStore:    shareCodeStore,
+		notifyClient:      notifyClient,
+		appPublicURL:      "http://app",
+		generate:          testGenerateFn,
+		siriusEventClient: eventClient,
+		scheduledStore:    scheduledStore,
+		now:               testNowFn,
 	}
 	err := sender.SendAttorneys(ctx, testAppData, lpa)
 
@@ -1068,12 +1068,12 @@ func TestShareCodeSenderSendAttorneysTrustCorporationsNoEmail(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		scheduledStore: scheduledStore,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
-		now:            testNowFn,
+		shareCodeStore:    shareCodeStore,
+		scheduledStore:    scheduledStore,
+		appPublicURL:      "http://app",
+		generate:          testGenerateFn,
+		siriusEventClient: eventClient,
+		now:               testNowFn,
 	}
 	err := sender.SendAttorneys(ctx, testAppData, donor)
 
@@ -1190,13 +1190,13 @@ func TestShareCodeSenderSendAttorneysWithTestCode(t *testing.T) {
 				Return(nil)
 
 			sender := &Sender{
-				shareCodeStore: shareCodeStore,
-				scheduledStore: scheduledStore,
-				notifyClient:   notifyClient,
-				appPublicURL:   "http://app",
-				generate:       testGenerateFn,
-				eventClient:    eventClient,
-				now:            testNowFn,
+				shareCodeStore:    shareCodeStore,
+				scheduledStore:    scheduledStore,
+				notifyClient:      notifyClient,
+				appPublicURL:      "http://app",
+				generate:          testGenerateFn,
+				siriusEventClient: eventClient,
+				now:               testNowFn,
 			}
 
 			if tc.useTestCode {
@@ -1262,13 +1262,13 @@ func TestShareCodeSenderSendAttorneysWhenEmailErrors(t *testing.T) {
 		Return(nil)
 
 	sender := &Sender{
-		shareCodeStore: shareCodeStore,
-		notifyClient:   notifyClient,
-		appPublicURL:   "http://app",
-		generate:       testGenerateFn,
-		eventClient:    eventClient,
-		scheduledStore: scheduledStore,
-		now:            testNowFn,
+		shareCodeStore:    shareCodeStore,
+		notifyClient:      notifyClient,
+		appPublicURL:      "http://app",
+		generate:          testGenerateFn,
+		siriusEventClient: eventClient,
+		scheduledStore:    scheduledStore,
+		now:               testNowFn,
 	}
 	err := sender.SendAttorneys(ctx, testAppData, donor)
 
@@ -1368,12 +1368,12 @@ func TestShareCodeSenderSendAttorneysWhenEventClientErrors(t *testing.T) {
 				Return(expectedError)
 
 			sender := &Sender{
-				shareCodeStore: shareCodeStore,
-				appPublicURL:   "http://app",
-				generate:       testGenerateFn,
-				eventClient:    eventClient,
-				scheduledStore: scheduledStore,
-				now:            testNowFn,
+				shareCodeStore:    shareCodeStore,
+				appPublicURL:      "http://app",
+				generate:          testGenerateFn,
+				siriusEventClient: eventClient,
+				scheduledStore:    scheduledStore,
+				now:               testNowFn,
 			}
 			err := sender.SendAttorneys(ctx, testAppData, lpa)
 

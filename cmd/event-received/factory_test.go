@@ -201,15 +201,15 @@ func TestFactoryUidClientWhenSet(t *testing.T) {
 func TestFactoryEventClient(t *testing.T) {
 	factory := &Factory{}
 
-	client := factory.EventClient()
+	client := factory.SiriusEventClient()
 	assert.NotNil(t, client)
 }
 
 func TestFactoryEventClientWhenSet(t *testing.T) {
 	expected := newMockEventClient(t)
-	factory := &Factory{eventClient: expected}
+	factory := &Factory{siriusEventClient: expected}
 
-	client := factory.EventClient()
+	client := factory.SiriusEventClient()
 	assert.Equal(t, expected, client)
 }
 

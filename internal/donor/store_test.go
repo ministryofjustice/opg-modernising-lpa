@@ -478,7 +478,7 @@ func TestDonorStorePutWhenApplicationUpdatedWhenError(t *testing.T) {
 		Index(ctx, mock.Anything).
 		Return(nil)
 
-	donorStore := &Store{eventClient: eventClient, searchClient: searchClient, now: testNowFn}
+	donorStore := &Store{siriusEventClient: eventClient, searchClient: searchClient, now: testNowFn}
 
 	err := donorStore.Put(ctx, &donordata.Provided{
 		PK:     dynamo.LpaKey("5"),
@@ -783,7 +783,7 @@ func TestDonorStoreDelete(t *testing.T) {
 		SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: "lpa-uid"}).
 		Return(nil)
 
-	donorStore := &Store{dynamoClient: dynamoClient, eventClient: eventClient, searchClient: searchClient}
+	donorStore := &Store{dynamoClient: dynamoClient, siriusEventClient: eventClient, searchClient: searchClient}
 
 	err := donorStore.Delete(ctx)
 	assert.Nil(t, err)
@@ -920,9 +920,9 @@ func TestDonorStoreDeleteWhenErrors(t *testing.T) {
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
 			donorStore := &Store{
-				dynamoClient: tc.dynamoClient(t),
-				eventClient:  tc.eventClient(t),
-				searchClient: tc.searchClient(t),
+				dynamoClient:      tc.dynamoClient(t),
+				siriusEventClient: tc.eventClient(t),
+				searchClient:      tc.searchClient(t),
 			}
 
 			err := donorStore.Delete(ctx)

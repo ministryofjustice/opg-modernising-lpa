@@ -14,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, eventClient EventClient) Handler {
+func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressClient AddressClient, donorStore DonorStore, siriusEventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := newChooseAddressData(
 			appData,
@@ -36,7 +36,7 @@ func EnterCorrespondentAddress(logger Logger, tmpl template.Template, addressCli
 				provided.Tasks.AddCorrespondent = task.StateCompleted
 				provided.Correspondent.Address = address
 
-				if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
+				if err := siriusEventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 					UID:        provided.LpaUID,
 					ActorUID:   &provided.Correspondent.UID,
 					FirstNames: provided.Correspondent.FirstNames,

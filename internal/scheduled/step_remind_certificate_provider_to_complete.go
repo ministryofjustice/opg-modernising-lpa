@@ -48,7 +48,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 			ActorUID:   lpa.CertificateProvider.UID,
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send certificate provider letter request: %w", err)
 		}
 	} else {
@@ -85,7 +85,7 @@ func (r *Runner) stepRemindCertificateProviderToComplete(ctx context.Context, ro
 			letterRequest.ActorUID = lpa.Correspondent.UID
 		}
 
-		if err := r.eventClient.SendLetterRequested(ctx, letterRequest); err != nil {
+		if err := r.siriusEventClient.SendLetterRequested(ctx, letterRequest); err != nil {
 			return fmt.Errorf("could not send donor letter request: %w", err)
 		}
 	} else {

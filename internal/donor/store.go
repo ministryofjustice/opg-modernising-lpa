@@ -67,24 +67,24 @@ type SearchClient interface {
 }
 
 type Store struct {
-	dynamoClient DynamoClient
-	eventClient  EventClient
-	logger       Logger
-	uuidString   func() string
-	newUID       func() actoruid.UID
-	now          func() time.Time
-	searchClient SearchClient
+	dynamoClient      DynamoClient
+	siriusEventClient EventClient
+	logger            Logger
+	uuidString        func() string
+	newUID            func() actoruid.UID
+	now               func() time.Time
+	searchClient      SearchClient
 }
 
-func NewStore(dynamoClient DynamoClient, eventClient EventClient, logger Logger, searchClient SearchClient) *Store {
+func NewStore(dynamoClient DynamoClient, siriusEventClient EventClient, logger Logger, searchClient SearchClient) *Store {
 	return &Store{
-		dynamoClient: dynamoClient,
-		eventClient:  eventClient,
-		logger:       logger,
-		uuidString:   uuid.NewString,
-		newUID:       actoruid.New,
-		now:          time.Now,
-		searchClient: searchClient,
+		dynamoClient:      dynamoClient,
+		siriusEventClient: siriusEventClient,
+		logger:            logger,
+		uuidString:        uuid.NewString,
+		newUID:            actoruid.New,
+		now:               time.Now,
+		searchClient:      searchClient,
 	}
 }
 
@@ -372,7 +372,7 @@ func (s *Store) Put(ctx context.Context, donor *donordata.Provided) error {
 	}
 
 	if donor.LpaUID != "" && !donor.HasSentApplicationUpdatedEvent {
-		if err := s.eventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
+		if err := s.siriusEventClient.SendApplicationUpdated(ctx, event.ApplicationUpdated{
 			UID:       donor.LpaUID,
 			Type:      donor.Type.String(),
 			CreatedAt: donor.CreatedAt,
@@ -428,7 +428,7 @@ func (s *Store) Delete(ctx context.Context) error {
 		return err
 	}
 
-	if err := s.eventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
+	if err := s.siriusEventClient.SendApplicationDeleted(ctx, event.ApplicationDeleted{UID: provided.LpaUID}); err != nil {
 		return err
 	}
 

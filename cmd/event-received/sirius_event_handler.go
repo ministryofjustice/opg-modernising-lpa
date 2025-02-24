@@ -47,7 +47,7 @@ func (h *siriusEventHandler) Handle(ctx context.Context, factory factory, cloudW
 			return err
 		}
 
-		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, factory.EventClient(), appData, factory.Now())
+		return handleFeeApproved(ctx, factory.DynamoClient(), cloudWatchEvent, shareCodeSender, lpaStoreClient, factory.SiriusEventClient(), appData, factory.Now())
 
 	case "reduced-fee-declined":
 		return handleFeeDenied(ctx, factory.DynamoClient(), cloudWatchEvent, factory.Now())
@@ -140,7 +140,7 @@ func handleFeeApproved(
 	e *events.CloudWatchEvent,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
-	eventClient EventClient,
+	siriusEventClient EventClient,
 	appData appcontext.Data,
 	now func() time.Time,
 ) error {
@@ -168,7 +168,7 @@ func handleFeeApproved(
 				return fmt.Errorf("failed to send to lpastore: %w", err)
 			}
 
-			if err := eventClient.SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
+			if err := siriusEventClient.SendCertificateProviderStarted(ctx, event.CertificateProviderStarted{
 				UID: v.UID,
 			}); err != nil {
 				return fmt.Errorf("failed to send certificate-provider-started event: %w", err)

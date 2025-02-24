@@ -66,23 +66,25 @@ type Localizer interface {
 }
 
 type Factory struct {
-	logger                *slog.Logger
-	now                   func() time.Time
-	uuidString            func() string
+	appPublicURL          string
 	cfg                   aws.Config
 	dynamoClient          dynamodbClient
-	appPublicURL          string
+	httpClient            *http.Client
+	logger                *slog.Logger
 	lpaStoreBaseURL       string
 	lpaStoreSecretARN     string
-	uidBaseURL            string
 	notifyBaseURL         string
 	notifyIsProduction    bool
-	eventBusName          string
+	now                   func() time.Time
 	searchEndpoint        string
-	searchIndexName       string
 	searchIndexingEnabled bool
-	eventClient           EventClient
-	httpClient            *http.Client
+	searchIndexName       string
+	siriusEventBusName    string
+	siriusEventClient     EventClient
+	useAnLPAEventBusName  string
+	useAnLPAEventClient   EventClient
+	uidBaseURL            string
+	uuidString            func() string
 
 	// previously constructed values
 	appData                  *appcontext.Data
@@ -165,7 +167,7 @@ func (f *Factory) ShareCodeSender(ctx context.Context) (ShareCodeSender, error) 
 			return nil, err
 		}
 
-		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, event.NewClient(f.cfg, f.eventBusName), certificateprovider.NewStore(f.dynamoClient), scheduled.NewStore(f.dynamoClient))
+		f.shareCodeSender = sharecode.NewSender(sharecode.NewStore(f.dynamoClient), notifyClient, f.appPublicURL, event.NewClient(f.cfg, f.siriusEventBusName), certificateprovider.NewStore(f.dynamoClient), scheduled.NewStore(f.dynamoClient))
 	}
 
 	return f.shareCodeSender, nil
@@ -205,12 +207,20 @@ func (f *Factory) UidClient() UidClient {
 	return f.uidClient
 }
 
-func (f *Factory) EventClient() EventClient {
-	if f.eventClient == nil {
-		f.eventClient = event.NewClient(f.cfg, f.eventBusName)
+func (f *Factory) SiriusEventClient() EventClient {
+	if f.siriusEventClient == nil {
+		f.siriusEventClient = event.NewClient(f.cfg, f.siriusEventBusName)
 	}
 
-	return f.eventClient
+	return f.siriusEventClient
+}
+
+func (f *Factory) UseAnLPAEventClient() EventClient {
+	if f.useAnLPAEventClient == nil {
+		f.useAnLPAEventClient = event.NewClient(f.cfg, f.useAnLPAEventBusName)
+	}
+
+	return f.useAnLPAEventClient
 }
 
 func (f *Factory) ScheduledStore() ScheduledStore {
@@ -238,7 +248,7 @@ func (f *Factory) NotifyClient(ctx context.Context) (NotifyClient, error) {
 			return nil, fmt.Errorf("failed to get notify API secret: %w", err)
 		}
 
-		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.eventBusName), bundle)
+		notifyClient, err := notify.New(f.logger, f.notifyIsProduction, f.notifyBaseURL, notifyApiKey, f.httpClient, event.NewClient(f.cfg, f.siriusEventBusName), bundle)
 		if err != nil {
 			return nil, err
 		}

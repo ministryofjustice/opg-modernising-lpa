@@ -40,19 +40,20 @@ const (
 )
 
 var (
-	tableName             = os.Getenv("LPAS_TABLE")
-	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	appPublicURL          = os.Getenv("APP_PUBLIC_URL")
 	awsBaseURL            = os.Getenv("AWS_BASE_URL")
-	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
 	evidenceBucketName    = os.Getenv("UPLOADS_S3_BUCKET_NAME")
-	uidBaseURL            = os.Getenv("UID_BASE_URL")
 	lpaStoreBaseURL       = os.Getenv("LPA_STORE_BASE_URL")
 	lpaStoreSecretARN     = os.Getenv("LPA_STORE_SECRET_ARN")
-	eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
+	notifyIsProduction    = os.Getenv("GOVUK_NOTIFY_IS_PRODUCTION") == "1"
 	searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
+	siriusEventBusName    = cmp.Or(os.Getenv("SIRIUS_EVENT_BUS_NAME"), "default")
+	tableName             = os.Getenv("LPAS_TABLE")
+	uidBaseURL            = os.Getenv("UID_BASE_URL")
+	useAnLPAEventBusName  = cmp.Or(os.Getenv("USE_AN_LPA_EVENT_BUS_NAME"), "default")
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
 
 	cfg        aws.Config
@@ -66,15 +67,16 @@ type factory interface {
 	Bundle() (Bundle, error)
 	CertificateProviderStore() CertificateProviderStore
 	DynamoClient() dynamodbClient
-	EventClient() EventClient
 	LpaStoreClient() (LpaStoreClient, error)
 	NotifyClient(ctx context.Context) (NotifyClient, error)
 	Now() func() time.Time
 	ScheduledStore() ScheduledStore
 	ShareCodeSender(ctx context.Context) (ShareCodeSender, error)
+	SiriusEventClient() EventClient
 	UidClient() UidClient
 	UidStore() (UidStore, error)
 	UuidString() func() string
+	UseAnLPAEventClient() EventClient
 }
 
 type Handler interface {
@@ -194,11 +196,12 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 		uidBaseURL:            uidBaseURL,
 		notifyBaseURL:         notifyBaseURL,
 		notifyIsProduction:    notifyIsProduction,
-		eventBusName:          eventBusName,
+		siriusEventBusName:    siriusEventBusName,
 		searchEndpoint:        searchEndpoint,
 		searchIndexName:       searchIndexName,
 		searchIndexingEnabled: searchIndexingEnabled,
 		httpClient:            httpClient,
+		useAnLPAEventBusName:  useAnLPAEventBusName,
 	}
 
 	if event.SQSEvent != nil {

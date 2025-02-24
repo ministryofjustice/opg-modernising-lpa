@@ -353,7 +353,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentity(t *testing.T) {
 				lpaStoreResolvingService: lpaStoreResolvingService,
 				certificateProviderStore: certificateProviderStore,
 				notifyClient:             notifyClient,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				bundle:                   bundle,
 				now:                      testNowFn,
 				appPublicURL:             "http://app",
@@ -641,7 +641,7 @@ func TestRunnerRemindCertificateProviderToConfirmIdentityWhenEventClientErrors(t
 				donorStore:               donorStore,
 				certificateProviderStore: certificateProviderStore,
 				lpaStoreResolvingService: lpaStoreResolvingService,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				now:                      testNowFn,
 			}
 

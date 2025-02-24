@@ -276,53 +276,6 @@ func (_c *mockFactory_DynamoClient_Call) RunAndReturn(run func() dynamodbClient)
 	return _c
 }
 
-// EventClient provides a mock function with no fields
-func (_m *mockFactory) EventClient() EventClient {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for EventClient")
-	}
-
-	var r0 EventClient
-	if rf, ok := ret.Get(0).(func() EventClient); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(EventClient)
-		}
-	}
-
-	return r0
-}
-
-// mockFactory_EventClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EventClient'
-type mockFactory_EventClient_Call struct {
-	*mock.Call
-}
-
-// EventClient is a helper method to define mock.On call
-func (_e *mockFactory_Expecter) EventClient() *mockFactory_EventClient_Call {
-	return &mockFactory_EventClient_Call{Call: _e.mock.On("EventClient")}
-}
-
-func (_c *mockFactory_EventClient_Call) Run(run func()) *mockFactory_EventClient_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *mockFactory_EventClient_Call) Return(_a0 EventClient) *mockFactory_EventClient_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *mockFactory_EventClient_Call) RunAndReturn(run func() EventClient) *mockFactory_EventClient_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // LpaStoreClient provides a mock function with no fields
 func (_m *mockFactory) LpaStoreClient() (LpaStoreClient, error) {
 	ret := _m.Called()
@@ -590,6 +543,53 @@ func (_c *mockFactory_ShareCodeSender_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// SiriusEventClient provides a mock function with no fields
+func (_m *mockFactory) SiriusEventClient() EventClient {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for SiriusEventClient")
+	}
+
+	var r0 EventClient
+	if rf, ok := ret.Get(0).(func() EventClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(EventClient)
+		}
+	}
+
+	return r0
+}
+
+// mockFactory_SiriusEventClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SiriusEventClient'
+type mockFactory_SiriusEventClient_Call struct {
+	*mock.Call
+}
+
+// SiriusEventClient is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) SiriusEventClient() *mockFactory_SiriusEventClient_Call {
+	return &mockFactory_SiriusEventClient_Call{Call: _e.mock.On("SiriusEventClient")}
+}
+
+func (_c *mockFactory_SiriusEventClient_Call) Run(run func()) *mockFactory_SiriusEventClient_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_SiriusEventClient_Call) Return(_a0 EventClient) *mockFactory_SiriusEventClient_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_SiriusEventClient_Call) RunAndReturn(run func() EventClient) *mockFactory_SiriusEventClient_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UidClient provides a mock function with no fields
 func (_m *mockFactory) UidClient() UidClient {
 	ret := _m.Called()
@@ -690,6 +690,53 @@ func (_c *mockFactory_UidStore_Call) Return(_a0 UidStore, _a1 error) *mockFactor
 }
 
 func (_c *mockFactory_UidStore_Call) RunAndReturn(run func() (UidStore, error)) *mockFactory_UidStore_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UseAnLPAEventClient provides a mock function with no fields
+func (_m *mockFactory) UseAnLPAEventClient() EventClient {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for UseAnLPAEventClient")
+	}
+
+	var r0 EventClient
+	if rf, ok := ret.Get(0).(func() EventClient); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(EventClient)
+		}
+	}
+
+	return r0
+}
+
+// mockFactory_UseAnLPAEventClient_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UseAnLPAEventClient'
+type mockFactory_UseAnLPAEventClient_Call struct {
+	*mock.Call
+}
+
+// UseAnLPAEventClient is a helper method to define mock.On call
+func (_e *mockFactory_Expecter) UseAnLPAEventClient() *mockFactory_UseAnLPAEventClient_Call {
+	return &mockFactory_UseAnLPAEventClient_Call{Call: _e.mock.On("UseAnLPAEventClient")}
+}
+
+func (_c *mockFactory_UseAnLPAEventClient_Call) Run(run func()) *mockFactory_UseAnLPAEventClient_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockFactory_UseAnLPAEventClient_Call) Return(_a0 EventClient) *mockFactory_UseAnLPAEventClient_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockFactory_UseAnLPAEventClient_Call) RunAndReturn(run func() EventClient) *mockFactory_UseAnLPAEventClient_Call {
 	_c.Call.Return(run)
 	return _c
 }

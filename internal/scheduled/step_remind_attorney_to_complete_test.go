@@ -433,7 +433,7 @@ func TestRunnerRemindAttorneyToCompleteWhenOnPaper(t *testing.T) {
 				donorStore:               donorStore,
 				lpaStoreResolvingService: lpaStoreResolvingService,
 				attorneyStore:            attorneyStore,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				now:                      testNowFn,
 			}
 
@@ -619,7 +619,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		donorStore:               donorStore,
 		lpaStoreResolvingService: lpaStoreResolvingService,
 		attorneyStore:            attorneyStore,
-		eventClient:              eventClient,
+		siriusEventClient:        eventClient,
 		notifyClient:             notifyClient,
 		bundle:                   bundle,
 		now:                      testNowFn,
@@ -1154,7 +1154,7 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 					donorStore:               donorStore,
 					lpaStoreResolvingService: lpaStoreResolvingService,
 					attorneyStore:            attorneyStore,
-					eventClient:              eventClient,
+					siriusEventClient:        eventClient,
 					now:                      testNowFn,
 					appPublicURL:             "http://app",
 				}

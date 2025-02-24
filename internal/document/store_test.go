@@ -314,10 +314,10 @@ func TestDocumentStoreSubmit(t *testing.T) {
 		Return(nil)
 
 	documentStore := &Store{
-		dynamoClient: dynamoClient,
-		eventClient:  eventClient,
-		s3Client:     s3Client,
-		now:          func() time.Time { return now },
+		dynamoClient:      dynamoClient,
+		siriusEventClient: eventClient,
+		s3Client:          s3Client,
+		now:               func() time.Time { return now },
 	}
 
 	err := documentStore.Submit(ctx, donor, documents)
@@ -375,9 +375,9 @@ func TestDocumentStoreSubmitWhenEventClientErrors(t *testing.T) {
 		Return(expectedError)
 
 	documentStore := &Store{
-		eventClient: eventClient,
-		s3Client:    s3Client,
-		now:         func() time.Time { return now },
+		siriusEventClient: eventClient,
+		s3Client:          s3Client,
+		now:               func() time.Time { return now },
 	}
 
 	err := documentStore.Submit(ctx, donor, documents)
@@ -407,10 +407,10 @@ func TestDocumentStoreSubmitWhenDynamoClientErrors(t *testing.T) {
 		Return(expectedError)
 
 	documentStore := &Store{
-		dynamoClient: dynamoClient,
-		eventClient:  eventClient,
-		s3Client:     s3Client,
-		now:          func() time.Time { return now },
+		dynamoClient:      dynamoClient,
+		siriusEventClient: eventClient,
+		s3Client:          s3Client,
+		now:               func() time.Time { return now },
 	}
 
 	err := documentStore.Submit(ctx, donor, documents)

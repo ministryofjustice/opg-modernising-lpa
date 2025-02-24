@@ -110,7 +110,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		metadataURL           = os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
 		oneloginURL           = cmp.Or(os.Getenv("ONELOGIN_URL"), "https://home.integration.account.gov.uk")
 		evidenceBucketName    = cmp.Or(os.Getenv("UPLOADS_S3_BUCKET_NAME"), "evidence")
-		eventBusName          = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+		siriusEventBusName    = cmp.Or(os.Getenv("SIRIUS_EVENT_BUS_NAME"), "default")
 		searchEndpoint        = os.Getenv("SEARCH_ENDPOINT")
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
@@ -210,7 +210,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	eventClient := event.NewClient(cfg, eventBusName)
+	siriusEventClient := event.NewClient(cfg, siriusEventBusName)
 
 	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexName, searchIndexingEnabled)
 	if err != nil {
@@ -256,7 +256,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, eventClient, bundle)
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, siriusEventClient, bundle)
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		addressClient,
 		oneloginClient,
 		evidenceS3Client,
-		eventClient,
+		siriusEventClient,
 		lpaStoreClient,
 		searchClient,
 		useURL,
@@ -327,7 +327,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		addressClient,
 		oneloginClient,
 		evidenceS3Client,
-		eventClient,
+		siriusEventClient,
 		lpaStoreClient,
 		searchClient,
 		useURL,

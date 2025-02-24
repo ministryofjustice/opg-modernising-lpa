@@ -86,7 +86,7 @@ type Runner struct {
 	attorneyStore            AttorneyStore
 	lpaStoreResolvingService LpaStoreResolvingService
 	notifyClient             NotifyClient
-	eventClient              EventClient
+	siriusEventClient        EventClient
 	bundle                   Bundle
 	actions                  map[Action]ActionFunc
 	waiter                   Waiter
@@ -108,7 +108,7 @@ func NewRunner(
 	attorneyStore AttorneyStore,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	notifyClient NotifyClient,
-	eventClient EventClient,
+	siriusEventClient EventClient,
 	bundle Bundle,
 	metricsClient MetricsClient,
 	metricsEnabled bool,
@@ -124,7 +124,7 @@ func NewRunner(
 		attorneyStore:            attorneyStore,
 		lpaStoreResolvingService: lpaStoreResolvingService,
 		notifyClient:             notifyClient,
-		eventClient:              eventClient,
+		siriusEventClient:        siriusEventClient,
 		bundle:                   bundle,
 		waiter:                   &waiter{backoff: time.Second, sleep: time.Sleep, maxRetries: 10},
 		metricsClient:            metricsClient,

@@ -3,7 +3,7 @@ module "schedule_runner" {
   lambda_name = "schedule-runner"
   description = "Function to run scheduled tasks on a schedule set by EventBridge Scheduler"
   environment_variables = {
-    EVENT_BUS_NAME             = var.event_bus.name
+    SIRIUS_EVENT_BUS_NAME      = var.event_bus.name
     GOVUK_NOTIFY_BASE_URL      = "https://api.notifications.service.gov.uk"
     GOVUK_NOTIFY_IS_PRODUCTION = data.aws_default_tags.current.tags.environment-name == "production" ? "1" : "0"
     LPAS_TABLE                 = var.lpas_table.name

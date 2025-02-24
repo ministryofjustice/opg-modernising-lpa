@@ -17,7 +17,7 @@ type sendUsYourEvidenceByPostData struct {
 	FeeType pay.FeeType
 }
 
-func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient EventClient) Handler {
+func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, siriusEventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		data := &sendUsYourEvidenceByPostData{
 			App:     appData,
@@ -25,7 +25,7 @@ func SendUsYourEvidenceByPost(tmpl template.Template, payer Handler, eventClient
 		}
 
 		if r.Method == http.MethodPost {
-			if err := eventClient.SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
+			if err := siriusEventClient.SendReducedFeeRequested(r.Context(), event.ReducedFeeRequested{
 				UID:              donor.LpaUID,
 				RequestType:      donor.FeeType.String(),
 				EvidenceDelivery: donor.EvidenceDelivery.String(),

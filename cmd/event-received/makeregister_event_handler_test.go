@@ -91,7 +91,7 @@ func TestHandleUidRequestedDonor(t *testing.T) {
 		DynamoClient().
 		Return(dynamoClient)
 	factory.EXPECT().
-		EventClient().
+		SiriusEventClient().
 		Return(eventClient)
 
 	handler := makeregisterEventHandler{}

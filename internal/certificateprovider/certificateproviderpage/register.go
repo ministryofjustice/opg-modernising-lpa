@@ -132,7 +132,7 @@ func Register(
 	lpaStoreClient LpaStoreClient,
 	lpaStoreResolvingService LpaStoreResolvingService,
 	donorStore DonorStore,
-	eventClient EventClient,
+	siriusEventClient EventClient,
 	scheduledStore ScheduledStore,
 	appPublicURL string,
 ) {
@@ -179,7 +179,7 @@ func Register(
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLogin, page.None,
 		IdentityWithOneLogin(oneLoginClient, sessionStore, random.String))
 	handleCertificateProvider(certificateprovider.PathIdentityWithOneLoginCallback, page.None,
-		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, notifyClient, lpaStoreClient, eventClient, appPublicURL))
+		IdentityWithOneLoginCallback(oneLoginClient, sessionStore, certificateProviderStore, notifyClient, lpaStoreClient, siriusEventClient, appPublicURL))
 	handleCertificateProvider(certificateprovider.PathIdentityDetails, page.None,
 		Guidance(tmpls.Get("identity_details.gohtml")))
 

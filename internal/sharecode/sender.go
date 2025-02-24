@@ -55,17 +55,17 @@ type Sender struct {
 	scheduledStore           ScheduledStore
 	notifyClient             NotifyClient
 	appPublicURL             string
-	eventClient              EventClient
+	siriusEventClient        EventClient
 	generate                 func() (sharecodedata.PlainText, sharecodedata.Hashed)
 	now                      func() time.Time
 }
 
-func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, eventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
+func NewSender(shareCodeStore ShareCodeStore, notifyClient NotifyClient, appPublicURL string, siriusEventClient EventClient, certificateProviderStore CertificateProviderStore, scheduledStore ScheduledStore) *Sender {
 	return &Sender{
 		shareCodeStore:           shareCodeStore,
 		notifyClient:             notifyClient,
 		appPublicURL:             appPublicURL,
-		eventClient:              eventClient,
+		siriusEventClient:        siriusEventClient,
 		certificateProviderStore: certificateProviderStore,
 		scheduledStore:           scheduledStore,
 		generate:                 sharecodedata.Generate,
@@ -369,7 +369,7 @@ func (s *Sender) sendSMS(ctx context.Context, to notify.ToMobile, lpaUID string,
 }
 
 func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType actor.Type, actorUID actoruid.UID, shareCode sharecodedata.PlainText) error {
-	return s.eventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
+	return s.siriusEventClient.SendPaperFormRequested(ctx, event.PaperFormRequested{
 		UID:        lpaUID,
 		ActorType:  actorType.String(),
 		ActorUID:   actorUID,
@@ -378,7 +378,7 @@ func (s *Sender) sendPaperForm(ctx context.Context, lpaUID string, actorType act
 }
 
 func (s *Sender) sendAttorneyStarted(ctx context.Context, lpaUID string, actorUID actoruid.UID) error {
-	return s.eventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{
+	return s.siriusEventClient.SendAttorneyStarted(ctx, event.AttorneyStarted{
 		LpaUID:   lpaUID,
 		ActorUID: actorUID,
 	})

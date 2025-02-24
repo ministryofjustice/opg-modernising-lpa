@@ -13,7 +13,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 )
 
-func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, scheduledStore ScheduledStore, eventClient EventClient) Handler {
+func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore SessionStore, donorStore DonorStore, scheduledStore ScheduledStore, siriusEventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		if provided.DonorIdentityConfirmed() {
 			return donor.PathIdentityDetails.Redirect(w, r, appData, provided)
@@ -52,7 +52,7 @@ func IdentityWithOneLoginCallback(oneLoginClient OneLoginClient, sessionStore Se
 		}
 
 		if (!provided.WitnessedByCertificateProviderAt.IsZero() && !provided.DonorIdentityConfirmed()) || provided.IdentityUserData.Status.IsFailed() {
-			if err := eventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
+			if err := siriusEventClient.SendIdentityCheckMismatched(r.Context(), event.IdentityCheckMismatched{
 				LpaUID:   provided.LpaUID,
 				ActorUID: provided.Donor.UID,
 				Provided: event.IdentityCheckMismatchedDetails{

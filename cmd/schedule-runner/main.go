@@ -34,8 +34,8 @@ import (
 )
 
 var (
-	awsBaseURL   = os.Getenv("AWS_BASE_URL")
-	eventBusName = cmp.Or(os.Getenv("EVENT_BUS_NAME"), "default")
+	awsBaseURL         = os.Getenv("AWS_BASE_URL")
+	siriusEventBusName = cmp.Or(os.Getenv("SIRIUS_EVENT_BUS_NAME"), "default")
 	// TODO remove in MLPAB-2690
 	metricsEnabled        = os.Getenv("METRICS_ENABLED") == "1"
 	notifyBaseURL         = os.Getenv("GOVUK_NOTIFY_BASE_URL")
@@ -72,7 +72,9 @@ func handleRunSchedule(ctx context.Context) error {
 		return err
 	}
 
-	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, event.NewClient(cfg, eventBusName), bundle)
+	siriusEventClient := event.NewClient(cfg, siriusEventBusName)
+
+	notifyClient, err := notify.New(logger, notifyIsProduction, notifyBaseURL, notifyApiKey, httpClient, siriusEventClient, bundle)
 	if err != nil {
 		return err
 	}
@@ -81,8 +83,6 @@ func handleRunSchedule(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create dynamodb client: %w", err)
 	}
-
-	eventClient := event.NewClient(cfg, eventBusName)
 
 	searchClient, err := search.NewClient(cfg, searchEndpoint, searchIndexName, searchIndexingEnabled)
 	if err != nil {
@@ -93,7 +93,7 @@ func handleRunSchedule(ctx context.Context) error {
 	lpaStoreClient := lpastore.New(lpaStoreBaseURL, secretsClient, lpaStoreSecretARN, lambdaClient)
 
 	scheduledStore := scheduled.NewStore(dynamoClient)
-	donorStore := donor.NewStore(dynamoClient, eventClient, logger, searchClient)
+	donorStore := donor.NewStore(dynamoClient, siriusEventClient, logger, searchClient)
 	certificateProviderStore := certificateprovider.NewStore(dynamoClient)
 	attorneyStore := attorney.NewStore(dynamoClient)
 	lpaStoreResolvingService := lpastore.NewResolvingService(donorStore, lpaStoreClient)
@@ -113,7 +113,7 @@ func handleRunSchedule(ctx context.Context) error {
 		attorneyStore,
 		lpaStoreResolvingService,
 		notifyClient,
-		eventClient,
+		siriusEventClient,
 		bundle,
 		metricsClient,
 		metricsEnabled,

@@ -216,7 +216,7 @@ func TestHandleFeeApproved(t *testing.T) {
 		Now().
 		Return(testNowFn)
 	factory.EXPECT().
-		EventClient().
+		SiriusEventClient().
 		Return(eventClient)
 
 	handler := &siriusEventHandler{}
@@ -286,7 +286,7 @@ func TestHandleFeeApprovedWhenNotPaid(t *testing.T) {
 		Now().
 		Return(testNowFn)
 	factory.EXPECT().
-		EventClient().
+		SiriusEventClient().
 		Return(nil)
 
 	handler := &siriusEventHandler{}

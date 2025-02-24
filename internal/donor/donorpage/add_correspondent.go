@@ -20,7 +20,7 @@ type addCorrespondentData struct {
 	Donor  *donordata.Provided
 }
 
-func AddCorrespondent(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
+func AddCorrespondent(tmpl template.Template, donorStore DonorStore, siriusEventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &addCorrespondentData{
 			App:   appData,
@@ -38,7 +38,7 @@ func AddCorrespondent(tmpl template.Template, donorStore DonorStore, eventClient
 				var redirectUrl donor.Path
 				if provided.AddCorrespondent.IsNo() {
 					if provided.Correspondent.FirstNames != "" {
-						if err := eventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
+						if err := siriusEventClient.SendCorrespondentUpdated(r.Context(), event.CorrespondentUpdated{
 							UID: provided.LpaUID,
 						}); err != nil {
 							return err

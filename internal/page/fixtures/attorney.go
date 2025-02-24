@@ -54,7 +54,7 @@ func Attorney(
 	donorStore DonorStore,
 	certificateProviderStore CertificateProviderStore,
 	attorneyStore AttorneyStore,
-	eventClient *event.Client,
+	siriusEventClient *event.Client,
 	lpaStoreClient *lpastore.Client,
 	organisationStore OrganisationStore,
 	memberStore *supporter.MemberStore,
@@ -190,7 +190,7 @@ func Attorney(
 		}
 
 		if useRealUID {
-			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+			if err := siriusEventClient.SendUidRequested(r.Context(), event.UidRequested{
 				LpaID:          donorDetails.LpaID,
 				DonorSessionID: donorSessionID,
 				Type:           donorDetails.Type.String(),

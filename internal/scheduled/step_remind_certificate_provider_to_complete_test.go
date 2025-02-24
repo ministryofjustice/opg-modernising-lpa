@@ -460,7 +460,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 				lpaStoreResolvingService: lpaStoreResolvingService,
 				certificateProviderStore: certificateProviderStore,
 				notifyClient:             notifyClient,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				bundle:                   bundle,
 				now:                      testNowFn,
 				appPublicURL:             "http://app",
@@ -575,7 +575,7 @@ func TestRunnerRemindCertificateProviderToCompleteWhenOnPaper(t *testing.T) {
 				donorStore:               donorStore,
 				lpaStoreResolvingService: lpaStoreResolvingService,
 				certificateProviderStore: certificateProviderStore,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				now:                      testNowFn,
 			}
 
@@ -851,7 +851,7 @@ func TestRunnerRemindCertificateProviderToCompleteWhenEventClientErrors(t *testi
 				donorStore:               donorStore,
 				certificateProviderStore: certificateProviderStore,
 				lpaStoreResolvingService: lpaStoreResolvingService,
-				eventClient:              eventClient,
+				siriusEventClient:        eventClient,
 				now:                      testNowFn,
 			}
 

@@ -27,7 +27,7 @@ func WitnessingAsCertificateProvider(
 	donorStore DonorStore,
 	shareCodeSender ShareCodeSender,
 	lpaStoreClient LpaStoreClient,
-	eventClient EventClient,
+	siriusEventClient EventClient,
 	now func() time.Time,
 ) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
@@ -75,7 +75,7 @@ func WitnessingAsCertificateProvider(
 						return err
 					}
 
-					if err := eventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
+					if err := siriusEventClient.SendCertificateProviderStarted(r.Context(), event.CertificateProviderStarted{
 						UID: provided.LpaUID,
 					}); err != nil {
 						return err
