@@ -31,6 +31,7 @@ module "uploads_s3_bucket" {
     lambda_function_image_tag                 = var.app_service_container_version
     enable_s3_batch_job_replication_scheduler = var.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+  guardduty_malware_protection_plan_iam_role = var.iam_roles.s3_antivirus
   providers = {
     aws.region = aws.region
   }
