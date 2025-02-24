@@ -14,19 +14,20 @@ import (
 const source = "opg.poas.makeregister"
 
 var events = map[any]string{
-	(*UidRequested)(nil):               "uid-requested",
-	(*ApplicationDeleted)(nil):         "application-deleted",
-	(*ApplicationUpdated)(nil):         "application-updated",
-	(*ReducedFeeRequested)(nil):        "reduced-fee-requested",
-	(*NotificationSent)(nil):           "notification-sent",
-	(*PaperFormRequested)(nil):         "paper-form-requested",
-	(*PaymentReceived)(nil):            "payment-received",
-	(*CertificateProviderStarted)(nil): "certificate-provider-started",
-	(*AttorneyStarted)(nil):            "attorney-started",
-	(*IdentityCheckMismatched)(nil):    "identity-check-mismatched",
-	(*CorrespondentUpdated)(nil):       "correspondent-updated",
-	(*LpaAccessGranted)(nil):           "lpa-access-granted",
-	(*LetterRequested)(nil):            "letter-requested",
+	(*UidRequested)(nil):                "uid-requested",
+	(*ApplicationDeleted)(nil):          "application-deleted",
+	(*ApplicationUpdated)(nil):          "application-updated",
+	(*ReducedFeeRequested)(nil):         "reduced-fee-requested",
+	(*NotificationSent)(nil):            "notification-sent",
+	(*PaperFormRequested)(nil):          "paper-form-requested",
+	(*PaymentReceived)(nil):             "payment-received",
+	(*CertificateProviderStarted)(nil):  "certificate-provider-started",
+	(*AttorneyStarted)(nil):             "attorney-started",
+	(*IdentityCheckMismatched)(nil):     "identity-check-mismatched",
+	(*CorrespondentUpdated)(nil):        "correspondent-updated",
+	(*LpaAccessGranted)(nil):            "lpa-access-granted",
+	(*LetterRequested)(nil):             "letter-requested",
+	(*ConfirmAtPostOfficeSelected)(nil): "confirm-at-post-office-selected",
 }
 
 type eventbridgeClient interface {
@@ -95,6 +96,10 @@ func (c *Client) SendLpaAccessGranted(ctx context.Context, event LpaAccessGrante
 
 func (c *Client) SendLetterRequested(ctx context.Context, event LetterRequested) error {
 	return send[LetterRequested](ctx, c, event)
+}
+
+func (c *Client) SendConfirmAtPostOfficeSelected(ctx context.Context, event ConfirmAtPostOfficeSelected) error {
+	return send[ConfirmAtPostOfficeSelected](ctx, c, event)
 }
 
 func send[T any](ctx context.Context, c *Client, detail any) error {
