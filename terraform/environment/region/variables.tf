@@ -10,6 +10,7 @@ variable "iam_roles" {
     event_received_lambda                   = any
     schedule_runner_scheduler               = any
     schedule_runner_lambda                  = any
+    guardduty_malware_protection            = any
   })
   description = "ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
 }
@@ -114,15 +115,15 @@ variable "receive_account_ids" {
   default     = []
 }
 
-variable "s3_antivirus_provisioned_concurrency" {
-  type        = number
-  description = "Number of concurrent executions to provision for Lambda"
-  default     = 0
-  validation {
-    condition     = var.s3_antivirus_provisioned_concurrency >= 0 && var.s3_antivirus_provisioned_concurrency <= 6
-    error_message = "s3_antivirus_provisioned_concurrency must be between 0 and 6"
-  }
-}
+# variable "s3_antivirus_provisioned_concurrency" {
+#   type        = number
+#   description = "Number of concurrent executions to provision for Lambda"
+#   default     = 0
+#   validation {
+#     condition     = var.s3_antivirus_provisioned_concurrency >= 0 && var.s3_antivirus_provisioned_concurrency <= 6
+#     error_message = "s3_antivirus_provisioned_concurrency must be between 0 and 6"
+#   }
+# }
 
 variable "uid_service" {
   type = object({

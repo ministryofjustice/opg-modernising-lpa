@@ -34,17 +34,22 @@ variable "s3_replication" {
     EOT
 }
 
-variable "events_received_lambda_function" {
-  type        = any
-  description = "Lambda function ARN for events received"
-}
+# variable "events_received_lambda_function" {
+#   type        = any
+#   description = "Lambda function ARN for events received"
+# }
 
-variable "s3_antivirus_lambda_function" {
-  type        = any
-  description = "Lambda function ARN for events received"
-}
+# variable "s3_antivirus_lambda_function" {
+#   type        = any
+#   description = "Lambda function ARN for events received"
+# }
 
 variable "create_s3_batch_replication_jobs_lambda_iam_role" {
   type        = any
   description = "Lambda IAM role"
+}
+
+variable "guardduty_malware_protection_plan_iam_role" {
+  type        = any
+  description = "IAM role for guardduty protection plan ibject scanning"
 }
