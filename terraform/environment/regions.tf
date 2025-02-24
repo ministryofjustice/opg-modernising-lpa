@@ -69,7 +69,7 @@ module "eu_west_1" {
     destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
-  target_event_bus_arn                 = local.environment.event_bus.target_event_bus_arn
+  target_event_bus_arns                = local.environment.event_bus.target_event_bus_arns
   receive_account_ids                  = local.environment.event_bus.receive_account_ids
   app_env_vars                         = local.environment.app.env
   public_access_enabled                = var.public_access_enabled
@@ -144,7 +144,7 @@ module "eu_west_2" {
     destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
-  target_event_bus_arn                 = local.environment.event_bus.target_event_bus_arn
+  target_event_bus_arns                = local.environment.event_bus.target_event_bus_arns
   receive_account_ids                  = local.environment.event_bus.receive_account_ids
   app_env_vars                         = local.environment.app.env
   public_access_enabled                = var.public_access_enabled

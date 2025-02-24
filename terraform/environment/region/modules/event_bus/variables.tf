@@ -1,6 +1,6 @@
-variable "target_event_bus_arn" {
-  type        = string
-  description = "ARN of the event bus to forward events to"
+variable "target_event_bus_arns" {
+  type        = map(string)
+  description = "A map that contains the name and arn of event buses to forward events to"
 }
 
 variable "iam_role" {
