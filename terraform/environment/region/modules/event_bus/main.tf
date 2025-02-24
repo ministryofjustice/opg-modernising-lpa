@@ -107,7 +107,8 @@ data "aws_iam_policy_document" "cross_account_put_access" {
     actions = [
       "events:PutEvents",
     ]
-    resources = values(var.target_event_bus_arns)
+    # replace "region" in each arn with the current region assuming that event busses in other accounts will exist in each region.
+    resources = values({ for k, v in var.target_event_bus_arns : k => replace(v, "region", data.aws_region.current.name) })
   }
   provider = aws.region
 }
@@ -127,7 +128,7 @@ resource "aws_cloudwatch_event_target" "cross_account_put" {
   for_each       = var.target_event_bus_arns
   target_id      = "${data.aws_default_tags.current.tags.environment-name}-${each.key}-cross-account-put-event"
   event_bus_name = aws_cloudwatch_event_bus.main.name
-  arn            = each.value
+  arn            = replace(each.value, "region", data.aws_region.current.name)
   dead_letter_config {
     arn = aws_sqs_queue.event_bus_dead_letter_queue.arn
   }
