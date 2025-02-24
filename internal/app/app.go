@@ -84,7 +84,7 @@ type SessionStore interface {
 }
 
 type Bundle interface {
-	For(lang localize.Lang) *localize.Localizer
+	For(lang localize.Lang) localize.Localizer
 }
 
 func App(
@@ -272,7 +272,7 @@ func App(
 	return withAppData(page.ValidateCsrf(rootMux, sessionStore, random.String, errorHandler), localizer, lang)
 }
 
-func withAppData(next http.Handler, localizer page.Localizer, lang localize.Lang) http.HandlerFunc {
+func withAppData(next http.Handler, localizer localize.Localizer, lang localize.Lang) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		if contentType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";"); contentType != "multipart/form-data" {

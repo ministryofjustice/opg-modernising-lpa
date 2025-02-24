@@ -6,35 +6,19 @@ import (
 	"context"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/supporter/supporterdata"
 )
 
-type Localizer interface {
-	Concat(list []string, joiner string) string
-	Count(messageID string, count int) string
-	Format(messageID string, data map[string]interface{}) string
-	FormatCount(messageID string, count int, data map[string]any) string
-	FormatDate(t date.TimeOrDate) string
-	FormatTime(t time.Time) string
-	FormatDateTime(t time.Time) string
-	Possessive(s string) string
-	SetShowTranslationKeys(s bool)
-	ShowTranslationKeys() bool
-	T(messageID string) string
-}
-
 type Data struct {
 	Page              string
 	Path              string
 	Query             url.Values
-	Localizer         Localizer
+	Localizer         localize.Localizer
 	Lang              localize.Lang
 	CookieConsentSet  bool
 	CanGoBack         bool
