@@ -62,6 +62,10 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 			donor := &donordata.Provided{
 				LpaUID: "lpa-uid",
 			}
+
+			attorneysInvitedAt := testNow.AddDate(0, -3, -1)
+			signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+
 			lpa := &lpadata.Lpa{
 				LpaUID: "lpa-uid",
 				Type:   lpadata.LpaTypePersonalWelfare,
@@ -96,8 +100,8 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 						ContactLanguagePreference: localize.En,
 					},
 				},
-				AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
-				SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
+				AttorneysInvitedAt: attorneysInvitedAt,
+				SignedAt:           signedAt,
 			}
 
 			donorStore := newMockDonorStore(t)
@@ -123,7 +127,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.Attorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
 					DonorFullName:           "a b",
 					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "personal-welfare",
+					LpaType:                 "Personal welfare",
 					AttorneyFullName:        "c d",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
@@ -135,7 +139,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.Attorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
 					DonorFullName:           "a b",
 					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "personal-welfare",
+					LpaType:                 "Personal welfare",
 					AttorneyFullName:        "trusty",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
@@ -147,7 +151,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaAttorney(lpa.ReplacementAttorneys.Attorneys[0]), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
 					DonorFullName:           "a b",
 					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "personal-welfare",
+					LpaType:                 "Personal welfare",
 					AttorneyFullName:        "e f",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
@@ -159,7 +163,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaTrustCorporation(lpa.ReplacementAttorneys.TrustCorporation), "lpa-uid", notify.AdviseAttorneyToSignOrOptOutEmail{
 					DonorFullName:           "a b",
 					DonorFullNamePossessive: "a b’s",
-					LpaType:                 "personal-welfare",
+					LpaType:                 "Personal welfare",
 					AttorneyFullName:        "untrusty",
 					InvitedDate:             "1 October 1999",
 					DeadlineDate:            "2 April 2000",
@@ -171,7 +175,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
 					Greeting:             "hey",
 					AttorneyFullName:     "c d",
-					LpaType:              "personal-welfare",
+					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://app/attorney-start",
@@ -182,7 +186,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
 					Greeting:             "hey",
 					AttorneyFullName:     "trusty",
-					LpaType:              "personal-welfare",
+					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://app/attorney-start",
@@ -193,7 +197,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
 					Greeting:             "hey",
 					AttorneyFullName:     "e f",
-					LpaType:              "personal-welfare",
+					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://app/attorney-start",
@@ -204,7 +208,7 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorAttorneyHasNotActedEmail{
 					Greeting:             "hey",
 					AttorneyFullName:     "untrusty",
-					LpaType:              "personal-welfare",
+					LpaType:              "Personal welfare",
 					InvitedDate:          "1 October 1999",
 					DeadlineDate:         "2 April 2000",
 					AttorneyStartPageURL: "http://app/attorney-start",
@@ -212,7 +216,20 @@ func TestRunnerRemindAttorneyToComplete(t *testing.T) {
 				Return(nil).
 				Once()
 
-			localizer := &localize.Localizer{}
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				Possessive("a b").
+				Return("a b’s")
+			localizer.EXPECT().
+				T("personal-welfare").
+				Return("Personal welfare").
+				Times(8)
+			localizer.EXPECT().
+				FormatDate(attorneysInvitedAt).
+				Return("1 October 1999")
+			localizer.EXPECT().
+				FormatDate(signedAt.AddDate(0, 6, 0)).
+				Return("2 April 2000")
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
@@ -433,6 +450,9 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 	trustCorporationUID := actoruid.New()
 	replacementTrustCorporationUID := actoruid.New()
 
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+	attorneysInvitedAt := testNow.AddDate(0, -3, -1).Add(-time.Second)
+
 	lpa := &lpadata.Lpa{
 		LpaUID: "lpa-uid",
 		Type:   lpadata.LpaTypePersonalWelfare,
@@ -472,8 +492,8 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 				Channel:                   lpadata.ChannelPaper,
 			},
 		},
-		SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
-		AttorneysInvitedAt: testNow.AddDate(0, -3, -1).Add(-time.Second),
+		SignedAt:           signedAt,
+		AttorneysInvitedAt: attorneysInvitedAt,
 	}
 
 	row := &Event{
@@ -507,7 +527,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperAttorneyHasNotActedEmail{
 			Greeting:         "hey",
 			AttorneyFullName: "c d",
-			LpaType:          "personal-welfare",
+			LpaType:          "Personal welfare",
 			PostedDate:       "1 October 1999",
 			DeadlineDate:     "2 April 2000",
 		}).
@@ -517,7 +537,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperAttorneyHasNotActedEmail{
 			Greeting:         "hey",
 			AttorneyFullName: "trusty",
-			LpaType:          "personal-welfare",
+			LpaType:          "Personal welfare",
 			PostedDate:       "1 October 1999",
 			DeadlineDate:     "2 April 2000",
 		}).
@@ -527,7 +547,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperAttorneyHasNotActedEmail{
 			Greeting:         "hey",
 			AttorneyFullName: "e f",
-			LpaType:          "personal-welfare",
+			LpaType:          "Personal welfare",
 			PostedDate:       "1 October 1999",
 			DeadlineDate:     "2 April 2000",
 		}).
@@ -537,7 +557,7 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperAttorneyHasNotActedEmail{
 			Greeting:         "hey",
 			AttorneyFullName: "untrusty",
-			LpaType:          "personal-welfare",
+			LpaType:          "Personal welfare",
 			PostedDate:       "1 October 1999",
 			DeadlineDate:     "2 April 2000",
 		}).
@@ -578,10 +598,22 @@ func TestRunnerRemindAttorneyToCompleteWhenAttorneysOnPaper(t *testing.T) {
 		}).
 		Return(nil)
 
+	localizer := newMockLocalizer(t)
+	localizer.EXPECT().
+		T("personal-welfare").
+		Return("Personal welfare").
+		Times(4)
+	localizer.EXPECT().
+		FormatDate(attorneysInvitedAt).
+		Return("1 October 1999")
+	localizer.EXPECT().
+		FormatDate(signedAt.AddDate(0, 6, 0)).
+		Return("2 April 2000")
+
 	bundle := newMockBundle(t)
 	bundle.EXPECT().
 		For(localize.En).
-		Return(&localize.Localizer{})
+		Return(localizer)
 
 	runner := &Runner{
 		donorStore:               donorStore,
@@ -837,8 +869,11 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 		},
 	}
 
+	attorneysInvitedAt := testNow.AddDate(0, -3, -1)
+	signedAt := testNow.AddDate(0, -3, 0).Add(-time.Second)
+
 	lpaCases := map[string]*lpadata.Lpa{
-		"attorney": &lpadata.Lpa{
+		"attorney": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -854,10 +889,10 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 				}},
 			},
-			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
-			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
+			AttorneysInvitedAt: attorneysInvitedAt,
+			SignedAt:           signedAt,
 		},
-		"replacement attorney": &lpadata.Lpa{
+		"replacement attorney": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -873,10 +908,10 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 				}},
 			},
-			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
-			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
+			AttorneysInvitedAt: attorneysInvitedAt,
+			SignedAt:           signedAt,
 		},
-		"trust corporation": &lpadata.Lpa{
+		"trust corporation": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -891,10 +926,10 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 				},
 			},
-			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
-			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
+			AttorneysInvitedAt: attorneysInvitedAt,
+			SignedAt:           signedAt,
 		},
-		"replacement trust corporation": &lpadata.Lpa{
+		"replacement trust corporation": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -909,8 +944,8 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 				},
 			},
-			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
-			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
+			AttorneysInvitedAt: attorneysInvitedAt,
+			SignedAt:           signedAt,
 		},
 	}
 
@@ -943,7 +978,19 @@ func TestRunnerRemindAttorneyToCompleteWhenNotifyClientErrors(t *testing.T) {
 				notifyClient := newMockNotifyClient(t)
 				setupNotify(notifyClient)
 
-				localizer := &localize.Localizer{}
+				localizer := newMockLocalizer(t)
+				localizer.EXPECT().
+					Possessive(mock.Anything).
+					Return("a b’s")
+				localizer.EXPECT().
+					T(mock.Anything).
+					Return("Personal welfare")
+				localizer.EXPECT().
+					FormatDate(mock.Anything).
+					Return("1 October 1999")
+				localizer.EXPECT().
+					FormatDate(mock.Anything).
+					Return("2 April 2000")
 
 				bundle := newMockBundle(t)
 				bundle.EXPECT().
@@ -990,7 +1037,7 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 	}
 
 	lpaCases := map[string]*lpadata.Lpa{
-		"attorney": &lpadata.Lpa{
+		"attorney": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -1011,7 +1058,7 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
 			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
 		},
-		"replacement attorney": &lpadata.Lpa{
+		"replacement attorney": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -1032,7 +1079,7 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
 			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
 		},
-		"trust corporation": &lpadata.Lpa{
+		"trust corporation": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
@@ -1052,7 +1099,7 @@ func TestRunnerRemindAttorneyToCompleteWhenEventClientErrors(t *testing.T) {
 			AttorneysInvitedAt: testNow.AddDate(0, -3, -1),
 			SignedAt:           testNow.AddDate(0, -3, 0).Add(-time.Second),
 		},
-		"replacement trust corporation": &lpadata.Lpa{
+		"replacement trust corporation": {
 			LpaUID: "lpa-uid",
 			Type:   lpadata.LpaTypePersonalWelfare,
 			Donor: lpadata.Donor{
