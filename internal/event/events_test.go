@@ -186,6 +186,11 @@ var eventTests = map[string]map[string]any{
 			ActorUID:   actoruid.New(),
 		},
 	},
+	"confirm-at-post-office-selected": {
+		"valid": ConfirmAtPostOfficeSelected{
+			UID: "M-1111-2222-3333",
+		},
+	},
 }
 
 func TestEventSchema(t *testing.T) {

@@ -115,3 +115,7 @@ type LetterRequested struct {
 	ActorType  actor.Type   `json:"actorType"`
 	ActorUID   actoruid.UID `json:"actorUID"`
 }
+
+type ConfirmAtPostOfficeSelected struct {
+	UID string `json:"uid"`
+}
