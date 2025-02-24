@@ -175,9 +175,7 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 	case identity.StatusConfirmed:
 		confirmYourIdentityPath = donor.PathIdentityDetails
 
-		if !provided.WitnessedByCertificateProviderAt.IsZero() {
-			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
-		} else if !provided.SignedAt.IsZero() {
+		if !provided.SignedAt.IsZero() {
 			signTheLpaPath = donor.PathWitnessingYourSignature
 		}
 
@@ -187,9 +185,7 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		if provided.RegisteringWithCourtOfProtection {
 			confirmYourIdentityPath = donor.PathWhatHappensNextRegisteringWithCourtOfProtection
 
-			if !provided.WitnessedByCertificateProviderAt.IsZero() {
-				signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
-			} else if !provided.SignedAt.IsZero() {
+			if !provided.SignedAt.IsZero() {
 				signTheLpaPath = donor.PathWitnessingYourSignature
 			} else {
 				signTheLpaPath = donor.PathHowToSignYourLpa
@@ -200,9 +196,7 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		confirmYourIdentityPath = donor.PathWhatYouCanDoNowExpired
 
 	case identity.StatusInsufficientEvidence:
-		if !provided.WitnessedByCertificateProviderAt.IsZero() {
-			signTheLpaPath = donor.PathYouHaveSubmittedYourLpa
-		} else if !provided.SignedAt.IsZero() {
+		if !provided.SignedAt.IsZero() {
 			signTheLpaPath = donor.PathWitnessingYourSignature
 		}
 
@@ -224,6 +218,10 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 		} else if provided.Tasks.ConfirmYourIdentity.IsPending() {
 			confirmYourIdentityPath = donor.PathCompletingYourIdentityConfirmation
 		}
+	}
+
+	if !provided.WitnessedByCertificateProviderAt.IsZero() {
+		signTheLpaPath = ""
 	}
 
 	return taskListSection{
