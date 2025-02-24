@@ -61,6 +61,10 @@ type CertificateProviderStore interface {
 	Put(ctx context.Context, certificateProvider *certificateproviderdata.Provided) error
 }
 
+type Localizer interface {
+	localize.Localizer
+}
+
 type Factory struct {
 	logger                *slog.Logger
 	now                   func() time.Time
@@ -251,4 +255,8 @@ func (f *Factory) CertificateProviderStore() CertificateProviderStore {
 	}
 
 	return f.certificateProviderStore
+}
+
+func (f *Factory) AppPublicURL() string {
+	return f.appPublicURL
 }

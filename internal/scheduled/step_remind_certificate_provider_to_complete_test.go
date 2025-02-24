@@ -27,12 +27,16 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 	nilNotifyClient := func(*testing.T, context.Context, *lpadata.Lpa) *mockNotifyClient { return nil }
 	nilEventClient := func(*testing.T, context.Context, *lpadata.Lpa) *mockEventClient { return nil }
 
+	signedAt := testNow.AddDate(0, -3, -1)
+	invitedAt := testNow.AddDate(0, -3, -1)
+
 	testcases := map[string]struct {
 		lpa                      *lpadata.Lpa
 		certificateProvider      *certificateproviderdata.Provided
 		certificateProviderError error
 		notifyClient             func(*testing.T, context.Context, *lpadata.Lpa) *mockNotifyClient
 		eventClient              func(*testing.T, context.Context, *lpadata.Lpa) *mockEventClient
+		localizer                func(*testing.T) *mockLocalizer
 	}{
 		"online donor online certificate provider not started": {
 			lpa: &lpadata.Lpa{
@@ -48,7 +52,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					LastName:                  "d",
 					ContactLanguagePreference: localize.En,
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			certificateProviderError: dynamo.NotFoundError{},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
@@ -60,8 +65,9 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmail{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						CertificateProviderFullName:     "c d",
+						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -71,7 +77,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorCertificateProviderHasNotActedEmail{
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
+						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -80,6 +87,23 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 				return notifyClient
 			},
 			eventClient: nilEventClient,
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare").
+					Twice()
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
+			},
 		},
 		"online donor online certificate provider started": {
 			lpa: &lpadata.Lpa{
@@ -95,7 +119,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					LastName:                  "d",
 					ContactLanguagePreference: localize.En,
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			certificateProvider: &certificateproviderdata.Provided{
 				ContactLanguagePreference: localize.En,
@@ -109,8 +134,9 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmail{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						CertificateProviderFullName:     "c d",
+						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -120,7 +146,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorCertificateProviderHasNotActedEmail{
 						Greeting:                        "hey",
 						CertificateProviderFullName:     "c d",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
+						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -129,6 +156,23 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 				return notifyClient
 			},
 			eventClient: nilEventClient,
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare").
+					Twice()
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
+			},
 		},
 		"online donor paper certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -145,7 +189,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					ContactLanguagePreference: localize.En,
 					Channel:                   lpadata.ChannelPaper,
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			certificateProviderError: dynamo.NotFoundError{},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
@@ -157,7 +202,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaDonor(lpa), "lpa-uid", notify.InformDonorPaperCertificateProviderHasNotActedEmail{
 						Greeting:                    "hey",
 						CertificateProviderFullName: "c d",
-						LpaType:                     "personal-welfare",
+						LpaType:                     "Personal welfare",
+						PostedDate:                  "1 March 2000",
 						DeadlineDate:                "1 April 2000",
 					}).
 					Return(nil).
@@ -176,6 +222,19 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					Return(nil)
 				return eventClient
 			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
+			},
 		},
 		"paper donor online certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -193,7 +252,8 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					LastName:                  "d",
 					ContactLanguagePreference: localize.En,
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt:                     signedAt,
+				CertificateProviderInvitedAt: invitedAt,
 			},
 			certificateProviderError: dynamo.NotFoundError{},
 			notifyClient: func(t *testing.T, ctx context.Context, lpa *lpadata.Lpa) *mockNotifyClient {
@@ -202,8 +262,9 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					SendActorEmail(ctx, notify.ToLpaCertificateProvider(nil, lpa), "lpa-uid", notify.AdviseCertificateProviderToSignOrOptOutEmail{
 						DonorFullName:                   "a b",
 						DonorFullNamePossessive:         "a b’s",
-						LpaType:                         "personal-welfare",
+						LpaType:                         "Personal welfare",
 						CertificateProviderFullName:     "c d",
+						InvitedDate:                     "1 March 2000",
 						DeadlineDate:                    "1 April 2000",
 						CertificateProviderStartPageURL: "http://app/certificate-provider-start",
 					}).
@@ -223,6 +284,22 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					Return(nil)
 				return eventClient
 			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
+			},
 		},
 		"paper donor paper certificate provider": {
 			lpa: &lpadata.Lpa{
@@ -239,7 +316,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					LastName:   "d",
 					Channel:    lpadata.ChannelPaper,
 				},
-				SignedAt: testNow.AddDate(0, -3, 0).Add(-time.Second),
+				SignedAt: signedAt,
 			},
 			certificateProviderError: dynamo.NotFoundError{},
 			notifyClient:             nilNotifyClient,
@@ -262,6 +339,22 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					}).
 					Return(nil)
 				return eventClient
+			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
 			},
 		},
 		"paper correspondent paper certificate provider": {
@@ -284,7 +377,7 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					UID:     correspondentUID,
 					Address: place.Address{Line1: "123"},
 				},
-				SignedAt: testNow.AddDate(0, -3, -1),
+				SignedAt: signedAt,
 			},
 			certificateProviderError: dynamo.NotFoundError{},
 			notifyClient:             nilNotifyClient,
@@ -307,6 +400,22 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 					}).
 					Return(nil)
 				return eventClient
+			},
+			localizer: func(t *testing.T) *mockLocalizer {
+				l := newMockLocalizer(t)
+				l.EXPECT().
+					Possessive("a b").
+					Return("a b’s")
+				l.EXPECT().
+					T("personal-welfare").
+					Return("Personal welfare")
+				l.EXPECT().
+					FormatDate(signedAt.AddDate(0, 6, 0)).
+					Return("1 April 2000")
+				l.EXPECT().
+					FormatDate(invitedAt).
+					Return("1 March 2000")
+				return l
 			},
 		},
 	}
@@ -339,13 +448,11 @@ func TestRunnerRemindCertificateProviderToComplete(t *testing.T) {
 			notifyClient := tc.notifyClient(t, ctx, tc.lpa)
 			eventClient := tc.eventClient(t, ctx, tc.lpa)
 
-			localizer := &localize.Localizer{}
-
 			bundle := newMockBundle(t)
 			if notifyClient != nil {
 				bundle.EXPECT().
 					For(localize.En).
-					Return(localizer)
+					Return(tc.localizer(t))
 			}
 
 			runner := &Runner{
@@ -663,7 +770,19 @@ func TestRunnerRemindCertificateProviderToCompleteWhenNotifyClientErrors(t *test
 			notifyClient := newMockNotifyClient(t)
 			setupNotifyClient(notifyClient)
 
-			localizer := &localize.Localizer{}
+			localizer := newMockLocalizer(t)
+			localizer.EXPECT().
+				Possessive(mock.Anything).
+				Return("a b’s")
+			localizer.EXPECT().
+				T(mock.Anything).
+				Return("Personal welfare")
+			localizer.EXPECT().
+				FormatDate(mock.Anything).
+				Return("1 April 2000")
+			localizer.EXPECT().
+				FormatDate(mock.Anything).
+				Return("1 March 2000")
 
 			bundle := newMockBundle(t)
 			bundle.EXPECT().
