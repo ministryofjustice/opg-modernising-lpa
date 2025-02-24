@@ -59,46 +59,57 @@ resource "aws_s3_bucket_logging" "bucket" {
 }
 
 data "aws_iam_policy_document" "bucket" {
-  policy_id = "PutObjPolicy"
-
+  policy_id = "AllowGuarddutyPutValidationObject"
   statement {
-    sid       = "DenyUnEncryptedObjectUploads"
-    effect    = "Deny"
+    sid       = "AllowGuardduty"
+    effect    = "Allow"
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.bucket.arn}/*"]
-
-    condition {
-      test     = "StringNotEquals"
-      variable = "s3:x-amz-server-side-encryption"
-      values   = ["aws:kms"]
-    }
+    resources = ["${aws_s3_bucket.bucket.arn}/malware-protection-resource-validation-object"]
 
     principals {
       type        = "AWS"
-      identifiers = ["*"]
+      identifiers = [var.guardduty_malware_protection_plan_iam_role.arn]
     }
   }
 
-  statement {
-    sid     = "DenyNonSSLRequests"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.bucket.arn,
-      "${aws_s3_bucket.bucket.arn}/*"
-    ]
+  # statement {
+  #   sid       = "DenyUnEncryptedObjectUploads"
+  #   effect    = "Deny"
+  #   actions   = ["s3:PutObject"]
+  #   resources = ["${aws_s3_bucket.bucket.arn}/*"]
 
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = [false]
-    }
+  #   condition {
+  #     test     = "StringNotEquals"
+  #     variable = "s3:x-amz-server-side-encryption"
+  #     values   = ["aws:kms"]
+  #   }
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
+  #   principals {
+  #     type        = "AWS"
+  #     identifiers = ["*"]
+  #   }
+  # }
+
+  # statement {
+  #   sid     = "DenyNonSSLRequests"
+  #   effect  = "Deny"
+  #   actions = ["s3:*"]
+  #   resources = [
+  #     aws_s3_bucket.bucket.arn,
+  #     "${aws_s3_bucket.bucket.arn}/*"
+  #   ]
+
+  #   condition {
+  #     test     = "Bool"
+  #     variable = "aws:SecureTransport"
+  #     values   = [false]
+  #   }
+
+  #   principals {
+  #     type        = "AWS"
+  #     identifiers = ["*"]
+  #   }
+  # }
 
   provider = aws.region
 }
