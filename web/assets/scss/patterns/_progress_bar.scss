@@ -46,10 +46,6 @@
       height: 100%;
     }
   }
-
-  &[aria-current=step] { // https://tink.uk/using-the-aria-current-attribute
-    @include govuk-font($size: 19, $weight: "bold");
-  }
 }
 
 .app-progress-bar__icon {
