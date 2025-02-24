@@ -61,10 +61,21 @@ resource "aws_s3_bucket_logging" "bucket" {
 data "aws_iam_policy_document" "bucket" {
   policy_id = "AllowGuarddutyPutValidationObject"
   statement {
-    sid       = "AllowGuardduty"
-    effect    = "Allow"
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.bucket.arn}/malware-protection-resource-validation-object"]
+    sid    = "AllowGuardduty"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:PutObjectTagging",
+      "s3:GetObjectTagging",
+      "s3:PutObjectVersionTagging",
+      "s3:GetObjectVersionTagging"
+    ]
+    resources = [
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*"
+    ]
 
     principals {
       type        = "AWS"
@@ -72,44 +83,44 @@ data "aws_iam_policy_document" "bucket" {
     }
   }
 
-  # statement {
-  #   sid       = "DenyUnEncryptedObjectUploads"
-  #   effect    = "Deny"
-  #   actions   = ["s3:PutObject"]
-  #   resources = ["${aws_s3_bucket.bucket.arn}/*"]
+  statement {
+    sid       = "DenyUnEncryptedObjectUploads"
+    effect    = "Deny"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.bucket.arn}/*"]
 
-  #   condition {
-  #     test     = "StringNotEquals"
-  #     variable = "s3:x-amz-server-side-encryption"
-  #     values   = ["aws:kms"]
-  #   }
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption"
+      values   = ["aws:kms"]
+    }
 
-  #   principals {
-  #     type        = "AWS"
-  #     identifiers = ["*"]
-  #   }
-  # }
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
 
-  # statement {
-  #   sid     = "DenyNonSSLRequests"
-  #   effect  = "Deny"
-  #   actions = ["s3:*"]
-  #   resources = [
-  #     aws_s3_bucket.bucket.arn,
-  #     "${aws_s3_bucket.bucket.arn}/*"
-  #   ]
+  statement {
+    sid     = "DenyNonSSLRequests"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*"
+    ]
 
-  #   condition {
-  #     test     = "Bool"
-  #     variable = "aws:SecureTransport"
-  #     values   = [false]
-  #   }
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = [false]
+    }
 
-  #   principals {
-  #     type        = "AWS"
-  #     identifiers = ["*"]
-  #   }
-  # }
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
 
   provider = aws.region
 }
