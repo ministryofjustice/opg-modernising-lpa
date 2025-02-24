@@ -26,7 +26,7 @@ func handleObjectTagsAdded(ctx context.Context, dynamodbClient dynamodbClient, e
 	hasVirus := false
 
 	for _, tag := range tags {
-		if *tag.Key == "virus-scan-status" {
+		if *tag.Key == "GuardDutyMalwareScanStatus" {
 			hasScannedTag = true
 			hasVirus = *tag.Value == virusFound
 			break
