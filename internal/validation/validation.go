@@ -2,11 +2,10 @@
 // translatable errors.
 package validation
 
+import "github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
+
 type Localizer interface {
-	Concat(x []string, b string) string
-	Format(x string, a map[string]interface{}) string
-	FormatCount(a string, b int, c map[string]interface{}) string
-	T(a string) string
+	localize.Localizer
 }
 
 type Field struct {
