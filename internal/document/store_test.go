@@ -286,10 +286,10 @@ func TestDocumentStoreSubmit(t *testing.T) {
 
 	s3Client := newMockS3Client(t)
 	s3Client.EXPECT().
-		PutObjectTagging(ctx, "a-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
+		PutObjectTagging(ctx, "a-key", map[string]string{"replicate": "true", "GuardDutyMalwareScanStatus": "NO_THREATS_FOUND"}).
 		Return(nil)
 	s3Client.EXPECT().
-		PutObjectTagging(ctx, "b-key", map[string]string{"replicate": "true", "virus-scan-status": "ok"}).
+		PutObjectTagging(ctx, "b-key", map[string]string{"replicate": "true", "GuardDutyMalwareScanStatus": "NO_THREATS_FOUND"}).
 		Return(nil)
 
 	eventClient := newMockEventClient(t)

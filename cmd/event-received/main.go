@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	virusFound = "infected"
+	virusFound = "THREATS_FOUND"
 )
 
 var (
