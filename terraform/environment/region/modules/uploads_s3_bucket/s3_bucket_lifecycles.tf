@@ -6,8 +6,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "main" {
 
     filter {
       tag {
-        key   = "virus-scan-status"
-        value = "infected"
+        key   = "GuardDutyMalwareScanStatus"
+        value = "THREATS_FOUND"
       }
     }
 
