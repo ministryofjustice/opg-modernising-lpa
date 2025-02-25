@@ -3,6 +3,7 @@ package donorpage
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 )
 
-func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFrequency time.Duration, now func() time.Time) Handler {
+func UploadEvidenceSSE(documentStore DocumentStore, logger Logger, ttl time.Duration, flushFrequency time.Duration, now func() time.Time) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, donor *donordata.Provided) error {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
@@ -18,6 +19,7 @@ func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFreq
 
 		documents, err := documentStore.GetAll(r.Context())
 		if err != nil {
+			logger.ErrorContext(r.Context(), "error getting all documents", slog.Any("err", err))
 			printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
 			return nil
 		}
@@ -28,6 +30,7 @@ func UploadEvidenceSSE(documentStore DocumentStore, ttl time.Duration, flushFreq
 		for start := now(); time.Since(start) < ttl; {
 			documents, err := documentStore.GetAll(r.Context())
 			if err != nil {
+				logger.ErrorContext(r.Context(), "error getting all documents", slog.Any("err", err))
 				printMessage("data: {\"closeConnection\": \"1\"}\n\n", w)
 				return nil
 			}
