@@ -76,7 +76,6 @@ module "eu_west_1" {
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
   dns_weighting          = 100
-  # s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
   uid_service = {
     base_url = local.environment.uid_service.base_url
     api_arns = local.environment.uid_service.api_arns
@@ -152,7 +151,6 @@ module "eu_west_2" {
   public_access_enabled  = var.public_access_enabled
   pagerduty_service_name = local.environment.pagerduty_service_name
   dns_weighting          = 0
-  # s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
   uid_service = {
     base_url = local.environment.uid_service.base_url
     api_arns = local.environment.uid_service.api_arns
