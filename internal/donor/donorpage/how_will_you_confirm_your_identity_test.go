@@ -10,6 +10,7 @@ import (
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
@@ -30,7 +31,7 @@ func TestGetHowWillYouConfirmYourIdentity(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -46,7 +47,7 @@ func TestGetHowWillYouConfirmYourIdentityWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	assert.Equal(t, expectedError, err)
 }
 
@@ -88,7 +89,7 @@ func TestPostHowWillYouConfirmYourIdentity(t *testing.T) {
 			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 			r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-			err := HowWillYouConfirmYourIdentity(nil, nil)(testAppData, w, r, tc.provided)
+			err := HowWillYouConfirmYourIdentity(nil, nil, nil)(testAppData, w, r, tc.provided)
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -107,20 +108,49 @@ func TestPostHowWillYouConfirmYourIdentityWhenAtPostOfficeSelected(t *testing.T)
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
-	donorStore := newMockDonorStore(t)
-	donorStore.EXPECT().
-		Put(r.Context(), &donordata.Provided{
-			LpaID: "lpa-id",
-			Tasks: donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendConfirmAtPostOfficeSelected(r.Context(), event.ConfirmAtPostOfficeSelected{
+			UID: "lpa-uid",
 		}).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(nil, donorStore)(testAppData, w, r, &donordata.Provided{LpaID: "lpa-id"})
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{
+			LpaID:  "lpa-id",
+			LpaUID: "lpa-uid",
+			Tasks:  donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+		}).
+		Return(nil)
+
+	err := HowWillYouConfirmYourIdentity(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{
+		LpaID:  "lpa-id",
+		LpaUID: "lpa-uid",
+	})
 	resp := w.Result()
 
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusFound, resp.StatusCode)
 	assert.Equal(t, donor.PathTaskList.Format("lpa-id"), resp.Header.Get("Location"))
+}
+
+func TestPostHowWillYouConfirmYourIdentityWhenEventClientErrors(t *testing.T) {
+	form := url.Values{
+		form.FieldNames.Select: {howYouWillConfirmYourIdentityAtPostOffice.String()},
+	}
+
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
+	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendConfirmAtPostOfficeSelected(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	err := HowWillYouConfirmYourIdentity(nil, nil, eventClient)(testAppData, w, r, &donordata.Provided{})
+	assert.ErrorIs(t, err, expectedError)
 }
 
 func TestPostHowWillYouConfirmYourIdentityWhenStoreErrors(t *testing.T) {
@@ -132,12 +162,17 @@ func TestPostHowWillYouConfirmYourIdentityWhenStoreErrors(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendConfirmAtPostOfficeSelected(mock.Anything, mock.Anything).
+		Return(nil)
+
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := HowWillYouConfirmYourIdentity(nil, donorStore)(testAppData, w, r, &donordata.Provided{})
+	err := HowWillYouConfirmYourIdentity(nil, donorStore, eventClient)(testAppData, w, r, &donordata.Provided{})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -153,7 +188,7 @@ func TestPostHowWillYouConfirmYourIdentityWhenValidationErrors(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := HowWillYouConfirmYourIdentity(template.Execute, nil)(testAppData, w, r, &donordata.Provided{})
+	err := HowWillYouConfirmYourIdentity(template.Execute, nil, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	assert.Nil(t, err)
