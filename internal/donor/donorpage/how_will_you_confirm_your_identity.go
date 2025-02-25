@@ -8,6 +8,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/event"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
@@ -29,7 +30,7 @@ type howWillYouConfirmYourIdentityData struct {
 	Form   *form.SelectForm[howYouWillConfirmYourIdentity, howYouWillConfirmYourIdentityOptions, *howYouWillConfirmYourIdentity]
 }
 
-func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore) Handler {
+func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore, eventClient EventClient) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
 		data := &howWillYouConfirmYourIdentityData{
 			App:  appData,
@@ -44,6 +45,12 @@ func HowWillYouConfirmYourIdentity(tmpl template.Template, donorStore DonorStore
 				switch data.Form.Selected {
 				case howYouWillConfirmYourIdentityAtPostOffice:
 					provided.Tasks.ConfirmYourIdentity = task.IdentityStatePending
+
+					if err := eventClient.SendConfirmAtPostOfficeSelected(r.Context(), event.ConfirmAtPostOfficeSelected{
+						UID: provided.LpaUID,
+					}); err != nil {
+						return fmt.Errorf("error sending event: %w", err)
+					}
 
 					if err := donorStore.Put(r.Context(), provided); err != nil {
 						return fmt.Errorf("error updating donor: %w", err)

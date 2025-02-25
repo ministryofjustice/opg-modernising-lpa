@@ -69,6 +69,53 @@ func (_c *mockEventClient_SendCertificateProviderStarted_Call) RunAndReturn(run 
 	return _c
 }
 
+// SendConfirmAtPostOfficeSelected provides a mock function with given fields: ctx, e
+func (_m *mockEventClient) SendConfirmAtPostOfficeSelected(ctx context.Context, e event.ConfirmAtPostOfficeSelected) error {
+	ret := _m.Called(ctx, e)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendConfirmAtPostOfficeSelected")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, event.ConfirmAtPostOfficeSelected) error); ok {
+		r0 = rf(ctx, e)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockEventClient_SendConfirmAtPostOfficeSelected_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendConfirmAtPostOfficeSelected'
+type mockEventClient_SendConfirmAtPostOfficeSelected_Call struct {
+	*mock.Call
+}
+
+// SendConfirmAtPostOfficeSelected is a helper method to define mock.On call
+//   - ctx context.Context
+//   - e event.ConfirmAtPostOfficeSelected
+func (_e *mockEventClient_Expecter) SendConfirmAtPostOfficeSelected(ctx interface{}, e interface{}) *mockEventClient_SendConfirmAtPostOfficeSelected_Call {
+	return &mockEventClient_SendConfirmAtPostOfficeSelected_Call{Call: _e.mock.On("SendConfirmAtPostOfficeSelected", ctx, e)}
+}
+
+func (_c *mockEventClient_SendConfirmAtPostOfficeSelected_Call) Run(run func(ctx context.Context, e event.ConfirmAtPostOfficeSelected)) *mockEventClient_SendConfirmAtPostOfficeSelected_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(event.ConfirmAtPostOfficeSelected))
+	})
+	return _c
+}
+
+func (_c *mockEventClient_SendConfirmAtPostOfficeSelected_Call) Return(_a0 error) *mockEventClient_SendConfirmAtPostOfficeSelected_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockEventClient_SendConfirmAtPostOfficeSelected_Call) RunAndReturn(run func(context.Context, event.ConfirmAtPostOfficeSelected) error) *mockEventClient_SendConfirmAtPostOfficeSelected_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendCorrespondentUpdated provides a mock function with given fields: ctx, e
 func (_m *mockEventClient) SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error {
 	ret := _m.Called(ctx, e)
