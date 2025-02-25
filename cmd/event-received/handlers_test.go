@@ -19,8 +19,8 @@ import (
 
 func TestHandleObjectTagsAdded(t *testing.T) {
 	testCases := map[string]bool{
-		"ok":       false,
-		"infected": true,
+		"NO_THREATS_FOUND": false,
+		"THREATS_FOUND":    true,
 	}
 
 	for scanResult, hasVirus := range testCases {
@@ -35,7 +35,7 @@ func TestHandleObjectTagsAdded(t *testing.T) {
 			s3Client.EXPECT().
 				GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 				Return([]types.Tag{
-					{Key: aws.String("virus-scan-status"), Value: aws.String(scanResult)},
+					{Key: aws.String("GuardDutyMalwareScanStatus"), Value: aws.String(scanResult)},
 				}, nil)
 
 			dynamoClient := newMockDynamodbClient(t)
@@ -76,7 +76,7 @@ func TestHandleObjectTagsAddedWhenScannedTagMissing(t *testing.T) {
 	s3Client.EXPECT().
 		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
-			{Key: aws.String("not-virus-scan-status"), Value: aws.String("ok")},
+			{Key: aws.String("NotGuardDutyMalwareScanStatus"), Value: aws.String("NO_THREATS_FOUND")},
 		}, nil)
 
 	err := handleObjectTagsAdded(ctx, nil, event.S3Event, s3Client, nil)
@@ -121,7 +121,7 @@ func TestHandleObjectTagsAddedWhenDynamoClientOneByUIDError(t *testing.T) {
 	s3Client.EXPECT().
 		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
-			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+			{Key: aws.String("GuardDutyMalwareScanStatus"), Value: aws.String("NO_THREATS_FOUND")},
 		}, nil)
 
 	dynamoClient := newMockDynamodbClient(t)
@@ -155,7 +155,7 @@ func TestHandleObjectTagsAddedWhenDocumentStoreUpdateScanResultsError(t *testing
 	s3Client.EXPECT().
 		GetObjectTags(ctx, "M-1111-2222-3333/evidence/a-uid").
 		Return([]types.Tag{
-			{Key: aws.String("virus-scan-status"), Value: aws.String("ok")},
+			{Key: aws.String("GuardDutyMalwareScanStatus"), Value: aws.String("NO_THREATS_FOUND")},
 		}, nil)
 
 	dynamoClient := newMockDynamodbClient(t)
