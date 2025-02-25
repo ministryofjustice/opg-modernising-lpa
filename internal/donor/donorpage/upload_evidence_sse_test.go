@@ -10,6 +10,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/document"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestUploadEvidenceSSE(t *testing.T) {
@@ -38,7 +39,7 @@ func TestUploadEvidenceSSE(t *testing.T) {
 
 	now := time.Now()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{})
+	err := UploadEvidenceSSE(documentStore, nil, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -60,7 +61,11 @@ func TestUploadEvidenceSSEOnDonorStoreError(t *testing.T) {
 			{Scanned: true},
 		}, expectedError)
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, nil)(testAppData, w, r, &donordata.Provided{})
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(mock.Anything, mock.Anything, mock.Anything)
+
+	err := UploadEvidenceSSE(documentStore, logger, 4*time.Millisecond, 2*time.Millisecond, nil)(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
@@ -91,9 +96,13 @@ func TestUploadEvidenceSSEOnDonorStoreErrorWhenRefreshingDocuments(t *testing.T)
 		}, expectedError).
 		Once()
 
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		ErrorContext(mock.Anything, mock.Anything, mock.Anything)
+
 	now := time.Now()
 
-	err := UploadEvidenceSSE(documentStore, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{})
+	err := UploadEvidenceSSE(documentStore, logger, 4*time.Millisecond, 2*time.Millisecond, func() time.Time { return now })(testAppData, w, r, &donordata.Provided{})
 	resp := w.Result()
 
 	bodyBytes, _ := io.ReadAll(resp.Body)

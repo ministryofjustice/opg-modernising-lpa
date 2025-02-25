@@ -189,9 +189,9 @@ emit-priority-correspondence-sent: ##@events emits a priority-correspondence-sen
 		--function-name event-received text \
 		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
-emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to infected
+emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with GuardDutyMalwareScanStatus exists on an existing object set to THREATS_FOUND
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
-		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "infected" }]}'
+		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "GuardDutyMalwareScanStatus", "Value": "THREATS_FOUND" }]}'
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
 		--endpoint-url=http://localhost:4566 \
@@ -199,9 +199,9 @@ emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event wit
 		--function-name event-received text \
 		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
-emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with virus-scan-status exists on an existing object set to ok
+emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with GuardDutyMalwareScanStatus exists on an existing object set to NO_THREATS_FOUND
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
-		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "virus-scan-status", "Value": "ok" }]}'
+		put-object-tagging --bucket evidence --key $(key) --tagging '{"TagSet": [{ "Key": "GuardDutyMalwareScanStatus", "Value": "NO_THREATS_FOUND" }]}'
 
 	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
 		--endpoint-url=http://localhost:4566 \
