@@ -128,8 +128,8 @@ resource "aws_s3_bucket_replication_configuration" "replication" {
     filter {
       and {
         tags = {
-          "replicate"         = "true"
-          "virus-scan-status" = "ok"
+          "replicate"                  = "true"
+          "GuardDutyMalwareScanStatus" = "NO_THREATS_FOUND"
         }
       }
     }

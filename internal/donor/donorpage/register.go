@@ -482,7 +482,7 @@ func Register(
 		Progress(tmpls.Get("progress.gohtml"), lpaStoreResolvingService, progressTracker, certificateProviderStore, voucherStore, donorStore, time.Now))
 
 	handleWithDonor(donor.PathUploadEvidenceSSE, page.None,
-		UploadEvidenceSSE(documentStore, 3*time.Minute, 2*time.Second, time.Now))
+		UploadEvidenceSSE(documentStore, logger, 3*time.Minute, 2*time.Second, time.Now))
 }
 
 func makeHandle(mux *http.ServeMux, store SessionStore, errorHandler page.ErrorHandler) func(page.Path, page.HandleOpt, page.Handler) {
