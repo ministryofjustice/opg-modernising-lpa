@@ -59,7 +59,29 @@ resource "aws_s3_bucket_logging" "bucket" {
 }
 
 data "aws_iam_policy_document" "bucket" {
-  policy_id = "PutObjPolicy"
+  policy_id = "AllowGuarddutyPutValidationObject"
+  statement {
+    sid    = "AllowGuardduty"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:PutObjectTagging",
+      "s3:GetObjectTagging",
+      "s3:PutObjectVersionTagging",
+      "s3:GetObjectVersionTagging"
+    ]
+    resources = [
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [var.guardduty_malware_protection_plan_iam_role.arn]
+    }
+  }
 
   statement {
     sid       = "DenyUnEncryptedObjectUploads"

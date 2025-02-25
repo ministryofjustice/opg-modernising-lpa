@@ -149,8 +149,8 @@ func (s *Store) Submit(ctx context.Context, donor *donordata.Provided, documents
 	var unsentEvidence []event.Evidence
 
 	tags := map[string]string{
-		"replicate":         "true",
-		"virus-scan-status": "ok",
+		"replicate":                  "true",
+		"GuardDutyMalwareScanStatus": "NO_THREATS_FOUND",
 	}
 
 	for _, document := range documents {
