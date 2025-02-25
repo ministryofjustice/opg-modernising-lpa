@@ -20,6 +20,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/onelogin"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sesh"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -95,6 +96,10 @@ type DashboardStore interface {
 	SubExistsForActorType(ctx context.Context, sub string, actorType actor.Type) (bool, error)
 }
 
+type ScheduledStore interface {
+	Create(ctx context.Context, rows ...scheduled.Event) error
+}
+
 func Register(
 	rootMux *http.ServeMux,
 	logger Logger,
@@ -110,6 +115,7 @@ func Register(
 	appPublicURL string,
 	donorStore DonorStore,
 	lpaStoreClient LpaStoreClient,
+	scheduledStore ScheduledStore,
 ) {
 	vouchFailed := makeVouchFailer(donorStore, notifyClient, appPublicURL)
 
@@ -157,7 +163,7 @@ func Register(
 		Guidance(tmpls.Get("one_login_identity_details.gohtml"), lpaStoreResolvingService))
 
 	handleVoucher(voucher.PathSignTheDeclaration, None,
-		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, time.Now, appPublicURL))
+		YourDeclaration(tmpls.Get("your_declaration.gohtml"), lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, time.Now, appPublicURL))
 	handleVoucher(voucher.PathThankYou, None,
 		Guidance(tmpls.Get("thank_you.gohtml"), lpaStoreResolvingService))
 }

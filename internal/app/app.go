@@ -183,6 +183,7 @@ func App(
 		appPublicURL,
 		donorStore,
 		lpaStoreClient,
+		scheduledStore,
 	)
 
 	supporterpage.Register(
