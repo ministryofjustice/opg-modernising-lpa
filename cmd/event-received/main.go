@@ -172,6 +172,8 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 	}
 
 	if event.S3Event != nil {
+		logger.InfoContext(ctx, "handling s3 event")
+
 		s3Client := s3.NewClient(cfg, evidenceBucketName)
 		documentStore := document.NewStore(dynamoClient, nil, nil)
 
