@@ -42,6 +42,7 @@ module "eu_west_1" {
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
+    guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
@@ -69,6 +70,7 @@ module "eu_west_1" {
     destination_account_id                    = local.environment.reduced_fees.destination_account_id
     enable_s3_batch_job_replication_scheduler = local.environment.reduced_fees.enable_s3_batch_job_replication_scheduler
   }
+<<<<<<< HEAD
   target_event_bus_arns                = local.environment.event_bus.target_event_bus_arns
   receive_account_ids                  = local.environment.event_bus.receive_account_ids
   app_env_vars                         = local.environment.app.env
@@ -76,6 +78,15 @@ module "eu_west_1" {
   pagerduty_service_name               = local.environment.pagerduty_service_name
   dns_weighting                        = 100
   s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
+=======
+  target_event_bus_arn   = local.environment.event_bus.target_event_bus_arn
+  receive_account_ids    = local.environment.event_bus.receive_account_ids
+  app_env_vars           = local.environment.app.env
+  public_access_enabled  = var.public_access_enabled
+  pagerduty_service_name = local.environment.pagerduty_service_name
+  dns_weighting          = 100
+  # s3_antivirus_provisioned_concurrency = local.environment.s3_antivirus_provisioned_concurrency
+>>>>>>> 6ca5b2561 (skip tflint findings)
   uid_service = {
     base_url = local.environment.uid_service.base_url
     api_arns = local.environment.uid_service.api_arns
@@ -117,6 +128,7 @@ module "eu_west_2" {
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
+    guardduty_malware_protection            = module.global.iam_roles.guardduty_malware_protection
   }
   application_log_retention_days          = local.environment.cloudwatch_log_groups.application_log_retention_days
   ecs_capacity_provider                   = local.ecs_capacity_provider
