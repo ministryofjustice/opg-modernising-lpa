@@ -395,7 +395,7 @@ func handleChangeConfirmed(ctx context.Context, client dynamodbClient, certifica
 			return fmt.Errorf("failed to get donor: %w", err)
 		}
 
-		if donor.Tasks.ConfirmYourIdentity.IsPending() && donor.ContinueWithMismatchedIdentity {
+		if donor.Tasks.ConfirmYourIdentity.IsPending() && (donor.ContinueWithMismatchedIdentity || !donor.SignedAt.IsZero()) {
 			if materialChange {
 				donor.MaterialChangeConfirmedAt = now()
 				donor.Tasks.ConfirmYourIdentity = task.IdentityStateProblem
