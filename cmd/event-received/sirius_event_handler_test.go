@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -1473,6 +1474,54 @@ func TestHandleImmaterialChangeConfirmed(t *testing.T) {
 			},
 			setupCertificateProviderStore: unusedCertificateProviderStore,
 		},
+		"donor when signed": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				updated := &donordata.Provided{
+					PK:                          dynamo.LpaKey("123"),
+					SK:                          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+					Tasks:                       donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+					SignedAt:                    testNow,
+					ImmaterialChangeConfirmedAt: testNow,
+					UpdatedAt:                   testNow,
+				}
+				updated.UpdateHash()
+
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:       dynamo.LpaKey("123"),
+						SK:       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:    donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						SignedAt: testNow,
+					})
+				c.EXPECT().
+					Put(ctx, updated).
+					Return(nil)
+
+				return c
+			},
+			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
+				c := newMockLpaStoreClient(t)
+				c.EXPECT().
+					SendDonorConfirmIdentity(ctx, &donordata.Provided{
+						PK:                          dynamo.LpaKey("123"),
+						SK:                          dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:                       donordata.Tasks{ConfirmYourIdentity: task.IdentityStateCompleted},
+						SignedAt:                    testNow,
+						ImmaterialChangeConfirmedAt: testNow,
+					}).
+					Return(nil)
+
+				return c
+			},
+			setupCertificateProviderStore: unusedCertificateProviderStore,
+		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupLpaStoreClient: func(t *testing.T) *mockLpaStoreClient {
@@ -1517,7 +1566,7 @@ func TestHandleImmaterialChangeConfirmed(t *testing.T) {
 		t.Run(actorType, func(t *testing.T) {
 			event := &events.CloudWatchEvent{
 				DetailType: "immaterial-change-confirmed",
-				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, strings.Split(actorType, " ")[0])),
 			}
 
 			factory := newMockFactory(t)
@@ -1872,6 +1921,40 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 			},
 			setupCertificateProviderStore: unusedCertificateProviderStore,
 		},
+		"donor when signed": {
+			setupDynamoClient: func(t *testing.T) *mockDynamodbClient {
+				updated := &donordata.Provided{
+					PK:                        dynamo.LpaKey("123"),
+					SK:                        dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+					Tasks:                     donordata.Tasks{ConfirmYourIdentity: task.IdentityStateProblem},
+					SignedAt:                  testNow,
+					UpdatedAt:                 testNow,
+					MaterialChangeConfirmedAt: testNow,
+				}
+				updated.UpdateHash()
+
+				c := newMockDynamodbClient(t)
+				c.EXPECT().
+					OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+					Return(nil).
+					SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.DonorKey("456")})
+				c.EXPECT().
+					One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+					Return(nil).
+					SetData(donordata.Provided{
+						PK:       dynamo.LpaKey("123"),
+						SK:       dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+						Tasks:    donordata.Tasks{ConfirmYourIdentity: task.IdentityStatePending},
+						SignedAt: testNow,
+					})
+				c.EXPECT().
+					Put(ctx, updated).
+					Return(nil)
+
+				return c
+			},
+			setupCertificateProviderStore: unusedCertificateProviderStore,
+		},
 		"certificateProvider": {
 			setupDynamoClient: unusedDynamoClient,
 			setupCertificateProviderStore: func(t *testing.T) *mockCertificateProviderStore {
@@ -1902,7 +1985,7 @@ func TestHandleMaterialChangeConfirmed(t *testing.T) {
 		t.Run(actorType, func(t *testing.T) {
 			event := &events.CloudWatchEvent{
 				DetailType: "material-change-confirmed",
-				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, actorType)),
+				Detail:     json.RawMessage(fmt.Sprintf(`{"uid":"M-1111-2222-3333","actorUID":"740e5834-3a29-46b4-9a6f-16142fde533a","actorType":"%s"}`, strings.Split(actorType, " ")[0])),
 			}
 
 			factory := newMockFactory(t)
