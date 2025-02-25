@@ -148,6 +148,7 @@ type EventClient interface {
 	SendCertificateProviderStarted(ctx context.Context, e event.CertificateProviderStarted) error
 	SendIdentityCheckMismatched(ctx context.Context, e event.IdentityCheckMismatched) error
 	SendCorrespondentUpdated(ctx context.Context, e event.CorrespondentUpdated) error
+	SendConfirmAtPostOfficeSelected(ctx context.Context, e event.ConfirmAtPostOfficeSelected) error
 }
 
 type DashboardStore interface {
@@ -411,7 +412,7 @@ func Register(
 	handleWithDonor(donor.PathConfirmYourIdentity, page.CanGoBack,
 		ConfirmYourIdentity(tmpls.Get("prove_your_identity.gohtml"), donorStore))
 	handleWithDonor(donor.PathHowWillYouConfirmYourIdentity, page.None,
-		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), donorStore))
+		HowWillYouConfirmYourIdentity(tmpls.Get("how_will_you_confirm_your_identity.gohtml"), donorStore, eventClient))
 	handleWithDonor(donor.PathCompletingYourIdentityConfirmation, page.None,
 		CompletingYourIdentityConfirmation(tmpls.Get("completing_your_identity_confirmation.gohtml")))
 	handleWithDonor(donor.PathIdentityWithOneLogin, page.CanGoBack,
