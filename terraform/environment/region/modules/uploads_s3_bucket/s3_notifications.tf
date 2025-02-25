@@ -10,16 +10,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   provider   = aws.region
 }
 
-# resource "aws_lambda_permission" "av_scan" {
-#   statement_id   = "AllowExecutionFromS3BucketAvScan"
-#   action         = "lambda:InvokeFunction"
-#   function_name  = var.s3_antivirus_lambda_function.function_name
-#   principal      = "s3.amazonaws.com"
-#   source_account = data.aws_caller_identity.current.account_id
-#   source_arn     = aws_s3_bucket.bucket.arn
-#   provider       = aws.region
-# }
-
 resource "aws_lambda_permission" "object_tagging" {
   statement_id   = "AllowExecutionFromS3BucketObjectTagging"
   action         = "lambda:InvokeFunction"
