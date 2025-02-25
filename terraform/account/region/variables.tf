@@ -29,11 +29,6 @@ variable "dynamodb_exports_s3_bucket_server_side_encryption_key_id" {
   type        = string
 }
 
-variable "network_firewall_rules_file" {
-  type        = string
-  description = "The path to the file containing the network firewall rules."
-}
-
 variable "opensearch_kms_target_key_arn" {
   type        = string
   description = "kms target key ARN for opensearch serverless encryption"
