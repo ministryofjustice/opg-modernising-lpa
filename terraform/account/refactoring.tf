@@ -254,3 +254,13 @@ moved {
   from = aws_opensearchserverless_access_policy.team_breakglass_access[0]
   to   = module.eu_west_1[0].aws_opensearchserverless_access_policy.team_breakglass_access[0]
 }
+
+moved {
+  from = module.eu_west_1[0].module.network.aws_networkfirewall_firewall_policy.main
+  to   = module.eu_west_1[0].aws_networkfirewall_firewall_policy.main
+}
+
+moved {
+  from = module.eu_west_1[0].module.network.aws_networkfirewall_rule_group.rule_file
+  to   = module.eu_west_1[0].aws_networkfirewall_rule_group.rule_file
+}
