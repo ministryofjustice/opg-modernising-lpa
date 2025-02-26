@@ -37,3 +37,8 @@ variable "opensearch_kms_target_key_arn" {
 variable "pagerduty_service_name" {
   type = string
 }
+
+variable "athena_enabled" {
+  type    = bool
+  default = false
+}
