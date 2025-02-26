@@ -16,7 +16,7 @@ func WhatYouCanDoNowExpired(tmpl template.Template, donorStore DonorStore) Handl
 				Options:        donordata.NoVoucherDecisionValues,
 				CanHaveVoucher: provided.CanHaveVoucher(),
 			},
-			FailedVouchAttempts: provided.FailedVouchAttempts,
+			VouchAttempts: provided.VouchAttempts,
 		}
 
 		if r.Method == http.MethodPost {
@@ -38,10 +38,10 @@ func WhatYouCanDoNowExpired(tmpl template.Template, donorStore DonorStore) Handl
 		data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
 		data.ProveOwnIdentityLabel = "iWillReturnToOneLogin"
 
-		if provided.WantVoucher.IsYes() || provided.WantVoucher.IsUnknown() && provided.FailedVouchAttempts > 0 {
+		if provided.WantVoucher.IsYes() || provided.WantVoucher.IsUnknown() && provided.VouchAttempts > 0 {
 			data.ProveOwnIdentityLabel = "iWillGetOrFindID"
 
-			switch provided.FailedVouchAttempts {
+			switch provided.VouchAttempts {
 			case 0, 1:
 				data.BannerContent = "yourVouchedForIdentityHasExpired"
 			default:
