@@ -237,7 +237,7 @@ func Register(
 	handleWithDonor(donor.PathMakeANewLPA, page.None,
 		Guidance(tmpls.Get("make_a_new_lpa.gohtml")))
 	handleWithDonor(donor.PathYourDetails, page.None,
-		Guidance(tmpls.Get("your_details.gohtml")))
+		YourDetails(tmpls.Get("your_details.gohtml"), voucherStore))
 	handleWithDonor(donor.PathYourName, page.None,
 		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
 	handleWithDonor(donor.PathYourDateOfBirth, page.CanGoBack,
