@@ -206,7 +206,7 @@ func taskListSignSection(provided *donordata.Provided) taskListSection {
 			confirmYourIdentityPath = donor.PathWeHaveContactedVoucher
 		} else if provided.WantVoucher.IsYes() {
 			confirmYourIdentityPath = donor.PathEnterVoucher
-		} else if provided.WantVoucher.IsNo() || provided.WantVoucher.IsUnknown() && provided.FailedVouchAttempts > 0 {
+		} else if provided.WantVoucher.IsNo() || provided.WantVoucher.IsUnknown() && provided.VouchAttempts > 0 {
 			confirmYourIdentityPath = donor.PathWhatYouCanDoNow
 		} else {
 			confirmYourIdentityPath = donor.PathUnableToConfirmIdentity
