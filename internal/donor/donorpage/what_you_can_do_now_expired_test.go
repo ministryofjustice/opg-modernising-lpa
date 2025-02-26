@@ -24,7 +24,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 		ProveOwnIdentityLabel string
 		CanHaveVoucher        bool
 		WantVoucher           form.YesNo
-		FailedVouchCount      int
+		VouchAttemptCount     int
 	}{
 		"no failed vouches": {
 			BannerContent:         "yourConfirmedIdentityHasExpired",
@@ -45,7 +45,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
 			WantVoucher:           form.YesNoUnknown,
-			FailedVouchCount:      1,
+			VouchAttemptCount:     1,
 		},
 		"one failed vouch - has selected voucher option": {
 			BannerContent:         "yourVouchedForIdentityHasExpired",
@@ -53,14 +53,14 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			CanHaveVoucher:        true,
 			WantVoucher:           form.Yes,
-			FailedVouchCount:      1,
+			VouchAttemptCount:     1,
 		},
 		"two failed vouches": {
 			BannerContent:         "yourVouchedForIdentityHasExpiredSecondAttempt",
 			NewVoucherLabel:       "iHaveSomeoneWhoCanVouch",
 			ProveOwnIdentityLabel: "iWillGetOrFindID",
 			WantVoucher:           form.Yes,
-			FailedVouchCount:      2,
+			VouchAttemptCount:     2,
 		},
 	}
 
@@ -77,7 +77,7 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					FailedVouchAttempts:   tc.FailedVouchCount,
+					VouchAttempts:         tc.VouchAttemptCount,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
@@ -85,8 +85,8 @@ func TestGetWhatYouCanDoNowExpired(t *testing.T) {
 				Return(nil)
 
 			err := WhatYouCanDoNowExpired(template.Execute, nil)(testAppData, w, r, &donordata.Provided{
-				FailedVouchAttempts: tc.FailedVouchCount,
-				WantVoucher:         tc.WantVoucher,
+				VouchAttempts: tc.VouchAttemptCount,
+				WantVoucher:   tc.WantVoucher,
 			})
 
 			assert.Nil(t, err)
