@@ -15,5 +15,6 @@ output "iam_roles" {
     schedule_runner_lambda                  = aws_iam_role.schedule_runner_lambda
     opensearch_pipeline                     = aws_iam_role.opensearch_pipeline
     schedule_runner_scheduler               = aws_iam_role.schedule_runner_scheduler
+    guardduty_malware_protection            = aws_iam_role.guardduty_malware_protection
   }
 }

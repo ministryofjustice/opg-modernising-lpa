@@ -99,7 +99,6 @@ variable "environments" {
         destination_account_id                    = string
         enable_s3_batch_job_replication_scheduler = bool
       })
-      s3_antivirus_provisioned_concurrency = number
     })
   )
 }
