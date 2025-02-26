@@ -15,6 +15,7 @@ variable "accounts" {
       is_production          = bool
       regions                = list(string)
       pagerduty_service_name = string
+      athena_enabled         = bool
     })
   )
 }
