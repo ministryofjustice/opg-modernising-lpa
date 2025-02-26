@@ -9,11 +9,13 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	scheduled "github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -46,7 +48,7 @@ func TestGetYourDeclaration(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, "")(testAppData, w, r, provided)
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, provided)
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,7 +59,7 @@ func TestGetYourDeclarationWhenSigned(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-	err := YourDeclaration(nil, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{
+	err := YourDeclaration(nil, nil, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{
 		LpaID:    "lpa-id",
 		SignedAt: time.Now(),
 	})
@@ -77,7 +79,7 @@ func TestGetYourDeclarationWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(nil, expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -96,7 +98,7 @@ func TestGetYourDeclarationWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.ErrorIs(t, err, expectedError)
 }
@@ -109,6 +111,9 @@ func TestPostYourDeclaration(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+	pk := dynamo.LpaKey("lpa-id")
+	sk := dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))
 
 	testcases := map[string]struct {
 		lpa         *lpadata.Lpa
@@ -200,9 +205,16 @@ func TestPostYourDeclaration(t *testing.T) {
 			donorStore := newMockDonorStore(t)
 			donorStore.EXPECT().
 				GetAny(r.Context()).
-				Return(&donordata.Provided{}, nil)
+				Return(&donordata.Provided{
+					PK:     pk,
+					SK:     sk,
+					LpaUID: "lpa-uid",
+				}, nil)
 			donorStore.EXPECT().
 				Put(r.Context(), &donordata.Provided{
+					PK:     pk,
+					SK:     sk,
+					LpaUID: "lpa-uid",
 					IdentityUserData: identity.UserData{
 						Status:    identity.StatusConfirmed,
 						CheckedAt: testNow,
@@ -214,7 +226,18 @@ func TestPostYourDeclaration(t *testing.T) {
 			notifyClient := newMockNotifyClient(t)
 			tc.setupNotify(tc.lpa, notifyClient)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			scheduledStore := newMockScheduledStore(t)
+			scheduledStore.EXPECT().
+				Create(r.Context(), scheduled.Event{
+					At:                testNow.AddDate(0, 6, 0),
+					Action:            scheduled.ActionExpireDonorIdentity,
+					TargetLpaKey:      pk,
+					TargetLpaOwnerKey: sk,
+					LpaUID:            "lpa-uid",
+				}).
+				Return(nil)
+
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 			resp := w.Result()
 
 			assert.Nil(t, err)
@@ -233,6 +256,9 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
 	r.Header.Add("Content-Type", page.FormUrlEncoded)
 
+	pk := dynamo.LpaKey("lpa-id")
+	sk := dynamo.LpaOwnerKey(dynamo.DonorKey("a-donor"))
+
 	lpa := &lpadata.Lpa{
 		Submitted: true,
 		LpaUID:    "lpa-uid",
@@ -240,6 +266,9 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	}
 
 	donor := &donordata.Provided{
+		PK:     pk,
+		SK:     sk,
+		LpaUID: "lpa-uid",
 		IdentityUserData: identity.UserData{
 			Status:    identity.StatusConfirmed,
 			CheckedAt: testNow,
@@ -266,7 +295,11 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 	donorStore := newMockDonorStore(t)
 	donorStore.EXPECT().
 		GetAny(r.Context()).
-		Return(&donordata.Provided{}, nil)
+		Return(&donordata.Provided{
+			PK:     pk,
+			SK:     sk,
+			LpaUID: "lpa-uid",
+		}, nil)
 	donorStore.EXPECT().
 		Put(r.Context(), donor).
 		Return(nil)
@@ -285,7 +318,18 @@ func TestPostYourDeclarationWhenSubmitted(t *testing.T) {
 		SendDonorConfirmIdentity(r.Context(), donor).
 		Return(nil)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	scheduledStore := newMockScheduledStore(t)
+	scheduledStore.EXPECT().
+		Create(r.Context(), scheduled.Event{
+			At:                testNow.AddDate(0, 6, 0),
+			Action:            scheduled.ActionExpireDonorIdentity,
+			TargetLpaKey:      pk,
+			TargetLpaOwnerKey: sk,
+			LpaUID:            "lpa-uid",
+		}).
+		Return(nil)
+
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, scheduledStore, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -336,7 +380,7 @@ func TestPostYourDeclarationWhenSubmittedAndLpaStoreClientErrors(t *testing.T) {
 		SendDonorConfirmIdentity(mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+	err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, lpaStoreClient, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 	assert.ErrorIs(t, err, expectedError)
 }
 
@@ -361,7 +405,7 @@ func TestPostYourDeclarationWhenValidationError(t *testing.T) {
 		})).
 		Return(nil)
 
-	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := YourDeclaration(template.Execute, lpaStoreResolvingService, nil, nil, nil, nil, nil, nil, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -439,7 +483,7 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 			notifyClient := newMockNotifyClient(t)
 			tc.setupNotify(notifyClient)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
+			err := YourDeclaration(nil, lpaStoreResolvingService, nil, nil, notifyClient, nil, nil, testNowFn, "app://")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id", FirstNames: "Vivian", LastName: "Voucher"})
 
 			assert.ErrorIs(t, err, expectedError)
 		})
@@ -448,8 +492,9 @@ func TestPostYourDeclarationWhenNotifyClientErrors(t *testing.T) {
 
 func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 	testcases := map[string]struct {
-		setupDonorStore   func(*mockDonorStore)
-		setupVoucherStore func(*mockVoucherStore)
+		setupDonorStore     func(*mockDonorStore)
+		setupVoucherStore   func(*mockVoucherStore)
+		setupScheduledStore func(*mockScheduledStore)
 	}{
 		"donorStore.GetAny": {
 			setupDonorStore: func(m *mockDonorStore) {
@@ -457,7 +502,8 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 					GetAny(mock.Anything).
 					Return(nil, expectedError)
 			},
-			setupVoucherStore: func(*mockVoucherStore) {},
+			setupVoucherStore:   func(*mockVoucherStore) {},
+			setupScheduledStore: func(*mockScheduledStore) {},
 		},
 		"donorStore.Put": {
 			setupDonorStore: func(m *mockDonorStore) {
@@ -468,7 +514,8 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 					Put(mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
-			setupVoucherStore: func(*mockVoucherStore) {},
+			setupVoucherStore:   func(*mockVoucherStore) {},
+			setupScheduledStore: func(*mockScheduledStore) {},
 		},
 		"voucherStore.Put": {
 			setupDonorStore: func(m *mockDonorStore) {
@@ -482,6 +529,27 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 			setupVoucherStore: func(m *mockVoucherStore) {
 				m.EXPECT().
 					Put(mock.Anything, mock.Anything).
+					Return(expectedError)
+			},
+			setupScheduledStore: func(*mockScheduledStore) {},
+		},
+		"scheduledStore.Put": {
+			setupDonorStore: func(m *mockDonorStore) {
+				m.EXPECT().
+					GetAny(mock.Anything).
+					Return(&donordata.Provided{}, nil)
+				m.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(nil)
+			},
+			setupVoucherStore: func(m *mockVoucherStore) {
+				m.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(nil)
+			},
+			setupScheduledStore: func(m *mockScheduledStore) {
+				m.EXPECT().
+					Create(mock.Anything, mock.Anything).
 					Return(expectedError)
 			},
 		},
@@ -513,7 +581,10 @@ func TestPostYourDeclarationWhenStoreErrors(t *testing.T) {
 			voucherStore := newMockVoucherStore(t)
 			tc.setupVoucherStore(voucherStore)
 
-			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, testNowFn, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+			scheduledStore := newMockScheduledStore(t)
+			tc.setupScheduledStore(scheduledStore)
+
+			err := YourDeclaration(nil, lpaStoreResolvingService, voucherStore, donorStore, notifyClient, nil, scheduledStore, testNowFn, "")(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 			assert.ErrorIs(t, err, expectedError)
 		})
 	}
