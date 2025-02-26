@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/form"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
@@ -39,7 +40,7 @@ func TestGetVerifyDonorDetails(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := VerifyDonorDetails(template.Execute, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := VerifyDonorDetails(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -57,7 +58,7 @@ func TestGetVerifyDonorDetailsWhenLpaStoreResolvingServiceErrors(t *testing.T) {
 		Get(r.Context()).
 		Return(donor, expectedError)
 
-	err := VerifyDonorDetails(nil, lpaStoreResolvingService, nil, nil)(testAppData, w, r, nil)
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, nil)
 
 	assert.Equal(t, expectedError, err)
 }
@@ -76,7 +77,7 @@ func TestGetVerifyDonorDetailsWhenTemplateErrors(t *testing.T) {
 		Execute(w, mock.Anything).
 		Return(expectedError)
 
-	err := VerifyDonorDetails(template.Execute, lpaStoreResolvingService, nil, nil)(testAppData, w, r, &voucherdata.Provided{})
+	err := VerifyDonorDetails(template.Execute, lpaStoreResolvingService, nil, nil, nil)(testAppData, w, r, &voucherdata.Provided{})
 
 	assert.Equal(t, expectedError, err)
 }
@@ -104,7 +105,15 @@ func TestPostVerifyDonorDetailsWhenYes(t *testing.T) {
 		}).
 		Return(nil)
 
-	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&donordata.Provided{}, nil)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{VouchAttempts: 1}).
+		Return(nil)
+
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil, donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -138,12 +147,20 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 		Put(r.Context(), provided).
 		Return(nil)
 
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(r.Context()).
+		Return(&donordata.Provided{}, nil)
+	donorStore.EXPECT().
+		Put(r.Context(), &donordata.Provided{VouchAttempts: 1}).
+		Return(nil)
+
 	vouchFailer := newMockVouchFailer(t)
 	vouchFailer.EXPECT().
 		Execute(r.Context(), provided, lpa).
 		Return(nil)
 
-	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute, donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
 	resp := w.Result()
 
 	assert.Nil(t, err)
@@ -151,7 +168,7 @@ func TestPostVerifyDonorDetailsWhenNo(t *testing.T) {
 	assert.Equal(t, page.PathVoucherDonorDetailsDoNotMatch.Format()+"?donorFirstNames=John&donorFullName=John+Smith", resp.Header.Get("Location"))
 }
 
-func TestPostVerifyDonorDetailsWhenStoreErrors(t *testing.T) {
+func TestPostVerifyDonorDetailsWhenVoucherStoreErrors(t *testing.T) {
 	f := url.Values{
 		form.FieldNames.YesNo: {form.Yes.String()},
 	}
@@ -170,8 +187,66 @@ func TestPostVerifyDonorDetailsWhenStoreErrors(t *testing.T) {
 		Put(r.Context(), mock.Anything).
 		Return(expectedError)
 
-	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil, nil)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestPostVerifyDonorDetailsWhenDonorStoreErrors(t *testing.T) {
+	testcases := map[string]struct {
+		setupDonorStore func(*testing.T) *mockDonorStore
+	}{
+		"GetAny": {
+			setupDonorStore: func(t *testing.T) *mockDonorStore {
+				s := newMockDonorStore(t)
+				s.EXPECT().
+					GetAny(mock.Anything).
+					Return(&donordata.Provided{}, expectedError)
+				return s
+			},
+		},
+		"Put": {
+			setupDonorStore: func(t *testing.T) *mockDonorStore {
+				s := newMockDonorStore(t)
+				s.EXPECT().
+					GetAny(mock.Anything).
+					Return(&donordata.Provided{}, nil)
+				s.EXPECT().
+					Put(mock.Anything, mock.Anything).
+					Return(expectedError)
+				return s
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			f := url.Values{
+				form.FieldNames.YesNo: {form.Yes.String()},
+			}
+
+			r, _ := http.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
+			w := httptest.NewRecorder()
+			r.Header.Add("Content-Type", page.FormUrlEncoded)
+
+			lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
+			lpaStoreResolvingService.EXPECT().
+				Get(r.Context()).
+				Return(&lpadata.Lpa{Donor: lpadata.Donor{LastName: "Smith"}}, nil)
+
+			voucherStore := newMockVoucherStore(t)
+			voucherStore.EXPECT().
+				Put(r.Context(), &voucherdata.Provided{
+					LpaID:             "lpa-id",
+					DonorDetailsMatch: form.Yes,
+					Tasks:             voucherdata.Tasks{VerifyDonorDetails: task.StateCompleted},
+				}).
+				Return(nil)
+
+			err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, nil, tc.setupDonorStore(t))(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+
+			assert.ErrorIs(t, err, expectedError)
+		})
+	}
 }
 
 func TestPostVerifyDonorDetailsWhenFailVouchErrors(t *testing.T) {
@@ -185,12 +260,20 @@ func TestPostVerifyDonorDetailsWhenFailVouchErrors(t *testing.T) {
 
 	lpaStoreResolvingService := newMockLpaStoreResolvingService(t)
 	lpaStoreResolvingService.EXPECT().
-		Get(r.Context()).
+		Get(mock.Anything).
 		Return(&lpadata.Lpa{}, nil)
 
 	voucherStore := newMockVoucherStore(t)
 	voucherStore.EXPECT().
-		Put(r.Context(), mock.Anything).
+		Put(mock.Anything, mock.Anything).
+		Return(nil)
+
+	donorStore := newMockDonorStore(t)
+	donorStore.EXPECT().
+		GetAny(mock.Anything).
+		Return(&donordata.Provided{}, nil)
+	donorStore.EXPECT().
+		Put(mock.Anything, mock.Anything).
 		Return(nil)
 
 	vouchFailer := newMockVouchFailer(t)
@@ -198,6 +281,6 @@ func TestPostVerifyDonorDetailsWhenFailVouchErrors(t *testing.T) {
 		Execute(mock.Anything, mock.Anything, mock.Anything).
 		Return(expectedError)
 
-	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
-	assert.Equal(t, expectedError, err)
+	err := VerifyDonorDetails(nil, lpaStoreResolvingService, voucherStore, vouchFailer.Execute, donorStore)(testAppData, w, r, &voucherdata.Provided{LpaID: "lpa-id"})
+	assert.ErrorIs(t, err, expectedError)
 }
