@@ -58,7 +58,7 @@ resource "aws_s3_bucket_policy" "athena_results" {
   count      = var.athena_enabled ? 1 : 0
   depends_on = [aws_s3_bucket_public_access_block.athena_results[0]]
   bucket     = aws_s3_bucket.athena_results[0].id
-  policy     = data.aws_iam_policy_document.athena_results.json
+  policy     = data.aws_iam_policy_document.athena_results[0].json
   provider   = aws.region
 }
 
@@ -72,6 +72,7 @@ resource "aws_s3_bucket_logging" "athena_results" {
 }
 
 data "aws_iam_policy_document" "athena_results" {
+  count     = var.athena_enabled ? 1 : 0
   policy_id = "PutObjPolicy"
 
   statement {
