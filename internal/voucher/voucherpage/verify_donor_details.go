@@ -1,6 +1,7 @@
 package voucherpage
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -22,7 +23,7 @@ type verifyDonorDetailsData struct {
 	Lpa    *lpadata.Lpa
 }
 
-func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, fail vouchFailer) Handler {
+func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, fail vouchFailer, donorStore DonorStore) Handler {
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *voucherdata.Provided) error {
 		lpa, err := lpaStoreResolvingService.Get(r.Context())
 		if err != nil {
@@ -42,13 +43,29 @@ func VerifyDonorDetails(tmpl template.Template, lpaStoreResolvingService LpaStor
 			if data.Errors.None() {
 				provided.DonorDetailsMatch = data.Form.YesNo
 				provided.Tasks.VerifyDonorDetails = task.StateCompleted
+
 				if err := voucherStore.Put(r.Context(), provided); err != nil {
-					return err
+					return fmt.Errorf("error updating voucher: %w", err)
+				}
+
+				donor, err := donorStore.GetAny(r.Context())
+				if err != nil {
+					return fmt.Errorf("error getting donor: %w", err)
+				}
+
+				donor.VouchAttempts++
+
+				if data.Form.YesNo.IsYes() {
+					donor.DetailsVerifiedByVoucher = true
+				}
+
+				if err = donorStore.Put(r.Context(), donor); err != nil {
+					return fmt.Errorf("error updating donor: %w", err)
 				}
 
 				if data.Form.YesNo.IsNo() {
 					if err := fail(r.Context(), provided, lpa); err != nil {
-						return err
+						return fmt.Errorf("error failing voucher: %w", err)
 					}
 
 					return page.PathVoucherDonorDetailsDoNotMatch.RedirectQuery(w, r, appData, url.Values{

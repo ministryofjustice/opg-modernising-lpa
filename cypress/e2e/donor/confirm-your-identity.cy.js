@@ -327,7 +327,7 @@ describe('Confirm your identity', () => {
 
     describe('when a voucher has been unable to vouch', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&failedVouchAttempts=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&vouchAttempts=1');
         });
 
         it('can update name and date of birth', () => {
