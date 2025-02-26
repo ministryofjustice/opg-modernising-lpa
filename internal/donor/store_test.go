@@ -1117,10 +1117,9 @@ func TestDonorFailVoucher(t *testing.T) {
 			},
 			Puts: []any{
 				&donordata.Provided{
-					PK:                  dynamo.LpaKey("lpa-id"),
-					WantVoucher:         form.YesNoUnknown,
-					FailedVouchAttempts: 1,
-					FailedVoucher:       donordata.Voucher{FirstNames: "a", LastName: "b", FailedAt: testNow},
+					PK:            dynamo.LpaKey("lpa-id"),
+					WantVoucher:   form.YesNoUnknown,
+					FailedVoucher: donordata.Voucher{FirstNames: "a", LastName: "b", FailedAt: testNow},
 				},
 			},
 		}).
