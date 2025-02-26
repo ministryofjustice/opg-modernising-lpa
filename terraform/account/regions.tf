@@ -9,6 +9,7 @@ module "eu_west_1" {
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.eu_west_1_target_key_id
   opensearch_kms_target_key_arn                            = module.opensearch_kms.eu_west_1_target_key_arn
   pagerduty_service_name                                   = local.account.pagerduty_service_name
+  athena_enabled                                           = local.account.athena_enabled
   providers = {
     aws.region     = aws.eu_west_1
     aws.management = aws.management_eu_west_1
@@ -27,6 +28,7 @@ module "eu_west_2" {
   dynamodb_exports_s3_bucket_server_side_encryption_key_id = module.dynamodb_exports_s3_bucket_kms.eu_west_2_target_key_id
   opensearch_kms_target_key_arn                            = module.opensearch_kms.eu_west_2_target_key_arn
   pagerduty_service_name                                   = local.account.pagerduty_service_name
+  athena_enabled                                           = local.account.athena_enabled
   providers = {
     aws.region     = aws.eu_west_2
     aws.management = aws.management_eu_west_2

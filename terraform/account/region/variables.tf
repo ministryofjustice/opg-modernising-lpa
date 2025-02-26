@@ -39,6 +39,6 @@ variable "pagerduty_service_name" {
 }
 
 variable "athena_enabled" {
-  type    = bool
-  default = false
+  type        = bool
+  description = "Enable athena for this account"
 }
