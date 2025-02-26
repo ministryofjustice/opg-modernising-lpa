@@ -126,68 +126,54 @@ delete-all-items: ##@dynamodb deletes and recreates lpas dynamodb table
 						 --global-secondary-indexes file://dynamodb-lpa-gsi-schema.json
 
 emit-evidence-received: ##@events emits an evidence-received event with the given LpaUID e.g. emit-evidence-received uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"evidence-received","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/evidence-received" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "'${uid}'"}'
 
 emit-reduced-fee-approved: ##@events emits a reduced-fee-approved event with the given LpaUID and fee type e.g. emit-reduced-fee-approved uid=abc-123 type=HalfFee
-	$(eval BODY := $(shell echo '{"version":"0","id":"abcdef01-2345-6789-abcd-ef0123456789","detail-type":"reduced-fee-approved","source":"opg.poas.sirius","account":"653761790766","time":"2024-01-01T12:00:00Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","approvedType": "$(type)"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/reduced-fee-approved" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}", "approvedType": "${type}"}'
 
 emit-reduced-fee-declined: ##@events emits a reduced-fee-declined event with the given LpaUID e.g. emit-reduced-fee-declined uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"reduced-fee-declined","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
-
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/reduced-fee-declined" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}"}'
 
 emit-further-info-requested: ##@events emits a further-info-requested event with the given LpaUID e.g. emit-further-info-requested uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"further-info-requested","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"UID":"$(uid)"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/further-info-requested" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}"}'
 
 emit-uid-requested: ##@events emits a uid-requested event with the given detail e.g. emit-uid-requested lpaId=abc sessionId=xyz
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"uid-requested","source":"opg.poas.makeregister","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"LpaID":"$(lpaId)","DonorSessionID":"$(sessionId)","Type":"property-and-affairs","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/opg.poas.makeregister/uid-requested" \
+		-H "Content-Type: application/json" \
+		-d '"LpaID":"${lpaUid}","DonorSessionID":"${sessionId}","Type":"property-and-affairs","Donor":{"Name":"abc","Dob":"2000-01-01","Postcode":"F1 1FF"}"}'
 
 emit-lpa-updated-event: ##@events emits an lpa-updated event with the given change type e.g. emit-uid-requested uid=abc-123 changeType=CANNOT_REGISTER
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"lpa-updated","source":"opg.poas.lpastore","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","changeType":"$(changeType)"}}' | sed 's/"/\\"/g'))
-
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+	curl -X POST "localhost:9001/emit/opg.poas.lpastore/lpa-updated" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}", "changeType":"${changeType}"}'
 
 emit-priority-correspondence-sent: ##@events emits a priority-correspondence-sent event with the given LpaUID e.g. emit-priority-correspondence-sent uid=abc-123
-	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"priority-correspondence-sent","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":{"uid":"$(uid)","sentDate":"2024-01-02T12:13:14.000006Z"}}' | sed 's/"/\\"/g'))
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/priority-correspondence-sent" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}", "sentDate":"2024-01-02T12:13:14.000006Z"}'
 
-	docker compose -f docker/docker-compose.yml exec localstack awslocal lambda invoke \
-		--endpoint-url=http://localhost:4566 \
-		--region eu-west-1 \
-		--function-name event-received text \
-		--payload '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
+emit-immaterial-change-confirmed: ##@events emits a immaterial-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-immaterial-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/immaterial-change-confirmed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}", "actorType": "${actorType}", "actorUID": "${actorUID}"}'
+
+emit-material-change-confirmed: ##@events emits a material-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-material-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/material-change-confirmed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}", "actorType": "${actorType}", "actorUID": "${actorUID}"}'
+
+emit-certificate-provider-identity-check-failed: ##@events emits a certificate-provider-identity-check-failed event with the given LpaUID e.g. certificate-provider-identity-check-failed uid=abc-123
+	curl -X POST "localhost:9001/emit/opg.poas.sirius/certificate-provider-identity-check-failed" \
+		-H "Content-Type: application/json" \
+		-d '{"uid": "${uid}"}'
 
 emit-object-tags-added-with-virus: ##@events emits a ObjectTagging:Put event with the given S3 key e.g. emit-object-tags-added-with-virus key=doc/key. Also ensures a tag with GuardDutyMalwareScanStatus exists on an existing object set to THREATS_FOUND
 	docker compose -f docker/docker-compose.yml exec localstack awslocal s3api \
@@ -209,21 +195,6 @@ emit-object-tags-added-without-virus: ##@events emits a ObjectTagging:Put event 
 		--function-name event-received text \
 		--payload '{"Records":[{"eventSource":"aws:s3","eventTime":"2023-10-23T15:58:33.081Z","eventName":"ObjectTagging:Put","s3":{"bucket":{"name":"uploads-opg-modernising-lpa-eu-west-1"},"object":{"key":"$(key)"}}}]}'
 
-emit-immaterial-change-confirmed: ##@events emits a immaterial-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-immaterial-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
-	curl -X POST "localhost:9001/emit/immaterial-change-confirmed" \
-		-H "Content-Type: application/json" \
-		-d '{"uid": "'$${uid}'", "actorType": "'$${actorType}'", "actorUID": "'$${actorUID}'"}'
-
-emit-material-change-confirmed: ##@events emits a material-change-confirmed event with the given LpaUID, actor type an actor UID e.g. emit-material-change-confirmed uid=abc-123 actorType=donor actorUid=def-456
-	curl -X POST "localhost:9001/emit/material-change-confirmed" \
-		-H "Content-Type: application/json" \
-		-d '{"uid": "'$${uid}'", "actorType": "'$${actorType}'", "actorUID": "'$${actorUID}'"}'
-
-emit-certificate-provider-identity-check-failed: ##@events emits a certificate-provider-identity-check-failed event with the given LpaUID e.g. certificate-provider-identity-check-failed uid=abc-123
-	curl -X POST "localhost:9001/emit/certificate-provider-identity-check-failed" \
-		-H "Content-Type: application/json" \
-		-d '{"uid": "'$${uid}'"}'
-
 set-uploads-clean: ##@events calls emit-object-tags-added-without-virus for all documents on a given lpa e.g. set-uploads-clean lpaId=abc
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-without-virus ; \
@@ -233,6 +204,10 @@ set-uploads-infected: ##@events calls emit-object-tags-added-with-virus for all 
 	for k in $$(docker compose -f docker/docker-compose.yml exec localstack awslocal dynamodb --region eu-west-1 query --table-name lpas --key-condition-expression 'PK = :pk and begins_with(SK, :sk)' --expression-attribute-values '{":pk": {"S": "LPA#$(lpaId)"}, ":sk": {"S": "DOCUMENT#"}}' | jq -c -r '.Items[] | .Key[]'); do \
 		key=$$k $(MAKE) emit-object-tags-added-with-virus ; \
 		done
+
+format-event: ##@events prints an event in the correct format for use testing lambdas in AWS console e.g. format-event detailType=uid-requested detail='{"uid":"abc"}'
+	$(eval BODY := $(shell echo '{"version":"0","id":"63eb7e5f-1f10-4744-bba9-e16d327c3b98","detail-type":"$(detailType)","source":"opg.poas.sirius","account":"653761790766","time":"2023-08-30T13:40:30Z","region":"eu-west-1","resources":[],"detail":$(detail)}' | sed 's/"/\\"/g'))
+	@echo '{"Records": [{"messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78", "body": "$(BODY)"}]}'
 
 tail-logs: ##@app tails logs for app mock-notify, mock-onelogin, mock-lpa-store, mock-uid and mock-pay
 	docker compose --ansi=always -f docker/docker-compose.yml -f docker/docker-compose.dev.yml logs app mock-notify mock-onelogin mock-lpa-store mock-uid mock-pay -f
