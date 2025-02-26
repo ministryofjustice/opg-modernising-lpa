@@ -153,8 +153,8 @@ type Provided struct {
 	WantVoucher form.YesNo `checkhash:"-"`
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher `checkhash:"-"`
-	// FailedVouchAttempts are the number of unsuccessful attempts a voucher has made to confirm the Donors ID
-	FailedVouchAttempts int `checkhash:"-"`
+	// VouchAttempts are the number of attempts a voucher has made to confirm the Donors identity
+	VouchAttempts int `checkhash:"-"`
 	// FailedVoucher is the last voucher that was unable to vouch for the donor
 	FailedVoucher Voucher `checkhash:"-"`
 
@@ -679,7 +679,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 }
 
 func (p *Provided) CanHaveVoucher() bool {
-	return p.FailedVouchAttempts < 2
+	return p.VouchAttempts < 2
 }
 
 func (p *Provided) UpdateDecisions() {
