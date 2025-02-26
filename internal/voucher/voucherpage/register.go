@@ -147,7 +147,7 @@ func Register(
 		ConfirmAllowedToVouch(tmpls.Get("confirm_allowed_to_vouch.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
 
 	handleVoucher(voucher.PathVerifyDonorDetails, None,
-		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed))
+		VerifyDonorDetails(tmpls.Get("verify_donor_details.gohtml"), lpaStoreResolvingService, voucherStore, vouchFailed, donorStore))
 
 	handleVoucher(voucher.PathConfirmYourIdentity, None,
 		ConfirmYourIdentity(tmpls.Get("confirm_your_identity.gohtml"), voucherStore, lpaStoreResolvingService))
