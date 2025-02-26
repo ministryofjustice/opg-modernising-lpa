@@ -12,6 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/notify"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/page"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/validation"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher"
@@ -26,7 +27,17 @@ type yourDeclarationData struct {
 	Voucher *voucherdata.Provided
 }
 
-func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreResolvingService, voucherStore VoucherStore, donorStore DonorStore, notifyClient NotifyClient, lpaStoreClient LpaStoreClient, now func() time.Time, appPublicURL string) Handler {
+func YourDeclaration(
+	tmpl template.Template,
+	lpaStoreResolvingService LpaStoreResolvingService,
+	voucherStore VoucherStore,
+	donorStore DonorStore,
+	notifyClient NotifyClient,
+	lpaStoreClient LpaStoreClient,
+	scheduledStore ScheduledStore,
+	now func() time.Time,
+	appPublicURL string,
+) Handler {
 	sendNotification := func(ctx context.Context, lpa *lpadata.Lpa, provided *voucherdata.Provided) error {
 		if lpa.Donor.Mobile != "" {
 			if !lpa.SignedForDonor() {
@@ -112,6 +123,16 @@ func YourDeclaration(tmpl template.Template, lpaStoreResolvingService LpaStoreRe
 					if err := lpaStoreClient.SendDonorConfirmIdentity(r.Context(), donor); err != nil {
 						return fmt.Errorf("error sending donor identity confirmation: %w", err)
 					}
+				}
+
+				if err := scheduledStore.Create(r.Context(), scheduled.Event{
+					At:                donor.IdentityUserData.CheckedAt.AddDate(0, 6, 0),
+					Action:            scheduled.ActionExpireDonorIdentity,
+					TargetLpaKey:      donor.PK,
+					TargetLpaOwnerKey: donor.SK,
+					LpaUID:            donor.LpaUID,
+				}); err != nil {
+					return fmt.Errorf("error scheduling identity expiry: %w", err)
 				}
 
 				return voucher.PathThankYou.Redirect(w, r, appData, appData.LpaID)
