@@ -430,6 +430,7 @@
     "when-has-capacity": "Pan fydd gennyf alluedd meddyliol i wneud penderfyniad penodol fy hun neu ddim",
     "when-capacity-lost": "Dim ond pan nad oes gen i alluedd meddyliol i wneud penderfyniad penodol",
     "when-has-capacity:3rd": "A oes gan y rhoddwr alluedd meddyliol i wneud penderfyniad penodol ai peidio",
+    "when-capacity-lost:3rd": "Welsh",
     "peopleToNotifyAboutYourLpa": "Pobl i’w hysbysu ynglŷn â’ch LPA",
     "wantPeopleToNotify": "Ydych chi eisiau hysbysu rhywun ynglŷn â’ch LPA?",
     "wantPeopleToNotifyContent": "<p class=\"govuk-body\">Gallwch ddewis i roi gwybod i hyd at 5 o bobl eich bod wedi gwneud LPA a’i bod yn barod i’w chofrestru. Gall y bobl hyn godi unrhyw bryderon am eich LPA cyn iddi gael ei chofrestru.</p><p class=\"govuk-body\">Mae’r rhan fwyaf o bobl yn dewis aelodau’r teulu neu ffrindiau agos. Rydyn ni’n galw’r rhain yn ‘bobl i’w hysbysu’. Mae cael pobl i’w hysbysu yn ddewisol ond gall roi amddiffyniad ychwanegol i chi.</p><p class=\"govuk-body\">Os ydych wedi dewis hysbysu person ynglŷn â’ch LPA, byddwn yn anfon gwybodaeth atynt unwaith y bydd pawb wedi llofnodi ac ar ôl i ni wirio eich LPA.</p>",
