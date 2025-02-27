@@ -178,6 +178,14 @@ func handleFeeApproved(
 				return fmt.Errorf("failed to send share code to certificate provider: %w", err)
 			}
 		}
+
+		if donor.Voucher.Allowed && donor.VoucherInvitedAt.IsZero() {
+			if err := shareCodeSender.SendVoucherAccessCode(ctx, donor, appData); err != nil {
+				return err
+			}
+
+			donor.VoucherInvitedAt = now()
+		}
 	} else {
 		donor.Tasks.PayForLpa = task.PaymentStateApproved
 	}
