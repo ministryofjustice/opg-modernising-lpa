@@ -130,7 +130,7 @@ func Supporter(
 				donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID, SessionID: random.String(12)})
 
 				donor.LpaUID = makeUID()
-				donor.Donor = makeDonor(testEmail)
+				donor.Donor = makeDonor(testEmail, "Sam", "Smith")
 				donor.Type = lpadata.LpaTypePropertyAndAffairs
 				donor.CertificateProvider = makeCertificateProvider()
 				donor.Attorneys = donordata.Attorneys{
@@ -185,7 +185,7 @@ func Supporter(
 					donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{OrganisationID: org.ID, LpaID: donor.LpaID})
 
 					donor.LpaUID = makeUID()
-					donor.Donor = makeDonor(testEmail)
+					donor.Donor = makeDonor(testEmail, "Sam", "Smith")
 					donor.Type = lpadata.LpaTypePropertyAndAffairs
 					donor.CertificateProvider = makeCertificateProvider()
 					donor.Attorneys = donordata.Attorneys{
