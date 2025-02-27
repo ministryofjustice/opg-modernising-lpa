@@ -19,6 +19,17 @@ if (context.request.method == 'GET') {
     let lpa = JSON.parse(context.request.body);
     lpa.uid = lpaUID;
     lpa.updatedAt = new Date(Date.now()).toISOString();
+    if (lpa.channel == "paper" && lpa.lpaType == "personal-welfare") {
+        lpa.lifeSustainingTreatmentOption = "option-b";
+        lpa.lifeSustainingTreatmentOptionIsDefault = true;
+        // these defaults are just to locally show it working
+        lpa.howAttorneysMakeDecisions = "jointly";
+        lpa.howAttorneysMakeDecisionsIsDefault = true;
+        lpa.howReplacementAttorneysMakeDecisions = "jointly";
+        lpa.howReplacementAttorneysMakeDecisionsIsDefault = true;
+        lpa.whenTheLpaCanBeUsed = "when-capacity-lost";
+        lpa.whenTheLpaCanBeUsedIsDefault = true;
+    }
     lpaStore.save(lpaUID, JSON.stringify(lpa));
     respond();
 } else if (context.request.method == 'POST') {
@@ -98,14 +109,14 @@ if (context.request.method == 'GET') {
                 const donorCheckedAt = update.changes.find(x => x.key.includes('checkedAt')).new;
                 const donorType = update.changes.find(x => x.key.includes('type')).new;
 
-                lpa.donor.identityCheck = {checkedAt: donorCheckedAt, type: donorType}
+                lpa.donor.identityCheck = { checkedAt: donorCheckedAt, type: donorType }
                 break;
 
             case 'CERTIFICATE_PROVIDER_CONFIRM_IDENTITY':
                 const certificateProviderCheckedAt = update.changes.find(x => x.key.includes('checkedAt')).new;
                 const certificateProviderType = update.changes.find(x => x.key.includes('type')).new;
 
-                lpa.certificateProvider.identityCheck = {checkedAt: certificateProviderCheckedAt, type: certificateProviderType}
+                lpa.certificateProvider.identityCheck = { checkedAt: certificateProviderCheckedAt, type: certificateProviderType }
                 break;
         }
 
