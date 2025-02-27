@@ -529,6 +529,55 @@ func TestHandleFeeApprovedWhenApprovedTypeDiffers(t *testing.T) {
 	}
 }
 
+func TestHandleFeeApprovedWhenVoucherSelected(t *testing.T) {
+	event := &events.CloudWatchEvent{
+		DetailType: "reduced-fee-approved",
+		Detail:     json.RawMessage(`{"uid":"M-1111-2222-3333","approvedType":"NoFee"}`),
+	}
+
+	donor := &donordata.Provided{
+		PK:      dynamo.LpaKey("123"),
+		SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+		FeeType: pay.NoFee,
+		Tasks:   donordata.Tasks{PayForLpa: task.PaymentStatePending},
+		Voucher: donordata.Voucher{Allowed: true},
+	}
+
+	updatedDonor := *donor
+	updatedDonor.Tasks.PayForLpa = task.PaymentStateCompleted
+	updatedDonor.VoucherInvitedAt = testNow
+	updatedDonor.ReducedFeeApprovedAt = testNow
+	updatedDonor.UpdateHash()
+	updatedDonor.UpdatedAt = testNow
+
+	client := newMockDynamodbClient(t)
+	client.EXPECT().
+		OneByUID(ctx, "M-1111-2222-3333", mock.Anything).
+		Return(nil).
+		SetData(dynamo.Keys{PK: dynamo.LpaKey("123"), SK: dynamo.LpaOwnerKey(dynamo.DonorKey("456"))})
+	client.EXPECT().
+		One(ctx, dynamo.LpaKey("123"), dynamo.DonorKey("456"), mock.Anything).
+		Return(nil).
+		SetData(donor)
+	client.EXPECT().
+		Put(ctx, &updatedDonor).
+		Return(nil)
+
+	shareCodeSender := newMockShareCodeSender(t)
+	shareCodeSender.EXPECT().
+		SendVoucherAccessCode(ctx, &donordata.Provided{
+			PK:      dynamo.LpaKey("123"),
+			SK:      dynamo.LpaOwnerKey(dynamo.DonorKey("456")),
+			FeeType: pay.NoFee,
+			Tasks:   donordata.Tasks{PayForLpa: task.PaymentStateCompleted},
+			Voucher: donordata.Voucher{Allowed: true},
+		}, appcontext.Data{}).
+		Return(nil)
+
+	err := handleFeeApproved(ctx, client, event, shareCodeSender, nil, nil, appcontext.Data{}, testNowFn)
+	assert.Nil(t, err)
+}
+
 func TestHandleFeeApprovedWhenDynamoClientPutError(t *testing.T) {
 	event := &events.CloudWatchEvent{
 		DetailType: "reduced-fee-approved",
