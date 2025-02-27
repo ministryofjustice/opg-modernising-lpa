@@ -153,7 +153,7 @@ func CertificateProvider(
 			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.Donor = makeDonor(donorEmail)
+		donorDetails.Donor = makeDonor(donorEmail, "Sam", "Smith")
 
 		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 		if lpaType == "personal-welfare" {

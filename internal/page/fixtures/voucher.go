@@ -78,7 +78,7 @@ func Voucher(
 			voucherCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: voucherSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.Donor = makeDonor(donorEmail)
+		donorDetails.Donor = makeDonor(donorEmail, "Sam", "Smith")
 		donorDetails.Donor.Mobile = donorMobile
 		donorDetails.LpaUID = makeUID()
 		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
