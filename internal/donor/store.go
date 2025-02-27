@@ -502,7 +502,6 @@ func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided, v
 	provided.FailedVoucher = provided.Voucher
 	provided.FailedVoucher.FailedAt = s.now()
 
-	provided.FailedVouchAttempts++
 	provided.Voucher = donordata.Voucher{}
 	provided.WantVoucher = form.YesNoUnknown
 	provided.VoucherInvitedAt = time.Time{}
