@@ -5,6 +5,24 @@
 {{ define "fixtures-main" }}
   <p class="govuk-body">Starting this flow will send an email with reference code to the email entered below. If you don't care about seeing the email then leave the field blank.</p>
 
+  <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend">
+              LPA type
+          </legend>
+          <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
+              <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="type" name="lpa-type" type="radio" value="property-and-affairs" checked>
+                  <label class="govuk-label govuk-radios__label" for="type">Property and affairs</label>
+              </div>
+              <div class="govuk-radios__item">
+                  <input class="govuk-radios__input" id="type-2" name="lpa-type" type="radio" value="personal-welfare">
+                  <label class="govuk-label govuk-radios__label" for="type-2">Personal welfare</label>
+              </div>
+          </div>
+      </fieldset>
+  </div>
+
   {{ template "input" (input . "email" "email" "" "classes" "govuk-input--width-20" "type" "email" "spellcheck" "false" "autocomplete" "email") }}
 
   {{ template "input" (input . "phone" "phone" "" "classes" "govuk-input--width-20" "type" "phone" "spellcheck" "false" "autocomplete" "phone") }}
@@ -38,6 +56,10 @@
       <div class="govuk-checkboxes__item">
         <input class="govuk-checkboxes__input" id="f-is-supported" name="is-supported" type="checkbox" value="1">
         <label class="govuk-label govuk-checkboxes__label" for="f-is-supported">Supported</label>
+      </div>
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="f-paper-donor" name="donorChannel" type="checkbox" value="paper">
+        <label class="govuk-label govuk-checkboxes__label" for="f-paper-donor">Paper donor</label>
       </div>
     </div>
   </div>
