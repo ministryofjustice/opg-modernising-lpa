@@ -43,9 +43,10 @@ type SecretsClient interface {
 }
 
 type ShareCodeSender interface {
+	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
 	SendCertificateProviderInvite(context.Context, appcontext.Data, sharecode.CertificateProviderInvite, notify.ToEmail) error
 	SendCertificateProviderPrompt(context.Context, appcontext.Data, *donordata.Provided) error
-	SendAttorneys(context.Context, appcontext.Data, *lpadata.Lpa) error
+	SendVoucherAccessCode(ctx context.Context, provided *donordata.Provided, appData appcontext.Data) error
 }
 
 type UidStore interface {
