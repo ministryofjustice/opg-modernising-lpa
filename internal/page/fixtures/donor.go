@@ -89,6 +89,8 @@ type FixtureData struct {
 	CertificateProviderMobile string
 	DonorSub                  string
 	DonorEmail                string
+	DonorFirstNames           string
+	DonorLastName             string
 	IdStatus                  string
 	Voucher                   string
 	FailedVouchAttempts       string
@@ -117,6 +119,14 @@ func Donor(
 
 		if data.DonorEmail == "" {
 			data.DonorEmail = testEmail
+		}
+
+		if data.DonorFirstNames == "" {
+			data.DonorFirstNames = "Sam"
+		}
+
+		if data.DonorLastName == "" {
+			data.DonorLastName = "Smith"
 		}
 
 		if r.Method != http.MethodPost && !r.URL.Query().Has("redirect") {
@@ -211,7 +221,7 @@ func updateLPAProgress(
 	var fns []func(context.Context, *lpastore.Client, *lpadata.Lpa) error
 
 	if data.Progress >= slices.Index(progressValues, "provideYourDetails") {
-		donorDetails.Donor = makeDonor(data.DonorEmail)
+		donorDetails.Donor = makeDonor(data.DonorEmail, data.DonorFirstNames, data.DonorLastName)
 
 		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 
@@ -736,6 +746,8 @@ func setFixtureData(r *http.Request) FixtureData {
 		CertificateProviderMobile: r.FormValue("certificateProviderMobile"),
 		DonorSub:                  r.FormValue("donorSub"),
 		DonorEmail:                r.FormValue("donorEmail"),
+		DonorFirstNames:           r.FormValue("donorFirstNames"),
+		DonorLastName:             r.FormValue("donorLastName"),
 		IdStatus:                  r.FormValue("idStatus"),
 		Voucher:                   r.FormValue("voucher"),
 		FailedVouchAttempts:       r.FormValue("failedVouchAttempts"),

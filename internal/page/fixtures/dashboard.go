@@ -55,7 +55,7 @@ func Dashboard(
 			donorCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: meSessionID, LpaID: donor.LpaID})
 
 			donor.LpaUID = makeUID()
-			donor.Donor = makeDonor(testEmail)
+			donor.Donor = makeDonor(testEmail, "Sam", "Smith")
 			donor.Type = lpadata.LpaTypePropertyAndAffairs
 
 			donor.Attorneys = donordata.Attorneys{
@@ -72,7 +72,7 @@ func Dashboard(
 			if err != nil {
 				return err
 			}
-			donor.Donor = makeDonor(testEmail)
+			donor.Donor = makeDonor(testEmail, "Sam", "Smith")
 			donor.LpaUID = makeUID()
 
 			if err := donorStore.Put(appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, LpaID: donor.LpaID}), donor); err != nil {
@@ -92,7 +92,7 @@ func Dashboard(
 			if err != nil {
 				return err
 			}
-			donor.Donor = makeDonor(testEmail)
+			donor.Donor = makeDonor(testEmail, "Sam", "Smith")
 			donor.Attorneys = donordata.Attorneys{
 				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0])},
 			}
