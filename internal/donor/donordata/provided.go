@@ -153,8 +153,8 @@ type Provided struct {
 	WantVoucher form.YesNo `checkhash:"-"`
 	// Voucher is a person the donor has nominated to vouch for their identity
 	Voucher Voucher `checkhash:"-"`
-	// FailedVouchAttempts are the number of unsuccessful attempts a voucher has made to confirm the Donors ID
-	FailedVouchAttempts int `checkhash:"-"`
+	// VouchAttempts are the number of attempts a voucher has made to confirm the Donors identity
+	VouchAttempts int `checkhash:"-"`
 	// FailedVoucher is the last voucher that was unable to vouch for the donor
 	FailedVoucher Voucher `checkhash:"-"`
 
@@ -192,6 +192,10 @@ type Provided struct {
 
 	// VoucherInvitedAt records when the invite is sent to the voucher to vouch.
 	VoucherInvitedAt time.Time `checkhash:"-"`
+
+	// DetailsVerifiedByVoucher records that a voucher has verified details supplied by
+	// the donor match their identity.
+	DetailsVerifiedByVoucher bool `checkhash:"-"`
 
 	// MoreEvidenceRequiredAt records when a request for further information on an
 	// exemption/remission was received.
@@ -263,7 +267,7 @@ func (p *Provided) CanChange() bool {
 func (p *Provided) CanChangePersonalDetails() bool {
 	return !p.IdentityUserData.Status.IsConfirmed() &&
 		p.SignedAt.IsZero() &&
-		p.VoucherInvitedAt.IsZero()
+		!p.DetailsVerifiedByVoucher
 }
 
 func (p *Provided) HashInclude(field string, _ any) (bool, error) {
@@ -679,7 +683,7 @@ func (p *Provided) Actors() iter.Seq[actor.Actor] {
 }
 
 func (p *Provided) CanHaveVoucher() bool {
-	return p.FailedVouchAttempts < 2
+	return p.VouchAttempts < 2
 }
 
 func (p *Provided) UpdateDecisions() {
