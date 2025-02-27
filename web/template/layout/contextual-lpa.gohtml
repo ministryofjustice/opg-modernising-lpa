@@ -188,35 +188,43 @@
 
     <dl class="govuk-summary-list app-stacked-summary-list">
         {{ with .Lpa.WhenCanTheLpaBeUsed }}
-            {{ template "summary-row" (staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
-                (tr $.App (printf "%s:3rd" .String))) }}
-        {{ else }}
-            {{ template "defaulted-summary-row" (staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
-                (tr $.App "when-has-capacity:3rd")) }}
+            {{ $data := staticSummaryRow $.App "whenAttorneysCanUseTheLpa"
+                (trHtml $.App (printf "%s:3rd" .String)) }}
+
+            {{ if $.Lpa.WhenTheLpaCanBeUsedIsDefault }}
+                {{ template "defaulted-summary-row" $data }}
+            {{ else }}
+                {{ template "summary-row" $data }}
+            {{ end }}
         {{ end }}
 
         {{ if .Lpa.Type.IsPersonalWelfare }}
             {{ with .Lpa.LifeSustainingTreatmentOption }}
-                {{ $value := "optionB" }}
+                {{ $value := trHtml $.App "optionB" }}
                 {{ if .IsOptionA }}
-                    {{ $value = "optionA" }}
+                    {{ $value = trHtml $.App "optionA" }}
                 {{ end }}
 
-                {{ template "summary-row" (staticSummaryRow $.App "lifeSustainingTreatment"
-                    (trHtml $.App $value)) }}
-            {{ else }}
-                {{ template "defaulted-summary-row" (staticSummaryRow .App "lifeSustainingTreatment"
-                    (trHtml .App "optionB")) }}
+                {{ $data := (staticSummaryRow $.App "lifeSustainingTreatment" $value) }}
+
+                {{ if $.Lpa.LifeSustainingTreatmentOptionIsDefault }}
+                    {{ template "defaulted-summary-row" $data }}
+                {{ else }}
+                    {{ template "summary-row" $data }}
+                {{ end }}
             {{ end }}
         {{ end }}
 
         {{ if gt .Lpa.Attorneys.Len 1 }}
             {{ with .Lpa.AttorneyDecisions.How }}
-                {{ template "summary-row" (staticSummaryRow $.App "howAttorneysMustMakeDecisions"
-                    (tr $.App .String)) }}
-            {{ else }}
-                {{ template "defaulted-summary-row" (staticSummaryRow $.App "howAttorneysMustMakeDecisions"
-                    (tr $.App "jointly")) }}
+                {{ $data := (staticSummaryRow $.App "howAttorneysMustMakeDecisions"
+                    (trHtml $.App .String)) }}
+
+                {{ if $.Lpa.HowAttorneysMakeDecisionsIsDefault }}
+                    {{ template "defaulted-summary-row" $data }}
+                {{ else }}
+                    {{ template "summary-row" $data }}
+                {{ end }}
             {{ end }}
         {{ end }}
 
@@ -234,11 +242,14 @@
 
         {{ if and (gt .Lpa.ReplacementAttorneys.Len 1) (or (not .Lpa.AttorneyDecisions.How.IsJointlyAndSeverally) .Lpa.HowShouldReplacementAttorneysStepIn.IsWhenAllCanNoLongerAct) }}
             {{ with .Lpa.ReplacementAttorneyDecisions.How }}
-                {{ template "summary-row" (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
-                    (tr $.App .String)) }}
-            {{ else }}
-                {{ template "defaulted-summary-row" (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
-                    (tr $.App "jointly")) }}
+                {{ $data := (staticSummaryRow $.App "howReplacementAttorneysMustMakeDecisions"
+                        (trHtml $.App .String)) }}
+
+                {{ if $.Lpa.HowReplacementAttorneysMakeDecisionsIsDefault }}
+                    {{ template "defaulted-summary-row" $data }}
+                {{ else }}
+                    {{ template "summary-row" $data }}
+                {{ end }}
             {{ end }}
         {{ end }}
     </dl>
