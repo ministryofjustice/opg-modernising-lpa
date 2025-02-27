@@ -13,7 +13,7 @@
 
             {{ trHtml .App "whatYouCanDoNowContent" }}
             {{ trHtml .App "replaceFindOrGetNewIDContent" }}
-            {{ if eq 1 .FailedVouchAttempts }} {{ trHtml .App "tryVouchingAgainContent" }} {{ end }}
+            {{ if eq 1 .VouchAttempts }} {{ trHtml .App "tryVouchingAgainContent" }} {{ end }}
             {{ trHtml .App "registerYourLPAThroughTheCOPContent" }}
 
             {{ template "warning" (content .App "onceYouSelectThisOptionYouCannotChangeYourMindWarning") }}

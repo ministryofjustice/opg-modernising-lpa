@@ -171,7 +171,7 @@ func main() {
 		fmt.Fprint(w, "</tbody></table></body>")
 	})
 
-	http.HandleFunc("/emit/{detailType}", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/emit/{source}/{detailType}", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			sqsClient := &sqsClient{
 				svc:      sqs.NewFromConfig(cfg),
@@ -179,13 +179,14 @@ func main() {
 			}
 
 			detailType := r.PathValue("detailType")
+			source := r.PathValue("source")
 
 			var detail json.RawMessage
 			if err := json.NewDecoder(r.Body).Decode(&detail); err != nil {
 				log.Printf("failed to unmarshal %s: %v", detailType, err)
 			}
 
-			if err = sqsClient.SendMessage(r.Context(), detailType, detail); err != nil {
+			if err = sqsClient.SendMessage(r.Context(), source, detailType, detail); err != nil {
 				log.Printf("failed to send %s: %v", detailType, err)
 			} else {
 				log.Println("successfully handled", detailType)

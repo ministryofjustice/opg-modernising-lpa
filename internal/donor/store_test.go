@@ -1117,10 +1117,9 @@ func TestDonorFailVoucher(t *testing.T) {
 			},
 			Puts: []any{
 				&donordata.Provided{
-					PK:                  dynamo.LpaKey("lpa-id"),
-					WantVoucher:         form.YesNoUnknown,
-					FailedVouchAttempts: 1,
-					FailedVoucher:       donordata.Voucher{FirstNames: "a", LastName: "b", FailedAt: testNow},
+					PK:            dynamo.LpaKey("lpa-id"),
+					WantVoucher:   form.YesNoUnknown,
+					FailedVoucher: donordata.Voucher{FirstNames: "a", LastName: "b", FailedAt: testNow},
 				},
 			},
 		}).
@@ -1129,10 +1128,11 @@ func TestDonorFailVoucher(t *testing.T) {
 	donorStore := &Store{dynamoClient: dynamoClient, now: testNowFn}
 
 	err := donorStore.FailVoucher(ctx, &donordata.Provided{
-		PK:               dynamo.LpaKey("lpa-id"),
-		Voucher:          donordata.Voucher{FirstNames: "a", LastName: "b"},
-		WantVoucher:      form.Yes,
-		VoucherInvitedAt: testNow,
+		PK:                       dynamo.LpaKey("lpa-id"),
+		Voucher:                  donordata.Voucher{FirstNames: "a", LastName: "b"},
+		WantVoucher:              form.Yes,
+		VoucherInvitedAt:         testNow,
+		DetailsVerifiedByVoucher: true,
 	}, dynamo.VoucherKey("a-voucher"))
 	assert.Equal(t, expectedError, err)
 }
