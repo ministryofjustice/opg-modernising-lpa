@@ -91,7 +91,7 @@ type FixtureData struct {
 	DonorEmail                string
 	IdStatus                  string
 	Voucher                   string
-	FailedVouchAttempts       string
+	VouchAttempts             string
 }
 
 func Donor(
@@ -131,8 +131,9 @@ func Donor(
 					identity.StatusInsufficientEvidence.String(),
 					identity.StatusExpired.String(),
 					"post-office",
-					"vouched",
 					"mismatch",
+					"verified-not-vouched",
+					"vouched",
 				},
 			})
 		}
@@ -530,6 +531,16 @@ func updateLPAProgress(
 			}
 			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStatePending
 			donorDetails.ContinueWithMismatchedIdentity = true
+		case "verified-not-vouched":
+			userData = identity.UserData{
+				Status:    identity.StatusInsufficientEvidence,
+				CheckedAt: time.Now(),
+			}
+
+			donorDetails.Voucher = makeVoucher(voucherName)
+			donorDetails.WantVoucher = form.Yes
+			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateInProgress
+			donorDetails.DetailsVerifiedByVoucher = true
 		default:
 			userData = identity.UserData{
 				Status:      identity.StatusConfirmed,
@@ -540,12 +551,12 @@ func updateLPAProgress(
 			}
 		}
 
-		attempts, err := strconv.Atoi(data.FailedVouchAttempts)
-		if err != nil && data.FailedVouchAttempts != "" {
-			return nil, nil, fmt.Errorf("invalid value for failedVouchAttempts: %s", err.Error())
+		attempts, err := strconv.Atoi(data.VouchAttempts)
+		if err != nil && data.VouchAttempts != "" {
+			return nil, nil, fmt.Errorf("invalid value for vouchAttempts: %s", err.Error())
 		}
 
-		donorDetails.FailedVouchAttempts = attempts
+		donorDetails.VouchAttempts = attempts
 		if attempts > 0 {
 			donorDetails.WantVoucher = form.YesNoUnknown
 			donorDetails.FailedVoucher = donorDetails.Voucher
@@ -738,6 +749,6 @@ func setFixtureData(r *http.Request) FixtureData {
 		DonorEmail:                r.FormValue("donorEmail"),
 		IdStatus:                  r.FormValue("idStatus"),
 		Voucher:                   r.FormValue("voucher"),
-		FailedVouchAttempts:       r.FormValue("failedVouchAttempts"),
+		VouchAttempts:             r.FormValue("vouchAttempts"),
 	}
 }
