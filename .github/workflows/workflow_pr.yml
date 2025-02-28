@@ -176,7 +176,14 @@ jobs:
     environment:
       name: "dev_${{ needs.create_tags.outputs.environment_workspace_name }}"
       url: "https://${{ needs.pr_deploy.outputs.url }}"
-    needs: [pr_deploy, create_tags, ui_tests_pr_env]
+    needs: [
+      pr_deploy,
+      create_tags,
+      ui_tests_pr_env,
+      terraform_account_workflow_development,
+      terraform_account_workflow_preproduction,
+      terraform_account_workflow_production
+      ]
     steps:
       - name: End of PR Workflow
         run: |
