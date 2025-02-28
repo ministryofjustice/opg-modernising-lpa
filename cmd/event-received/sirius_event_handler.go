@@ -339,6 +339,13 @@ func handleCertificateProviderSubmissionCompleted(ctx context.Context, event *ev
 		now := factory.Now()
 		donor.AttorneysInvitedAt = now()
 
+		if err := factory.ScheduledStore().DeleteAllActionByUID(ctx, []scheduled.Action{
+			scheduled.ActionRemindCertificateProviderToComplete,
+			scheduled.ActionRemindCertificateProviderToConfirmIdentity,
+		}, v.UID); err != nil {
+			return fmt.Errorf("failed to delete scheduled events: %w", err)
+		}
+
 		if err := shareCodeSender.SendAttorneys(ctx, appData, lpa); err != nil {
 			return fmt.Errorf("failed to send share codes to attorneys: %w", err)
 		}
