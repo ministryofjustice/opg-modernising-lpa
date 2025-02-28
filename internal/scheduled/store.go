@@ -3,6 +3,7 @@ package scheduled
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
@@ -75,6 +76,23 @@ func (s *Store) DeleteAllByUID(ctx context.Context, uid string) error {
 	var keys []dynamo.Keys
 	for _, e := range events {
 		keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
+	}
+
+	return s.dynamoClient.DeleteKeys(ctx, keys)
+}
+
+func (s *Store) DeleteAllActionByUID(ctx context.Context, actions []Action, uid string) error {
+	var events []Event
+
+	if err := s.dynamoClient.AllByLpaUIDAndPartialSK(ctx, uid, dynamo.PartialScheduledKey(), &events); err != nil {
+		return err
+	}
+
+	var keys []dynamo.Keys
+	for _, e := range events {
+		if slices.Contains(actions, e.Action) {
+			keys = append(keys, dynamo.Keys{PK: e.PK, SK: e.SK})
+		}
 	}
 
 	return s.dynamoClient.DeleteKeys(ctx, keys)
