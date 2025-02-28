@@ -43,8 +43,8 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 		},
 	}
 
-	for failedVouchAttempts, tc := range testcases {
-		t.Run(strconv.Itoa(failedVouchAttempts), func(t *testing.T) {
+	for vouchAttempts, tc := range testcases {
+		t.Run(strconv.Itoa(vouchAttempts), func(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -56,14 +56,14 @@ func TestGetWhatYouCanDoNow(t *testing.T) {
 						Options:        donordata.NoVoucherDecisionValues,
 						CanHaveVoucher: tc.CanHaveVoucher,
 					},
-					FailedVouchAttempts:   failedVouchAttempts,
+					VouchAttempts:         vouchAttempts,
 					BannerContent:         tc.BannerContent,
 					NewVoucherLabel:       tc.NewVoucherLabel,
 					ProveOwnIdentityLabel: tc.ProveOwnIdentityLabel,
 				}).
 				Return(nil)
 
-			err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{FailedVouchAttempts: failedVouchAttempts})
+			err := WhatYouCanDoNow(template.Execute, nil)(testAppData, w, r, &donordata.Provided{VouchAttempts: vouchAttempts})
 
 			assert.Nil(t, err)
 		})

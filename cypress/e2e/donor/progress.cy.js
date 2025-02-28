@@ -113,7 +113,7 @@ describe('Progress', () => {
         });
 
         it('when a vouch attempt has been unsuccessful', () => {
-            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&failedVouchAttempts=1&idStatus=donor:insufficient-evidence');
+            cy.visit('/fixtures?redirect=/progress&progress=signTheLpa&voucher=1&vouchAttempts=1&idStatus=donor:insufficient-evidence');
             cy.checkA11yApp();
             cy.contains('Important: 2 notifications from OPG')
 
@@ -274,7 +274,7 @@ describe('Progress', () => {
                 .then((uid) => {
                     cy.request({
                         method: 'POST',
-                        url: 'http://localhost:9001/emit/immaterial-change-confirmed',
+                        url: 'http://localhost:9001/emit/opg.poas.sirius/immaterial-change-confirmed',
                         body: {
                             uid: uid.trim(),
                             actorType: 'donor',
@@ -313,7 +313,7 @@ describe('Progress', () => {
                 .then((uid) => {
                     cy.request({
                         method: 'POST',
-                        url: 'http://localhost:9001/emit/material-change-confirmed',
+                        url: 'http://localhost:9001/emit/opg.poas.sirius/material-change-confirmed',
                         body: {
                             uid: uid.trim(),
                             actorType: 'donor',

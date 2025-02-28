@@ -12,9 +12,9 @@
             {{ trHtml .App "whatYouCanDoNowContent" }}
             {{ trHtml .App "returnToOneLoginToConfirmYourIdentityContent" }}
 
-            {{ if eq 0 .FailedVouchAttempts }}
+            {{ if eq 0 .VouchAttempts }}
                 {{ trHtml .App "askSomeoneToVouchForYouContent" }}
-            {{ else if eq 1 .FailedVouchAttempts }}
+            {{ else if eq 1 .VouchAttempts }}
                 {{ trHtml .App "tryVouchingAgainContent" }}
             {{ end }}
 

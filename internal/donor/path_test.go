@@ -227,6 +227,22 @@ func TestPathCanGoTo(t *testing.T) {
 			path:     PathYourName,
 			expected: false,
 		},
+		"your name when cannot change personal details because vouch confirmed donor details": {
+			donor: &donordata.Provided{
+				IdentityUserData:         identity.UserData{Status: identity.StatusInsufficientEvidence},
+				DetailsVerifiedByVoucher: true,
+			},
+			path:     PathYourName,
+			expected: false,
+		},
+		"your date of birth when cannot change personal details because vouch confirmed donor details": {
+			donor: &donordata.Provided{
+				IdentityUserData:         identity.UserData{Status: identity.StatusInsufficientEvidence},
+				DetailsVerifiedByVoucher: true,
+			},
+			path:     PathYourDateOfBirth,
+			expected: false,
+		},
 		"view lpa": {
 			donor:    &donordata.Provided{},
 			path:     PathViewLPA,

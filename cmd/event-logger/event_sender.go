@@ -27,18 +27,19 @@ type CloudWatchEvent struct {
 	Detail     json.RawMessage `json:"detail"`
 }
 
-func (c sqsClient) SendMessage(ctx context.Context, detailType string, detail json.RawMessage) error {
+func (c sqsClient) SendMessage(ctx context.Context, source, detailType string, detail json.RawMessage) error {
 	v, err := json.Marshal(CloudWatchEvent{
 		Version:    "0",
 		ID:         "63eb7e5f-1f10-4744-bba9-e16d327c3b98",
 		DetailType: detailType,
-		Source:     "opg.poas.sirius",
+		Source:     source,
 		Account:    "653761790766",
 		Time:       time.Now().UTC(),
 		Region:     "eu-west-1",
 		Resources:  []string{},
 		Detail:     detail,
 	})
+
 	if err != nil {
 		return err
 	}

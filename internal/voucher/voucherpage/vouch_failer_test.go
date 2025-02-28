@@ -28,9 +28,9 @@ func TestVouchFailer(t *testing.T) {
 		LastName:   "Vaughn",
 	}
 	donor := &donordata.Provided{
-		FailedVouchAttempts: 1,
-		WantVoucher:         form.Yes,
-		Voucher:             donordata.Voucher{FirstNames: "A"},
+		VouchAttempts: 1,
+		WantVoucher:   form.Yes,
+		Voucher:       donordata.Voucher{FirstNames: "A"},
 	}
 
 	donorStore := newMockDonorStore(t)

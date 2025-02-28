@@ -20,7 +20,7 @@ type whatYouCanDoNowData struct {
 	ProveOwnIdentityLabel string
 	NewVoucherLabel       string
 	BannerContent         string
-	FailedVouchAttempts   int
+	VouchAttempts         int
 }
 
 func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
@@ -31,7 +31,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 				Options:        donordata.NoVoucherDecisionValues,
 				CanHaveVoucher: provided.CanHaveVoucher(),
 			},
-			FailedVouchAttempts: provided.FailedVouchAttempts,
+			VouchAttempts: provided.VouchAttempts,
 		}
 
 		if r.Method == http.MethodPost {
@@ -57,7 +57,7 @@ func WhatYouCanDoNow(tmpl template.Template, donorStore DonorStore) Handler {
 		}
 
 		if !provided.Voucher.Allowed {
-			switch provided.FailedVouchAttempts {
+			switch provided.VouchAttempts {
 			case 0:
 				data.BannerContent = "youHaveNotChosenAnyoneToVouchForYou"
 				data.NewVoucherLabel = "iHaveSomeoneWhoCanVouch"
