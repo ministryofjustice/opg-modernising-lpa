@@ -20,7 +20,6 @@ import (
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/gorilla/handlers"
-	"github.com/ministryofjustice/opg-go-common/securityheaders"
 	"github.com/ministryofjustice/opg-go-common/template"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/app"
@@ -337,7 +336,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	if xrayEnabled {
 		handler = telemetry.WrapHandler(mux)
 	}
-	handler = securityheaders.Use(handler)
+	handler = withSecurityHeaders(handler)
 
 	server := &http.Server{
 		Addr:              ":" + port,
@@ -412,4 +411,19 @@ func parseTemplates(templateDir string, layouts *html.Template) (template.Templa
 	}
 
 	return tmpls, nil
+}
+
+func withSecurityHeaders(h http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Security-Policy", "default-src 'self'; script-src 'self' https://client.rum.us-east-1.amazonaws.com; connect-src 'self' https://dataplane.rum.eu-west-1.amazonaws.com https://dataplane.rum.eu-west-2.amazonaws.com https://cognito-identity.eu-west-1.amazonaws.com https://cognito-identity.eu-west-2.amazonaws.com https://sts.eu-west-1.amazonaws.com https://sts.eu-west-2.amazonaws.com")
+		w.Header().Add("Referrer-Policy", "same-origin")
+		w.Header().Add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+		w.Header().Add("X-Content-Type-Options", "nosniff")
+		w.Header().Add("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Add("X-XSS-Protection", "1; mode=block")
+		w.Header().Add("Cache-control", "no-store")
+		w.Header().Add("Pragma", "no-cache")
+
+		h.ServeHTTP(w, r)
+	}
 }
