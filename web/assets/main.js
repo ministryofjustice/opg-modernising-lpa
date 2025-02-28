@@ -68,7 +68,6 @@ function init() {
             endpoint: metaContent('rum-endpoint'),
             telemetries: ["http", "errors", "performance"],
             allowCookies: true,
-            enableXRay: true
         };
 
         const APPLICATION_ID = metaContent('rum-application-id');
