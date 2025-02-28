@@ -28,8 +28,7 @@ jobs:
         run: |
           if [ "$GITHUB_EVENT_NAME" == "push" ]; then
             echo BRANCH_NAME=main >> $GITHUB_ENV
-          elseif
-            [ "$GITHUB_EVENT_NAME" == "merge_group" ]; then
+          elif [ "$GITHUB_EVENT_NAME" == "merge_group" ]; then
             echo BRANCH_NAME=staging >> $GITHUB_ENV
           else
             branch=${{ github.head_ref }}
