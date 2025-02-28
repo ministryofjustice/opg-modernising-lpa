@@ -174,3 +174,55 @@ func TestDeleteAllByUIDWhenDeleteKeysErrors(t *testing.T) {
 
 	assert.Equal(t, expectedError, err)
 }
+
+func TestDeleteAllActionByUID(t *testing.T) {
+	now := time.Now()
+	yesterday := now.Add(-24 * time.Hour)
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, "lpa-uid", dynamo.PartialScheduledKey(), mock.Anything).
+		Return(nil).
+		SetData([]Event{
+			{LpaUID: "lpa-uid", Action: ActionRemindAttorneyToComplete, PK: dynamo.ScheduledDayKey(now), SK: dynamo.ScheduledKey(now, testUuidString)},
+			{LpaUID: "lpa-uid", Action: ActionExpireDonorIdentity, PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+		})
+	dynamoClient.EXPECT().
+		DeleteKeys(ctx, []dynamo.Keys{
+			{PK: dynamo.ScheduledDayKey(yesterday), SK: dynamo.ScheduledKey(yesterday, testUuidString)},
+		}).
+		Return(nil)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn, uuidString: testUuidStringFn}
+	err := store.DeleteAllActionByUID(ctx, []Action{ActionExpireDonorIdentity}, "lpa-uid")
+
+	assert.Nil(t, err)
+}
+
+func TestDeleteAllActionByUIDWhenAllByLpaUIDAndPartialSKErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDeleteAllActionByUIDWhenDeleteKeysErrors(t *testing.T) {
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.EXPECT().
+		AllByLpaUIDAndPartialSK(ctx, mock.Anything, mock.Anything, mock.Anything).
+		Return(nil).
+		SetData([]Event{{LpaUID: "lpa-uid"}})
+	dynamoClient.EXPECT().
+		DeleteKeys(mock.Anything, mock.Anything).
+		Return(expectedError)
+
+	store := &Store{dynamoClient: dynamoClient, now: testNowFn}
+	err := store.DeleteAllActionByUID(ctx, []Action{}, "lpa-uid")
+
+	assert.Equal(t, expectedError, err)
+}
