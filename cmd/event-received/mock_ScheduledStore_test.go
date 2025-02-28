@@ -5,6 +5,7 @@ package main
 import (
 	context "context"
 
+	scheduled "github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -19,6 +20,54 @@ type mockScheduledStore_Expecter struct {
 
 func (_m *mockScheduledStore) EXPECT() *mockScheduledStore_Expecter {
 	return &mockScheduledStore_Expecter{mock: &_m.Mock}
+}
+
+// DeleteAllActionByUID provides a mock function with given fields: ctx, actions, uid
+func (_m *mockScheduledStore) DeleteAllActionByUID(ctx context.Context, actions []scheduled.Action, uid string) error {
+	ret := _m.Called(ctx, actions, uid)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAllActionByUID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []scheduled.Action, string) error); ok {
+		r0 = rf(ctx, actions, uid)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// mockScheduledStore_DeleteAllActionByUID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAllActionByUID'
+type mockScheduledStore_DeleteAllActionByUID_Call struct {
+	*mock.Call
+}
+
+// DeleteAllActionByUID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - actions []scheduled.Action
+//   - uid string
+func (_e *mockScheduledStore_Expecter) DeleteAllActionByUID(ctx interface{}, actions interface{}, uid interface{}) *mockScheduledStore_DeleteAllActionByUID_Call {
+	return &mockScheduledStore_DeleteAllActionByUID_Call{Call: _e.mock.On("DeleteAllActionByUID", ctx, actions, uid)}
+}
+
+func (_c *mockScheduledStore_DeleteAllActionByUID_Call) Run(run func(ctx context.Context, actions []scheduled.Action, uid string)) *mockScheduledStore_DeleteAllActionByUID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]scheduled.Action), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *mockScheduledStore_DeleteAllActionByUID_Call) Return(_a0 error) *mockScheduledStore_DeleteAllActionByUID_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *mockScheduledStore_DeleteAllActionByUID_Call) RunAndReturn(run func(context.Context, []scheduled.Action, string) error) *mockScheduledStore_DeleteAllActionByUID_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // DeleteAllByUID provides a mock function with given fields: ctx, uid

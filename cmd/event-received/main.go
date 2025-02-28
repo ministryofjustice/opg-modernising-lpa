@@ -28,6 +28,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/pay"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/random"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/s3"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/scheduled"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/telemetry"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda/xrayconfig"
@@ -130,6 +131,7 @@ type EventClient interface {
 
 type ScheduledStore interface {
 	DeleteAllByUID(ctx context.Context, uid string) error
+	DeleteAllActionByUID(ctx context.Context, actions []scheduled.Action, uid string) error
 }
 
 type NotifyClient interface {
