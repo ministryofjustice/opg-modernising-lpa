@@ -244,33 +244,37 @@ func (c *Client) SendLpa(ctx context.Context, uid string, body CreateLpa) error 
 }
 
 type lpaResponse struct {
-	LpaType                                     lpadata.LpaType                    `json:"lpaType"`
-	Donor                                       lpadata.Donor                      `json:"donor"`
-	Channel                                     lpadata.Channel                    `json:"channel"`
-	Language                                    localize.Lang                      `json:"language"`
-	Attorneys                                   []lpadata.Attorney                 `json:"attorneys"`
-	TrustCorporations                           []lpadata.TrustCorporation         `json:"trustCorporations"`
-	CertificateProvider                         lpadata.CertificateProvider        `json:"certificateProvider"`
-	PeopleToNotify                              []lpadata.PersonToNotify           `json:"peopleToNotify"`
-	IndependentWitness                          *lpadata.IndependentWitness        `json:"independentWitness"`
-	AuthorisedSignatory                         *lpadata.AuthorisedSignatory       `json:"authorisedSignatory"`
-	HowAttorneysMakeDecisions                   lpadata.AttorneysAct               `json:"howAttorneysMakeDecisions"`
-	HowAttorneysMakeDecisionsDetails            string                             `json:"howAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysMakeDecisions        lpadata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions"`
-	HowReplacementAttorneysMakeDecisionsDetails string                             `json:"howReplacementAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysStepIn               lpadata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn"`
-	HowReplacementAttorneysStepInDetails        string                             `json:"howReplacementAttorneysStepInDetails"`
-	Restrictions                                string                             `json:"restrictionsAndConditions"`
-	WhenTheLpaCanBeUsed                         lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed"`
-	LifeSustainingTreatmentOption               lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption"`
-	SignedAt                                    time.Time                          `json:"signedAt"`
-	WitnessedByCertificateProviderAt            time.Time                          `json:"witnessedByCertificateProviderAt"`
-	WitnessedByIndependentWitnessAt             *time.Time                         `json:"witnessedByIndependentWitnessAt"`
-	CertificateProviderNotRelatedConfirmedAt    *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt"`
-	UID                                         string                             `json:"uid"`
-	Status                                      lpadata.Status                     `json:"status"`
-	RegistrationDate                            time.Time                          `json:"registrationDate"`
-	UpdatedAt                                   time.Time                          `json:"updatedAt"`
+	LpaType                                       lpadata.LpaType                    `json:"lpaType"`
+	Donor                                         lpadata.Donor                      `json:"donor"`
+	Channel                                       lpadata.Channel                    `json:"channel"`
+	Language                                      localize.Lang                      `json:"language"`
+	Attorneys                                     []lpadata.Attorney                 `json:"attorneys"`
+	TrustCorporations                             []lpadata.TrustCorporation         `json:"trustCorporations"`
+	CertificateProvider                           lpadata.CertificateProvider        `json:"certificateProvider"`
+	PeopleToNotify                                []lpadata.PersonToNotify           `json:"peopleToNotify"`
+	IndependentWitness                            *lpadata.IndependentWitness        `json:"independentWitness"`
+	AuthorisedSignatory                           *lpadata.AuthorisedSignatory       `json:"authorisedSignatory"`
+	HowAttorneysMakeDecisions                     lpadata.AttorneysAct               `json:"howAttorneysMakeDecisions"`
+	HowAttorneysMakeDecisionsIsDefault            bool                               `json:"howAttorneysMakeDecisionsIsDefault"`
+	HowAttorneysMakeDecisionsDetails              string                             `json:"howAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysMakeDecisions          lpadata.AttorneysAct               `json:"howReplacementAttorneysMakeDecisions"`
+	HowReplacementAttorneysMakeDecisionsIsDefault bool                               `json:"howReplacementAttorneysMakeDecisionsIsDefault"`
+	HowReplacementAttorneysMakeDecisionsDetails   string                             `json:"howReplacementAttorneysMakeDecisionsDetails"`
+	HowReplacementAttorneysStepIn                 lpadata.ReplacementAttorneysStepIn `json:"howReplacementAttorneysStepIn"`
+	HowReplacementAttorneysStepInDetails          string                             `json:"howReplacementAttorneysStepInDetails"`
+	Restrictions                                  string                             `json:"restrictionsAndConditions"`
+	WhenTheLpaCanBeUsed                           lpadata.CanBeUsedWhen              `json:"whenTheLpaCanBeUsed"`
+	WhenTheLpaCanBeUsedIsDefault                  bool                               `json:"whenTheLpaCanBeUsedIsDefault"`
+	LifeSustainingTreatmentOption                 lpadata.LifeSustainingTreatment    `json:"lifeSustainingTreatmentOption"`
+	LifeSustainingTreatmentOptionIsDefault        bool                               `json:"lifeSustainingTreatmentOptionIsDefault"`
+	SignedAt                                      time.Time                          `json:"signedAt"`
+	WitnessedByCertificateProviderAt              time.Time                          `json:"witnessedByCertificateProviderAt"`
+	WitnessedByIndependentWitnessAt               *time.Time                         `json:"witnessedByIndependentWitnessAt"`
+	CertificateProviderNotRelatedConfirmedAt      *time.Time                         `json:"certificateProviderNotRelatedConfirmedAt"`
+	UID                                           string                             `json:"uid"`
+	Status                                        lpadata.Status                     `json:"status"`
+	RegistrationDate                              time.Time                          `json:"registrationDate"`
+	UpdatedAt                                     time.Time                          `json:"updatedAt"`
 }
 
 func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
@@ -304,11 +308,15 @@ func lpaResponseToLpa(l lpaResponse) *lpadata.Lpa {
 		},
 		HowShouldReplacementAttorneysStepIn:        l.HowReplacementAttorneysStepIn,
 		HowShouldReplacementAttorneysStepInDetails: l.HowReplacementAttorneysStepInDetails,
-		Restrictions:                     l.Restrictions,
-		WhenCanTheLpaBeUsed:              l.WhenTheLpaCanBeUsed,
-		LifeSustainingTreatmentOption:    l.LifeSustainingTreatmentOption,
-		SignedAt:                         l.SignedAt,
-		WitnessedByCertificateProviderAt: l.WitnessedByCertificateProviderAt,
+		Restrictions:                                  l.Restrictions,
+		WhenCanTheLpaBeUsed:                           l.WhenTheLpaCanBeUsed,
+		LifeSustainingTreatmentOption:                 l.LifeSustainingTreatmentOption,
+		SignedAt:                                      l.SignedAt,
+		WitnessedByCertificateProviderAt:              l.WitnessedByCertificateProviderAt,
+		HowAttorneysMakeDecisionsIsDefault:            l.HowAttorneysMakeDecisionsIsDefault,
+		HowReplacementAttorneysMakeDecisionsIsDefault: l.HowReplacementAttorneysMakeDecisionsIsDefault,
+		WhenTheLpaCanBeUsedIsDefault:                  l.WhenTheLpaCanBeUsedIsDefault,
+		LifeSustainingTreatmentOptionIsDefault:        l.LifeSustainingTreatmentOptionIsDefault,
 	}
 
 	if l.LpaType.IsPersonalWelfare() {

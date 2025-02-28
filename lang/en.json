@@ -386,6 +386,7 @@
     "when-has-capacity": "Whether or not I have mental capacity to make a particular decision myself",
     "when-capacity-lost": "Only when I do not have mental capacity to make a particular decision",
     "when-has-capacity:3rd": "Whether or not the donor has mental capacity to make a particular decision",
+    "when-capacity-lost:3rd": "Only when the donor does not have mental capacity to make a particular decision",
     "peopleToNotifyAboutYourLpa": "People to notify about your LPA",
     "wantPeopleToNotify": "Do you want to notify anyone about your LPA?",
     "yesToNotifySomeoneAboutYourLpa": "yes to notify someone about your LPA",

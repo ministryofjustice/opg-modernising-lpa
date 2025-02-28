@@ -37,6 +37,11 @@ type Lpa struct {
 	AuthorisedSignatory                        AuthorisedSignatory
 	IndependentWitness                         IndependentWitness
 
+	HowAttorneysMakeDecisionsIsDefault            bool
+	HowReplacementAttorneysMakeDecisionsIsDefault bool
+	WhenTheLpaCanBeUsedIsDefault                  bool
+	LifeSustainingTreatmentOptionIsDefault        bool
+
 	// SignedAt is when the donor signed their LPA.
 	SignedAt time.Time
 
