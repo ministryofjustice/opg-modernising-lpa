@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-go-common/template"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
@@ -105,7 +106,7 @@ func CertificateProvider(
 				PK:                               dynamo.LpaKey(lpaID),
 				SK:                               dynamo.LpaOwnerKey(dynamo.DonorKey("PAPER")),
 				LpaID:                            lpaID,
-				LpaUID:                           random.UuidString(),
+				LpaUID:                           makeUID(),
 				CreatedAt:                        time.Now(),
 				Version:                          1,
 				HasSentApplicationUpdatedEvent:   true,
@@ -113,9 +114,115 @@ func CertificateProvider(
 				WitnessedByCertificateProviderAt: time.Now(),
 			}
 
-			if err := dynamoClient.Create(r.Context(), donorDetails); err != nil {
+			transaction := dynamo.NewTransaction().
+				Create(donorDetails).
+				Create(dynamo.Keys{PK: dynamo.UIDKey(donorDetails.LpaUID), SK: dynamo.MetadataKey("")}).
+				Create(dynamo.Keys{PK: donorDetails.PK, SK: dynamo.ReservedKey(dynamo.DonorKey)})
+
+			if err := dynamoClient.WriteTransaction(r.Context(), transaction); err != nil {
 				return err
 			}
+
+			createLpa := lpastore.CreateLpa{
+				LpaType:  lpadata.LpaTypePropertyAndAffairs,
+				Channel:  lpadata.ChannelPaper,
+				Language: localize.En,
+				Donor: lpadata.Donor{
+					UID:        actoruid.New(),
+					FirstNames: "Feed",
+					LastName:   "Bundlaaaa",
+					Address: place.Address{
+						Line1:      "74 Cloob Close",
+						TownOrCity: "Mahhhhhhhhhh",
+						Country:    "GB",
+					},
+					DateOfBirth:               date.New("1970", "1", "24"),
+					Email:                     "nobody@not.a.real.domain",
+					ContactLanguagePreference: localize.En,
+				},
+				Attorneys: []lpadata.Attorney{
+					{
+						UID:        actoruid.New(),
+						FirstNames: "Herman",
+						LastName:   "Seakrest",
+						Address: place.Address{
+							Line1:      "81 NighOnTimeWeBuiltIt Street",
+							TownOrCity: "Mahhhhhhhhhh",
+							Country:    "GB",
+						},
+						DateOfBirth:     date.New("1982", "07", "24"),
+						Status:          lpadata.AttorneyStatusActive,
+						AppointmentType: lpadata.AppointmentTypeOriginal,
+						Channel:         lpadata.ChannelPaper,
+					},
+					{
+						UID:        actoruid.New(),
+						FirstNames: "Herman",
+						LastName:   "Seakrest",
+						Address: place.Address{
+							Line1:      "81 NighOnTimeWeBuiltIt Street",
+							TownOrCity: "Mahhhhhhhhhh",
+							Country:    "GB",
+						},
+						DateOfBirth:     date.New("1982", "07", "24"),
+						Status:          lpadata.AttorneyStatusActive,
+						AppointmentType: lpadata.AppointmentTypeOriginal,
+						Channel:         lpadata.ChannelPaper,
+					},
+					{
+						UID:        actoruid.New(),
+						FirstNames: "Herman",
+						LastName:   "Seakrest",
+						Address: place.Address{
+							Line1:      "81 NighOnTimeWeBuiltIt Street",
+							TownOrCity: "Mahhhhhhhhhh",
+							Country:    "GB",
+						},
+						DateOfBirth:     date.New("1982", "07", "24"),
+						Status:          lpadata.AttorneyStatusInactive,
+						AppointmentType: lpadata.AppointmentTypeReplacement,
+						Channel:         lpadata.ChannelPaper,
+					},
+					{
+						UID:        actoruid.New(),
+						FirstNames: "Herman",
+						LastName:   "Seakrest",
+						Address: place.Address{
+							Line1:      "81 NighOnTimeWeBuiltIt Street",
+							TownOrCity: "Mahhhhhhhhhh",
+							Country:    "GB",
+						},
+						DateOfBirth:     date.New("1982", "07", "24"),
+						Status:          lpadata.AttorneyStatusInactive,
+						AppointmentType: lpadata.AppointmentTypeReplacement,
+						Channel:         lpadata.ChannelPaper,
+					},
+				},
+				CertificateProvider: lpadata.CertificateProvider{
+					UID:        actoruid.New(),
+					FirstNames: "Vone",
+					LastName:   "Spust",
+					Address: place.Address{
+						Line1:      "122111 Zonnington Way",
+						TownOrCity: "Mahhhhhhhhhh",
+						Country:    "GB",
+					},
+					Channel: lpadata.ChannelOnline,
+					Email:   "a@example.com",
+					Phone:   phone,
+				},
+				SignedAt:                         time.Now(),
+				WitnessedByCertificateProviderAt: time.Now(),
+			}
+
+			if lpaType == "personal-welfare" {
+				createLpa.LpaType = lpadata.LpaTypePersonalWelfare
+			}
+
+			if err := lpaStoreClient.SendLpa(r.Context(), donorDetails.LpaUID, createLpa); err != nil {
+				return err
+			}
+
 		} else if isSupported {
 			supporterCtx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: donorSessionID, Email: testEmail})
 
@@ -153,73 +260,75 @@ func CertificateProvider(
 			certificateProviderCtx = appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: certificateProviderSessionID, LpaID: donorDetails.LpaID})
 		)
 
-		donorDetails.Donor = makeDonor(donorEmail)
+		if donorChannel != "paper" {
+			donorDetails.Donor = makeDonor(donorEmail)
 
-		donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
-		if lpaType == "personal-welfare" {
-			donorDetails.Type = lpadata.LpaTypePersonalWelfare
-			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
-			donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
-		} else {
-			donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
-		}
+			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
+			if lpaType == "personal-welfare" {
+				donorDetails.Type = lpadata.LpaTypePersonalWelfare
+				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenCapacityLost
+				donorDetails.LifeSustainingTreatmentOption = lpadata.LifeSustainingTreatmentOptionA
+			} else {
+				donorDetails.WhenCanTheLpaBeUsed = lpadata.CanBeUsedWhenHasCapacity
+			}
 
-		if useRealUID {
-			if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
-				LpaID:          donorDetails.LpaID,
-				DonorSessionID: donorSessionID,
-				Type:           donorDetails.Type.String(),
-				Donor: uid.DonorDetails{
-					Name:     donorDetails.Donor.FullName(),
-					Dob:      donorDetails.Donor.DateOfBirth,
-					Postcode: donorDetails.Donor.Address.Postcode,
-				},
-			}); err != nil {
+			if useRealUID {
+				if err := eventClient.SendUidRequested(r.Context(), event.UidRequested{
+					LpaID:          donorDetails.LpaID,
+					DonorSessionID: donorSessionID,
+					Type:           donorDetails.Type.String(),
+					Donor: uid.DonorDetails{
+						Name:     donorDetails.Donor.FullName(),
+						Dob:      donorDetails.Donor.DateOfBirth,
+						Postcode: donorDetails.Donor.Address.Postcode,
+					},
+				}); err != nil {
+					return err
+				}
+			} else {
+				donorDetails.LpaUID = makeUID()
+			}
+
+			donorDetails.Attorneys = donordata.Attorneys{
+				Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
+			}
+
+			donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
+
+			donorDetails.CertificateProvider = makeCertificateProvider()
+			if email != "" {
+				donorDetails.CertificateProvider.Email = email
+			}
+
+			donorDetails.CertificateProvider.Mobile = phone
+
+			if asProfessionalCertificateProvider {
+				donorDetails.CertificateProvider.Relationship = lpadata.Professionally
+			}
+
+			if progress >= slices.Index(progressValues, "paid") {
+				donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
+					PaymentReference: random.String(12),
+					PaymentID:        random.String(12),
+				})
+				donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
+			}
+
+			if progress >= slices.Index(progressValues, "signedByDonor") {
+				donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
+				donorDetails.Tasks.SignTheLpa = task.StateCompleted
+				donorDetails.SignedAt = testNow
+				donorDetails.WitnessedByCertificateProviderAt = testNow
+			}
+
+			if err := donorStore.Put(donorCtx, donorDetails); err != nil {
 				return err
 			}
-		} else {
-			donorDetails.LpaUID = makeUID()
-		}
 
-		donorDetails.Attorneys = donordata.Attorneys{
-			Attorneys: []donordata.Attorney{makeAttorney(attorneyNames[0]), makeAttorney(attorneyNames[1])},
-		}
-
-		donorDetails.AttorneyDecisions = donordata.AttorneyDecisions{How: lpadata.JointlyAndSeverally}
-
-		donorDetails.CertificateProvider = makeCertificateProvider()
-		if email != "" {
-			donorDetails.CertificateProvider.Email = email
-		}
-
-		donorDetails.CertificateProvider.Mobile = phone
-
-		if asProfessionalCertificateProvider {
-			donorDetails.CertificateProvider.Relationship = lpadata.Professionally
-		}
-
-		if progress >= slices.Index(progressValues, "paid") {
-			donorDetails.PaymentDetails = append(donorDetails.PaymentDetails, donordata.Payment{
-				PaymentReference: random.String(12),
-				PaymentID:        random.String(12),
-			})
-			donorDetails.Tasks.PayForLpa = task.PaymentStateCompleted
-		}
-
-		if progress >= slices.Index(progressValues, "signedByDonor") {
-			donorDetails.Tasks.ConfirmYourIdentity = task.IdentityStateCompleted
-			donorDetails.Tasks.SignTheLpa = task.StateCompleted
-			donorDetails.SignedAt = testNow
-			donorDetails.WitnessedByCertificateProviderAt = testNow
-		}
-
-		if err := donorStore.Put(donorCtx, donorDetails); err != nil {
-			return err
-		}
-
-		if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
-			if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
-				return err
+			if !donorDetails.SignedAt.IsZero() && donorDetails.LpaUID != "" {
+				if err := lpaStoreClient.SendLpa(donorCtx, donorDetails.LpaUID, lpastore.CreateLpaFromDonorProvided(donorDetails)); err != nil {
+					return err
+				}
 			}
 		}
 
