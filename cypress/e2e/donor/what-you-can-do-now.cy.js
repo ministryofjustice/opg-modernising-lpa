@@ -69,7 +69,7 @@ describe('what you can do now', () => {
 
     context('voucher failed ID check', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=voucher:insufficient-evidence&failedVouchAttempts=1')
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=voucher:insufficient-evidence&vouchAttempts=1')
             cy.url().should('contain', '/what-you-can-do-now')
         })
 
@@ -84,7 +84,7 @@ describe('what you can do now', () => {
 
     context('two failed vouch attempts', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=voucher:insufficient-evidence&failedVouchAttempts=2')
+            cy.visit('/fixtures?redirect=/what-you-can-do-now&progress=confirmYourIdentity&idStatus=voucher:insufficient-evidence&vouchAttempts=2')
             cy.url().should('contain', '/what-you-can-do-now')
         })
 
@@ -115,7 +115,7 @@ describe('what you can do now', () => {
 
     context('vouch expired', () => {
         it('provides next steps for first expired vouch', () => {
-            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&failedVouchAttempts=1')
+            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&vouchAttempts=1')
             cy.url().should('contain', '/what-you-can-do-now-expired')
 
             cy.contains('Your vouched-for identity has expired')
@@ -128,7 +128,7 @@ describe('what you can do now', () => {
         })
 
         it('provides next steps for second expired vouch', () => {
-            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&failedVouchAttempts=2')
+            cy.visit('/fixtures?redirect=/what-you-can-do-now-expired&progress=confirmYourIdentity&idStatus=voucher:expired&vouchAttempts=2')
             cy.url().should('contain', '/what-you-can-do-now-expired')
 
             cy.contains('Your vouched-for identity has expired');
