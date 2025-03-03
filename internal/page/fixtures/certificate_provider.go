@@ -261,7 +261,7 @@ func CertificateProvider(
 		)
 
 		if donorChannel != "paper" {
-			donorDetails.Donor = makeDonor(donorEmail)
+			donorDetails.Donor = makeDonor(donorEmail, "Sam", "Smith")
 
 			donorDetails.Type = lpadata.LpaTypePropertyAndAffairs
 			if lpaType == "personal-welfare" {
