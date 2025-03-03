@@ -301,9 +301,9 @@ describe('Confirm your identity', () => {
         });
     });
 
-    describe('when has invited a voucher to confirm identity', () => {
+    describe('when voucher has verified donor identity but not vouched', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&voucher=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:verified-not-vouched&voucher=1');
         });
 
         it('cannot update name or date of birth', () => {
@@ -327,7 +327,7 @@ describe('Confirm your identity', () => {
 
     describe('when a voucher has been unable to vouch', () => {
         beforeEach(() => {
-            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&failedVouchAttempts=1');
+            cy.visit('/fixtures?redirect=/task-list&progress=confirmYourIdentity&idStatus=donor:insufficient-evidence&vouchAttempts=1');
         });
 
         it('can update name and date of birth', () => {
