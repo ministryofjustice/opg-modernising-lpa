@@ -93,7 +93,7 @@ services:
 
   opensearch:
     container_name: opensearch
-    image: opensearchproject/opensearch:2.19.0
+    image: opensearchproject/opensearch:2.19.1
     environment:
       - node.name=opensearch
       - cluster.name=opensearch-docker-cluster

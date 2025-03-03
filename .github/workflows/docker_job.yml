@@ -79,9 +79,9 @@ jobs:
           failure-threshold: warning
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.4.0
+        uses: docker/setup-qemu-action@v3.5.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.9.0
+        uses: docker/setup-buildx-action@v3.10.0
         id: buildx_setup
         with:
           version: v0.15.1
@@ -118,7 +118,7 @@ jobs:
           exit-code: 1
 
       - name: Build ${{ matrix.ecr_repository }} Image
-        uses: docker/build-push-action@v6.14.0
+        uses: docker/build-push-action@v6.15.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -152,7 +152,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@v3.28.9
+        uses: github/codeql-action/upload-sarif@v3.28.10
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -178,7 +178,7 @@ jobs:
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for PR
         if: ${{ github.workflow != 'Path To Live' }}
-        uses: docker/build-push-action@v6.14.0
+        uses: docker/build-push-action@v6.15.0
         with:
           context: .
           file: ${{ matrix.path }}
@@ -198,7 +198,7 @@ jobs:
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR for Path to Live
         if: ${{ github.workflow == 'Path To Live' }}
-        uses: docker/build-push-action@v6.14.0
+        uses: docker/build-push-action@v6.15.0
         with:
           context: .
           file: ${{ matrix.path }}
