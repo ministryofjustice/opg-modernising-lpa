@@ -127,11 +127,11 @@ func makeTrustCorporation(name string) donordata.TrustCorporation {
 	}
 }
 
-func makeDonor(email string) donordata.Donor {
+func makeDonor(email, firstNames, lastname string) donordata.Donor {
 	return donordata.Donor{
 		UID:        actoruid.New(),
-		FirstNames: "Sam",
-		LastName:   "Smith",
+		FirstNames: firstNames,
+		LastName:   lastname,
 		Address: place.Address{
 			Line1:      "1 RICHMOND PLACE",
 			Line2:      "KINGS HEATH",
