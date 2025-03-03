@@ -16,7 +16,7 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@ministryofjustice/frontend": "3.3.1",
+        "@ministryofjustice/frontend": "3.7.0",
         "aws-rum-web": "^1.11.0",
         "esbuild": "^0.25.0",
         "govuk-frontend": "5.8.0",
@@ -26,7 +26,7 @@
     },
     "devDependencies": {
         "axe-core": "^4.6",
-        "cypress": "14.0.3",
+        "cypress": "14.1.0",
         "cypress-axe": "^1.4",
         "cypress-file-upload": "^5.0.8",
         "cypress-multi-reporters": "^2.0.0",
