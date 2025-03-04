@@ -38,7 +38,7 @@ func TestVouchFailer(t *testing.T) {
 		GetAny(ctx).
 		Return(donor, nil)
 	donorStore.EXPECT().
-		FailVoucher(ctx, donor, provided.SK).
+		FailVoucher(ctx, donor).
 		Return(nil)
 
 	notifyClient := newMockNotifyClient(t)
@@ -91,7 +91,7 @@ func TestVouchFailerWhenDonorStorePutErrors(t *testing.T) {
 		GetAny(mock.Anything).
 		Return(&donordata.Provided{}, nil)
 	donorStore.EXPECT().
-		FailVoucher(mock.Anything, mock.Anything, mock.Anything).
+		FailVoucher(mock.Anything, mock.Anything).
 		Return(expectedError)
 
 	notifyClient := newMockNotifyClient(t)
