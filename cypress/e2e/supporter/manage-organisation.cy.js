@@ -10,7 +10,8 @@ describe('Manage organisation', () => {
         cy.url().should('contain', '/manage-organisation/organisation-details/edit-organisation-name');
         cy.checkA11yApp();
 
-        cy.get('#f-name').clear().type('My organisation');
+        cy.get('#f-name').clear();
+        cy.get('#f-name').type('My organisation');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/manage-organisation/organisation-details');

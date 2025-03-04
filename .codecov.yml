@@ -21,7 +21,7 @@ coverage:
     - "./internal/telemetry"
     - "./internal/validation/error.go"
     - "./mocks/*"
-    - "./scripts/*.go"
+    - "./scripts/*"
   status:
     project:
       default:

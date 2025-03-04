@@ -12,7 +12,6 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/appcontext"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/dashboard/dashboarddata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	"github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/identity"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/localize"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/lpastore/lpadata"
@@ -48,7 +47,7 @@ type LpaStoreClient interface {
 type DonorStore interface {
 	GetAny(ctx context.Context) (*donordata.Provided, error)
 	Put(ctx context.Context, donor *donordata.Provided) error
-	FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error
+	FailVoucher(ctx context.Context, provided *donordata.Provided) error
 }
 
 type NotifyClient interface {
