@@ -74,7 +74,8 @@ describe('Enter date of birth', () => {
 
             cy.get('#f-date-of-birth').type('not');
             cy.get('#f-date-of-birth-month').type('valid');
-            cy.get('#f-date-of-birth-year').clear().type('values');
+            cy.get('#f-date-of-birth-year').clear();
+            cy.get('#f-date-of-birth-year').type('values');
             cy.contains('button', 'Save and continue').click();
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
         });
