@@ -89,7 +89,8 @@ describe('Confirm your details', () => {
 
         it('can change the phone number', () => {
             cy.contains('.govuk-summary-list__row', 'Phone number').contains('a', 'Change').click();
-            cy.get('#f-phone').clear().type(TestMobile2);
+            cy.get('#f-phone').clear();
+            cy.get('#f-phone').type(TestMobile2);
             cy.contains('button', 'Save and continue').click()
 
             cy.contains('h2', 'Details you have given us').next().within(() => {
