@@ -6,8 +6,6 @@ import (
 	context "context"
 
 	donordata "github.com/ministryofjustice/opg-modernising-lpa/internal/donor/donordata"
-	dynamo "github.com/ministryofjustice/opg-modernising-lpa/internal/dynamo"
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -24,17 +22,17 @@ func (_m *mockDonorStore) EXPECT() *mockDonorStore_Expecter {
 	return &mockDonorStore_Expecter{mock: &_m.Mock}
 }
 
-// FailVoucher provides a mock function with given fields: ctx, provided, voucherKey
-func (_m *mockDonorStore) FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error {
-	ret := _m.Called(ctx, provided, voucherKey)
+// FailVoucher provides a mock function with given fields: ctx, provided
+func (_m *mockDonorStore) FailVoucher(ctx context.Context, provided *donordata.Provided) error {
+	ret := _m.Called(ctx, provided)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FailVoucher")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided, dynamo.VoucherKeyType) error); ok {
-		r0 = rf(ctx, provided, voucherKey)
+	if rf, ok := ret.Get(0).(func(context.Context, *donordata.Provided) error); ok {
+		r0 = rf(ctx, provided)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -50,14 +48,13 @@ type mockDonorStore_FailVoucher_Call struct {
 // FailVoucher is a helper method to define mock.On call
 //   - ctx context.Context
 //   - provided *donordata.Provided
-//   - voucherKey dynamo.VoucherKeyType
-func (_e *mockDonorStore_Expecter) FailVoucher(ctx interface{}, provided interface{}, voucherKey interface{}) *mockDonorStore_FailVoucher_Call {
-	return &mockDonorStore_FailVoucher_Call{Call: _e.mock.On("FailVoucher", ctx, provided, voucherKey)}
+func (_e *mockDonorStore_Expecter) FailVoucher(ctx interface{}, provided interface{}) *mockDonorStore_FailVoucher_Call {
+	return &mockDonorStore_FailVoucher_Call{Call: _e.mock.On("FailVoucher", ctx, provided)}
 }
 
-func (_c *mockDonorStore_FailVoucher_Call) Run(run func(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType)) *mockDonorStore_FailVoucher_Call {
+func (_c *mockDonorStore_FailVoucher_Call) Run(run func(ctx context.Context, provided *donordata.Provided)) *mockDonorStore_FailVoucher_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*donordata.Provided), args[2].(dynamo.VoucherKeyType))
+		run(args[0].(context.Context), args[1].(*donordata.Provided))
 	})
 	return _c
 }
@@ -67,7 +64,7 @@ func (_c *mockDonorStore_FailVoucher_Call) Return(_a0 error) *mockDonorStore_Fai
 	return _c
 }
 
-func (_c *mockDonorStore_FailVoucher_Call) RunAndReturn(run func(context.Context, *donordata.Provided, dynamo.VoucherKeyType) error) *mockDonorStore_FailVoucher_Call {
+func (_c *mockDonorStore_FailVoucher_Call) RunAndReturn(run func(context.Context, *donordata.Provided) error) *mockDonorStore_FailVoucher_Call {
 	_c.Call.Return(run)
 	return _c
 }
