@@ -9,10 +9,15 @@ describe('Make a new LPA', () => {
 
         cy.url().should('contain', '/your-name');
         cy.checkA11yApp();
-        cy.get('#f-first-names').should('have.value', 'Sam').focus().clear();
-        cy.get('#f-first-names').type('a').should('have.value', 'a');
-        cy.get('#f-last-name').should('have.value', 'Smith').focus().clear();
-        cy.get('#f-last-name').type('b').should('have.value', 'b');
+        cy.get('#f-first-names').should('have.value', 'Sam');
+        cy.get('#f-first-names').clear();
+        cy.get('#f-first-names').type('a')
+        cy.get('#f-first-names').should('have.value', 'a');
+
+        cy.get('#f-last-name').should('have.value', 'Smith');
+        cy.get('#f-last-name').clear();
+        cy.get('#f-last-name').type('b');
+        cy.get('#f-last-name').should('have.value', 'b');
         cy.contains("button", "Continue").click();
 
         cy.url().should('contain', '/we-have-updated-your-details');
