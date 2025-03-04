@@ -27,7 +27,8 @@ describe('View LPA', () => {
 
         cy.contains('.govuk-summary-list__row', 'First names').find('a').click();
 
-        cy.get('#f-first-names').clear().type('2');
+        cy.get('#f-first-names').clear();
+        cy.get('#f-first-names').type('2');
         cy.contains('button', 'Save and continue').click();
         cy.contains('a', 'Dashboard').click();
         cy.contains('2 Smith');
