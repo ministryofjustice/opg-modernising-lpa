@@ -51,6 +51,12 @@ repos:
         entry: yarn run stop-only
         language: node
         args: [--folder, cypress]
+      - id: cypress-clear-no-chain
+        name: Prevent Cypress .clear() Command Chaining
+        entry: go run ./scripts/pre-commit/prevent_unsafe_chains.go
+        language: golang
+        types: [ file ]
+        files: \.cy.js$
 #  - repo: https://github.com/Yelp/detect-secrets
 #    rev: v1.4.0
 #    hooks:

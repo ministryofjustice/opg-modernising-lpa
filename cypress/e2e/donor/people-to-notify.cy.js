@@ -88,9 +88,9 @@ describe('People to notify', () => {
         cy.checkA11yApp();
 
         cy.get('#f-address-line-1').clear();
-        cy.get('#f-address-line-1').type('1 New Road');
+        cy.get('#f-address-line-1').type('1 New Road').get();
         cy.get('#f-address-line-2').clear();
-        cy.get('#f-address-line-2').type('Changeville');
+        cy.get('#f-address-line-2').type('Changeville').get();
         cy.get('#f-address-line-3').clear();
         cy.get('#f-address-line-3').type('Newington');
         cy.get('#f-address-town').clear();
