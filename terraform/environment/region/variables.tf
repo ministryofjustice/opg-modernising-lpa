@@ -6,7 +6,6 @@ variable "iam_roles" {
     cross_account_put                       = any
     fault_injection_simulator               = any
     create_s3_batch_replication_jobs_lambda = any
-    egress_checker_lambda                   = any
     event_received_lambda                   = any
     schedule_runner_scheduler               = any
     schedule_runner_lambda                  = any
@@ -185,21 +184,6 @@ variable "waf_alb_association_enabled" {
   type        = bool
   description = "Enable WAF association with the ALBs"
   default     = true
-}
-
-variable "egress_checker_repository_url" {
-  type        = string
-  description = "Repository URL for the egress-checker lambda function"
-}
-
-variable "egress_checker_container_version" {
-  type        = string
-  description = "Container version the egress-checker lambda function"
-}
-
-variable "egress_checker_enabled" {
-  type    = bool
-  default = false
 }
 
 variable "ecs_aws_otel_collector_version" {
