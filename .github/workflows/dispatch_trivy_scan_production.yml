@@ -1,0 +1,47 @@
+name: "[Job] Scan production containers for vulnerabilities"
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  id-token: write
+
+jobs:
+  pull_tags:
+    runs-on: ubuntu-latest
+    needs: [
+      create_tags,
+      generate_environment_workspace_name
+    ]
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::311462405659:role/modernising-lpa-github-actions-ssm-get-parameter
+          role-duration-seconds: 900
+          role-session-name: GithubActionsSSMGetParameter
+      - name: Pull production tag
+        id: pull_tag
+        run: |
+          key="/modernising-lpa/container-version/production"
+          value=$(aws ssm get-parameter --name "$key" --query 'Parameter.Value' --output text)
+          echo "Using $key: $value"
+          echo "tag=${value}" >> $GITHUB_OUTPUT
+          echo "env=${key}" >> $GITHUB_OUTPUT
+    outputs:
+      docker_tag: ${{ steps.pull_tag.outputs.tag }}
+      tag_from: ${{ steps.pull_tag.outputs.env }}
+  scan_and_report:
+    needs:  [
+      pull_tags
+    ]
+    steps:
+      - name: Docker Scan and Report
+        uses: ./.github/workflows/docker_scan_and_report.yml
+        with:
+          tag: ${{ needs.pull_tags.outputs.docker_tag}}
