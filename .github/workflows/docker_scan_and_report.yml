@@ -72,6 +72,19 @@ jobs:
           scanners: 'vuln'
           image-ref: ${{ matrix.ecr_repository }}:${{ inputs.tag }}
           severity: 'HIGH,CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: 'table'
+          output: 'trivy-results.txt'
           exit-code: 0
+      - name: Publish Trivy Output to Summary
+        run: |
+          if [[ -s trivy-results.txt ]]; then
+            {
+              echo "### Security Output"
+              echo "<details><summary>Click to expand</summary>"
+              echo ""
+              echo '```text'
+              cat trivy-results.txt
+              echo '```'
+              echo "</details>"
+            } >> $GITHUB_STEP_SUMMARY
+          fi
