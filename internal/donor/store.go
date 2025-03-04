@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type Logger interface {
@@ -483,17 +484,29 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 	}
 
 	var link sharecodedata.Link
-	if err := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link); err != nil {
-		return err
+	linkErr := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link)
+	if linkErr != nil && !errors.As(linkErr, &dynamo.NotFoundError{}) {
+		return linkErr
+	}
+
+	transaction := dynamo.NewTransaction()
+
+	if linkErr != nil && errors.As(linkErr, &dynamo.NotFoundError{}) {
+		var voucher voucherdata.Provided
+		if err := s.dynamoClient.OneByPartialSK(ctx, provided.PK, dynamo.VoucherKey(""), &voucher); err != nil {
+			return err
+		}
+
+		transaction.Delete(dynamo.Keys{PK: provided.PK, SK: voucher.SK})
+	} else {
+		transaction.Delete(dynamo.Keys{PK: link.PK, SK: link.SK})
 	}
 
 	provided.Voucher = donordata.Voucher{}
 	provided.VoucherInvitedAt = time.Time{}
 	provided.WantVoucher = form.YesNoUnknown
 
-	transaction := dynamo.NewTransaction().
-		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
-		Put(provided)
+	transaction.Put(provided)
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
 }
