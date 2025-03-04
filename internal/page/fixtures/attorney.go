@@ -178,7 +178,7 @@ func Attorney(
 
 		donorDetails.SignedAt = testNow
 		donorDetails.WitnessedByCertificateProviderAt = testNow
-		donorDetails.Donor = makeDonor(testEmail)
+		donorDetails.Donor = makeDonor(testEmail, "Sam", "Smith")
 
 		if lpaType == "personal-welfare" && !isTrustCorporation {
 			donorDetails.Type = lpadata.LpaTypePersonalWelfare
