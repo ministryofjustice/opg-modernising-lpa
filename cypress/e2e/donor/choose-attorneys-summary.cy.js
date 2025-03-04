@@ -33,7 +33,8 @@ describe('Choose attorneys summary', () => {
     cy.url().should('contain', '/choose-attorneys-summary');
     cy.url().should('match', /id=\w*/);
 
-    cy.get('#f-first-names').clear().type('Mark');
+    cy.get('#f-first-names').clear();
+    cy.get('#f-first-names').type('Mark');
 
     cy.contains('button', 'Save and continue').click();
 
@@ -54,7 +55,8 @@ describe('Choose attorneys summary', () => {
     cy.url().should('contain', '/choose-attorneys-summary');
     cy.url().should('match', /id=\w*/);
 
-    cy.get('#f-address-line-1').clear().type('1 RICHMOND PLACE');
+    cy.get('#f-address-line-1').clear();
+    cy.get('#f-address-line-1').type('1 RICHMOND PLACE');
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-attorneys-summary');
@@ -73,12 +75,18 @@ describe('Choose attorneys summary', () => {
 
     cy.url().should('contain', '/choose-attorneys');
 
-    cy.get('#f-first-names').clear().type('Bob Arnold');
-    cy.get('#f-last-name').clear().type('Jones');
-    cy.get('#f-email').clear().type(TestEmail);
-    cy.get('input[name="date-of-birth-day"]').clear().type('31');
-    cy.get('input[name="date-of-birth-month"]').clear().type('12');
-    cy.get('input[name="date-of-birth-year"]').clear().type('1995');
+    cy.get('#f-first-names').clear();
+    cy.get('#f-first-names').type('Bob Arnold');
+    cy.get('#f-last-name').clear();
+    cy.get('#f-last-name').type('Jones');
+    cy.get('#f-email').clear();
+    cy.get('#f-email').type(TestEmail);
+    cy.get('input[name="date-of-birth-day"]').clear();
+    cy.get('input[name="date-of-birth-day"]').type('31');
+    cy.get('input[name="date-of-birth-month"]').clear();
+    cy.get('input[name="date-of-birth-month"]').type('12');
+    cy.get('input[name="date-of-birth-year"]').clear();
+    cy.get('input[name="date-of-birth-year"]').type('1995');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();

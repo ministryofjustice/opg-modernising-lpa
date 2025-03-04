@@ -52,8 +52,10 @@ describe('Your name', () => {
         });
 
         it('warns when name shared with other actor', () => {
-            cy.get('#f-first-names').clear().type('Jessie');
-            cy.get('#f-last-name').clear().type('Jones');
+            cy.get('#f-first-names').clear();
+            cy.get('#f-first-names').type('Jessie');
+            cy.get('#f-last-name').clear();
+            cy.get('#f-last-name').type('Jones');
             cy.contains('button', 'Save and continue').click();
             cy.url().should('contain', '/your-name');
 

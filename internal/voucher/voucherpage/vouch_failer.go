@@ -29,7 +29,7 @@ func makeVouchFailer(donorStore DonorStore, notifyClient NotifyClient, appPublic
 			return fmt.Errorf("could not send email: %w", err)
 		}
 
-		if err := donorStore.FailVoucher(ctx, donor, provided.SK); err != nil {
+		if err := donorStore.FailVoucher(ctx, donor); err != nil {
 			return fmt.Errorf("could not fail vouch: %w", err)
 		}
 
