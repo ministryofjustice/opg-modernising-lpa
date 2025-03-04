@@ -23,6 +23,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/search"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 	"github.com/mitchellh/hashstructure/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -1070,7 +1071,7 @@ func TestDonorStoreDeleteVoucher(t *testing.T) {
 				&donordata.Provided{},
 			},
 		}).
-		Return(expectedError)
+		Return(nil)
 
 	donorStore := &Store{dynamoClient: dynamoClient}
 
@@ -1079,7 +1080,7 @@ func TestDonorStoreDeleteVoucher(t *testing.T) {
 		VoucherInvitedAt: testNow,
 		WantVoucher:      form.Yes,
 	})
-	assert.Equal(t, expectedError, err)
+	assert.Nil(t, err)
 }
 
 func TestDonorStoreDeleteVoucherWhenSessionMissing(t *testing.T) {
@@ -1101,6 +1102,105 @@ func TestDonorStoreDeleteVoucherWhenOneBySKErrors(t *testing.T) {
 
 	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
 		Voucher: donordata.Voucher{FirstNames: "a"},
+	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreDeleteVoucherWhenWriteTransactionError(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+			sharecodedata.Link{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}, nil)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}},
+			Puts: []any{
+				&donordata.Provided{},
+			},
+		}).
+		Return(expectedError)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
+		Voucher:          donordata.Voucher{FirstNames: "a"},
+		VoucherInvitedAt: testNow,
+		WantVoucher:      form.Yes,
+	})
+	assert.Equal(t, expectedError, err)
+}
+
+func TestDonorStoreDeleteVoucherWhenAccessCodeUsed(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+			sharecodedata.Link{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}, dynamo.NotFoundError{})
+	dynamoClient.
+		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.VoucherKey(""),
+			voucherdata.Provided{
+				PK: dynamo.LpaKey("lpa-id"),
+				SK: dynamo.VoucherKey("voucher-id"),
+			}, nil)
+	dynamoClient.EXPECT().
+		WriteTransaction(ctx, &dynamo.Transaction{
+			Deletes: []dynamo.Keys{{
+				PK: dynamo.LpaKey("lpa-id"),
+				SK: dynamo.VoucherKey("voucher-id"),
+			}},
+			Puts: []any{
+				&donordata.Provided{PK: dynamo.LpaKey("lpa-id")},
+			},
+		}).
+		Return(nil)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
+		PK:               dynamo.LpaKey("lpa-id"),
+		Voucher:          donordata.Voucher{FirstNames: "a"},
+		VoucherInvitedAt: testNow,
+		WantVoucher:      form.Yes,
+	})
+	assert.Nil(t, err)
+}
+
+func TestDonorStoreDeleteVoucherWhenExpectOneByPartialSKError(t *testing.T) {
+	ctx := appcontext.ContextWithSession(context.Background(), &appcontext.Session{SessionID: "an-id", LpaID: "lpa-id"})
+
+	dynamoClient := newMockDynamoClient(t)
+	dynamoClient.
+		ExpectOneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id")),
+			sharecodedata.Link{
+				PK: dynamo.ShareKey(dynamo.VoucherShareKey("hey")),
+				SK: dynamo.ShareSortKey(dynamo.VoucherShareSortKey(dynamo.LpaKey("lpa-id"))),
+			}, dynamo.NotFoundError{})
+	dynamoClient.
+		ExpectOneByPartialSK(ctx, dynamo.LpaKey("lpa-id"), dynamo.VoucherKey(""),
+			voucherdata.Provided{
+				PK: dynamo.LpaKey("lpa-id"),
+				SK: dynamo.VoucherKey("voucher-id"),
+			}, expectedError)
+
+	donorStore := &Store{dynamoClient: dynamoClient}
+
+	err := donorStore.DeleteVoucher(ctx, &donordata.Provided{
+		PK:               dynamo.LpaKey("lpa-id"),
+		Voucher:          donordata.Voucher{FirstNames: "a"},
+		VoucherInvitedAt: testNow,
+		WantVoucher:      form.Yes,
 	})
 	assert.Equal(t, expectedError, err)
 }
