@@ -37,7 +37,8 @@ describe('Your date of birth', () => {
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
 
             cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').clear().type('1990');
+            cy.get('#f-date-of-birth-year').clear();
+            cy.get('#f-date-of-birth-year').type('1990');
             cy.contains('button', 'Save and continue').click();
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
         });
