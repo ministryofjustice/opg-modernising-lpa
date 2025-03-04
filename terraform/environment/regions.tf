@@ -13,11 +13,6 @@ data "aws_ecr_repository" "mock_pay" {
   provider = aws.management_eu_west_1
 }
 
-data "aws_ecr_repository" "egress_checker" {
-  name     = "egress-checker"
-  provider = aws.management_eu_west_1
-}
-
 data "aws_ecr_image" "mock_onelogin" {
   repository_name = data.aws_ecr_repository.mock_onelogin.name
   image_tag       = "latest"
@@ -38,7 +33,6 @@ module "eu_west_1" {
     cross_account_put                       = module.global.iam_roles.cross_account_put
     fault_injection_simulator               = module.global.iam_roles.fault_injection_simulator
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
-    egress_checker_lambda                   = module.global.iam_roles.egress_checker_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
@@ -53,9 +47,6 @@ module "eu_west_1" {
   mock_onelogin_service_container_version = data.aws_ecr_image.mock_onelogin.id
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
   mock_pay_service_container_version      = var.container_version
-  egress_checker_repository_url           = data.aws_ecr_repository.egress_checker.repository_url
-  egress_checker_container_version        = var.container_version
-  egress_checker_enabled                  = local.environment.egress_checker_enabled
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled
@@ -113,7 +104,6 @@ module "eu_west_2" {
     cross_account_put                       = module.global.iam_roles.cross_account_put
     fault_injection_simulator               = module.global.iam_roles.fault_injection_simulator
     create_s3_batch_replication_jobs_lambda = module.global.iam_roles.create_s3_batch_replication_jobs_lambda
-    egress_checker_lambda                   = module.global.iam_roles.egress_checker_lambda
     event_received_lambda                   = module.global.iam_roles.event_received_lambda
     schedule_runner_lambda                  = module.global.iam_roles.schedule_runner_lambda
     schedule_runner_scheduler               = module.global.iam_roles.schedule_runner_scheduler
@@ -128,9 +118,6 @@ module "eu_west_2" {
   mock_onelogin_service_container_version = local.mock_onelogin_version
   mock_pay_service_repository_url         = data.aws_ecr_repository.mock_pay.repository_url
   mock_pay_service_container_version      = var.container_version
-  egress_checker_repository_url           = data.aws_ecr_repository.egress_checker.repository_url
-  egress_checker_container_version        = var.container_version
-  egress_checker_enabled                  = local.environment.egress_checker_enabled
   ingress_allow_list_cidr                 = module.allow_list.moj_sites
   alb_deletion_protection_enabled         = local.environment.application_load_balancer.deletion_protection_enabled
   waf_alb_association_enabled             = local.environment.application_load_balancer.waf_alb_association_enabled
