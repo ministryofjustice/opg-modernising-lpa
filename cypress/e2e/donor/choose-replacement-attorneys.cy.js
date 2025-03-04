@@ -83,7 +83,8 @@ describe('Choose replacement attorneys', () => {
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
 
         cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').clear().type('1990');
+        cy.get('#f-date-of-birth-year').clear();
+        cy.get('#f-date-of-birth-year').type('1990');
         cy.contains('button', 'Save and continue').click();
         cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     });
@@ -141,7 +142,8 @@ describe('Choose replacement attorneys', () => {
         cy.go(-2);
         cy.url().should('contain', '/choose-replacement-attorneys');
 
-        cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
+        cy.get('#f-date-of-birth-year').clear();
+        cy.get('#f-date-of-birth-year').type(new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');

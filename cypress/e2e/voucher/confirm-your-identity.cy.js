@@ -35,8 +35,10 @@ describe('Confirm your identity', () => {
 
     it('warns when matches another actor', () => {
         cy.visitLpa('/your-name');
-        cy.get('#f-first-names').clear().type('Charlie');
-        cy.get('#f-last-name').clear().type('Cooper');
+        cy.get('#f-first-names').clear();
+        cy.get('#f-first-names').type('Charlie');
+        cy.get('#f-last-name').clear();
+        cy.get('#f-last-name').type('Cooper');
         cy.contains('button', 'Save and continue').click();
         cy.contains('button', 'Continue').click();
         cy.contains('label', 'Yes').click();
