@@ -25,19 +25,19 @@ describe('Dashboard', () => {
 
         cy.contains('As a supporter drafting an LPA, you’ll need to enter information about the donor.')
 
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
         cy.contains('button', 'Save and continue').click()
         cy.contains('You are drafting John Doe’s LPA')
 
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click()
 
         AddressFormAssertions.assertCanAddAddressFromSelect()
 
-        cy.get('#f-email').type('john@example.com');
+        cy.get('#f-email').invoke('val', 'john@example.com');
         cy.contains('button', 'Save and continue').click()
 
         cy.get('#f-selected').check({ force: true });

@@ -24,9 +24,9 @@ export const AddressFormAssertions = {
         cy.checkA11yApp();
 
         if (withInvalidPostcode) {
-            cy.get('#f-lookup-postcode').type('INVALID');
+            cy.get('#f-lookup-postcode').invoke('val', 'INVALID');
         } else {
-            cy.get('#f-lookup-postcode').type('NG1');
+            cy.get('#f-lookup-postcode').invoke('val', 'NG1');
         }
 
         cy.contains('button', 'Find address').click();
@@ -37,11 +37,11 @@ export const AddressFormAssertions = {
 
         cy.checkA11yApp();
 
-        cy.get('#f-address-line-1').type('Flat 2');
-        cy.get('#f-address-line-2').type('123 Fake Street');
-        cy.get('#f-address-line-3').type('Pretendingham');
-        cy.get('#f-address-town').type('Someville');
-        cy.get('#f-address-postcode').type('NG1');
+        cy.get('#f-address-line-1').invoke('val', 'Flat 2');
+        cy.get('#f-address-line-2').invoke('val', '123 Fake Street');
+        cy.get('#f-address-line-3').invoke('val', 'Pretendingham');
+        cy.get('#f-address-town').invoke('val', 'Someville');
+        cy.get('#f-address-postcode').invoke('val', 'NG1');
 
         cy.contains('button', 'Save and continue').click();
     },
@@ -49,7 +49,7 @@ export const AddressFormAssertions = {
     assertCanAddAddressFromSelect() {
         cy.checkA11yApp();
 
-        cy.get('#f-lookup-postcode').type('B14 7ED');
+        cy.get('#f-lookup-postcode').invoke('val', 'B14 7ED');
         cy.contains('button', 'Find address').click();
 
         cy.checkA11yApp();
@@ -88,7 +88,7 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenUnselected() {
-        cy.get('#f-lookup-postcode').type('NG1');
+        cy.get('#f-lookup-postcode').invoke('val', 'NG1');
         cy.contains('button', 'Find address').click();
 
         cy.contains('button', 'Continue').click();
@@ -101,7 +101,7 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenYourAddressUnselected() {
-        cy.get('#f-lookup-postcode').type('NG1');
+        cy.get('#f-lookup-postcode').invoke('val', 'NG1');
         cy.contains('button', 'Find address').click();
 
         cy.contains('button', 'Continue').click();
@@ -114,7 +114,7 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenManualIncorrect(manualAddressLinkText) {
-        cy.get('#f-lookup-postcode').type('NG1');
+        cy.get('#f-lookup-postcode').invoke('val', 'NG1');
         cy.contains('button', 'Find address').click();
         cy.contains('a', manualAddressLinkText).click();
         cy.contains('button', 'Save and continue').click();
@@ -140,7 +140,7 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenYourManualIncorrect(manualAddressLinkText) {
-        cy.get('#f-lookup-postcode').type('NG1');
+        cy.get('#f-lookup-postcode').invoke('val', 'NG1');
         cy.contains('button', 'Find address').click();
         cy.contains('a', manualAddressLinkText).click();
         cy.contains('button', 'Save and continue').click();
@@ -166,7 +166,7 @@ export const AddressFormAssertions = {
     },
 
     assertErrorsWhenInvalidPostcode() {
-        cy.get('#f-lookup-postcode').type('INVALID');
+        cy.get('#f-lookup-postcode').invoke('val', 'INVALID');
         cy.contains('button', 'Find address').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -179,7 +179,7 @@ export const AddressFormAssertions = {
     assertErrorsWhenValidPostcodeFormatButNoAddressesFound() {
         const validFormatPostcodeWithNoAddresses = 'NE234EE'
 
-        cy.get('#f-lookup-postcode').type(validFormatPostcodeWithNoAddresses);
+        cy.get('#f-lookup-postcode').invoke('val', validFormatPostcodeWithNoAddresses);
         cy.contains('button', 'Find address').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -192,7 +192,7 @@ export const AddressFormAssertions = {
     assertErrorsWhenYourValidPostcodeFormatButNoAddressesFound() {
         const validFormatPostcodeWithNoAddresses = 'NE234EE'
 
-        cy.get('#f-lookup-postcode').type(validFormatPostcodeWithNoAddresses);
+        cy.get('#f-lookup-postcode').invoke('val', validFormatPostcodeWithNoAddresses);
         cy.contains('button', 'Find address').click();
 
         cy.get('.govuk-error-summary').within(() => {
@@ -200,5 +200,23 @@ export const AddressFormAssertions = {
         });
 
         cy.contains('[for=f-lookup-postcode] + .govuk-error-message', 'We could not find any addresses for that postcode. Check your postcode is correct, or enter your address manually.');
+    }
+}
+
+export const DateOfBirthAssertions = {
+    assertInvalidDatesOfBirth() {
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.contains('button', 'Save and continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
+
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '2222');
+        cy.contains('button', 'Save and continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
+
+        cy.get('#f-date-of-birth-month').invoke('val', '22');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
+        cy.contains('button', 'Save and continue').click();
+        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
     }
 }

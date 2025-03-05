@@ -7,7 +7,7 @@ describe('Enter access code', () => {
 
   it('links the LPA', () => {
     cy.checkA11yApp();
-    cy.get('#f-reference-number').type(accessCode);
+    cy.get('#f-reference-number').invoke('val', accessCode);
     cy.contains('button', 'Continue').click();
 
     cy.contains('M-FAKE-');

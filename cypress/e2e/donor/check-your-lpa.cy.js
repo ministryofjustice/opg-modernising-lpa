@@ -56,7 +56,7 @@ describe('Check the LPA', () => {
         cy.contains('button', 'Confirm').should('not.exist');
 
         cy.visitLpa('/restrictions');
-        cy.get('#f-restrictions').type('2');
+        cy.get('#f-restrictions').invoke('val', '2');
         cy.contains('button', 'Save and continue').click();
 
         cy.visitLpa('/check-your-lpa');

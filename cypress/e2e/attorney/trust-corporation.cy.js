@@ -13,7 +13,7 @@ describe('As a trust corporation', () => {
         });
 
         // enter reference number
-        cy.get('#f-reference-number').type(shareCode);
+        cy.get('#f-reference-number').invoke('val', shareCode);
         cy.contains('button', 'Save and continue').click();
 
         // acting as an attorney
@@ -24,7 +24,7 @@ describe('As a trust corporation', () => {
         cy.contains('a', 'Confirm your details').click();
 
         // phone number
-        cy.get('#f-phone').type(TestMobile);
+        cy.get('#f-phone').invoke('val', TestMobile);
         cy.contains('button', 'Save and continue').click();
 
         // language preferences
@@ -59,9 +59,9 @@ describe('As a trust corporation', () => {
     it('allows a single signatory', () => {
         // sign
         cy.contains('Sign the LPA on behalf of the trust corporation');
-        cy.get('#f-first-names').type('Sign');
-        cy.get('#f-last-name').type('Signson');
-        cy.get('#f-professional-title').type('Pro signer');
+        cy.get('#f-first-names').invoke('val', 'Sign');
+        cy.get('#f-last-name').invoke('val', 'Signson');
+        cy.get('#f-professional-title').invoke('val', 'Pro signer');
         cy.get('#f-confirm').check({ force: true });
         cy.contains('button', 'Submit signature').click();
 
@@ -77,9 +77,9 @@ describe('As a trust corporation', () => {
     it('allows a second signatory', () => {
         // sign
         cy.contains('Sign the LPA on behalf of the trust corporation');
-        cy.get('#f-first-names').type('Sign');
-        cy.get('#f-last-name').type('Signson');
-        cy.get('#f-professional-title').type('Pro signer');
+        cy.get('#f-first-names').invoke('val', 'Sign');
+        cy.get('#f-last-name').invoke('val', 'Signson');
+        cy.get('#f-professional-title').invoke('val', 'Pro signer');
         cy.get('#f-confirm').check({ force: true });
         cy.contains('button', 'Submit signature').click();
 
@@ -93,9 +93,9 @@ describe('As a trust corporation', () => {
         cy.contains('Sign the LPA (signatory 2)').click();
 
         // sign
-        cy.get('#f-first-names').type('Sign2');
-        cy.get('#f-last-name').type('Signson2');
-        cy.get('#f-professional-title').type('Pro signer2');
+        cy.get('#f-first-names').invoke('val', 'Sign2');
+        cy.get('#f-last-name').invoke('val', 'Signson2');
+        cy.get('#f-professional-title').invoke('val', 'Pro signer2');
         cy.get('#f-confirm').check({ force: true });
         cy.contains('button', 'Submit signature').click();
 
@@ -107,9 +107,9 @@ describe('As a trust corporation', () => {
     it('can remove second signatory', () => {
         // sign
         cy.contains('Sign the LPA on behalf of the trust corporation');
-        cy.get('#f-first-names').type('Sign');
-        cy.get('#f-last-name').type('Signson');
-        cy.get('#f-professional-title').type('Pro signer');
+        cy.get('#f-first-names').invoke('val', 'Sign');
+        cy.get('#f-last-name').invoke('val', 'Signson');
+        cy.get('#f-professional-title').invoke('val', 'Pro signer');
         cy.get('#f-confirm').check({ force: true });
         cy.contains('button', 'Submit signature').click();
 
