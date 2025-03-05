@@ -8,9 +8,9 @@ describe('Invite member', () => {
     it('can invite a member', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-email').type(TestEmail);
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-email').invoke('val', TestEmail);
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
 
         cy.contains('button', 'Send invite').click();
 
@@ -21,9 +21,9 @@ describe('Invite member', () => {
     });
 
     it('can invite an admin', () => {
-        cy.get('#f-email').type(TestEmail);
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-email').invoke('val', TestEmail);
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
         cy.get('[name="permission"]').check('admin', { force: true });
 
         cy.contains('button', 'Send invite').click();
@@ -59,7 +59,7 @@ describe('Invite member', () => {
     });
 
     it('errors when invalid email', () => {
-        cy.get('#f-email').type('not-an-email');
+        cy.get('#f-email').invoke('val', 'not-an-email');
 
         cy.contains('button', 'Send invite').click();
 

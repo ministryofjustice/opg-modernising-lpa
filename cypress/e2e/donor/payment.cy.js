@@ -455,7 +455,7 @@ describe('Pay for LPA', { pageLoadTimeout: 8000 }, () => {
         cy.url().should('contains', '/previous-application-number')
         cy.checkA11yApp();
 
-        cy.get('#f-previous-application-number').type('7ABC');
+        cy.get('#f-previous-application-number').invoke('val', '7ABC');
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contains', '/how-much-did-you-previously-pay-for-your-lpa')

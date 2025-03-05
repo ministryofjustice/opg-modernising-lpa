@@ -4,8 +4,8 @@ describe('Your independent witness', () => {
     });
 
     it('can be submitted', () => {
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
 
         cy.checkA11yApp();
 
@@ -38,8 +38,8 @@ describe('Your independent witness', () => {
     it('warns when name shared with other actor', () => {
         cy.visit('/fixtures?redirect=/your-independent-witness&progress=chooseYourAttorneys');
 
-        cy.get('#f-first-names').type('Jessie');
-        cy.get('#f-last-name').type('Jones');
+        cy.get('#f-first-names').invoke('val', 'Jessie');
+        cy.get('#f-last-name').invoke('val', 'Jones');
         cy.contains('button', 'Continue').click();
         cy.url().should('contain', '/your-independent-witness');
 

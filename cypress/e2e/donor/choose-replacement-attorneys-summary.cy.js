@@ -29,7 +29,7 @@ describe('Choose replacement attorneys summary', () => {
 
     cy.contains('.govuk-summary-card', 'Blake Buckley').contains('a', 'Change').click();
     cy.get('#f-first-names').clear();
-    cy.get('#f-first-names').type('Mark');
+    cy.get('#f-first-names').invoke('val', 'Mark');
 
     cy.contains('button', 'Save and continue').click();
 
@@ -46,7 +46,7 @@ describe('Choose replacement attorneys summary', () => {
       .click();
 
     cy.get('#f-address-line-1').clear();
-    cy.get('#f-address-line-1').type('4 RICHMOND PLACE');
+    cy.get('#f-address-line-1').invoke('val', '4 RICHMOND PLACE');
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys-summary');
@@ -62,17 +62,17 @@ describe('Choose replacement attorneys summary', () => {
     cy.url().should('contain', '/choose-replacement-attorneys');
 
     cy.get('#f-first-names').clear();
-    cy.get('#f-first-names').type('Bob Arnold');
+    cy.get('#f-first-names').invoke('val', 'Bob Arnold');
     cy.get('#f-last-name').clear();
-    cy.get('#f-last-name').type('Jones');
+    cy.get('#f-last-name').invoke('val', 'Jones');
     cy.get('#f-email').clear();
-    cy.get('#f-email').type(TestEmail);
+    cy.get('#f-email').invoke('val', TestEmail);
     cy.get('input[name="date-of-birth-day"]').clear();
-    cy.get('input[name="date-of-birth-day"]').type('31');
+    cy.get('input[name="date-of-birth-day"]').invoke('val', '31');
     cy.get('input[name="date-of-birth-month"]').clear();
-    cy.get('input[name="date-of-birth-month"]').type('12');
+    cy.get('input[name="date-of-birth-month"]').invoke('val', '12');
     cy.get('input[name="date-of-birth-year"]').clear();
-    cy.get('input[name="date-of-birth-year"]').type('1995');
+    cy.get('input[name="date-of-birth-year"]').invoke('val', '1995');
     cy.contains('button', 'Save and continue').click();
 
     cy.url().should('contain', '/choose-replacement-attorneys-address');
@@ -80,7 +80,7 @@ describe('Choose replacement attorneys summary', () => {
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-lookup-postcode').type('B14 7ED');
+    cy.get('#f-lookup-postcode').invoke('val', 'B14 7ED');
     cy.contains('button', 'Find address').click();
 
     cy.get('#f-select-address').select('5 RICHMOND PLACE, BIRMINGHAM, B14 7ED');

@@ -31,12 +31,12 @@ describe('Smoke tests', () => {
           cy.url().should('contain', '/sign-in-or-create');
 
           cy.contains('Sign in').click();
-          cy.get('[type=email]').type('opgteam+modernising-lpa@digital.justice.gov.uk');
+          cy.get('[type=email]').invoke('val', 'opgteam+modernising-lpa@digital.justice.gov.uk');
           cy.get('form').submit();
-          cy.get('[type=password]').type(Cypress.env('TEST_ONELOGIN_PASSWORD'), { parseSpecialCharSequences: false });
+          cy.get('[type=password]').invoke('val', Cypress.env('TEST_ONELOGIN_PASSWORD'), { parseSpecialCharSequences: false });
           cy.get('form').submit();
 
-          cy.get('[name=code]').type(token);
+          cy.get('[name=code]').invoke('val', token);
           cy.contains('button', 'Continue').click();
           cy.wait(10000);
         });
