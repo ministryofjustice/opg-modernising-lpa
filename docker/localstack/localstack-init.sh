@@ -19,20 +19,20 @@ awslocal secretsmanager create-secret --region eu-west-1 --name "lpa-store-jwt-s
 
 echo 'creating tables'
 awslocal dynamodb create-table \
-         --region eu-west-1 \
-         --table-name lpas \
-         --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
-         --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
-         --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-         --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+ --region eu-west-1 \
+ --table-name lpas \
+ --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+ --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+ --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+ --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
 
 awslocal dynamodb create-table \
-         --region eu-west-1 \
-         --table-name lpas-test \
-         --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
-         --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
-         --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-         --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+ --region eu-west-1 \
+ --table-name lpas-test \
+ --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+ --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+ --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+ --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
 
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
@@ -126,3 +126,15 @@ awslocal lambda create-event-source-mapping \
          --function-name "arn:aws:lambda:eu-west-1:000000000000:function:event-received" \
          --batch-size 1 \
          --event-source-arn "arn:aws:sqs:eu-west-1:000000000000:event-bus-queue"
+
+echo 'creating customer managed KMS key with alias'
+KMS_KEY_ID=$(awslocal kms create-key \
+  --region=eu-west-1 \
+  --query 'KeyMetadata.KeyId' \
+  --output text)
+
+awslocal kms create-alias \
+  --region=eu-west-1 \
+  --alias-name alias/custom-key \
+  --target-key-id $KMS_KEY_ID \
+    2>&1 | grep -v "AlreadyExists" || true

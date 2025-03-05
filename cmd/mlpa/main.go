@@ -114,6 +114,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 		searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 		useURL                = os.Getenv("USE_A_LASTING_POWER_OF_ATTORNEY_URL")
+		kmsKeyAlias           = cmp.Or(os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS"), "alias/custom-key")
 	)
 
 	staticHash, err := dirhash.HashDir(webDir+"/static", webDir, dirhash.DefaultHash)
@@ -260,7 +261,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 		return err
 	}
 
-	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName)
+	evidenceS3Client := s3.NewClient(cfg, evidenceBucketName, kmsKeyAlias)
 
 	lambdaClient := lambda.New(cfg, v4.NewSigner(), httpClient, time.Now)
 
