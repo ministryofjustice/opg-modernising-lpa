@@ -55,6 +55,7 @@ var (
 	searchIndexName       = cmp.Or(os.Getenv("SEARCH_INDEX_NAME"), "lpas")
 	searchIndexingEnabled = os.Getenv("SEARCH_INDEXING_DISABLED") != "1"
 	xrayEnabled           = os.Getenv("XRAY_ENABLED") == "1"
+	kmsKeyAlias           = os.Getenv("S3_UPLOADS_KMS_KEY_ALIAS")
 
 	cfg        aws.Config
 	httpClient *http.Client
@@ -176,7 +177,7 @@ func handler(ctx context.Context, event Event) (map[string]any, error) {
 	if event.S3Event != nil {
 		logger.InfoContext(ctx, "handling s3 event")
 
-		s3Client := s3.NewClient(cfg, evidenceBucketName)
+		s3Client := s3.NewClient(cfg, evidenceBucketName, kmsKeyAlias)
 		documentStore := document.NewStore(dynamoClient, nil, nil)
 
 		if err := handleObjectTagsAdded(ctx, dynamoClient, event.S3Event, s3Client, documentStore); err != nil {
