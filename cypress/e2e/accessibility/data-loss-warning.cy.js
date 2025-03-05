@@ -4,7 +4,7 @@ describe('Data loss warnings', () => {
             cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
             cy.contains('button', 'Continue').click()
 
-            cy.get('#f-first-names').type('John');
+            cy.get('#f-first-names').invoke('val', 'John');
             cy.contains('a', 'Return to task list').click()
 
             cy.get('#dialog').should('be.visible')
@@ -50,7 +50,7 @@ describe('Data loss warnings', () => {
             cy.realPress(["Shift", "Tab"])
             cy.focused().should('contain', 'Back to page')
 
-            cy.realType('{esc}')
+            cy.realType('val', '{esc}')
 
             cy.get('#dialog').should('not.be.visible')
             cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none')
@@ -64,7 +64,7 @@ describe('Data loss warnings', () => {
             cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
             cy.contains('button', 'Continue').click()
 
-            cy.get('#f-first-names').type('John');
+            cy.get('#f-first-names').invoke('val', 'John');
             cy.contains('a', 'Cymraeg').click()
 
             cy.get('#language-dialog').should('be.visible')
@@ -110,7 +110,7 @@ describe('Data loss warnings', () => {
             cy.realPress(["Shift", "Tab"])
             cy.focused().should('contain', 'Back to page')
 
-            cy.realType('{esc}')
+            cy.realType('val', '{esc}')
 
             cy.get('#language-dialog').should('not.be.visible')
             cy.get('#dialog-overlay').should('have.class', 'govuk-!-display-none')

@@ -6,9 +6,9 @@ describe('Enter voucher', () => {
     it('adds a voucher', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-first-names').type('Shopping');
-        cy.get('#f-last-name').type('Voucher');
-        cy.get('#f-email').type('voucher@example.com');
+        cy.get('#f-first-names').invoke('val', 'Shopping');
+        cy.get('#f-last-name').invoke('val', 'Voucher');
+        cy.get('#f-email').invoke('val', 'voucher@example.com');
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/check-your-details');
@@ -31,7 +31,7 @@ describe('Enter voucher', () => {
     it('errors when invalid', () => {
         cy.get('#f-first-names').invoke('val', 'a'.repeat(54));
         cy.get('#f-last-name').invoke('val', 'b'.repeat(62));
-        cy.get('#f-email').type('voucher');
+        cy.get('#f-email').invoke('val', 'voucher');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {

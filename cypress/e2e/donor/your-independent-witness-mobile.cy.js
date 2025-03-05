@@ -6,7 +6,7 @@ describe('Your independent witness mobile', () => {
   });
 
   it('can be submitted', () => {
-    cy.get('#f-mobile').type(TestMobile);
+    cy.get('#f-mobile').invoke('val', TestMobile);
 
     cy.checkA11yApp({ rules: { 'aria-allowed-attr': { enabled: false } } });
 
@@ -25,7 +25,7 @@ describe('Your independent witness mobile', () => {
   });
 
   it('errors when invalid mobile number', () => {
-    cy.get('#f-mobile').type('not-a-number');
+    cy.get('#f-mobile').invoke('val', 'not-a-number');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('[for=f-mobile] + div + .govuk-error-message', 'Enter a mobile number in the correct format');
@@ -33,7 +33,7 @@ describe('Your independent witness mobile', () => {
 
   it('errors when invalid non uk mobile number', () => {
     cy.get('#f-has-non-uk-mobile').check({ force: true });
-    cy.get('#f-non-uk-mobile').type('not-a-number', { force: true });
+    cy.get('#f-non-uk-mobile').invoke('val', 'not-a-number', { force: true });
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('[for=f-non-uk-mobile] + div + .govuk-error-message', 'Enter a mobile number in the correct format');

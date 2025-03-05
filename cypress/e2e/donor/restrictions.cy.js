@@ -4,7 +4,7 @@ describe('Restrictions', () => {
     });
 
     it('can be submitted', () => {
-        cy.get('#f-restrictions').type('this that');
+        cy.get('#f-restrictions').invoke('val', 'this that');
 
         cy.checkA11yApp();
 

@@ -22,6 +22,7 @@ import (
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/sharecode/sharecodedata"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/task"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/uid"
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/voucher/voucherdata"
 )
 
 type Logger interface {
@@ -483,34 +484,40 @@ func (s *Store) DeleteVoucher(ctx context.Context, provided *donordata.Provided)
 	}
 
 	var link sharecodedata.Link
-	if err := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link); err != nil {
-		return err
+	linkErr := s.dynamoClient.OneBySK(ctx, dynamo.VoucherShareSortKey(dynamo.LpaKey(sessionData.LpaID)), &link)
+	if linkErr != nil && !errors.As(linkErr, &dynamo.NotFoundError{}) {
+		return linkErr
 	}
 
-	provided.Voucher = donordata.Voucher{}
-	provided.VoucherInvitedAt = time.Time{}
-	provided.WantVoucher = form.YesNoUnknown
+	transaction := dynamo.NewTransaction()
 
-	transaction := dynamo.NewTransaction().
-		Delete(dynamo.Keys{PK: link.PK, SK: link.SK}).
-		Put(provided)
+	if errors.As(linkErr, &dynamo.NotFoundError{}) {
+		var voucher voucherdata.Provided
+		if err := s.dynamoClient.OneByPartialSK(ctx, provided.PK, dynamo.VoucherKey(""), &voucher); err != nil {
+			return err
+		}
 
-	return s.dynamoClient.WriteTransaction(ctx, transaction)
-}
-
-func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided, voucherKey dynamo.VoucherKeyType) error {
-	provided.FailedVoucher = provided.Voucher
-	provided.FailedVoucher.FailedAt = s.now()
+		transaction.
+			Delete(dynamo.Keys{PK: provided.PK, SK: voucher.SK}).
+			Delete(dynamo.Keys{PK: provided.PK, SK: dynamo.ReservedKey(dynamo.VoucherKey)})
+	} else {
+		transaction.
+			Delete(dynamo.Keys{PK: link.PK, SK: link.SK})
+	}
 
 	provided.Voucher = donordata.Voucher{}
 	provided.WantVoucher = form.YesNoUnknown
 	provided.VoucherInvitedAt = time.Time{}
 	provided.DetailsVerifiedByVoucher = false
 
-	transaction := dynamo.NewTransaction().
-		Delete(dynamo.Keys{PK: provided.PK, SK: voucherKey}).
-		Delete(dynamo.Keys{PK: provided.PK, SK: dynamo.ReservedKey(dynamo.VoucherKey)}).
-		Put(provided)
+	transaction.Put(provided)
 
 	return s.dynamoClient.WriteTransaction(ctx, transaction)
+}
+
+func (s *Store) FailVoucher(ctx context.Context, provided *donordata.Provided) error {
+	provided.FailedVoucher = provided.Voucher
+	provided.FailedVoucher.FailedAt = s.now()
+
+	return s.DeleteVoucher(ctx, provided)
 }
