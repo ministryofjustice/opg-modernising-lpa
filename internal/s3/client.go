@@ -4,6 +4,8 @@ package s3
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -19,14 +21,22 @@ type s3Service interface {
 }
 
 type Client struct {
-	bucket string
-	svc    s3Service
+	bucket      string
+	kmsKeyAlias string
+	svc         s3Service
 }
 
-func NewClient(cfg aws.Config, bucket string) *Client {
-	return &Client{bucket: bucket, svc: s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.UsePathStyle = true
-	})}
+func NewClient(cfg aws.Config, bucket, kmsKeyAlias string) (*Client, error) {
+	if !strings.HasPrefix(kmsKeyAlias, "alias/") {
+		return nil, fmt.Errorf("error instantiating S3 client - kmsKeyAlias must be an alias. Got %s", kmsKeyAlias)
+	}
+
+	return &Client{
+		bucket:      bucket,
+		kmsKeyAlias: kmsKeyAlias,
+		svc: s3.NewFromConfig(cfg, func(o *s3.Options) {
+			o.UsePathStyle = true
+		})}, nil
 }
 
 func (c *Client) DeleteObject(ctx context.Context, key string) error {
@@ -73,6 +83,7 @@ func (c *Client) PutObject(ctx context.Context, key string, body []byte) error {
 		Key:                  aws.String(key),
 		Body:                 bytes.NewReader(body),
 		ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+		SSEKMSKeyId:          aws.String(c.kmsKeyAlias),
 	})
 
 	return err
