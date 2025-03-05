@@ -8,7 +8,7 @@ describe('Phone number', () => {
   it('can be completed', () => {
     cy.checkA11yApp();
 
-    cy.get('#f-phone').type(TestMobile);
+    cy.get('#f-phone').invoke('val', TestMobile);
 
     cy.contains('button', 'Save and continue').click();
 
@@ -22,7 +22,7 @@ describe('Phone number', () => {
   });
 
   it('errors when not a phone number', () => {
-    cy.get('#f-phone').type('not a mobile');
+    cy.get('#f-phone').invoke('val', 'not a mobile');
     cy.contains('button', 'Save and continue').click();
 
     cy.get('.govuk-error-summary').within(() => {

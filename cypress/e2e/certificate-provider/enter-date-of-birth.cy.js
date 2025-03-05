@@ -4,9 +4,9 @@ describe('Enter date of birth', () => {
             cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth');
             cy.checkA11yApp();
 
-            cy.get('#f-date-of-birth').type('1');
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type('1990');
+            cy.get('#f-date-of-birth').invoke('val', '1');
+            cy.get('#f-date-of-birth-month').invoke('val', '2');
+            cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
             cy.contains('button', 'Save and continue').click();
 
@@ -18,9 +18,9 @@ describe('Enter date of birth', () => {
             cy.visit('/fixtures/certificate-provider?redirect=/enter-date-of-birth&relationship=professional');
             cy.checkA11yApp();
 
-            cy.get('#f-date-of-birth').type('1');
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type('1990');
+            cy.get('#f-date-of-birth').invoke('val', '1');
+            cy.get('#f-date-of-birth-month').invoke('val', '2');
+            cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
             cy.contains('button', 'Save and continue').click();
 
@@ -36,9 +36,9 @@ describe('Enter date of birth', () => {
         it('can be over 100', () => {
             cy.checkA11yApp();
 
-            cy.get('#f-date-of-birth').type('1');
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type('1900');
+            cy.get('#f-date-of-birth').invoke('val', '1');
+            cy.get('#f-date-of-birth-month').invoke('val', '2');
+            cy.get('#f-date-of-birth-year').invoke('val', '1900');
 
             cy.contains('button', 'Save and continue').click();
 
@@ -63,18 +63,19 @@ describe('Enter date of birth', () => {
         });
 
         it('errors when invalid dates of birth', () => {
-            cy.get('#f-date-of-birth').type('1');
+            cy.get('#f-date-of-birth').invoke('val', '1');
             cy.contains('button', 'Save and continue').click();
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
 
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type('2222');
+            cy.get('#f-date-of-birth-month').invoke('val', '2');
+            cy.get('#f-date-of-birth-year').invoke('val', '2222');
             cy.contains('button', 'Save and continue').click();
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
 
-            cy.get('#f-date-of-birth').type('not');
-            cy.get('#f-date-of-birth-month').type('valid');
-            cy.get('#f-date-of-birth-year').clear().type('values');
+            cy.get('#f-date-of-birth').invoke('val', 'not');
+            cy.get('#f-date-of-birth-month').invoke('val', 'valid');
+            cy.get('#f-date-of-birth-year').clear();
+            cy.get('#f-date-of-birth-year').invoke('val', 'values');
             cy.contains('button', 'Save and continue').click();
             cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
         });
@@ -82,9 +83,9 @@ describe('Enter date of birth', () => {
         it('errors when not over 18', () => {
             const lastYear = (new Date(new Date().setFullYear(new Date().getFullYear() - 1))).getFullYear()
 
-            cy.get('#f-date-of-birth').type('1');
-            cy.get('#f-date-of-birth-month').type('2');
-            cy.get('#f-date-of-birth-year').type(lastYear.toString());
+            cy.get('#f-date-of-birth').invoke('val', '1');
+            cy.get('#f-date-of-birth-month').invoke('val', '2');
+            cy.get('#f-date-of-birth-year').invoke('val', lastYear.toString());
             cy.contains('button', 'Save and continue').click();
 
             cy.get('.govuk-error-summary').within(() => {

@@ -150,9 +150,9 @@ describe('what you can do now', () => {
             cy.visit('/fixtures?redirect=/choose-someone-to-vouch-for-you&progress=payForTheLpa');
             cy.get('input[name="yes-no"]').check('yes', { force: true });
             cy.contains('button', 'Save and continue').click();
-            cy.get('#f-first-names').type('Shopping');
-            cy.get('#f-last-name').type('Voucher');
-            cy.get('#f-email').type('voucher@example.com');
+            cy.get('#f-first-names').invoke('val', 'Shopping');
+            cy.get('#f-last-name').invoke('val', 'Voucher');
+            cy.get('#f-email').invoke('val', 'voucher@example.com');
             cy.contains('button', 'Save and continue').click();
             cy.contains('button', 'Continue').click();
             cy.contains('a', 'Confirm my identity another way').click();
