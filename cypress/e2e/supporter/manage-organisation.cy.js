@@ -11,7 +11,7 @@ describe('Manage organisation', () => {
         cy.checkA11yApp();
 
         cy.get('#f-name').clear();
-        cy.get('#f-name').type('My organisation');
+        cy.get('#f-name').invoke('val', 'My organisation');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/manage-organisation/organisation-details');

@@ -53,7 +53,7 @@ describe('Sign the LPA', () => {
             cy.checkA11yApp();
 
             cy.contains('h1', "Charlie Cooper, confirm you witnessed the donor sign their LPA");
-            cy.get('#f-witness-code').type('1234');
+            cy.get('#f-witness-code').invoke('val', '1234');
             cy.contains('button', 'Continue').click();
 
             cy.url().should('contain', '/you-have-submitted-your-lpa');
@@ -103,12 +103,12 @@ describe('Sign the LPA', () => {
 
             cy.contains('.govuk-error-message', 'Enter the code we sent to the certificate provider');
 
-            cy.get('#f-witness-code').type('123');
+            cy.get('#f-witness-code').invoke('val', '123');
             cy.contains('button', 'Continue').click();
 
             cy.contains('.govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
 
-            cy.get('#f-witness-code').type('45');
+            cy.get('#f-witness-code').invoke('val', '45');
             cy.contains('button', 'Continue').click();
 
             cy.contains('.govuk-error-message', 'The code we sent to the certificate provider must be 4 characters');
@@ -148,7 +148,7 @@ describe('Sign the LPA', () => {
             cy.checkA11yApp();
 
             cy.contains('h1', "Charlie Cooper, confirm you witnessed the donor sign their LPA");
-            cy.get('#f-witness-code').type('1234');
+            cy.get('#f-witness-code').invoke('val', '1234');
             cy.contains('button', 'Continue').click();
 
             cy.url().should('contain', '/you-have-submitted-your-lpa');

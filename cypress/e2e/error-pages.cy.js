@@ -28,8 +28,8 @@ describe('Error pages', () => {
         cy.visit('/fixtures?redirect=/your-name');
         cy.clearCookie('csrf');
 
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
 
         cy.contains('button', 'Save and continue').click();
 

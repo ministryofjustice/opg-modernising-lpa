@@ -33,7 +33,7 @@ describe('How should attorneys make decisions', () => {
         cy.contains('h1', 'How should your attorneys make decisions?');
 
         cy.get('input[name="decision-type"]').check('jointly-for-some-severally-for-others', { force: true });
-        cy.get('#f-mixed-details').type('some details on attorneys');
+        cy.get('#f-mixed-details').invoke('val', 'some details on attorneys');
 
         cy.contains('button', 'Save and continue').click();
 

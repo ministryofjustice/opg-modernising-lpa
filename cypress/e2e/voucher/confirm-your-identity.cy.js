@@ -36,9 +36,9 @@ describe('Confirm your identity', () => {
     it('warns when matches another actor', () => {
         cy.visitLpa('/your-name');
         cy.get('#f-first-names').clear();
-        cy.get('#f-first-names').type('Charlie');
+        cy.get('#f-first-names').invoke('val', 'Charlie');
         cy.get('#f-last-name').clear();
-        cy.get('#f-last-name').type('Cooper');
+        cy.get('#f-last-name').invoke('val', 'Cooper');
         cy.contains('button', 'Save and continue').click();
         cy.contains('button', 'Continue').click();
         cy.contains('label', 'Yes').click();
@@ -65,11 +65,11 @@ describe('Confirm your identity', () => {
         cy.contains('button', 'Continue').click();
         cy.origin('http://localhost:7012', () => {
             cy.contains('label', 'Custom').click();
-            cy.get('[name=first-names]').type('John');
-            cy.get('[name=last-name]').type('Johnson');
-            cy.get('[name=day]').type('2');
-            cy.get('[name=month]').type('1');
-            cy.get('[name=year]').type('1990');
+            cy.get('[name=first-names]').invoke('val', 'John');
+            cy.get('[name=last-name]').invoke('val', 'Johnson');
+            cy.get('[name=day]').invoke('val', '2');
+            cy.get('[name=month]').invoke('val', '1');
+            cy.get('[name=year]').invoke('val', '1990');
             cy.contains('button', 'Continue').click();
         });
 

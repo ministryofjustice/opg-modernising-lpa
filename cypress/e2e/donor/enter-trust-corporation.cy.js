@@ -8,9 +8,9 @@ describe('Enter trust corporation', () => {
     it('can be submitted', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-name').type('Yoyodyne');
-        cy.get('#f-company-number').type('123456');
-        cy.get('#f-email').type(TestEmail);
+        cy.get('#f-name').invoke('val', 'Yoyodyne');
+        cy.get('#f-company-number').invoke('val', '123456');
+        cy.get('#f-email').invoke('val', TestEmail);
 
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/enter-trust-corporation-address');
@@ -31,7 +31,7 @@ describe('Enter trust corporation', () => {
     });
 
     it('errors when invalid email', () => {
-        cy.get('#f-email').type('not-an-email');
+        cy.get('#f-email').invoke('val', 'not-an-email');
 
         cy.contains('button', 'Save and continue').click();
 
