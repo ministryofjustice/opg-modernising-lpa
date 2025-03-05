@@ -499,6 +499,10 @@ locals {
           // TODO: change this to be per env when we actually integrate
           value = "https://use-lasting-power-of-attorney.service.gov.uk/lpa/dashboard"
         },
+        {
+          name  = "S3_UPLOADS_KMS_KEY_ALIAS"
+          value = data.aws_kms_alias.reduced_fees_uploads_s3_encryption.target_key_arn
+        },
       ]
     }
   )
