@@ -12,10 +12,8 @@ describe('Edit member', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-first-names').clear();
-            cy.get('#f-first-names').type('John');
-            cy.get('#f-last-name').clear();
-            cy.get('#f-last-name').type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 
@@ -34,10 +32,8 @@ describe('Edit member', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-first-names').clear();
-            cy.get('#f-first-names').type('John');
-            cy.get('#f-last-name').clear();
-            cy.get('#f-last-name').type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 
@@ -115,10 +111,8 @@ describe('Edit member', () => {
             cy.checkA11yApp();
             cy.contains('Your name');
 
-            cy.get('#f-first-names').clear();
-            cy.get('#f-first-names').type('John');
-            cy.get('#f-last-name').clear();
-            cy.get('#f-last-name').type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 
@@ -140,8 +134,8 @@ describe('Edit member', () => {
         });
 
         it('errors when empty', () => {
-            cy.get('#f-first-names').clear();
-            cy.get('#f-last-name').clear();
+            cy.get('#f-first-names').invoke('val', '');
+            cy.get('#f-last-name').invoke('val', '');
             cy.get('#f-status').invoke('attr', 'checked', false);
 
             cy.contains('button', "Save").click()

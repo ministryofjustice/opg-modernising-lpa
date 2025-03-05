@@ -4,7 +4,7 @@ describe('Data loss warnings', () => {
             cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
             cy.contains('button', 'Continue').click()
 
-            cy.get('#f-first-names').type('John');
+            cy.get('#f-first-names').invoke('val', 'John');
             cy.contains('a', 'Return to task list').click()
 
             cy.get('#dialog').should('be.visible')
@@ -64,7 +64,7 @@ describe('Data loss warnings', () => {
             cy.visit('/fixtures?redirect=/choose-attorneys-guidance&progress=provideYourDetails');
             cy.contains('button', 'Continue').click()
 
-            cy.get('#f-first-names').type('John');
+            cy.get('#f-first-names').invoke('val', 'John');
             cy.contains('a', 'Cymraeg').click()
 
             cy.get('#language-dialog').should('be.visible')

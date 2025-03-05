@@ -12,12 +12,12 @@ describe('Choose attorneys task', () => {
     cy.contains('a', 'Choose your attorneys').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
@@ -32,11 +32,11 @@ describe('Choose attorneys task', () => {
     cy.contains('a', 'Choose your attorneys').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
@@ -48,7 +48,7 @@ describe('Choose attorneys task', () => {
 
     cy.contains('label', 'Enter a new address').click();
     cy.contains('button', 'Continue').click();
-    cy.get('#f-lookup-postcode').type('B14 7ED');
+    cy.get('#f-lookup-postcode').invoke('val', 'B14 7ED');
     cy.contains('button', 'Find address').click();
     cy.get('#f-select-address').select('2 RICHMOND PLACE, BIRMINGHAM, B14 7ED');
     cy.contains('button', 'Continue').click();
@@ -66,12 +66,12 @@ describe('Choose attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
@@ -89,12 +89,12 @@ describe('Choose attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();
@@ -119,12 +119,12 @@ describe('Choose attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();

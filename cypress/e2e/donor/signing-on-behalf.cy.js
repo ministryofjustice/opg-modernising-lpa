@@ -32,12 +32,12 @@ describe('Signing on behalf of the donor', () => {
 
         cy.url().should('contain', '/witnessing-as-independent-witness');
         cy.checkA11yApp();
-        cy.get('#f-witness-code').type('1234');
+        cy.get('#f-witness-code').invoke('val', '1234');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/witnessing-as-certificate-provider');
         cy.checkA11yApp();
-        cy.get('#f-witness-code').type('1234');
+        cy.get('#f-witness-code').invoke('val', '1234');
         cy.contains('button', 'Continue').click();
 
         cy.url().should('contain', '/you-have-submitted-your-lpa');

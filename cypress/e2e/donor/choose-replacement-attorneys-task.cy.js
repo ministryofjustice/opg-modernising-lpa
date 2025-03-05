@@ -36,12 +36,12 @@ describe('Choose replacement attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Save and continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();
@@ -62,12 +62,12 @@ describe('Choose replacement attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Save and continue').click();
 
-    cy.get('#f-first-names').type('John');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'John');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.visitLpa('/task-list');
@@ -78,12 +78,12 @@ describe('Choose replacement attorneys task', () => {
     cy.contains('label', 'Yes').click();
     cy.contains('button', 'Continue').click();
 
-    cy.get('#f-first-names').type('Janet');
-    cy.get('#f-last-name').type('Doe');
-    cy.get('#f-email').type(TestEmail);
-    cy.get('#f-date-of-birth').type('1');
-    cy.get('#f-date-of-birth-month').type('2');
-    cy.get('#f-date-of-birth-year').type('1990');
+    cy.get('#f-first-names').invoke('val', 'Janet');
+    cy.get('#f-last-name').invoke('val', 'Doe');
+    cy.get('#f-email').invoke('val', TestEmail);
+    cy.get('#f-date-of-birth').invoke('val', '1');
+    cy.get('#f-date-of-birth-month').invoke('val', '2');
+    cy.get('#f-date-of-birth-year').invoke('val', '1990');
     cy.contains('button', 'Save and continue').click();
 
     cy.contains('label', 'Enter a new address').click();
@@ -111,12 +111,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -141,12 +141,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -189,7 +189,7 @@ describe('Choose replacement attorneys task', () => {
 
     it('is completed if replacement act mixed', () => {
       cy.get('input[value=jointly-for-some-severally-for-others]').click();
-      cy.get('textarea').type('Some details');
+      cy.get('textarea').invoke('val', 'Some details');
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
@@ -208,12 +208,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -246,7 +246,7 @@ describe('Choose replacement attorneys task', () => {
 
     it('is completed if step in some other way', () => {
       cy.contains('label', 'In a particular order').click();
-      cy.get('textarea').type('Details');
+      cy.get('textarea').invoke('val', 'Details');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
@@ -264,12 +264,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -294,12 +294,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Save and continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -324,12 +324,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -394,7 +394,7 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('button', 'Save and continue').click();
 
       cy.get('input[value=jointly-for-some-severally-for-others]').click();
-      cy.get('textarea').type('Some details');
+      cy.get('textarea').invoke('val', 'Some details');
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
@@ -406,7 +406,7 @@ describe('Choose replacement attorneys task', () => {
 
     it('is completed if in some other way', () => {
       cy.contains('label', 'In a particular order').click();
-      cy.get('textarea').type('Details');
+      cy.get('textarea').invoke('val', 'Details');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('a', 'Choose your replacement attorneys').parent().parent().within(() => {
@@ -424,12 +424,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();
@@ -463,7 +463,7 @@ describe('Choose replacement attorneys task', () => {
 
     it('is completed if mixed', () => {
       cy.get('input[value=jointly-for-some-severally-for-others]').click();
-      cy.get('textarea').type('Some details');
+      cy.get('textarea').invoke('val', 'Some details');
       cy.contains('button', 'Save and continue').click();
 
       cy.visitLpa('/task-list');
@@ -482,12 +482,12 @@ describe('Choose replacement attorneys task', () => {
       cy.contains('label', 'Yes').click();
       cy.contains('button', 'Continue').click();
 
-      cy.get('#f-first-names').type('John');
-      cy.get('#f-last-name').type('Doe');
-      cy.get('#f-email').type(TestEmail);
-      cy.get('#f-date-of-birth').type('1');
-      cy.get('#f-date-of-birth-month').type('2');
-      cy.get('#f-date-of-birth-year').type('1990');
+      cy.get('#f-first-names').invoke('val', 'John');
+      cy.get('#f-last-name').invoke('val', 'Doe');
+      cy.get('#f-email').invoke('val', TestEmail);
+      cy.get('#f-date-of-birth').invoke('val', '1');
+      cy.get('#f-date-of-birth-month').invoke('val', '2');
+      cy.get('#f-date-of-birth-year').invoke('val', '1990');
       cy.contains('button', 'Save and continue').click();
 
       cy.contains('label', 'Enter a new address').click();

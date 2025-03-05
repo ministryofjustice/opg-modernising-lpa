@@ -8,7 +8,7 @@ describe('Choose not to be a certificate provider', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').type(shareCode);
+            cy.get('#f-reference-number').invoke('val', shareCode);
             cy.contains('Continue').click();
 
             cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')
@@ -31,7 +31,7 @@ describe('Choose not to be a certificate provider', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-reference-number').type(shareCode);
+            cy.get('#f-reference-number').invoke('val', shareCode);
             cy.contains('Continue').click();
 
             cy.url().should('contain', '/confirm-you-do-not-want-to-be-a-certificate-provider')

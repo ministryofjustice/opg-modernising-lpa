@@ -26,9 +26,9 @@ describe('Add correspondent', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.checkA11yApp();
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type('email@example.com');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Smith');
+        cy.get('#f-email').invoke('val', 'email@example.com');
         cy.contains('label', 'No').click();
         cy.contains('button', 'Save and continue').click();
         cy.contains('li', 'Add a correspondent').should('contain', 'Completed');
@@ -54,9 +54,9 @@ describe('Add correspondent', () => {
         cy.contains('button', 'Save and continue').click();
 
         cy.checkA11yApp();
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Smith');
-        cy.get('#f-email').type('email@example.com');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Smith');
+        cy.get('#f-email').invoke('val', 'email@example.com');
         cy.contains('label', 'Yes').click();
         cy.contains('button', 'Save and continue').click();
 
