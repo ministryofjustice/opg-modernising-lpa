@@ -18,8 +18,7 @@ describe('Confirm your name', () => {
 
         cy.url().should('contain', '/your-name')
         cy.checkA11yApp();
-        cy.get('#f-first-names').clear();
-        cy.get('#f-first-names').type('Barry');
+        cy.get('#f-first-names').invoke('val', 'Barry');
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/confirm-your-name')

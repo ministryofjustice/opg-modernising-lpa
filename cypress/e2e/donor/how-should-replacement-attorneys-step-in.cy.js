@@ -20,7 +20,7 @@ describe('How should replacement attorneys step in', () => {
 
   it('can choose how replacement attorneys step in - some other way', () => {
     cy.get('input[name="when-to-step-in"]').check('another-way', { force: true });
-    cy.get('#f-other-details').type('some details on when to step in');
+    cy.get('#f-other-details').invoke('val', 'some details on when to step in');
 
     cy.contains('button', 'Save and continue').click();
 
