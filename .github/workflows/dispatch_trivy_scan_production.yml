@@ -128,7 +128,7 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: "${{ output_findings.outputs.findings }}"
+                  text: "${{ steps.output_findings.outputs.findings }}"
               - type: "section"
                 text:
                   type: "plain_text"
