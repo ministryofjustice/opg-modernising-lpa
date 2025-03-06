@@ -19,20 +19,20 @@ awslocal secretsmanager create-secret --region eu-west-1 --name "lpa-store-jwt-s
 
 echo 'creating tables'
 awslocal dynamodb create-table \
-         --region eu-west-1 \
-         --table-name lpas \
-         --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
-         --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
-         --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-         --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+ --region eu-west-1 \
+ --table-name lpas \
+ --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+ --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+ --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+ --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
 
 awslocal dynamodb create-table \
-         --region eu-west-1 \
-         --table-name lpas-test \
-         --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
-         --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
-         --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
-         --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
+ --region eu-west-1 \
+ --table-name lpas-test \
+ --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S AttributeName=LpaUID,AttributeType=S AttributeName=UpdatedAt,AttributeType=S \
+ --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+ --provisioned-throughput ReadCapacityUnits=1000,WriteCapacityUnits=1000 \
+ --global-secondary-indexes file:///usr/dynamodb-lpa-gsi-schema.json
 
 echo 'creating bucket'
 awslocal s3api create-bucket --bucket evidence --create-bucket-configuration LocationConstraint=eu-west-1
@@ -73,7 +73,7 @@ awslocal logs create-log-group \
 
 echo 'creating event-received lambda'
 awslocal lambda create-function \
-  --environment Variables="{AWS_BASE_URL=$AWS_BASE_URL,LPAS_TABLE=$LPAS_TABLE,GOVUK_NOTIFY_IS_PRODUCTION=$GOVUK_NOTIFY_IS_PRODUCTION,APP_PUBLIC_URL=$APP_PUBLIC_URL,GOVUK_NOTIFY_BASE_URL=$GOVUK_NOTIFY_BASE_URL,UPLOADS_S3_BUCKET_NAME=$UPLOAD_S3_BUCKET,UID_BASE_URL=$UID_BASE_URL,SEARCH_ENDPOINT=$SEARCH_ENDPOINT,SEARCH_INDEXING_DISABLED=$SEARCH_INDEXING_DISABLED,LPA_STORE_BASE_URL=$LPA_STORE_BASE_URL,LPA_STORE_SECRET_ARN=$LPA_STORE_SECRET_ARN}" \
+  --environment Variables="{AWS_BASE_URL=$AWS_BASE_URL,LPAS_TABLE=$LPAS_TABLE,GOVUK_NOTIFY_IS_PRODUCTION=$GOVUK_NOTIFY_IS_PRODUCTION,APP_PUBLIC_URL=$APP_PUBLIC_URL,GOVUK_NOTIFY_BASE_URL=$GOVUK_NOTIFY_BASE_URL,UPLOADS_S3_BUCKET_NAME=$UPLOAD_S3_BUCKET,UID_BASE_URL=$UID_BASE_URL,SEARCH_ENDPOINT=$SEARCH_ENDPOINT,SEARCH_INDEXING_DISABLED=$SEARCH_INDEXING_DISABLED,LPA_STORE_BASE_URL=$LPA_STORE_BASE_URL,LPA_STORE_SECRET_ARN=$LPA_STORE_SECRET_ARN,S3_UPLOADS_KMS_KEY_ALIAS=$S3_UPLOADS_KMS_KEY_ALIAS}" \
   --region eu-west-1 \
   --function-name event-received \
   --handler bootstrap \
@@ -120,9 +120,20 @@ awslocal scheduler create-schedule \
   --target '{"RoleArn": "arn:aws:iam::000000000000:role/lambda-role", "Arn":"arn:aws:lambda:eu-west-1:000000000000:function:schedule-runner" }' \
   --flexible-time-window '{ "Mode": "OFF"}'
 
-
 echo 'creating event source mapping'
 awslocal lambda create-event-source-mapping \
          --function-name "arn:aws:lambda:eu-west-1:000000000000:function:event-received" \
          --batch-size 1 \
          --event-source-arn "arn:aws:sqs:eu-west-1:000000000000:event-bus-queue"
+
+echo 'creating customer managed KMS key with alias'
+KMS_KEY_ID=$(awslocal kms create-key \
+  --region=eu-west-1 \
+  --query 'KeyMetadata.KeyId' \
+  --output text)
+
+awslocal kms create-alias \
+  --region=eu-west-1 \
+  --alias-name "$S3_UPLOADS_KMS_KEY_ALIAS" \
+  --target-key-id "$KMS_KEY_ID" \
+    2>&1 | grep -v "AlreadyExists" || true
