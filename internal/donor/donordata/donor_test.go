@@ -2,7 +2,9 @@ package donordata
 
 import (
 	"testing"
+	"time"
 
+	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,14 +16,14 @@ func TestDonorFullName(t *testing.T) {
 	assert.Equal(t, "", whiteSpace.FullName())
 }
 
-func TestAuthorisedSignatoryFullName(t *testing.T) {
-	d := AuthorisedSignatory{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
-
-	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
+func TestDonorIsUnder18(t *testing.T) {
+	assert.True(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, 1)}.IsUnder18())
+	assert.False(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, 0)}.IsUnder18())
+	assert.False(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, -1)}.IsUnder18())
 }
 
-func TestIndependentWitnessFullName(t *testing.T) {
-	d := IndependentWitness{FirstNames: "Bob Alan George", LastName: "Smith Jones-Doe"}
-
-	assert.Equal(t, "Bob Alan George Smith Jones-Doe", d.FullName())
+func TestDonorIs18On(t *testing.T) {
+	assert.False(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, 1)}.Is18On(time.Now()))
+	assert.True(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, 0)}.Is18On(time.Now()))
+	assert.True(t, Donor{DateOfBirth: date.Today().AddDate(-18, 0, -1)}.Is18On(time.Now()))
 }
