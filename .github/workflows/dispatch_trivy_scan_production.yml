@@ -64,7 +64,6 @@ jobs:
     name: ${{ matrix.ecr_repository }}
     steps:
       - name: Run Against Image/Configure AWS Credentials
-        if: inputs.run_against_image
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-region: eu-west-1
