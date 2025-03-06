@@ -91,41 +91,38 @@ jobs:
           scanners: 'vuln'
           image-ref: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
           severity: 'HIGH,CRITICAL'
-          format: 'table'
-          output: 'trivy-results.txt'
+          format: 'json'
+          output: 'trivy-results.json'
           exit-code: 0
       - name: Publish Trivy Output to Summary
         run: |
-          if [[ -s trivy-results.txt ]]; then
+          if [[ -s trivy-results.json ]]; then
             {
               echo "### Security Output"
               echo "<details><summary>Click to expand</summary>"
               echo ""
               echo '```text'
-              cat trivy-results.txt
+              cat trivy-results.json
               echo '```'
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      - name: Output run URL
-        id: get_run
-        run: echo "url=$(gh run --repo ${{ github.repository }} view ${{ github.run_id }} --json jobs --jq '.jobs[] | select(.name == "${{ github.job }}") | .url') >> GITHUB_OUTPUT
-      - name: Post to a Slack channel
-        if: ${{ hashFiles('trivy-results.txt') != '' }}
-        id: slack
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: opg-mlpa-dev
-            text: "Production Image Scan Findings"
-            blocks:
-              - type: "header"
-                text:
-                  type: "plain_text"
-                  text: "Production Image Scan Findings"
-              - type: "section"
-                text:
-                  type: "plain_text"
-                  text: ${{ steps.get_run.url}}
+      # - name: Post to a Slack channel
+      #   if: ${{ hashFiles('trivy-results.txt') != '' }}
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v2.0.0
+      #   with:
+      #     method: chat.postMessage
+      #     token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     payload: |
+      #       channel: opg-mlpa-dev
+      #       text: "Production Image Scan Findings"
+      #       blocks:
+      #         - type: "header"
+      #           text:
+      #             type: "plain_text"
+      #             text: "Production Image Scan Findings"
+      #         - type: "section"
+      #           text:
+      #             type: "plain_text"
+      #             text: ${{ steps.get_run.url}}
