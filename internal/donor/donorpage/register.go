@@ -365,6 +365,8 @@ func Register(
 	handleWithDonor(donor.PathYourIndependentWitnessAddress, page.CanGoBack,
 		YourIndependentWitnessAddress(logger, tmpls.Get("choose_address.gohtml"), addressClient, donorStore))
 
+	handleWithDonor(donor.PathYouMustBeOver18ToComplete, page.CanGoBack,
+		YouMustBeOver18ToComplete(tmpls.Get("you_must_be_over_18_to_complete.gohtml")))
 	handleWithDonor(donor.PathYouCannotSignYourLpaYet, page.CanGoBack,
 		YouCannotSignYourLpaYet(tmpls.Get("you_cannot_sign_your_lpa_yet.gohtml")))
 	handleWithDonor(donor.PathConfirmYourCertificateProviderIsNotRelated, page.CanGoBack,
