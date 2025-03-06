@@ -107,7 +107,11 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
+      # - name: Store Findings
+      #   id: output_findings
+      #   run: echo "findings=$(cat trivy-results.txt)" >> $GITHUB_OUTPUT
       - name: Post to a Slack channel
+        if: ${{ hashFiles('trivy-results.txt') != '' }}
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
         with:
@@ -115,7 +119,7 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             channel: opg-mlpa-dev
-            text: ""
+            text: "Production Image Scan Findings"
             blocks:
               - type: "header"
                 text:
@@ -123,5 +127,5 @@ jobs:
                   text: "Production Image Scan Findings"
               - type: "section"
                 text:
-                  type: "mrkdwn"
-                  text: "This is a test and you might see this a few times"
+                  type: "plain_text"
+                  text: "$(cat trivy-results.txt)"
