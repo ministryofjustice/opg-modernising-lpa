@@ -128,6 +128,10 @@ func CheckYourLpa(tmpl template.Template, donorStore DonorStore, shareCodeSender
 	}
 
 	return func(appData appcontext.Data, w http.ResponseWriter, r *http.Request, provided *donordata.Provided) error {
+		if provided.Donor.IsUnder18() {
+			return donor.PathYouMustBeOver18ToComplete.Redirect(w, r, appData, provided)
+		}
+
 		if len(provided.Under18ActorDetails()) > 0 {
 			return donor.PathYouCannotSignYourLpaYet.Redirect(w, r, appData, provided)
 		}
