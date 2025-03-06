@@ -3,10 +3,6 @@ name: "[Job] Post slack message"
 on:
   workflow_call:
     inputs:
-      channel-id:
-        description: 'Slack channel id, channel name, or user id to post message.'
-        required: true
-        type: string
       payload:
         description: 'For posting a rich message using Block Kit'
         required: true
@@ -28,10 +24,7 @@ jobs:
       id: slack
       uses: slackapi/slack-github-action@v2.0.0
       with:
-        # Slack channel id, channel name, or user id to post message.
-        # See also: https://api.slack.com/methods/chat.postMessage#channels
-        channel-id: ${{ inputs.channel-id }}
-        # For posting a rich message using Block Kit
+        tag: ${{ needs.pull_tags.outputs.docker_tag}}
+        method: chat.postMessage
+        token: ${{ secrets.SLACK_BOT_TOKEN }}
         payload: ${{ inputs.payload }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
