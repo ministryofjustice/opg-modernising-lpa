@@ -398,6 +398,17 @@ func (p *Provided) SigningDeadline() time.Time {
 	return p.SignedAt.AddDate(2, 0, 0)
 }
 
+// DonorSigningDeadline gives the date at which the LPA should be signed by the
+// donor once identity is confirmed, and whether it will be possible for them to
+// meet that deadline.
+func (p *Provided) DonorSigningDeadline() time.Time {
+	if !p.IdentityUserData.Status.IsConfirmed() {
+		return time.Time{}
+	}
+
+	return p.IdentityUserData.CheckedAt.AddDate(0, 6, 0)
+}
+
 // IdentityDeadline gives the date which the donor must complete their identity
 // confirmation, otherwise the signature will expire.
 func (p *Provided) IdentityDeadline() time.Time {
