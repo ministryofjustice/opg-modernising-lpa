@@ -10,6 +10,7 @@ defaults:
 permissions:
   id-token: write
 
+
 jobs:
   pull_tags:
     runs-on: ubuntu-latest
@@ -110,29 +111,17 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
         with:
-          # Slack channel id, channel name, or user id to post message.
-          # See also: https://api.slack.com/methods/chat.postMessage#channels
-          channel-id: opg-mlpa-dev
-          # For posting a rich message using Block Kit
+          method: chat.postMessage
+          token: ${{ secrets.slack-bot-token }}
           payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "Production Image Scan Findings",
-                    "emoji": true
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "This is a test and you might see this a few times"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
+            channel: opg-mlpa-dev
+            text: ""
+            blocks:
+              - type: "header"
+                text:
+                  type: "plain_text"
+                  text: "Production Image Scan Findings"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "This is a test and you might see this a few times"
