@@ -1,0 +1,29 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youMustBeOver18ToComplete" }}{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ if .Donor.IdentityDetailsCausedCheck }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourIdentityConfirmationIndicatesYouAreUnder18") "contents") }}
+            {{ end }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "youMustBeOver18ToComplete" }}</h1>
+
+            {{ $deadline := .Donor.DonorSigningDeadline }}
+
+            {{ trFormatHtml .App "youMustBeOver18ToCompleteContent"
+                "DateOfBirth" (formatDate .App .Donor.Donor.DateOfBirth)
+                "Deadline" (formatDate .App $deadline) }}
+
+            {{ if .Donor.Donor.Is18On $deadline }}
+                {{ trHtml .App "youWillTurn18ByThisDate" }}
+            {{ else }}
+                {{ trHtml .App "youWillNotHaveTurned18ByThisDate" }}
+            {{ end }}
+
+            <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+    </div>
+{{ end }}
