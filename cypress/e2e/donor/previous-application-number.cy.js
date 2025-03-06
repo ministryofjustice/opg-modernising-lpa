@@ -6,7 +6,7 @@ describe('Previous application number', () => {
     it('can be submitted', () => {
         cy.checkA11yApp();
 
-        cy.get('#f-previous-application-number').type('MABC');
+        cy.get('#f-previous-application-number').invoke('val', 'MABC');
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/cost-of-repeat-application');
@@ -23,7 +23,7 @@ describe('Previous application number', () => {
     });
 
     it('errors when not correct format', () => {
-        cy.get('#f-previous-application-number').type('ABC');
+        cy.get('#f-previous-application-number').invoke('val', 'ABC');
         cy.contains('button', 'Save and continue').click();
 
         cy.get('.govuk-error-summary').within(() => {

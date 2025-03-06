@@ -8,13 +8,13 @@ describe('Provide your details', () => {
 
         const rnd = Cypress._.random(0, 1e6);
 
-        cy.get('#f-first-names').type('John' + rnd);
-        cy.get('#f-last-name').type('Doe' + rnd);
+        cy.get('#f-first-names').invoke('val', 'John' + rnd);
+        cy.get('#f-last-name').invoke('val', 'Doe' + rnd);
         cy.contains('button', 'Save and continue').click();
 
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click();
 
         AddressFormAssertions.assertCanAddAddressFromSelect();

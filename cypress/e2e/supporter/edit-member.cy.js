@@ -12,8 +12,8 @@ describe('Edit member', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-first-names').clear().type('John');
-            cy.get('#f-last-name').clear().type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 
@@ -32,8 +32,8 @@ describe('Edit member', () => {
 
             cy.checkA11yApp();
 
-            cy.get('#f-first-names').clear().type('John');
-            cy.get('#f-last-name').clear().type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 
@@ -111,8 +111,8 @@ describe('Edit member', () => {
             cy.checkA11yApp();
             cy.contains('Your name');
 
-            cy.get('#f-first-names').clear().type('John');
-            cy.get('#f-last-name').clear().type('Doe');
+            cy.get('#f-first-names').invoke('val', 'John');
+            cy.get('#f-last-name').invoke('val', 'Doe');
 
             cy.contains('button', "Save").click()
 

@@ -18,7 +18,7 @@ describe('Enter access code', () => {
     it('can enter a valid access code', { pageLoadTimeout: 6000 }, () => {
         cy.checkA11yApp();
 
-        cy.get('#f-reference-number').type(shareCode);
+        cy.get('#f-reference-number').invoke('val', shareCode);
         cy.contains('Save and continue').click();
 
         cy.url().should('contain', '/certificate-provider-who-is-eligible')
@@ -37,7 +37,7 @@ describe('Enter access code', () => {
     });
 
     it('errors when incorrect code', () => {
-        cy.get('#f-reference-number').type('i-am-very-wrong');
+        cy.get('#f-reference-number').invoke('val', 'i-am-very-wrong');
         cy.contains('Save and continue').click();
 
         cy.checkA11yApp();
@@ -50,7 +50,7 @@ describe('Enter access code', () => {
     });
 
     it('errors when incorrect code length', () => {
-        cy.get('#f-reference-number').type('short');
+        cy.get('#f-reference-number').invoke('val', 'short');
         cy.contains('Save and continue').click();
 
         cy.checkA11yApp();

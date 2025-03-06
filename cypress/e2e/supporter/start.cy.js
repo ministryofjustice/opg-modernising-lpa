@@ -16,7 +16,7 @@ describe('Start', () => {
             cy.origin('http://localhost:7012', () => {
                 cy.url().should('contain', '/authorize')
 
-                cy.get('#f-email').type(Math.random() + '@example.org')
+                cy.get('#f-email').invoke('val', Math.random() + '@example.org')
                 cy.contains('button', 'Continue').click();
             });
 

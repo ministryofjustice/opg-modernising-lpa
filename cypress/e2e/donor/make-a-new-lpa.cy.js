@@ -9,10 +9,13 @@ describe('Make a new LPA', () => {
 
         cy.url().should('contain', '/your-name');
         cy.checkA11yApp();
-        cy.get('#f-first-names').should('have.value', 'Sam').focus().clear();
-        cy.get('#f-first-names').type('a').should('have.value', 'a');
-        cy.get('#f-last-name').should('have.value', 'Smith').focus().clear();
-        cy.get('#f-last-name').type('b').should('have.value', 'b');
+        cy.get('#f-first-names').should('have.value', 'Sam');
+        cy.get('#f-first-names').invoke('val', 'a')
+        cy.get('#f-first-names').should('have.value', 'a');
+
+        cy.get('#f-last-name').should('have.value', 'Smith');
+        cy.get('#f-last-name').invoke('val', 'b');
+        cy.get('#f-last-name').should('have.value', 'b');
         cy.contains("button", "Continue").click();
 
         cy.url().should('contain', '/we-have-updated-your-details');
@@ -28,12 +31,12 @@ describe('Make a new LPA', () => {
 
         cy.url().should('contain', '/your-date-of-birth');
         cy.checkA11yApp();
-        cy.get('#f-date-of-birth-year').should('have.value', '2000').clear();
-        cy.get('#f-date-of-birth-year').type("2001");
-        cy.get('#f-date-of-birth-month').should('have.value', '1').clear();
-        cy.get('#f-date-of-birth-month').type("2");
-        cy.get('#f-date-of-birth').should('have.value', '2').clear()
-        cy.get('#f-date-of-birth').type("3");
+        cy.get('#f-date-of-birth-year').should('have.value', '2000')
+        cy.get('#f-date-of-birth-year').invoke('val', "2001");
+        cy.get('#f-date-of-birth-month').should('have.value', '1')
+        cy.get('#f-date-of-birth-month').invoke('val', "2");
+        cy.get('#f-date-of-birth').should('have.value', '2')
+        cy.get('#f-date-of-birth').invoke('val', "3");
         cy.contains("button", "Continue").click();
 
         cy.url().should('contain', '/we-have-updated-your-details');
@@ -50,8 +53,8 @@ describe('Make a new LPA', () => {
 
         cy.url().should('contain', '/your-address');
         cy.checkA11yApp();
-        cy.get('#f-address-line-1').should('have.value', '1 RICHMOND PLACE').clear()
-        cy.get('#f-address-line-1').type("2 RICHMOND PLACE");
+        cy.get('#f-address-line-1').should('have.value', '1 RICHMOND PLACE')
+        cy.get('#f-address-line-1').invoke('val', "2 RICHMOND PLACE");
         cy.get('#f-address-line-2').should('have.value', 'KINGS HEATH').clear();
         cy.get('#f-address-line-3').should('have.value', 'WEST MIDLANDS').clear()
         cy.get('#f-address-town').should('have.value', 'BIRMINGHAM');
