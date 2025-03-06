@@ -16,26 +16,18 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     uses: ./.github/workflows/slack_job.yml
     with:
-      channel-id: opg-mlpa-dev
       payload: |
-        {
-          "blocks": [
-            {
-              "type": "header",
-              "text": {
-                "type": "plain_text",
-                "text": ":exclamation: Path to Live workflow is failing",
-                "emoji": true
-              }
-            },
-            {
-              "type": "section",
-              "text": {
-                "type": "mrkdwn",
-                "text": "Paging <!subteam^S03RPSWH0KF>"
-              }
-            }
-          ]
-        }
+        channel: opg-mlpa-dev
+        text: "Path to Live workflow is failing"
+        blocks:
+          - type: "header"
+            text:
+              type: "plain_text"
+              text: ":exclamation: Path to Live workflow is failing"
+              emoji: true
+          - type: "section"
+            text:
+              type: "mrkdwn"
+              text: "Paging <!subteam^S03RPSWH0KF>"
     secrets:
       slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
