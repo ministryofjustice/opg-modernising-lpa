@@ -76,7 +76,7 @@ jobs:
         with:
           mask-password: true
           registries: 311462405659
-
+      - uses: actions/checkout@v4
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.29.0
@@ -84,7 +84,7 @@ jobs:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
           TRIVY_DISABLE_VEX_NOTICE: true
-          # TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
+          TRIVY_IGNOREFILE: ${{ matrix.trivyignores }}
         with:
           scan-type: 'image'
           scanners: 'vuln'
