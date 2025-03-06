@@ -128,8 +128,4 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: "${{ steps.output_findings.outputs.findings }}"
-              - type: "section"
-                text:
-                  type: "plain_text"
                   text: $(cat trivy-results.txt)
