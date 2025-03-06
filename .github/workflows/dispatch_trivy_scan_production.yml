@@ -106,11 +106,14 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      - name: Post slack message
-        if: ${{ hashFiles('trivy-results.txt') != '' }}
-        uses: ./.github/workflows/slack_job.yml
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v2.0.0
         with:
+          # Slack channel id, channel name, or user id to post message.
+          # See also: https://api.slack.com/methods/chat.postMessage#channels
           channel-id: opg-mlpa-dev
+          # For posting a rich message using Block Kit
           payload: |
             {
               "blocks": [
@@ -131,5 +134,5 @@ jobs:
                 }
               ]
             }
-        # secrets:
-        #   slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.slack-bot-token }}
