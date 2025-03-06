@@ -107,9 +107,9 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
-      # - name: Store Findings
-      #   id: output_findings
-      #   run: echo "findings=$(cat trivy-results.txt)" >> $GITHUB_OUTPUT
+      - name: Store Findings
+        id: output_findings
+        run: echo "findings=$(cat trivy-results.txt)" >> $GITHUB_OUTPUT
       - name: Post to a Slack channel
         if: ${{ hashFiles('trivy-results.txt') != '' }}
         id: slack
@@ -128,4 +128,8 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: "$(cat trivy-results.txt)"
+                  text: "${{ output_findings.outputs.findings }}"
+              - type: "section"
+                text:
+                  type: "plain_text"
+                  text: $(cat trivy-results.txt)
