@@ -106,3 +106,30 @@ jobs:
               echo "</details>"
             } >> $GITHUB_STEP_SUMMARY
           fi
+      - name: Post slack message
+        if: ${{ hashFiles('trivy-results.txt') != '' }}
+        uses: ./.github/workflows/slack_job.yml
+        with:
+          channel-id: opg-mlpa-dev
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Production Image Scan Findings",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "This is a test and you might see this a few times"
+                  }
+                }
+              ]
+            }
+        # secrets:
+        #   slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }} # pragma: allowlist secret
