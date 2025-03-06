@@ -87,7 +87,7 @@ jobs:
         with:
           scan-type: 'image'
           scanners: 'vuln'
-          image-ref: ${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
+          image-ref: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}
           severity: 'HIGH,CRITICAL'
           format: 'table'
           output: 'trivy-results.txt'
