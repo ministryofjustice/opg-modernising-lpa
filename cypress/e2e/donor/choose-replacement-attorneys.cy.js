@@ -1,4 +1,4 @@
-import { TestEmail } from "../../support/e2e";
+import {DateOfBirthAssertions, TestEmail} from "../../support/e2e";
 
 describe('Choose replacement attorneys', () => {
     beforeEach(() => {
@@ -11,12 +11,12 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('can be submitted', () => {
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
-        cy.get('#f-email').type(TestEmail);
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
+        cy.get('#f-email').invoke('val', TestEmail);
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
         cy.checkA11yApp();
 
@@ -26,11 +26,11 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('can choose not to submit email', () => {
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
 
         cy.checkA11yApp();
 
@@ -65,7 +65,7 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('errors when invalid email', () => {
-        cy.get('#f-email').type('not-an-email');
+        cy.get('#f-email').invoke('val', 'not-an-email');
 
         cy.contains('button', 'Save and continue').click();
 
@@ -73,27 +73,15 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('errors when invalid dates of birth', () => {
-        cy.get('#f-date-of-birth').type('1');
-        cy.contains('button', 'Save and continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must include a month and year');
-
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('2222');
-        cy.contains('button', 'Save and continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be in the past');
-
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').clear().type('1990');
-        cy.contains('button', 'Save and continue').click();
-        cy.contains('#date-of-birth-hint + .govuk-error-message', 'Date of birth must be a real date');
+        DateOfBirthAssertions.assertInvalidDatesOfBirth()
     });
 
     it('warns when name shared with other actor', () => {
-        cy.get('#f-first-names').type('Sam');
-        cy.get('#f-last-name').type('Smith');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1990');
+        cy.get('#f-first-names').invoke('val', 'Sam');
+        cy.get('#f-last-name').invoke('val', 'Smith');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1990');
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
 
@@ -104,11 +92,11 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('permanently warns when date of birth is under 18', () => {
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type(new Date().getFullYear() - 1);
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 1);
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
 
@@ -125,11 +113,11 @@ describe('Choose replacement attorneys', () => {
     });
 
     it('warns when date of birth is over 100', () => {
-        cy.get('#f-first-names').type('John');
-        cy.get('#f-last-name').type('Doe');
-        cy.get('#f-date-of-birth').type('1');
-        cy.get('#f-date-of-birth-month').type('2');
-        cy.get('#f-date-of-birth-year').type('1900');
+        cy.get('#f-first-names').invoke('val', 'John');
+        cy.get('#f-last-name').invoke('val', 'Doe');
+        cy.get('#f-date-of-birth').invoke('val', '1');
+        cy.get('#f-date-of-birth-month').invoke('val', '2');
+        cy.get('#f-date-of-birth-year').invoke('val', '1900');
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-replacement-attorneys');
 
@@ -141,7 +129,7 @@ describe('Choose replacement attorneys', () => {
         cy.go(-2);
         cy.url().should('contain', '/choose-replacement-attorneys');
 
-        cy.get('#f-date-of-birth-year').clear().type(new Date().getFullYear() - 20);
+        cy.get('#f-date-of-birth-year').invoke('val', new Date().getFullYear() - 20);
         cy.contains('button', 'Save and continue').click();
 
         cy.url().should('contain', '/choose-replacement-attorneys-address');

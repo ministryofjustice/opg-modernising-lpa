@@ -11,8 +11,8 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#f-first-names').type("Brian")
-        cy.get('#f-last-name').type("Gooding")
+        cy.get('#f-first-names').invoke('val', "Brian")
+        cy.get('#f-last-name').invoke('val', "Gooding")
 
         cy.contains('button', 'Save and continue').click();
 
@@ -22,7 +22,7 @@ describe('People to notify', () => {
         cy.url().should('contain', '/choose-people-to-notify-address');
         cy.checkA11yApp();
 
-        cy.get('#f-lookup-postcode').type("B14 7ED")
+        cy.get('#f-lookup-postcode').invoke('val', "B14 7ED")
         cy.contains('button', 'Find address').click();
 
         cy.url().should('contain', '/choose-people-to-notify-address');
@@ -33,9 +33,9 @@ describe('People to notify', () => {
         cy.url().should('contain', '/choose-people-to-notify-address');
         cy.checkA11yApp();
 
-        cy.get('#f-address-line-1').type("4 RICHMOND PLACE");
-        cy.get('#f-address-town').type("BIRMINGHAM");
-        cy.get('#f-address-postcode').type("B14 7ED");
+        cy.get('#f-address-line-1').invoke('val', "4 RICHMOND PLACE");
+        cy.get('#f-address-town').invoke('val', "BIRMINGHAM");
+        cy.get('#f-address-postcode').invoke('val', "B14 7ED");
 
         cy.contains('button', 'Save and continue').click();
 
@@ -71,10 +71,8 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#f-first-names').clear();
-        cy.get('#f-first-names').type('Changed');
-        cy.get('#f-last-name').clear();
-        cy.get('#f-last-name').type('Altered');
+        cy.get('#f-first-names').invoke('val', 'Changed');
+        cy.get('#f-last-name').invoke('val', 'Altered');
 
         cy.contains('button', 'Save and continue').click();
 
@@ -87,16 +85,11 @@ describe('People to notify', () => {
 
         cy.checkA11yApp();
 
-        cy.get('#f-address-line-1').clear();
-        cy.get('#f-address-line-1').type('1 New Road');
-        cy.get('#f-address-line-2').clear();
-        cy.get('#f-address-line-2').type('Changeville');
-        cy.get('#f-address-line-3').clear();
-        cy.get('#f-address-line-3').type('Newington');
-        cy.get('#f-address-town').clear();
-        cy.get('#f-address-town').type('Newshire');
-        cy.get('#f-address-postcode').clear();
-        cy.get('#f-address-postcode').type('A12 3BC');
+        cy.get('#f-address-line-1').invoke('val', '1 New Road');
+        cy.get('#f-address-line-2').invoke('val', 'Changeville');
+        cy.get('#f-address-line-3').invoke('val', 'Newington');
+        cy.get('#f-address-town').invoke('val', 'Newshire');
+        cy.get('#f-address-postcode').invoke('val', 'A12 3BC');
 
         cy.contains('button', 'Save and continue').click();
 
@@ -201,8 +194,8 @@ describe('People to notify', () => {
     it('warns when name shared with other actor', () => {
         cy.visit('/fixtures?redirect=/choose-people-to-notify&progress=chooseYourAttorneys');
 
-        cy.get('#f-first-names').type('Sam');
-        cy.get('#f-last-name').type('Smith');
+        cy.get('#f-first-names').invoke('val', 'Sam');
+        cy.get('#f-last-name').invoke('val', 'Smith');
         cy.contains('button', 'Save and continue').click();
         cy.url().should('contain', '/choose-people-to-notify');
 
