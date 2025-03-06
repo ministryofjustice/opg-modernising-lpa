@@ -24,7 +24,6 @@ jobs:
       id: slack
       uses: slackapi/slack-github-action@v2.0.0
       with:
-        tag: ${{ needs.pull_tags.outputs.docker_tag}}
         method: chat.postMessage
         token: ${{ secrets.SLACK_BOT_TOKEN }}
         payload: ${{ inputs.payload }}
