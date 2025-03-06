@@ -15,6 +15,14 @@ import (
 
 var expectedError = errors.New("err")
 
+func TestNewClient(t *testing.T) {
+	client := NewClient(aws.Config{}, "a", "b")
+
+	assert.Equal(t, "a", client.bucket)
+	assert.Equal(t, "b", client.kmsKeyAlias)
+	assert.IsType(t, &s3.Client{}, client.svc)
+}
+
 func TestDeleteObject(t *testing.T) {
 	s3Service := newMockS3Service(t)
 	s3Service.EXPECT().
@@ -53,10 +61,11 @@ func TestPutObject(t *testing.T) {
 			Key:                  aws.String("a-object-key"),
 			Body:                 bytes.NewReader([]byte("a-body")),
 			ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+			SSEKMSKeyId:          aws.String("a-alias"),
 		}).
 		Return(nil, nil)
 
-	client := Client{bucket: "a-bucket", svc: s3Service}
+	client := Client{bucket: "a-bucket", svc: s3Service, kmsKeyAlias: "a-alias"}
 	err := client.PutObject(context.Background(), "a-object-key", []byte("a-body"))
 
 	assert.Nil(t, err)

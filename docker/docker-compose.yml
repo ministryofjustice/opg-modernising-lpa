@@ -86,6 +86,7 @@ services:
       - METRICS_ENABLED=1
       - LPA_STORE_BASE_URL=http://mock-lpa-store:8080
       - LPA_STORE_SECRET_ARN=lpa-store-jwt-secret-key
+      - S3_UPLOADS_KMS_KEY_ALIAS=alias/custom-key
     networks:
       default:
         aliases:

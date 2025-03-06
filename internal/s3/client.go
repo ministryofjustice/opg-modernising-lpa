@@ -19,14 +19,18 @@ type s3Service interface {
 }
 
 type Client struct {
-	bucket string
-	svc    s3Service
+	bucket      string
+	kmsKeyAlias string
+	svc         s3Service
 }
 
-func NewClient(cfg aws.Config, bucket string) *Client {
-	return &Client{bucket: bucket, svc: s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.UsePathStyle = true
-	})}
+func NewClient(cfg aws.Config, bucket, kmsKeyAlias string) *Client {
+	return &Client{
+		bucket:      bucket,
+		kmsKeyAlias: kmsKeyAlias,
+		svc: s3.NewFromConfig(cfg, func(o *s3.Options) {
+			o.UsePathStyle = true
+		})}
 }
 
 func (c *Client) DeleteObject(ctx context.Context, key string) error {
@@ -73,6 +77,7 @@ func (c *Client) PutObject(ctx context.Context, key string, body []byte) error {
 		Key:                  aws.String(key),
 		Body:                 bytes.NewReader(body),
 		ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+		SSEKMSKeyId:          aws.String(c.kmsKeyAlias),
 	})
 
 	return err
