@@ -3,6 +3,7 @@ package donordata
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/actor/actoruid"
 	"github.com/ministryofjustice/opg-modernising-lpa/internal/date"
@@ -44,4 +45,12 @@ type Donor struct {
 
 func (d Donor) FullName() string {
 	return strings.Trim(fmt.Sprintf("%s %s", d.FirstNames, d.LastName), " ")
+}
+
+func (d Donor) IsUnder18() bool {
+	return !d.Is18On(time.Now())
+}
+
+func (d Donor) Is18On(t time.Time) bool {
+	return t.After(d.DateOfBirth.AddDate(18, 0, 0).Time())
 }

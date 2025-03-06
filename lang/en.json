@@ -1497,5 +1497,11 @@
     "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Your authorised signatory, {{.AuthorisedSignatoryFullName}}, and independent witness, {{.IndependentWitnessFullName}}, should also be out of the room for this discussion.",
     "viewYourLpaContent": "<p class=\"govuk-body\">This is your completed LPA. Because you have signed it, you can no longer make changes to it. Your LPA will now be checked by the Office of the Public Guardian.</p><p class=\"govuk-body\">You have the option of revoking this LPA and making a new LPA. To do this, return to ‘Manage your LPAs’.</p>",
     "sendYourEvidence": "Send your evidence",
-    "confirmYourIdentityAtPostOffice": "Confirm your identity at a Post Office"
+    "confirmYourIdentityAtPostOffice": "Confirm your identity at a Post Office",
+    "youMustBeOver18ToComplete": "You must be over 18 to complete your LPA",
+    "youMustBeOver18ToCompleteContent": "<p class=\"govuk-body\">Your date of birth is:</p><p class=\"govuk-inset-text govuk-!-font-weight-bold\">{{ .DateOfBirth }}</p><p class=\"govuk-body\">You will not be able to check and send your LPA to your certificate provider, sign it or submit it to the Office of the Public Guardian for registration until you are over 18 years of age.</p>",
+    "deadlineForSigningYourLpa": "<h2 class=\"govuk-heading-m\">Deadline for signing your LPA</h2><p class=\"govuk-body\">Because you have confirmed your identity, you now have 6 months to sign your LPA, making your deadline:</p><p class=\"govuk-inset-text govuk-!-font-weight-bold\">{{ .Deadline }}</p>",
+    "youWillTurn18ByThisDate": "<p class=\"govuk-body\">You’ll turn 18 by this date, so you’ll be able to sign your LPA in time to meet the deadline.</p><p class=\"govuk-body\">If you miss the deadline, you can keep this LPA, but you’ll have to confirm your identity again before signing it.</p>",
+    "youWillNotHaveTurned18ByThisDate": "<p class=\"govuk-body\">You will not have turned 18 by this date, so you’ll miss the deadline for signing your LPA.</p><p class=\"govuk-body\">You can keep this LPA, but when you turn 18, you must confirm your identity again before signing it.</p>",
+    "yourIdentityConfirmationIndicatesYouAreUnder18": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Your identity confirmation indicates you are under 18</p><p class=\"govuk-body\">You have successfully confirmed your identity using using GOV.UK One Login. However, your date of birth shows you are under 18.</p></div>"
 }
