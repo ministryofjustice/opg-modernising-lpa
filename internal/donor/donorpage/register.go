@@ -242,6 +242,8 @@ func Register(
 		YourName(tmpls.Get("your_name.gohtml"), donorStore, sessionStore))
 	handleWithDonor(donor.PathYourDateOfBirth, page.CanGoBack,
 		YourDateOfBirth(tmpls.Get("your_date_of_birth.gohtml"), donorStore))
+	handleWithDonor(donor.PathYouHaveToldUsYouAreUnder18, page.CanGoBack,
+		Guidance(tmpls.Get("you_have_told_us_you_are_under_18.gohtml")))
 	handleWithDonor(donor.PathYourAddress, page.CanGoBack,
 		YourAddress(logger, tmpls.Get("your_address.gohtml"), addressClient, donorStore))
 	handleWithDonor(donor.PathReceivingUpdatesAboutYourLpa, page.CanGoBack,
