@@ -1,18 +1,16 @@
 {{ template "page" . }}
 
-{{ define "pageTitle" }}{{ tr .App "verifyDonorDetails" }}{{ end }}
+{{ define "pageTitle" }}{{ tr .App "verifyDonorIdentity" }}{{ end }}
 
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-xl">
-                {{ trFormat .App "verifyPersonDetails"
+                {{ trFormat .App "verifyPersonIdentity"
                     "DonorFullName" .Lpa.Donor.FullName }}
             </h1>
 
-            {{ trFormatHtml .App "verifyPersonDetailsContent"
-                "DonorFirstNames" .Lpa.Donor.FirstNames
-                "DonorFullName" .Lpa.Donor.FullName }}
+            {{ trFormatHtml .App "verifyPersonIdentityContent" "DonorFullName" .Lpa.Donor.FullName }}
             
             <dl class="govuk-summary-list">
                 {{ template "summary-row" (staticSummaryRow .App "firstNames"
@@ -24,14 +22,19 @@
                 {{ template "address-summary-row" (staticSummaryRow .App "address"
                     .Lpa.Donor.Address) }}
             </dl>
-            
-            <form novalidate method="post">
-                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
-                    (legend (trFormat .App "doTheseDetailsMatchDonorIdentity" "DonorFullName" .Lpa.Donor.FullName) "govuk-fieldset__legend--s")
-                    (item .Form.Options.Yes.String "yesYdynt")
-                    (item .Form.Options.No.String "noNacYdynt")) }}
 
-                {{ template "warning" (content .App "theseDetailsMustMatchThePersonWhoAskedYouToVouch") }}
+            <div class="govuk-inset-text">{{ trFormat .App "ifTheseDetailsAreIncorrectDonorCanLogInAndAmend" "DonorFullName" .Lpa.Donor.FullName }}</div>
+
+            <form novalidate method="post">
+                {{ $yesHint := trFormat .App "theDetailsDonorProvidedAreCorrectHint" "DonorFullName" .Lpa.Donor.FullName }}
+                {{ $noHint := trFormat .App "theDetailsDonorProvidedAreIncorrectHint" "DonorFullName" .Lpa.Donor.FullName }}
+
+                {{ template "radios-fieldset" (fieldset . .Form.FieldName .Form.YesNo.String
+                    (legend (trFormat .App "canYouVerifyDonorsIdentity" "DonorFullName" .Lpa.Donor.FullName) "govuk-fieldset__legend--s")
+                    (item .Form.Options.Yes.String "yesYdynt" "hint" $yesHint)
+                    (item .Form.Options.No.String "noNacYdynt" "hint" $noHint)) }}
+
+                {{ template "warning" (content .App "yourVouchingRoleWillNotBeCompleteUntilConfirmIdentityAndSignWarning") }}
                 
                 {{ template "buttons" (button .App "continue") }}
                 {{ template "csrf-field" . }}

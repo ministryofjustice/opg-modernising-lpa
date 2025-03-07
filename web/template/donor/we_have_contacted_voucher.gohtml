@@ -5,39 +5,47 @@
 {{ define "main" }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-xl">
-                {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
-                    {{ trFormat .App "weHaveContactedVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
-                {{ else }}
-                    {{ trFormat .App "weWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
-                {{ end }}
-            </h1>
+            {{ if .Donor.DetailsVerifiedByVoucher }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trFormatHtml .App "voucherHasVerifiedYourIdentityBanner" "VoucherFullName" .Donor.Voucher.FullName) "contents") }}
 
-            <div class="govuk-inset-text">
-                <dl class="govuk-summary-list  govuk-summary-list--no-border app-summary-list--no-vertical-padding">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">{{ tr .App "theirName" }}</dt>
-                        <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.FullName }}</dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">{{ tr .App "theirEmailAddress" }}</dt>
-                        <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.Email }}</dd>
-                    </div>
-                </dl>
-            </div>
+                <h1 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h1>
 
-            <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+                {{ trFormatHtml .App "voucherWhatHappensNextWhenDonorDetailsVerified" "VoucherFullName" .Donor.Voucher.FullName "VoucherFirstNames" .Donor.Voucher.FirstNames }}
+            {{ else }}
+                <h1 class="govuk-heading-xl">
+                    {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
+                        {{ trFormat .App "weHaveContactedVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
+                    {{ else }}
+                        {{ trFormat .App "weWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}
+                    {{ end }}
+                </h1>
 
-            <ol class="govuk-list govuk-list--number">
-                {{ if not .Donor.Tasks.PayForLpa.IsCompleted }}
-                    <li>{{ trFormat .App "weAreProcessingFeeWhenResolvedWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}</li>
-                {{ end }}
-                
-                {{ trFormatHtml .App "voucherWhatHappensNextBullets" "VoucherFullName" .Donor.Voucher.FullName }}
-            </ol>
+                <div class="govuk-inset-text">
+                    <dl class="govuk-summary-list  govuk-summary-list--no-border app-summary-list--no-vertical-padding">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "theirName" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.FullName }}</dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">{{ tr .App "theirEmailAddress" }}</dt>
+                            <dd class="govuk-summary-list__value">{{ tr .App .Donor.Voucher.Email }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <h2 class="govuk-heading-m">{{ tr .App "whatHappensNext" }}</h2>
+
+                <ol class="govuk-list govuk-list--number">
+                    {{ if not .Donor.Tasks.PayForLpa.IsCompleted }}
+                        <li>{{ trFormat .App "weAreProcessingFeeWhenResolvedWillContactVoucher" "VoucherFullName" .Donor.Voucher.FullName }}</li>
+                    {{ end }}
+
+                    {{ trFormatHtml .App "voucherWhatHappensNextBullets" "VoucherFullName" .Donor.Voucher.FullName }}
+                </ol>
+            {{ end }}
 
             {{ template "details" (details . "confirmYourIdentityAnotherWay" (trFormat .App "confirmYourIdentityAnotherWayContent" "VoucherFullName" .Donor.Voucher.FullName) false) }}
-            
+
             <div class="govuk-button-group">
                 <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
                 <a href="{{ global.Paths.WhatYouCanDoNow.Format .App.LpaID }}" class="govuk-link govuk-button govuk-button--secondary">{{ tr .App "confirmMyIdentityAnotherWay" }}</a>

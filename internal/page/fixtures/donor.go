@@ -499,6 +499,7 @@ func updateLPAProgress(
 		case "vouched":
 			donorDetails.Voucher = makeVoucher(voucherName)
 			donorDetails.WantVoucher = form.Yes
+			donorDetails.DetailsVerifiedByVoucher = true
 
 			ctx := appcontext.ContextWithSession(r.Context(), &appcontext.Session{SessionID: random.String(16), LpaID: donorDetails.LpaID})
 
