@@ -1,0 +1,40 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}{{ tr .App "youMustBeOver18ToComplete" }}{{ end }}
+
+{{ define "main" }}
+    {{ $fromIdentityCheck := .App.Query.Has "fromIdentityCheck" }}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ if and $fromIdentityCheck .Donor.IdentityDetailsCausedCheck }}
+                {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "yourIdentityConfirmationIndicatesYouAreUnder18") "contents") }}
+            {{ end }}
+
+            <h1 class="govuk-heading-xl">{{ tr .App "youMustBeOver18ToComplete" }}</h1>
+
+
+            {{ if and $fromIdentityCheck .Donor.IdentityDetailsCausedCheck }}
+                <p class="govuk-body">{{ tr .App "yourDateOfBirthIs" }}</p>
+                <p class="govuk-inset-text govuk-!-font-weight-bold">{{ formatDate .App .Donor.Donor.DateOfBirth }}</p>
+            {{ end }}
+
+            <p class="govuk-body">{{ tr .App "youWillNotBeAbleToCheckAndSendUnder18" }}</p>
+
+            {{ if .Donor.IdentityDetailsCausedCheck }}
+                {{ $deadline := .Donor.DonorSigningDeadline }}
+
+                {{ trHtml .App "deadlineForSigningYourLpa" }}
+                <p class="govuk-inset-text govuk-!-font-weight-bold">{{ formatDate .App $deadline }}</p>
+
+                {{ if .Donor.Donor.Is18On $deadline }}
+                    {{ trHtml .App "youWillTurn18ByThisDate" }}
+                {{ else }}
+                    {{ trHtml .App "youWillNotHaveTurned18ByThisDate" }}
+                {{ end }}
+            {{ end }}
+
+            <a href="{{ global.Paths.TaskList.Format .App.LpaID }}" class="govuk-link govuk-button">{{ tr .App "returnToTaskList" }}</a>
+        </div>
+    </div>
+{{ end }}

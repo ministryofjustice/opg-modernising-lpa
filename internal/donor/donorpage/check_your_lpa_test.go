@@ -77,6 +77,27 @@ func TestGetCheckYourLpaFromStore(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
+func TestGetCheckYourLpaWhenDonorUnder18(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/?q=v", nil)
+
+	provided := &donordata.Provided{
+		LpaID:               "lpa-id",
+		CheckedAt:           testNow,
+		CertificateProvider: donordata.CertificateProvider{LastName: "A", Address: place.Address{Line1: "1", Postcode: "B"}},
+		Donor: donordata.Donor{
+			DateOfBirth: date.Today(),
+		},
+	}
+
+	err := CheckYourLpa(nil, nil, nil, nil, nil, nil, testNowFn, "http://example.org")(testAppData, w, r, provided)
+	resp := w.Result()
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusFound, resp.StatusCode)
+	assert.Equal(t, donor.PathYouMustBeOver18ToComplete.FormatQuery("lpa-id", url.Values{"q": {"v"}}), resp.Header.Get("Location"))
+}
+
 func TestGetCheckYourLpaWhenUnder18Actor(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)

@@ -499,6 +499,21 @@ func TestSigningDeadline(t *testing.T) {
 	assert.Equal(t, expected, donor.SigningDeadline())
 }
 
+func TestDonorSigningDeadline(t *testing.T) {
+	donor := Provided{
+		IdentityUserData: identity.UserData{
+			CheckedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),
+			Status:    identity.StatusConfirmed,
+		},
+	}
+
+	expected := time.Date(2020, time.July, 2, 3, 4, 5, 6, time.UTC)
+	assert.Equal(t, expected, donor.DonorSigningDeadline())
+
+	donor.IdentityUserData.Status = identity.StatusFailed
+	assert.True(t, donor.DonorSigningDeadline().IsZero())
+}
+
 func TestCourtOfProtectionSubmissionDeadline(t *testing.T) {
 	donor := Provided{
 		SignedAt: time.Date(2020, time.January, 2, 3, 4, 5, 6, time.UTC),

@@ -1601,5 +1601,12 @@
     "yourAuthorisedSignatoryShouldAlsoBeOutOfTheRoom": "Welsh {{.AuthorisedSignatoryFullName}} {{.IndependentWitnessFullName}}",
     "viewYourLpaContent": "<p class=\"govuk-body\">Welsh</p>",
     "sendYourEvidence": "Welsh",
-    "confirmYourIdentityAtPostOffice": "Welsh"
+    "confirmYourIdentityAtPostOffice": "Welsh",
+    "youMustBeOver18ToComplete": "Welsh",
+    "youWillNotBeAbleToCheckAndSendUnder18": "Welsh",
+    "deadlineForSigningYourLpa": "<h2 class=\"govuk-heading-m\">Welsh</h2>",
+    "youWillTurn18ByThisDate": "<p class=\"govuk-body\">Welsh</p>",
+    "youWillNotHaveTurned18ByThisDate": "<p class=\"govuk-body\">Welsh</p>",
+    "yourIdentityConfirmationIndicatesYouAreUnder18": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
+    "yourDateOfBirthIs": "Welsh"
 }
