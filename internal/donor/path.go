@@ -120,6 +120,7 @@ const (
 	PathWitnessingYourSignature                              = Path("/witnessing-your-signature")
 	PathYouCannotSignYourLpaYet                              = Path("/you-cannot-sign-your-lpa-yet")
 	PathYouHaveSubmittedYourLpa                              = Path("/you-have-submitted-your-lpa")
+	PathYouMustBeOver18ToComplete                            = Path("/you-must-be-over-18-to-complete")
 	PathYourAddress                                          = Path("/your-address")
 	PathYourAuthorisedSignatory                              = Path("/your-authorised-signatory")
 	PathYourDateOfBirth                                      = Path("/your-date-of-birth")
