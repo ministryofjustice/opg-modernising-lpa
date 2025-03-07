@@ -58,6 +58,14 @@ func YourDateOfBirth(tmpl template.Template, donorStore DonorStore) Handler {
 					return err
 				}
 
+				if provided.Donor.IsUnder18() {
+					from := r.FormValue("from")
+					r.Form = url.Values{}
+					return donor.PathYouHaveToldUsYouAreUnder18.RedirectQuery(w, r, appData, provided, url.Values{
+						"next": {from},
+					})
+				}
+
 				if data.MakingAnotherLPA {
 					return donor.PathWeHaveUpdatedYourDetails.RedirectQuery(w, r, appData, provided, url.Values{"detail": {"dateOfBirth"}})
 				}
@@ -103,17 +111,13 @@ func (f *yourDateOfBirthForm) Validate() validation.List {
 
 func (f *yourDateOfBirthForm) DobWarning() string {
 	var (
-		today                = date.Today()
-		hundredYearsEarlier  = today.AddDate(-100, 0, 0)
-		eighteenYearsEarlier = today.AddDate(-18, 0, 0)
+		today               = date.Today()
+		hundredYearsEarlier = today.AddDate(-100, 0, 0)
 	)
 
 	if !f.Dob.IsZero() {
 		if f.Dob.Before(hundredYearsEarlier) {
 			return "dateOfBirthIsOver100"
-		}
-		if f.Dob.Before(today) && f.Dob.After(eighteenYearsEarlier) {
-			return "dateOfBirthIsUnder18"
 		}
 	}
 

@@ -1,0 +1,34 @@
+{{ template "page" . }}
+
+{{ define "pageTitle" }}
+    {{ tr .App "youHaveToldUsYouAreUnder18" }}
+{{ end }}
+
+{{ define "main" }}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {{ template "notification-banner" (notificationBanner .App "important" (trHtml .App "youCannotSignUntilYouAre18") "heading") }}
+
+            <h1 class="govuk-heading-xl">{{ template "pageTitle" . }}</h1>
+
+            <dl class="govuk-summary-list">
+                {{ template "summary-row" (summaryRow .App "dateOfBirth"
+                    (formatDate .App .Donor.Donor.DateOfBirth)
+                    (global.Paths.YourDateOfBirth.Format .App.LpaID | link .App | printf "%s#f-day")
+                    .Donor.Donor.FullName true true) }}
+            </dl>
+
+            {{ trHtml .App "youHaveToldUsYouAreUnder18Content" }}
+
+            {{  if .Donor.Type.Empty }}
+                {{ if .Donor.Donor.Address.Line1 }}
+                    {{ template "button" (button .App "continue" "link" (global.Paths.WeHaveUpdatedYourDetails.Format .App.LpaID | printf "%s?detail=dateOfBirth")) }}
+                {{ else }}
+                    {{ template "button" (button .App "continue" "link" (global.Paths.YourAddress.Format .App.LpaID)) }}
+                {{ end }}
+            {{ else }}
+                {{ template "buttons" (button .App "continue" "link" (.App.Query.Get "next")) }}
+            {{ end }}
+        </div>
+    </div>
+{{ end }}

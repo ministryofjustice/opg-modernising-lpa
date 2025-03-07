@@ -106,6 +106,7 @@ func TestGetYourDateOfBirthWhenTemplateErrors(t *testing.T) {
 
 func TestPostYourDateOfBirth(t *testing.T) {
 	validBirthYear := strconv.Itoa(time.Now().Year() - 40)
+	under18BirthYear := strconv.Itoa(time.Now().Year() - 10)
 
 	testCases := map[string]struct {
 		url      string
@@ -149,6 +150,18 @@ func TestPostYourDateOfBirth(t *testing.T) {
 				DateOfBirth: date.New(validBirthYear, "1", "2"),
 			},
 			redirect: donor.PathWeHaveUpdatedYourDetails.Format("lpa-id") + "?detail=dateOfBirth",
+		},
+		"under 18": {
+			url: "/?from=somewhere",
+			form: url.Values{
+				"date-of-birth-day":   {"2"},
+				"date-of-birth-month": {"1"},
+				"date-of-birth-year":  {under18BirthYear},
+			},
+			person: donordata.Donor{
+				DateOfBirth: date.New(under18BirthYear, "1", "2"),
+			},
+			redirect: donor.PathYouHaveToldUsYouAreUnder18.FormatQuery("lpa-id", url.Values{"next": {"somewhere"}}),
 		},
 	}
 
@@ -398,12 +411,6 @@ func TestYourDateOfBirthFormDobWarning(t *testing.T) {
 			form: &yourDateOfBirthForm{
 				Dob: now.AddDate(-18, 0, 0),
 			},
-		},
-		"dob-under-18": {
-			form: &yourDateOfBirthForm{
-				Dob: now.AddDate(-18, 0, 2),
-			},
-			warning: "dateOfBirthIsUnder18",
 		},
 		"dob-is-100": {
 			form: &yourDateOfBirthForm{
