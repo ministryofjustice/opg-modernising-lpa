@@ -1608,5 +1608,8 @@
     "youWillTurn18ByThisDate": "<p class=\"govuk-body\">Welsh</p>",
     "youWillNotHaveTurned18ByThisDate": "<p class=\"govuk-body\">Welsh</p>",
     "yourIdentityConfirmationIndicatesYouAreUnder18": "<div class=\"govuk-notification-banner__content\"><p class=\"govuk-notification-banner__heading\">Welsh</p><p class=\"govuk-body\">Welsh</p></div>",
-    "yourDateOfBirthIs": "Welsh"
+    "yourDateOfBirthIs": "Welsh",
+    "youHaveToldUsYouAreUnder18": "You have told us you are under 18",
+    "youCannotSignUntilYouAre18": "You cannot sign your LPA until you are 18.",
+    "youHaveToldUsYouAreUnder18Content": "<p class=\"govuk-body\">The details you have entered indicate that you are under 18.</p><p class=\"govuk-body\">You can start the process of making your LPA. However, you will not be able to sign your LPA or submit it to the Office of the Public Guardian (OPG) for registration until you are over 18 years of age.</p><p class=\"govuk-body\">OPG recommends you wait until you are within 6 months of your 18th birthday before starting your LPA.</p>"
 }
