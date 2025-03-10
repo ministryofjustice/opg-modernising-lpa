@@ -120,8 +120,8 @@ jobs:
               - type: "header"
                 text:
                   type: "plain_text"
-                  text: "Production Image Scan Findings"
+                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}"
               - type: "section"
                 text:
-                  type: "plain_text"
-                  text: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  type: "mrkdwn"
+                  text: "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>|View Findings Here"
