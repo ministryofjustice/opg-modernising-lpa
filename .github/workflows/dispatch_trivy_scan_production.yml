@@ -123,13 +123,13 @@ jobs:
             blocks:
               - type: "header"
                 text:
-                  type: "plain_text"
-                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+                  type: "plain_text",
+                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}",
               - type: "section"
                 text:
-                  type: "plain_text"
-                  text: "Critical or High severity vulnerabilities found in __version ${{ needs.pull_tags.outputs.docker_tag }}__"
+                  type: "mrkdwn",
+                  text: "Critical or High severity vulnerabilities found in __version ${{ needs.pull_tags.outputs.docker_tag }}__",
               - type: "section"
                 text:
-                  type: "plain_text"
-                  text: "[View Findings Here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+                  type: "mrkdwn",
+                  text: "[View Findings Here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
