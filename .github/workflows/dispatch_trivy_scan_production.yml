@@ -129,8 +129,11 @@ jobs:
                 text:
                   type: "mrkdwn"
                   text: "Critical or High severity vulnerabilities found in version ${{ needs.pull_tags.outputs.docker_tag }}"
-              - type: "button"
-                text:
-                  type: "plain_text"
-                  text: "View Findings Here"
-                url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              - type: "actions"
+                block_id: action_1
+                elements:
+                - type: "button"
+                  text:
+                    type: "plain_text"
+                    text: "View Findings Here"
+                  url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
