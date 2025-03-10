@@ -5,34 +5,18 @@
 {{ define "main" }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {{ $notificationContent := "" }}
+      {{ $notificationContent := "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRole" }}
       {{ if .IsFirstCheck }}
         {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
           {{ $notificationContent = "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRolePaper" }}
         {{ else }}
           {{ $notificationContent = "lpaDetailsSavedContentOnFirstSubmissionCPCarryingOutRoleOnline" }}
         {{ end }}
-      {{ else }}
-        {{ if .Donor.CertificateProvider.CarryOutBy.IsPaper }}
-          {{ $notificationContent = "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRolePaper" }}
-        {{ else }}
-          {{ $notificationContent = "lpaDetailsSavedContentOnSubsequentSubmissionCPCarryingOutRoleOnline" }}
-        {{ end }}
       {{ end }}
 
-      {{ template "notification-banner" (notificationBanner .App "lpaDetailsSaved" (trFormatHtml .App $notificationContent "CertificateProviderFullName" .Donor.CertificateProvider.FullName) "success") }}
+      {{ template "notification-banner" (notificationBanner .App "success" (trFormatHtml .App $notificationContent "CertificateProviderFullName" .Donor.CertificateProvider.FullName "CertificateProviderFirstNames" .Donor.CertificateProvider.FirstNames) "success" "contents") }}
 
-      {{ if .Donor.Tasks.PayForLpa.IsCompleted }}
-        {{ template "buttons" (button .App "returnToDashboard" "link" global.Paths.Dashboard.String) }}
-      {{ else }}
-        {{ if and .Donor.CertificateProvider.CarryOutBy.IsPaper .IsFirstCheck }}
-          {{ trFormatHtml .App "weveSentATextToCPContent" "CertificateProviderFirstName" .Donor.CertificateProvider.FirstNames }}
-        {{ end }}
-
-        <div class="govuk-button-group">
-          <a href="{{ link .App (global.Paths.TaskList.Format .App.LpaID) }}" class="govuk-button">{{ tr .App "continue" }}</a>
-        </div>
-      {{ end }}
+      {{ template "button" (button .App "returnToTaskList" "link" (global.Paths.TaskList.Format .App.LpaID)) }}
     </div>
   </div>
 {{ end }}
