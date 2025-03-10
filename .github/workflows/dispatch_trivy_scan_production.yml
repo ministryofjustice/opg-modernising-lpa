@@ -97,7 +97,7 @@ jobs:
         run: |
           if [[ -s trivy-results.txt ]]; then
             {
-              echo "### Security Output"
+              echo "### Security Output ${{ matrix.ecr_repository }}:${{ needs.pull_tags.outputs.docker_tag }}"
               echo "<details><summary>Click to expand</summary>"
               echo ""
               echo '```text'
