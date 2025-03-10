@@ -114,14 +114,18 @@ jobs:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
-            channel: opg-mlpa-dev
+            channel: opg-mlpa-builds
             text: "Production Image Scan Findings"
             blocks:
               - type: "header"
                 text:
                   type: "plain_text"
-                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }} version ${{ needs.pull_tags.outputs.docker_tag }}"
+                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}"
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}>|View Findings Here"
+                  text: "Critical or High severity vulnerabilities found in **version ${{ needs.pull_tags.outputs.docker_tag }}**"
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "[View Findings Here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
