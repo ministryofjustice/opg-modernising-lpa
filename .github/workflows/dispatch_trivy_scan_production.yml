@@ -33,15 +33,6 @@ jobs:
     outputs:
       docker_tag: ${{ steps.pull_tag.outputs.tag }}
       tag_from: ${{ steps.pull_tag.outputs.env }}
-  get_summary_url:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get run URL
-        id: get_run_url
-        uses: pl-strflt/job-summary-url-action@v1.0.0
-    outputs:
-      job_summary_url: ${{ steps.get_run_url.outputs.job_summary_url }}
-
   trivy_scan_report:
     needs: [
       pull_tags,
@@ -136,4 +127,4 @@ jobs:
               - type: "section"
                 text:
                   type: "plain_text"
-                  text: "${{ needs.get_run_url.outputs.job_summary_url }}"
+                  text: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
