@@ -116,32 +116,32 @@ jobs:
       - name: check file exists
         if: ${{ hashFiles('trivy-results.txt') != '' }}
         run: cat trivy-results.txt
-      - name: Post to a Slack channel
-        if: ${{ hashFiles('trivy-results.txt') != '' }}
-        id: slack
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: opg-mlpa-dev
-            text: "Production Image Scan Findings"
-            blocks:
-              - type: "header"
-                text:
-                  type: "plain_text"
-                  text: ":exclamation: Production Image Scan Findings for ${{ matrix.ecr_repository }}"
-                  emoji: true
-              - type: "section"
-                text:
-                  type: "plain_text"
-                  text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
-                  emoji: true
-              - type: "actions"
-                block_id: action_1
-                elements:
-                - type: "button"
-                  text:
-                    type: "plain_text"
-                    text: "View Findings Here"
-                  url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      # - name: Post to a Slack channel
+      #   if: ${{ hashFiles('trivy-results.txt') != '' }}
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v2.0.0
+      #   with:
+      #     method: chat.postMessage
+      #     token: ${{ secrets.SLACK_BOT_TOKEN }}
+      #     payload: |
+      #       channel: opg-mlpa-dev
+      #       text: "Production Image Scan Findings"
+      #       blocks:
+      #         - type: "header"
+      #           text:
+      #             type: "plain_text"
+      #             text: ":exclamation: Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+      #             emoji: true
+      #         - type: "section"
+      #           text:
+      #             type: "plain_text"
+      #             text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
+      #             emoji: true
+      #         - type: "actions"
+      #           block_id: action_1
+      #           elements:
+      #           - type: "button"
+      #             text:
+      #               type: "plain_text"
+      #               text: "View Findings Here"
+      #             url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
