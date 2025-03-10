@@ -125,11 +125,13 @@ jobs:
               - type: "header"
                 text:
                   type: "plain_text"
-                  text: "Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+                  text: ":exclamation: Production Image Scan Findings for ${{ matrix.ecr_repository }}"
+                  emoji: true
               - type: "section"
                 text:
-                  type: "mrkdwn"
-                  text: "Critical or High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
+                  type: "plain_text"
+                  text: ":critical:Critical or :exclamation:High severity vulnerabilities found in version *${{ needs.pull_tags.outputs.docker_tag }}*"
+                  emoji: true
               - type: "actions"
                 block_id: action_1
                 elements:
