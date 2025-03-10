@@ -128,8 +128,8 @@ jobs:
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "Critical or High severity vulnerabilities found in **version ${{ needs.pull_tags.outputs.docker_tag }}**"
+                  text: Critical or High severity vulnerabilities found in **version ${{ needs.pull_tags.outputs.docker_tag }}**
               - type: "section"
                 text:
                   type: "mrkdwn"
-                  text: "[View Findings Here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+                  text: [View Findings Here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
