@@ -93,6 +93,11 @@ jobs:
           format: 'table'
           output: 'trivy-results.txt'
           exit-code: 0
+      - name: Run Against Image/Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-region: eu-west-1
+          unset-current-credentials: true
       - name: Publish Trivy Output to Summary
         run: |
           if [[ -s trivy-results.txt ]]; then
